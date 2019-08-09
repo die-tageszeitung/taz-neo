@@ -1,0 +1,6 @@
+query AppInfoQuery {
+    product {
+        appName
+        appType
+    }
+}
