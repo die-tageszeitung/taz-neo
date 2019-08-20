@@ -29,7 +29,7 @@ android {
 
         lmd {
             dimension "owner"
-            applicationId "de.monde-diplomatique.android.app"
+            applicationId "de.monde_diplomatique.android.app"
         }
 
         fdroid {
