@@ -13,7 +13,6 @@ import kotlin.Exception
 class ApiService(
     private val graphQlClient: GraphQlClient = GraphQlClient()
 ) {
-    private val log by Log
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     /**
@@ -31,8 +30,7 @@ class ApiService(
                 )
             ).authentificationToken!!
         } catch (npe: NullPointerException) {
-            log.error("authenticate() failed due to NPE", npe)
-            throw ApiServiceException.InsufficientData()
+            throw ApiServiceException.InsufficientData("authenticate")
         }
     }
 
@@ -44,8 +42,7 @@ class ApiService(
         try {
             return AppInfo(graphQlClient.query(QueryType.AppInfoQuery).product!!)
         } catch (npe: NullPointerException) {
-            log.error("getAppInfo() failed due to NPE", npe)
-            throw ApiServiceException.InsufficientData()
+            throw ApiServiceException.InsufficientData("getAppInfo")
         }
     }
 
@@ -57,8 +54,7 @@ class ApiService(
         try {
             return graphQlClient.query(QueryType.AuthInfoQuery).product!!.authInfo!!
         } catch (npe: NullPointerException) {
-            log.error("getAuthInfo() failed due to NPE", npe)
-            throw ApiServiceException.InsufficientData()
+            throw ApiServiceException.InsufficientData("getAuthInfo")
         }
     }
 
@@ -78,8 +74,7 @@ class ApiService(
                 )
             ).product!!.feedList!!.first().issueList!!.first()
         } catch (npe: NullPointerException) {
-            log.error("getIssueByFeedAndDate($feedName, ${dateHelper.format(issueDate)}) failed due to NPE", npe)
-            throw ApiServiceException.InsufficientData()
+            throw ApiServiceException.InsufficientData("getIssueByFeedAndDate")
         }
     }
 
@@ -91,13 +86,12 @@ class ApiService(
         try {
             return ResourceInfo(graphQlClient.query(QueryType.ResourceInfoQuery).product!!)
         } catch (npe: NullPointerException) {
-            log.error("getResourceInfo() failed due to NPE", npe)
-            throw ApiServiceException.InsufficientData()
+            throw ApiServiceException.InsufficientData("getResourceInfo")
         }
     }
 
     object ApiServiceException {
-        class InsufficientData : Exception("Unable to cast. Missing data in DTO model.")
+        class InsufficientData(function: String) : Exception("ApiService.$function failed.")
     }
 
 }
