@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.api.models.*
+import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.Exception
@@ -12,7 +13,6 @@ import kotlin.Exception
 class ApiService(
     private val graphQlClient: GraphQlClient = GraphQlClient()
 ) {
-
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     /**
@@ -29,9 +29,8 @@ class ApiService(
                     "user" to user, "password" to password
                 )
             ).authentificationToken!!
-        } catch (e: Exception) {
-            // TODO catch correct exception
-            throw ApiServiceException.InsufficientData()
+        } catch (npe: NullPointerException) {
+            throw ApiServiceException.InsufficientData("authenticate")
         }
     }
 
@@ -42,9 +41,8 @@ class ApiService(
     suspend fun getAppInfo(): AppInfo {
         try {
             return AppInfo(graphQlClient.query(QueryType.AppInfoQuery).product!!)
-        } catch (e: Exception) {
-            // TODO catch correct exception
-            throw ApiServiceException.InsufficientData()
+        } catch (npe: NullPointerException) {
+            throw ApiServiceException.InsufficientData("getAppInfo")
         }
     }
 
@@ -55,9 +53,8 @@ class ApiService(
     suspend fun getAuthInfo(): AuthInfo {
         try {
             return graphQlClient.query(QueryType.AuthInfoQuery).product!!.authInfo!!
-        } catch (e: Exception) {
-            // TODO catch correct exception
-            throw ApiServiceException.InsufficientData()
+        } catch (npe: NullPointerException) {
+            throw ApiServiceException.InsufficientData("getAuthInfo")
         }
     }
 
@@ -68,13 +65,17 @@ class ApiService(
      * @return [Issue] of the feed at given date
      */
     suspend fun getIssueByFeedAndDate(feedName: String = "taz", issueDate: Date = Date()) : Issue {
-        return graphQlClient.query(
-            QueryType.IssueByFeedAndDateQuery,
-            mapOf(
-                "feedName" to feedName,
-                "issueDate" to dateHelper.format(issueDate)
-            )
-        ).product!!.feedList!!.first().issueList!!.first()
+        try{
+            return graphQlClient.query(
+                QueryType.IssueByFeedAndDateQuery,
+                mapOf(
+                    "feedName" to feedName,
+                    "issueDate" to dateHelper.format(issueDate)
+                )
+            ).product!!.feedList!!.first().issueList!!.first()
+        } catch (npe: NullPointerException) {
+            throw ApiServiceException.InsufficientData("getIssueByFeedAndDate")
+        }
     }
 
     /**
@@ -84,14 +85,13 @@ class ApiService(
     suspend fun getResourceInfo(): ResourceInfo {
         try {
             return ResourceInfo(graphQlClient.query(QueryType.ResourceInfoQuery).product!!)
-        } catch (e: Exception) {
-            // TODO catch correct exception
-            throw ApiServiceException.InsufficientData()
+        } catch (npe: NullPointerException) {
+            throw ApiServiceException.InsufficientData("getResourceInfo")
         }
     }
 
     object ApiServiceException {
-        class InsufficientData : Exception("Unable to cast. Missing data in DTO model.")
+        class InsufficientData(function: String) : Exception("ApiService.$function failed.")
     }
 
 }
