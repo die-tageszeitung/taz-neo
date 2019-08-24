@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          android:installLocation="auto"
           package="de.taz.app.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                     android:maxSdkVersion="18" />
+
 
     <application
             android:allowBackup="true"
@@ -22,6 +27,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+
+        <service
+                android:name=".download.DownloadService"
+                android:permission="android.permission.BIND_JOB_SERVICE"
+                android:exported="false"/>
+
 </application>
 
 </manifest>
