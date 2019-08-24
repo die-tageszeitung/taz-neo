@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import android.content.Context
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat

@@ -6,13 +6,10 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.util.AuthHelper
-import kotlinx.coroutines.suspendCancellableCoroutine
+import de.taz.app.android.util.awaitCallback
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * class to get DTOs from the [GRAPHQL_ENDPOINT]
@@ -42,21 +39,6 @@ class GraphQlClient(
         return jsonAdapter.fromJson(response.body?.string().toString())!!.data
     }
 
-    /**
-     * helper function to transform callback into suspend function
-     */
-    private suspend fun awaitCallback(block: (Callback) -> Unit) : Response =
-         suspendCancellableCoroutine { cont ->
-            block(object : Callback {
-                override fun onResponse(call: Call, response: Response) {
-                    cont.resume(response)
-                }
-
-                override fun onFailure(call: Call, e: IOException) {
-                    cont.resumeWithException(e)
-                }
-            })
-        }
 }
 
 /**
