@@ -3,145 +3,101 @@ package de.taz.app.android.download
 import android.content.Context
 import android.content.Intent
 import android.os.*
-import android.system.Os
-import androidx.core.app.JobIntentService
 import androidx.core.content.ContextCompat
+import androidx.work.*
+import com.google.common.util.concurrent.ListenableFuture
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import de.taz.app.android.util.awaitCallback
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.io.IOException
 
 const val ACTION_DOWNLOAD = "action.download"
-const val EXTRA_DOWNLOAD = "extra.download"
+const val DATA_DOWNLOAD = "extra.download"
 const val RECEIVER = "receiver"
 
 const val RESOURCE_FOLDER = "resources"
 
 
-class DownloadService(
-    private val httpClient: OkHttpClient = getHttpClient()
-): JobIntentService() {
+object DownloadService {
 
-    companion object{
-        init {
-            // TODO how to replace this with coroutines!?
-            Looper.prepare()
-        }
+    val apiService = ApiService()
 
-        private val log by Log
-
-        private const val DOWNLOAD_JOB_ID = 1312
-
-        private val downloadResultReceiver = DownloadResultReceiver()
-
-        fun enqueueWork(context: Context, download: Download) {
-            val intent = Intent(context, DownloadService::class.java)
-            intent.action = ACTION_DOWNLOAD
-            intent.putExtra(EXTRA_DOWNLOAD, download.serialize())
-            //intent.putExtra(RECEIVER, downloadResultReceiver)
-            log.debug("downloading ${download.url}")
-            enqueueWork(context, DownloadService::class.java, DOWNLOAD_JOB_ID, intent)
-        }
-
-        fun downloadResources(context: Context, resourceInfo: ResourceInfo) {
-            //TODO download only if newer
-            resourceInfo.resourceList.forEach {
-                enqueueWork(context, Download(resourceInfo.resourceBaseUrl, RESOURCE_FOLDER, it))
-            }
-        }
-
-        fun downloadIssue(context: Context, issue: Issue, pdf: Boolean = false) {
-            //TODO download only if not downloaded
-            val files = if(pdf) issue.fileListPdf else issue.fileList
-            files.forEach {
-                enqueueWork(context, Download(issue.baseUrl, it, issue.date))
-            }
-            linkResources(context, issue)
-        }
-
-        fun linkResources(context: Context, issue: Issue) {
-            val newFolder = getFile(context, "${issue.date}/$RESOURCE_FOLDER")
-            val resourceFolderFile = getFile(context, RESOURCE_FOLDER)
-            log.debug("trying to link ${newFolder.absolutePath} to ${resourceFolderFile.absolutePath}")
-            if (!createSymLink(newFolder, resourceFolderFile)) {
-                // TODO copy resources
-                log.error("linking failed")
-            }
-        }
-
-        @JvmStatic
-        fun createSymLink(symLinkFile: File, originalFile: File): Boolean {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Os.symlink(originalFile.absolutePath, symLinkFile.absolutePath)
-                    return true
-                }
-                val libcore = Class.forName("libcore.io.Libcore")
-                val fOs = libcore.getDeclaredField("os")
-                fOs.isAccessible = true
-                val os = fOs.get(null)
-                val method = os.javaClass.getMethod("symlink", String::class.java, String::class.java)
-                method.invoke(os, originalFile, symLinkFile)
-                return true
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return false
-        }
-
-        fun getFile(context: Context, fileName: String, internal: Boolean = false): File {
-            val file =
-                if(internal)
-                    File(context.filesDir, fileName)
-                else {
-                    val file = File(ContextCompat.getExternalFilesDirs(context, null).first(), fileName)
-                    file
-                }
-            return file
-        }
-
+    fun downloadResources(appContext: Context, resourceInfo: ResourceInfo) {
+        enqueueDownloads(appContext, resourceInfo.resourceList.map { Download(resourceInfo.resourceBaseUrl, RESOURCE_FOLDER, it) })
     }
 
-    override fun onHandleWork(intent: Intent) {
-        log.debug("handling intent with action ${intent.action}")
+    fun downloadIssue(appContext: Context, issue: Issue) {
+        enqueueDownloads(
+            appContext,
+            issue.fileList.filter { !it.startsWith("/global") }.map { Download(issue.baseUrl, issue.date, it) }
+        )
+    }
 
-        when (intent.action) {
-            ACTION_DOWNLOAD -> {
-                intent.getStringExtra(EXTRA_DOWNLOAD)?.let { serializedDownload ->
-                    log.debug("received download: $serializedDownload")
-                    GlobalScope.launch {
-                        val download = Download.deserialize(serializedDownload)
-                        val response = awaitCallback(httpClient.newCall(
-                            Request.Builder().url(download.url).get().build()
-                        )::enqueue)
 
-                        val file = getFile(this@DownloadService, download.path)
-                        response.body?.bytes()?.let {
-                            try {
-                                // ensure folders are created
-                                getFile(this@DownloadService, download.folder).mkdirs()
-                                file.writeBytes(it)
-                            } catch (e: Exception) {
-                                e
-                            }
-                        }
-                        // TODO verifyDownload(download) in second service!?
+    private fun enqueueDownloads(appContext: Context, downloads: List<Download>): Operation {
+        return WorkManager.getInstance(appContext).enqueue(downloads.map { createRequest(it) })
+    }
 
-                        ToastHelper.getInstance().makeToast("Downloaded ${file.name}")
+    private fun enqueueDownload(appContext: Context, download: Download): Operation {
+        return WorkManager.getInstance(appContext).enqueue(createRequest(download))
+    }
 
-                        val bundle = Bundle()
-                        bundle.putString(BUNDLE_DOWNLOAD, download.serialize())
-                        downloadResultReceiver.send(RESULT_OK, bundle)
-                    }
+    private fun createRequest(download: Download): OneTimeWorkRequest {
+        val data = Data.Builder().putString(DATA_DOWNLOAD, download.serialize()).build()
+        // TODO add constraints
+        val constraints = Constraints.Builder().build()
+
+        return OneTimeWorkRequest.Builder(DownloadWorker::class.java)
+            .setInputData(data)
+            .setConstraints(constraints)
+            .build()
+    }
+}
+
+class DownloadWorker(private val appContext: Context, workerParameters: WorkerParameters): CoroutineWorker(appContext, workerParameters) {
+    private val log by Log
+    private val httpClient: OkHttpClient = getHttpClient()
+
+    override suspend fun doWork(): Result = coroutineScope {
+        val serializedDownload = inputData.getString(DATA_DOWNLOAD)
+        serializedDownload?.let {
+            val download = Download.deserialize(it)
+            async {
+                try {
+                    startDownload(appContext, download)
+                    log.debug("download of ${download.name} succeeded")
+                    Result.success()
+                } catch (ioe: IOException) {
+                    log.error("download of ${download.name} failed", ioe)
+                    Result.failure()
                 }
             }
+        }?.await() ?: Result.failure()
+    }
+
+    private suspend fun startDownload(appContext: Context, download: Download) {
+        val response = awaitCallback(httpClient.newCall(
+            Request.Builder().url(download.url).get().build()
+        )::enqueue)
+
+        // TODO check if file already exists and needs updating
+        val file = getFile(appContext, download.path)
+        response.body?.bytes()?.let {
+            // ensure folders are created
+            getFile(appContext, download.folder).mkdirs()
+            file.writeBytes(it)
         }
+        // TODO verifyDownload(download) in second service!?
     }
 
     /* Checks if external storage is available for read and write */
@@ -155,6 +111,14 @@ class DownloadService(
                 setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
     }
 
+    private fun getFile(appContext: Context, fileName: String, internal: Boolean = false): File {
+        return if(internal)
+                File(appContext.filesDir, fileName)
+            else {
+                val file = File(ContextCompat.getExternalFilesDirs(appContext, null).first(), fileName)
+                file
+            }
+    }
 }
 
 
