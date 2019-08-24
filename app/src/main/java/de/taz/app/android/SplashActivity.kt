@@ -21,8 +21,8 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
         GlobalScope.launch {
-            //DownloadService.downloadResources(applicationContext, apiService.getResourceInfo())
-            //DownloadService.downloadIssue(applicationContext, apiService.getIssueByFeedAndDate())
+            DownloadService.downloadResources(applicationContext, apiService.getResourceInfo())
+            DownloadService.downloadIssue(applicationContext, apiService.getIssueByFeedAndDate())
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
