@@ -1,7 +1,6 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.api.models.*
-import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.Exception
@@ -36,7 +35,7 @@ class ApiService(
 
     /**
      * function to get the app info
-     * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
+     * @return [AppInfo]
      */
     suspend fun getAppInfo(): AppInfo {
         try {
