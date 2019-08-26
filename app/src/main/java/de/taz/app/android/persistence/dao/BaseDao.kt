@@ -1,4 +1,4 @@
-package de.taz.app.android.persistence
+package de.taz.app.android.persistence.dao
 
 import androidx.room.*
 

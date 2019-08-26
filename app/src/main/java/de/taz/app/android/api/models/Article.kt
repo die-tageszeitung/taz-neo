@@ -2,13 +2,24 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
 
-class Article(articleDto: ArticleDto) {
-    val articleHtml: FileEntry = articleDto.articleHtml
-    val title: String? = null
-    val teaser: String? = null
-    val onlineLink: String? = null
-    val audioFile: FileEntry? = null
-    val pageNameList: List<String>? = null
-    val imageList: List<Image>? = null
-    val authorList: List<Author>? = null
+class Article(
+    val articleHtml: FileEntry,
+    val title: String?,
+    val teaser: String?,
+    val onlineLink: String?,
+    val audioFile: FileEntry?,
+    val pageNameList: List<String>?,
+    val imageList: List<Image>?,
+    val authorList: List<Author>?
+) {
+    constructor(articleDto: ArticleDto) : this(
+        articleDto.articleHtml,
+        articleDto.title,
+        articleDto.teaser,
+        articleDto.onlineLink,
+        articleDto.audioFile,
+        articleDto.pageNameList,
+        articleDto.imageList,
+        articleDto.authorList
+    )
 }

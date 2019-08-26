@@ -65,13 +65,13 @@ class ApiService(
      */
     suspend fun getIssueByFeedAndDate(feedName: String = "taz", issueDate: Date = Date()) : Issue {
         try{
-            return graphQlClient.query(
+            return Issue(feedName, graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 mapOf(
                     "feedName" to feedName,
                     "issueDate" to dateHelper.format(issueDate)
                 )
-            ).product!!.feedList!!.first().issueList!!.first()
+            ).product!!.feedList!!.first().issueList!!.first())
         } catch (npe: NullPointerException) {
             throw ApiServiceException.InsufficientData("getIssueByFeedAndDate")
         }
