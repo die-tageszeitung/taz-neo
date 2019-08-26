@@ -2,13 +2,14 @@ package de.taz.app.android.persistence.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import de.taz.app.android.api.models.FileEntry
 
 @Entity(tableName = "ResourceInfoFileEntry",
     foreignKeys = [
         ForeignKey(entity = ResourceInfoEntity::class,
             parentColumns = ["resourceVersion"],
             childColumns = ["resourceInfoVersion"]),
-        ForeignKey(entity = FileEntryEntity::class,
+        ForeignKey(entity = FileEntry::class,
             parentColumns = ["name"],
             childColumns = ["fileEntryName"])
     ],

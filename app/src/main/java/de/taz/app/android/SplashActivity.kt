@@ -5,8 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.models.AppInfo
-import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.GlobalScope
@@ -18,15 +18,16 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
         GlobalScope.launch {
-            ApiService().getAppInfo().save(applicationContext)
-            ToastHelper.getInstance(applicationContext).makeToast(AppInfo.get(applicationContext).globalBaseUrl)
-            ApiService().getResourceInfo().save(applicationContext)
-            ToastHelper.getInstance().makeToast(ResourceInfo.get(applicationContext).resourceVersion.toString())
+            AppInfoRepository.save(ApiService().getAppInfo())
+            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository.get().globalBaseUrl)
+            ResourceInfoRepository.save(ApiService().getResourceInfo())
+            ToastHelper.getInstance().makeToast(ResourceInfoRepository.get().resourceList.first().name)
         }
         startActivity(Intent(this, MainActivity::class.java))
     }
 
     private fun createSingletons() {
+        AppDatabase.createInstance(applicationContext)
         AuthHelper.createInstance(applicationContext)
         QueryService.createInstance(applicationContext)
     }
