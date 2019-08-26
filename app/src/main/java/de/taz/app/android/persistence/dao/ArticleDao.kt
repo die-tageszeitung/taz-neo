@@ -5,7 +5,7 @@ import androidx.room.Query
 import de.taz.app.android.api.models.AppInfo
 
 @Dao
-abstract class AppInfoDao : BaseDao<AppInfo>() {
+abstract class ArticleDao : BaseDao<AppInfo>() {
     @Query("SELECT * FROM AppInfo LIMIT 1")
     abstract fun get(): AppInfo
 }

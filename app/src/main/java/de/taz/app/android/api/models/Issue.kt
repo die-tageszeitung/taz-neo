@@ -1,20 +1,43 @@
 package de.taz.app.android.api.models
 
+import de.taz.app.android.api.dto.IssueDto
+
 data class Issue (
-    val date: String,
-    val key: String? = null,
-    val baseUrl: String,
-    val status: IssueStatus,
-    val minResourceVersion: Int,
-    val zipName: String? = null,
-    val zipPdfName: String? = null,
-    val navButton: NavButton? = null,
-    val imprint: Article,
-    val fileList: List<String>,
-    val fileListPdf: List<String>,
-    val sectionList: List<Section>? = null,
-    val pageList: List<Page>? = null
-)
+    val feedName: String,
+    override val date: String,
+    override val key: String? = null,
+    override val baseUrl: String,
+    override val status: IssueStatus,
+    override val minResourceVersion: Int,
+    override val zipName: String? = null,
+    override val zipPdfName: String? = null,
+    override val navButton: NavButton? = null,
+    override val imprint: Article,
+    override val fileList: List<String>,
+    override val fileListPdf: List<String>,
+    override val sectionList: List<Section>? = null,
+    override val pageList: List<Page>? = null
+) : IssueDto(
+    date, key, baseUrl, status, minResourceVersion, zipName, zipPdfName,
+    navButton, imprint, fileList, fileListPdf, sectionList, pageList
+) {
+    constructor(feedName: String, issueDto: IssueDto): this(
+        feedName,
+        issueDto.date,
+        issueDto.key,
+        issueDto.baseUrl,
+        issueDto.status,
+        issueDto.minResourceVersion,
+        issueDto.zipName,
+        issueDto.zipPdfName,
+        issueDto.navButton,
+        issueDto.imprint,
+        issueDto.fileList,
+        issueDto.fileListPdf,
+        issueDto.sectionList,
+        issueDto.pageList
+    )
+}
 
 enum class IssueStatus {
     regular,

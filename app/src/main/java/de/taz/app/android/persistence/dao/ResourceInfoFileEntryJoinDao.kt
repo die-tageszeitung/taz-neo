@@ -1,9 +1,8 @@
 package de.taz.app.android.persistence.dao
 
 import androidx.room.*
-import de.taz.app.android.persistence.BaseDao
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.entities.ResourceInfoFileEntryJoin
+import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
 
 @Dao
