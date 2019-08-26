@@ -6,12 +6,12 @@ import androidx.room.TypeConverter
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.persistence.BaseDao
-import de.taz.app.android.persistence.entities.AppInfoEntity
+import de.taz.app.android.api.models.AppInfo
 
 @Dao
-abstract class AppInfoDao : BaseDao<AppInfoEntity>() {
+abstract class AppInfoDao : BaseDao<AppInfo>() {
     @Query("SELECT * FROM AppInfo LIMIT 1")
-    abstract fun get(): AppInfoEntity
+    abstract fun get(): AppInfo
 }
 
 class AppNameConverter {
