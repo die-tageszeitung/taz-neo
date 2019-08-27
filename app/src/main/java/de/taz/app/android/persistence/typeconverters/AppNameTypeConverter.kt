@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import de.taz.app.android.api.dto.AppName
 
 
-class AppNameConverter {
+class AppNameTypeConverter {
     @TypeConverter
     fun toString(appName: AppName): String {
         return appName.name

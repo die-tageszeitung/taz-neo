@@ -1,5 +1,8 @@
 package de.taz.app.android.api.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Frame (
     val x1: Float,
     val y1: Float,

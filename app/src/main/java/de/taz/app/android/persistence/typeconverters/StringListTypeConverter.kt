@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
-class StringListConverter {
+class StringListTypeConverter {
 
     private val moshi = Moshi.Builder().build()
     private val stringListType = Types.newParameterizedType(List::class.java, String::class.java)

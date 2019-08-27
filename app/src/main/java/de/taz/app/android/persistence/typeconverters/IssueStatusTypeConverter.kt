@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import de.taz.app.android.api.models.IssueStatus
 
 
-class IssueStatusConverter {
+class IssueStatusTypeConverter {
     @TypeConverter
     fun toString(issueStatus: IssueStatus): String {
         return issueStatus.name

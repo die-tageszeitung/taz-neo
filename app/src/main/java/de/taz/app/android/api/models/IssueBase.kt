@@ -16,16 +16,16 @@ data class IssueBase(
     val minResourceVersion: Int,
     val zipName: String? = null,
     val zipPdfName: String? = null,
-    //val navButton: NavButton? = null,
+    val navButton: NavButton? = null,
     //val imprint: Article,
     val fileList: List<String>,
     val fileListPdf: List<String>
     //val sectionList: List<Section>? = null,
-    //val pageList: List<Page>? = null
 ) {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
-        issue.minResourceVersion, issue.zipName, issue.zipPdfName, issue.fileList, issue.fileListPdf
+        issue.minResourceVersion, issue.zipName, issue.zipPdfName,
+        issue.navButton, issue.fileList, issue.fileListPdf
     )
 }
