@@ -5,7 +5,7 @@ data class Section (
     val title: String,
     val type: SectionType,
     val articleList: List<Article>? = null,
-    val imageList: List<Image>? = null
+    val imageList: List<FileEntry>? = null
 )
 
 enum class SectionType {

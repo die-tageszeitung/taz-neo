@@ -7,21 +7,18 @@ import de.taz.app.android.api.dto.ArticleDto
 
 @Entity(tableName = "Article")
 class ArticleBase(
-    @PrimaryKey private val articleId: String,
-    //val articleHtml: FileEntry,
+    @PrimaryKey val articleFileName: String,
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
-    //val audioFile: FileEntry?,
     val pageNameList: List<String>?
-    //val imageList: List<Image>?,
-    //val authorList: List<Author>?
+    // TODO how to save ?! val authorList: List<Author>?
 ) {
-    constructor(articleDto: ArticleDto) : this(
-        articleDto.articleHtml.name,
-        articleDto.title,
-        articleDto.teaser,
-        articleDto.onlineLink,
-        articleDto.pageNameList
+    constructor(article: Article) : this(
+        article.articleHtml.name,
+        article.title,
+        article.teaser,
+        article.onlineLink,
+        article.pageNameList
     )
 }

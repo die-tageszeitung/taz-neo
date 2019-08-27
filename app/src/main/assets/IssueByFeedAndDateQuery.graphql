@@ -11,9 +11,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                 date
                 moment {
                     imageList {
-                        resolution
                         name
-                        type
                         storageType
                         moTime
                         sha256
@@ -46,9 +44,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                         size
                     }
                     imageList {
-                        resolution
                         name
-                        type
                         storageType
                         moTime
                         sha256
@@ -57,9 +53,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                     authorList {
                         name
                         imageAuthor {
-                            resolution
                             name
-                            type
                             storageType
                             moTime
                             sha256
@@ -103,9 +97,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                             size
                         }
                         imageList {
-                            resolution
                             name
-                            type
                             storageType
                             moTime
                             sha256
@@ -114,9 +106,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                         authorList {
                             name
                             imageAuthor {
-                                resolution
                                 name
-                                type
                                 storageType
                                 moTime
                                 sha256
@@ -125,9 +115,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
                         }
                     }
                     imageList {
-                        resolution
                         name
-                        type
                         storageType
                         moTime
                         sha256

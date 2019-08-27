@@ -9,7 +9,7 @@ class Article(
     val onlineLink: String?,
     val audioFile: FileEntry?,
     val pageNameList: List<String>?,
-    val imageList: List<Image>?,
+    val imageList: List<FileEntry>?,
     val authorList: List<Author>?
 ) {
     constructor(articleDto: ArticleDto) : this(

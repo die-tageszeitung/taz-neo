@@ -18,9 +18,11 @@ object ResourceInfoRepository {
                 resourceInfo.resourceZip
             )
         )
+        // save file resourceList
         appDatabase.fileEntryDao().insertOrReplace(
             resourceInfo.resourceList.map { FileEntry(it) }
         )
+        // save relation to files
         appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
             resourceInfo.resourceList.map {
                 ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, it.name)
