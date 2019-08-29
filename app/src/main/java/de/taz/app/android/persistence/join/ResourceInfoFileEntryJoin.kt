@@ -5,14 +5,19 @@ import androidx.room.ForeignKey
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
 
-@Entity(tableName = "ResourceInfoFileEntry",
+@Entity(
+    tableName = "ResourceInfoFileEntryJoin",
     foreignKeys = [
-        ForeignKey(entity = ResourceInfoWithoutFiles::class,
+        ForeignKey(
+            entity = ResourceInfoWithoutFiles::class,
             parentColumns = ["resourceVersion"],
-            childColumns = ["resourceInfoVersion"]),
-        ForeignKey(entity = FileEntry::class,
+            childColumns = ["resourceInfoVersion"]
+        ),
+        ForeignKey(
+            entity = FileEntry::class,
             parentColumns = ["name"],
-            childColumns = ["fileEntryName"])
+            childColumns = ["fileEntryName"]
+        )
     ],
     primaryKeys = ["resourceInfoVersion", "fileEntryName"]
 )

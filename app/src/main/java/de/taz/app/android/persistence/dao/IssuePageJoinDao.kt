@@ -10,17 +10,17 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
 
     @Query(
-        """SELECT * FROM Page INNER JOIN IssuePage 
-        ON Page.pdfFileName = IssuePage.pageKey 
-        WHERE  IssuePage.issueDate == :date AND IssuePage.issueFeedName == :feedName
+        """SELECT * FROM Page INNER JOIN IssuePageJoin 
+        ON Page.pdfFileName = IssuePageJoin.pageKey 
+        WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName
         """
     )
     abstract fun getPagesForIssue(feedName: String, date: String): List<PageWithoutFile>
 
     @Query(
-        """SELECT * FROM Issue INNER JOIN IssuePage
-        ON Issue.feedName = IssuePage.issueFeedName AND Issue.date = IssuePage.issueDate
-        WHERE IssuePage.pageKey == :pageKey
+        """SELECT * FROM Issue INNER JOIN IssuePageJoin
+        ON Issue.feedName = IssuePageJoin.issueFeedName AND Issue.date = IssuePageJoin.issueDate
+        WHERE IssuePageJoin.pageKey == :pageKey
     """
     )
     abstract fun getIssueBaseForPage(pageKey: String): IssueBase

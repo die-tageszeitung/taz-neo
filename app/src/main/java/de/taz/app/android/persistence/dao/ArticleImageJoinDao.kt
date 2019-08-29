@@ -10,9 +10,9 @@ import de.taz.app.android.persistence.join.ArticleImageJoin
 abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
 
     @Query(
-        """SELECT * FROM FileEntry INNER JOIN ArticleImage
-        ON FileEntry.name = ArticleImage.imageFileName
-        WHERE ArticleImage.articleFileName == :articleFileName
+        """SELECT * FROM FileEntry INNER JOIN ArticleImageJoin
+        ON FileEntry.name = ArticleImageJoin.imageFileName
+        WHERE ArticleImageJoin.articleFileName == :articleFileName
     """
     )
     abstract fun getImagesForArticle(articleFileName: String): List<FileEntry>?

@@ -4,14 +4,19 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import de.taz.app.android.api.models.*
 
-@Entity(tableName = "ArticleAudioFile",
+@Entity(
+    tableName = "ArticleAudioFileJoin",
     foreignKeys = [
-        ForeignKey(entity = ArticleBase::class,
+        ForeignKey(
+            entity = ArticleBase::class,
             parentColumns = ["articleFileName"],
-            childColumns = ["articleFileName"]),
-        ForeignKey(entity = FileEntry::class,
+            childColumns = ["articleFileName"]
+        ),
+        ForeignKey(
+            entity = FileEntry::class,
             parentColumns = ["name"],
-            childColumns = ["audioFileName"])
+            childColumns = ["audioFileName"]
+        )
     ],
     primaryKeys = ["articleFileName", "audioFileName"]
 )

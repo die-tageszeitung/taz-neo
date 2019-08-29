@@ -3,8 +3,8 @@ package de.taz.app.android.persistence.repository
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
-import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
 object IssueRepository {
 
@@ -25,6 +25,12 @@ object IssueRepository {
                 IssuePageJoin(issue.feedName, issue.date, it.pagePdf.name)
             } ?: listOf()
         )
+
+        // save imprint
+        appDatabase.issueImprintJoinDao().insertOrReplace(
+            IssueImprintJoin(issue.feedName, issue.date, issue.imprint.articleHtml.name)
+        )
+
         // TODO save the rest
     }
 

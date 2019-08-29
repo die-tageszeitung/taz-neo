@@ -17,7 +17,6 @@ data class IssueBase(
     val zipName: String? = null,
     val zipPdfName: String? = null,
     val navButton: NavButton? = null,
-    //val imprint: Article,
     val fileList: List<String>,
     val fileListPdf: List<String>
     //val sectionList: List<Section>? = null,

@@ -5,7 +5,7 @@ import de.taz.app.android.api.models.NavButton
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 
-class NavButtonTypeconverter {
+class NavButtonTypeConverter {
 
     private val json = Json(JsonConfiguration.Stable)
 
