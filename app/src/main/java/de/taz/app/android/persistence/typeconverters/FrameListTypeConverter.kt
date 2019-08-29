@@ -12,13 +12,13 @@ class FrameListTypeConverter {
     private val adapter = moshi.adapter<List<Frame>>(stringListType)
 
     @TypeConverter
-    fun toString(frameList: List<Frame>): String {
+    fun toString(frameList: List<Frame>?): String {
         return  adapter.toJson(frameList)
     }
 
     @TypeConverter
-    fun toFrames(value: String): List<Frame> {
-        return adapter.fromJson(value) ?: listOf()
+    fun toFrames(value: String): List<Frame>? {
+        return adapter.fromJson(value)
     }
 
 }
