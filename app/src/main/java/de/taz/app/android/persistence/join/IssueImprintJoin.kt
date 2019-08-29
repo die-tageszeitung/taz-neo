@@ -2,10 +2,11 @@ package de.taz.app.android.persistence.join
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.IssueBase
 
 @Entity(
-    tableName = "IssuePageJoin",
+    tableName = "IssueImprintJoin",
     foreignKeys = [
         ForeignKey(
             entity = IssueBase::class,
@@ -13,15 +14,15 @@ import de.taz.app.android.api.models.*
             childColumns = ["issueFeedName", "issueDate"]
         ),
         ForeignKey(
-            entity = PageWithoutFile::class,
-            parentColumns = ["pdfFileName"],
-            childColumns = ["pageKey"]
+            entity = ArticleBase::class,
+            parentColumns = ["articleFileName"],
+            childColumns = ["articleFileName"]
         )
     ],
-    primaryKeys = ["issueFeedName", "issueDate", "pageKey"]
+    primaryKeys = ["issueFeedName", "issueDate", "articleFileName"]
 )
-class IssuePageJoin(
+data class IssueImprintJoin(
     val issueFeedName: String,
     val issueDate: String,
-    val pageKey: String
+    val articleFileName: String
 )

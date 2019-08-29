@@ -10,9 +10,9 @@ import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 abstract class ArticleAudioFileJoinDao : BaseDao<ArticleAudioFileJoin>() {
 
     @Query(
-        """SELECT * FROM FileEntry INNER JOIN ArticleAudioFile 
-        ON FileEntry.name = ArticleAudioFile.audioFileName
-        WHERE ArticleAudioFile.articleFileName == :articleFileName
+        """SELECT * FROM FileEntry INNER JOIN ArticleAudioFileJoin
+        ON FileEntry.name = ArticleAudioFileJoin.audioFileName
+        WHERE ArticleAudioFileJoin.articleFileName == :articleFileName
     """
     )
     abstract fun getAudioFileForArticle(articleFileName: String): FileEntry?

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.dao.*
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
@@ -18,6 +19,7 @@ private const val DATABASE_NAME = "db"
     entities = [
         AppInfo::class,
         ArticleAudioFileJoin::class,
+        ArticleAuthorImageJoin::class,
         ArticleBase::class,
         ArticleImageJoin::class,
         FileEntry::class,
@@ -34,7 +36,7 @@ private const val DATABASE_NAME = "db"
     AppTypeTypeConverter::class,
     FrameListTypeConverter::class,
     IssueStatusTypeConverter::class,
-    NavButtonTypeconverter::class,
+    NavButtonTypeConverter::class,
     PageTypeTypeConverter::class,
     StorageTypeConverter::class,
     StringListTypeConverter::class
@@ -53,9 +55,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun appInfoDao(): AppInfoDao
     abstract fun articleDao(): ArticleDao
     abstract fun articleAudioFileJoinDao(): ArticleAudioFileJoinDao
+    abstract fun articleAuthorImageJoinDao(): ArticleAuthorImageJoinDao
     abstract fun articleImageJoinDao(): ArticleImageJoinDao
     abstract fun fileEntryDao(): FileEntryDao
     abstract fun issueDao(): IssueDao
+    abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
     abstract fun pageDao(): PageDao
     abstract fun resourceInfoDao(): ResourceInfoDao

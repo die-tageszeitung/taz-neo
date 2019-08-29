@@ -4,6 +4,7 @@ import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 
 object ArticleRepository {
@@ -12,7 +13,7 @@ object ArticleRepository {
 
     @Transaction
     fun save(article: Article) {
-        val articleName = article.articleHtml.name
+        val articleFileName = article.articleHtml.name
         appDatabase.articleDao().insertOrReplace(ArticleBase(article))
 
         // save audioFile and relation
@@ -30,11 +31,18 @@ object ArticleRepository {
         article.imageList?.let { imageList ->
             appDatabase.fileEntryDao().insertOrReplace(imageList)
             appDatabase.articleImageJoinDao().insertOrReplace(
-                article.imageList.map { ArticleImageJoin(articleName, it.name) }
+                article.imageList.map { ArticleImageJoin(articleFileName, it.name) }
             )
         }
 
-        // TODO save  authors
+        // save authors
+        article.authorList?.let {
+            appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                it.map { author ->
+                    ArticleAuthorImageJoin(articleFileName, author.name, author.imageAuthor?.name)
+                }
+            )
+        }
     }
 
     fun getBase(articleName: String): ArticleBase {
@@ -47,7 +55,20 @@ object ArticleRepository {
         val articleHtml = appDatabase.fileEntryDao().getByName(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
-        val authors = null // TODO load authors
+
+        // get authors
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+        val authorImages = appDatabase.fileEntryDao().getByNames(
+            authorImageJoins
+                ?.filter { !it.authorFileName.isNullOrEmpty() }
+                ?.map { it.authorFileName!! } ?: listOf()
+        )
+
+        val authors = authorImageJoins?.map { authorImageJoin ->
+            Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
+        }
+
         return Article(
             articleHtml,
             articleBase.title,
