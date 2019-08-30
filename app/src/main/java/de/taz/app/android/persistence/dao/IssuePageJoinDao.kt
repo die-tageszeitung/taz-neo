@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.api.models.PageWithoutFile
 import de.taz.app.android.persistence.join.IssuePageJoin

@@ -7,12 +7,11 @@ import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.*
-
-import org.junit.Assert.*
 import org.mockito.Mock
+import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
 
 class GraphQlClientTest {

@@ -3,7 +3,6 @@ package de.taz.app.android.api
 import de.taz.app.android.api.models.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.Exception
 
 /**
  * Service class to get Models from GraphQl

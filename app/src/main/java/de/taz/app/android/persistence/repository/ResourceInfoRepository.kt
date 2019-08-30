@@ -2,8 +2,8 @@ package de.taz.app.android.persistence.repository
 
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
+import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
 object ResourceInfoRepository {
