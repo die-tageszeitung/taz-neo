@@ -2,10 +2,11 @@ package de.taz.app.android.persistence.join
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.SectionBase
 
 @Entity(
-    tableName = "ArticleImageJoin",
+    tableName = "SectionArticleJoin",
     foreignKeys = [
         ForeignKey(
             entity = ArticleBase::class,
@@ -13,14 +14,14 @@ import de.taz.app.android.api.models.*
             childColumns = ["articleFileName"]
         ),
         ForeignKey(
-            entity = FileEntry::class,
-            parentColumns = ["name"],
-            childColumns = ["imageFileName"]
+            entity = SectionBase::class,
+            parentColumns = ["sectionFileName"],
+            childColumns = ["sectionFileName"]
         )
     ],
     primaryKeys = ["articleFileName", "imageFileName"]
 )
-data class ArticleImageJoin(
-    val articleFileName: String,
-    val imageFileName: String
+data class SectionArticleJoin(
+    val sectionFileName: String,
+    val articleFileName: String
 )

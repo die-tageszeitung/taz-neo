@@ -20,7 +20,7 @@ import de.taz.app.android.api.models.*
     ],
     primaryKeys = ["articleFileName", "audioFileName"]
 )
-class ArticleAudioFileJoin(
+data class ArticleAudioFileJoin(
     val articleFileName: String,
     val audioFileName: String
 )

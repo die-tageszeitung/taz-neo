@@ -27,7 +27,10 @@ private const val DATABASE_NAME = "db"
         IssuePageJoin::class,
         PageWithoutFile::class,
         ResourceInfoWithoutFiles::class,
-        ResourceInfoFileEntryJoin::class
+        ResourceInfoFileEntryJoin::class,
+        SectionBase::class,
+        SectionArticleJoin::class,
+        SectionImageJoin::class
     ],
     version = DATABASE_VERSION
 )
@@ -39,7 +42,8 @@ private const val DATABASE_NAME = "db"
     NavButtonTypeConverter::class,
     PageTypeTypeConverter::class,
     StorageTypeConverter::class,
-    StringListTypeConverter::class
+    StringListTypeConverter::class,
+    SectionTypeTypeConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
@@ -61,7 +65,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
+    abstract fun issueSectionJoinDao(): IssueSectionJoinDao
     abstract fun pageDao(): PageDao
     abstract fun resourceInfoDao(): ResourceInfoDao
     abstract fun resourceInfoFileEntryJoinDao(): ResourceInfoFileEntryJoinDao
+    abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
+    abstract fun sectionDao(): SectionDao
+    abstract fun sectionImageJoinDao(): SectionImageJoinDao
+
 }

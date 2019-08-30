@@ -81,4 +81,8 @@ object ArticleRepository {
         )
     }
 
+    fun get(articleNames: List<String>): List<Article> {
+        return articleNames.map { get(it) }
+    }
+
 }
