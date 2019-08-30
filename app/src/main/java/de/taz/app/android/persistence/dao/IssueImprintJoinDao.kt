@@ -1,8 +1,7 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.room.*
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleBase
+import androidx.room.Dao
+import androidx.room.Query
 import de.taz.app.android.persistence.join.IssueImprintJoin
 
 
@@ -15,6 +14,6 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
         WHERE  IssueImprintJoin.issueDate == :date AND IssueImprintJoin.issueFeedName == :feedName
         """
     )
-    abstract fun getImprintNameForIssue(feedName: String, date: String): String
+    abstract fun getImprintNameForIssue(feedName: String, date: String): String?
 
 }

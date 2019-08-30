@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase

@@ -1,7 +1,6 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "Issue",
@@ -24,6 +23,6 @@ data class IssueBase(
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
         issue.minResourceVersion, issue.zipName, issue.zipPdfName,
-        issue.navButton, issue.fileList, issue.fileListPdf ?: listOf()
+        issue.navButton, issue.fileList, issue.fileListPdf
     )
 }

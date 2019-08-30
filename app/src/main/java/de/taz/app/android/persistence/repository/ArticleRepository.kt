@@ -1,7 +1,9 @@
 package de.taz.app.android.persistence.repository
 
 import androidx.room.Transaction
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.Author
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin

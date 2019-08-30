@@ -1,6 +1,9 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.room.*
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Update
 
 abstract class BaseDao<T> {
 

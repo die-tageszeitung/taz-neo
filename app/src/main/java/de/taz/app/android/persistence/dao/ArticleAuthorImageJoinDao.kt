@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBase
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
