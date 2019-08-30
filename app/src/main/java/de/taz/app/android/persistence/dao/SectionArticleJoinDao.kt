@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
 
     @Query(
-        """ SELECT * FROM Article INNER JOIN SectionArticleJoin
+        """ SELECT Article.* FROM Article INNER JOIN SectionArticleJoin
             ON Article.articleFileName == SectionArticleJoin.articleFileName
             WHERE  SectionArticleJoin.sectionFileName == :sectionFileName
         """

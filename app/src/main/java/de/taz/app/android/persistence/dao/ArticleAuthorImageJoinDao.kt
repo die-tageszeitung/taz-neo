@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 abstract class ArticleAuthorImageJoinDao : BaseDao<ArticleAuthorImageJoin>() {
 
     @Query(
-        """SELECT * FROM ArticleAuthor INNER JOIN Article
+        """SELECT ArticleAuthor.* FROM ArticleAuthor INNER JOIN Article
         ON ArticleAuthor.articleFileName == Article.articleFileName 
         WHERE ArticleAuthor.articleFileName == :articleFileName
     """

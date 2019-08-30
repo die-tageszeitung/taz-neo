@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.IssueSectionJoin
 abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
 
     @Query(
-        """SELECT * FROM Section INNER JOIN IssueSectionJoin
+        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
         """
@@ -18,7 +18,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
     abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionBase>?
 
     @Query(
-        """SELECT sectionFileName FROM Section INNER JOIN IssueSectionJoin
+        """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
         """

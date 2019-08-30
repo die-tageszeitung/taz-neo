@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-private const val DATABASE_VERSION = 5
+private const val DATABASE_VERSION = 8
 private const val DATABASE_NAME = "db"
 
 @Database(
@@ -24,7 +24,9 @@ private const val DATABASE_NAME = "db"
         ArticleImageJoin::class,
         FileEntry::class,
         IssueBase::class,
+        IssueImprintJoin::class,
         IssuePageJoin::class,
+        IssueSectionJoin::class,
         PageWithoutFile::class,
         ResourceInfoWithoutFiles::class,
         ResourceInfoFileEntryJoin::class,

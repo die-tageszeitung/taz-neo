@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.join
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import de.taz.app.android.api.models.*
 
 @Entity(
@@ -18,7 +19,8 @@ import de.taz.app.android.api.models.*
             childColumns = ["sectionFileName"]
         )
     ],
-    primaryKeys = ["issueFeedName", "issueDate", "sectionFileName"]
+    primaryKeys = ["issueFeedName", "issueDate", "sectionFileName"],
+    indices = [Index("sectionFileName")]
 )
 class IssueSectionJoin(
     val issueFeedName: String,

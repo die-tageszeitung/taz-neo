@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.join
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.SectionBase
 
@@ -19,7 +20,8 @@ import de.taz.app.android.api.models.SectionBase
             childColumns = ["imageFileName"]
         )
     ],
-    primaryKeys = ["sectionFileName", "imageFileName"]
+    primaryKeys = ["sectionFileName", "imageFileName"],
+    indices = [Index("imageFileName")]
 )
 data class SectionImageJoin(
     val sectionFileName: String,

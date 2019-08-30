@@ -11,7 +11,7 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
 
     @Query(
-        """SELECT * FROM FileEntry INNER JOIN ArticleImageJoin
+        """SELECT FileEntry.* FROM FileEntry INNER JOIN ArticleImageJoin
         ON FileEntry.name = ArticleImageJoin.imageFileName
         WHERE ArticleImageJoin.articleFileName == :sectionFileName
     """

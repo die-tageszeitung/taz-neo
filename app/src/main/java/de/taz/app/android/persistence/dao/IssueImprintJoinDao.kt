@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
 
     @Query(
-        """SELECT articleFileName FROM Article INNER JOIN IssueImprintJoin
+        """SELECT Article.articleFileName FROM Article INNER JOIN IssueImprintJoin
         ON Article.articleFileName == IssueImprintJoin.articleFileName
         WHERE  IssueImprintJoin.issueDate == :date AND IssueImprintJoin.issueFeedName == :feedName
         """
