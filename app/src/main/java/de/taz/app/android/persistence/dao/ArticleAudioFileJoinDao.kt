@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 abstract class ArticleAudioFileJoinDao : BaseDao<ArticleAudioFileJoin>() {
 
     @Query(
-        """SELECT * FROM FileEntry INNER JOIN ArticleAudioFileJoin
+        """SELECT FileEntry.* FROM FileEntry INNER JOIN ArticleAudioFileJoin
         ON FileEntry.name = ArticleAudioFileJoin.audioFileName
         WHERE ArticleAudioFileJoin.articleFileName == :articleFileName
     """

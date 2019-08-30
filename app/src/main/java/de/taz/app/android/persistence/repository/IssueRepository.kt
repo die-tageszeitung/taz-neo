@@ -29,6 +29,7 @@ object IssueRepository {
         )
 
         // save imprint
+        ArticleRepository.save(issue.imprint)
         appDatabase.issueImprintJoinDao().insertOrReplace(
             IssueImprintJoin(issue.feedName, issue.date, issue.imprint.articleHtml.name)
         )

@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.join
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
 
@@ -19,7 +20,8 @@ import de.taz.app.android.api.models.ResourceInfoWithoutFiles
             childColumns = ["fileEntryName"]
         )
     ],
-    primaryKeys = ["resourceInfoVersion", "fileEntryName"]
+    primaryKeys = ["resourceInfoVersion", "fileEntryName"],
+    indices = [Index("fileEntryName")]
 )
 class ResourceInfoFileEntryJoin(
     val resourceInfoVersion: Int,
