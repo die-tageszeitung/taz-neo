@@ -53,7 +53,7 @@ object IssueRepository {
     }
 
     fun getLatestIssue(): Issue {
-
+        return issueBaseToIssue(getLatestIssueBase())
     }
 
     fun getIssueByFeedAndDate(feedName: String, date: String): IssueBase {
