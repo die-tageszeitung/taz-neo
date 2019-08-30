@@ -14,11 +14,6 @@ import de.taz.app.android.api.models.FileEntry
             entity = ArticleBase::class,
             parentColumns = ["articleFileName"],
             childColumns = ["articleFileName"]
-        ),
-        ForeignKey(
-            entity = FileEntry::class,
-            parentColumns = ["name"],
-            childColumns = ["authorFileName"]
         )
     ],
     indices = [Index("authorFileName"), Index("articleFileName")]
