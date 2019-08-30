@@ -12,9 +12,9 @@ data class Issue (
     override val zipName: String? = null,
     override val zipPdfName: String? = null,
     override val navButton: NavButton? = null,
-    override val imprint: Article,
+    override val imprint: Article?,
     override val fileList: List<String>,
-    override val fileListPdf: List<String>,
+    override val fileListPdf: List<String> = listOf(),
     override val sectionList: List<Section>? = null,
     override val pageList: List<Page>? = null
 ) : IssueDto(
@@ -33,7 +33,7 @@ data class Issue (
         issueDto.navButton,
         issueDto.imprint,
         issueDto.fileList,
-        issueDto.fileListPdf,
+        issueDto.fileListPdf ?: listOf(),
         issueDto.sectionList,
         issueDto.pageList
     )

@@ -18,12 +18,12 @@ data class IssueBase(
     val zipPdfName: String? = null,
     val navButton: NavButton? = null,
     val fileList: List<String>,
-    val fileListPdf: List<String>
+    val fileListPdf: List<String> = listOf()
 ) {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
         issue.minResourceVersion, issue.zipName, issue.zipPdfName,
-        issue.navButton, issue.fileList, issue.fileListPdf
+        issue.navButton, issue.fileList, issue.fileListPdf ?: listOf()
     )
 }
