@@ -21,7 +21,7 @@ import de.taz.app.android.api.models.FileEntry
     ],
     primaryKeys = ["articleFileName", "authorName", "authorFileName"]
 )
-class ArticleAuthorImageJoin(
+data class ArticleAuthorImageJoin(
     val articleFileName: String,
     val authorName: String?,
     val authorFileName: String?

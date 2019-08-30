@@ -19,7 +19,6 @@ data class IssueBase(
     val navButton: NavButton? = null,
     val fileList: List<String>,
     val fileListPdf: List<String>
-    //val sectionList: List<Section>? = null,
 ) {
 
     constructor(issue: Issue): this (
