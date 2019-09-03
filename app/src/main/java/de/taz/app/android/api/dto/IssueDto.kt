@@ -11,7 +11,7 @@ open class IssueDto(
     open val zipName: String? = null,
     open val zipPdfName: String? = null,
     open val navButton: NavButtonDto? = null,
-    open val imprint: Article?,
+    open val imprint: ArticleDto?,
     open val fileList: List<String>,
     open val fileListPdf: List<String>?,
     open val sectionList: List<SectionDto>? = null,

@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.api.models.ArticleBase
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
 import org.junit.After
@@ -44,6 +45,15 @@ class ArticleRepositoryTest {
         val fromDB = articleRepository.get(article.articleHtml.name)
 
         assertEquals(fromDB, article)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun readBase() {
+        articleRepository.save(article)
+        val fromDB = articleRepository.getBase(article.articleHtml.name)
+
+        assertEquals(fromDB, ArticleBase(article))
     }
 
     @Test

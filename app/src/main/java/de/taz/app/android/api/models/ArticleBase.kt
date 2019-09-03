@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "Article")
-class ArticleBase(
+data class ArticleBase(
     @PrimaryKey val articleFileName: String,
     val title: String?,
     val teaser: String?,

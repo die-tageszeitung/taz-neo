@@ -2,6 +2,7 @@ package de.taz.app.android
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.squareup.moshi.Moshi
+import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
 import kotlinx.io.IOException
@@ -16,7 +17,7 @@ object IssueTestUtil {
     private val jsonAdapter = moshi.adapter(WrapperDto::class.java)
 
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val issueDto = jsonAdapter.fromJson(readIssueFromAssets())!!.data.product!!.feedList!!.first().issueList!!.first()
+    private val issueDto: IssueDto = jsonAdapter.fromJson(readIssueFromAssets())!!.data.product!!.feedList!!.first().issueList!!.first()
 
     private val issue = Issue("taz", issueDto)
 
