@@ -11,6 +11,6 @@ abstract class FileEntryDao: BaseDao<FileEntry>() {
     abstract fun getByName(name: String): FileEntry
 
     @Query("SELECT * FROM FileEntry WHERE name in(:names)")
-    abstract fun getByNames(names: List<String>): List<FileEntry>
+    abstract fun getByNames(names: List<String>?): List<FileEntry>
 
 }

@@ -4,15 +4,19 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageWithoutFile
 import de.taz.app.android.persistence.AppDatabase
 
-object PageRepository {
-
-    private val appDatabase = AppDatabase.getInstance()
+class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
     fun save(page: Page) {
         appDatabase.pageDao().insertOrReplace(
             PageWithoutFile(page.pagePdf.name, page.title, page.pagina, page.type, page.frameList)
         )
         appDatabase.fileEntryDao().insertOrAbort(page.pagePdf)
+    }
+
+    fun save(pages: List<Page>) {
+        pages.forEach { page ->
+            save(page)
+        }
     }
 
     fun getWithoutFile(fileName: String): PageWithoutFile {

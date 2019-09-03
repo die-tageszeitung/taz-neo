@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "FileEntry")
-open class FileEntry(
+data class FileEntry(
     @PrimaryKey override val name: String,
     override val storageType: StorageType,
     override val moTime: String,

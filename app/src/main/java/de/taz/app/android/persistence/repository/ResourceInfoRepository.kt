@@ -6,9 +6,7 @@ import de.taz.app.android.api.models.ResourceInfoWithoutFiles
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
-object ResourceInfoRepository {
-
-    private val appDatabase = AppDatabase.getInstance()
+class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
     fun save(resourceInfo: ResourceInfo) {
         appDatabase.resourceInfoDao().insertOrReplace(

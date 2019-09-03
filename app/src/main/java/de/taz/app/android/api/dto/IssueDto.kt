@@ -10,10 +10,10 @@ open class IssueDto(
     open val minResourceVersion: Int,
     open val zipName: String? = null,
     open val zipPdfName: String? = null,
-    open val navButton: NavButton? = null,
+    open val navButton: NavButtonDto? = null,
     open val imprint: Article?,
     open val fileList: List<String>,
     open val fileListPdf: List<String>?,
-    open val sectionList: List<Section>? = null,
-    open val pageList: List<Page>? = null
+    open val sectionList: List<SectionDto>? = null,
+    open val pageList: List<PageDto>? = null
 )

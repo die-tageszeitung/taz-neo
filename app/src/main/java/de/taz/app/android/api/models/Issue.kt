@@ -4,22 +4,19 @@ import de.taz.app.android.api.dto.IssueDto
 
 data class Issue (
     val feedName: String,
-    override val date: String,
-    override val key: String? = null,
-    override val baseUrl: String,
-    override val status: IssueStatus,
-    override val minResourceVersion: Int,
-    override val zipName: String? = null,
-    override val zipPdfName: String? = null,
-    override val navButton: NavButton? = null,
-    override val imprint: Article?,
-    override val fileList: List<String>,
-    override val fileListPdf: List<String> = listOf(),
-    override val sectionList: List<Section>? = null,
-    override val pageList: List<Page>? = null
-) : IssueDto(
-    date, key, baseUrl, status, minResourceVersion, zipName, zipPdfName,
-    navButton, imprint, fileList, fileListPdf, sectionList, pageList
+    val date: String,
+    val key: String? = null,
+    val baseUrl: String,
+    val status: IssueStatus,
+    val minResourceVersion: Int,
+    val zipName: String? = null,
+    val zipPdfName: String? = null,
+    val navButton: NavButton? = null,
+    val imprint: Article?,
+    val fileList: List<String> = emptyList(),
+    val fileListPdf: List<String> = emptyList(),
+    val sectionList: List<Section> = emptyList(),
+    val pageList: List<Page> = emptyList()
 ) {
     constructor(feedName: String, issueDto: IssueDto): this(
         feedName,
@@ -33,9 +30,9 @@ data class Issue (
         issueDto.navButton,
         issueDto.imprint,
         issueDto.fileList,
-        issueDto.fileListPdf ?: listOf(),
-        issueDto.sectionList,
-        issueDto.pageList
+        issueDto.fileListPdf ?: emptyList(),
+        issueDto.sectionList?.map { Section(it) } ?: emptyList(),
+        issueDto.pageList ?: emptyList()
     )
 }
 

@@ -2,7 +2,7 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ProductDto
 
-class ResourceInfo(
+data class ResourceInfo(
     val resourceVersion: Int,
     val resourceBaseUrl: String,
     val resourceZip: String,

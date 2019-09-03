@@ -12,16 +12,16 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
 
     @Query(
-        """SELECT FileEntry.* FROM FileEntry INNER JOIN ArticleImageJoin
-        ON FileEntry.name = ArticleImageJoin.imageFileName
-        WHERE ArticleImageJoin.articleFileName == :sectionFileName
+        """SELECT FileEntry.* FROM FileEntry INNER JOIN SectionImageJoin
+        ON FileEntry.name = SectionImageJoin.imageFileName
+        WHERE SectionImageJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getImagesForSection(sectionFileName: String): List<FileEntry>?
+    abstract fun getImagesForSection(sectionFileName: String): List<FileEntry>
 
-    fun getImagesForSection(section: Section): List<FileEntry>? =
+    fun getImagesForSection(section: Section): List<FileEntry> =
         getImagesForSection(section.sectionHtml.name)
 
-    fun getImagesForSection(sectionBase: SectionBase): List<FileEntry>? =
+    fun getImagesForSection(sectionBase: SectionBase): List<FileEntry> =
         getImagesForSection(sectionBase.sectionFileName)
 }
