@@ -51,7 +51,7 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         val articleBase = appDatabase.articleDao().get(articleName)
         val articleHtml = appDatabase.fileEntryDao().getByName(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
-        val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
+        val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName).reversed() // TODO replace reversed with override equals?
 
         // get authors
         val authorImageJoins =
