@@ -16,7 +16,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName
         """
     )
-    abstract fun getPagesForIssue(feedName: String, date: String): List<PageWithoutFile>?
+    abstract fun getPagesForIssue(feedName: String, date: String): List<PageWithoutFile>
 
     @Query(
         """SELECT Page.pdfFileName FROM Page INNER JOIN IssuePageJoin 
@@ -24,7 +24,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName
         """
     )
-    abstract fun getPageNamesForIssue(feedName: String, date: String): List<String>?
+    abstract fun getPageNamesForIssue(feedName: String, date: String): List<String>
 
     @Query(
         """SELECT Issue.* FROM Issue INNER JOIN IssuePageJoin

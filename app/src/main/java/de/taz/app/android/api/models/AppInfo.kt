@@ -7,7 +7,7 @@ import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.api.dto.ProductDto
 
 @Entity(tableName = "AppInfo")
-class AppInfo (
+data class AppInfo (
     @PrimaryKey val appName: AppName,
     val globalBaseUrl: String,
     val appType: AppType

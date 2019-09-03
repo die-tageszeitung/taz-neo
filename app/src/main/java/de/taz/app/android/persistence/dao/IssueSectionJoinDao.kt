@@ -16,7 +16,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
         """
     )
-    abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionBase>?
+    abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionBase>
 
     @Query(
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
@@ -24,7 +24,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
         """
     )
-    abstract fun getSectionNamesForIssue(feedName: String, date: String): List<String>?
+    abstract fun getSectionNamesForIssue(feedName: String, date: String): List<String>
 
     fun getSectionNamesForIssue(issueBase: IssueBase) =
         getSectionNamesForIssue(issueBase.feedName, issueBase.date)

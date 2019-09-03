@@ -1,18 +1,17 @@
 package de.taz.app.android.persistence.repository
 
 import androidx.room.Transaction
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueBase
-import de.taz.app.android.api.models.PageWithoutFile
-import de.taz.app.android.api.models.ResourceInfoWithoutFiles
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 
-object IssueRepository {
+class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
-    private val appDatabase = AppDatabase.getInstance()
+    private val articleRepository = ArticleRepository(appDatabase)
+    private val pageRepository = PageRepository(appDatabase)
+    private val sectionRepository = SectionRepository(appDatabase)
 
     @Transaction
     fun save(issue: Issue) {
@@ -20,27 +19,26 @@ object IssueRepository {
             IssueBase(issue)
         )
         // save pages
-        appDatabase.pageDao().insertOrReplace(
-            issue.pageList?.map { PageWithoutFile(it) } ?: listOf()
-        )
+        pageRepository.save(issue.pageList)
+
         // save page relation
         appDatabase.issuePageJoinDao().insertOrReplace(
-            issue.pageList?.map {
+            issue.pageList.map {
                 IssuePageJoin(issue.feedName, issue.date, it.pagePdf.name)
-            } ?: listOf()
+            }
         )
 
         // save imprint
         issue.imprint?.let { imprint ->
-            ArticleRepository.save(imprint)
+            articleRepository.save(imprint)
             appDatabase.issueImprintJoinDao().insertOrReplace(
                 IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
             )
         }
 
         // save sections
-        issue.sectionList?.let { sectionList ->
-            sectionList.forEach { SectionRepository.save(it) }
+        issue.sectionList.let { sectionList ->
+            sectionList.forEach { sectionRepository.save(it) }
             appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.map {
                 IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name)
             })
@@ -59,22 +57,26 @@ object IssueRepository {
         return issueBaseToIssue(getLatestIssueBase())
     }
 
-    fun getIssueByFeedAndDate(feedName: String, date: String): IssueBase {
+    fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
+    }
+
+    fun getIssueByFeedAndDate(feedName: String, date: String): Issue {
+        return  issueBaseToIssue(getIssueBaseByFeedAndDate(feedName, date))
     }
 
     private fun issueBaseToIssue(issueBase: IssueBase): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueBase)
-        val sections = sectionNames?.map { SectionRepository.get(it) }
+        val sections = sectionNames.map { sectionRepository.get(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
                 issueBase.feedName, issueBase.date
-            )?.let { ArticleRepository.get(it) }
+            )?.let { articleRepository.get(it) }
 
         val pageList =
             appDatabase.issuePageJoinDao().getPageNamesForIssue(issueBase.feedName, issueBase.date)
-                ?.map {
-                    PageRepository.get(it)
+                .map {
+                    pageRepository.get(it)
                 }
 
         return Issue(

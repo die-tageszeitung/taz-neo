@@ -19,15 +19,15 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
         GlobalScope.launch {
-            AppInfoRepository.save(ApiService().getAppInfo())
-            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository.get().globalBaseUrl)
-            ResourceInfoRepository.save(ApiService().getResourceInfo())
-            ToastHelper.getInstance().makeToast(ResourceInfoRepository.get().resourceList.first().name)
-            IssueRepository.save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository.getLatestIssueBase().feedName)
+            AppInfoRepository().save(ApiService().getAppInfo())
+            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository().get().globalBaseUrl)
+            ResourceInfoRepository().save(ApiService().getResourceInfo())
+            ToastHelper.getInstance().makeToast(ResourceInfoRepository().get().resourceList.first().name)
+            IssueRepository().save(ApiService().getIssueByFeedAndDate())
+            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
 
             //IssueRepository.save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository.getLatestIssue().sectionList?.first()?.articleList?.first()?.title.toString())
+            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssue().sectionList.first().articleList.first().title.toString())
         }
         startActivity(Intent(this, MainActivity::class.java))
     }

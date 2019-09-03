@@ -16,8 +16,8 @@ abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
         WHERE ArticleImageJoin.articleFileName == :articleFileName
     """
     )
-    abstract fun getImagesForArticle(articleFileName: String): List<FileEntry>?
+    abstract fun getImagesForArticle(articleFileName: String): List<FileEntry>
 
-    fun getImageFilesForArticle(article: Article): List<FileEntry>? =
+    fun getImageFilesForArticle(article: Article): List<FileEntry> =
         getImagesForArticle(article.articleHtml.name)
 }
