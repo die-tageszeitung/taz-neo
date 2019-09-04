@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class FileEntry(
     @PrimaryKey override val name: String,
     override val storageType: StorageType,
-    override val moTime: String,
+    override val moTime: Long,
     override val sha256: String,
     override val size: Int
 ): File {

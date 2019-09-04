@@ -1,6 +1,6 @@
 package de.taz.app.android.persistence.repository
 
-import android.content.res.Resources
+import androidx.room.Transaction
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.AppDatabase
@@ -10,10 +10,12 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance())  {
 
     private val articleRepository = ArticleRepository(appDatabase)
+    private val fileEntryRepository = FileEntryRepository(appDatabase)
 
+    @Transaction
     fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionBase(section))
-        appDatabase.fileEntryDao().insertOrReplace(section.sectionHtml)
+        fileEntryRepository.save(section.sectionHtml)
         section.articleList.forEach { articleRepository.save(it) }
         appDatabase.sectionArticleJoinDao().insertOrReplace(
             section.articleList.map { article ->
@@ -23,7 +25,7 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
                 )
             }
         )
-        appDatabase.fileEntryDao().insertOrReplace(section.imageList)
+        fileEntryRepository.save(section.imageList)
         appDatabase.sectionImageJoinDao().insertOrReplace(section.imageList.map {
             SectionImageJoin(section.sectionHtml.name, it.name)
         })
@@ -34,16 +36,16 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
     }
 
     fun getOrThrow(sectionFileName: String): Section {
-        val sectionBase = getBase(sectionFileName)
-        val sectionFile = appDatabase.fileEntryDao().getByName(sectionFileName)
-
-        val articles = appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)?.let {
-            articleRepository.get(it)
-        } ?: listOf()
-
-        val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
-
         try {
+            val sectionBase = getBase(sectionFileName)
+            val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
+
+            val articles = appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)?.let {
+                articleRepository.getOrThrow(it)
+            } ?: listOf()
+
+            val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
+
             return Section(
                 sectionFile,
                 sectionBase.title,

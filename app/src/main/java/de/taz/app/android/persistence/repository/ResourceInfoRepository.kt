@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.repository
 
+import androidx.room.Transaction
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
@@ -8,6 +9,9 @@ import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
 class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
+    private val fileEntryRepository = FileEntryRepository(appDatabase)
+
+    @Transaction
     fun save(resourceInfo: ResourceInfo) {
         appDatabase.resourceInfoDao().insertOrReplace(
             ResourceInfoWithoutFiles(
@@ -17,7 +21,7 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
             )
         )
         // save file resourceList
-        appDatabase.fileEntryDao().insertOrReplace(
+        fileEntryRepository.save(
             resourceInfo.resourceList.map { FileEntry(it) }
         )
         // save relation to files
