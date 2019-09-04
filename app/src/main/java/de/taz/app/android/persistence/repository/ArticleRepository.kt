@@ -8,8 +8,11 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
+import kotlin.Exception
 
 class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+
+    private val fileEntryRepository = FileEntryRepository(appDatabase)
 
     @Transaction
     fun save(article: Article) {
@@ -18,18 +21,18 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
 
         // save audioFile and relation
         article.audioFile?.let { audioFile ->
-            appDatabase.fileEntryDao().insertOrReplace(audioFile)
+            fileEntryRepository.save(audioFile)
             appDatabase.articleAudioFileJoinDao().insertOrReplace(
                 ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
             )
         }
 
         // save html file
-        appDatabase.fileEntryDao().insertOrReplace(article.articleHtml)
+        fileEntryRepository.save(article.articleHtml)
 
         // save images and relations
         article.imageList.forEach {
-            appDatabase.fileEntryDao().insertOrReplace(it)
+            fileEntryRepository.save(it)
             appDatabase.articleImageJoinDao().insertOrReplace(
                ArticleImageJoin(articleFileName, it.name)
             )
@@ -38,7 +41,7 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         // save authors
         article.authorList.forEach { author ->
             author.imageAuthor?.let {
-                appDatabase.fileEntryDao().insertOrReplace(it)
+                fileEntryRepository.save(it)
                 appDatabase.articleAuthorImageJoinDao().insertOrReplace(
                     ArticleAuthorImageJoin(articleFileName, author.name, it.name)
                 )
@@ -50,40 +53,51 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         return appDatabase.articleDao().get(articleName)
     }
 
+    fun getOrThrow(articleName: String): Article {
+        try {
+            val articleBase = appDatabase.articleDao().get(articleName)
+            val articleHtml = fileEntryRepository.getOrThrow(articleName)
+            val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
+            val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
 
-    fun get(articleName: String): Article {
-        val articleBase = appDatabase.articleDao().get(articleName)
-        val articleHtml = appDatabase.fileEntryDao().getByName(articleName)
-        val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
-        val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName).reversed() // TODO replace reversed with override equals?
+            // get authors
+            val authorImageJoins =
+                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+            val authorImages = fileEntryRepository.getOrThrow(
+                authorImageJoins
+                    .filter { !it.authorFileName.isNullOrEmpty() }
+                    .map { it.authorFileName!! }
+            )
 
-        // get authors
-        val authorImageJoins =
-            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-        val authorImages = appDatabase.fileEntryDao().getByNames(
-            authorImageJoins
-                .filter { !it.authorFileName.isNullOrEmpty() }
-                .map { it.authorFileName!! }
-        )
+            val authors = authorImageJoins.map { authorImageJoin ->
+                Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
+            }
 
-        val authors = authorImageJoins.map { authorImageJoin ->
-            Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
+            return Article(
+                articleHtml,
+                articleBase.title,
+                articleBase.teaser,
+                articleBase.onlineLink,
+                audioFile,
+                articleBase.pageNameList,
+                articleImages,
+                authors
+            )
+        } catch (e: Exception) {
+            throw NotFoundException()
         }
-
-        return Article(
-            articleHtml,
-            articleBase.title,
-            articleBase.teaser,
-            articleBase.onlineLink,
-            audioFile,
-            articleBase.pageNameList,
-            articleImages,
-            authors
-        )
     }
 
-    fun get(articleNames: List<String>): List<Article> {
-        return articleNames.map { get(it) }
+    fun getOrThrow(articleNames: List<String>) : List<Article> {
+        return articleNames.map { getOrThrow(it) }
+    }
+
+    fun get(articleName: String): Article? {
+        return try {
+            getOrThrow(articleName)
+        } catch (e: Exception) {
+            null
+        }
     }
 
 }
