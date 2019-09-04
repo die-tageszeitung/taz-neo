@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
             AppInfoRepository().save(ApiService().getAppInfo())
             ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository().get().globalBaseUrl)
             ResourceInfoRepository().save(ApiService().getResourceInfo())
-            ToastHelper.getInstance().makeToast(ResourceInfoRepository().get().resourceList.first().name)
+            ToastHelper.getInstance().makeToast(ResourceInfoRepository().getOrThrow().resourceList.first().name)
             IssueRepository().save(ApiService().getIssueByFeedAndDate())
             ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
 

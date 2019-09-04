@@ -17,5 +17,21 @@ data class Section (
         sectionDto.articleList?.map { Article(it) } ?: listOf(),
         sectionDto.imageList ?: listOf()
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as Section
+
+        return sectionHtml == other.sectionHtml &&
+                title == other.title &&
+                type == other.type &&
+                articleList.containsAll(other.articleList) &&
+                other.articleList.containsAll(articleList) &&
+                imageList.containsAll(other.imageList) &&
+                other.imageList.containsAll(imageList)
+    }
+
 }
 

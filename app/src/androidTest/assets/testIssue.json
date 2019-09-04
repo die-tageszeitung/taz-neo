@@ -497,8 +497,7 @@
                       ],
                       "audioFile": null,
                       "imageList": [
-                        {
-                          "name": "Media.964274.norm.jpg",
+                        {"name": "Media.964274.norm.jpg",
                           "storageType": "issue",
                           "moTime": "1567443802",
                           "sha256": "a75509e3337beca8eee738ba0b792ee94db669726244b085c45bb1b85c449a73",

@@ -10,7 +10,7 @@ class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInsta
         appDatabase.pageDao().insertOrReplace(
             PageWithoutFile(page.pagePdf.name, page.title, page.pagina, page.type, page.frameList)
         )
-        appDatabase.fileEntryDao().insertOrAbort(page.pagePdf)
+        appDatabase.fileEntryDao().insertOrReplace(page.pagePdf)
     }
 
     fun save(pages: List<Page>) {
@@ -23,16 +23,28 @@ class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInsta
         return appDatabase.pageDao().get(fileName)
     }
 
-    fun get(fileName: String): Page {
+    fun getOrThrow(fileName: String): Page {
         val pageWithoutFile = appDatabase.pageDao().get(fileName)
         val file = appDatabase.fileEntryDao().getByName(fileName)
 
-        return Page(
-            file,
-            pageWithoutFile.title,
-            pageWithoutFile.pagina,
-            pageWithoutFile.type,
-            pageWithoutFile.frameList
-        )
+        return try {
+            Page(
+                file,
+                pageWithoutFile.title,
+                pageWithoutFile.pagina,
+                pageWithoutFile.type,
+                pageWithoutFile.frameList
+            )
+        } catch (e: Exception) {
+            throw NotFoundException()
+        }
+    }
+
+    fun get(fileName: String): Page? {
+        return try {
+            getOrThrow(fileName)
+        } catch (e: Exception) {
+            null
+        }
     }
 }

@@ -45,6 +45,7 @@ class SectionRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() {
+        val prefromDB = sectionRepository.get(section.sectionHtml.name)
         sectionRepository.save(section)
         val fromDB = sectionRepository.get(section.sectionHtml.name)
         assertEquals(fromDB, section)
