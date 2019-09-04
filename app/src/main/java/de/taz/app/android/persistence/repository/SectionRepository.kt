@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.res.Resources
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.AppDatabase
@@ -32,7 +33,7 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
-    fun get(sectionFileName: String): Section {
+    fun getOrThrow(sectionFileName: String): Section {
         val sectionBase = getBase(sectionFileName)
         val sectionFile = appDatabase.fileEntryDao().getByName(sectionFileName)
 
@@ -42,12 +43,26 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        return Section(
-            sectionFile,
-            sectionBase.title,
-            sectionBase.type,
-            articles,
-            images
-        )
+        try {
+            return Section(
+                sectionFile,
+                sectionBase.title,
+                sectionBase.type,
+                articles,
+                images
+            )
+        } catch (e: Exception) {
+            throw NotFoundException()
+        }
     }
+
+    fun get(sectionFileName: String): Section? {
+        return try {
+            getOrThrow(sectionFileName)
+        } catch (nfe: NotFoundException) {
+            null
+        }
+    }
+
 }
+

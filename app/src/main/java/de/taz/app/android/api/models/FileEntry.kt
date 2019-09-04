@@ -14,4 +14,14 @@ data class FileEntry(
     constructor(fileEntry: FileEntry) : this(
         fileEntry.name, fileEntry.storageType, fileEntry.moTime, fileEntry.sha256, fileEntry.size
     )
+
+    override fun equals(other: Any?): Boolean {
+        // TODO replace one there is no more bad data from server…
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as FileEntry
+
+        return name == other.name
+    }
 }

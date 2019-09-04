@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.join.ArticleImageJoin
 
 class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
-
     @Transaction
     fun save(article: Article) {
         val articleFileName = article.articleHtml.name
@@ -29,17 +28,22 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         appDatabase.fileEntryDao().insertOrReplace(article.articleHtml)
 
         // save images and relations
-        appDatabase.fileEntryDao().insertOrReplace(article.imageList)
-        appDatabase.articleImageJoinDao().insertOrReplace(
-            article.imageList.map { ArticleImageJoin(articleFileName, it.name) }
-        )
+        article.imageList.forEach {
+            appDatabase.fileEntryDao().insertOrReplace(it)
+            appDatabase.articleImageJoinDao().insertOrReplace(
+               ArticleImageJoin(articleFileName, it.name)
+            )
+        }
 
         // save authors
-        appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-            article.authorList.map { author ->
-                ArticleAuthorImageJoin(articleFileName, author.name, author.imageAuthor?.name)
+        article.authorList.forEach { author ->
+            author.imageAuthor?.let {
+                appDatabase.fileEntryDao().insertOrReplace(it)
+                appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                    ArticleAuthorImageJoin(articleFileName, author.name, it.name)
+                )
             }
-        )
+        }
     }
 
     fun getBase(articleName: String): ArticleBase {

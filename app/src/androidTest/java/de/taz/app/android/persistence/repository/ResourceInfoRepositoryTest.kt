@@ -62,7 +62,7 @@ class ResourceInfoRepositoryTest {
         resourceInfoRepository.save(resourceInfo2)
 
         val fromDB = resourceInfoRepository.get()
-        assertEquals(fromDB, resourceInfo)
+        assertEquals(fromDB, resourceInfo2)
     }
 
     private val resourceFiles = IssueTestUtil.createIssue().sectionList.first().imageList

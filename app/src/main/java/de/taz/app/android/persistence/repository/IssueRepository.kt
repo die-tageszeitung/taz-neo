@@ -45,7 +45,7 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         }
     }
 
-    fun getWithoutFiles(): ResourceInfoWithoutFiles {
+    fun getWithoutFiles(): ResourceInfoWithoutFiles? {
         return appDatabase.resourceInfoDao().get()
     }
 
@@ -57,17 +57,19 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return issueBaseToIssue(getLatestIssueBase())
     }
 
-    fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase {
+    fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase? {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
-    fun getIssueByFeedAndDate(feedName: String, date: String): Issue {
-        return  issueBaseToIssue(getIssueBaseByFeedAndDate(feedName, date))
+    fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
+        return getIssueBaseByFeedAndDate(feedName, date)?.let{
+            issueBaseToIssue(it)
+        }
     }
 
     private fun issueBaseToIssue(issueBase: IssueBase): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueBase)
-        val sections = sectionNames.map { sectionRepository.get(it) }
+        val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
                 issueBase.feedName, issueBase.date
@@ -76,7 +78,7 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         val pageList =
             appDatabase.issuePageJoinDao().getPageNamesForIssue(issueBase.feedName, issueBase.date)
                 .map {
-                    pageRepository.get(it)
+                    pageRepository.getOrThrow(it)
                 }
 
         return Issue(
