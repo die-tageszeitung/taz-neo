@@ -34,7 +34,7 @@ class GraphQlClient(
      */
     suspend fun query(queryType: QueryType, variables: Map<String, String> = mapOf()): DataDto {
         val query = queryService.get(queryType).setVariables(variables)
-                val body = query.toJson().toRequestBody("application/json".toMediaType())
+        val body = query.toJson().toRequestBody("application/json".toMediaType())
         val response = awaitCallback(httpClient.newCall(
             Request.Builder().url(url).post(body).build()
         )::enqueue)
