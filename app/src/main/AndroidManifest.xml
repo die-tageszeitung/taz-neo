@@ -21,9 +21,9 @@
                 android:noHistory="true"
                 android:theme="@style/SplashTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
@@ -33,6 +33,9 @@
                 android:permission="android.permission.BIND_JOB_SERVICE"
                 android:exported="false"/>
 
-</application>
+        <uses-library
+            android:name="android.test.runner"
+            android:required="false" />
 
+    </application>
 </manifest>
