@@ -16,6 +16,7 @@ import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class SplashActivity : AppCompatActivity() {
 
@@ -25,17 +26,24 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
         GlobalScope.launch {
-            AppInfoRepository().save(ApiService().getAppInfo())
-            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository().get().globalBaseUrl)
-            ResourceInfoRepository().save(ApiService().getResourceInfo())
-            ToastHelper.getInstance().makeToast(ResourceInfoRepository().getOrThrow().resourceList.first().name)
-            IssueRepository().save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
+            try {
+                AppInfoRepository().save(ApiService().getAppInfo())
+                ToastHelper.getInstance(applicationContext)
+                    .makeToast(AppInfoRepository().get().globalBaseUrl)
+                ResourceInfoRepository().save(ApiService().getResourceInfo())
+                ToastHelper.getInstance()
+                    .makeToast(ResourceInfoRepository().getOrThrow().resourceList.first().name)
+                val issue = ApiService().getIssueByFeedAndDate()
+                IssueRepository().save(issue)
+                ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
 
-            //IssueRepository.save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssue().sectionList.first().articleList.first().title.toString())
-            DownloadService.downloadResources(applicationContext, apiService.getResourceInfo())
-            DownloadService.downloadIssue(applicationContext, apiService.getIssueByFeedAndDate())
+                ToastHelper.getInstance()
+                    .makeToast(IssueRepository().getLatestIssue().sectionList.first().articleList.first().title.toString())
+            } catch (e: Exception) {
+                ToastHelper.getInstance(applicationContext).makeToast("no interwebzzzz")
+            }
+            //DownloadService.scheduleDownload(applicationContext, apiService.getResourceInfo())
+            //DownloadService.scheduleDownload(applicationContext, issue)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
