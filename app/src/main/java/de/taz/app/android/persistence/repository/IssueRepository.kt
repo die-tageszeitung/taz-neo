@@ -6,6 +6,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
+import kotlinx.coroutines.coroutineScope
 
 class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
 
@@ -53,7 +54,7 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return appDatabase.issueDao().getLatest()
     }
 
-    fun getLatestIssue(): Issue {
+    suspend fun getLatestIssue(): Issue {
         return issueBaseToIssue(getLatestIssueBase())
     }
 

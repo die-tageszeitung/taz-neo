@@ -6,7 +6,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 
 @Serializable
-class Download(
+data class Download(
     val baseUrl: String,
     val folder: String,
     val name: String,
