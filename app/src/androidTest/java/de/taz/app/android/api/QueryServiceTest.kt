@@ -1,9 +1,8 @@
 package de.taz.app.android.api
 
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Test
-
 import org.junit.Before
+import org.junit.Test
 
 class QueryServiceTest {
 
