@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.io.BufferedReader
@@ -28,12 +29,18 @@ open class QueryService private constructor(private val applicationContext: Cont
     companion object : SingletonHolder<QueryService, Context>(::QueryService)
 
     private val log by Log
-    private val queryCache = mutableMapOf<String, String>()
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val queryCache = mutableMapOf<String, String>()
 
     open fun get(queryType: QueryType): Query {
         val fileName = queryType.name
         return Query(try {
-            queryCache[fileName] ?: readGraphQlQueryFromAssets(fileName)
+            queryCache[fileName] ?: let {
+                val queryString = readGraphQlQueryFromAssets(fileName)
+                queryCache[fileName] = queryString
+                queryString
+            }
         } catch (e: IOException) {
             log.error("reading $fileName.graphql failed")
             throw e
