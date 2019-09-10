@@ -2,8 +2,10 @@ package de.taz.app.android.api.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "FileEntry")
+@Serializable
 data class FileEntry(
     @PrimaryKey override val name: String,
     override val storageType: StorageType,

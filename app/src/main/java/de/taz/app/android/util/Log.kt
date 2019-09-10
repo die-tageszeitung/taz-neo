@@ -22,4 +22,8 @@ class Log(private val tag: String) {
     fun info(msg: String, throwable: Throwable? = null) {
         Log.i(tag, msg, throwable)
     }
+
+    fun warn(msg: String, throwable: Throwable? = null) {
+        Log.w(tag, msg, throwable)
+    }
 }

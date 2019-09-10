@@ -67,4 +67,9 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
             null
         }
     }
+
+    @Transaction
+    fun delete(resourceInfo: ResourceInfo) {
+        appDatabase.resourceInfoDao().delete(ResourceInfoWithoutFiles(resourceInfo))
+    }
 }

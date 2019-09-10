@@ -38,5 +38,9 @@ class FileEntryRepository(private val appDatabase: AppDatabase = AppDatabase.get
         }
     }
 
+    fun delete(fileEntry: FileEntry) {
+        // TODO fileEntry.deleteFromDisk()
+        appDatabase.fileEntryDao().delete(fileEntry)
+    }
 
 }

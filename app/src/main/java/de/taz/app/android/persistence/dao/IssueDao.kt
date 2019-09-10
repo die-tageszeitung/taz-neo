@@ -11,6 +11,6 @@ abstract class IssueDao: BaseDao<IssueBase>() {
     abstract fun getByFeedAndDate(feedName: String, date: String): IssueBase
 
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
-    abstract fun getLatest(): IssueBase
+    abstract fun getLatest(): IssueBase?
 
 }
