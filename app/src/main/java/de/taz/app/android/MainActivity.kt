@@ -1,14 +1,11 @@
 package de.taz.app.android
 
 import android.os.Bundle
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.StorageType
-import de.taz.app.android.download.Download
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.AuthHelper
 import kotlinx.android.synthetic.main.content_main.*
@@ -27,12 +24,13 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
         setContentView(R.layout.activity_main)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val lastIssue = IssueRepository().getLatestIssue()
-            val file = File(
-                ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
-                "${lastIssue.date}/${lastIssue.sectionList.first().sectionHtml.name}"
-            )
-            runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
+            IssueRepository().getLatestIssue()?.let { lastIssue ->
+                val file = File(
+                    ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
+                    "${lastIssue.tag}/${lastIssue.sectionList.first().sectionHtml.name}"
+                )
+                runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
+            }
         }
         login.setOnClickListener {
             GlobalScope.launch {
@@ -43,6 +41,17 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
                     }
                 } catch (e: Exception) {
                     // TODO
+                }
+            }
+        }
+        test.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                IssueRepository().getLatestIssue()?.let { lastIssue ->
+                    val file = File(
+                        ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
+                        "${lastIssue.date}/${lastIssue.sectionList.first().sectionHtml.name}"
+                    )
+                    runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
                 }
             }
         }

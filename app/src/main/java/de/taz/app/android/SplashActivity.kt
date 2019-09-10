@@ -10,41 +10,28 @@ import de.taz.app.android.api.QueryService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.AppInfoRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.ToastHelper
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var apiService: ApiService
 
+    private lateinit var downloadRepository: DownloadRepository
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var resourceInfoRepository: ResourceInfoRepository
+
     override fun onResume() {
         super.onResume()
         createSingletons()
-        GlobalScope.launch {
-            try {
-                AppInfoRepository().save(ApiService().getAppInfo())
-                ToastHelper.getInstance(applicationContext)
-                    .makeToast(AppInfoRepository().get().globalBaseUrl)
-                ResourceInfoRepository().save(ApiService().getResourceInfo())
-                ToastHelper.getInstance()
-                    .makeToast(ResourceInfoRepository().getOrThrow().resourceList.first().name)
-                val issue = ApiService().getIssueByFeedAndDate()
-                IssueRepository().save(issue)
-                ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
 
-                ToastHelper.getInstance()
-                    .makeToast(IssueRepository().getLatestIssue().sectionList.first().articleList.first().title.toString())
-            } catch (e: Exception) {
-                ToastHelper.getInstance(applicationContext).makeToast("no interwebzzzz")
-            }
-            //DownloadService.scheduleDownload(applicationContext, apiService.getResourceInfo())
-            //DownloadService.scheduleDownload(applicationContext, issue)
-        }
+        initAppInfo()
+        initResources()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
                 WebView.setWebContentsDebuggingEnabled(true)
@@ -53,12 +40,58 @@ class SplashActivity : AppCompatActivity() {
         startActivity(Intent(this, MainActivity::class.java))
     }
 
+    /**
+     * initialize singletons
+     */
     private fun createSingletons() {
         AppDatabase.createInstance(applicationContext)
         AuthHelper.createInstance(applicationContext)
         QueryService.createInstance(applicationContext)
         ToastHelper.createInstance(applicationContext)
         apiService = ApiService()
+        downloadRepository = DownloadRepository()
+        fileEntryRepository = FileEntryRepository()
+        resourceInfoRepository = ResourceInfoRepository()
+    }
+
+    /**
+     * download AppInfo and persist it
+     */
+    private fun initAppInfo() {
+        GlobalScope.launch {
+            AppInfoRepository().save(ApiService().getAppInfo())
+        }
+    }
+
+    /**
+     * download resources, save to db and download necessary files
+     */
+    private fun initResources() {
+        GlobalScope.launch {
+            val fromServer = apiService.getResourceInfo()
+            val local = resourceInfoRepository.get()
+
+            if (local == null || fromServer.resourceVersion > local.resourceVersion) {
+                resourceInfoRepository.save(fromServer)
+
+                // delete old stuff
+                local?.let { resourceInfoRepository.delete(local) }
+                fromServer.resourceList.forEach { newFileEntry ->
+                    fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                        // only delete modified files
+                        if (oldFileEntry != newFileEntry) {
+                            downloadRepository.delete(oldFileEntry.name)
+                            fileEntryRepository.delete(oldFileEntry)
+                            // TODO delete file form disk?!
+                        }
+                    }
+                }
+            }
+
+            // ensure resources are downloaded
+            DownloadService.scheduleDownload(applicationContext, fromServer)
+            DownloadService.download(applicationContext, fromServer)
+        }
     }
 
 }

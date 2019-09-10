@@ -61,6 +61,9 @@ data class Issue (
                 other.pageList.containsAll(pageList)
     }
 
+    val tag: String
+        get() = "$feedName/$date"
+
 }
 
 enum class IssueStatus {
