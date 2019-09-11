@@ -1,8 +1,9 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.IssueDto
+import de.taz.app.android.persistence.repository.DownloadRepository
 
-data class Issue (
+data class Issue(
     val feedName: String,
     val date: String,
     val key: String? = null,
@@ -18,7 +19,7 @@ data class Issue (
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList()
 ) {
-    constructor(feedName: String, issueDto: IssueDto): this(
+    constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
         issueDto.key,
@@ -63,6 +64,19 @@ data class Issue (
 
     val tag: String
         get() = "$feedName/$date"
+
+    val issueFileList: List<String>
+        get() = fileList.filter { !it.startsWith("/global/") }
+
+    val globalFileList: List<String>
+        get() = fileList.filter { it.startsWith("/global/") }.map { it.split("/").last() }
+
+    fun isDownloaded(): Boolean {
+        DownloadRepository.getInstance().let { downloadRepository ->
+            return downloadRepository.isDownloaded(issueFileList) &&
+                    downloadRepository.isDownloaded(globalFileList)
+        }
+    }
 
 }
 

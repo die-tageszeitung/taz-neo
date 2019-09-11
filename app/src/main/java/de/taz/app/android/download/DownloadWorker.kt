@@ -9,7 +9,6 @@ import androidx.work.WorkerParameters
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
@@ -84,7 +83,7 @@ object DownloadWorker {
      * @param fileName - [FileEntry.name] of [FileEntry] to download
      */
     suspend fun startDownload(appContext: Context, fileName: String) {
-        val downloadRepository = DownloadRepository(AppDatabase.createInstance(appContext))
+        val downloadRepository = DownloadRepository.getInstance(appContext)
 
         downloadRepository.get(fileName)?.let { fromDB ->
             // download only if not already downloaded
@@ -124,7 +123,10 @@ object DownloadWorker {
             fromDB.workerManagerId?.let { WorkManager.getInstance(appContext).cancelWorkById(it) }
 
             // update download and save
-            fromDB.workerManagerId = null
+            fromDB.workerManagerId?.let {
+                fromDB.workerManagerId = null
+                log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+            }
             fromDB.status = DownloadStatus.done
             downloadRepository.update(fromDB)
         } ?: log.error("download $fileName not found")

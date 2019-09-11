@@ -53,7 +53,7 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return appDatabase.issueDao().getLatest()
     }
 
-    suspend fun getLatestIssue(): Issue? {
+    fun getLatestIssue(): Issue? {
         return getLatestIssueBase()?.let { issueBaseToIssue(it) }
     }
 
