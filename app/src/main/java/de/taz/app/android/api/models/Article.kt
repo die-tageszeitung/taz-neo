@@ -1,6 +1,7 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
+import de.taz.app.android.persistence.repository.DownloadRepository
 
 data class Article(
     val articleHtml: FileEntry,
@@ -37,6 +38,15 @@ data class Article(
                 pageNameList.containsAll(other.pageNameList) &&
                 imageList.containsAll(other.imageList) &&
                 authorList.containsAll(other.authorList)
+    }
+
+    fun isDownloaded(): Boolean {
+        DownloadRepository.getInstance().let {
+            return it.isDownloaded(articleHtml.name) &&
+                    it.isDownloaded(audioFile?.name) &&
+                    it.isDownloaded(imageList.map { image -> image.name }) &&
+                    authorList.firstOrNull { author -> !author.isDownloaded() } == null
+        }
     }
 
 }

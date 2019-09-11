@@ -1,14 +1,18 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
-class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class DownloadRepository private constructor(applicationContext: Context) {
+    companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
 
+    private val appDatabase = AppDatabase.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository(appDatabase)
 
     @Transaction
@@ -44,6 +48,10 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
 
     fun getWithoutFile(fileName: String): DownloadWithoutFile? {
         return appDatabase.downloadDao().get(fileName)
+    }
+
+    fun getWithoutFile(fileNames: List<String>): List<DownloadWithoutFile?> {
+        return appDatabase.downloadDao().get(fileNames)
     }
 
     @Throws(NotFoundException::class)
@@ -106,4 +114,15 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
         }
     }
 
+    fun isDownloaded(fileName: String?): Boolean {
+        return fileName?.let {
+            getWithoutFile(fileName)?.status == DownloadStatus.done
+        } ?: true
+    }
+
+    fun isDownloaded(fileNames: List<String>): Boolean {
+        return getWithoutFile(fileNames).firstOrNull { download ->
+            download?.status != DownloadStatus.done
+        } == null
+    }
 }
