@@ -20,14 +20,14 @@ class SplashActivity : AppCompatActivity() {
         createSingletons()
         GlobalScope.launch {
             AppInfoRepository().save(ApiService().getAppInfo())
-            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository().get().globalBaseUrl)
+            ToastHelper.getInstance(applicationContext).makeToast(AppInfoRepository().get()?.globalBaseUrl.toString())
             ResourceInfoRepository().save(ApiService().getResourceInfo())
             ToastHelper.getInstance().makeToast(ResourceInfoRepository().getOrThrow().resourceList.first().name)
             IssueRepository().save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase().feedName)
+            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssueBase()?.feedName.toString())
 
             //IssueRepository.save(ApiService().getIssueByFeedAndDate())
-            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssue().sectionList.first().articleList.first().title.toString())
+            ToastHelper.getInstance().makeToast(IssueRepository().getLatestIssue()?.sectionList?.first()?.articleList?.first()?.title.toString())
         }
         startActivity(Intent(this, MainActivity::class.java))
     }

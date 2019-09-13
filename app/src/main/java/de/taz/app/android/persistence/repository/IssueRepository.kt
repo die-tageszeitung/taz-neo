@@ -49,12 +49,22 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return appDatabase.resourceInfoDao().get()
     }
 
-    fun getLatestIssueBase(): IssueBase {
+    fun getLatestIssueBase(): IssueBase? {
         return appDatabase.issueDao().getLatest()
     }
 
-    fun getLatestIssue(): Issue {
-        return issueBaseToIssue(getLatestIssueBase())
+    fun getLatestIssue(): Issue? {
+        return getLatestIssueBase()?.let { issueBaseToIssue(it) }
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueBaseOrThrow(): IssueBase {
+        return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueOrThrow(): Issue {
+        return getLatestIssueBase()?.let { issueBaseToIssue(it) } ?: throw NotFoundException()
     }
 
     fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase? {
