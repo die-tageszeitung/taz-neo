@@ -14,13 +14,18 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
+import kotlin.Exception
 
 class SplashActivity : AppCompatActivity() {
 
+    private val log by Log
+
     private lateinit var apiService: ApiService
 
+    private lateinit var appInfoRepository: AppInfoRepository
     private lateinit var downloadRepository: DownloadRepository
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var resourceInfoRepository: ResourceInfoRepository
@@ -49,7 +54,8 @@ class SplashActivity : AppCompatActivity() {
         QueryService.createInstance(applicationContext)
         ToastHelper.createInstance(applicationContext)
         apiService = ApiService()
-        downloadRepository = DownloadRepository()
+        appInfoRepository = AppInfoRepository.createInstance(applicationContext)
+        downloadRepository = DownloadRepository.createInstance(applicationContext)
         fileEntryRepository = FileEntryRepository()
         resourceInfoRepository = ResourceInfoRepository()
     }
@@ -59,7 +65,11 @@ class SplashActivity : AppCompatActivity() {
      */
     private fun initAppInfo() {
         GlobalScope.launch {
-            AppInfoRepository().save(ApiService().getAppInfo())
+            try {
+                appInfoRepository.save(ApiService().getAppInfo())
+            } catch (e: Exception) {
+                log.warn("unable to get AppInfo", e)
+            }
         }
     }
 
@@ -68,29 +78,33 @@ class SplashActivity : AppCompatActivity() {
      */
     private fun initResources() {
         GlobalScope.launch {
-            val fromServer = apiService.getResourceInfo()
-            val local = resourceInfoRepository.get()
+            try {
+                val fromServer = apiService.getResourceInfo()
+                val local = resourceInfoRepository.get()
 
-            if (local == null || fromServer.resourceVersion > local.resourceVersion) {
-                resourceInfoRepository.save(fromServer)
+                if (local == null || fromServer.resourceVersion > local.resourceVersion) {
+                    resourceInfoRepository.save(fromServer)
 
-                // delete old stuff
-                local?.let { resourceInfoRepository.delete(local) }
-                fromServer.resourceList.forEach { newFileEntry ->
-                    fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                        // only delete modified files
-                        if (oldFileEntry != newFileEntry) {
-                            downloadRepository.delete(oldFileEntry.name)
-                            fileEntryRepository.delete(oldFileEntry)
-                            // TODO delete file form disk?!
+                    // delete old stuff
+                    local?.let { resourceInfoRepository.delete(local) }
+                    fromServer.resourceList.forEach { newFileEntry ->
+                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                            // only delete modified files
+                            if (oldFileEntry != newFileEntry) {
+                                downloadRepository.delete(oldFileEntry.name)
+                                fileEntryRepository.delete(oldFileEntry)
+                                // TODO delete file form disk?!
+                            }
                         }
                     }
                 }
-            }
 
-            // ensure resources are downloaded
-            DownloadService.scheduleDownload(applicationContext, fromServer)
-            DownloadService.download(applicationContext, fromServer)
+                // ensure resources are downloaded
+                DownloadService.scheduleDownload(applicationContext, fromServer)
+                DownloadService.download(applicationContext, fromServer)
+            } catch (e: Exception) {
+                log.warn("unable to get ResourceInfo", e)
+            }
         }
     }
 
