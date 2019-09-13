@@ -6,6 +6,7 @@ import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
@@ -23,8 +24,10 @@ object DownloadService {
 
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
+
+    private val appInfoRepository = AppInfoRepository.getInstance()
     private val fileEntryRepository = FileEntryRepository()
-    private val downloadRepository = DownloadRepository()
+    private val downloadRepository = DownloadRepository.getInstance()
 
     /**
      * use [ioScope] to download
@@ -52,15 +55,22 @@ object DownloadService {
     fun download(appContext: Context, issue: Issue) {
         log.info("downloading issue(${issue.feedName}/${issue.date})")
         ioScope.launch {
-            issue.fileList.mapNotNull { fileEntryRepository.get(it.split("/").last()) }
-                .let { files ->
-                    createAndSaveDownloads(issue.baseUrl, issue.tag, files)
+            issue.issueFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
+                createAndSaveDownloads(issue.baseUrl, issue.tag, files)
 
-                    DownloadWorker.startDownloads(
-                        appContext,
-                        files
-                    )
-                }
+                DownloadWorker.startDownloads(
+                    appContext,
+                    files
+                )
+            }
+            issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
+                createAndSaveDownloads(appInfoRepository.get().globalBaseUrl, issue.tag, files)
+
+                DownloadWorker.startDownloads(
+                    appContext,
+                    files
+                )
+            }
         }
     }
 
