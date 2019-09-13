@@ -8,9 +8,9 @@ import de.taz.app.android.api.models.IssueBase
 abstract class IssueDao: BaseDao<IssueBase>() {
 
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date")
-    abstract fun getByFeedAndDate(feedName: String, date: String): IssueBase
+    abstract fun getByFeedAndDate(feedName: String, date: String): IssueBase?
 
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
-    abstract fun getLatest(): IssueBase
+    abstract fun getLatest(): IssueBase?
 
 }

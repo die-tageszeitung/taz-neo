@@ -32,6 +32,7 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
         )
     }
 
+    @Throws(NotFoundException::class)
     fun getWithoutFilesOrThrow(): ResourceInfoWithoutFiles {
         getWithoutFiles()?.let {
             return it
@@ -43,21 +44,18 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
         return appDatabase.resourceInfoDao().get()
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
         val resourceInfoWithoutFiles = appDatabase.resourceInfoDao().get()
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoWithoutFiles.resourceVersion
         )
-        try {
-            return ResourceInfo(
-                resourceInfoWithoutFiles.resourceVersion,
-                resourceInfoWithoutFiles.resourceBaseUrl,
-                resourceInfoWithoutFiles.resourceZip,
-                resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
-            )
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
+        return ResourceInfo(
+            resourceInfoWithoutFiles.resourceVersion,
+            resourceInfoWithoutFiles.resourceBaseUrl,
+            resourceInfoWithoutFiles.resourceZip,
+            resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
+        )
     }
 
     fun get(): ResourceInfo? {

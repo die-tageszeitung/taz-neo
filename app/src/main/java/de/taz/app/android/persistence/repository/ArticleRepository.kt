@@ -53,41 +53,39 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         return appDatabase.articleDao().get(articleName)
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(articleName: String): Article {
-        try {
-            val articleBase = appDatabase.articleDao().get(articleName)
-            val articleHtml = fileEntryRepository.getOrThrow(articleName)
-            val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
-            val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
+        val articleBase = appDatabase.articleDao().get(articleName)
+        val articleHtml = fileEntryRepository.getOrThrow(articleName)
+        val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
+        val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
 
-            // get authors
-            val authorImageJoins =
-                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-            val authorImages = fileEntryRepository.getOrThrow(
-                authorImageJoins
-                    .filter { !it.authorFileName.isNullOrEmpty() }
-                    .map { it.authorFileName!! }
-            )
+        // get authors
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+        val authorImages = fileEntryRepository.getOrThrow(
+            authorImageJoins
+                .filter { !it.authorFileName.isNullOrEmpty() }
+                .map { it.authorFileName!! }
+        )
 
-            val authors = authorImageJoins.map { authorImageJoin ->
-                Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
-            }
-
-            return Article(
-                articleHtml,
-                articleBase.title,
-                articleBase.teaser,
-                articleBase.onlineLink,
-                audioFile,
-                articleBase.pageNameList,
-                articleImages,
-                authors
-            )
-        } catch (e: Exception) {
-            throw NotFoundException()
+        val authors = authorImageJoins.map { authorImageJoin ->
+            Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
         }
+
+        return Article(
+            articleHtml,
+            articleBase.title,
+            articleBase.teaser,
+            articleBase.onlineLink,
+            audioFile,
+            articleBase.pageNameList,
+            articleImages,
+            authors
+        )
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(articleNames: List<String>) : List<Article> {
         return articleNames.map { getOrThrow(it) }
     }
@@ -95,7 +93,7 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
     fun get(articleName: String): Article? {
         return try {
             getOrThrow(articleName)
-        } catch (e: Exception) {
+        } catch (e: NotFoundException) {
             null
         }
     }

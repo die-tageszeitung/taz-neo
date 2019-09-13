@@ -23,15 +23,16 @@ class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInsta
         }
     }
 
-    fun getWithoutFile(fileName: String): PageWithoutFile {
+    fun getWithoutFile(fileName: String): PageWithoutFile? {
         return appDatabase.pageDao().get(fileName)
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Page {
         val pageWithoutFile = appDatabase.pageDao().get(fileName)
         val file = fileEntryRepository.getOrThrow(fileName)
 
-        return try {
+        return pageWithoutFile?.let {
             Page(
                 file,
                 pageWithoutFile.title,
@@ -39,15 +40,13 @@ class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInsta
                 pageWithoutFile.type,
                 pageWithoutFile.frameList
             )
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
+        } ?: throw NotFoundException()
     }
 
     fun get(fileName: String): Page? {
         return try {
             getOrThrow(fileName)
-        } catch (e: Exception) {
+        } catch (e: NotFoundException) {
             null
         }
     }

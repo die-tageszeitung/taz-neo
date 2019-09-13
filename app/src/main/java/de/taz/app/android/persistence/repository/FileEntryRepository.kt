@@ -26,16 +26,14 @@ class FileEntryRepository(private val appDatabase: AppDatabase = AppDatabase.get
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryName: String): FileEntry {
         return get(fileEntryName) ?: throw NotFoundException()
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
-        try {
-            return fileEntryNames.map { getOrThrow(it) }
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
+        return fileEntryNames.map { getOrThrow(it) }
     }
 
 
