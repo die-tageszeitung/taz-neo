@@ -31,21 +31,28 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         })
     }
 
-    fun getBase(sectionFileName: String): SectionBase {
+    fun getBase(sectionFileName: String): SectionBase? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
-    fun getOrThrow(sectionFileName: String): Section {
-        try {
-            val sectionBase = getBase(sectionFileName)
-            val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
+    @Throws(NotFoundException::class)
+    fun getBaseOrThrow(sectionFileName: String): SectionBase {
+        return getBase(sectionFileName) ?: throw NotFoundException()
+    }
 
-            val articles = appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)?.let {
+    @Throws(NotFoundException::class)
+    fun getOrThrow(sectionFileName: String): Section {
+        val sectionBase = getBaseOrThrow(sectionFileName)
+        val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
+
+        val articles =
+            appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)?.let {
                 articleRepository.getOrThrow(it)
             } ?: listOf()
 
-            val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
+        val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
+        images?.let {
             return Section(
                 sectionFile,
                 sectionBase.title,
@@ -53,9 +60,7 @@ class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
                 articles,
                 images
             )
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
+        } ?: throw NotFoundException()
     }
 
     fun get(sectionFileName: String): Section? {

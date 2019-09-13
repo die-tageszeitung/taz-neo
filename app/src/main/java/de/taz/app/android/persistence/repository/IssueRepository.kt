@@ -53,8 +53,18 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return appDatabase.issueDao().getLatest()
     }
 
-    suspend fun getLatestIssue(): Issue? {
+    fun getLatestIssue(): Issue? {
         return getLatestIssueBase()?.let { issueBaseToIssue(it) }
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueBaseOrThrow(): IssueBase {
+        return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueOrThrow(): Issue {
+        return getLatestIssueBase()?.let { issueBaseToIssue(it) } ?: throw NotFoundException()
     }
 
     fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase? {

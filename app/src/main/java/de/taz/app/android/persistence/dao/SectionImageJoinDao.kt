@@ -17,11 +17,11 @@ abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
         WHERE SectionImageJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getImagesForSection(sectionFileName: String): List<FileEntry>
+    abstract fun getImagesForSection(sectionFileName: String): List<FileEntry>?
 
-    fun getImagesForSection(section: Section): List<FileEntry> =
+    fun getImagesForSection(section: Section): List<FileEntry>? =
         getImagesForSection(section.sectionHtml.name)
 
-    fun getImagesForSection(sectionBase: SectionBase): List<FileEntry> =
+    fun getImagesForSection(sectionBase: SectionBase): List<FileEntry>? =
         getImagesForSection(sectionBase.sectionFileName)
 }
