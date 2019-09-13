@@ -9,9 +9,19 @@ class AppInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         appDatabase.appInfoDao().insertOrReplace(appInfo)
     }
 
-    fun get(): AppInfo {
-        val appInfoEntity = appDatabase.appInfoDao().get()
-        return AppInfo(appInfoEntity.appName, appInfoEntity.globalBaseUrl, appInfoEntity.appType)
+    @Throws(NotFoundException::class)
+    fun getOrThrow(): AppInfo {
+        return get() ?: throw NotFoundException()
+    }
+
+    fun get(): AppInfo? {
+        return appDatabase.appInfoDao().get()?.let { appInfoEntity ->
+            AppInfo(
+                appInfoEntity.appName,
+                appInfoEntity.globalBaseUrl,
+                appInfoEntity.appType
+            )
+        }
     }
 
     fun getCount(): Int {
