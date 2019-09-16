@@ -1,9 +1,8 @@
 package de.taz.app.android.api
 
 import com.squareup.moshi.Moshi
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 class QueryTest {
 
