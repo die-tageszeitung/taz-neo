@@ -1,5 +1,13 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.Section
+data class SectionDto (
+    val sectionHtml: FileEntryDto,
+    val title: String,
+    val type: SectionType,
+    val articleList: List<ArticleDto>? = null,
+    val imageList: List<FileEntryDto>? = null
+)
 
-typealias SectionDto = Section
+enum class SectionType {
+    articles
+}
