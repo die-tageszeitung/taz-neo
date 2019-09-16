@@ -1,10 +1,8 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.api.models.*
-import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.Exception
 
 /**
  * Service class to get Models from GraphQl
@@ -36,7 +34,7 @@ class ApiService(
 
     /**
      * function to get the app info
-     * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
+     * @return [AppInfo]
      */
     suspend fun getAppInfo(): AppInfo {
         try {
@@ -66,13 +64,13 @@ class ApiService(
      */
     suspend fun getIssueByFeedAndDate(feedName: String = "taz", issueDate: Date = Date()) : Issue {
         try{
-            return graphQlClient.query(
+            return Issue(feedName, graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 mapOf(
                     "feedName" to feedName,
                     "issueDate" to dateHelper.format(issueDate)
                 )
-            ).product!!.feedList!!.first().issueList!!.first()
+            ).product!!.feedList!!.first().issueList!!.first())
         } catch (npe: NullPointerException) {
             throw ApiServiceException.InsufficientData("getIssueByFeedAndDate")
         }

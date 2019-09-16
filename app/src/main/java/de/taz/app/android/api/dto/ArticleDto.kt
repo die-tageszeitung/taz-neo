@@ -7,6 +7,6 @@ data class ArticleDto (
     val onlineLink: String? = null,
     val audioFile: FileEntryDto? = null,
     val pageNameList: List<String>? = null,
-    val imageList: List<ImageDto>? = null,
+    val imageList: List<FileEntryDto>? = null,
     val authorList: List<AuthorDto>? = null
 )

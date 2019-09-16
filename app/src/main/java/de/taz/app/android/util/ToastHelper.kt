@@ -3,7 +3,6 @@ package de.taz.app.android.util
 import android.content.Context
 import android.os.Handler
 import android.widget.Toast
-import de.taz.app.android.R
 import java.util.*
 
 /**

@@ -1,5 +1,19 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.*
 
-typealias IssueDto = Issue
+open class IssueDto(
+    open val date: String,
+    open val key: String? = null,
+    open val baseUrl: String,
+    open val status: IssueStatus,
+    open val minResourceVersion: Int,
+    open val zipName: String? = null,
+    open val zipPdfName: String? = null,
+    open val navButton: NavButtonDto? = null,
+    open val imprint: ArticleDto?,
+    open val fileList: List<String>,
+    open val fileListPdf: List<String>?,
+    open val sectionList: List<SectionDto>? = null,
+    open val pageList: List<PageDto>? = null
+)
