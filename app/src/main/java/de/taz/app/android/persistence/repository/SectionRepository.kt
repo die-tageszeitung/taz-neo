@@ -1,16 +1,19 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.util.SingletonHolder
 
-class SectionRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance())  {
+class SectionRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
 
-    private val articleRepository = ArticleRepository(appDatabase)
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    companion object : SingletonHolder<SectionRepository, Context>(::SectionRepository)
+
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @Transaction
     fun save(section: Section) {

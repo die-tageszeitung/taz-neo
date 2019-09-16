@@ -9,10 +9,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.AppDatabase
-import de.taz.app.android.persistence.repository.AppInfoRepository
-import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
@@ -49,15 +46,24 @@ class SplashActivity : AppCompatActivity() {
      * initialize singletons
      */
     private fun createSingletons() {
-        AppDatabase.createInstance(applicationContext)
-        AuthHelper.createInstance(applicationContext)
-        QueryService.createInstance(applicationContext)
-        ToastHelper.createInstance(applicationContext)
-        apiService = ApiService()
-        appInfoRepository = AppInfoRepository.createInstance(applicationContext)
-        downloadRepository = DownloadRepository.createInstance(applicationContext)
-        fileEntryRepository = FileEntryRepository()
-        resourceInfoRepository = ResourceInfoRepository()
+        applicationContext.let {
+            AppDatabase.createInstance(it)
+            AuthHelper.createInstance(it)
+            QueryService.createInstance(it)
+            ToastHelper.createInstance(it)
+
+            apiService = ApiService()
+
+            // Repositories
+            appInfoRepository = AppInfoRepository.createInstance(it)
+            ArticleRepository.createInstance(it)
+            downloadRepository = DownloadRepository.createInstance(it)
+            fileEntryRepository = FileEntryRepository.createInstance(it)
+            IssueRepository.createInstance(it)
+            PageRepository.createInstance(it)
+            resourceInfoRepository = ResourceInfoRepository.createInstance(it)
+            SectionRepository.createInstance(it)
+        }
     }
 
     /**

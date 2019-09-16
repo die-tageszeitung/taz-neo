@@ -1,17 +1,21 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
+import de.taz.app.android.util.SingletonHolder
 
-class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class IssueRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
 
-    private val articleRepository = ArticleRepository(appDatabase)
-    private val pageRepository = PageRepository(appDatabase)
-    private val sectionRepository = SectionRepository(appDatabase)
+    companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
+
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val pageRepository = PageRepository.getInstance(applicationContext)
+    private val sectionRepository = SectionRepository.getInstance(applicationContext)
 
     @Transaction
     fun save(issue: Issue) {

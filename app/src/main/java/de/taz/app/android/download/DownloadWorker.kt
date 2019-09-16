@@ -6,10 +6,12 @@ import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import kotlinx.coroutines.async
@@ -22,38 +24,12 @@ import java.security.MessageDigest
 
 
 /**
- * [CoroutineWorker] to be used with [androidx.work.WorkManager]
- */
-class WorkManagerDownloadWorker(
-    private val appContext: Context,
-    workerParameters: WorkerParameters
-) : CoroutineWorker(appContext, workerParameters) {
-
-    private val log by Log
-
-    override suspend fun doWork(): Result = coroutineScope {
-        inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
-            async {
-                try {
-                    DownloadWorker.startDownload(appContext, fileName)
-                    log.debug("download of $fileName succeeded")
-                    Result.success()
-                } catch (ioe: IOException) {
-                    log.error("download of $fileName failed", ioe)
-                    Result.failure()
-                }
-            }
-        }?.await() ?: Result.failure()
-    }
-}
-
-/**
  * Helper Object used by [WorkManagerDownloadWorker] and [DownloadService] to download
  */
 object DownloadWorker {
 
     private val log by Log
-    private val httpClient: OkHttpClient = getHttpClient()
+    private val httpClient: OkHttpClient = OkHttpClient.Builder().build()
 
     /**
      * start download of given files/downloads
@@ -119,11 +95,11 @@ object DownloadWorker {
                 log.debug("skipping download of ${fromDB.file.name} as it was already finished")
             }
 
-            // cancel workmanager request if one exists
-            fromDB.workerManagerId?.let { WorkManager.getInstance(appContext).cancelWorkById(it) }
 
             // update download and save
+            // cancel workmanager request if one exists
             fromDB.workerManagerId?.let {
+                WorkManager.getInstance(appContext).cancelWorkById(it)
                 fromDB.workerManagerId = null
                 log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
             }
@@ -149,6 +125,52 @@ object DownloadWorker {
 
 }
 
-private fun getHttpClient(): OkHttpClient {
-    return OkHttpClient.Builder().build()
+/**
+ * [CoroutineWorker] to be used with [androidx.work.WorkManager]
+ */
+class WorkManagerDownloadWorker(
+    private val appContext: Context,
+    workerParameters: WorkerParameters
+) : CoroutineWorker(appContext, workerParameters) {
+
+    private val log by Log
+
+    override suspend fun doWork(): Result = coroutineScope {
+        inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
+            async {
+                try {
+                    DownloadWorker.startDownload(appContext, fileName)
+                    log.debug("download of $fileName succeeded")
+                    Result.success()
+                } catch (ioe: IOException) {
+                    log.error("download of $fileName failed", ioe)
+                    Result.failure()
+                }
+            }
+        }?.await() ?: Result.failure()
+    }
+}
+
+class IssueWorkerManagerWorker(
+    private val appContext: Context,
+    workerParameters: WorkerParameters
+) : CoroutineWorker(appContext, workerParameters) {
+
+    override suspend fun doWork(): Result = coroutineScope {
+        inputData.getString(DATA_ISSUE_FEEDNAME)?.let { feedName ->
+            inputData.getString(DATA_ISSUE_DATE)?.let { date ->
+                async {
+                    try {
+                        ApiService().getIssueByFeedAndDate(feedName, date).let { issue ->
+                            IssueRepository.getInstance(appContext).save(issue)
+                            DownloadService.scheduleDownload(appContext, issue)
+                            Result.success()
+                        }
+                    } catch (e: Exception) {
+                        Result.failure()
+                    }
+                }
+            }
+        }?.await() ?: Result.failure()
+    }
 }

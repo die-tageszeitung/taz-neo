@@ -32,7 +32,11 @@ class PageRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        pageRepository = PageRepository(db)
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        pageRepository = PageRepository.getInstance(context)
+        pageRepository.appDatabase = db
     }
 
     @After

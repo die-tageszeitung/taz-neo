@@ -25,7 +25,8 @@ class FileEntryRepositoryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
-        fileEntryRepository = FileEntryRepository(db)
+        fileEntryRepository = FileEntryRepository.getInstance(context)
+        fileEntryRepository.appDatabase = db
     }
 
     @After
