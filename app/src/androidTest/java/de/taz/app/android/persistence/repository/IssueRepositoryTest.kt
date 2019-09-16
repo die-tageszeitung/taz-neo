@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.api.models.File
 import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
@@ -29,7 +30,18 @@ class IssueRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        issueRepository = IssueRepository(db)
+
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+        val articleRepository = ArticleRepository.createInstance(context)
+        articleRepository.appDatabase = db
+        val pageRepository = PageRepository.createInstance(context)
+        pageRepository.appDatabase = db
+        val sectionRepository = SectionRepository.createInstance(context)
+        sectionRepository.appDatabase = db
+
+        issueRepository = IssueRepository.getInstance(context)
+        issueRepository.appDatabase = db
     }
 
     @After

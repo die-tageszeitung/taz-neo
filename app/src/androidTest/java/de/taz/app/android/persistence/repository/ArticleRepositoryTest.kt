@@ -29,7 +29,13 @@ class ArticleRepositoryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
-        articleRepository = ArticleRepository(db)
+
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        articleRepository = ArticleRepository.getInstance(context)
+        articleRepository.appDatabase = db
+        articleRepository
     }
 
     @After

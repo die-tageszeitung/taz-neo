@@ -4,16 +4,16 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
-class DownloadRepository private constructor(applicationContext: Context) {
+class DownloadRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
+
     companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
 
-    private val appDatabase = AppDatabase.getInstance(applicationContext)
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @Transaction
     @Throws(NotFoundException::class)
@@ -30,7 +30,7 @@ class DownloadRepository private constructor(applicationContext: Context) {
             val downloadWithoutFile = DownloadWithoutFile(download)
             try {
                 appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
-            } catch (sqle: SQLiteConstraintException) {
+            } catch (_: SQLiteConstraintException) {
                 // do nothing as already exists
             }
         } ?: throw NotFoundException()
@@ -75,7 +75,7 @@ class DownloadRepository private constructor(applicationContext: Context) {
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(fileNames: List<String>) : List<Download> {
+    fun getOrThrow(fileNames: List<String>): List<Download> {
         return fileNames.map { getOrThrow(it) }
     }
 

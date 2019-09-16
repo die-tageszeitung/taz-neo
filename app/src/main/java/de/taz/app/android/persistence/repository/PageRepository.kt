@@ -1,13 +1,17 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageWithoutFile
-import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.SingletonHolder
 
-class PageRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class PageRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
 
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    companion object : SingletonHolder<PageRepository, Context>(::PageRepository)
+
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(page: Page) {
         appDatabase.pageDao().insertOrReplace(

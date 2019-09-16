@@ -59,14 +59,17 @@ class ApiService(
      * @param issueDate - the date of the issue
      * @return [Issue] of the feed at given date
      */
-    suspend fun getIssueByFeedAndDate(feedName: String = "taz", issueDate: Date = Date()): Issue {
+    suspend fun getIssueByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: String = dateHelper.format(Date())
+    ): Issue {
         return catchExceptions({
             Issue(
                 feedName, graphQlClient.query(
                     QueryType.IssueByFeedAndDateQuery,
                     mapOf(
                         "feedName" to feedName,
-                        "issueDate" to dateHelper.format(issueDate)
+                        "issueDate" to issueDate
                     )
                 ).product!!.feedList!!.first().issueList!!.first()
             )
@@ -97,7 +100,7 @@ class ApiService(
 
     object ApiServiceException {
         class InsufficientData(function: String) : Exception("ApiService.$function failed.")
-        class NoInternetException: Exception("no internet connection")
+        class NoInternetException : Exception("no internet connection")
     }
 
 }

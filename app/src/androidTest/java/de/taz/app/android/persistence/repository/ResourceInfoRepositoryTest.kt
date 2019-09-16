@@ -29,7 +29,11 @@ class ResourceInfoRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        resourceInfoRepository = ResourceInfoRepository(db)
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context)
+        resourceInfoRepository.appDatabase = db
     }
 
     @After

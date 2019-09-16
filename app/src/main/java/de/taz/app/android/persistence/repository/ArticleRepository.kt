@@ -1,18 +1,20 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBase
 import de.taz.app.android.api.models.Author
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
-import kotlin.Exception
+import de.taz.app.android.util.SingletonHolder
 
-class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class ArticleRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
+    companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
 
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @Transaction
     fun save(article: Article) {
@@ -34,7 +36,7 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         article.imageList.forEach {
             fileEntryRepository.save(it)
             appDatabase.articleImageJoinDao().insertOrReplace(
-               ArticleImageJoin(articleFileName, it.name)
+                ArticleImageJoin(articleFileName, it.name)
             )
         }
 
@@ -70,7 +72,9 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
         )
 
         val authors = authorImageJoins.map { authorImageJoin ->
-            Author(authorImageJoin.authorName, authorImages.find { it.name == authorImageJoin.authorFileName })
+            Author(
+                authorImageJoin.authorName,
+                authorImages.find { it.name == authorImageJoin.authorFileName })
         }
 
         return Article(
@@ -86,7 +90,7 @@ class ArticleRepository(private val appDatabase: AppDatabase = AppDatabase.getIn
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(articleNames: List<String>) : List<Article> {
+    fun getOrThrow(articleNames: List<String>): List<Article> {
         return articleNames.map { getOrThrow(it) }
     }
 

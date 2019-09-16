@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
+const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
+const val DATA_ISSUE_DATE = "extra.issue.date"
+
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
@@ -26,7 +29,7 @@ object DownloadService {
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private val appInfoRepository = AppInfoRepository.getInstance()
-    private val fileEntryRepository = FileEntryRepository()
+    private val fileEntryRepository = FileEntryRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
 
     /**
@@ -64,7 +67,8 @@ object DownloadService {
                 )
             }
             issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                createAndSaveDownloads(appInfoRepository.get().globalBaseUrl, issue.tag, files)
+                // TODO ensure appInfoRepository is downloaded
+                createAndSaveDownloads(appInfoRepository.getOrThrow().globalBaseUrl, issue.tag, files)
 
                 DownloadWorker.startDownloads(
                     appContext,
