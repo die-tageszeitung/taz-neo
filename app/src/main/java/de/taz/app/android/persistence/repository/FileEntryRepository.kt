@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.SingletonHolder
 
 class FileEntryRepository private constructor(applicationContext: Context) :
