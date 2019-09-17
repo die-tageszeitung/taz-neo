@@ -8,7 +8,8 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
 
-class SectionRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
+class SectionRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<SectionRepository, Context>(::SectionRepository)
 
@@ -21,17 +22,19 @@ class SectionRepository private constructor(applicationContext: Context): Reposi
         fileEntryRepository.save(section.sectionHtml)
         section.articleList.forEach { articleRepository.save(it) }
         appDatabase.sectionArticleJoinDao().insertOrReplace(
-            section.articleList.map { article ->
+            section.articleList.mapIndexed { index, article ->
                 SectionArticleJoin(
                     section.sectionHtml.name,
-                    article.articleHtml.name
+                    article.articleHtml.name,
+                    index
                 )
             }
         )
         fileEntryRepository.save(section.imageList)
-        appDatabase.sectionImageJoinDao().insertOrReplace(section.imageList.map {
-            SectionImageJoin(section.sectionHtml.name, it.name)
-        })
+        appDatabase.sectionImageJoinDao()
+            .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
+                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+            })
     }
 
     fun getBase(sectionFileName: String): SectionBase? {

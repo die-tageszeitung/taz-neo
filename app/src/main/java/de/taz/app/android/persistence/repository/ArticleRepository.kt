@@ -33,19 +33,19 @@ class ArticleRepository private constructor(applicationContext: Context) :
         fileEntryRepository.save(article.articleHtml)
 
         // save images and relations
-        article.imageList.forEach {
-            fileEntryRepository.save(it)
+        article.imageList.forEachIndexed { index, fileEntry ->
+            fileEntryRepository.save(fileEntry)
             appDatabase.articleImageJoinDao().insertOrReplace(
-                ArticleImageJoin(articleFileName, it.name)
+                ArticleImageJoin(articleFileName, fileEntry.name, index)
             )
         }
 
         // save authors
-        article.authorList.forEach { author ->
+        article.authorList.forEachIndexed { index ,author ->
             author.imageAuthor?.let {
                 fileEntryRepository.save(it)
                 appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                    ArticleAuthorImageJoin(articleFileName, author.name, it.name)
+                    ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
                 )
             }
         }

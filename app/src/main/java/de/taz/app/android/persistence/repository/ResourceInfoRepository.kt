@@ -29,8 +29,8 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
         )
         // save relation to files
         appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-            resourceInfo.resourceList.map {
-                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, it.name)
+            resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
             }
         )
     }

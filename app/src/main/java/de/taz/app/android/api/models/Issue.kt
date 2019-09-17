@@ -36,32 +36,6 @@ data class Issue(
         issueDto.pageList ?: emptyList()
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other?.javaClass != javaClass) return false
-
-        other as Issue
-
-        return date == other.date &&
-                feedName == other.feedName &&
-                key == other.key &&
-                baseUrl == other.baseUrl &&
-                status == other.status &&
-                minResourceVersion == other.minResourceVersion &&
-                zipName == other.zipName &&
-                zipPdfName == other.zipPdfName &&
-                navButton == other.navButton &&
-                imprint == other.imprint &&
-                fileList.containsAll(other.fileList) &&
-                other.fileList.containsAll(fileList) &&
-                fileListPdf.containsAll(other.fileListPdf) &&
-                other.fileListPdf.containsAll(fileListPdf) &&
-                sectionList.containsAll(other.sectionList) &&
-                other.sectionList.containsAll(sectionList) &&
-                pageList.containsAll(other.pageList) &&
-                other.pageList.containsAll(pageList)
-    }
-
     val tag: String
         get() = "$feedName/$date"
 

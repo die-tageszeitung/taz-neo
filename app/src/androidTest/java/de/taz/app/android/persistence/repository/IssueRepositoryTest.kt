@@ -5,9 +5,9 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.File
 import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.Log
 import kotlinx.io.IOException
 import org.junit.After
 import org.junit.Assert.*
@@ -18,11 +18,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class IssueRepositoryTest {
 
+    private val log by Log
+
     private lateinit var db: AppDatabase
     private lateinit var issueRepository: IssueRepository
 
-    private val issues = IssueTestUtil.createIssue(3)
-    private val issue = issues.first()
+    private val issue = IssueTestUtil.getIssue()
+    private val issue2 = IssueTestUtil.getIssue("testIssue2")
 
     @Before
     fun createDb() {
@@ -69,22 +71,21 @@ class IssueRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndReadMultiple() {
-        for (issue in issues) {
-            assertTrue(issues.filter { it == issue }.size == 1)
+        issueRepository.save(issue)
+        issueRepository.save(issue2)
 
-            issueRepository.save(issue)
-            val fromDB = issueRepository.getIssueByFeedAndDate(issue.feedName, issue.date)
+        val fromDB = issueRepository.getIssueByFeedAndDate(issue.feedName, issue.date)
+        val fromDB2 = issueRepository.getIssueByFeedAndDate(issue2.feedName, issue2.date)
 
-            assertEquals(fromDB, issue)
-        }
+        assertEquals(fromDB, issue)
+        assertEquals(fromDB2, issue2)
     }
 
     @Test
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        val latestIssue = issues.last()
-        assertTrue(issueRepository.getLatestIssue() == latestIssue)
+        assertTrue(issueRepository.getLatestIssue() == issue2)
     }
 
 

@@ -20,7 +20,7 @@ class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var articleRepository: ArticleRepository
 
-    private val issue = IssueTestUtil.createIssue()
+    private val issue = IssueTestUtil.getIssue()
     private val article = issue.sectionList.first().articleList.first()
     private val article2 = issue.sectionList[1].articleList.first()
 

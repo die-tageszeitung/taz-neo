@@ -11,6 +11,8 @@ abstract class ResourceInfoFileEntryJoinDao: BaseDao<ResourceInfoFileEntryJoin>(
 
     @Query("""SELECT FileEntry.* FROM FileEntry INNER JOIN ResourceInfoFileEntryJoin 
         ON FileEntry.name=ResourceInfoFileEntryJoin.fileEntryName 
-        WHERE ResourceInfoFileEntryJoin.resourceInfoVersion=:resourceInfoVersion """)
+        WHERE ResourceInfoFileEntryJoin.resourceInfoVersion=:resourceInfoVersion 
+        ORDER BY ResourceInfoFileEntryJoin.`index` ASC """
+    )
     abstract fun getFileEntriesForResourceInfo(resourceInfoVersion: Int): List<FileEntry>
 }

@@ -27,8 +27,8 @@ class IssueRepository private constructor(applicationContext: Context) :
 
         // save page relation
         appDatabase.issuePageJoinDao().insertOrReplace(
-            issue.pageList.map {
-                IssuePageJoin(issue.feedName, issue.date, it.pagePdf.name)
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
             }
         )
 
@@ -43,8 +43,8 @@ class IssueRepository private constructor(applicationContext: Context) :
         // save sections
         issue.sectionList.let { sectionList ->
             sectionList.forEach { sectionRepository.save(it) }
-            appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.map {
-                IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name)
+            appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.mapIndexed { index, it ->
+                IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
             })
         }
     }

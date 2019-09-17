@@ -24,22 +24,6 @@ data class Article(
         articleDto.authorList ?: emptyList()
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other?.javaClass != javaClass) return false
-
-        other as Article
-
-        return articleHtml == other.articleHtml &&
-                title == other.title &&
-                teaser == other.teaser &&
-                onlineLink == other.onlineLink &&
-                audioFile == other.audioFile &&
-                pageNameList.containsAll(other.pageNameList) &&
-                imageList.containsAll(other.imageList) &&
-                authorList.containsAll(other.authorList)
-    }
-
     fun isDownloaded(): Boolean {
         DownloadRepository.getInstance().let {
             return it.isDownloaded(articleHtml.name) &&
