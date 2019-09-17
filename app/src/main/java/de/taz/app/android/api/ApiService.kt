@@ -32,8 +32,8 @@ class ApiService(
     }
 
     /**
-     * function to get the  [AppInfo]
-     * @return [AppInfo]
+     * function to get the app info
+     * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
     suspend fun getAppInfo(): AppInfo {
         return catchExceptions(

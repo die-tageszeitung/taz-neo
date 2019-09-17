@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.models.ArticleBase
-import de.taz.app.android.api.models.FileEntry
 
 @Entity(
     tableName = "ArticleAuthor",

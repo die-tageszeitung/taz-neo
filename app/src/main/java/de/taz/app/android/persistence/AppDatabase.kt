@@ -47,7 +47,8 @@ private const val DATABASE_NAME = "db"
     StorageTypeConverter::class,
     StringListTypeConverter::class,
     SectionTypeTypeConverter::class,
-    UUIDTypeConverter::class
+    UUIDTypeConverter::class,
+    SectionTypeTypeConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
