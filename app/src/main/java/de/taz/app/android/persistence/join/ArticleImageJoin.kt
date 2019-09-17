@@ -25,5 +25,6 @@ import de.taz.app.android.api.models.FileEntry
 )
 data class ArticleImageJoin(
     val articleFileName: String,
-    val imageFileName: String
+    val imageFileName: String,
+    val index: Int
 )

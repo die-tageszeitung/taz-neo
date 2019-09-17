@@ -21,7 +21,7 @@ class PageRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var pageRepository: PageRepository
 
-    private val issue = IssueTestUtil.createIssue()
+    private val issue = IssueTestUtil.getIssue()
     private val pages = issue.pageList
     private val page = pages.first()
 

@@ -25,5 +25,6 @@ import de.taz.app.android.api.models.SectionBase
 )
 data class SectionImageJoin(
     val sectionFileName: String,
-    val imageFileName: String
+    val imageFileName: String,
+    val index: Int
 )

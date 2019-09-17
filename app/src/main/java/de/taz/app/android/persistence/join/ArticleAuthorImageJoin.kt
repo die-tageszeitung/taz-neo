@@ -22,5 +22,6 @@ data class ArticleAuthorImageJoin(
     val articleFileName: String,
     val authorName: String?,
     val authorFileName: String?,
+    val index: Int,
     @PrimaryKey(autoGenerate = true) val id: Int? = null
 )

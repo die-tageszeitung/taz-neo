@@ -26,5 +26,6 @@ import de.taz.app.android.api.models.SectionBase
 class IssueSectionJoin(
     val issueFeedName: String,
     val issueDate: String,
-    val sectionFileName: String
+    val sectionFileName: String,
+    val index: Int
 )
