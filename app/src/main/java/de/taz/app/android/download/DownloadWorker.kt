@@ -151,7 +151,7 @@ class WorkManagerDownloadWorker(
     }
 }
 
-class IssueWorkerManagerWorker(
+class ScheduleIssueDownloadWorkManagerWorker(
     private val appContext: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(appContext, workerParameters) {

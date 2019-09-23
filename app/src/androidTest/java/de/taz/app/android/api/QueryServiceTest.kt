@@ -1,8 +1,10 @@
 package de.taz.app.android.api
 
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Before
+import org.junit.Assert
 import org.junit.Test
+
+import org.junit.Before
 
 class QueryServiceTest {
 
@@ -22,4 +24,13 @@ class QueryServiceTest {
             queryService.get(it)
         }
     }
+
+
+    @Test
+    fun usesCache() {
+        queryService.get(QueryType.AppInfoQuery)
+        Assert.assertFalse(queryService.queryCache[QueryType.AppInfoQuery.name].isNullOrEmpty())
+    }
+
+
 }

@@ -68,7 +68,11 @@ object DownloadService {
             }
             issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
                 // TODO ensure appInfoRepository is downloaded
-                createAndSaveDownloads(appInfoRepository.getOrThrow().globalBaseUrl, issue.tag, files)
+                createAndSaveDownloads(
+                    appInfoRepository.getOrThrow().globalBaseUrl,
+                    issue.tag,
+                    files
+                )
 
                 DownloadWorker.startDownloads(
                     appContext,
@@ -110,6 +114,17 @@ object DownloadService {
     }
 
     /**
+     * use [WorkManager] to get information about an issue and schedule downloads
+     * @param issueFeedName: name of the feed of the issue
+     * @param issueDate: date of the issue
+     */
+    fun scheduleDownload(appContext: Context, issueFeedName: String, issueDate: String) {
+        WorkManager.getInstance(appContext)
+            .enqueue(createScheduleDownloadsRequest(issueFeedName, issueDate))
+    }
+
+
+    /**
      * enqueue [Download]s with [WorkManager]
      * @param appContext - [Context] of the app
      * @param downloads - downloads to enqueue
@@ -130,25 +145,43 @@ object DownloadService {
      * @param tag - tag for Download (can be used to cancel downloads)
      * @return [OneTimeWorkRequest]
      */
-    private fun createRequest(download: Download, tag: String? = null): OneTimeWorkRequest {
+    private fun createDownloadRequest(download: Download, tag: String? = null): OneTimeWorkRequest {
         val data = Data.Builder()
             .putString(DATA_DOWNLOAD_FILE_NAME, download.file.name)
             .build()
 
-        val constraints = Constraints.Builder() // TODO read constraints from settings
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresStorageNotLow(true)
-            .setRequiresBatteryNotLow(true)
-            .build()
-
         val requestBuilder = OneTimeWorkRequest.Builder(WorkManagerDownloadWorker::class.java)
             .setInputData(data)
-            .setConstraints(constraints)
+            .setConstraints(getConstraints())
 
         tag?.let { requestBuilder.addTag(tag) }
 
         return requestBuilder.build()
     }
+
+    private fun createScheduleDownloadsRequest(feedName: String, date: String): OneTimeWorkRequest {
+        val data =
+            Data.Builder().putString(DATA_ISSUE_FEEDNAME, feedName).putString(DATA_ISSUE_DATE, date)
+                .build()
+
+        return OneTimeWorkRequest.Builder(ScheduleIssueDownloadWorkManagerWorker::class.java)
+            .setInputData(data)
+            .setConstraints(getConstraints())
+            .addTag("$feedName/$date")
+            .build()
+    }
+
+    /**
+     * get Constraints for [WorkRequest] of [WorkManager]
+     */
+    private fun getConstraints(): Constraints {
+        return Constraints.Builder() // TODO read constraints from settings
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .setRequiresStorageNotLow(true)
+            .setRequiresBatteryNotLow(true)
+            .build()
+    }
+
 
     /**
      * create [OneTimeWorkRequest] for [WorkManager] from  [Download] and save requestId
@@ -160,7 +193,7 @@ object DownloadService {
         download: Download,
         tag: String? = null
     ): OneTimeWorkRequest {
-        val request = createRequest(download, tag)
+        val request = createDownloadRequest(download, tag)
         downloadRepository.setWorkerId(download.file.name, request.id)
         return request
     }
