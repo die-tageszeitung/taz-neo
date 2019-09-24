@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.persistence.repository.DownloadRepository
@@ -20,11 +22,18 @@ data class Section(
     )
 
     fun isDownloaded(): Boolean {
-        DownloadRepository.getInstance().let {
-            return it.isDownloaded(sectionHtml.name) &&
-                    it.isDownloaded(imageList.map { image -> image.name }) &&
-                    articleList.firstOrNull { article -> !article.isDownloaded() } == null
-        }
+        return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
+    }
+
+    fun isDownloadedLiveDate(): LiveData<Boolean> {
+        return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())
+    }
+
+    private fun getAllFileNames(): List<String> {
+        val list = mutableListOf(sectionHtml.name)
+        list.addAll(imageList.map { image -> image.name })
+        articleList.forEach{ article -> list.addAll(article.getAllFileEntries()) }
+        return list
     }
 
 }

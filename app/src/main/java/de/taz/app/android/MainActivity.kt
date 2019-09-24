@@ -3,6 +3,7 @@ package de.taz.app.android
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
@@ -18,8 +19,8 @@ import java.io.File
 
 class MainActivity(private val apiService: ApiService = ApiService()) : AppCompatActivity() {
 
-    private lateinit var authHelper : AuthHelper
-    private lateinit var issueRepository : IssueRepository
+    private lateinit var authHelper: AuthHelper
+    private lateinit var issueRepository: IssueRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,18 +31,32 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
         setContentView(R.layout.activity_main)
 
         CoroutineScope(Dispatchers.IO).launch {
-            issueRepository.getLatestIssue()?.let { lastIssue ->
-                lastIssue.sectionList.first().let { section ->
-                    if (section.isDownloaded()) {
-                        val file = File(
-                            ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
-                            "${lastIssue.tag}/${section.sectionHtml.name}"
-                        )
-                        runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
-                    }
-                }
+            try {
+                val issue = apiService.getIssueByFeedAndDate()
+                issueRepository.save(issue)
+                DownloadService.download(applicationContext, issue)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                ToastHelper.getInstance().makeToast("NO INTERWEBZ")
+            } catch (e: ApiService.ApiServiceException.InsufficientData) {
+                ToastHelper.getInstance().makeToast("Something went wrong. Dev will be informed")
             }
         }
+
+        issueRepository.getLatestIssueBaseLiveData()
+            .observe(this@MainActivity, Observer { issueBase ->
+                issueBase?.isDownloadedLiveData()
+                    ?.observe(this@MainActivity, Observer { downloaded ->
+                        if (downloaded) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val issue = issueBase.getIssue()
+                                runOnUiThread {
+                                    showIssue(issue)
+                                }
+                            }
+                        }
+                    })
+            })
+
         login.setOnClickListener {
             GlobalScope.launch {
                 try {
@@ -51,26 +66,6 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
                     }
                 } catch (e: Exception) {
                     // TODO
-                }
-            }
-        }
-        test.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    issueRepository.getLatestIssue()?.let {
-                        if (it.isDownloaded())
-                            showIssue(it)
-                        else {
-                            ToastHelper.getInstance().makeToast("PLZ WAIT")
-                            DownloadService.download(applicationContext, it)
-                        }
-                    } ?: let {
-                        val issue = apiService.getIssueByFeedAndDate()
-                        issueRepository.save(issue)
-                        DownloadService.download(applicationContext, issue)
-                    }
-                } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-                    ToastHelper.getInstance().showNoConnectionToast()
                 }
             }
         }
