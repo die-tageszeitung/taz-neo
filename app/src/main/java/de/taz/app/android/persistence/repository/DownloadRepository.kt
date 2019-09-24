@@ -2,6 +2,9 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.SingletonHolder
@@ -124,5 +127,33 @@ class DownloadRepository private constructor(applicationContext: Context) :
         return getWithoutFile(fileNames).firstOrNull { download ->
             download?.status != DownloadStatus.done
         } == null
+    }
+
+    fun getLiveData(fileName: String): LiveData<Boolean> {
+        return Transformations.map(appDatabase.downloadDao().getLiveData(fileName)) { input ->
+            input?.status == DownloadStatus.done
+        }
+    }
+
+    fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
+        val mediatorLiveData = MediatorLiveData<Boolean>()
+        mediatorLiveData.value = false
+
+        var trueCountdown = fileNames.size
+        fileNames.forEach { fileName ->
+            val source = getLiveData(fileName)
+            mediatorLiveData.addSource(source) { value ->
+                if (value) {
+                    trueCountdown--
+                    mediatorLiveData.removeSource(source)
+                }
+
+                if (trueCountdown <= 0) {
+                    mediatorLiveData.value = true
+                }
+            }
+        }
+
+        return mediatorLiveData
     }
 }

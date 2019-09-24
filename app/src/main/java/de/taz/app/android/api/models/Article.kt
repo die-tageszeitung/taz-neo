@@ -33,4 +33,11 @@ data class Article(
         }
     }
 
+    fun getAllFileEntries(): List<String> {
+        val list = mutableListOf(articleHtml.name)
+        audioFile?.let { list.add(audioFile.name) }
+        list.addAll(imageList.map { image -> image.name })
+        return list
+    }
+
 }

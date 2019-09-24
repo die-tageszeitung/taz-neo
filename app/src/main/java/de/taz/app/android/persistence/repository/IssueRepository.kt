@@ -1,6 +1,8 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
@@ -61,6 +63,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         return getLatestIssueBase()?.let { issueBaseToIssue(it) }
     }
 
+    fun getLatestIssueBaseLiveData(): LiveData<IssueBase?> {
+        return appDatabase.issueDao().getLatestLiveData()
+    }
+
     @Throws(NotFoundException::class)
     fun getLatestIssueBaseOrThrow(): IssueBase {
         return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
@@ -114,5 +120,8 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     }
 
+    fun getIssue(issueBase: IssueBase): Issue {
+        return issueBaseToIssue(issueBase)
+    }
 
 }
