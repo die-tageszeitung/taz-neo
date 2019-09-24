@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 
@@ -47,6 +48,8 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
 
 class TazWebViewClient : WebViewClient() {
 
+    private val log by Log
+
     private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
@@ -69,13 +72,19 @@ class TazWebViewClient : WebViewClient() {
         return super.shouldOverrideUrlLoading(view, request)
     }
 
+    override fun onLoadResource(view: WebView?, url: String?) {
+        val newUrl = overrideInternalLinks(view, url)
+        super.onLoadResource(view, newUrl)
+        log.debug("loading resource ..... $newUrl")
+    }
+
     private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
         view?.let {
             url?.let {
                 val fileDir = FileUtil.getFileDirectoryUrl(view.context)
 
-                var newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/", "$fileDir/resources/")
-                newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/", "$fileDir/global/")
+                var newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/".toRegex(), "$fileDir/resources/")
+                newUrl = newUrl.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/".toRegex(), "$fileDir/global/")
 
                 return newUrl
             }
@@ -85,7 +94,18 @@ class TazWebViewClient : WebViewClient() {
     }
 
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        return super.shouldInterceptRequest(view, overrideInternalLinks(view, url))
+        val newUrl = overrideInternalLinks(view, url)
+        log.debug("newUrl is $newUrl")
+
+        val data = File(newUrl.toString().removePrefix("file:///"))
+        log.debug("blaaaaaaa")
+
+        if (url.toString().contains(".css"))
+            return WebResourceResponse("text/css", "UTF-8", data.inputStream())
+        else if (url.toString().contains(".html"))
+            return WebResourceResponse("text/html", "UTF-8", data.inputStream())
+        else
+            return WebResourceResponse("text/plain", "UTF-8", data.inputStream())
     }
 
 //    @RequiresApi(api = Build.VERSION_CODES.N)
