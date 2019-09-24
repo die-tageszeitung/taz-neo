@@ -17,9 +17,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Issue
 import kotlinx.android.synthetic.main.fragment_webview.*
+import java.io.File
 
-class WebViewFragment : Fragment() {
+class WebViewFragment(val lastIssue: Issue) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,10 +31,18 @@ class WebViewFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_webview, container, false)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         webView.webViewClient = TazWebViewClient()
+        context?.let {
+            val file = File(
+                ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
+                "${lastIssue.tag}/${lastIssue.sectionList.first().sectionHtml.name}"
+            )
+            webView.loadUrl("file://${file.absolutePath}")
+        }
     }
+
 }
 
 class TazWebViewClient : WebViewClient() {
@@ -59,31 +69,42 @@ class TazWebViewClient : WebViewClient() {
         return super.shouldOverrideUrlLoading(view, request)
     }
 
-    private fun overrideInternalLinks(view: WebView?, url: String?) : String {
+    private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
         view?.let {
             url?.let {
                 val fileDir = FileUtil.getFileDirectoryUrl(view.context)
 
-                if (url.matches(""$fileDir")) {
-                    return "$fileDir/"
-                }
-                if (url.startsWith("$fileDir/global/"))
+                var newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/", "$fileDir/resources/")
+                newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/", "$fileDir/global/")
+
+                return newUrl
             }
 
         }
+        return url
     }
 
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        return super.shouldInterceptRequest(view, url)
+        return super.shouldInterceptRequest(view, overrideInternalLinks(view, url))
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    override fun shouldInterceptRequest(
-        view: WebView?,
-        request: WebResourceRequest?
-    ): WebResourceResponse? {
-        return super.shouldInterceptRequest(view, request)
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    override fun shouldInterceptRequest(
+//        view: WebView?,
+//        request: WebResourceRequest?
+//    ): WebResourceResponse? {
+//        request?.let { request ->
+//            val newUrl = overrideInternalLinks(view, request.url.toString())
+//            if (request.url.toString() != newUrl) {
+//                    return readFileFromFileSystem(newUrl)
+//                }
+//        }
+//        return super.shouldInterceptRequest(view, request)
+//     }
+//
+//    private fun readFileFromFileSystem(url: String) : WebResourceResponse {
+//        File.
+//    }
 }
 
 object FileUtil {
