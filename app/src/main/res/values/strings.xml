@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">taz-android</string>
+
+    <string name="toast_no_internet">No Internet Connection.</string>
+    <string name="toast_login_failed">Login failed.</string>
+    <string name="toast_unknown_error">Unknown error occured.</string>
 </resources>

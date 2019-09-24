@@ -11,6 +11,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
@@ -25,6 +26,7 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var appInfoRepository: AppInfoRepository
     private lateinit var downloadRepository: DownloadRepository
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var fileHelper: FileHelper
     private lateinit var resourceInfoRepository: ResourceInfoRepository
 
     override fun onResume() {
@@ -48,11 +50,6 @@ class SplashActivity : AppCompatActivity() {
     private fun createSingletons() {
         applicationContext.let {
             AppDatabase.createInstance(it)
-            AuthHelper.createInstance(it)
-            QueryService.createInstance(it)
-            ToastHelper.createInstance(it)
-
-            apiService = ApiService()
 
             // Repositories
             appInfoRepository = AppInfoRepository.createInstance(it)
@@ -63,6 +60,15 @@ class SplashActivity : AppCompatActivity() {
             PageRepository.createInstance(it)
             resourceInfoRepository = ResourceInfoRepository.createInstance(it)
             SectionRepository.createInstance(it)
+
+            // others
+            AuthHelper.createInstance(it)
+            QueryService.createInstance(it)
+            ToastHelper.createInstance(it)
+
+            apiService = ApiService()
+            fileHelper = FileHelper.createInstance(it)
+
         }
     }
 
@@ -97,9 +103,9 @@ class SplashActivity : AppCompatActivity() {
                         fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                             // only delete modified files
                             if (oldFileEntry != newFileEntry) {
+                                fileHelper.deleteFile(oldFileEntry.name)
                                 downloadRepository.delete(oldFileEntry.name)
                                 fileEntryRepository.delete(oldFileEntry)
-                                // TODO delete file form disk?!
                             }
                         }
                     }

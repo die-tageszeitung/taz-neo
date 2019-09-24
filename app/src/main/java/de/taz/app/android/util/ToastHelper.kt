@@ -3,6 +3,7 @@ package de.taz.app.android.util
 import android.content.Context
 import android.os.Handler
 import android.widget.Toast
+import de.taz.app.android.R
 import java.util.*
 
 /**
@@ -33,7 +34,7 @@ class ToastHelper private constructor(private val applicationContext: Context) {
         val now = Date().time
         if (now > lastConnectionError + 10000) {
             lastConnectionError = now
-            makeToast("NO INTERWEBZ") // TODO replace to string
+            makeToast(R.string.toast_no_internet)
         }
     }
 

@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -19,14 +20,18 @@ import java.io.File
 
 class MainActivity(private val apiService: ApiService = ApiService()) : AppCompatActivity() {
 
+    private val log by Log
+
     private lateinit var authHelper: AuthHelper
     private lateinit var issueRepository: IssueRepository
+    private lateinit var toastHelper: ToastHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         setContentView(R.layout.activity_main)
 
@@ -36,17 +41,19 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
                 issueRepository.save(issue)
                 DownloadService.download(applicationContext, issue)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                ToastHelper.getInstance().makeToast("NO INTERWEBZ")
+                toastHelper.showNoConnectionToast()
             } catch (e: ApiService.ApiServiceException.InsufficientData) {
-                ToastHelper.getInstance().makeToast("Something went wrong. Dev will be informed")
+                toastHelper.makeToast(R.string.toast_unknown_error)
             }
         }
 
         issueRepository.getLatestIssueBaseLiveData()
             .observe(this@MainActivity, Observer { issueBase ->
+                log.debug("issue exists in db")
                 issueBase?.isDownloadedLiveData()
                     ?.observe(this@MainActivity, Observer { downloaded ->
                         if (downloaded) {
+                            log.debug("issue is downloaded")
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
                                 runOnUiThread {
@@ -60,12 +67,13 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
         login.setOnClickListener {
             GlobalScope.launch {
                 try {
-                    apiService.authenticate(username.text.toString(), password.text.toString())
-                        .token?.let {
+                    apiService.authenticate(
+                        username.text.toString(), password.text.toString()
+                    ).token?.let {
                         authHelper.token = it
                     }
                 } catch (e: Exception) {
-                    // TODO
+                    toastHelper.makeToast(R.string.toast_login_failed)
                 }
             }
         }
