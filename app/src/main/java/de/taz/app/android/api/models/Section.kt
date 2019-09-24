@@ -1,10 +1,8 @@
 package de.taz.app.android.api.models
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.api.interfaces.Downloadable
 
 data class Section(
     val sectionHtml: FileEntry,
@@ -12,7 +10,7 @@ data class Section(
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
-) {
+): Downloadable {
     constructor(sectionDto: SectionDto) : this(
         sectionDto.sectionHtml,
         sectionDto.title,
@@ -21,18 +19,10 @@ data class Section(
         sectionDto.imageList ?: listOf()
     )
 
-    fun isDownloaded(): Boolean {
-        return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
-    }
-
-    fun isDownloadedLiveDate(): LiveData<Boolean> {
-        return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())
-    }
-
-    private fun getAllFileNames(): List<String> {
+    override fun getAllFileNames(): List<String> {
         val list = mutableListOf(sectionHtml.name)
         list.addAll(imageList.map { image -> image.name })
-        articleList.forEach{ article -> list.addAll(article.getAllFileEntries()) }
+        articleList.forEach{ article -> list.addAll(article.getAllFileNames()) }
         return list
     }
 

@@ -2,8 +2,11 @@ package de.taz.app.android.api.models
 
 import androidx.lifecycle.LiveData
 import androidx.room.Entity
+import de.taz.app.android.api.interfaces.Downloadable
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @Entity(
     tableName = "Issue",
@@ -21,7 +24,7 @@ open class IssueBase(
     open val navButton: NavButton? = null,
     open val fileList: List<String>,
     open val fileListPdf: List<String> = emptyList()
-) {
+): Downloadable {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
@@ -38,20 +41,11 @@ open class IssueBase(
     val globalFileList: List<String>
         get() = fileList.filter { it.startsWith("/global/") }.map { it.split("/").last() }
 
-    fun isDownloadedLiveData(): LiveData<Boolean> {
-        return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())
-    }
-
-
-    fun isDownloaded(): Boolean {
-        return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
-    }
-
-    private fun getAllFileNames(): List<String> {
+    override fun getAllFileNames(): List<String> {
         return listOf(issueFileList, globalFileList).flatten()
     }
 
-    suspend fun getIssue(): Issue {
+    fun getIssue(): Issue {
         return IssueRepository.getInstance().getIssue(this)
     }
 }

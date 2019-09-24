@@ -1,6 +1,7 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
+import de.taz.app.android.api.interfaces.Downloadable
 import de.taz.app.android.persistence.repository.DownloadRepository
 
 data class Article(
@@ -12,7 +13,7 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList()
-) {
+): Downloadable {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,
         articleDto.title,
@@ -24,16 +25,7 @@ data class Article(
         articleDto.authorList ?: emptyList()
     )
 
-    fun isDownloaded(): Boolean {
-        DownloadRepository.getInstance().let {
-            return it.isDownloaded(articleHtml.name) &&
-                    it.isDownloaded(audioFile?.name) &&
-                    it.isDownloaded(imageList.map { image -> image.name }) &&
-                    authorList.firstOrNull { author -> !author.isDownloaded() } == null
-        }
-    }
-
-    fun getAllFileEntries(): List<String> {
+    override fun getAllFileNames(): List<String> {
         val list = mutableListOf(articleHtml.name)
         audioFile?.let { list.add(audioFile.name) }
         list.addAll(imageList.map { image -> image.name })

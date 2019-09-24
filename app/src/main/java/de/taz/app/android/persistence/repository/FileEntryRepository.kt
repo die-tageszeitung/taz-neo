@@ -2,13 +2,18 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.Transaction
+import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.SingletonHolder
 
-class FileEntryRepository private constructor(applicationContext: Context) :
-    RepositoryBase(applicationContext) {
+class FileEntryRepository private constructor(
+    applicationContext: Context
+) : RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
+    private val downloadRepository = DownloadRepository.getInstance(applicationContext)
+    private val fileHelper = FileHelper.getInstance(applicationContext)
 
     @Transaction
     fun save(fileEntry: FileEntry) {
@@ -40,7 +45,12 @@ class FileEntryRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(fileEntry: FileEntry) {
-        // TODO fileEntry.deleteFromDisk()
+        // delete file and download if downloaded before
+        downloadRepository.getWithoutFile(fileEntry.name)?.let { downloadBase ->
+            val download = Download(downloadBase, fileEntry)
+            fileHelper.deleteFileForDownload(download)
+            downloadRepository.delete(fileEntry.name)
+        }
         appDatabase.fileEntryDao().delete(fileEntry)
     }
 

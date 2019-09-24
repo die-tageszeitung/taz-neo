@@ -1,8 +1,6 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import android.os.Environment
-import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -12,13 +10,13 @@ import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 
@@ -60,6 +58,7 @@ object DownloadWorker {
      */
     suspend fun startDownload(appContext: Context, fileName: String) {
         val downloadRepository = DownloadRepository.getInstance(appContext)
+        val fileHelper = FileHelper.createInstance(appContext)
 
         downloadRepository.get(fileName)?.let { fromDB ->
             // download only if not already downloaded
@@ -74,10 +73,10 @@ object DownloadWorker {
                     )::enqueue
                 )
 
-                val file = getFile(appContext, fromDB.path)
+                val file = fileHelper.getFile(fromDB.path)
                 response.body?.bytes()?.let { bytes ->
                     // ensure folders are created
-                    getFile(appContext, fromDB.folder).mkdirs()
+                    fileHelper.getFile(fromDB.folder).mkdirs()
                     file.writeBytes(bytes)
 
                     // check sha256
@@ -86,7 +85,6 @@ object DownloadWorker {
                     if (sha256 == fromDB.file.sha256) {
                         log.info("sha256 matched for file ${fromDB.file.name}")
                     } else {
-                        // TODO handle wrong sha256
                         log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
                     }
                 }
@@ -106,21 +104,6 @@ object DownloadWorker {
             fromDB.status = DownloadStatus.done
             downloadRepository.update(fromDB)
         } ?: log.error("download $fileName not found")
-    }
-
-    private fun getFile(appContext: Context, fileName: String, internal: Boolean = false): File {
-        // TODO read from settings where to save
-        // TODO notification if external not writable?
-        return if (internal || !isExternalStorageWritable())
-            File(appContext.filesDir, fileName)
-        else {
-            return File(ContextCompat.getExternalFilesDirs(appContext, null).first(), fileName)
-        }
-    }
-
-    /* Checks if external storage is available for read and write */
-    private fun isExternalStorageWritable(): Boolean {
-        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
 }

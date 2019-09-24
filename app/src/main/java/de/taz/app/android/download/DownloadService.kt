@@ -67,7 +67,6 @@ object DownloadService {
                 )
             }
             issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                // TODO ensure appInfoRepository is downloaded
                 createAndSaveDownloads(
                     appInfoRepository.getOrThrow().globalBaseUrl,
                     issue.tag,
