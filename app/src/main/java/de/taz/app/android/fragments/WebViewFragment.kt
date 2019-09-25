@@ -36,6 +36,7 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
             webView.loadUrl("file://${file.absolutePath}")
         }
 
+        // handle clicks of the back button
         webView.setOnKeyListener(object: View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                 if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && webView.canGoBack()) {
@@ -51,6 +52,7 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
 
 class TazWebViewClient : WebViewClient() {
 
+    // internal links should be handles by the app, external ones - by a web browser
     private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
@@ -73,6 +75,7 @@ class TazWebViewClient : WebViewClient() {
         return super.shouldOverrideUrlLoading(view, request)
     }
 
+    // intercept links to "resources/" and "global/" and point them to the correct directories
     private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
         view?.let {
             url?.let {
@@ -93,6 +96,9 @@ class TazWebViewClient : WebViewClient() {
 
         val data = File(newUrl.toString().removePrefix("file:///"))
 
+        // handle correctly different resource types
+        // we have to return our own WebResourceResponse object here
+        // TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
         return when {
             url.toString().contains(".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
             url.toString().contains(".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
