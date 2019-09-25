@@ -114,14 +114,14 @@ class SplashActivity : AppCompatActivity() {
                 DownloadService.scheduleDownload(applicationContext, fromServer)
                 DownloadService.download(applicationContext, fromServer)
 
-                // mock tazApi.css
-                // TODO use real tazApi.css
-                fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
-
             } catch (e: Exception) {
                 log.warn("unable to get ResourceInfo", e)
             }
         }
+
+        // mock tazApi.css
+        // TODO use real tazApi.css
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
     }
 
 }
