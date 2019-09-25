@@ -88,11 +88,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showIssue(issue: Issue) {
-        val file = File(
-            ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
-            "${issue.tag}/${issue.sectionList.first().sectionHtml.name}"
-        )
-        runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentPlaceholder, WebViewFragment(issue))
+            .commit()
     }
 
 }
