@@ -100,12 +100,15 @@ class TazWebViewClient : WebViewClient() {
         val data = File(newUrl.toString().removePrefix("file:///"))
         log.debug("blaaaaaaa")
 
-        if (url.toString().contains(".css"))
-            return WebResourceResponse("text/css", "UTF-8", data.inputStream())
-        else if (url.toString().contains(".html"))
-            return WebResourceResponse("text/html", "UTF-8", data.inputStream())
-        else
-            return WebResourceResponse("text/plain", "UTF-8", data.inputStream())
+        return when {
+            url.toString().contains( ".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
+            url.toString().contains( ".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
+            url.toString().contains( ".js") -> WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
+            url.toString().contains( ".png") -> WebResourceResponse("image/png", "binary", data.inputStream())
+            url.toString().contains( ".svg") -> WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
+            url.toString().contains( ".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
+            else -> WebResourceResponse("text/plain", "UTF-8", data.inputStream())
+        }
     }
 
 //    @RequiresApi(api = Build.VERSION_CODES.N)
