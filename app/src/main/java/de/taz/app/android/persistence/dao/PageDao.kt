@@ -7,5 +7,5 @@ import de.taz.app.android.api.models.PageWithoutFile
 @Dao
 abstract class PageDao : BaseDao<PageWithoutFile>() {
     @Query("SELECT * FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
-    abstract fun get(fileName: String): PageWithoutFile
+    abstract fun get(fileName: String): PageWithoutFile?
 }

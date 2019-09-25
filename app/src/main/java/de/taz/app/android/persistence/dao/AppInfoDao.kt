@@ -7,7 +7,7 @@ import de.taz.app.android.api.models.AppInfo
 @Dao
 abstract class AppInfoDao : BaseDao<AppInfo>() {
     @Query("SELECT * FROM AppInfo LIMIT 1")
-    abstract fun get(): AppInfo
+    abstract fun get(): AppInfo?
 
 
     @Query("SELECT COUNT(*) FROM AppInfo")

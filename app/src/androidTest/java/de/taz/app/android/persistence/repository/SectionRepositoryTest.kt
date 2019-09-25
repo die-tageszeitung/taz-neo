@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.Log
 import org.junit.After
 import org.junit.Before
 
@@ -18,10 +19,12 @@ import java.io.IOException
 @RunWith(AndroidJUnit4::class)
 class SectionRepositoryTest {
 
+    private val log by Log
+
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
-    private val issue = IssueTestUtil.createIssue()
+    private val issue = IssueTestUtil.getIssue()
     private val sections = issue.sectionList
     private val section = sections.first()
 
@@ -32,7 +35,14 @@ class SectionRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        sectionRepository = SectionRepository(db)
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        val articleRepository = ArticleRepository.createInstance(context)
+        articleRepository.appDatabase = db
+
+        sectionRepository = SectionRepository.getInstance(context)
+        sectionRepository.appDatabase = db
     }
 
     @After
@@ -45,7 +55,6 @@ class SectionRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() {
-        val prefromDB = sectionRepository.get(section.sectionHtml.name)
         sectionRepository.save(section)
         val fromDB = sectionRepository.get(section.sectionHtml.name)
         assertEquals(fromDB, section)
@@ -63,8 +72,7 @@ class SectionRepositoryTest {
     @Throws(Exception::class)
     fun writeAndReadMultiple() {
         for (section in sections) {
-            assertTrue(sections.filter { it == section }.size == 1)
-
+            log.debug("checking section ${section.sectionHtml.name}")
             sectionRepository.save(section)
             val fromDB = sectionRepository.get(section.sectionHtml.name)
             assertEquals(fromDB, section)

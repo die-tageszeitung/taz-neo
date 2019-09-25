@@ -20,7 +20,7 @@ class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var articleRepository: ArticleRepository
 
-    private val issue = IssueTestUtil.createIssue()
+    private val issue = IssueTestUtil.getIssue()
     private val article = issue.sectionList.first().articleList.first()
     private val article2 = issue.sectionList[1].articleList.first()
 
@@ -29,7 +29,15 @@ class ArticleRepositoryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
-        articleRepository = ArticleRepository(db)
+
+        val downloadRepository = DownloadRepository.createInstance(context)
+        downloadRepository.appDatabase = db
+
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        articleRepository = ArticleRepository.getInstance(context)
+        articleRepository.appDatabase = db
     }
 
     @After

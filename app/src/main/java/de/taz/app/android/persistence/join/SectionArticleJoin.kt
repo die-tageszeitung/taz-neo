@@ -25,5 +25,6 @@ import de.taz.app.android.api.models.SectionBase
 )
 data class SectionArticleJoin(
     val sectionFileName: String,
-    val articleFileName: String
+    val articleFileName: String,
+    val index: Int
 )

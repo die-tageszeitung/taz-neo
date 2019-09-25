@@ -29,7 +29,11 @@ class ResourceInfoRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        resourceInfoRepository = ResourceInfoRepository(db)
+        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        fileEntryRepository.appDatabase = db
+
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context)
+        resourceInfoRepository.appDatabase = db
     }
 
     @After
@@ -65,8 +69,8 @@ class ResourceInfoRepositoryTest {
         assertEquals(fromDB, resourceInfo2)
     }
 
-    private val resourceFiles = IssueTestUtil.createIssue().sectionList.first().imageList
-    private val resourceFiles2 = IssueTestUtil.createIssue().sectionList[1].imageList
+    private val resourceFiles = IssueTestUtil.getIssue().sectionList.first().imageList
+    private val resourceFiles2 = IssueTestUtil.getIssue().sectionList[1].imageList
     private val resourceInfo = ResourceInfo(1, "http://example.com", "1.zip",  resourceFiles)
     private val resourceInfo2 = ResourceInfo(2, "http://example.com", "2.zip",  resourceFiles2)
 }

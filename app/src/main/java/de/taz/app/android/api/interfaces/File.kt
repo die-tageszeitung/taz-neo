@@ -1,4 +1,4 @@
-package de.taz.app.android.api.models
+package de.taz.app.android.api.interfaces
 
 interface File {
     val name: String
