@@ -1,14 +1,8 @@
 package de.taz.app.android.fragments
 
 import android.content.Context
-import android.net.Uri
-import android.os.BadParcelableException
-import android.os.Build
-import android.os.Bundle
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.os.*
+import android.view.*
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -41,6 +35,16 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
             )
             webView.loadUrl("file://${file.absolutePath}")
         }
+
+        webView.setOnKeyListener(object: View.OnKeyListener {
+            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && webView.canGoBack()) {
+                    webView.goBack()
+                    return true
+                }
+                return false
+            }
+        })
     }
 
 }
