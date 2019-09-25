@@ -104,23 +104,30 @@ class TazWebViewClient : WebViewClient() {
         }
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.N)
-//    override fun shouldInterceptRequest(
-//        view: WebView?,
-//        request: WebResourceRequest?
-//    ): WebResourceResponse? {
-//        request?.let { request ->
-//            val newUrl = overrideInternalLinks(view, request.url.toString())
-//            if (request.url.toString() != newUrl) {
-//                    return readFileFromFileSystem(newUrl)
-//                }
-//        }
-//        return super.shouldInterceptRequest(view, request)
-//     }
-//
-//    private fun readFileFromFileSystem(url: String) : WebResourceResponse {
-//        File.
-//    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    override fun shouldInterceptRequest(
+        view: WebView?,
+        request: WebResourceRequest?
+    ): WebResourceResponse? {
+        request?.let { request ->
+            val newUrl = overrideInternalLinks(view, request.url.toString())
+            val data = File(newUrl.toString().removePrefix("file:///"))
+
+            // handle correctly different resource types
+            // we have to return our own WebResourceResponse object here
+            // TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
+            return when {
+                newUrl.toString().contains(".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
+                newUrl.toString().contains(".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
+                newUrl.toString().contains(".js") -> WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
+                newUrl.toString().contains(".png") -> WebResourceResponse("image/png", "binary", data.inputStream())
+                newUrl.toString().contains(".svg") -> WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
+                newUrl.toString().contains(".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
+                else -> WebResourceResponse("text/plain", "UTF-8", data.inputStream())
+            }
+        }
+        return null
+     }
 }
 
 object FileUtil {
