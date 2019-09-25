@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 
@@ -48,8 +47,6 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
 
 class TazWebViewClient : WebViewClient() {
 
-    private val log by Log
-
     private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
@@ -70,12 +67,6 @@ class TazWebViewClient : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
         if (handleInternalLinks(view, request?.url.toString())) return false
         return super.shouldOverrideUrlLoading(view, request)
-    }
-
-    override fun onLoadResource(view: WebView?, url: String?) {
-        val newUrl = overrideInternalLinks(view, url)
-        super.onLoadResource(view, newUrl)
-        log.debug("loading resource ..... $newUrl")
     }
 
     private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
