@@ -33,6 +33,16 @@ class FileHelper private constructor(private val applicationContext: Context) {
         }
     }
 
+    fun getFileDirectoryUrl(context: Context, internal: Boolean = false) : String {
+        context.applicationContext.let {
+            return if (internal)
+                "file://${it.filesDir.absolutePath}"
+            else
+                "file://${ContextCompat.getExternalFilesDirs(it,null).first().absolutePath}"
+        }
+
+    }
+
     /* Checks if external storage is available for read and write */
     private fun isExternalStorageWritable(): Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
