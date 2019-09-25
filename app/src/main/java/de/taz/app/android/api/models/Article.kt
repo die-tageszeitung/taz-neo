@@ -1,8 +1,10 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
+import de.taz.app.android.api.interfaces.ArticleFunctions
 import de.taz.app.android.api.interfaces.Downloadable
-import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 
 data class Article(
     val articleHtml: FileEntry,
@@ -13,7 +15,7 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList()
-): Downloadable {
+): ArticleFunctions, Downloadable {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,
         articleDto.title,
@@ -25,11 +27,15 @@ data class Article(
         articleDto.authorList ?: emptyList()
     )
 
+    override val articleFileName
+        get() = articleHtml.name
+
     override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(articleHtml.name)
+        val list = mutableListOf(articleFileName)
         audioFile?.let { list.add(audioFile.name) }
         list.addAll(imageList.map { image -> image.name })
         return list
     }
+
 
 }

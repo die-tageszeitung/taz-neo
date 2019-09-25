@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.Transaction
+import de.taz.app.android.api.interfaces.SectionFunctions
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -48,7 +49,53 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(sectionFileName: String): Section {
-        val sectionBase = getBaseOrThrow(sectionFileName)
+        return sectionBaseToSection(getBaseOrThrow(sectionFileName))
+    }
+
+    fun get(sectionFileName: String): Section? {
+        return try {
+            getOrThrow(sectionFileName)
+        } catch (nfe: NotFoundException) {
+            null
+        }
+    }
+
+    fun getSectionBaseForArticle(articleFileName: String): SectionBase? {
+        return appDatabase.sectionArticleJoinDao().getSectionBaseForArticleFileName(articleFileName)
+    }
+
+    @Throws(NotFoundException::class)
+    fun getSectionForArticle(articleFileName: String): Section? {
+        return getSectionBaseForArticle(articleFileName)?.let { sectionBaseToSection(it) }
+    }
+
+    fun getNextSectionBase(sectionFileName: String): SectionBase? {
+        return appDatabase.sectionDao().getNext(sectionFileName)
+    }
+
+    @Throws(NotFoundException::class)
+    fun getNextSection(sectionFileName: String): Section? =
+        getNextSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
+
+    @Throws(NotFoundException::class)
+    fun getNextSection(section: SectionFunctions): Section? =
+        getNextSection(section.sectionFileName)
+
+    fun getPreviousSectionBase(sectionFileName: String): SectionBase? {
+        return appDatabase.sectionDao().getPrevious(sectionFileName)
+    }
+
+    @Throws(NotFoundException::class)
+    fun getPreviousSection(sectionFileName: String): Section? =
+        getPreviousSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
+
+    @Throws(NotFoundException::class)
+    fun getPreviousSection(section: SectionFunctions): Section? =
+        getPreviousSection(section.sectionFileName)
+
+    @Throws(NotFoundException::class)
+    fun sectionBaseToSection(sectionBase: SectionBase): Section {
+        val sectionFileName = sectionBase.sectionFileName
         val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
 
         val articles =
@@ -67,14 +114,6 @@ class SectionRepository private constructor(applicationContext: Context) :
                 images
             )
         } ?: throw NotFoundException()
-    }
-
-    fun get(sectionFileName: String): Section? {
-        return try {
-            getOrThrow(sectionFileName)
-        } catch (nfe: NotFoundException) {
-            null
-        }
     }
 
 }
