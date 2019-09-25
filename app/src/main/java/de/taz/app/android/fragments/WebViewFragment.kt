@@ -86,18 +86,16 @@ class TazWebViewClient : WebViewClient() {
 
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
         val newUrl = overrideInternalLinks(view, url)
-        log.debug("newUrl is $newUrl")
 
         val data = File(newUrl.toString().removePrefix("file:///"))
-        log.debug("blaaaaaaa")
 
         return when {
-            url.toString().contains( ".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
-            url.toString().contains( ".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
-            url.toString().contains( ".js") -> WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
-            url.toString().contains( ".png") -> WebResourceResponse("image/png", "binary", data.inputStream())
-            url.toString().contains( ".svg") -> WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
-            url.toString().contains( ".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
+            url.toString().contains(".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
+            url.toString().contains(".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
+            url.toString().contains(".js") -> WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
+            url.toString().contains(".png") -> WebResourceResponse("image/png", "binary", data.inputStream())
+            url.toString().contains(".svg") -> WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
+            url.toString().contains(".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
             else -> WebResourceResponse("text/plain", "UTF-8", data.inputStream())
         }
     }
