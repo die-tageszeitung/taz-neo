@@ -103,9 +103,7 @@ class SplashActivity : AppCompatActivity() {
                         fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                             // only delete modified files
                             if (oldFileEntry != newFileEntry) {
-                                fileHelper.deleteFile(oldFileEntry.name)
-                                downloadRepository.delete(oldFileEntry.name)
-                                fileEntryRepository.delete(oldFileEntry)
+                                oldFileEntry.delete()
                             }
                         }
                     }

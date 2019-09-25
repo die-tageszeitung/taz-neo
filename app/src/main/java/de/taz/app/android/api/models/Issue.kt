@@ -1,35 +1,24 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.IssueDto
+import de.taz.app.android.api.interfaces.IssueFunctions
 
 data class Issue(
     override val feedName: String,
     override val date: String,
-    override val key: String? = null,
-    override val baseUrl: String,
-    override val status: IssueStatus,
-    override val minResourceVersion: Int,
-    override val zipName: String? = null,
-    override val zipPdfName: String? = null,
-    override val navButton: NavButton? = null,
+    val key: String? = null,
+    val baseUrl: String,
+    val status: IssueStatus,
+    val minResourceVersion: Int,
+    val zipName: String? = null,
+    val zipPdfName: String? = null,
+    val navButton: NavButton? = null,
     val imprint: Article?,
     override val fileList: List<String> = emptyList(),
-    override val fileListPdf: List<String> = emptyList(),
+    val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList()
-) : IssueBase(
-    feedName,
-    date,
-    key,
-    baseUrl,
-    status,
-    minResourceVersion,
-    zipName,
-    zipPdfName,
-    navButton,
-    fileList,
-    fileListPdf
-) {
+) : IssueFunctions {
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
