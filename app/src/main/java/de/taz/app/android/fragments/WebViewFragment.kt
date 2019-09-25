@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.util.FileHelper
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 
@@ -52,11 +53,13 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
 
 class TazWebViewClient : WebViewClient() {
 
+    private val fileHelper = FileHelper.getInstance()
+
     // internal links should be handles by the app, external ones - by a web browser
     private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
-                if (urlString.startsWith(FileUtil.getFileDirectoryUrl(view.context))) {
+                if (urlString.startsWith(fileHelper.getFileDirectoryUrl(view.context))) {
                     return true
                 }
             }
@@ -79,7 +82,7 @@ class TazWebViewClient : WebViewClient() {
     private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
         view?.let {
             url?.let {
-                val fileDir = FileUtil.getFileDirectoryUrl(view.context)
+                val fileDir = fileHelper.getFileDirectoryUrl(view.context)
 
                 var newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/".toRegex(), "$fileDir/resources/")
                 newUrl = newUrl.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/".toRegex(), "$fileDir/global/")
@@ -134,16 +137,4 @@ class TazWebViewClient : WebViewClient() {
         }
         return null
      }
-}
-
-object FileUtil {
-    fun getFileDirectoryUrl(context: Context, internal: Boolean = false) : String {
-        context.applicationContext.let {
-            return if (internal)
-                "file://${it.filesDir.absolutePath}"
-            else
-                "file://${ContextCompat.getExternalFilesDirs(it,null).first().absolutePath}"
-        }
-
-    }
 }
