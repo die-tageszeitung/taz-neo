@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.Downloadable
+import de.taz.app.android.api.interfaces.SectionFunctions
 
 data class Section(
     val sectionHtml: FileEntry,
@@ -10,7 +11,7 @@ data class Section(
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
-): Downloadable {
+): SectionFunctions, Downloadable {
     constructor(sectionDto: SectionDto) : this(
         sectionDto.sectionHtml,
         sectionDto.title,
@@ -19,8 +20,11 @@ data class Section(
         sectionDto.imageList ?: listOf()
     )
 
+    override val sectionFileName: String
+        get() = sectionHtml.name
+
     override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(sectionHtml.name)
+        val list = mutableListOf(sectionFileName)
         list.addAll(imageList.map { image -> image.name })
         articleList.forEach{ article -> list.addAll(article.getAllFileNames()) }
         return list

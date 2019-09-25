@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.persistence.AppDatabase
-import de.taz.app.android.util.Log
 import kotlinx.io.IOException
 import org.junit.After
 import org.junit.Assert.*
@@ -17,8 +16,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IssueRepositoryTest {
-
-    private val log by Log
 
     private lateinit var db: AppDatabase
     private lateinit var issueRepository: IssueRepository
@@ -88,5 +85,66 @@ class IssueRepositoryTest {
         assertTrue(issueRepository.getLatestIssue() == issue2)
     }
 
+
+    @Test
+    @Throws(Exception::class)
+    fun getNextSection() {
+        issueRepository.save(issue)
+        issue.sectionList.forEachIndexed { index, section->
+            if (index == issue.sectionList.size -1) {
+                assertNull(section.nextSection())
+            } else {
+                assertEquals(issue.sectionList[index +1], section.nextSection())
+            }
+
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun getPreviousSection() {
+        issueRepository.save(issue)
+        issue.sectionList.forEachIndexed { index, section->
+            if (index == 0) {
+                assertNull(section.previousSection())
+            } else {
+                assertEquals(issue.sectionList[index -1], section.previousSection())
+            }
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun getNextArticle() {
+        issueRepository.save(issue)
+        issue.sectionList.forEachIndexed { sectionIndex, section ->
+            section.articleList.forEachIndexed { articleIndex, article ->
+                if(sectionIndex == issue.sectionList.size - 1 && articleIndex == section.articleList.size - 1 ) {
+                    assertNull(article.nextArticle())
+                } else if(articleIndex == section.articleList.size - 1) {
+                    assertEquals(article.nextArticle(), issue.sectionList[sectionIndex + 1].articleList.first())
+                } else {
+                    assertEquals(article.nextArticle(), section.articleList[articleIndex + 1])
+                }
+            }
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun getPreviousArticle() {
+        issueRepository.save(issue)
+        issue.sectionList.forEachIndexed { sectionIndex, section ->
+            section.articleList.forEachIndexed { articleIndex, article ->
+                if(sectionIndex == 0 && articleIndex == 0 ) {
+                    assertNull(article.previousArticle())
+                } else if(articleIndex == 0) {
+                    assertEquals(article.previousArticle(), issue.sectionList[sectionIndex - 1].articleList.last())
+                } else {
+                    assertEquals(article.previousArticle(), section.articleList[articleIndex - 1])
+                }
+            }
+        }
+    }
 
 }

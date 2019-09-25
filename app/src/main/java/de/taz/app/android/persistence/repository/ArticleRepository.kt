@@ -2,9 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.Transaction
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleBase
-import de.taz.app.android.api.models.Author
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
@@ -41,7 +39,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
 
         // save authors
-        article.authorList.forEachIndexed { index ,author ->
+        article.authorList.forEachIndexed { index, author ->
             author.imageAuthor?.let {
                 fileEntryRepository.save(it)
                 appDatabase.articleAuthorImageJoinDao().insertOrReplace(
@@ -57,7 +55,51 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(articleName: String): Article {
-        val articleBase = appDatabase.articleDao().get(articleName)
+        return articleBaseToArticle(appDatabase.articleDao().get(articleName))
+    }
+
+    @Throws(NotFoundException::class)
+    fun getOrThrow(articleNames: List<String>): List<Article> {
+        return articleNames.map { getOrThrow(it) }
+    }
+
+    fun get(articleName: String): Article? {
+        return try {
+            getOrThrow(articleName)
+        } catch (e: NotFoundException) {
+            null
+        }
+    }
+
+    fun nextArticleBase(articleName: String): ArticleBase? {
+        return appDatabase.sectionArticleJoinDao().getNextArticleBaseInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getNextArticleBaseInNextSection(articleName)
+    }
+
+    fun nextArticleBase(article: Article): ArticleBase? = nextArticleBase(article.articleFileName)
+
+    fun previousArticleBase(articleName: String): ArticleBase? {
+        return appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInPreviousSection(
+                articleName
+            )
+    }
+
+    fun previousArticleBase(article: Article): ArticleBase? = previousArticleBase(article.articleFileName)
+
+    fun nextArticle(articleName: String): Article? =
+        nextArticleBase(articleName)?.let { articleBaseToArticle(it) }
+
+    fun nextArticle(article: Article): Article? = nextArticle(article.articleFileName)
+
+    fun previousArticle(articleName: String): Article? =
+        previousArticleBase(articleName)?.let { articleBaseToArticle(it) }
+
+    fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
+
+    @Throws(NotFoundException::class)
+    fun articleBaseToArticle(articleBase: ArticleBase): Article {
+        val articleName = articleBase.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
@@ -88,18 +130,4 @@ class ArticleRepository private constructor(applicationContext: Context) :
             authors
         )
     }
-
-    @Throws(NotFoundException::class)
-    fun getOrThrow(articleNames: List<String>): List<Article> {
-        return articleNames.map { getOrThrow(it) }
-    }
-
-    fun get(articleName: String): Article? {
-        return try {
-            getOrThrow(articleName)
-        } catch (e: NotFoundException) {
-            null
-        }
-    }
-
 }
