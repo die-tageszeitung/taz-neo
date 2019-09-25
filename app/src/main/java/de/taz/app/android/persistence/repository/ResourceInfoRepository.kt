@@ -1,15 +1,18 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import androidx.room.Transaction
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
+import de.taz.app.android.util.SingletonHolder
 
-class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class ResourceInfoRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
+    companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @Transaction
     fun save(resourceInfo: ResourceInfo) {
@@ -26,12 +29,13 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
         )
         // save relation to files
         appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-            resourceInfo.resourceList.map {
-                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, it.name)
+            resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
             }
         )
     }
 
+    @Throws(NotFoundException::class)
     fun getWithoutFilesOrThrow(): ResourceInfoWithoutFiles {
         getWithoutFiles()?.let {
             return it
@@ -43,21 +47,18 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
         return appDatabase.resourceInfoDao().get()
     }
 
+    @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
         val resourceInfoWithoutFiles = appDatabase.resourceInfoDao().get()
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoWithoutFiles.resourceVersion
         )
-        try {
-            return ResourceInfo(
-                resourceInfoWithoutFiles.resourceVersion,
-                resourceInfoWithoutFiles.resourceBaseUrl,
-                resourceInfoWithoutFiles.resourceZip,
-                resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
-            )
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
+        return ResourceInfo(
+            resourceInfoWithoutFiles.resourceVersion,
+            resourceInfoWithoutFiles.resourceBaseUrl,
+            resourceInfoWithoutFiles.resourceZip,
+            resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
+        )
     }
 
     fun get(): ResourceInfo? {

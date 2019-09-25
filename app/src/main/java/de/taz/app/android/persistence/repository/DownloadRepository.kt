@@ -1,15 +1,22 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
-class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class DownloadRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
 
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
+
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @Transaction
     @Throws(NotFoundException::class)
@@ -26,7 +33,7 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
             val downloadWithoutFile = DownloadWithoutFile(download)
             try {
                 appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
-            } catch (sqle: SQLiteConstraintException) {
+            } catch (_: SQLiteConstraintException) {
                 // do nothing as already exists
             }
         } ?: throw NotFoundException()
@@ -44,6 +51,10 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
 
     fun getWithoutFile(fileName: String): DownloadWithoutFile? {
         return appDatabase.downloadDao().get(fileName)
+    }
+
+    fun getWithoutFile(fileNames: List<String>): List<DownloadWithoutFile?> {
+        return appDatabase.downloadDao().get(fileNames)
     }
 
     @Throws(NotFoundException::class)
@@ -67,7 +78,7 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(fileNames: List<String>) : List<Download> {
+    fun getOrThrow(fileNames: List<String>): List<Download> {
         return fileNames.map { getOrThrow(it) }
     }
 
@@ -106,4 +117,43 @@ class DownloadRepository(private val appDatabase: AppDatabase = AppDatabase.getI
         }
     }
 
+    fun isDownloaded(fileName: String?): Boolean {
+        return fileName?.let {
+            getWithoutFile(fileName)?.status == DownloadStatus.done
+        } ?: true
+    }
+
+    fun isDownloaded(fileNames: List<String>): Boolean {
+        return getWithoutFile(fileNames).firstOrNull { download ->
+            download?.status != DownloadStatus.done
+        } == null
+    }
+
+    fun getLiveData(fileName: String): LiveData<Boolean> {
+        return Transformations.map(appDatabase.downloadDao().getLiveData(fileName)) { input ->
+            input?.status == DownloadStatus.done
+        }
+    }
+
+    fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
+        val mediatorLiveData = MediatorLiveData<Boolean>()
+        mediatorLiveData.value = false
+
+        var trueCountdown = fileNames.size
+        fileNames.forEach { fileName ->
+            val source = getLiveData(fileName)
+            mediatorLiveData.addSource(source) { value ->
+                if (value) {
+                    trueCountdown--
+                    mediatorLiveData.removeSource(source)
+                }
+
+                if (trueCountdown <= 0) {
+                    mediatorLiveData.value = true
+                }
+            }
+        }
+
+        return mediatorLiveData
+    }
 }

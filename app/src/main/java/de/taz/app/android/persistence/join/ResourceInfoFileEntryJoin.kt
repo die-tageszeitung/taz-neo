@@ -25,5 +25,6 @@ import de.taz.app.android.api.models.ResourceInfoWithoutFiles
 )
 class ResourceInfoFileEntryJoin(
     val resourceInfoVersion: Int,
-    val fileEntryName: String
+    val fileEntryName: String,
+    val index: Int
 )

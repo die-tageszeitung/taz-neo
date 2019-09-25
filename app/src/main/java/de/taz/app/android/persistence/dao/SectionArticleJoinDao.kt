@@ -21,6 +21,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     @Query(
         """ SELECT articleFileName FROM SectionArticleJoin
             WHERE SectionArticleJoin.sectionFileName == :sectionFileName
+            ORDER BY SectionArticleJoin.`index` ASC
         """
     )
     abstract fun getArticleFileNamesForSection(sectionFileName: String): List<String>?

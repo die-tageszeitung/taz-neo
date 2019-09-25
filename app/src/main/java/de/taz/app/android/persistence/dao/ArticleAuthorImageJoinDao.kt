@@ -14,6 +14,7 @@ abstract class ArticleAuthorImageJoinDao : BaseDao<ArticleAuthorImageJoin>() {
         """SELECT ArticleAuthor.* FROM ArticleAuthor INNER JOIN Article
         ON ArticleAuthor.articleFileName == Article.articleFileName 
         WHERE ArticleAuthor.articleFileName == :articleFileName
+        ORDER BY ArticleAuthor.`index` ASC
     """
     )
     abstract fun getAuthorImageJoinForArticle(articleFileName: String): List<ArticleAuthorImageJoin>

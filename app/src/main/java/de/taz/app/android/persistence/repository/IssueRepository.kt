@@ -1,17 +1,23 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
+import de.taz.app.android.util.SingletonHolder
 
-class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class IssueRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
 
-    private val articleRepository = ArticleRepository(appDatabase)
-    private val pageRepository = PageRepository(appDatabase)
-    private val sectionRepository = SectionRepository(appDatabase)
+    companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
+
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val pageRepository = PageRepository.getInstance(applicationContext)
+    private val sectionRepository = SectionRepository.getInstance(applicationContext)
 
     @Transaction
     fun save(issue: Issue) {
@@ -23,8 +29,8 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
 
         // save page relation
         appDatabase.issuePageJoinDao().insertOrReplace(
-            issue.pageList.map {
-                IssuePageJoin(issue.feedName, issue.date, it.pagePdf.name)
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
             }
         )
 
@@ -39,8 +45,8 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         // save sections
         issue.sectionList.let { sectionList ->
             sectionList.forEach { sectionRepository.save(it) }
-            appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.map {
-                IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name)
+            appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.mapIndexed { index, it ->
+                IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
             })
         }
     }
@@ -53,8 +59,22 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
         return appDatabase.issueDao().getLatest()
     }
 
-    suspend fun getLatestIssue(): Issue? {
+    fun getLatestIssue(): Issue? {
         return getLatestIssueBase()?.let { issueBaseToIssue(it) }
+    }
+
+    fun getLatestIssueBaseLiveData(): LiveData<IssueBase?> {
+        return appDatabase.issueDao().getLatestLiveData()
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueBaseOrThrow(): IssueBase {
+        return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
+    }
+
+    @Throws(NotFoundException::class)
+    fun getLatestIssueOrThrow(): Issue {
+        return getLatestIssueBase()?.let { issueBaseToIssue(it) } ?: throw NotFoundException()
     }
 
     fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase? {
@@ -100,5 +120,8 @@ class IssueRepository(private val appDatabase: AppDatabase = AppDatabase.getInst
 
     }
 
+    fun getIssue(issueBase: IssueBase): Issue {
+        return issueBaseToIssue(issueBase)
+    }
 
 }

@@ -26,5 +26,6 @@ import de.taz.app.android.api.models.PageWithoutFile
 class IssuePageJoin(
     val issueFeedName: String,
     val issueDate: String,
-    val pageKey: String
+    val pageKey: String,
+    val index: Int
 )
