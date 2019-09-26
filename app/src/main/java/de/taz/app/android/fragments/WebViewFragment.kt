@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 
@@ -29,7 +30,9 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
     override fun onResume() {
         super.onResume()
         webView.webViewClient = TazWebViewClient()
+        webView.settings.javaScriptEnabled = true
         context?.let {
+            webView.addJavascriptInterface(TazApiJs(it), "tazApiJs")
             val file = File(
                 ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
                 "${lastIssue.tag}/${lastIssue.sectionList.first().sectionHtml.name}"
