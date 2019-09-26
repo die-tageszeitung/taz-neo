@@ -1,7 +1,7 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
-import de.taz.app.android.api.interfaces.IssueFunctions
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueRepository
 
 @Entity(
@@ -20,7 +20,7 @@ data class IssueBase(
     val navButton: NavButton? = null,
     override val fileList: List<String>,
     val fileListPdf: List<String> = emptyList()
-): IssueFunctions {
+): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,

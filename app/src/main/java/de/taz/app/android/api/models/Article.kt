@@ -1,10 +1,8 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
-import de.taz.app.android.api.interfaces.ArticleFunctions
-import de.taz.app.android.api.interfaces.Downloadable
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.CacheableDownload
 
 data class Article(
     val articleHtml: FileEntry,
@@ -15,7 +13,7 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList()
-): ArticleFunctions, Downloadable {
+): ArticleOperations, CacheableDownload {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,
         articleDto.title,

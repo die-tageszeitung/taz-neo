@@ -4,7 +4,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.repository.SectionRepository
 
-interface SectionFunctions {
+interface SectionOperations {
 
     val sectionFileName: String
 

@@ -2,8 +2,8 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.interfaces.Downloadable
-import de.taz.app.android.api.interfaces.SectionFunctions
+import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.SectionOperations
 
 data class Section(
     val sectionHtml: FileEntry,
@@ -11,7 +11,7 @@ data class Section(
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
-): SectionFunctions, Downloadable {
+): SectionOperations, CacheableDownload {
     constructor(sectionDto: SectionDto) : this(
         sectionDto.sectionHtml,
         sectionDto.title,
