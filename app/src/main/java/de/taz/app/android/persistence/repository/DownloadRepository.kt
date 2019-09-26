@@ -117,10 +117,8 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun isDownloaded(fileName: String?): Boolean {
-        return fileName?.let {
-            getWithoutFile(fileName)?.status == DownloadStatus.done
-        } ?: true
+    fun isDownloaded(fileName: String): Boolean {
+        return getWithoutFile(fileName)?.status == DownloadStatus.done
     }
 
     fun isDownloaded(fileNames: List<String>): Boolean {
