@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.fragments.WebViewFragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
@@ -50,15 +51,15 @@ class MainActivity : AppCompatActivity() {
 
         issueRepository.getLatestIssueBaseLiveData()
             .observe(this@MainActivity, Observer { issueBase ->
-                log.debug("issue exists in db")
                 issueBase?.isDownloadedLiveData()
                     ?.observe(this@MainActivity, Observer { downloaded ->
                         if (downloaded) {
-                            log.debug("issue is downloaded")
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
-                                runOnUiThread {
-                                    showIssue(issue)
+                                lifecycleScope.launch {
+                                    runOnUiThread {
+                                        showIssue(issue)
+                                    }
                                 }
                             }
                         }
