@@ -1,6 +1,6 @@
 package de.taz.app.android.api.interfaces
 
-interface IssueFunctions: Downloadable {
+interface IssueOperations: CacheableDownload {
 
     val feedName: String
     val date: String

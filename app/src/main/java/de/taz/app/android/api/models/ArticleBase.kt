@@ -2,7 +2,7 @@ package de.taz.app.android.api.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import de.taz.app.android.api.interfaces.ArticleFunctions
+import de.taz.app.android.api.interfaces.ArticleOperations
 
 @Entity(tableName = "Article")
 data class ArticleBase(
@@ -11,7 +11,7 @@ data class ArticleBase(
     val teaser: String?,
     val onlineLink: String?,
     val pageNameList: List<String> = emptyList()
-): ArticleFunctions {
+): ArticleOperations {
     constructor(article: Article) : this(
         article.articleHtml.name,
         article.title,

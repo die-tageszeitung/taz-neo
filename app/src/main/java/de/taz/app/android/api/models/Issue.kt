@@ -1,7 +1,7 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.IssueDto
-import de.taz.app.android.api.interfaces.IssueFunctions
+import de.taz.app.android.api.interfaces.IssueOperations
 
 data class Issue(
     override val feedName: String,
@@ -18,7 +18,7 @@ data class Issue(
     val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList()
-) : IssueFunctions {
+) : IssueOperations {
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,

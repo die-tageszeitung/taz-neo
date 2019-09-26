@@ -2,7 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.Transaction
-import de.taz.app.android.api.interfaces.SectionFunctions
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -78,7 +78,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         getNextSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
 
     @Throws(NotFoundException::class)
-    fun getNextSection(section: SectionFunctions): Section? =
+    fun getNextSection(section: SectionOperations): Section? =
         getNextSection(section.sectionFileName)
 
     fun getPreviousSectionBase(sectionFileName: String): SectionBase? {
@@ -90,7 +90,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         getPreviousSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
 
     @Throws(NotFoundException::class)
-    fun getPreviousSection(section: SectionFunctions): Section? =
+    fun getPreviousSection(section: SectionOperations): Section? =
         getPreviousSection(section.sectionFileName)
 
     @Throws(NotFoundException::class)
