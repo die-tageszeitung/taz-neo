@@ -36,7 +36,7 @@ class QueryTest {
 
     data class QueryTestHelper(
         val query: String,
-        val variables: Map<String, String>
+        val variables: AuthenticationVariables
     )
 
 
