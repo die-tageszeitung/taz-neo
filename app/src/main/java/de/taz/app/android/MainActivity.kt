@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
@@ -56,9 +57,7 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
                             log.debug("issue is downloaded")
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
-                                runOnUiThread {
-                                    showIssue(issue)
-                                }
+                                showIssue(issue)
                             }
                         }
                     })

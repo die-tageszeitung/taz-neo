@@ -60,9 +60,9 @@ object DownloadService {
      * @param issue - Issue to download files of
      */
     fun download(appContext: Context, issue: Issue) {
-        log.info("downloading issue(${issue.feedName}/${issue.date})")
+        if(!issue.isDownloadedOrDownloading()) {
+            log.info("downloading issue(${issue.feedName}/${issue.date})")
 
-        if(!issue.isDownloaded()) {
             ioScope.launch {
                 val start = System.currentTimeMillis()
                 val downloadId = apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)

@@ -122,8 +122,16 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun isDownloaded(fileNames: List<String>): Boolean {
-        return getWithoutFile(fileNames).firstOrNull { download ->
+        val downloads = getWithoutFile(fileNames)
+        return downloads.size == fileNames.size && downloads.firstOrNull { download ->
             download?.status != DownloadStatus.done
+        } == null
+    }
+
+    fun isDownloadedOrDownloading(fileNames: List<String>): Boolean {
+        val downloads = getWithoutFile(fileNames)
+        return downloads.size == fileNames.size && downloads.firstOrNull { download ->
+            !arrayOf(DownloadStatus.done, DownloadStatus.started).contains(download?.status)
         } == null
     }
 
