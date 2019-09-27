@@ -1,6 +1,9 @@
 package de.taz.app.android
 
+import android.content.pm.ApplicationInfo
+import android.os.Build
 import android.os.Bundle
+import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
@@ -29,6 +32,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+                WebView.setWebContentsDebuggingEnabled(true)
+            }
+        }
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)

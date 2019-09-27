@@ -1,6 +1,8 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.api.models.*
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -90,9 +92,11 @@ class ApiService(
     private suspend fun <T> catchExceptions(block: suspend () -> T, tag: String): T {
         return try {
             block()
-        } catch (npe: NullPointerException) {
-            throw ApiServiceException.InsufficientData(tag)
         } catch (uhe: UnknownHostException) {
+            throw ApiServiceException.NoInternetException()
+        } catch (ce: ConnectException) {
+            throw ApiServiceException.NoInternetException()
+        } catch (stoe: SocketTimeoutException) {
             throw ApiServiceException.NoInternetException()
         }
     }
