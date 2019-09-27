@@ -15,6 +15,7 @@ import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.webview.ArticleWebView
 import kotlinx.coroutines.*
 import kotlin.Exception
 
@@ -121,7 +122,9 @@ class SplashActivity : AppCompatActivity() {
 
         // mock tazApi.css
         // TODO use real tazApi.css
+        fileHelper.getFile(RESOURCE_FOLDER).mkdirs()
         fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js").createNewFile()
     }
 
 }
