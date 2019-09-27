@@ -3,12 +3,8 @@ package de.taz.app.android.webview
 import android.view.MotionEvent
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.GestureDetector
-import android.text.method.Touch.onTouchEvent
-import androidx.core.os.HandlerCompat.postDelayed
-import android.R.attr.start
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.animation.ObjectAnimator
-import androidx.core.view.ViewCompat.setOverScrollMode
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
@@ -59,7 +55,7 @@ class ArticleWebView : WebView {
 
     private var mCallback: ArticleWebViewCallback? = null
 
-    internal var simpleOnGestureListener: GestureDetector.SimpleOnGestureListener =
+    internal var simpleOnGestureListener: SimpleOnGestureListener =
         object : SimpleOnGestureListener() {
 
             private val SWIPE_THRESHOLD = 100
@@ -177,7 +173,6 @@ class ArticleWebView : WebView {
         setIsScroll()
         super.loadUrl(url)
     }
-
 
     override fun loadDataWithBaseURL(
         baseUrl: String?,
