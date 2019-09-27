@@ -1,12 +1,9 @@
 package de.taz.app.android.fragments
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.os.*
 import android.view.*
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -16,8 +13,17 @@ import de.taz.app.android.util.FileHelper
 import de.taz.app.android.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
+import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import de.taz.app.android.webview.ArticleWebView
 
-class WebViewFragment(val lastIssue: Issue) : Fragment() {
+
+class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.ArticleWebViewCallback {
+
+    private val log by Log
+    private var mLastGesture = GESTURES.undefined
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,12 +33,15 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
         return inflater.inflate(R.layout.fragment_webview, container, false)
     }
 
+    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onResume() {
         super.onResume()
         webView.webViewClient = TazWebViewClient()
+        webView.webChromeClient = WebChromeClient()
         webView.settings.javaScriptEnabled = true
+        webView.setArticleWebViewCallback(this)
         context?.let {
-            webView.addJavascriptInterface(TazApiJs(it), "tazApiJs")
+            webView.addJavascriptInterface(TazApiJs(it), "tazApi")
             val file = File(
                 ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
                 "${lastIssue.tag}/${lastIssue.sectionList.first().sectionHtml.name}"
@@ -52,9 +61,88 @@ class WebViewFragment(val lastIssue: Issue) : Fragment() {
         })
     }
 
+    fun callTazapi(methodname: String, vararg params: Any) {
+
+        val jsBuilder = StringBuilder()
+        jsBuilder.append("tazApi")
+            .append(".")
+            .append(methodname)
+            .append("(")
+        for (i in params.indices) {
+            val param = params[i]
+            if (param is String) {
+                jsBuilder.append("'")
+                jsBuilder.append(param)
+                jsBuilder.append("'")
+            } else
+                jsBuilder.append(param)
+            if (i < params.size - 1) {
+                jsBuilder.append(",")
+            }
+        }
+        jsBuilder.append(");")
+        val call = jsBuilder.toString()
+        CoroutineScope(Dispatchers.Main).launch{
+            log.info("Calling javascript with $call")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.evaluateJavascript(call, null)
+            } else {
+                webView.loadUrl("javascript:$call")
+            }
+        }
+    }
+
+    private fun onGestureToTazapi(gesture: GESTURES, e1: MotionEvent) {
+        callTazapi("onGesture", gesture.name, e1.x, e1.y)
+    }
+
+    override fun onSwipeLeft(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+        log.debug("swiping left")
+        mLastGesture = GESTURES.swipeLeft
+        onGestureToTazapi(mLastGesture, e1)
+    }
+
+    override fun onSwipeRight(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+        mLastGesture = GESTURES.swipeRight
+        onGestureToTazapi(mLastGesture, e1)
+    }
+
+
+    override fun onSwipeTop(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+        mLastGesture = GESTURES.swipeUp
+        onGestureToTazapi(mLastGesture, e1)
+    }
+
+    override fun onSwipeBottom(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+        mLastGesture = GESTURES.swipeDown
+        onGestureToTazapi(mLastGesture, e1)
+    }
+
+    override fun onDoubleTap(e: MotionEvent): Boolean {
+//        if (getReaderActivity() != null) {
+//            getReaderActivity().speak(articleViewModel.getKey(), getTextToSpeech());
+//        }
+        return true
+    }
+
+    private enum class GESTURES {
+        undefined, swipeUp, swipeDown, swipeRight, swipeLeft
+    }
+
+    override fun onScrollStarted(view: ArticleWebView) {
+        log.debug("${view.scrollX}, ${view.scrollY}")
+    }
+
+    override fun onScrollFinished(view: ArticleWebView) {
+        log.debug("${view.scrollX}, ${view.scrollY}")
+    }
+
+
 }
 
 class TazWebViewClient : WebViewClient() {
+
+    private val log by Log
 
     private val fileHelper = FileHelper.getInstance()
 
@@ -102,6 +190,8 @@ class TazWebViewClient : WebViewClient() {
 
         val data = File(newUrl.toString().removePrefix("file:///"))
 
+        log.debug("Intercepted Url is ${url.toString()}")
+
         // handle correctly different resource types
         // we have to return our own WebResourceResponse object here
         // TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
@@ -121,9 +211,10 @@ class TazWebViewClient : WebViewClient() {
         view: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? {
-        request?.let { request ->
+        request?.let {
             val newUrl = overrideInternalLinks(view, request.url.toString())
             val data = File(newUrl.toString().removePrefix("file:///"))
+            log.debug("Intercepted Url is ${request.url}")
 
             // handle correctly different resource types
             // we have to return our own WebResourceResponse object here
