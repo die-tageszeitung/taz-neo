@@ -76,7 +76,7 @@ class SplashActivity : AppCompatActivity() {
      * download AppInfo and persist it
      */
     private fun initAppInfo() {
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 appInfoRepository.save(ApiService().getAppInfo())
             } catch (e: Exception) {
@@ -89,7 +89,7 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()

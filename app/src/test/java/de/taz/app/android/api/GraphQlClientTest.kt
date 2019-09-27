@@ -2,6 +2,8 @@ package de.taz.app.android.api
 
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
+import de.taz.app.android.api.request.RequestService
+import de.taz.app.android.api.request.QueryType
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -16,7 +18,7 @@ import org.mockito.MockitoAnnotations
 
 class GraphQlClientTest {
     private val mockServer = MockWebServer()
-    @Mock private lateinit var queryServiceMock: QueryService
+    @Mock private lateinit var queryServiceMock: RequestService
 
     private lateinit var graphQlClient: GraphQlClient
 
@@ -27,7 +29,7 @@ class GraphQlClientTest {
         graphQlClient = GraphQlClient(
             httpClient = OkHttpClient(),
             url = mockServer.url("").toString(),
-            queryService = queryServiceMock
+            requestService = queryServiceMock
         )
     }
 
@@ -38,7 +40,7 @@ class GraphQlClientTest {
 
     @Test
     fun appInfoQuery() {
-        doReturn(Query("query { product { appType appName }}"))
+        doReturn(GraphQlRequest("\"query\":\"query { product { appType appName }}\""))
             .`when`(queryServiceMock).get(QueryType.AppInfoQuery)
 
         val mockResponse = MockResponse()

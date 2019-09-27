@@ -1,7 +1,10 @@
 package de.taz.app.android.download
 
 import android.content.Context
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.work.*
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
@@ -28,6 +31,7 @@ object DownloadService {
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
+    private val apiService = ApiService()
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val fileEntryRepository = FileEntryRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
@@ -57,26 +61,46 @@ object DownloadService {
      */
     fun download(appContext: Context, issue: Issue) {
         log.info("downloading issue(${issue.feedName}/${issue.date})")
-        ioScope.launch {
-            issue.issueFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                createAndSaveDownloads(issue.baseUrl, issue.tag, files)
 
-                DownloadWorker.startDownloads(
-                    appContext,
-                    files
-                )
-            }
-            issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                createAndSaveDownloads(
-                    appInfoRepository.getOrThrow().globalBaseUrl,
-                    issue.tag,
-                    files
-                )
+        if(!issue.isDownloaded()) {
+            ioScope.launch {
+                val start = System.currentTimeMillis()
+                val downloadId = apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                issue.issueFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
+                    createAndSaveDownloads(issue.baseUrl, issue.tag, files)
 
-                DownloadWorker.startDownloads(
-                    appContext,
-                    files
-                )
+                    DownloadWorker.startDownloads(
+                        appContext,
+                        files
+                    )
+                }
+                issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
+                    createAndSaveDownloads(
+                        appInfoRepository.getOrThrow().globalBaseUrl,
+                        issue.tag,
+                        files
+                    )
+
+                    DownloadWorker.startDownloads(
+                        appContext,
+                        files
+                    )
+                }
+                val observer: Observer<Boolean> = object : Observer<Boolean> {
+                    override fun onChanged(downloaded: Boolean) {
+                        if (downloaded) {
+                            issue.isDownloadedLiveData().removeObserver(this)
+                            val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
+                            ioScope.launch {
+                                apiService.notifyServerOfDownloadStop(downloadId, seconds)
+                            }
+                        }
+                    }
+                }
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    issue.isDownloadedLiveData().observeForever(observer)
+                }
             }
         }
     }

@@ -16,7 +16,7 @@ data class FileEntry(
     override val storageType: StorageType,
     override val moTime: Long,
     override val sha256: String,
-    override val size: Int
+    override val size: Long
 ): File {
     constructor(fileEntry: FileEntry) : this(
         fileEntry.name, fileEntry.storageType, fileEntry.moTime, fileEntry.sha256, fileEntry.size
