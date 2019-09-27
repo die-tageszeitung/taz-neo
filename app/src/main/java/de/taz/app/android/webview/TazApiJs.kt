@@ -21,11 +21,6 @@ class TazApiJs(private val context: Context) {
     }
 
     @JavascriptInterface
-    fun getValue(parameter: String, cb: String) {
-        log.debug("getValue whit params: $parameter and $cb")
-    }
-
-    @JavascriptInterface
     fun setConfiguration(parameter: String, value: Unit) {
         log.debug("setConfiguration")
     }

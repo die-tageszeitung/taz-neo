@@ -23,7 +23,6 @@ import de.taz.app.android.webview.ArticleWebView
 class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.ArticleWebViewCallback {
 
     private val log by Log
-    private var mLastGesture = GESTURES.undefined
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,7 +60,7 @@ class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.Article
         })
     }
 
-    fun callTazapi(methodname: String, vararg params: Any) {
+    fun callTazApi(methodname: String, vararg params: Any) {
 
         val jsBuilder = StringBuilder()
         jsBuilder.append("tazApi")
@@ -93,29 +92,25 @@ class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.Article
     }
 
     private fun onGestureToTazapi(gesture: GESTURES, e1: MotionEvent) {
-        callTazapi("onGesture", gesture.name, e1.x, e1.y)
+        callTazApi("onGesture", gesture.name, e1.x, e1.y)
     }
 
     override fun onSwipeLeft(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
         log.debug("swiping left")
-        mLastGesture = GESTURES.swipeLeft
-        onGestureToTazapi(mLastGesture, e1)
+        onGestureToTazapi(GESTURES.swipeLeft, e1)
     }
 
     override fun onSwipeRight(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
-        mLastGesture = GESTURES.swipeRight
-        onGestureToTazapi(mLastGesture, e1)
+        onGestureToTazapi(GESTURES.swipeRight, e1)
     }
 
 
     override fun onSwipeTop(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
-        mLastGesture = GESTURES.swipeUp
-        onGestureToTazapi(mLastGesture, e1)
+        onGestureToTazapi(GESTURES.swipeUp, e1)
     }
 
     override fun onSwipeBottom(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
-        mLastGesture = GESTURES.swipeDown
-        onGestureToTazapi(mLastGesture, e1)
+        onGestureToTazapi(GESTURES.swipeDown, e1)
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
@@ -126,7 +121,7 @@ class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.Article
     }
 
     private enum class GESTURES {
-        undefined, swipeUp, swipeDown, swipeRight, swipeLeft
+        swipeUp, swipeDown, swipeRight, swipeLeft
     }
 
     override fun onScrollStarted(view: ArticleWebView) {
@@ -158,6 +153,7 @@ class TazWebViewClient : WebViewClient() {
         return false
     }
 
+    @SuppressLint("Deprecated")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
         if (handleInternalLinks(view, url)) return false
         return super.shouldOverrideUrlLoading(view, url)
