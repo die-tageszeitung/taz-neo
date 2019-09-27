@@ -14,5 +14,9 @@ interface CacheableDownload {
         return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
     }
 
+    fun isDownloadedOrDownloading(): Boolean {
+        return DownloadRepository.getInstance().isDownloadedOrDownloading(getAllFileNames())
+    }
+
     fun getAllFileNames(): List<String>
 }

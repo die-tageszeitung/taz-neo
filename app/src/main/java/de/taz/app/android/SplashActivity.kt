@@ -76,7 +76,7 @@ class SplashActivity : AppCompatActivity() {
      * download AppInfo and persist it
      */
     private fun initAppInfo() {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 appInfoRepository.save(ApiService().getAppInfo())
             } catch (e: Exception) {
@@ -89,12 +89,12 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()
 
-                if (local == null || fromServer.resourceVersion > local.resourceVersion) {
+                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
                     resourceInfoRepository.save(fromServer)
 
                     // delete old stuff
@@ -107,11 +107,11 @@ class SplashActivity : AppCompatActivity() {
                             }
                         }
                     }
-                }
 
-                // ensure resources are downloaded
-                DownloadService.scheduleDownload(applicationContext, fromServer)
-                DownloadService.download(applicationContext, fromServer)
+                    // ensure resources are downloaded
+                    DownloadService.scheduleDownload(applicationContext, fromServer)
+                    DownloadService.download(applicationContext, fromServer)
+                }
             } catch (e: Exception) {
                 log.warn("unable to get ResourceInfo", e)
             }
