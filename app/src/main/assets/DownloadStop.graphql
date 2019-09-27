@@ -1,0 +1,6 @@
+mutation DownloadStop($id: ID!, $time: Float!) {
+    downloadStop(
+        downloadId: $id,
+        downloadTime: $time
+    )
+}

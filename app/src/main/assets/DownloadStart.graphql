@@ -1,0 +1,23 @@
+mutation DownloadStart(
+    $feedName: String!,
+    $issueDate: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String!,
+    $deviceVersion: String!,
+    $appVersion: String!,
+    $isPush: Boolean!,
+    $installationID: String!
+    $deviceType: DeviceType!
+) {
+    downloadStart(
+        feedName: $feedName,
+        issueDate: $issueDate,
+        deviceFormat: $deviceFormat,
+        deviceType: $deviceType,
+        deviceName: $deviceName,
+        deviceVersion: $deviceVersion,
+        appVersion: $appVersion,
+        isPush: $isPush,
+        installationID: $installationID
+    )
+}

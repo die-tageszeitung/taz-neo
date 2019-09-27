@@ -5,7 +5,7 @@ interface File {
     val storageType: StorageType
     val moTime: Long
     val sha256: String
-    val size: Int
+    val size: Long
 }
 
 enum class StorageType {

@@ -1,6 +1,13 @@
 package de.taz.app.android.api
 
+import de.taz.app.android.api.dto.DeviceFormat
+import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
+import de.taz.app.android.api.variables.AuthenticationVariables
+import de.taz.app.android.api.variables.DownloadStartVariables
+import de.taz.app.android.api.variables.DownloadStopVariables
+import de.taz.app.android.api.variables.IssueVariables
+import de.taz.app.android.util.Log
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -12,6 +19,9 @@ import java.util.*
 class ApiService(
     private val graphQlClient: GraphQlClient = GraphQlClient()
 ) {
+
+    private val log by Log
+
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     /**
@@ -24,9 +34,7 @@ class ApiService(
         return catchExceptions({
             graphQlClient.query(
                 QueryType.AuthenticationQuery,
-                mapOf(
-                    "user" to user, "password" to password
-                )
+                AuthenticationVariables(user, password)
             ).authentificationToken!!
         }, "authenticate")
     }
@@ -67,10 +75,7 @@ class ApiService(
             Issue(
                 feedName, graphQlClient.query(
                     QueryType.IssueByFeedAndDateQuery,
-                    mapOf(
-                        "feedName" to feedName,
-                        "issueDate" to issueDate
-                    )
+                    IssueVariables(feedName, issueDate)
                 ).product!!.feedList!!.first().issueList!!.first()
             )
         }, "getIssueByFeedAndDate")
@@ -84,6 +89,58 @@ class ApiService(
         return catchExceptions(
             { ResourceInfo(graphQlClient.query(QueryType.ResourceInfoQuery).product!!) },
             "getResourceInfo"
+        )
+    }
+
+    suspend fun notifyServerOfDownloadStart(
+        feedName: String,
+        issueDate: String,
+        deviceName: String = "TODO",
+        deviceVersion: String = "TODO",
+        appVersion: String = "TODO",
+        isPush: Boolean = false, // TODO
+        installationId: UUID = UUID.randomUUID(), // TODO
+        deviceFormat: DeviceFormat = DeviceFormat.mobile,
+        deviceType: DeviceType = DeviceType.android
+    ): String {
+        return catchExceptions(
+            {
+                val data = graphQlClient.query(
+                    QueryType.DownloadStart,
+                    DownloadStartVariables(
+                        feedName,
+                        issueDate,
+                        deviceName,
+                        deviceVersion,
+                        appVersion,
+                        isPush,
+                        installationId.toString(),
+                        deviceFormat,
+                        deviceType
+                    )
+                )
+                val id = data.downloadStart!!
+                log.debug("Notified server that download started. ID: $id")
+                id
+            },
+            "notifyServerOfDownloadStart"
+        )
+    }
+
+
+    suspend fun notifyServerOfDownloadStop(
+        id: String,
+        time: Float
+    ): Boolean {
+        return catchExceptions(
+            {
+                log.debug("Notifying server that download complete. ID: $id")
+                graphQlClient.query(
+                    QueryType.DownloadStop,
+                    DownloadStopVariables(id, time)
+                ).downloadStop!!
+            },
+            "notifyServerOfDownloadStop"
         )
     }
 

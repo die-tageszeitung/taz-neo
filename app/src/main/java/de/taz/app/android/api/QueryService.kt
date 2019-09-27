@@ -16,6 +16,8 @@ enum class QueryType {
     AppInfoQuery,
     AuthenticationQuery,
     AuthInfoQuery,
+    DownloadStart,
+    DownloadStop,
     FeedQuery,
     IssueByFeedAndDateQuery,
     ResourceInfoQuery
