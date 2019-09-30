@@ -1,3 +1,19 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
+
+    <dimen name="drawer_margin_top">66dp</dimen>
+    <dimen name="drawer_margin_horizontal">10dp</dimen>
+
+    <dimen name="drawer_moment_width">103dp</dimen>
+    <dimen name="drawer_moment_height">154dp</dimen>
+    <dimen name="drawer_moment_margin_right">11dp</dimen>
+
+    <dimen name="drawer_logo_height">42dp</dimen>
+    <dimen name="drawer_logo_width">91dp</dimen>
+    <dimen name="drawer_logo_margin_top">49dp</dimen>
 </resources>

@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#c40b29</color>
+    <color name="tazRed">#E20036</color>
 
-    <color name="splashBackground">@color/colorAccent</color>
+    <color name="textRed">#E3013A</color>
+
+    <color name="lightGrey">#00000029</color>
+    <color name="darkGrey">#9C9C9C</color>
+
+    <color name="colorPrimary">@color/tazRed</color>
+    <color name="colorPrimaryDark">@color/tazRed</color>
+
+    <color name="colorAccent">@color/tazRed</color>
+
+    <color name="splashBackground">@color/tazRed</color>
 </resources>

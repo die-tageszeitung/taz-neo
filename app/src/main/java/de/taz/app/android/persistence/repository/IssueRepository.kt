@@ -67,6 +67,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getLatestLiveData()
     }
 
+    fun getLatestIssueLiveData(): LiveData<Issue?> {
+        return Transformations.map(appDatabase.issueDao().getLatestLiveData()) { issueBase ->
+            issueBase?.let { issueBaseToIssue(it) }
+        }
+    }
+
     @Throws(NotFoundException::class)
     fun getLatestIssueBaseOrThrow(): IssueBase {
         return appDatabase.issueDao().getLatest() ?: throw NotFoundException()

@@ -8,6 +8,7 @@ import de.taz.app.android.api.variables.DownloadStartVariables
 import de.taz.app.android.api.variables.DownloadStopVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.util.Log
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -150,6 +151,8 @@ class ApiService(
         } catch (npe: NullPointerException) {
             throw ApiServiceException.InsufficientData(tag)
         } catch (uhe: UnknownHostException) {
+            throw ApiServiceException.NoInternetException()
+        } catch (ste: SocketTimeoutException) {
             throw ApiServiceException.NoInternetException()
         }
     }
