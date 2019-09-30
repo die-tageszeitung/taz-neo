@@ -2,39 +2,43 @@ package de.taz.app.android
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.drawer.SectionListFragment
+import de.taz.app.android.ui.drawer.SelectedIssueViewModel
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
-import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.File
 
-class MainActivity(private val apiService: ApiService = ApiService()) : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val log by Log
 
+    private val apiService: ApiService = ApiService()
     private lateinit var authHelper: AuthHelper
     private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper
 
+    private lateinit var viewModel: SelectedIssueViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        setContentView(R.layout.activity_main)
+        viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
+        supportFragmentManager.beginTransaction().replace(R.id.drawerMenuFragmentPlaceHolder, SectionListFragment()).commit()
+
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -57,34 +61,12 @@ class MainActivity(private val apiService: ApiService = ApiService()) : AppCompa
                             log.debug("issue is downloaded")
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
-                                showIssue(issue)
+                                viewModel.selectedIssue.postValue(issue)
                             }
                         }
                     })
             })
 
-        login.setOnClickListener {
-            GlobalScope.launch {
-                try {
-                    apiService.authenticate(
-                        username.text.toString(), password.text.toString()
-                    ).token?.let {
-                        authHelper.token = it
-                    }
-                } catch (e: Exception) {
-                    toastHelper.makeToast(R.string.toast_login_failed)
-                }
-            }
-        }
-
-    }
-
-    private fun showIssue(issue: Issue) {
-        val file = File(
-            ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
-            "${issue.tag}/${issue.sectionList.first().sectionHtml.name}"
-        )
-        runOnUiThread { helloWorld.loadUrl("file://${file.absolutePath}") }
     }
 
 }
