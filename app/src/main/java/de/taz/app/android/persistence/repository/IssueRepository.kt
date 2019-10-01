@@ -93,6 +93,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getIssueBaseForSection(sectionFileName: String): IssueBase {
+        return appDatabase.issueSectionJoinDao().getIssueBaseForSection(sectionFileName)
+    }
+
+
     private fun issueBaseToIssue(issueBase: IssueBase): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueBase)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
