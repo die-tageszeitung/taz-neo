@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.AuthHelper
@@ -116,6 +117,12 @@ class SplashActivity : AppCompatActivity() {
                 log.warn("unable to get ResourceInfo", e)
             }
         }
+
+        // mock tazApi.css
+        // TODO use real tazApi.css
+        fileHelper.getFile(RESOURCE_FOLDER).mkdirs()
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js").createNewFile()
     }
 
 }

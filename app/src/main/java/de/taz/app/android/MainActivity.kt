@@ -2,7 +2,6 @@ package de.taz.app.android
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import de.taz.app.android.api.ApiService
@@ -62,11 +61,25 @@ class MainActivity : AppCompatActivity() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
                                 viewModel.selectedIssue.postValue(issue)
+                                lifecycleScope.launch {
+                                    runOnUiThread {
+                                        showIssue(issue)
+                                    }
+                                }
                             }
                         }
                     })
             })
 
+    }
+
+}
+
+    private fun showIssue(issue: Issue) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentPlaceholder, WebViewFragment(issue))
+            .commit()
     }
 
 }
