@@ -2,16 +2,21 @@ package de.taz.app.android
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.fragments.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.SectionListFragment
 import de.taz.app.android.ui.drawer.SelectedIssueViewModel
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
         supportFragmentManager.beginTransaction().replace(R.id.drawerMenuFragmentPlaceHolder, SectionListFragment()).commit()
 
-
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val issue = apiService.getIssueByFeedAndDate()
@@ -61,11 +65,7 @@ class MainActivity : AppCompatActivity() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = issueBase.getIssue()
                                 viewModel.selectedIssue.postValue(issue)
-                                lifecycleScope.launch {
-                                    runOnUiThread {
-                                        showIssue(issue)
-                                    }
-                                }
+                                showIssue(issue)
                             }
                         }
                     })
@@ -73,13 +73,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-}
-
     private fun showIssue(issue: Issue) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragmentPlaceholder, WebViewFragment(issue))
-            .commit()
+        showSection(issue.sectionList.first())
+    }
+
+    fun showSection(section: Section) {
+        runOnUiThread {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_content_fragment_placeholder, WebViewFragment(section))
+                .commit()
+            drawer_layout.closeDrawer(GravityCompat.START)
+        }
     }
 
 }

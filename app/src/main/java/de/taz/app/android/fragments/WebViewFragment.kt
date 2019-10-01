@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 import de.taz.app.android.webview.ArticleWebView
 
 
-class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.ArticleWebViewCallback {
+class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.ArticleWebViewCallback {
 
     private val log by Log
 
@@ -41,11 +42,13 @@ class WebViewFragment(val lastIssue: Issue) : Fragment(), ArticleWebView.Article
         webView.setArticleWebViewCallback(this)
         context?.let {
             webView.addJavascriptInterface(TazApiJs(it), "tazApi")
-            val file = File(
-                ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
-                "${lastIssue.tag}/${lastIssue.sectionList.first().sectionHtml.name}"
-            )
-            webView.loadUrl("file://${file.absolutePath}")
+            CoroutineScope(Dispatchers.IO).launch {
+                val file = File(
+                    ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
+                    "${section.issueBase.tag}/${section.sectionHtml.name}"
+                )
+                requireActivity().runOnUiThread { webView.loadUrl("file://${file.absolutePath}") }
+            }
         }
 
         // handle clicks of the back button

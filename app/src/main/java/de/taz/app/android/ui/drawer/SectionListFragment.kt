@@ -6,11 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.MainActivity
 import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_drawer_menu_list.*
 import de.taz.app.android.api.models.Issue
@@ -31,7 +31,7 @@ class SectionListFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(requireActivity()).get(SelectedIssueViewModel::class.java)
 
-        val recycleAdapter = MyAdapter()
+        val recycleAdapter = MyAdapter(requireActivity() as MainActivity)
         drawer_menu_list.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@SectionListFragment.context)
@@ -48,7 +48,7 @@ class SectionListFragment : Fragment() {
 
 }
 
-class MyAdapter(private var issue: Issue? = null): RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+class MyAdapter(private val activity: MainActivity, private var issue: Issue? = null): RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
     fun setData(newIssue: Issue?) {
         this.issue = newIssue
@@ -75,7 +75,13 @@ class MyAdapter(private var issue: Issue? = null): RecyclerView.Adapter<MyAdapte
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.textView.text = issue?.sectionList?.get(position)?.title
+        val section = issue?.sectionList?.get(position)
+        section?.let {
+            holder.textView.text = section.title
+            holder.textView.setOnClickListener {
+                activity.showSection(section)
+            }
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)
