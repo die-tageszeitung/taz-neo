@@ -29,6 +29,7 @@ class DrawerLayout @JvmOverloads constructor(
             if (drawerLogoBoundingBox.contains(ev.x.toInt(), ev.y.toInt())) {
                 log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
                 openDrawer(GravityCompat.START)
+                return true
             }
         }
         return super.onInterceptTouchEvent(ev)
