@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.drawer
+package de.taz.app.android.ui.drawer.sectionList
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

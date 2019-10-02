@@ -3,5 +3,5 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="de.taz.app.android.ui.drawer.SectionListFragment"
+        tools:context="de.taz.app.android.ui.drawer.sectionList.SectionListFragment"
         style="@style/TextAppearance.SectionList" />
