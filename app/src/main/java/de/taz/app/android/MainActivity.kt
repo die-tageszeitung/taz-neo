@@ -11,8 +11,8 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.fragments.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.ui.drawer.SectionListFragment
-import de.taz.app.android.ui.drawer.SelectedIssueViewModel
+import de.taz.app.android.ui.drawer.sectionList.SectionListFragment
+import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
         toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
-        supportFragmentManager.beginTransaction().replace(R.id.drawerMenuFragmentPlaceHolder, SectionListFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.drawerMenuFragmentPlaceHolder,
+            SectionListFragment()
+        ).commit()
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

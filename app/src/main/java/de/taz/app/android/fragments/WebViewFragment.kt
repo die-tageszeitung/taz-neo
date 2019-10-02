@@ -1,13 +1,11 @@
 package de.taz.app.android.fragments
 
 import android.annotation.SuppressLint
-import android.graphics.Rect
 import android.os.*
 import android.view.*
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
@@ -19,10 +17,10 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import de.taz.app.android.ui.webview.ArticleWebView
+import de.taz.app.android.ui.webview.ArticleWebViewCallback
 
 
-class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.ArticleWebViewCallback {
+class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback {
 
     private val log by Log
 
@@ -67,7 +65,7 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
         })
     }
 
-    fun callTazApi(methodname: String, vararg params: Any) {
+    private fun callTazApi(methodname: String, vararg params: Any) {
 
         val jsBuilder = StringBuilder()
         jsBuilder.append("tazApi")
@@ -90,11 +88,7 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
         val call = jsBuilder.toString()
         CoroutineScope(Dispatchers.Main).launch{
             log.info("Calling javascript with $call")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                web_view.evaluateJavascript(call, null)
-            } else {
-                web_view.loadUrl("javascript:$call")
-            }
+            web_view.loadUrl("javascript:$call")
         }
     }
 
@@ -102,21 +96,21 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
         callTazApi("onGesture", gesture.name, e1.x, e1.y)
     }
 
-    override fun onSwipeLeft(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+    override fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent) {
         log.debug("swiping left")
         onGestureToTazapi(GESTURES.swipeLeft, e1)
     }
 
-    override fun onSwipeRight(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+    override fun onSwipeRight(e1: MotionEvent, e2: MotionEvent) {
         onGestureToTazapi(GESTURES.swipeRight, e1)
     }
 
 
-    override fun onSwipeTop(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+    override fun onSwipeTop(e1: MotionEvent, e2: MotionEvent) {
         onGestureToTazapi(GESTURES.swipeUp, e1)
     }
 
-    override fun onSwipeBottom(view: ArticleWebView, e1: MotionEvent, e2: MotionEvent) {
+    override fun onSwipeBottom(e1: MotionEvent, e2: MotionEvent) {
         onGestureToTazapi(GESTURES.swipeDown, e1)
     }
 
@@ -131,12 +125,12 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
         swipeUp, swipeDown, swipeRight, swipeLeft
     }
 
-    override fun onScrollStarted(view: ArticleWebView) {
-        log.debug("${view.scrollX}, ${view.scrollY}")
+    override fun onScrollStarted() {
+        log.debug("${web_view?.scrollX}, ${web_view?.scrollY}")
     }
 
-    override fun onScrollFinished(view: ArticleWebView) {
-        log.debug("${view.scrollX}, ${view.scrollY}")
+    override fun onScrollFinished() {
+        log.debug("${web_view?.scrollX}, ${web_view?.scrollY}")
     }
 
 

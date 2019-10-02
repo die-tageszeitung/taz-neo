@@ -23,6 +23,7 @@ class DrawerLayout @JvmOverloads constructor(
 
     /**
      * catch touch events on floating logo and open drawer
+     * TODO Verify this approach handles accessability correctly
      */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         ev?.let {
