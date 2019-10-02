@@ -11,6 +11,9 @@ class NavigationView @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0
 ) : NavigationView(context, attributeSet, defStyleAttr) {
 
+    /**
+     * never make NavigationView invisible as we always want to show the logo above the content
+     */
     override fun setVisibility(visibility: Int) {
         super.setVisibility(View.VISIBLE)
     }

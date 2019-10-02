@@ -11,7 +11,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.ui.drawer.DrawerLogoOnClickListener
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.ui.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
@@ -21,7 +20,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import de.taz.app.android.ui.webview.ArticleWebView
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.ArticleWebViewCallback {
@@ -53,7 +51,7 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
                     ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
                     "${section.issueBase.tag}/${section.sectionHtml.name}"
                 )
-                requireActivity().runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
+                activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
             }
         }
 
