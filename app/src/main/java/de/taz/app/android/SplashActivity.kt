@@ -1,9 +1,6 @@
 package de.taz.app.android
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.os.Build
-import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
@@ -37,11 +34,6 @@ class SplashActivity : AppCompatActivity() {
         initAppInfo()
         initResources()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
-                WebView.setWebContentsDebuggingEnabled(true)
-            }
-        }
         startActivity(Intent(this, MainActivity::class.java))
     }
 
