@@ -13,6 +13,7 @@ import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
+import java.io.File
 import kotlin.Exception
 
 class SplashActivity : AppCompatActivity() {
@@ -114,7 +115,8 @@ class SplashActivity : AppCompatActivity() {
         // TODO use real tazApi.css
         fileHelper.getFile(RESOURCE_FOLDER).mkdirs()
         fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
-        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js").createNewFile()
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
+            .writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
     }
 
 }

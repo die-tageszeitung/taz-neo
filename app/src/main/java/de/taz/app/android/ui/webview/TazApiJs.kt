@@ -1,47 +1,39 @@
 package de.taz.app.android.ui.webview
 
-import android.content.Context
 import android.webkit.JavascriptInterface
 import de.taz.app.android.util.Log
-import android.widget.Toast
-import java.net.URL
 
-class TazApiJs(private val context: Context) {
+class TazApiJs {
 
     private val log by Log
 
     @JavascriptInterface
-    fun test(s: String) {
-        Toast.makeText(context, s, Toast.LENGTH_SHORT).show()
+    fun getConfiguration(name: String) {
+        log.debug("getConfiguration $name")
     }
 
     @JavascriptInterface
-    fun getConfiguration(parameter: Array<String>) {
-        log.debug("getConfiguration")
+    fun setConfiguration(name: String, value: Unit) {
+        log.debug("setConfiguration $name: $value")
     }
 
     @JavascriptInterface
-    fun setConfiguration(parameter: String, value: Unit) {
-        log.debug("setConfiguration")
-    }
-
-    @JavascriptInterface
-    fun pageReady() {
-        log.debug("pageReady")
+    fun pageReady(percentage: String, position: String) {
+        log.debug("pageReady $percentage $position")
     }
 
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
-        log.debug("nextArticle")
+        log.debug("nextArticle $position")
     }
 
     @JavascriptInterface
-    fun previousArtcile(position: Int = 0) {
-        log.debug("previousArticle")
+    fun previousArticle(position: Int = 0) {
+        log.debug("previousArticle $position")
     }
 
     @JavascriptInterface
-    fun openUrl(url: URL) {
-        log.debug("openUrl")
+    fun openUrl(url: String) {
+        log.debug("openUrl $url")
     }
 }

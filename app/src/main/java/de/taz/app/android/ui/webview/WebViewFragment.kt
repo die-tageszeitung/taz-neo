@@ -1,4 +1,4 @@
-package de.taz.app.android.fragments
+package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.os.*
@@ -10,14 +10,12 @@ import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.util.FileHelper
-import de.taz.app.android.ui.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import de.taz.app.android.ui.webview.ArticleWebViewCallback
 
 
 class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback {
@@ -43,7 +41,7 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback
 
 
         context?.let {
-            web_view.addJavascriptInterface(TazApiJs(it), "tazApi")
+            web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
             CoroutineScope(Dispatchers.IO).launch {
                 val file = File(
                     ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
