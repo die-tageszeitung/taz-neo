@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.fragments.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.drawer.DrawerLogoOnClickListener
 import de.taz.app.android.ui.drawer.SectionListFragment
 import de.taz.app.android.ui.drawer.SelectedIssueViewModel
 import de.taz.app.android.util.AuthHelper
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        drawer_logo.setOnClickListener(DrawerLogoOnClickListener(drawer_layout))
 
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
@@ -70,7 +73,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
             })
-
     }
 
     private fun showIssue(issue: Issue) {

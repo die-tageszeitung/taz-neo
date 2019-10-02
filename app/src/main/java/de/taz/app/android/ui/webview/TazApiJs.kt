@@ -1,4 +1,4 @@
-package de.taz.app.android.webview
+package de.taz.app.android.ui.webview
 
 import android.content.Context
 import android.webkit.JavascriptInterface

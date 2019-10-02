@@ -1,24 +1,27 @@
 package de.taz.app.android.fragments
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.os.*
 import android.view.*
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.ui.drawer.DrawerLogoOnClickListener
 import de.taz.app.android.util.FileHelper
-import de.taz.app.android.webview.TazApiJs
+import de.taz.app.android.ui.webview.TazApiJs
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import de.taz.app.android.webview.ArticleWebView
+import de.taz.app.android.ui.webview.ArticleWebView
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.ArticleWebViewCallback {
@@ -36,26 +39,29 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onResume() {
         super.onResume()
-        webView.webViewClient = TazWebViewClient()
-        webView.webChromeClient = WebChromeClient()
-        webView.settings.javaScriptEnabled = true
-        webView.setArticleWebViewCallback(this)
+        web_view.webViewClient = TazWebViewClient()
+        web_view.webChromeClient = WebChromeClient()
+        web_view.settings.javaScriptEnabled = true
+        web_view.setArticleWebViewCallback(this)
+
+
+
         context?.let {
-            webView.addJavascriptInterface(TazApiJs(it), "tazApi")
+            web_view.addJavascriptInterface(TazApiJs(it), "tazApi")
             CoroutineScope(Dispatchers.IO).launch {
                 val file = File(
                     ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
                     "${section.issueBase.tag}/${section.sectionHtml.name}"
                 )
-                requireActivity().runOnUiThread { webView.loadUrl("file://${file.absolutePath}") }
+                requireActivity().runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
             }
         }
 
         // handle clicks of the back button
-        webView.setOnKeyListener(object: View.OnKeyListener {
+        web_view.setOnKeyListener(object: View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && webView.canGoBack()) {
-                    webView.goBack()
+                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && web_view.canGoBack()) {
+                    web_view.goBack()
                     return true
                 }
                 return false
@@ -87,9 +93,9 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebView.Article
         CoroutineScope(Dispatchers.Main).launch{
             log.info("Calling javascript with $call")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.evaluateJavascript(call, null)
+                web_view.evaluateJavascript(call, null)
             } else {
-                webView.loadUrl("javascript:$call")
+                web_view.loadUrl("javascript:$call")
             }
         }
     }
