@@ -5,7 +5,10 @@ import android.os.Environment
 import androidx.core.content.ContextCompat
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.persistence.repository.DownloadRepository
+import kotlinx.io.IOException
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
 
 class FileHelper private constructor(private val applicationContext: Context) {
 
@@ -48,4 +51,26 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
+    @Throws(IOException::class)
+    fun readFileFromAssets(path: String): String {
+        var bufferedReader: BufferedReader? = null
+        var data = ""
+        try {
+            bufferedReader = BufferedReader(
+                InputStreamReader(
+                    applicationContext.assets.open(path),
+                    "UTF-8"
+                )
+            )
+
+            var line: String? = bufferedReader.readLine()
+            while (line != null) {
+                data += line
+                line = bufferedReader.readLine()
+            }
+        } finally {
+            bufferedReader?.close()
+        }
+        return data
+    }
 }
