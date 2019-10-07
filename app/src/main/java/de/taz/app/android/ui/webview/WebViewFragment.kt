@@ -18,50 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback {
+open class WebViewFragment : Fragment(), ArticleWebViewCallback {
 
     private val log by Log
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview, container, false)
-    }
-
-    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    override fun onResume() {
-        super.onResume()
-        web_view.webViewClient = TazWebViewClient()
-        web_view.webChromeClient = WebChromeClient()
-        web_view.settings.javaScriptEnabled = true
-        web_view.setArticleWebViewCallback(this)
-
-
-
-        context?.let {
-            web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
-            CoroutineScope(Dispatchers.IO).launch {
-                val file = File(
-                    ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
-                    "${section.issueBase.tag}/${section.sectionHtml.name}"
-                )
-                activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
-            }
-        }
-
-        // handle clicks of the back button
-        web_view.setOnKeyListener(object: View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && web_view.canGoBack()) {
-                    web_view.goBack()
-                    return true
-                }
-                return false
-            }
-        })
-    }
 
     private fun callTazApi(methodname: String, vararg params: Any) {
 
