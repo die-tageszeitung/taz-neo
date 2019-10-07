@@ -17,6 +17,7 @@ import de.taz.app.android.ui.webview.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.sectionList.SectionListFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
+import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
@@ -89,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_content_fragment_placeholder,
-                    WebViewFragment(section)
+                    SectionWebViewFragment(section)
                 )
                 .commit()
             drawer_layout.closeDrawer(GravityCompat.START)
