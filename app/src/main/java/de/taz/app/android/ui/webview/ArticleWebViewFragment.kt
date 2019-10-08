@@ -23,7 +23,7 @@ class ArticleWebViewFragment(val article: Article) : WebViewFragment(), ArticleW
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_webview, container, false)
+        return inflater.inflate(R.layout.fragment_article_webview, container, false)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -41,7 +41,7 @@ class ArticleWebViewFragment(val article: Article) : WebViewFragment(), ArticleW
             CoroutineScope(Dispatchers.IO).launch {
                 val file = File(
                     ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
-                    "${article.getSection().issueBase.tag}/${article.articleFileName}"
+                    "${article.getSection()!!.issueBase.tag}/${article.articleFileName}"
                 )
                 activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
             }

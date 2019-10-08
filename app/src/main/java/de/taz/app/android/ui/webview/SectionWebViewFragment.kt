@@ -27,7 +27,7 @@ class SectionWebViewFragment(val section: Section) : WebViewFragment(), ArticleW
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_webview, container, false)
+        return inflater.inflate(R.layout.fragment_section_webview, container, false)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
