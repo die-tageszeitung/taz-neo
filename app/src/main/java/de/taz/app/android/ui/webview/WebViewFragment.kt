@@ -16,6 +16,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okio.blackholeSink
 
 
 open class WebViewFragment : Fragment(), ArticleWebViewCallback {
@@ -99,7 +100,7 @@ class TazWebViewClient : WebViewClient() {
 
     private val fileHelper = FileHelper.getInstance()
 
-    // internal links should be handles by the app, external ones - by a web browser
+    // internal links should be handled by the app, external ones - by a web browser
     private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
@@ -185,4 +186,17 @@ class TazWebViewClient : WebViewClient() {
         }
         return null
      }
+
+    override fun onLoadResource(view: WebView?, url: String?) {
+        url?.let{
+            when {
+                it.contains("section") && view!!.context.applicationContext.classLoader. ArticleWebViewFragment::class.java-> create article fragment
+                it.contains("art") && view!!::class.isInstance(ArticleWebViewFragment)-> update header article num/total
+                it.contains("section") && view!!::class.isInstance(SectionWebViewFragment) -> create new fragment?/update header
+                it.contains("art") && view!!::class.isInstance(SectionWebViewFragment) -> go back to section fragment
+                else -> super.onLoadResource(view, url)
+            }
+        }
+        super.onLoadResource(view, url)
+    }
 }
