@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.room.Transaction
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
@@ -17,25 +16,26 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @Transaction
     fun save(section: Section) {
-        appDatabase.sectionDao().insertOrReplace(SectionBase(section))
-        fileEntryRepository.save(section.sectionHtml)
-        section.articleList.forEach { articleRepository.save(it) }
-        appDatabase.sectionArticleJoinDao().insertOrReplace(
-            section.articleList.mapIndexed { index, article ->
-                SectionArticleJoin(
-                    section.sectionHtml.name,
-                    article.articleHtml.name,
-                    index
-                )
-            }
-        )
-        fileEntryRepository.save(section.imageList)
-        appDatabase.sectionImageJoinDao()
-            .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
-                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
-            })
+        appDatabase.runInTransaction {
+            appDatabase.sectionDao().insertOrReplace(SectionBase(section))
+            fileEntryRepository.save(section.sectionHtml)
+            section.articleList.forEach { articleRepository.save(it) }
+            appDatabase.sectionArticleJoinDao().insertOrReplace(
+                section.articleList.mapIndexed { index, article ->
+                    SectionArticleJoin(
+                        section.sectionHtml.name,
+                        article.articleHtml.name,
+                        index
+                    )
+                }
+            )
+            fileEntryRepository.save(section.imageList)
+            appDatabase.sectionImageJoinDao()
+                .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
+                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+                })
+        }
     }
 
     fun getBase(sectionFileName: String): SectionBase? {

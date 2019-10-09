@@ -10,8 +10,8 @@ data class Page (
     val type: PageType? = null,
     val frameList: List<Frame>? = null
 ) : CacheableDownload {
-    override fun getAllFileNames(): List<String> {
-        return listOf(pagePdf.name)
+    override fun getAllFiles(): List<FileEntry> {
+        return listOf(pagePdf)
     }
 }
 

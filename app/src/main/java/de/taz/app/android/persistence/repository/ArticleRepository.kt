@@ -16,35 +16,38 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     @Transaction
     fun save(article: Article) {
-        val articleFileName = article.articleHtml.name
-        appDatabase.articleDao().insertOrReplace(ArticleBase(article))
+        appDatabase.runInTransaction {
 
-        // save audioFile and relation
-        article.audioFile?.let { audioFile ->
-            fileEntryRepository.save(audioFile)
-            appDatabase.articleAudioFileJoinDao().insertOrReplace(
-                ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-            )
-        }
+            val articleFileName = article.articleHtml.name
+            appDatabase.articleDao().insertOrReplace(ArticleBase(article))
 
-        // save html file
-        fileEntryRepository.save(article.articleHtml)
-
-        // save images and relations
-        article.imageList.forEachIndexed { index, fileEntry ->
-            fileEntryRepository.save(fileEntry)
-            appDatabase.articleImageJoinDao().insertOrReplace(
-                ArticleImageJoin(articleFileName, fileEntry.name, index)
-            )
-        }
-
-        // save authors
-        article.authorList.forEachIndexed { index, author ->
-            author.imageAuthor?.let {
-                fileEntryRepository.save(it)
-                appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                    ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
+            // save audioFile and relation
+            article.audioFile?.let { audioFile ->
+                fileEntryRepository.save(audioFile)
+                appDatabase.articleAudioFileJoinDao().insertOrReplace(
+                    ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
                 )
+            }
+
+            // save html file
+            fileEntryRepository.save(article.articleHtml)
+
+            // save images and relations
+            article.imageList.forEachIndexed { index, fileEntry ->
+                fileEntryRepository.save(fileEntry)
+                appDatabase.articleImageJoinDao().insertOrReplace(
+                    ArticleImageJoin(articleFileName, fileEntry.name, index)
+                )
+            }
+
+            // save authors
+            article.authorList.forEachIndexed { index, author ->
+                author.imageAuthor?.let {
+                    fileEntryRepository.save(it)
+                    appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                        ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
+                    )
+                }
             }
         }
     }

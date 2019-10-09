@@ -28,12 +28,11 @@ data class Article(
     override val articleFileName
         get() = articleHtml.name
 
-    override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(articleFileName)
-        audioFile?.let { list.add(audioFile.name) }
-        list.addAll(imageList.map { image -> image.name })
+    override fun getAllFiles(): List<FileEntry> {
+        val list = mutableListOf(articleHtml)
+        audioFile?.let { list.add(audioFile) }
+        list.addAll(imageList)
         return list
     }
-
 
 }

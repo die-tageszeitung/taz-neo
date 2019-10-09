@@ -25,6 +25,7 @@ private const val DATABASE_NAME = "db"
         FileEntry::class,
         IssueBase::class,
         IssueImprintJoin::class,
+        IssueMomentJoin::class,
         IssuePageJoin::class,
         IssueSectionJoin::class,
         PageWithoutFile::class,
@@ -70,6 +71,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun fileEntryDao(): FileEntryDao
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
+    abstract fun issueMomentJoinDao(): IssueMomentJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
     abstract fun issueSectionJoinDao(): IssueSectionJoinDao
     abstract fun pageDao(): PageDao

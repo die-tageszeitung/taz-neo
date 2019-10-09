@@ -1,17 +1,17 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.work.*
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,8 +22,8 @@ const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_DATE = "extra.issue.date"
 
 
+const val GLOBAL_FOLDER = "global"
 const val RESOURCE_FOLDER = "resources"
-const val RESOURCE_TAG = "resources"
 
 
 object DownloadService {
@@ -33,107 +33,69 @@ object DownloadService {
 
     private val apiService = ApiService()
     private val appInfoRepository = AppInfoRepository.getInstance()
-    private val fileEntryRepository = FileEntryRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
 
     /**
      * use [ioScope] to download
-     * @param resourceInfo - [ResourceInfo] to download files of
+     * @param cacheableDownload - object implementing the [CacheableDownload] interface
+     *                            it's files will be downloaded
      */
-    fun download(appContext: Context, resourceInfo: ResourceInfo) {
-        log.info("downloading resources")
-        createAndSaveDownloads(
-            resourceInfo.resourceBaseUrl,
-            RESOURCE_FOLDER,
-            resourceInfo.resourceList
-        )
-        ioScope.launch {
-            DownloadWorker.startDownloads(
-                appContext,
-                resourceInfo.resourceList
-            )
-        }
-    }
-
-    /**
-     * use [ioScope] to download
-     * @param issue - Issue to download files of
-     */
-    fun download(appContext: Context, issue: Issue) {
-        if(!issue.isDownloadedOrDownloading()) {
-            log.info("downloading issue(${issue.feedName}/${issue.date})")
-
+    fun download(appContext: Context, cacheableDownload: CacheableDownload) {
+        if (!cacheableDownload.isDownloadedOrDownloading()) {
             ioScope.launch {
+                val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
                 val start = System.currentTimeMillis()
-                val downloadId = apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
-                issue.issueFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                    createAndSaveDownloads(issue.baseUrl, issue.tag, files)
-
-                    DownloadWorker.startDownloads(
-                        appContext,
-                        files
-                    )
+                val downloadId = issue?.let {
+                    apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
                 }
-                issue.globalFileList.mapNotNull { fileEntryRepository.get(it) }.let { files ->
-                    createAndSaveDownloads(
-                        appInfoRepository.getOrThrow().globalBaseUrl,
-                        issue.tag,
-                        files
-                    )
 
-                    DownloadWorker.startDownloads(
-                        appContext,
-                        files
-                    )
-                }
-                val observer: Observer<Boolean> = object : Observer<Boolean> {
-                    override fun onChanged(downloaded: Boolean) {
-                        if (downloaded) {
-                            issue.isDownloadedLiveData().removeObserver(this)
-                            val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
-                            ioScope.launch {
-                                apiService.notifyServerOfDownloadStop(downloadId, seconds)
+                createDownloadsForCacheableDownload(appContext, cacheableDownload)
+
+                DownloadWorker.startDownloads(
+                    appContext,
+                    cacheableDownload.getAllFiles()
+                )
+
+                // if it's an issue tell the server we downloaded it
+                issue?.let {
+                    downloadId?.let {
+                        val observer: Observer<Boolean> = object : Observer<Boolean> {
+                            override fun onChanged(downloaded: Boolean) {
+                                if (downloaded) {
+                                    val observer = this
+                                    issue.isDownloadedLiveData().removeObserver(observer)
+                                    val seconds =
+                                        ((System.currentTimeMillis() - start) / 1000).toFloat()
+                                    ioScope.launch {
+                                        apiService.notifyServerOfDownloadStop(
+                                            downloadId,
+                                            seconds
+                                        )
+                                    }
+                                }
                             }
+                        }
+
+                        CoroutineScope(Dispatchers.Main).launch {
+                            issue.isDownloadedLiveData().observeForever(observer)
                         }
                     }
                 }
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    issue.isDownloadedLiveData().observeForever(observer)
-                }
             }
         }
     }
 
     /**
      * use [WorkManager] to download in background
-     * @param resourceInfo - [ResourceInfo] to download files of
+     * @param cacheableDownload - object implementing [CacheableDownload] to download files of
      */
-    fun scheduleDownload(appContext: Context, resourceInfo: ResourceInfo) {
+    suspend fun scheduleDownload(appContext: Context, cacheableDownload: CacheableDownload) {
         enqueueDownloads(
             appContext,
-            createAndSaveDownloads(
-                resourceInfo.resourceBaseUrl,
-                RESOURCE_FOLDER,
-                resourceInfo.resourceList
-            ),
-            RESOURCE_TAG
+            createDownloadsForCacheableDownload(appContext, cacheableDownload),
+            cacheableDownload.getDownloadTag()
         )
-    }
-
-    /**
-     * use [WorkManager] to download in background
-     * @param issue - Issue to download files of
-     */
-    fun scheduleDownload(appContext: Context, issue: Issue) {
-        val downloads = createAndSaveDownloads(
-            issue.baseUrl,
-            issue.tag,
-            issue.fileList.mapNotNull {
-                fileEntryRepository.get(it.split("/").last())
-            }
-        )
-        enqueueDownloads(appContext, downloads, issue.tag)
     }
 
     /**
@@ -161,6 +123,52 @@ object DownloadService {
         val requests = downloads.map { createRequestAndUpdate(it, tag) }
         return WorkManager.getInstance(appContext).enqueue(requests)
     }
+
+    private suspend fun createDownloadsForCacheableDownload(
+        appContext: Context,
+        cacheableDownload: CacheableDownload
+    ): List<Download> {
+        val downloads = mutableListOf<Download>()
+
+        val allFiles = cacheableDownload.getAllFiles()
+        val tag = cacheableDownload.getDownloadTag()
+
+        // create global downloads
+        val globalFiles = allFiles.filter { it.storageType == StorageType.global }
+        downloads.addAll(createAndSaveDownloads(
+            appInfoRepository.getOrThrow().globalBaseUrl,
+            GLOBAL_FOLDER,
+            globalFiles,
+            tag
+        ))
+
+        // create resource downloads
+        val resourceInfo = ResourceInfoRepository.getInstance(appContext).get()
+        resourceInfo?.let {
+            val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
+            downloads.addAll(createAndSaveDownloads(
+                resourceInfo.resourceBaseUrl,
+                RESOURCE_FOLDER,
+                resourceFiles,
+                tag
+            ))
+        }
+
+        // create issue downloads
+        val issue = if (cacheableDownload is Issue) cacheableDownload else null
+        issue?.let {
+            val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
+            downloads.addAll(createAndSaveDownloads(
+                issue.baseUrl,
+                issue.tag,
+                issueFiles,
+                tag
+            ))
+        }
+
+        return downloads
+    }
+
 
     /**
      * create [OneTimeWorkRequest] for [WorkManager] from [Download]
@@ -229,9 +237,10 @@ object DownloadService {
     private fun createAndSaveDownloads(
         baseUrl: String,
         folderPath: String,
-        fileEntries: List<FileEntry>
+        fileEntries: List<FileEntry>,
+        tag: String?
     ): List<Download> {
-        return fileEntries.map { createAndSaveDownload(baseUrl, folderPath, it) }
+        return fileEntries.map { createAndSaveDownload(baseUrl, folderPath, it, tag) }
     }
 
     /**
@@ -242,12 +251,14 @@ object DownloadService {
     private fun createAndSaveDownload(
         baseUrl: String,
         folderPath: String,
-        fileEntry: FileEntry
+        fileEntry: FileEntry,
+        tag: String?
     ): Download {
         val download = Download(
             baseUrl,
             folderPath,
-            fileEntry
+            fileEntry,
+            tag = tag
         )
         downloadRepository.saveIfNotExists(download)
         return download

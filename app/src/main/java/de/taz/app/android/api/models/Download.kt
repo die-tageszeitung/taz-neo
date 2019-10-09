@@ -7,14 +7,16 @@ data class Download(
     val folder: String,
     val file: FileEntry,
     var status: DownloadStatus = DownloadStatus.pending,
-    var workerManagerId: UUID? = null
+    var workerManagerId: UUID? = null,
+    val tag: String? = null
 ){
-    constructor(downloadWithoutFile: DownloadWithoutFile, file: FileEntry): this(
+    constructor(downloadWithoutFile: DownloadWithoutFile, file: FileEntry, tag: String? = null): this(
         downloadWithoutFile.baseUrl,
         downloadWithoutFile.folder,
         file,
         downloadWithoutFile.status,
-        downloadWithoutFile.workerManagerId
+        downloadWithoutFile.workerManagerId,
+        tag
     )
 
     val url

@@ -47,7 +47,7 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback
                     ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
                     "${section.issueBase.tag}/${section.sectionHtml.name}"
                 )
-                activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
+                activity?.runOnUiThread { web_view?.loadUrl("file://${file.absolutePath}") }
             }
         }
 
@@ -86,7 +86,9 @@ class WebViewFragment(val section: Section) : Fragment(), ArticleWebViewCallback
         val call = jsBuilder.toString()
         CoroutineScope(Dispatchers.Main).launch{
             log.info("Calling javascript with $call")
-            web_view.loadUrl("javascript:$call")
+            web_view.evaluateJavascript(call) { value ->
+                log.error(value)
+            }
         }
     }
 

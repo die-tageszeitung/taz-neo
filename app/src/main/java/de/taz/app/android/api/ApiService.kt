@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
@@ -150,20 +151,23 @@ class ApiService(
         return try {
             block()
         } catch (npe: NullPointerException) {
-            throw ApiServiceException.InsufficientData(tag)
+            throw ApiServiceException.InsufficientDataException(tag)
         } catch (uhe: UnknownHostException) {
             throw ApiServiceException.NoInternetException()
         } catch (ce: ConnectException) {
             throw ApiServiceException.NoInternetException()
         } catch (ste: SocketTimeoutException) {
             throw ApiServiceException.NoInternetException()
+        } catch (jee: JsonEncodingException) {
+            throw ApiServiceException.WrongDataException()
         }
     }
 
 
     object ApiServiceException {
-        class InsufficientData(function: String) : Exception("ApiService.$function failed.")
+        class InsufficientDataException(function: String) : Exception("ApiService.$function failed.")
         class NoInternetException : Exception("no internet connection")
+        class WrongDataException : Exception("data could not be parsed")
     }
 
 }

@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.room.Transaction
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
 
@@ -11,19 +10,20 @@ class FileEntryRepository private constructor(
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
-    @Transaction
     fun save(fileEntry: FileEntry) {
-        val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
-        fromDB?.let {
-            if (fromDB.moTime > fileEntry.moTime)
-                return@save
+        appDatabase.runInTransaction {
+            val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
+            fromDB?.let {
+                if (fromDB.moTime < fileEntry.moTime)
+                    appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+            }
         }
-        appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
-    @Transaction
     fun save(fileEntries: List<FileEntry>) {
-        fileEntries.forEach { save(it) }
+        appDatabase.runInTransaction {
+            fileEntries.forEach { save(it) }
+        }
     }
 
     fun get(fileEntryName: String): FileEntry? {

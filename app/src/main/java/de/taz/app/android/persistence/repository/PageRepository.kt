@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.room.Transaction
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageWithoutFile
 import de.taz.app.android.util.SingletonHolder
@@ -14,16 +13,25 @@ class PageRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(page: Page) {
-        appDatabase.pageDao().insertOrReplace(
-            PageWithoutFile(page.pagePdf.name, page.title, page.pagina, page.type, page.frameList)
-        )
-        fileEntryRepository.save(page.pagePdf)
+        appDatabase.runInTransaction {
+            appDatabase.pageDao().insertOrReplace(
+                PageWithoutFile(
+                    page.pagePdf.name,
+                    page.title,
+                    page.pagina,
+                    page.type,
+                    page.frameList
+                )
+            )
+            fileEntryRepository.save(page.pagePdf)
+        }
     }
 
-    @Transaction
     fun save(pages: List<Page>) {
-        pages.forEach { page ->
-            save(page)
+        appDatabase.runInTransaction {
+            pages.forEach { page ->
+                save(page)
+            }
         }
     }
 

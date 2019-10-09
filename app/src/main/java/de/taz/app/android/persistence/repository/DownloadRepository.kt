@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
-import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
@@ -18,33 +17,33 @@ class DownloadRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @Transaction
     @Throws(NotFoundException::class)
     fun save(download: Download) {
-        appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-            val downloadWithoutFile = DownloadWithoutFile(download)
-            appDatabase.downloadDao().insertOrReplace(downloadWithoutFile)
-        } ?: throw NotFoundException()
+        appDatabase.runInTransaction {
+            appDatabase.fileEntryDao().getByName(download.file.name)?.let {
+                val downloadWithoutFile = DownloadWithoutFile(download)
+                appDatabase.downloadDao().insertOrReplace(downloadWithoutFile)
+            } ?: throw NotFoundException()
+        }
     }
 
-    @Transaction
     fun saveIfNotExists(download: Download) {
-        appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-            val downloadWithoutFile = DownloadWithoutFile(download)
-            try {
-                appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
-            } catch (_: SQLiteConstraintException) {
-                // do nothing as already exists
-            }
-        } ?: throw NotFoundException()
+        appDatabase.runInTransaction {
+            appDatabase.fileEntryDao().getByName(download.file.name)?.let {
+                val downloadWithoutFile = DownloadWithoutFile(download)
+                try {
+                    appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
+                } catch (_: SQLiteConstraintException) {
+                    // do nothing as already exists
+                }
+            } ?: throw NotFoundException()
+        }
     }
 
-    @Transaction
     fun update(download: Download) {
         appDatabase.downloadDao().update(DownloadWithoutFile(download))
     }
 
-    @Transaction
     fun update(downloadWithoutFile: DownloadWithoutFile) {
         appDatabase.downloadDao().update(downloadWithoutFile)
     }
@@ -90,25 +89,26 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @Transaction
     @Throws(NotFoundException::class)
     fun setWorkerId(fileName: String, workerID: UUID) {
-        getWithoutFileOrThrow(fileName).let { downloadWithoutFile ->
-            downloadWithoutFile.workerManagerId = workerID
-            update(downloadWithoutFile)
+        appDatabase.runInTransaction {
+            getWithoutFileOrThrow(fileName).let { downloadWithoutFile ->
+                downloadWithoutFile.workerManagerId = workerID
+                update(downloadWithoutFile)
+            }
         }
     }
 
-    @Transaction
     @Throws(NotFoundException::class)
     fun setStatus(download: Download, downloadStatus: DownloadStatus) {
-        getWithoutFileOrThrow(download.file.name).let {
-            it.status = downloadStatus
-            update(it)
+        appDatabase.runInTransaction {
+            getWithoutFileOrThrow(download.file.name).let {
+                it.status = downloadStatus
+                update(it)
+            }
         }
     }
 
-    @Transaction
     fun delete(fileName: String) {
         try {
             appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))

@@ -8,4 +8,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
+
+    <string name="something_went_wrong_try_later">Something went wrong - please try again later</string>
+
+    <string name="navigation_drawer_icon_content">Inhalt</string>
+    <string name="navigation_drawer_icon_favorites">Favoriten</string>
+    <string name="navigation_drawer_icon_settings">Einstellungen</string>
+    <string name="navigation_drawer_icon_home">Home</string>
+    <string name="navigation_drawer_icon_info">Info</string>
 </resources>

@@ -23,10 +23,10 @@ data class Section(
     override val sectionFileName: String
         get() = sectionHtml.name
 
-    override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(sectionFileName)
-        list.addAll(imageList.map { image -> image.name })
-        articleList.forEach{ article -> list.addAll(article.getAllFileNames()) }
+    override fun getAllFiles(): List<FileEntry> {
+        val list = mutableListOf(sectionHtml)
+        list.addAll(imageList)
+        articleList.forEach{ article -> list.addAll(article.getAllFiles()) }
         return list
     }
 

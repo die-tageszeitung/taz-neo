@@ -3,6 +3,8 @@ package de.taz.app.android.api.models
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 
+const val RESOURCE_TAG = "resources"
+
 data class ResourceInfo(
     val resourceVersion: Int,
     val resourceBaseUrl: String,
@@ -16,7 +18,12 @@ data class ResourceInfo(
         productDto.resourceList!!
     )
 
-    override fun getAllFileNames(): List<String> {
-        return resourceList.map { it.name }
+    override fun getAllFiles(): List<FileEntry> {
+        return resourceList
     }
+
+    override fun getDownloadTag(): String? {
+        return RESOURCE_TAG
+    }
+
 }
