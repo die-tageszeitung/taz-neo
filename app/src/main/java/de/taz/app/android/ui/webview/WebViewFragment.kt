@@ -6,22 +6,54 @@ import android.view.*
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import kotlinx.android.synthetic.main.fragment_webview.*
 import java.io.File
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okio.blackholeSink
 
 
 open class WebViewFragment : Fragment(), ArticleWebViewCallback {
 
+    lateinit var file: File
     private val log by Log
+
+    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
+    override fun onResume() {
+        super.onResume()
+        web_view.webViewClient = TazWebViewClient(this)
+        web_view.webChromeClient = WebChromeClient()
+        web_view.settings.javaScriptEnabled = true
+        web_view.setArticleWebViewCallback(this)
+
+        context?.let {
+            web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
+            CoroutineScope(Dispatchers.IO).launch {
+                activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
+            }
+        }
+
+
+        // handle clicks of the back button
+        web_view.setOnKeyListener(object: View.OnKeyListener {
+            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && web_view.canGoBack()) {
+                    web_view.goBack()
+                    return true
+                }
+                return false
+            }
+        })
+    }
 
     private fun callTazApi(methodname: String, vararg params: Any) {
 
@@ -94,14 +126,15 @@ open class WebViewFragment : Fragment(), ArticleWebViewCallback {
 
 }
 
-class TazWebViewClient : WebViewClient() {
+class TazWebViewClient(val fragment: WebViewFragment) : WebViewClient() {
 
     private val log by Log
-
     private val fileHelper = FileHelper.getInstance()
 
-    // internal links should be handled by the app, external ones - by a web browser
-    private fun handleInternalLinks(view: WebView?, url: String?) : Boolean {
+    /** internal links should be handled by the app, external ones - by a web browser
+        this function checks whether a link is internal
+     */
+    private fun handleLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
                 if (urlString.startsWith(fileHelper.getFileDirectoryUrl(view.context))) {
@@ -112,19 +145,55 @@ class TazWebViewClient : WebViewClient() {
         return false
     }
 
+    private fun createNewFragment(view: WebView?, url: String?): Boolean {
+        url?.let{
+            when {
+                it.startsWith("file:///") && it.contains("section") && it.endsWith(".html")-> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val section = SectionRepository.getInstance().get(
+                            url.split("/").last()
+                        )
+                        section?.let {
+                            showFragment(SectionWebViewFragment(section))
+                        }
+                    }
+                }
+                it.startsWith("file:///") && it.contains("art") && it.endsWith(".html")-> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val article = ArticleRepository.getInstance().get(
+                            url.split("/").last()
+                        )
+                        article?.let {
+                            showFragment(ArticleWebViewFragment(article))
+                        }
+                    }
+                }
+                else -> return false
+            }
+        }
+        return false
+    }
+
     @SuppressLint("Deprecated")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-        if (handleInternalLinks(view, url)) return false
+        if (handleLinks(view, url)) {
+            createNewFragment(view, url)
+        }
         return super.shouldOverrideUrlLoading(view, url)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-        if (handleInternalLinks(view, request?.url.toString())) return false
+        if (handleLinks(view, request?.url.toString())){
+            val url = request?.url.toString()
+            createNewFragment(view, url)
+        }
         return super.shouldOverrideUrlLoading(view, request)
     }
 
-    // intercept links to "resources/" and "global/" and point them to the correct directories
+    /**
+     * intercept links to "resources/" and "global/" and point them to the correct directories
+     */
     private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
         view?.let {
             url?.let {
@@ -140,16 +209,11 @@ class TazWebViewClient : WebViewClient() {
         return url
     }
 
-    override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        val newUrl = overrideInternalLinks(view, url)
-
-        val data = File(newUrl.toString().removePrefix("file:///"))
-
-        log.debug("Intercepted Url is ${url.toString()}")
-
-        // handle correctly different resource types
-        // we have to return our own WebResourceResponse object here
-        // TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
+    /**
+     * handle correctly different resource types
+     * TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
+    */
+    private fun createCustomWebResourceResponse (url: String?, data: File) : WebResourceResponse {
         return when {
             url.toString().contains(".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
             url.toString().contains(".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
@@ -159,6 +223,14 @@ class TazWebViewClient : WebViewClient() {
             url.toString().contains(".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
             else -> WebResourceResponse("text/plain", "UTF-8", data.inputStream())
         }
+    }
+
+    override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
+        val newUrl = overrideInternalLinks(view, url)
+        val data = File(newUrl.toString().removePrefix("file:///"))
+        log.debug("Intercepted Url is ${url.toString()}")
+
+        return createCustomWebResourceResponse(newUrl, data)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -171,32 +243,22 @@ class TazWebViewClient : WebViewClient() {
             val data = File(newUrl.toString().removePrefix("file:///"))
             log.debug("Intercepted Url is ${request.url}")
 
-            // handle correctly different resource types
-            // we have to return our own WebResourceResponse object here
-            // TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
-            return when {
-                newUrl.toString().contains(".css") -> WebResourceResponse("text/css", "UTF-8", data.inputStream())
-                newUrl.toString().contains(".html") -> WebResourceResponse("text/html", "UTF-8", data.inputStream())
-                newUrl.toString().contains(".js") -> WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
-                newUrl.toString().contains(".png") -> WebResourceResponse("image/png", "binary", data.inputStream())
-                newUrl.toString().contains(".svg") -> WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
-                newUrl.toString().contains(".woff") -> WebResourceResponse("font/woff", "binary", data.inputStream())
-                else -> WebResourceResponse("text/plain", "UTF-8", data.inputStream())
-            }
+            return createCustomWebResourceResponse(newUrl, data)
         }
         return null
      }
 
-    override fun onLoadResource(view: WebView?, url: String?) {
-        url?.let{
-            when {
-                it.contains("section") && view!!.context.applicationContext.classLoader. ArticleWebViewFragment::class.java-> create article fragment
-                it.contains("art") && view!!::class.isInstance(ArticleWebViewFragment)-> update header article num/total
-                it.contains("section") && view!!::class.isInstance(SectionWebViewFragment) -> create new fragment?/update header
-                it.contains("art") && view!!::class.isInstance(SectionWebViewFragment) -> go back to section fragment
-                else -> super.onLoadResource(view, url)
+    private fun showFragment(fragment: WebViewFragment) {
+        fragment.activity?.apply{
+            runOnUiThread {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.main_content_fragment_placeholder,
+                        fragment
+                    )
+                    .commit()
+                drawer_layout.closeDrawer(GravityCompat.START)
             }
         }
-        super.onLoadResource(view, url)
     }
 }
