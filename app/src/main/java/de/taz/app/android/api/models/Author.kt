@@ -7,8 +7,8 @@ data class Author (
    val imageAuthor: FileEntry? = null
 ) : CacheableDownload {
 
-   override fun getAllFileNames(): List<String> {
-      return imageAuthor?.name?.let { listOf(it) } ?: listOf()
+   override fun getAllFiles(): List<FileEntry> {
+      return imageAuthor?.let { listOf(it) } ?: emptyList()
    }
 
 }

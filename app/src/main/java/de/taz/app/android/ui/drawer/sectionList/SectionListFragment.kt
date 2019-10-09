@@ -40,9 +40,6 @@ class SectionListFragment : Fragment() {
         }
         viewModel.selectedIssue.observe(this, Observer { issue ->
             recycleAdapter.setData(issue)
-            activity?.let {
-                it.findViewById<TextView>(R.id.drawerDateText).text = issue?.date ?: ""
-            }
 // TODO            activity?.findViewById<ImageView>(R.id.drawerMoment)
         })
     }

@@ -4,6 +4,7 @@ import de.taz.app.android.api.models.*
 
 open class IssueDto(
     open val date: String,
+    open val moment: MomentDto,
     open val key: String? = null,
     open val baseUrl: String,
     open val status: IssueStatus,

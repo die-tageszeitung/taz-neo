@@ -2,8 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
@@ -18,36 +16,44 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
+    private val momentRepository = MomentRepository.getInstance(applicationContext)
 
-    @Transaction
     fun save(issue: Issue) {
-        appDatabase.issueDao().insertOrReplace(
-            IssueBase(issue)
-        )
-        // save pages
-        pageRepository.save(issue.pageList)
+        appDatabase.runInTransaction {
 
-        // save page relation
-        appDatabase.issuePageJoinDao().insertOrReplace(
-            issue.pageList.mapIndexed { index, page ->
-                IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
-            }
-        )
-
-        // save imprint
-        issue.imprint?.let { imprint ->
-            articleRepository.save(imprint)
-            appDatabase.issueImprintJoinDao().insertOrReplace(
-                IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+            appDatabase.issueDao().insertOrReplace(
+                IssueBase(issue)
             )
-        }
 
-        // save sections
-        issue.sectionList.let { sectionList ->
-            sectionList.forEach { sectionRepository.save(it) }
-            appDatabase.issueSectionJoinDao().insertOrReplace(sectionList.mapIndexed { index, it ->
-                IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
-            })
+            // save pages
+            pageRepository.save(issue.pageList)
+
+            // save page relation
+            appDatabase.issuePageJoinDao().insertOrReplace(
+                issue.pageList.mapIndexed { index, page ->
+                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                }
+            )
+
+            // save moment
+            momentRepository.save(issue.moment, issue.feedName, issue.date)
+
+            // save imprint
+            issue.imprint?.let { imprint ->
+                articleRepository.save(imprint)
+                appDatabase.issueImprintJoinDao().insertOrReplace(
+                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                )
+            }
+
+            // save sections
+            issue.sectionList.let { sectionList ->
+                sectionList.forEach { sectionRepository.save(it) }
+                appDatabase.issueSectionJoinDao()
+                    .insertOrReplace(sectionList.mapIndexed { index, it ->
+                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                    })
+            }
         }
     }
 
@@ -67,12 +73,6 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getLatestLiveData()
     }
 
-    fun getLatestIssueLiveData(): LiveData<Issue?> {
-        return Transformations.map(appDatabase.issueDao().getLatestLiveData()) { issueBase ->
-            issueBase?.let { issueBaseToIssue(it) }
-        }
-    }
-
     @Throws(NotFoundException::class)
     fun getLatestIssueBaseOrThrow(): IssueBase {
         return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
@@ -88,7 +88,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
-        return getIssueBaseByFeedAndDate(feedName, date)?.let{
+        return getIssueBaseByFeedAndDate(feedName, date)?.let {
             issueBaseToIssue(it)
         }
     }
@@ -97,14 +97,24 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueSectionJoinDao().getIssueBaseForSection(sectionFileName)
     }
 
+    fun getIssueBaseForMoment(moment: Moment): IssueBase {
+        return appDatabase.issueMomentJoinDao().getIssueBase(moment.imageList.first().name)
+    }
 
     private fun issueBaseToIssue(issueBase: IssueBase): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueBase)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-                issueBase.feedName, issueBase.date
-            )?.let { articleRepository.get(it) }
+            issueBase.feedName, issueBase.date
+        )?.let { articleRepository.get(it) }
+
+        val moment = Moment(
+            appDatabase.issueMomentJoinDao().getMomentFiles(
+                issueBase.feedName,
+                issueBase.date
+            )
+        )
 
         val pageList =
             appDatabase.issuePageJoinDao().getPageNamesForIssue(issueBase.feedName, issueBase.date)
@@ -115,6 +125,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         return Issue(
             issueBase.feedName,
             issueBase.date,
+            moment,
             issueBase.key,
             issueBase.baseUrl,
             issueBase.status,
