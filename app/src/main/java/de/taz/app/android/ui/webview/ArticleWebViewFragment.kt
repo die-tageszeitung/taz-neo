@@ -1,23 +1,16 @@
 package de.taz.app.android.ui.webview
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
-import android.webkit.*
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_webview.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
 class ArticleWebViewFragment(val article: Article) : WebViewFragment(), ArticleWebViewCallback {
-
-    private val log by Log
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,38 +19,15 @@ class ArticleWebViewFragment(val article: Article) : WebViewFragment(), ArticleW
         return inflater.inflate(R.layout.fragment_article_webview, container, false)
     }
 
-    @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onResume() {
-        super.onResume()
-        web_view.webViewClient = TazWebViewClient()
-        web_view.webChromeClient = WebChromeClient()
-        web_view.settings.javaScriptEnabled = true
-        web_view.setArticleWebViewCallback(this)
-
-
-
-        context?.let {
-            web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
-            CoroutineScope(Dispatchers.IO).launch {
-                val file = File(
-                    ContextCompat.getExternalFilesDirs(it.applicationContext, null).first(),
-                    "${article.getSection()!!.issueBase.tag}/${article.articleFileName}"
-                )
-                activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+            file = File(
+                ContextCompat.getExternalFilesDirs(
+                    requireActivity().applicationContext, null).first(),
+               "${article.getSection()!!.issueBase.tag}/${article.articleFileName}"
+            )
         }
-
-        // handle clicks of the back button
-        web_view.setOnKeyListener(object: View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && web_view.canGoBack()) {
-                    web_view.goBack()
-                    return true
-                }
-                return false
-            }
-        })
+        super.onResume()
     }
-
 }
 
