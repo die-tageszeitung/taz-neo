@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.ui.webview.WebViewFragment
@@ -33,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     private val log by Log
 
-    private val apiService = ApiService()
+    private val apiService = ApiService.getInstance()
     private val fileHelper = FileHelper.getInstance()
     private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper

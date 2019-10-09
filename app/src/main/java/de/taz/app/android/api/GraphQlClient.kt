@@ -1,5 +1,7 @@
 package de.taz.app.android.api
 
+import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import de.taz.app.android.GRAPHQL_ENDPOINT
@@ -8,6 +10,7 @@ import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,11 +19,16 @@ import okhttp3.RequestBody.Companion.toRequestBody
 /**
  * class to get DTOs from the [GRAPHQL_ENDPOINT]
  */
-class GraphQlClient(
+class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val httpClient: OkHttpClient = httpClient(),
     private val url: String = GRAPHQL_ENDPOINT,
     private val queryService: QueryService = QueryService.getInstance()
 ) {
+    private constructor(applicationContext: Context): this(
+        queryService = QueryService.getInstance(applicationContext)
+    )
+
+    companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
 
     private val moshi = Moshi.Builder().build()
     private val jsonAdapter = moshi.adapter(WrapperDto::class.java)
