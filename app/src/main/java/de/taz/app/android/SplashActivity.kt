@@ -13,7 +13,6 @@ import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
-import java.io.File
 import kotlin.Exception
 
 class SplashActivity : AppCompatActivity() {
@@ -60,7 +59,7 @@ class SplashActivity : AppCompatActivity() {
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
-            apiService = ApiService()
+            apiService = ApiService.createInstance(it)
             fileHelper = FileHelper.createInstance(it)
 
         }
@@ -72,7 +71,7 @@ class SplashActivity : AppCompatActivity() {
     private fun initAppInfo() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                appInfoRepository.save(ApiService().getAppInfo())
+                appInfoRepository.save(apiService.getAppInfo())
             } catch (e: Exception) {
                 log.warn("unable to get AppInfo", e)
             }

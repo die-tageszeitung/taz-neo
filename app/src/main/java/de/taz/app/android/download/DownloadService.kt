@@ -31,7 +31,7 @@ object DownloadService {
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    private val apiService = ApiService()
+    private val apiService = ApiService.getInstance()
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
 

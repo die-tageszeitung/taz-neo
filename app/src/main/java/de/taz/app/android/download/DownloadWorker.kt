@@ -144,7 +144,7 @@ class ScheduleIssueDownloadWorkManagerWorker(
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService().getIssueByFeedAndDate(feedName, date).let { issue ->
+                        ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date).let { issue ->
                             IssueRepository.getInstance(appContext).save(issue)
                             DownloadService.scheduleDownload(appContext, issue)
                             Result.success()

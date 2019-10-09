@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import android.content.Context
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
@@ -9,6 +10,7 @@ import de.taz.app.android.api.variables.DownloadStartVariables
 import de.taz.app.android.api.variables.DownloadStopVariables
 import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SingletonHolder
 import java.net.SocketTimeoutException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -19,13 +21,15 @@ import java.util.*
  * Service class to get Models from GraphQl
  * The DTO objects returned by [GraphQlClient] will be transformed to models here
  */
-class ApiService(
-    private val graphQlClient: GraphQlClient = GraphQlClient()
-) {
+class ApiService private constructor(applicationContext: Context) {
+
+    companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
     private val log by Log
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
+
 
     /**
      * function to authenticate with the backend

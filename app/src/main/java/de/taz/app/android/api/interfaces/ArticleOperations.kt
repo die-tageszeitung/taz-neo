@@ -15,6 +15,10 @@ interface ArticleOperations {
         return ArticleRepository.getInstance().nextArticleBase(articleFileName)
     }
 
+    fun previousArticleBase(): ArticleBase? {
+        return ArticleRepository.getInstance().previousArticleBase(articleFileName)
+    }
+
     fun previousArticle(): Article? {
         return ArticleRepository.getInstance().previousArticle(articleFileName)
     }
