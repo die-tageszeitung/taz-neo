@@ -12,7 +12,6 @@
             android:id="@+id/article_num"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
-            android:text="1/4"
             android:textAlignment="viewEnd"
             app:layout_constraintRight_toLeftOf="@id/section" />
 
@@ -21,7 +20,6 @@
             android:id="@+id/section"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
-            android:text="blabla"
             android:textAlignment="viewEnd"
             app:layout_constraintRight_toRightOf="parent" />
 
