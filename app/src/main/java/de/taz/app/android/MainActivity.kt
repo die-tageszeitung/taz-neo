@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
@@ -17,12 +18,14 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.ui.webview.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.ui.drawer.sectionList.SectionListFragment
+import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_drawer_menu_sections.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,8 +53,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
         supportFragmentManager.beginTransaction().replace(
-            R.id.drawerMenuFragmentPlaceHolder,
-            SectionListFragment()
+            R.id.drawer_menu_fragment_placeholder,
+            SectionDrawerFragment()
         ).commit()
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -89,17 +92,32 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+
+        drawer_icon_favorites.setOnClickListener {
+            showDrawerFragment(BookmarkDrawerFragment())
+        }
+
+        drawer_icon_content.setOnClickListener {
+            showDrawerFragment(SectionDrawerFragment())
+        }
+
     }
 
-    private fun showIssue(issue: Issue) {
-        issue.moment.imageList.lastOrNull()?.let {
-            val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
-
-            if (imgFile.exists()) {
-                val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                drawerMoment.setImageBitmap(myBitmap)
-            }
+    private fun showDrawerFragment(fragment: Fragment) {
+        runOnUiThread {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(
+                    R.id.drawer_menu_fragment_placeholder,
+                   fragment
+                )
+                .commit()
         }
+    }
+
+
+    private fun showIssue(issue: Issue) {
+
         showSection(issue.sectionList.first())
     }
 

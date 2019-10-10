@@ -12,7 +12,8 @@ data class Article(
     val audioFile: FileEntry?,
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
-    val authorList: List<Author> = emptyList()
+    val authorList: List<Author> = emptyList(),
+    val bookmarked: Boolean = false
 ): ArticleOperations, CacheableDownload {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,

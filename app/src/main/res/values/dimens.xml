@@ -11,7 +11,6 @@
 
     <dimen name="drawer_moment_width">103dp</dimen>
     <dimen name="drawer_moment_height">154dp</dimen>
-    <dimen name="drawer_moment_margin_right">11dp</dimen>
 
     <dimen name="drawer_logo_height">42dp</dimen>
     <dimen name="drawer_logo_width">91dp</dimen>

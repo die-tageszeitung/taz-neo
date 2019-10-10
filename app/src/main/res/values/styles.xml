@@ -22,7 +22,7 @@
         <item name="android:windowBackground">@drawable/activity_splash</item>
     </style>
 
-    <style name="TextAppearance.SectionList" parent="TextAppearance.AppCompat">
+    <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textRed</item>
         <item name="android:textSize">23sp</item>
         <item name="android:textStyle">bold</item>

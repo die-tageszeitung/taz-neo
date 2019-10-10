@@ -27,10 +27,12 @@ class DrawerLayout @JvmOverloads constructor(
      */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         ev?.let {
-            if (drawerLogoBoundingBox.contains(ev.x.toInt(), ev.y.toInt())) {
-                log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
-                openDrawer(GravityCompat.START)
-                return true
+            if (!isDrawerOpen(GravityCompat.START)) {
+                if (drawerLogoBoundingBox.contains(ev.x.toInt(), ev.y.toInt())) {
+                    log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
+                    openDrawer(GravityCompat.START)
+                    return true
+                }
             }
         }
         return super.onInterceptTouchEvent(ev)

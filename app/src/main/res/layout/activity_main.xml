@@ -39,7 +39,7 @@
             <include layout="@layout/nav_header_main" />
 
             <FrameLayout
-                    android:id="@+id/drawerMenuFragmentPlaceHolder"
+                    android:id="@+id/drawer_menu_fragment_placeholder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
