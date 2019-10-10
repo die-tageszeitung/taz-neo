@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
@@ -133,4 +134,33 @@ class ArticleRepository private constructor(applicationContext: Context) :
             authors
         )
     }
+
+    fun bookmarkArticle(article: Article) {
+        bookmarkArticle(ArticleBase(article))
+    }
+
+    fun bookmarkArticle(articleBase: ArticleBase) {
+        appDatabase.articleDao().update(articleBase.copy(bookmarked = true))
+    }
+
+    fun bookmarkArticle(articleName: String) {
+        bookmarkArticle(getBase(articleName))
+    }
+
+    fun debookmarkArticle(articleName: String) {
+        debookmarkArticle(getBase(articleName))
+    }
+
+    fun debookmarkArticle(article: Article) {
+        debookmarkArticle(ArticleBase(article))
+    }
+
+    fun debookmarkArticle(articleBase: ArticleBase) {
+        appDatabase.articleDao().update(articleBase.copy(bookmarked = false))
+    }
+
+    fun getBookmarkedArticleBases(): LiveData<List<ArticleBase>> {
+        return appDatabase.articleDao().getBookmarkedArticlesLiveData()
+    }
+
 }

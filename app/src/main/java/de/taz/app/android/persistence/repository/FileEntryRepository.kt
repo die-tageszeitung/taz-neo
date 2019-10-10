@@ -16,7 +16,7 @@ class FileEntryRepository private constructor(
             fromDB?.let {
                 if (fromDB.moTime < fileEntry.moTime)
                     appDatabase.fileEntryDao().insertOrReplace(fileEntry)
-            }
+            } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
         }
     }
 

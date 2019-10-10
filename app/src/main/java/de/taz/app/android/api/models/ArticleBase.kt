@@ -10,13 +10,15 @@ data class ArticleBase(
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
-    val pageNameList: List<String> = emptyList()
+    val pageNameList: List<String> = emptyList(),
+    val bookmarked: Boolean = false
 ): ArticleOperations {
     constructor(article: Article) : this(
         article.articleHtml.name,
         article.title,
         article.teaser,
         article.onlineLink,
-        article.pageNameList
+        article.pageNameList,
+        article.bookmarked
     )
 }
