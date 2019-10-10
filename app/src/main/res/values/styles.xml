@@ -29,4 +29,10 @@
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
+    <style name="TextAppearance.Header" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/darkGrey</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">7sp</item>
+    </style>
 </resources>

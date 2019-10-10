@@ -22,6 +22,7 @@ import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
@@ -125,9 +126,8 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
-                .replace(
-                    R.id.main_content_fragment_placeholder,
-                    WebViewFragment(section)
+                .replace(R.id.main_content_fragment_placeholder,
+                    SectionWebViewFragment(section)
                 )
                 .commit()
             drawer_layout.closeDrawer(GravityCompat.START)
