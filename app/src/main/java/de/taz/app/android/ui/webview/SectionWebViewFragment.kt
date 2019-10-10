@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -31,6 +32,11 @@ class SectionWebViewFragment(val section: Section) : WebViewFragment(), AppWebVi
                 "${section.issueBase.tag}/${section.sectionFileName}"
             )
             lifecycleScope.launch { fileLiveData.value = file }
+            view?.let {
+                it.findViewById<TextView>(R.id.section).apply{
+                    text = section.title
+                }
+            }
         }
         super.onResume()
     }
