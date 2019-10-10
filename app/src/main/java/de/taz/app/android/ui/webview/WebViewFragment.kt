@@ -1,14 +1,18 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.view.*
 import android.webkit.*
+import androidx.annotation.LayoutRes
+import androidx.annotation.MenuRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import java.io.File
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.fragment_webview.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,38 +21,63 @@ import kotlinx.coroutines.launch
 abstract class WebViewFragment : Fragment(), AppWebViewCallback {
 
     private val log by Log
-    private lateinit var webView : AppWebView
+
     val fileLiveData = MutableLiveData<File?>().apply { value = null }
 
+    @get:MenuRes abstract val menuId: Int
+    @get:LayoutRes abstract val headerId: Int
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_webview, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setHeader()
+        setBottomNavigation()
+
+        configureWebView()
+
+        observeFile()
+    }
+
+    private fun setHeader() {
+        (header_placeholder as ViewGroup).apply {
+            addView(layoutInflater.inflate(headerId, this, false))
+        }
+    }
+
+    private fun setBottomNavigation() {
+        navigation_bottom.apply {
+            visibility = View.GONE
+            menu.clear()
+            inflateMenu(menuId)
+            visibility = View.VISIBLE
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    override fun onResume() {
-        super.onResume()
+    private fun configureWebView() {
+        web_view.webViewClient = AppWebViewClient(this)
+        web_view.webChromeClient = WebChromeClient()
+        web_view.settings.javaScriptEnabled = true
+        web_view.setArticleWebViewCallback(this)
+    }
 
-        webView = requireActivity().findViewById(R.id.web_view)
-        webView.webViewClient = AppWebViewClient(this)
-        webView.webChromeClient = WebChromeClient()
-        webView.settings.javaScriptEnabled = true
-        webView.setArticleWebViewCallback(this)
-
+    private fun observeFile() {
         fileLiveData.observe(this@WebViewFragment, Observer { file ->
             file?.let {
                 context?.let {
-                    webView.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
+                    web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
                     CoroutineScope(Dispatchers.IO).launch {
-                        activity?.runOnUiThread { webView.loadUrl("file://${file.absolutePath}") }
+                        activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
                     }
                 }
-            }
-        })
-
-        // handle clicks of the back button
-        webView.setOnKeyListener(object: View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event?.action == MotionEvent.ACTION_UP && webView.canGoBack()) {
-                    webView.goBack()
-                    return true
-                }
-                return false
             }
         })
     }
@@ -76,7 +105,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
         val call = jsBuilder.toString()
         CoroutineScope(Dispatchers.Main).launch{
             log.info("Calling javascript with $call")
-            webView.loadUrl("javascript:$call")
+            web_view.loadUrl("javascript:$call")
         }
     }
 
@@ -114,11 +143,11 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
     }
 
     override fun onScrollStarted() {
-        log.debug("${webView.scrollX}, ${webView.scrollY}")
+        log.debug("${web_view.scrollX}, ${web_view.scrollY}")
     }
 
     override fun onScrollFinished() {
-        log.debug("${webView.scrollX}, ${webView.scrollY}")
+        log.debug("${web_view.scrollX}, ${web_view.scrollY}")
     }
 
 }

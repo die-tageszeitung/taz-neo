@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private val log by Log
 
     private val apiService = ApiService.getInstance()
-    private val fileHelper = FileHelper.getInstance()
     private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper
 
