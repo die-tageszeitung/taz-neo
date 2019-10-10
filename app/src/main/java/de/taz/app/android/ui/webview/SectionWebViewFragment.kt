@@ -17,22 +17,22 @@ class SectionWebViewFragment(val section: Section) : WebViewFragment(), AppWebVi
     override val menuId: Int = R.menu.navigation_bottom_section
     override val headerId: Int = R.layout.fragment_webview_header_section
 
-    override fun onResume() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         CoroutineScope(Dispatchers.IO).launch {
             val file = File(
                 ContextCompat.getExternalFilesDirs(
-                    requireActivity().applicationContext,
-                    null
+                    requireActivity().applicationContext, null
                 ).first(),
                 "${section.issueBase.tag}/${section.sectionFileName}"
             )
             lifecycleScope.launch { fileLiveData.value = file }
-            view?.let {
-                it.findViewById<TextView>(R.id.section).apply{
+            activity?.runOnUiThread {
+                view.findViewById<TextView>(R.id.section).apply {
                     text = section.title
                 }
             }
         }
-        super.onResume()
     }
 }
