@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/web_view_wrapper"
+<androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/article_web_view_wrapper"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <include
-            layout="@{layout/webview_header_article}"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/header_wrapper"
             android:layout_width="match_parent"
@@ -37,7 +32,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <de.taz.app.android.ui.webview.ArticleWebView
+    <de.taz.app.android.ui.webview.AppWebView
             android:id="@+id/web_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"

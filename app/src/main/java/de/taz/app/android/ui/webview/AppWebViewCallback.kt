@@ -3,7 +3,7 @@ package de.taz.app.android.ui.webview
 import android.view.MotionEvent
 
 
-interface ArticleWebViewCallback {
+interface AppWebViewCallback {
 
     fun onScrollStarted()
 

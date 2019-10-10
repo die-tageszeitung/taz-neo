@@ -11,7 +11,7 @@ import de.taz.app.android.util.Log
 import kotlin.math.round
 
 
-class ArticleWebView @JvmOverloads constructor(
+class AppWebView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyle: Int = 0
@@ -34,7 +34,7 @@ class ArticleWebView @JvmOverloads constructor(
             if (checkY != lastCheckedY || checkX != lastCheckedX) {
                 lastCheckedX = checkX
                 lastCheckedY = checkY
-                this@ArticleWebView.postDelayed(this, scrollCheckDelay.toLong())
+                this@AppWebView.postDelayed(this, scrollCheckDelay.toLong())
             } else {
                 isScrolling = false
                 callback?.onScrollFinished()
@@ -44,7 +44,7 @@ class ArticleWebView @JvmOverloads constructor(
         }
     }
 
-    private var callback: ArticleWebViewCallback? = null
+    private var callback: AppWebViewCallback? = null
     private var gestureDetector: GestureDetector? = null
 
 
@@ -97,7 +97,7 @@ class ArticleWebView @JvmOverloads constructor(
 
     }
 
-    fun setArticleWebViewCallback(listener: ArticleWebViewCallback) {
+    fun setArticleWebViewCallback(listener: AppWebViewCallback) {
         callback = listener
         gestureDetector = GestureDetector(context, WebViewGestureListener(listener))
     }
