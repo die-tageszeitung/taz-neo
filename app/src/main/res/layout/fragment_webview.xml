@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <FrameLayout
+            android:id="@+id/header_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/web_view_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/header_placeholder"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <de.taz.app.android.ui.webview.AppWebView
+                    android:id="@+id/web_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_gravity="bottom"
+                android:background="@color/navigation_bottom_background"
+                android:visibility="gone"
+                app:labelVisibilityMode="unlabeled"
+                app:itemIconTint="@color/navigation_bottom_item_color"
+                app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
