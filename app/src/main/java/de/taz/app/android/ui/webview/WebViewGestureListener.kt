@@ -7,7 +7,7 @@ import kotlin.math.abs
 
 
 class WebViewGestureListener(
-    private val articleWebViewCallback: ArticleWebViewCallback
+    private val appWebViewCallback: AppWebViewCallback
 ) :
     GestureDetector.SimpleOnGestureListener() {
 
@@ -17,7 +17,7 @@ class WebViewGestureListener(
     private val swipeVelocityThreshold = 100
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        return articleWebViewCallback.onDoubleTap(e)
+        return appWebViewCallback.onDoubleTap(e)
     }
 
 
@@ -36,17 +36,17 @@ class WebViewGestureListener(
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
                     if (diffX > 0) {
-                        articleWebViewCallback.onSwipeRight(e1, e2)
+                        appWebViewCallback.onSwipeRight(e1, e2)
                     } else {
-                        articleWebViewCallback.onSwipeLeft(e1, e2)
+                        appWebViewCallback.onSwipeLeft(e1, e2)
                     }
                 }
                 result = true
             } else if (abs(diffY) > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
                 if (diffY > 0) {
-                    articleWebViewCallback.onSwipeBottom(e1, e2)
+                    appWebViewCallback.onSwipeBottom(e1, e2)
                 } else {
-                    articleWebViewCallback.onSwipeTop(e1, e2)
+                    appWebViewCallback.onSwipeTop(e1, e2)
                 }
                 result = true
             }
