@@ -6,7 +6,8 @@
     <color name="textRed">#E3013A</color>
 
     <color name="lightGrey">#00000029</color>
-    <color name="darkGrey">#9C9C9C</color>
+    <color name="grey">#9C9C9C</color>
+    <color name="darkGrey">#262626</color>
 
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -14,4 +15,7 @@
     <color name="colorAccent">@color/tazRed</color>
 
     <color name="splashBackground">@color/tazRed</color>
+
+    <color name="navigation_bottom_background">@color/darkGrey</color>
+    <color name="navigation_bottom_item">@color/lightGrey</color>
 </resources>

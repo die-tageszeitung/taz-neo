@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:id="@+id/action_search"
+          android:title="@string/bottom_navigation_action_help"
+          android:icon="@drawable/ic_info_outline" />
+     <item android:id="@+id/action_settings"
+          android:title="@string/bottom_navigation_action_share"
+          android:icon="@drawable/ic_menu_share" />
+     <item android:id="@+id/action_size"
+           android:title="@string/bottom_navigation_action_size"
+           android:icon="@drawable/ic_action_font_bigger"/>
+</menu>

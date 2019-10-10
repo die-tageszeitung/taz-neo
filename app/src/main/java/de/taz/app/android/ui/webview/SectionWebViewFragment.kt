@@ -1,7 +1,5 @@
 package de.taz.app.android.ui.webview
 
-import android.os.Bundle
-import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -13,13 +11,8 @@ import java.io.File
 
 class SectionWebViewFragment(val section: Section) : WebViewFragment(), AppWebViewCallback {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview_section, container, false)
-    }
+    override val menuId: Int = R.menu.navigation_bottom_section
+    override val headerId: Int = R.layout.fragment_webview_header_section
 
     override fun onResume() {
         CoroutineScope(Dispatchers.IO).launch {
