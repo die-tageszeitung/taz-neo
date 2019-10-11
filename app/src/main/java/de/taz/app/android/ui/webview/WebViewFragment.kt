@@ -24,8 +24,11 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
 
     val fileLiveData = MutableLiveData<File?>().apply { value = null }
 
-    @get:MenuRes abstract val menuId: Int
-    @get:LayoutRes abstract val headerId: Int
+    @get:MenuRes
+    abstract val menuId: Int
+    @get:LayoutRes
+    abstract val headerId: Int
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -103,7 +106,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
         }
         jsBuilder.append(");")
         val call = jsBuilder.toString()
-        CoroutineScope(Dispatchers.Main).launch{
+        CoroutineScope(Dispatchers.Main).launch {
             log.info("Calling javascript with $call")
             web_view.loadUrl("javascript:$call")
         }
