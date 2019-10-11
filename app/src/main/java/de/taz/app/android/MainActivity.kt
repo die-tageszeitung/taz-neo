@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.ImageView
 import androidx.annotation.IdRes
@@ -24,6 +25,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
+import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
@@ -87,13 +89,22 @@ class MainActivity : AppCompatActivity() {
                                 if (downloaded) {
                                     log.debug("issue is downloaded")
                                     viewModel.selectedIssue.postValue(issue)
-                                    showIssue(issue)
+                                    //showIssue(issue)
+                                    toastHelper.makeToast("issue downloaded")
                                 }
                             })
                     }
                 }
             })
         }
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.main_content_fragment_placeholder,
+                LoginFragment()
+            )
+            .commit()
 
     }
 
@@ -118,10 +129,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         drawer_icon_settings.setOnClickListener {
-            highlightIcon(drawer_icon_settings)
-            setDrawerTitle(R.string.navigation_drawer_icon_settings)
-            // TODO
-            ToastHelper.getInstance().makeToast("should show settings")
+            // highlightIcon(drawer_icon_settings)
+            // setDrawerTitle(R.string.navigation_drawer_icon_settings)
+            showMainFragment(LoginFragment())
+            closeDrawer()
         }
 
         drawer_icon_help.setOnClickListener {
@@ -171,12 +182,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showSection(section: Section) {
+        showMainFragment(SectionWebViewFragment(section))
+    }
+
+    fun showMainFragment(fragment: Fragment) {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
                 .replace(
-                    R.id.main_content_fragment_placeholder,
-                    SectionWebViewFragment(section)
+                    R.id.main_content_fragment_placeholder, fragment
                 )
                 .commit()
         }

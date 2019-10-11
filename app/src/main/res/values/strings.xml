@@ -2,7 +2,9 @@
     <string name="app_name">taz-android</string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
+    <string name="toast_login_elapsed">Account no longer valid.</string>
     <string name="toast_login_failed">Login failed.</string>
+    <string name="toast_login_successfull">Login succeeded.</string>
     <string name="toast_unknown_error">Unknown error occurred.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -21,4 +23,15 @@
     <string name="bottom_navigation_action_share">share</string>
     <string name="bottom_navigation_action_bookmark">add to bookmarks</string>
     <string name="bottom_navigation_action_size">change font size</string>
+
+    <string name="fragment_default_header_title">die tageszeitung</string>
+
+    <string name="fragment_login_title">Login</string>
+    <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
+    <string name="fragment_login_username_title">Subscription ID</string>
+    <string name="fragment_login_username_hint">password</string>
+    <string name="fragment_login_password_title">Password</string>
+    <string name="fragment_login_password_hint"></string>
+    <string name="fragment_login_login_button">Login</string>
+
 </resources>
