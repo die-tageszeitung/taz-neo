@@ -18,4 +18,12 @@
     <dimen name="drawer_logo_height">42dp</dimen>
     <dimen name="drawer_logo_width">91dp</dimen>
     <dimen name="drawer_logo_margin_top">49dp</dimen>
+
+    <dimen name="fragment_login_title_margin_top">45dp</dimen>
+    <dimen name="fragment_login_login_button_margin_top">7dp</dimen>
+    <dimen name="fragment_login_padding_horizontal">7dp</dimen>
+    <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
+    <dimen name="fragment_login_description_margin_top">10dp</dimen>
+
+    <dimen name="fragment_header_default_margin_top">35dp</dimen>
 </resources>
