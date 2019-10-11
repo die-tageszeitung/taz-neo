@@ -22,8 +22,12 @@
         <item name="android:windowBackground">@drawable/activity_splash</item>
     </style>
 
+    <style name="TextAppearance.Drawer.Header.Title" parent="TextAppearance.Drawer.Sections">
+        <item name="android:textColor">@color/navigation_drawer_header_title</item>
+    </style>
+
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textRed</item>
+        <item name="android:textColor">@color/drawer_sections_item</item>
         <item name="android:textSize">23sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:lineSpacingExtra">7sp</item>
@@ -35,4 +39,5 @@
         <item name="android:textStyle">bold</item>
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
+
 </resources>

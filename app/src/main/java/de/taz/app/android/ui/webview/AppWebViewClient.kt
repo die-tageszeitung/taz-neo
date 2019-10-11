@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -26,8 +25,9 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
 
-    @SuppressLint("Deprecated")
-    override fun shouldOverrideUrlLoading(view: android.webkit.WebView?, url: String?): Boolean {
+    @SuppressWarnings("deprecation")
+    @Suppress("DEPRECATION")
+    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
         if (handleLinks(view, url)) {
             createNewFragment(url)
         }
@@ -35,7 +35,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    override fun shouldOverrideUrlLoading(view: android.webkit.WebView?, request: WebResourceRequest?): Boolean {
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
         if (handleLinks(view, request?.url.toString())){
             val url = request?.url.toString()
             createNewFragment(url)
@@ -46,7 +46,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     /** internal links should be handled by the app, external ones - by a web browser
     this function checks whether a link is internal
      */
-    private fun handleLinks(view: android.webkit.WebView?, url: String?) : Boolean {
+    private fun handleLinks(view: WebView?, url: String?) : Boolean {
         url?.let {urlString ->
             view?.let {
                 if (urlString.startsWith(fileHelper.getFileDirectoryUrl(view.context))) {

@@ -2,11 +2,15 @@ package de.taz.app.android
 
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
+import android.widget.ImageView
+import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -16,21 +20,19 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.ui.webview.WebViewFragment
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
-import de.taz.app.android.util.FileHelper
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_drawer_menu_sections.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,15 +50,11 @@ class MainActivity : AppCompatActivity() {
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
+
+        issueRepository = IssueRepository.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-
-        viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
-        supportFragmentManager.beginTransaction().replace(
-            R.id.drawer_menu_fragment_placeholder,
-            SectionDrawerFragment()
-        ).commit()
-
+        toastHelper = ToastHelper.getInstance(applicationContext)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val issue = apiService.getIssueByFeedAndDate()
@@ -71,6 +69,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        setNavigationDrawerItemActions()
+        drawer_icon_content.performClick()
+
+        viewModel = ViewModelProviders.of(this@MainActivity).get(SelectedIssueViewModel::class.java)
 
         lifecycleScope.launch {
             val issueLiveData = issueRepository.getLatestIssueBaseLiveData()
@@ -93,14 +95,62 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        drawer_icon_favorites.setOnClickListener {
-            showDrawerFragment(BookmarkDrawerFragment())
-        }
+    }
 
+    private fun setNavigationDrawerItemActions() {
         drawer_icon_content.setOnClickListener {
+            highlightIcon(drawer_icon_content)
+            setDrawerTitle(R.string.navigation_drawer_icon_content)
             showDrawerFragment(SectionDrawerFragment())
         }
 
+        drawer_icon_home.setOnClickListener {
+            highlightIcon(drawer_icon_home)
+            setDrawerTitle(R.string.navigation_drawer_icon_home)
+            // TODO
+            ToastHelper.getInstance().makeToast("should show home")
+        }
+
+        drawer_icon_bookmarks.setOnClickListener {
+            highlightIcon(drawer_icon_bookmarks)
+            setDrawerTitle(R.string.navigation_drawer_icon_bookmarks)
+            showDrawerFragment(BookmarkDrawerFragment())
+        }
+
+        drawer_icon_settings.setOnClickListener {
+            highlightIcon(drawer_icon_settings)
+            setDrawerTitle(R.string.navigation_drawer_icon_settings)
+            // TODO
+            ToastHelper.getInstance().makeToast("should show settings")
+        }
+
+        drawer_icon_help.setOnClickListener {
+            highlightIcon(drawer_icon_help)
+            setDrawerTitle(R.string.navigation_drawer_icon_help)
+            // TODO
+            ToastHelper.getInstance().makeToast("should show help")
+        }
+    }
+
+    private fun highlightIcon(imageView: ImageView) {
+        listOf(
+            drawer_icon_content,
+            drawer_icon_home,
+            drawer_icon_bookmarks,
+            drawer_icon_settings,
+            drawer_icon_help
+        ).map { it.drawable.setTint(ContextCompat.getColor(this, R.color.navigation_drawer_icon)) }
+
+        imageView.drawable.setTint(
+            ContextCompat.getColor(
+                this,
+                R.color.navigation_drawer_icon_selected
+            )
+        )
+    }
+
+    private fun setDrawerTitle(@StringRes stringId: Int) {
+        drawer_header_title.text = getString(stringId).toLowerCase(Locale.getDefault())
     }
 
     private fun showDrawerFragment(fragment: Fragment) {
@@ -109,7 +159,7 @@ class MainActivity : AppCompatActivity() {
                 .beginTransaction()
                 .replace(
                     R.id.drawer_menu_fragment_placeholder,
-                   fragment
+                    fragment
                 )
                 .commit()
         }
@@ -117,7 +167,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun showIssue(issue: Issue) {
-
         showSection(issue.sectionList.first())
     }
 
@@ -125,12 +174,16 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.main_content_fragment_placeholder,
+                .replace(
+                    R.id.main_content_fragment_placeholder,
                     SectionWebViewFragment(section)
                 )
                 .commit()
-            drawer_layout.closeDrawer(GravityCompat.START)
         }
+    }
+
+    fun closeDrawer() {
+        drawer_layout.closeDrawer(GravityCompat.START)
     }
 
     /**
