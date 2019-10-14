@@ -2,6 +2,7 @@ package de.taz.app.android.util
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.AuthTokenInfo
 
@@ -27,5 +28,8 @@ class AuthHelper private constructor(applicationContext: Context): ViewModel() {
 
     var authTokenInfo = MutableLiveData<AuthTokenInfo?>().apply { value = null }
 
+    init {
+        authTokenInfo.observeForever { authTokenInfo -> token = authTokenInfo?.token ?: "" }
+    }
 
 }

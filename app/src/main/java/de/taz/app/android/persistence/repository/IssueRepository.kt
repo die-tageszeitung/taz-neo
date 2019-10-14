@@ -146,4 +146,48 @@ class IssueRepository private constructor(applicationContext: Context) :
         return issueBaseToIssue(issueBase)
     }
 
+    fun delete(issue: Issue) {
+        appDatabase.runInTransaction {
+
+            // TODO cancel Downloads
+
+            // delete moment
+            momentRepository.delete(issue.moment, issue.feedName, issue.date)
+
+            // delete imprint
+            issue.imprint?.let { imprint ->
+                appDatabase.issueImprintJoinDao().delete(
+                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                )
+                articleRepository.delete(imprint)
+            }
+            // delete page relation
+            appDatabase.issuePageJoinDao().delete(
+                issue.pageList.mapIndexed { index, page ->
+                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                }
+            )
+            // delete pages
+            pageRepository.delete(issue.pageList)
+
+            // delete sections
+            issue.sectionList.let { sectionList ->
+                appDatabase.issueSectionJoinDao()
+                    .delete(sectionList.mapIndexed { index, it ->
+                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                    })
+                sectionList.forEach { sectionRepository.delete(it) }
+            }
+
+
+            appDatabase.issueDao().delete(
+                IssueBase(issue)
+            )
+
+            // TODO actually delete files! perhaps decide if to keep some
+
+        }
+    }
+
+
 }

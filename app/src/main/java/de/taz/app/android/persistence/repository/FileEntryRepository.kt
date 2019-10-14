@@ -44,4 +44,8 @@ class FileEntryRepository private constructor(
         appDatabase.fileEntryDao().delete(fileEntry)
     }
 
+    fun delete(fileEntries: List<FileEntry>) {
+        fileEntries.map { delete(it) }
+    }
+
 }
