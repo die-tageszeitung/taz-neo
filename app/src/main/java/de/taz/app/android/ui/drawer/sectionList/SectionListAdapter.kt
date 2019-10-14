@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.MainActivity
 import de.taz.app.android.R
@@ -52,6 +53,7 @@ class SectionListAdapter(private val activity: MainActivity, private var issue: 
             holder.textView.text = section.title
             holder.textView.setOnClickListener {
                 activity.showSection(section)
+                activity.closeDrawer()
             }
         }
     }

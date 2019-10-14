@@ -35,5 +35,6 @@ class TazApiJs {
     @JavascriptInterface
     fun openUrl(url: String) {
         log.debug("openUrl $url")
+        // TODO!
     }
 }

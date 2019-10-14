@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">taz-android</string>
+
+    <string name="toast_no_internet">Keine Internetvergindung.</string>
+    <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
+    <string name="toast_login_failed">Anmeldung fehlgeschlagen.</string>
+    <string name="toast_login_successfull">Erfolgreich angemeldet.</string>
+    <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
+
+    <string name="navigation_drawer_open">Seitenleiste öffnen</string>
+    <string name="navigation_drawer_close">Seitenleiste schließen</string>
+    <string name="nav_header_desc">Startseite der aktuellen Ausgabe</string>
+
+    <string name="something_went_wrong_try_later">Etwas unerwartetes ist passiert. Bitte versuchen Sie es später erneut.</string>
+
+    <string name="navigation_drawer_icon_content">Inhalt</string>
+    <string name="navigation_drawer_icon_home">Home</string>
+    <string name="navigation_drawer_icon_bookmarks">Lesezeichen</string>
+    <string name="navigation_drawer_icon_settings">Einstellungen</string>
+    <string name="navigation_drawer_icon_help">Hilfe</string>
+
+    <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
+    <string name="bottom_navigation_action_share">Teilen</string>
+    <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
+    <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
+
+    <string name="fragment_default_header_title">die tageszeitung</string>
+
+    <string name="fragment_login_title">Anmeldung</string>
+    <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
+    <string name="fragment_login_username_title">Abo Nummer</string>
+    <string name="fragment_login_username_hint"></string>
+    <string name="fragment_login_password_title">Passwort</string>
+    <string name="fragment_login_password_hint"></string>
+    <string name="fragment_login_login_button">Anmelden</string>
+</resources>
