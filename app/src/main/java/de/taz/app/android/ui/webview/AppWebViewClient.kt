@@ -8,6 +8,7 @@ import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.MainActivity
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -36,7 +37,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-        if (handleLinks(view, request?.url.toString())){
+        if (handleLinks(view, request?.url.toString())) {
             val url = request?.url.toString()
             createNewFragment(url)
         }
@@ -46,8 +47,8 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     /** internal links should be handled by the app, external ones - by a web browser
     this function checks whether a link is internal
      */
-    private fun handleLinks(view: WebView?, url: String?) : Boolean {
-        url?.let {urlString ->
+    private fun handleLinks(view: WebView?, url: String?): Boolean {
+        url?.let { urlString ->
             view?.let {
                 if (urlString.startsWith(fileHelper.getFileDirectoryUrl(view.context))) {
                     return true
@@ -58,9 +59,9 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     }
 
     private fun createNewFragment(url: String?): Boolean {
-        url?.let{
+        url?.let {
             when {
-                it.startsWith("file:///") && it.contains("section") && it.endsWith(".html")-> {
+                it.startsWith("file:///") && it.contains("section") && it.endsWith(".html") -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         val section = SectionRepository.getInstance().get(
                             url.split("/").last()
@@ -72,7 +73,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
                         }
                     }
                 }
-                it.startsWith("file:///") && it.contains("art") && it.endsWith(".html")-> {
+                it.startsWith("file:///") && it.contains("art") && it.endsWith(".html") -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         val article = ArticleRepository.getInstance().get(
                             url.split("/").last()
@@ -108,13 +109,19 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
     /**
      * intercept links to "resources/" and "global/" and point them to the correct directories
      */
-    private fun overrideInternalLinks(view: WebView?, url: String?) : String? {
+    private fun overrideInternalLinks(view: WebView?, url: String?): String? {
         view?.let {
             url?.let {
                 val fileDir = fileHelper.getFileDirectoryUrl(view.context)
 
-                var newUrl = url.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/".toRegex(), "$fileDir/resources/")
-                newUrl = newUrl.replace("$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/".toRegex(), "$fileDir/global/")
+                var newUrl = url.replace(
+                    "$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/".toRegex(),
+                    "$fileDir/resources/"
+                )
+                newUrl = newUrl.replace(
+                    "$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/".toRegex(),
+                    "$fileDir/global/"
+                )
 
                 return newUrl
             }
@@ -127,7 +134,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
      * handle correctly different resource types
      * TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
      */
-    private fun createCustomWebResourceResponse (view: WebView?, url: String?) : WebResourceResponse {
+    private fun createCustomWebResourceResponse(view: WebView?, url: String?): WebResourceResponse {
         val newUrl = overrideInternalLinks(view, url)
         val data = File(newUrl.toString().removePrefix("file:///"))
         log.debug("Intercepted Url is $url")

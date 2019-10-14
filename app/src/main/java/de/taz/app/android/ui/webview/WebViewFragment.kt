@@ -9,6 +9,8 @@ import androidx.annotation.MenuRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import de.taz.app.android.MainActivity
 import de.taz.app.android.R
 import java.io.File
 import de.taz.app.android.util.Log
@@ -55,7 +57,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
     }
 
     private fun setBottomNavigation() {
-        navigation_bottom.apply {
+        activity?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
             visibility = View.GONE
             menu.clear()
             inflateMenu(menuId)
@@ -96,7 +98,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
         fileLiveData.observe(this@WebViewFragment, Observer { file ->
             file?.let {
                 context?.let {
-                    web_view.addJavascriptInterface(TazApiJs(), "ANDROIDAPI")
+                    web_view.addJavascriptInterface(TazApiJs(activity as MainActivity), "ANDROIDAPI")
                     CoroutineScope(Dispatchers.IO).launch {
                         activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
                     }
@@ -128,17 +130,18 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
         val call = jsBuilder.toString()
         CoroutineScope(Dispatchers.Main).launch {
             log.info("Calling javascript with $call")
-            web_view.loadUrl("javascript:$call")
+            web_view.evaluateJavascript(call) { result -> log.debug("javascript result $result") }
         }
     }
 
     private fun onGestureToTazapi(gesture: GESTURES, e1: MotionEvent) {
-        callTazApi("onGesture", gesture.name, e1.x, e1.y)
+        callTazApi("onGesture", gesture.name, e1.x.toInt(), e1.y.toInt())
     }
 
     override fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent) {
         log.debug("swiping left")
         onGestureToTazapi(GESTURES.swipeLeft, e1)
+        // TODO correct implementation
     }
 
     override fun onSwipeRight(e1: MotionEvent, e2: MotionEvent) {
@@ -166,11 +169,11 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
     }
 
     override fun onScrollStarted() {
-        log.debug("${web_view.scrollX}, ${web_view.scrollY}")
+        log.debug("${web_view?.scrollX}, ${web_view?.scrollY}")
     }
 
     override fun onScrollFinished() {
-        log.debug("${web_view.scrollX}, ${web_view.scrollY}")
+        log.debug("${web_view?.scrollX}, ${web_view?.scrollY}")
     }
 
 }
