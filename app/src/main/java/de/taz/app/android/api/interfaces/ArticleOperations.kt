@@ -34,4 +34,8 @@ interface ArticleOperations {
     fun getSection(): Section? {
         return SectionRepository.getInstance().getSectionForArticle(articleFileName)
     }
+
+    fun getIndexInSection(): Int? {
+        return ArticleRepository.getInstance().getIndexInSection(articleFileName)
+    }
 }

@@ -122,4 +122,11 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     abstract fun getPreviousArticleBaseInPreviousSection(articleFileName: String): ArticleBase?
 
 
+    @Query(
+        """ SELECT `index` FROM SectionArticleJoin
+            WHERE SectionArticleJoin.articleFileName == :articleFileName
+        """
+    )
+    abstract fun getIndexOfArticleInSection(articleFileName: String): Int?
+
 }
