@@ -12,6 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), AppWebViewCallback {
 
@@ -21,16 +26,21 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         section?.let {
             CoroutineScope(Dispatchers.IO).launch {
+                val issueBase = section.issueBase
                 val file = File(
                     ContextCompat.getExternalFilesDirs(
                         requireActivity().applicationContext, null
                     ).first(),
-                    "${section.issueBase.tag}/${section.sectionFileName}"
+                    "${issueBase.tag}/${section.sectionFileName}"
                 )
                 lifecycleScope.launch { fileLiveData.value = file }
                 activity?.runOnUiThread {
                     view.findViewById<TextView>(R.id.section).apply {
                         text = section.title
+                    }
+                    view.findViewById<TextView>(R.id.issue_date).apply {
+                        val issueDate = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(issueBase.date)
+                        text = SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(issueDate)
                     }
                 }
             }

@@ -65,4 +65,9 @@
         <item name="android:lineSpacingExtra">32pt</item>
     </style>
 
+    <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:lineSpacingExtra">32pt</item>
+    </style>
+
 </resources>
