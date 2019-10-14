@@ -46,23 +46,24 @@ class LoginFragment: Fragment() {
             }
         })
 
-        authHelper.authTokenInfo.observe(this, Observer { authTokenInfo ->
-            authTokenInfo?.let {
-                when (authTokenInfo.authInfo.status) {
-                    AuthStatus.valid -> {
-                        toastHelper.makeToast(R.string.toast_login_successfull)
+        if (authHelper.authTokenInfo.value?.authInfo?.status != AuthStatus.valid) {
+            authHelper.authTokenInfo.observe(this, Observer { authTokenInfo ->
+                authTokenInfo?.let {
+                    when (authTokenInfo.authInfo.status) {
+                        AuthStatus.valid -> {
+                            toastHelper.makeToast(R.string.toast_login_successfull)
+                        }
+                        AuthStatus.elapsed -> {
+                            toastHelper.makeToast(R.string.toast_login_elapsed)
+                        }
+                        AuthStatus.notValid -> {
+                            toastHelper.makeToast(R.string.toast_login_failed)
+                        }
                     }
-                    AuthStatus.elapsed -> {
-                        toastHelper.makeToast(R.string.toast_login_elapsed)
-                    }
-                    AuthStatus.notValid -> {
-                        toastHelper.makeToast(R.string.toast_login_failed)
-                    }
+
                 }
-
-            }
-        })
-
+            })
+        }
     }
 
 }

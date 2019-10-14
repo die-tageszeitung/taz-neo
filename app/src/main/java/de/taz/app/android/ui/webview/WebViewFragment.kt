@@ -29,7 +29,6 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
     @get:LayoutRes
     abstract val headerId: Int
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,9 +59,30 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
             visibility = View.GONE
             menu.clear()
             inflateMenu(menuId)
+            menu.getItem(0).isCheckable = false
             visibility = View.VISIBLE
+            setOnNavigationItemSelectedListener { menuItem -> run {
+                val oldCheckable = menuItem.isChecked && menuItem.isCheckable
+                if(!oldCheckable) {
+                    onBottomNavigationItemSelected(menuItem)
+                }
+                menuItem.isChecked = !oldCheckable
+                menuItem.isCheckable = !oldCheckable
+                false
+            }}
+
+            setOnNavigationItemReselectedListener {  menuItem -> run {
+                val oldCheckable = menuItem.isChecked && menuItem.isCheckable
+                if(!oldCheckable) {
+                    onBottomNavigationItemSelected(menuItem)
+                }
+                menuItem.isChecked = !oldCheckable
+                menuItem.isCheckable = !oldCheckable
+            }}
         }
     }
+
+    abstract fun onBottomNavigationItemSelected(menuItem: MenuItem)
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
