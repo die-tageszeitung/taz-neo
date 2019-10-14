@@ -26,6 +26,7 @@
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
+    <string name="fragment_header_article">%1$d/%2$d</string>
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
