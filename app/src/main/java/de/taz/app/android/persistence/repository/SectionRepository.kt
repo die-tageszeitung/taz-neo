@@ -116,5 +116,31 @@ class SectionRepository private constructor(applicationContext: Context) :
         } ?: throw NotFoundException()
     }
 
+    fun delete(section: Section) {
+        appDatabase.runInTransaction {
+            appDatabase.sectionArticleJoinDao().delete(
+                section.articleList.mapIndexed { index, article ->
+                    SectionArticleJoin(
+                        section.sectionHtml.name,
+                        article.articleHtml.name,
+                        index
+                    )
+                }
+            )
+            section.articleList.forEach { articleRepository.delete(it) }
+
+
+            fileEntryRepository.delete(section.sectionHtml)
+
+            appDatabase.sectionImageJoinDao()
+                .delete(section.imageList.mapIndexed { index, fileEntry ->
+                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+                })
+            // TODO delete files only if not part of bookmarked article
+            fileEntryRepository.delete(section.imageList)
+
+            appDatabase.sectionDao().delete(SectionBase(section))
+        }
+    }
 }
 

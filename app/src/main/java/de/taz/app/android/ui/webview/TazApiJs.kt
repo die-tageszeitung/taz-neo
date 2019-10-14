@@ -1,9 +1,10 @@
 package de.taz.app.android.ui.webview
 
 import android.webkit.JavascriptInterface
+import de.taz.app.android.MainActivity
 import de.taz.app.android.util.Log
 
-class TazApiJs {
+class TazApiJs(val mainActivity: MainActivity) {
 
     private val log by Log
 
@@ -35,6 +36,5 @@ class TazApiJs {
     @JavascriptInterface
     fun openUrl(url: String) {
         log.debug("openUrl $url")
-        // TODO!
     }
 }

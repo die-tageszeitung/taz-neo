@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.ImageView
+import androidx.annotation.AnimRes
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -14,19 +15,24 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SelectedIssueViewModel
 import de.taz.app.android.ui.login.LoginFragment
+import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.ui.webview.WebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
@@ -176,22 +182,26 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun showIssue(issue: Issue) {
-        showSection(issue.sectionList.first())
+    fun showArticle(article: Article, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0) {
+        runOnUiThread {
+            showMainFragment(ArticleWebViewFragment(article), enterAnimation, exitAnimation)
+        }
     }
 
-    fun showSection(section: Section) {
-        showMainFragment(SectionWebViewFragment(section))
+    fun showSection(section: Section, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0) {
+        runOnUiThread {
+            showMainFragment(SectionWebViewFragment(section), enterAnimation, exitAnimation)
+        }
     }
 
-    fun showMainFragment(fragment: Fragment) {
+    private fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0) {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
+                .setCustomAnimations(enterAnimation, exitAnimation)
                 .replace(
                     R.id.main_content_fragment_placeholder, fragment
-                )
-                .commit()
+                ).commit()
         }
     }
 
@@ -210,4 +220,18 @@ class MainActivity : AppCompatActivity() {
         }
         super.applyOverrideConfiguration(overrideConfiguration)
     }
+
+    /**
+     * if currently shown fragment implements onBackPressed and returns true it has handled the
+     * back button
+     */
+    override fun onBackPressed() {
+        supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
+            if (it is BackFragment && it.onBackPressed()) {
+                return
+            }
+        }
+        super.onBackPressed()
+    }
+
 }

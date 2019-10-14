@@ -2,7 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.room.Transaction
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
@@ -15,7 +14,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @Transaction
     fun save(article: Article) {
         appDatabase.runInTransaction {
 
@@ -168,5 +166,46 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
+
+    fun delete(article: Article) {
+        appDatabase.runInTransaction {
+            val articleFileName = article.articleHtml.name
+
+            // delete authors
+            article.authorList.forEachIndexed { index, author ->
+                author.imageAuthor?.let {
+                    appDatabase.articleAuthorImageJoinDao().delete(
+                        ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
+                    )
+                    fileEntryRepository.delete(it)
+                }
+            }
+
+            // delete audioFile and relation
+            article.audioFile?.let { audioFile ->
+                appDatabase.articleAudioFileJoinDao().delete(
+                    ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                )
+                fileEntryRepository.delete(audioFile)
+            }
+
+            // delete html file
+            fileEntryRepository.delete(article.articleHtml)
+
+            // delete images and relations
+            article.imageList.forEachIndexed { index, fileEntry ->
+                appDatabase.articleImageJoinDao().delete(
+                    ArticleImageJoin(articleFileName, fileEntry.name, index)
+                )
+            }
+
+            article.imageList.forEach { image ->
+                if (article.getSection()?.imageList?.contains(image) != true)
+                    fileEntryRepository.delete(image)
+            }
+
+            appDatabase.articleDao().delete(ArticleBase(article))
+        }
+    }
 
 }
