@@ -6,8 +6,11 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
 
-    <dimen name="drawer_margin_top">66dp</dimen>
+    <dimen name="drawer_margin_top">50dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
+
+    <dimen name="drawer_header_icon_padding">10dp</dimen>
+    <dimen name="drawer_header_icon_line_margin">17dp</dimen>
 
     <dimen name="drawer_moment_width">103dp</dimen>
     <dimen name="drawer_moment_height">154dp</dimen>
@@ -15,4 +18,12 @@
     <dimen name="drawer_logo_height">42dp</dimen>
     <dimen name="drawer_logo_width">91dp</dimen>
     <dimen name="drawer_logo_margin_top">49dp</dimen>
+
+    <dimen name="fragment_login_title_margin_top">45dp</dimen>
+    <dimen name="fragment_login_login_button_margin_top">7dp</dimen>
+    <dimen name="fragment_login_padding_horizontal">7dp</dimen>
+    <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
+    <dimen name="fragment_login_description_margin_top">10dp</dimen>
+
+    <dimen name="fragment_header_default_margin_top">35dp</dimen>
 </resources>
