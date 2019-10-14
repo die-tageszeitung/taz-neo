@@ -25,6 +25,7 @@
     <string name="bottom_navigation_action_size">change font size</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
+    <string name="fragment_header_article">%1$d/%2$d</string>
 
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>

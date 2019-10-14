@@ -38,7 +38,10 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
                                     text = section.title
                                 }
                                 view.findViewById<TextView>(R.id.article_num).apply {
-                                    text = "${articleIndex}/${section.articleList.size}"
+                                    text = activity
+                                        .getString(R.string.fragment_header_article,
+                                            articleIndex,
+                                            section.articleList.size)
                                 }
                             }
                         }
