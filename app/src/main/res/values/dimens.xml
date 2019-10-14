@@ -26,4 +26,7 @@
     <dimen name="fragment_login_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_header_default_margin_top">35dp</dimen>
+    <dimen name="fragment_header_default_margin_end">18pt</dimen>
+    <dimen name="fragment_header_article_num_margin_right">10pt</dimen>
+
 </resources>

@@ -54,9 +54,15 @@
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
-    <style name="TextAppearance.Header" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/grey</item>
-        <item name="android:lineSpacingExtra">7sp</item>
+    <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:lineSpacingExtra">32pt</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:lineSpacingExtra">32pt</item>
     </style>
 
 </resources>
