@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -30,5 +31,9 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
             }
         }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onBottomNavigationItemSelected(menuItem: MenuItem) {
+
     }
 }

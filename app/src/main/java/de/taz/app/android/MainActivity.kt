@@ -54,9 +54,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         issueRepository = IssueRepository.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val issue = apiService.getIssueByFeedAndDate()
