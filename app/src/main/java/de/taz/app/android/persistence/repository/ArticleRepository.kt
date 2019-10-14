@@ -163,4 +163,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
+    fun getIndexInSection(articleName: String): Int? {
+        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
+    }
+
+    fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
+
 }

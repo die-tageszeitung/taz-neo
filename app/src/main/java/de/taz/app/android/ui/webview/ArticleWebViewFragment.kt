@@ -25,19 +25,21 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
             activity?.let {activity ->
                 article?.let {article ->
                     article.getSection()?.let { section ->
-                        val file = File(
-                            ContextCompat.getExternalFilesDirs(
-                                requireActivity().applicationContext, null
-                            ).first(),
-                            "${section.issueBase.tag}/${article.articleFileName}"
-                        )
-                        lifecycleScope.launch { fileLiveData.value = file }
-                        activity.runOnUiThread {
-                            view.findViewById<TextView>(R.id.section).apply {
-                                text = section.title
-                            }
-                            view.findViewById<TextView>(R.id.article_num).apply {
-                                text = "x/${section.articleList.size}"
+                        article.getIndexInSection()?.let {articleIndex ->
+                            val file = File(
+                                ContextCompat.getExternalFilesDirs(
+                                    requireActivity().applicationContext, null
+                                ).first(),
+                                "${section.issueBase.tag}/${article.articleFileName}"
+                            )
+                            lifecycleScope.launch { fileLiveData.value = file }
+                            activity.runOnUiThread {
+                                view.findViewById<TextView>(R.id.section).apply {
+                                    text = section.title
+                                }
+                                view.findViewById<TextView>(R.id.article_num).apply {
+                                    text = "${articleIndex}/${section.articleList.size}"
+                                }
                             }
                         }
                     }
