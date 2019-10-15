@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun closeDrawer() {
-        drawer_layout.closeDrawer(GravityCompat.START)
+        drawer_layout.closeDrawers()
     }
 
     /**

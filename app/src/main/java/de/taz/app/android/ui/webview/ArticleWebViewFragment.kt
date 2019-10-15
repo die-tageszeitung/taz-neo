@@ -1,11 +1,13 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MainActivity
 import de.taz.app.android.R
@@ -21,24 +23,28 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
     override val headerId: Int = R.layout.fragment_webview_header_article
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        web_view_wrapper.updatePadding(20, 0, 20, 0)
+       super.onViewCreated(view, savedInstanceState)
+    }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            activity?.let {activity ->
-                article?.let {article ->
+    override fun onAttach(context: Context) {
+        activity?.let {activity ->
+            article?.let {article ->
+                CoroutineScope(Dispatchers.IO).launch {
                     article.getSection()?.let { section ->
                         article.getIndexInSection()?.let {articleIndex ->
                             val file = File(
                                 ContextCompat.getExternalFilesDirs(
-                                    requireActivity().applicationContext, null
+                                    context.applicationContext, null
                                 ).first(),
                                 "${section.issueBase.tag}/${article.articleFileName}"
                             )
                             lifecycleScope.launch { fileLiveData.value = file }
                             activity.runOnUiThread {
-                                view.findViewById<TextView>(R.id.section).apply {
+                                activity.findViewById<TextView>(R.id.section).apply {
                                     text = section.title
                                 }
-                                view.findViewById<TextView>(R.id.article_num).apply {
+                                activity.findViewById<TextView>(R.id.article_num).apply {
                                     text = activity
                                         .getString(R.string.fragment_header_article,
                                             articleIndex,
@@ -51,7 +57,7 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
             }
         }
 
-        super.onViewCreated(view, savedInstanceState)
+        super.onAttach(context)
     }
 
     override fun onBottomNavigationItemSelected(menuItem: MenuItem) {

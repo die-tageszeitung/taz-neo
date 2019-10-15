@@ -199,10 +199,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 )
             }
 
+            /* TODO
             article.imageList.forEach { image ->
                 if (article.getSection()?.imageList?.contains(image) != true)
                     fileEntryRepository.delete(image)
-            }
+            }*/
 
             appDatabase.articleDao().delete(ArticleBase(article))
         }

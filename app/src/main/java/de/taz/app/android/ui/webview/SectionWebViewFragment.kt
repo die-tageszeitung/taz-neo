@@ -38,8 +38,11 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
                         text = section.title
                     }
                     view.findViewById<TextView>(R.id.issue_date).apply {
-                        val issueDate = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(issueBase.date)
-                        text = SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(issueDate)
+                        SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(issueBase.date)?.let { issueDate ->
+                            text = SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
+                                issueDate
+                            ).toLowerCase()
+                        }
                     }
                 }
             }
