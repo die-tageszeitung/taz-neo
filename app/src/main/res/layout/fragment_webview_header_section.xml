@@ -8,11 +8,12 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/web_view_scroll"
         android:layout_marginEnd="@dimen/fragment_header_default_margin_end"
+        android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
         app:layout_constraintTop_toTopOf="parent">
 
     <TextView
             android:id="@+id/section"
-            style="@style/TextAppearance.Header.Section"
+            android:textAppearance="@style/TextAppearance.Header.Section"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
@@ -30,7 +31,7 @@
 
     <TextView
             android:id="@+id/issue_date"
-            style="@style/TextAppearance.Header.Date"
+            android:textAppearance="@style/TextAppearance.Header.Date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/dotted_line"

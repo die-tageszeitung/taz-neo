@@ -26,6 +26,19 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+                android:id="@+id/drawer_logo"
+                android:layout_width="@dimen/drawer_logo_width"
+                android:layout_height="@dimen/drawer_logo_height"
+                android:background="@color/tazRed"
+                android:clickable="true"
+                android:contentDescription="@string/navigation_drawer_open"
+                android:elevation="10dp"
+                android:focusable="true"
+                android:translationX="275dp"
+                android:translationY="-10dp"
+                app:srcCompat="@drawable/ic_logo" />
+
         <LinearLayout
                 android:id="@+id/nav_bar"
                 android:layout_width="match_parent"
@@ -47,17 +60,6 @@
             </FrameLayout>
         </LinearLayout>
 
-        <ImageView
-                android:id="@+id/drawer_logo"
-                android:layout_width="@dimen/drawer_logo_width"
-                android:layout_height="@dimen/drawer_logo_height"
-                android:background="@color/tazRed"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_open"
-                android:elevation="10dp"
-                android:focusable="true"
-                android:translationX="275dp"
-                app:srcCompat="@drawable/ic_logo" />
     </de.taz.app.android.ui.drawer.NavigationView>
 
 </de.taz.app.android.ui.drawer.DrawerLayout>

@@ -29,7 +29,11 @@ class AuthHelper private constructor(applicationContext: Context): ViewModel() {
     var authTokenInfo = MutableLiveData<AuthTokenInfo?>().apply { value = null }
 
     init {
-        authTokenInfo.observeForever { authTokenInfo -> token = authTokenInfo?.token ?: "" }
+        authTokenInfo.observeForever { authTokenInfo ->
+            if (!authTokenInfo?.token.isNullOrBlank()) {
+                token = authTokenInfo?.token ?: ""
+            }
+        }
     }
 
 }
