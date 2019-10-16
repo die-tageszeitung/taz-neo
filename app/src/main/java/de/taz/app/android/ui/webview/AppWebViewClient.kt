@@ -178,7 +178,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
             delay(1000)
             fragment.activity?.let {
                 it.runOnUiThread {
-                    it.findViewById<ProgressBar>(R.id.web_view_spinner)?.visibility =
+                    it.findViewById<View>(R.id.web_view_spinner)?.visibility =
                         View.GONE
                 }
             }
