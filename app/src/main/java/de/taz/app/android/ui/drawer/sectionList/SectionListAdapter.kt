@@ -21,7 +21,7 @@ class SectionListAdapter(private val activity: MainActivity, private var issue: 
     fun setData(newIssue: Issue?) {
         this.issue = newIssue
         issue?.let { issue ->
-            issue.moment?.imageList?.lastOrNull()?.let {
+            issue.moment.imageList.lastOrNull()?.let {
                 val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
 
                 if (imgFile.exists()) {
