@@ -2,6 +2,7 @@ package de.taz.app.android
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.download.DownloadService
@@ -29,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        createSingletons()
+        initializeSingletons()
 
         initAppInfo()
         initResources()
@@ -37,14 +38,10 @@ class SplashActivity : AppCompatActivity() {
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    /**
-     * initialize singletons
-     */
-    private fun createSingletons() {
+    private fun initializeSingletons() {
         applicationContext.let {
             AppDatabase.createInstance(it)
 
-            // Repositories
             appInfoRepository = AppInfoRepository.createInstance(it)
             ArticleRepository.createInstance(it)
             downloadRepository = DownloadRepository.createInstance(it)
@@ -54,7 +51,6 @@ class SplashActivity : AppCompatActivity() {
             resourceInfoRepository = ResourceInfoRepository.createInstance(it)
             SectionRepository.createInstance(it)
 
-            // others
             AuthHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
@@ -69,7 +65,7 @@ class SplashActivity : AppCompatActivity() {
      * download AppInfo and persist it
      */
     private fun initAppInfo() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 appInfoRepository.save(apiService.getAppInfo())
             } catch (e: Exception) {
@@ -82,7 +78,7 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()

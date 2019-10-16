@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val issue = apiService.getIssueByFeedAndDate()
                 issueRepository.save(issue)

@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MainActivity
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -24,7 +23,7 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         section?.let {
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 val issueBase = section.issueBase
                 val file = File(
                     ContextCompat.getExternalFilesDirs(
@@ -57,7 +56,7 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
 
     override fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent) {
         super.onSwipeLeft(e1, e2)
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             section?.nextSection()?.let {
                 (activity as MainActivity).showSection(it, R.anim.slide_in_left, R.anim.slide_out_left)
             }
@@ -66,7 +65,7 @@ class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), 
 
     override fun onSwipeRight(e1: MotionEvent, e2: MotionEvent) {
         super.onSwipeLeft(e1, e2)
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             section?.previousSection()?.let {
                 (activity as MainActivity).showSection(it, R.anim.slide_in_right, R.anim.slide_out_right)
             }
