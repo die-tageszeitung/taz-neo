@@ -30,7 +30,7 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
     override fun onAttach(context: Context) {
         activity?.let {activity ->
             article?.let {article ->
-                CoroutineScope(Dispatchers.IO).launch {
+                lifecycleScope.launch(Dispatchers.IO) {
                     article.getSection()?.let { section ->
                         article.getIndexInSection()?.let {articleIndex ->
                             val file = File(
@@ -91,7 +91,7 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
 
     override fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent) {
         super.onSwipeLeft(e1, e2)
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             article?.nextArticle()?.let {
                 (activity as MainActivity).showArticle(it, R.anim.slide_in_left, R.anim.slide_out_left)
             }
@@ -100,7 +100,7 @@ class ArticleWebViewFragment(val article: Article? = null) : WebViewFragment(), 
 
     override fun onSwipeRight(e1: MotionEvent, e2: MotionEvent) {
         super.onSwipeLeft(e1, e2)
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             article?.previousArticle()?.let {
                 (activity as MainActivity).showArticle(it, R.anim.slide_in_right, R.anim.slide_out_right)
             }

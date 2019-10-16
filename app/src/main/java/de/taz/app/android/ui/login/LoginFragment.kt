@@ -38,7 +38,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fragment_login_login_button.setOnClickListener {
-            CoroutineScope(Dispatchers.Default).launch {
+            lifecycleScope.launch(Dispatchers.Default) {
                 authHelper.authTokenInfo.postValue(
                     ApiService.getInstance().authenticate(
                         fragment_login_username.text.toString(),
@@ -60,7 +60,7 @@ class LoginFragment : Fragment() {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
                             toastHelper.makeToast(R.string.toast_login_successfull)
-                            CoroutineScope(Dispatchers.IO).launch {
+                            lifecycleScope.launch(Dispatchers.IO) {
                                 issueRepository.getLatestIssue()?.let { latestIssue ->
                                    issueRepository.delete(latestIssue)
                                 }

@@ -21,6 +21,7 @@
                 android:id="@+id/drawer_menu_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
                 tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
 
     </LinearLayout>

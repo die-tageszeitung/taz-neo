@@ -9,13 +9,13 @@ import androidx.annotation.MenuRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.MainActivity
 import de.taz.app.android.R
 import java.io.File
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -99,7 +99,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
             file?.let {
                 context?.let {
                     web_view.addJavascriptInterface(TazApiJs(activity as MainActivity), "ANDROIDAPI")
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         activity?.runOnUiThread { web_view.loadUrl("file://${file.absolutePath}") }
                     }
                 }
@@ -128,7 +128,7 @@ abstract class WebViewFragment : Fragment(), AppWebViewCallback {
         }
         jsBuilder.append(");")
         val call = jsBuilder.toString()
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             log.info("Calling javascript with $call")
             web_view.evaluateJavascript(call) { result -> log.debug("javascript result $result") }
         }

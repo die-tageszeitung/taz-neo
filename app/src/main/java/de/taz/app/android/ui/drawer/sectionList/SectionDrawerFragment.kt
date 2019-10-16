@@ -34,7 +34,6 @@ class SectionDrawerFragment : Fragment() {
             SectionListAdapter(requireActivity() as MainActivity)
         drawer_menu_list.apply {
             setHasFixedSize(true)
-            isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = recycleAdapter
         }
