@@ -17,8 +17,6 @@ import kotlinx.android.synthetic.main.fragment_drawer_menu_sections.*
  */
 class SectionDrawerFragment : Fragment() {
 
-    private lateinit var viewModel: SelectedIssueViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -28,7 +26,7 @@ class SectionDrawerFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(requireActivity()).get(SelectedIssueViewModel::class.java)
+        val viewModel = ViewModelProviders.of(requireActivity()).get(SelectedIssueViewModel::class.java)
 
         val recycleAdapter =
             SectionListAdapter(requireActivity() as MainActivity)
@@ -37,9 +35,8 @@ class SectionDrawerFragment : Fragment() {
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = recycleAdapter
         }
-        viewModel.selectedIssue.observe(this, Observer { issue ->
-            recycleAdapter.setData(issue)
-// TODO            activity?.findViewById<ImageView>(R.id.drawerMoment)
+        viewModel.selectedIssueDownloaded.observe(this, Observer {
+            recycleAdapter.setData(viewModel.selectedIssue.value)
         })
     }
 

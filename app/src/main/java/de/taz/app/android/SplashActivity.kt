@@ -20,17 +20,9 @@ class SplashActivity : AppCompatActivity() {
 
     private val log by Log
 
-    private lateinit var apiService: ApiService
-
-    private lateinit var appInfoRepository: AppInfoRepository
-    private lateinit var downloadRepository: DownloadRepository
-    private lateinit var fileEntryRepository: FileEntryRepository
-    private lateinit var fileHelper: FileHelper
-    private lateinit var resourceInfoRepository: ResourceInfoRepository
-
     override fun onResume() {
         super.onResume()
-        initializeSingletons()
+        createSingletons()
 
         initAppInfo()
         initResources()
@@ -38,26 +30,25 @@ class SplashActivity : AppCompatActivity() {
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun initializeSingletons() {
+    private fun createSingletons() {
         applicationContext.let {
             AppDatabase.createInstance(it)
 
-            appInfoRepository = AppInfoRepository.createInstance(it)
+            AppInfoRepository.createInstance(it)
             ArticleRepository.createInstance(it)
-            downloadRepository = DownloadRepository.createInstance(it)
-            fileEntryRepository = FileEntryRepository.createInstance(it)
+            DownloadRepository.createInstance(it)
+            FileEntryRepository.createInstance(it)
             IssueRepository.createInstance(it)
             PageRepository.createInstance(it)
-            resourceInfoRepository = ResourceInfoRepository.createInstance(it)
+            ResourceInfoRepository.createInstance(it)
             SectionRepository.createInstance(it)
 
             AuthHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
-            apiService = ApiService.createInstance(it)
-            fileHelper = FileHelper.createInstance(it)
-
+            ApiService.createInstance(it)
+            FileHelper.createInstance(it)
         }
     }
 
@@ -67,7 +58,9 @@ class SplashActivity : AppCompatActivity() {
     private fun initAppInfo() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                appInfoRepository.save(apiService.getAppInfo())
+                AppInfoRepository.getInstance(applicationContext).save(
+                    ApiService.getInstance(applicationContext).getAppInfo()
+                )
             } catch (e: Exception) {
                 log.warn("unable to get AppInfo", e)
             }
@@ -78,6 +71,11 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+        val fileHelper = FileHelper.getInstance(applicationContext)
+        val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val fromServer = apiService.getResourceInfo()
