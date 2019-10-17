@@ -35,11 +35,15 @@ interface MainContract {
     }
 
     interface Presenter {
+        fun onViewCreated()
+
         fun onItemClicked(imageView: ImageView)
     }
 
     interface DataController {
         fun getIssue(): Issue?
+
+        fun setIssue(issue: Issue)
 
         fun observeIssue(lifeCycleOwner: LifecycleOwner, newDataBlock: (Issue?) -> (Unit))
 
