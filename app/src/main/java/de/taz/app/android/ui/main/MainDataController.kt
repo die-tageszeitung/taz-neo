@@ -8,9 +8,7 @@ import kotlinx.coroutines.*
 class MainDataController : ViewModel(), MainContract.DataController {
 
     private val selectedIssue = MutableLiveData<Issue?>().apply {
-        CoroutineScope(Dispatchers.IO).launch {
-            postValue(IssueRepository.getInstance().getLatestIssue())
-        }
+        postValue(null)
     }
 
     // TODO check whether this works with multiple issues
@@ -30,11 +28,15 @@ class MainDataController : ViewModel(), MainContract.DataController {
     ) {
         selectedIssueIsDownloaded.observe(
             lifeCycleOwner,
-            Observer { isDownloaded -> newDataBlock.invoke(isDownloaded) })
+            Observer { isDownloaded -> newDataBlock.invoke(isDownloaded ?: false) })
     }
 
     override fun getIssue(): Issue? {
         return selectedIssue.value
+    }
+
+    override fun setIssue(issue: Issue) {
+        return selectedIssue.postValue(issue)
     }
 
 }

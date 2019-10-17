@@ -40,6 +40,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         setNavigationDrawerIconClickListener()
+        drawer_icon_content.performClick()
+
+        presenter.onViewCreated()
     }
 
     private fun setNavigationDrawerIconClickListener() {
