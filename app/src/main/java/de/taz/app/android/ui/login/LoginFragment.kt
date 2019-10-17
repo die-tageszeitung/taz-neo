@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.main.MainDataController
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -75,9 +77,9 @@ class LoginFragment : Fragment() {
                                                 activity,
                                                 Observer { downloaded ->
                                                     if (downloaded) {
-                                                        /* TODO ViewModelProviders.of(activity)
-                                                            .get(SelectedIssueViewModel::class.java)
-                                                            .selectedIssue.postValue(issue)*/
+                                                        ViewModelProviders.of(activity)
+                                                            .get(MainDataController::class.java)
+                                                            .setIssue(issue)
                                                         toastHelper.makeToast("issue downloaded")
                                                     }
                                                 }

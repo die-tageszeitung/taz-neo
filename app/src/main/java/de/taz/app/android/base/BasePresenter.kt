@@ -11,14 +11,11 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
 ) : ViewModel() {
 
     private var view: WeakReference<VIEW>? = null
-    protected var viewModel: VIEW_MODEL? = null
+    var viewModel: VIEW_MODEL? = null
 
     fun attach(screen: VIEW) {
         this.view = WeakReference(screen)
-        onAttach()
-    }
 
-    private fun onAttach() {
         getView()?.let { it ->
             if (it is FragmentActivity) {
                 viewModel = ViewModelProviders.of(it).get(viewModelClass)
@@ -29,6 +26,6 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
         }
     }
 
-    protected fun getView(): VIEW? = view?.get()
+    fun getView(): VIEW? = view?.get()
 
 }

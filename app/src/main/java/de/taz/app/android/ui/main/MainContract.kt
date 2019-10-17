@@ -45,9 +45,9 @@ interface MainContract {
 
         fun setIssue(issue: Issue)
 
-        fun observeIssue(lifeCycleOwner: LifecycleOwner, newDataBlock: (Issue?) -> (Unit))
+        fun observeIssue(lifeCycleOwner: LifecycleOwner, observationCallback: (Issue?) -> (Unit))
 
-        fun observeIssueIsDownloaded(lifeCycleOwner: LifecycleOwner, newDataBlock: (Boolean) -> (Unit))
+        fun observeIssueIsDownloaded(lifeCycleOwner: LifecycleOwner, observationCallback: (Boolean) -> (Unit))
     }
 
 }
