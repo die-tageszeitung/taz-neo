@@ -1,25 +1,29 @@
 package de.taz.app.android.persistence.repository
 
-import androidx.room.Transaction
+import android.content.Context
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.SingletonHolder
 
-class FileEntryRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class FileEntryRepository private constructor(
+    applicationContext: Context
+) : RepositoryBase(applicationContext) {
 
+    companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
-    @Transaction
     fun save(fileEntry: FileEntry) {
-        val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
-        fromDB?.let {
-            if (fromDB.moTime > fileEntry.moTime)
-                return@save
+        appDatabase.runInTransaction {
+            val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
+            fromDB?.let {
+                if (fromDB.moTime < fileEntry.moTime)
+                    appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+            } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
         }
-        appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
-   @Transaction
     fun save(fileEntries: List<FileEntry>) {
-        fileEntries.forEach { save(it) }
+        appDatabase.runInTransaction {
+            fileEntries.forEach { save(it) }
+        }
     }
 
     fun get(fileEntryName: String): FileEntry? {
@@ -36,5 +40,12 @@ class FileEntryRepository(private val appDatabase: AppDatabase = AppDatabase.get
         return fileEntryNames.map { getOrThrow(it) }
     }
 
+    fun delete(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().delete(fileEntry)
+    }
+
+    fun delete(fileEntries: List<FileEntry>) {
+        fileEntries.map { delete(it) }
+    }
 
 }

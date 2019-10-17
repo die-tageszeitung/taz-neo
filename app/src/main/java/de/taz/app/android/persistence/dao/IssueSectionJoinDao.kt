@@ -14,6 +14,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+        ORDER BY IssueSectionJoin.`index` ASC
         """
     )
     abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionBase>
@@ -22,10 +23,20 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+        ORDER BY IssueSectionJoin.`index` ASC
         """
     )
     abstract fun getSectionNamesForIssue(feedName: String, date: String): List<String>
 
     fun getSectionNamesForIssue(issueBase: IssueBase) =
         getSectionNamesForIssue(issueBase.feedName, issueBase.date)
+
+    @Query(
+        """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin
+            ON IssueSectionJoin.sectionFileName == :sectionName
+            AND Issue.feedName == IssueSectionJoin.issueFeedName
+            AND Issue.date == IssueSectionJoin.issueDate
+        """
+    )
+    abstract fun getIssueBaseForSection(sectionName: String): IssueBase
 }

@@ -1,12 +1,20 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.IssueDto
+import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-data class Issue (
-    val feedName: String,
-    val date: String,
+data class Issue(
+    override val feedName: String,
+    override val date: String,
+    val moment: Moment,
     val key: String? = null,
-    val baseUrl: String,
+    override val baseUrl: String,
     val status: IssueStatus,
     val minResourceVersion: Int,
     val zipName: String? = null,
@@ -17,10 +25,14 @@ data class Issue (
     val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList()
-) {
-    constructor(feedName: String, issueDto: IssueDto): this(
+) : IssueOperations, CacheableDownload {
+
+    private val log by Log
+
+    constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
+        Moment(issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,
@@ -35,30 +47,19 @@ data class Issue (
         issueDto.pageList ?: emptyList()
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other?.javaClass != javaClass) return false
+    override fun getAllFiles(): List<FileEntry> {
+        val files = mutableListOf(moment.imageList)
+        imprint?.let {
+            files.add(imprint.getAllFiles())
+        }
+        files.addAll(sectionList.map { it.getAllFiles() })
+        files.addAll(pageList.map { it.getAllFiles() })
+        log.debug("issue $tag has ${files.flatten().size} files")
+        return files.flatten()
+    }
 
-        other as Issue
-
-        return date == other.date &&
-                feedName == other.feedName &&
-                key == other.key &&
-                baseUrl == other.baseUrl &&
-                status == other.status &&
-                minResourceVersion == other.minResourceVersion &&
-                zipName == other.zipName &&
-                zipPdfName == other.zipPdfName &&
-                navButton == other.navButton &&
-                imprint == other.imprint &&
-                fileList.containsAll(other.fileList) &&
-                other.fileList.containsAll(fileList) &&
-                fileListPdf.containsAll(other.fileListPdf) &&
-                other.fileListPdf.containsAll(fileListPdf) &&
-                sectionList.containsAll(other.sectionList) &&
-                other.sectionList.containsAll(sectionList) &&
-                pageList.containsAll(other.pageList) &&
-                other.pageList.containsAll(pageList)
+    override fun getDownloadTag(): String? {
+        return tag
     }
 
 }

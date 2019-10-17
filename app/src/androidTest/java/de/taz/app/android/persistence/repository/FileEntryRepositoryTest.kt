@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.StorageType
+import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
 import org.junit.Assert.*
@@ -25,7 +25,8 @@ class FileEntryRepositoryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
-        fileEntryRepository = FileEntryRepository(db)
+        fileEntryRepository = FileEntryRepository.getInstance(context)
+        fileEntryRepository.appDatabase = db
     }
 
     @After

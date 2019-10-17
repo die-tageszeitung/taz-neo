@@ -27,7 +27,7 @@ class GraphQlClientTest {
         graphQlClient = GraphQlClient(
             httpClient = OkHttpClient(),
             url = mockServer.url("").toString(),
-            queryService = queryServiceMock
+            queryService= queryServiceMock
         )
     }
 
@@ -38,7 +38,7 @@ class GraphQlClientTest {
 
     @Test
     fun appInfoQuery() {
-        doReturn(Query("query { product { appType appName }}"))
+        doReturn(Query("\"query\":\"query { product { appType appName }}\""))
             .`when`(queryServiceMock).get(QueryType.AppInfoQuery)
 
         val mockResponse = MockResponse()

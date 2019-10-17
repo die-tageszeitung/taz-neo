@@ -17,22 +17,21 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppInfoRepositoryTest {
-    private lateinit var db: AppDatabase
 
     private lateinit var appInfoRepository: AppInfoRepository
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(
-                context, AppDatabase::class.java).build()
-        appInfoRepository = AppInfoRepository(db)
+        appInfoRepository = AppInfoRepository.createInstance(context)
+        appInfoRepository.appDatabase = Room.inMemoryDatabaseBuilder(
+            context, AppDatabase::class.java).build()
     }
 
     @After
     @Throws(IOException::class)
     fun closeDb() {
-        db.close()
+        appInfoRepository.appDatabase.close()
     }
 
     @Test

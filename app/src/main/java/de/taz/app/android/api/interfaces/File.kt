@@ -1,11 +1,11 @@
-package de.taz.app.android.api.models
+package de.taz.app.android.api.interfaces
 
 interface File {
     val name: String
     val storageType: StorageType
     val moTime: Long
     val sha256: String
-    val size: Int
+    val size: Long
 }
 
 enum class StorageType {

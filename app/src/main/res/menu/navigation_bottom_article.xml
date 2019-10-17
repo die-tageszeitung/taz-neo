@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:id="@+id/bottom_navigation_action_help"
+          android:title="@string/bottom_navigation_action_help"
+          android:icon="@drawable/ic_help" />
+     <item android:id="@+id/bottom_navigation_action_share"
+          android:title="@string/bottom_navigation_action_share"
+          android:icon="@drawable/ic_menu_share" />
+     <item android:id="@+id/bottom_navigation_action_bookmark"
+          android:title="@string/bottom_navigation_action_bookmark"
+          android:icon="@drawable/ic_bookmark" />
+     <item android:id="@+id/bottom_navigation_action_size"
+           android:title="@string/bottom_navigation_action_size"
+           android:icon="@drawable/ic_text_size"/>
+</menu>

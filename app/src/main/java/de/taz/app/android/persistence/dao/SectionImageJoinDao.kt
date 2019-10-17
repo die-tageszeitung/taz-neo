@@ -15,6 +15,7 @@ abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
         """SELECT FileEntry.* FROM FileEntry INNER JOIN SectionImageJoin
         ON FileEntry.name = SectionImageJoin.imageFileName
         WHERE SectionImageJoin.sectionFileName == :sectionFileName
+        ORDER BY SectionImageJoin.`index` ASC
     """
     )
     abstract fun getImagesForSection(sectionFileName: String): List<FileEntry>?

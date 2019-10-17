@@ -1,13 +1,16 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ProductDto
+import de.taz.app.android.api.interfaces.CacheableDownload
+
+const val RESOURCE_TAG = "resources"
 
 data class ResourceInfo(
     val resourceVersion: Int,
     val resourceBaseUrl: String,
     val resourceZip: String,
     val resourceList: List<FileEntry>
-) {
+): CacheableDownload {
     constructor(productDto: ProductDto) : this (
         productDto.resourceVersion!!,
         productDto.resourceBaseUrl!!,
@@ -15,17 +18,12 @@ data class ResourceInfo(
         productDto.resourceList!!
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other?.javaClass != javaClass) return false
-
-        other as ResourceInfo
-
-        return resourceVersion == other.resourceVersion &&
-                resourceBaseUrl == other.resourceBaseUrl &&
-                resourceZip == other.resourceZip &&
-                resourceList.containsAll(other.resourceList) &&
-                other.resourceList.containsAll(resourceList)
-
+    override fun getAllFiles(): List<FileEntry> {
+        return resourceList
     }
+
+    override fun getDownloadTag(): String? {
+        return RESOURCE_TAG
+    }
+
 }

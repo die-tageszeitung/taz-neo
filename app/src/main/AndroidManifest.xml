@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="de.taz.app.android">
+        package="de.taz.app.android"
+        android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            android:maxSdkVersion="18" />
 
     <application
+            android:name=".TazApplication"
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar" />
         <activity
                 android:name=".SplashActivity"
                 android:noHistory="true"
@@ -21,11 +30,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
 
         <uses-library
-            android:name="android.test.runner"
-            android:required="false" />
-
+                android:name="android.test.runner"
+                android:required="false" />
     </application>
+
 </manifest>
