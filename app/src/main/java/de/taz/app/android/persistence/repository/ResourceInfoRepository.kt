@@ -1,35 +1,37 @@
 package de.taz.app.android.persistence.repository
 
-import androidx.room.Transaction
+import android.content.Context
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoWithoutFiles
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
+import de.taz.app.android.util.SingletonHolder
 
-class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class ResourceInfoRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
+    companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 
-    private val fileEntryRepository = FileEntryRepository(appDatabase)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @Transaction
     fun save(resourceInfo: ResourceInfo) {
-        appDatabase.resourceInfoDao().insertOrReplace(
-            ResourceInfoWithoutFiles(
-                resourceInfo.resourceVersion,
-                resourceInfo.resourceBaseUrl,
-                resourceInfo.resourceZip
+        appDatabase.runInTransaction {
+            appDatabase.resourceInfoDao().insertOrReplace(
+                ResourceInfoWithoutFiles(
+                    resourceInfo.resourceVersion,
+                    resourceInfo.resourceBaseUrl,
+                    resourceInfo.resourceZip
+                )
             )
-        )
-        // save file resourceList
-        fileEntryRepository.save(
-            resourceInfo.resourceList.map { FileEntry(it) }
-        )
-        // save relation to files
-        appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-            resourceInfo.resourceList.map {
-                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, it.name)
-            }
-        )
+            // save file resourceList
+            fileEntryRepository.save(
+                resourceInfo.resourceList.map { FileEntry(it) }
+            )
+            // save relation to files
+            appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
+                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
+                }
+            )
+        }
     }
 
     @Throws(NotFoundException::class)
@@ -64,5 +66,9 @@ class ResourceInfoRepository(private val appDatabase: AppDatabase = AppDatabase.
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun delete(resourceInfo: ResourceInfo) {
+        appDatabase.resourceInfoDao().delete(ResourceInfoWithoutFiles(resourceInfo))
     }
 }

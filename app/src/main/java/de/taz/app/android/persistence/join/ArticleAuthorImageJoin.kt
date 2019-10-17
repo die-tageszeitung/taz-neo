@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.models.ArticleBase
-import de.taz.app.android.api.models.FileEntry
 
 @Entity(
     tableName = "ArticleAuthor",
@@ -22,5 +21,6 @@ data class ArticleAuthorImageJoin(
     val articleFileName: String,
     val authorName: String?,
     val authorFileName: String?,
+    val index: Int,
     @PrimaryKey(autoGenerate = true) val id: Int? = null
 )

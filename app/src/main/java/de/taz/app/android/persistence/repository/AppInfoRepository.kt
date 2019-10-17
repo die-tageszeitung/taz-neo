@@ -1,9 +1,12 @@
 package de.taz.app.android.persistence.repository
 
+import android.content.Context
 import de.taz.app.android.api.models.AppInfo
-import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.util.SingletonHolder
 
-class AppInfoRepository(private val appDatabase: AppDatabase = AppDatabase.getInstance()) {
+class AppInfoRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
+    companion object : SingletonHolder<AppInfoRepository, Context>(::AppInfoRepository)
 
     fun save(appInfo: AppInfo) {
         appDatabase.appInfoDao().insertOrReplace(appInfo)

@@ -2,15 +2,17 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
+import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.SectionOperations
 
-data class Section (
+data class Section(
     val sectionHtml: FileEntry,
     val title: String,
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
-)  {
-    constructor(sectionDto: SectionDto)  : this(
+): SectionOperations, CacheableDownload {
+    constructor(sectionDto: SectionDto) : this(
         sectionDto.sectionHtml,
         sectionDto.title,
         sectionDto.type,
@@ -18,19 +20,14 @@ data class Section (
         sectionDto.imageList ?: listOf()
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other?.javaClass != javaClass) return false
+    override val sectionFileName: String
+        get() = sectionHtml.name
 
-        other as Section
-
-        return sectionHtml == other.sectionHtml &&
-                title == other.title &&
-                type == other.type &&
-                articleList.containsAll(other.articleList) &&
-                other.articleList.containsAll(articleList) &&
-                imageList.containsAll(other.imageList) &&
-                other.imageList.containsAll(imageList)
+    override fun getAllFiles(): List<FileEntry> {
+        val list = mutableListOf(sectionHtml)
+        list.addAll(imageList)
+        articleList.forEach{ article -> list.addAll(article.getAllFiles()) }
+        return list
     }
 
 }

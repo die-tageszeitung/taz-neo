@@ -14,6 +14,7 @@ abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
         """SELECT FileEntry.* FROM FileEntry INNER JOIN ArticleImageJoin
         ON FileEntry.name = ArticleImageJoin.imageFileName
         WHERE ArticleImageJoin.articleFileName == :articleFileName
+        ORDER BY ArticleImageJoin.`index` ASC
     """
     )
     abstract fun getImagesForArticle(articleFileName: String): List<FileEntry>
