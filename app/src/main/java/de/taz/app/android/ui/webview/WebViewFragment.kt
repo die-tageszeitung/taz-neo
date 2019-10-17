@@ -11,7 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
 import java.io.File
 import de.taz.app.android.util.Log

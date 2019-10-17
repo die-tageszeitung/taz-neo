@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.ui.BackFragment

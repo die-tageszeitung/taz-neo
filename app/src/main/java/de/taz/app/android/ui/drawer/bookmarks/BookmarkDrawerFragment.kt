@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_drawer_menu_bookmarks.*
 
