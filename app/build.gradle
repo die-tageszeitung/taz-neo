@@ -105,10 +105,10 @@ dependencies {
     //implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
 
     // testing
+    testImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.2.0'
     testImplementation 'org.mockito:mockito-core:2.23.0'
-
     // Core library
     androidTestImplementation 'androidx.test:core:1.2.0'
 

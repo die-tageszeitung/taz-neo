@@ -1,14 +1,16 @@
-package de.taz.app.android
+package de.taz.app.android.ui.splash
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
@@ -27,7 +29,28 @@ class SplashActivity : AppCompatActivity() {
         initAppInfo()
         initResources()
 
+        downloadLatestIssue()
+
         startActivity(Intent(this, MainActivity::class.java))
+    }
+
+    private fun downloadLatestIssue() {
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val issue = ApiService.getInstance().getIssueByFeedAndDate()
+                issueRepository.save(issue)
+                DownloadService.download(applicationContext, issue)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            }
+        }
     }
 
     private fun createSingletons() {

@@ -5,9 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.util.FileHelper

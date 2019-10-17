@@ -6,10 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
+import de.taz.app.android.ui.main.MainDataController
 import kotlinx.android.synthetic.main.fragment_drawer_menu_sections.*
 
 /**
@@ -26,7 +26,7 @@ class SectionDrawerFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(requireActivity()).get(SelectedIssueViewModel::class.java)
+        val viewModel = ViewModelProviders.of(requireActivity()).get(MainDataController::class.java)
 
         val recycleAdapter =
             SectionListAdapter(requireActivity() as MainActivity)
@@ -35,9 +35,10 @@ class SectionDrawerFragment : Fragment() {
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = recycleAdapter
         }
-        viewModel.selectedIssueDownloaded.observe(this, Observer {
-            recycleAdapter.setData(viewModel.selectedIssue.value)
-        })
+
+        viewModel.observeIssueIsDownloaded(this) {
+            recycleAdapter.setData(viewModel.getIssue())
+        }
     }
 
 }
