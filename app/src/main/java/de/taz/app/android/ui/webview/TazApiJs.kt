@@ -1,7 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.webkit.JavascriptInterface
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 
 class TazApiJs(val mainActivity: MainActivity) {

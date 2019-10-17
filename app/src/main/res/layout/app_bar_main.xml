@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:statusBarBackground="@android:color/transparent"
-        tools:context="de.taz.app.android.MainActivity">
+        tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <include layout="@layout/content_main" />
 

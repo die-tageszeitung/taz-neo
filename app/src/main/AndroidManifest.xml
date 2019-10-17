@@ -18,10 +18,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".MainActivity"
+                android:name=".ui.main.MainActivity"
                 android:theme="@style/AppTheme.NoActionBar" />
         <activity
-                android:name=".SplashActivity"
+                android:name=".ui.splash.SplashActivity"
                 android:noHistory="true"
                 android:theme="@style/SplashTheme">
             <intent-filter>
