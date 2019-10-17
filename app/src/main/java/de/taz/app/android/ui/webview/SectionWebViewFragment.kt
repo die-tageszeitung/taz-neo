@@ -7,7 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.MainActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.Dispatchers
