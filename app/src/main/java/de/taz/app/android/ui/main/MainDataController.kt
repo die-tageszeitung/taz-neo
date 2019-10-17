@@ -2,7 +2,6 @@ package de.taz.app.android.ui.main
 
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.*
 
 class MainDataController : ViewModel(), MainContract.DataController {
@@ -19,16 +18,21 @@ class MainDataController : ViewModel(), MainContract.DataController {
             }
         }
 
-    override fun observeIssue(lifeCycleOwner: LifecycleOwner, newDataBlock: (Issue?) -> (Unit)) {
-        selectedIssue.observe(lifeCycleOwner, Observer { issue -> newDataBlock.invoke(issue) })
+    override fun observeIssue(
+        lifeCycleOwner: LifecycleOwner,
+        observationCallback: (Issue?) -> (Unit)
+    ) {
+        selectedIssue.observe(
+            lifeCycleOwner,
+            Observer { issue -> observationCallback.invoke(issue) })
     }
 
     override fun observeIssueIsDownloaded(
-        lifeCycleOwner: LifecycleOwner, newDataBlock: (Boolean) -> Unit
+        lifeCycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit
     ) {
         selectedIssueIsDownloaded.observe(
             lifeCycleOwner,
-            Observer { isDownloaded -> newDataBlock.invoke(isDownloaded ?: false) })
+            Observer { isDownloaded -> observationCallback.invoke(isDownloaded ?: false) })
     }
 
     override fun getIssue(): Issue? {
