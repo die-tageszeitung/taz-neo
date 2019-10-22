@@ -76,6 +76,19 @@ class FileEntryRepositoryTest {
 
         assertEquals(fromDB, fileEntryTestWithHigherMoTime)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun delete() {
+        fileEntryRepository.save(fileEntryTest)
+        val fromDBBefore = fileEntryRepository.get(fileEntryTest.name)
+        // get absolute path for fromDBBefore
+
+        fileEntryRepository.delete(fileEntryTest)
+        val fromDBAfter = fileEntryRepository.get(fileEntryTest.name)
+        assertEquals(fromDBAfter, null)
+        // assert no file exists at the absolute path from above
+    }
 }
 
 val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0)
