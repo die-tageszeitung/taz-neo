@@ -23,7 +23,9 @@ data class FileEntry(
     )
 
     fun delete() {
-        FileHelper.getInstance().deleteFile(name)
+        val fileHelper = FileHelper.getInstance()
+        fileHelper.deleteFile(name)
+        fileHelper.deleteFileFromFileSystem(name)
         DownloadRepository.getInstance().delete(name)
         FileEntryRepository.getInstance().delete(this)
     }
