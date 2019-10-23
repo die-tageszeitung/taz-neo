@@ -1,13 +1,11 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 data class Issue(
     override val feedName: String,
@@ -60,6 +58,12 @@ data class Issue(
 
     override fun getDownloadTag(): String? {
         return tag
+    }
+
+    fun downloadPages(applicationContext: Context) {
+        pageList.forEach {
+            DownloadService.download(applicationContext, it)
+        }
     }
 
 }
