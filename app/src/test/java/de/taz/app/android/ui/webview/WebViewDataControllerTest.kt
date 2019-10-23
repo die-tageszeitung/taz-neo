@@ -1,8 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable

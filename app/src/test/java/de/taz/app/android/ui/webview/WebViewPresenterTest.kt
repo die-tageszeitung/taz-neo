@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.*
 
+import org.junit.Before
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
