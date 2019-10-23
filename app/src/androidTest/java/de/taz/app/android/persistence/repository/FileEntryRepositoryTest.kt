@@ -82,12 +82,11 @@ class FileEntryRepositoryTest {
     fun delete() {
         fileEntryRepository.save(fileEntryTest)
         val fromDBBefore = fileEntryRepository.get(fileEntryTest.name)
-        // get absolute path for fromDBBefore
+        assertEquals(fileEntryTest, fromDBBefore)
 
         fileEntryRepository.delete(fileEntryTest)
         val fromDBAfter = fileEntryRepository.get(fileEntryTest.name)
-        assertEquals(fromDBAfter, null)
-        // assert no file exists at the absolute path from above
+        assertNull(fromDBAfter)
     }
 }
 
