@@ -51,7 +51,6 @@ data class Issue(
             files.add(imprint.getAllFiles())
         }
         files.addAll(sectionList.map { it.getAllFiles() })
-        files.addAll(pageList.map { it.getAllFiles() })
         log.debug("issue $tag has ${files.flatten().size} files")
         return files.flatten()
     }
