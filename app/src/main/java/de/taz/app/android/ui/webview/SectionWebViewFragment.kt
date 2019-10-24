@@ -6,6 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -20,8 +21,8 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
         R.id.bottom_navigation_action_size
     )
 
-    override fun configureHeader() {
-        section?.let {
+    override fun configureHeader(): Job? {
+        return section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
                 setHeader(section, section.issueBase)
             }
