@@ -4,7 +4,7 @@ import android.webkit.JavascriptInterface
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 
-class TazApiJs(val mainActivity: MainActivity) {
+object TazApiJS {
 
     private val log by Log
 

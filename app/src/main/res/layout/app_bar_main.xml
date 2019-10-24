@@ -11,4 +11,15 @@
 
     <include layout="@layout/content_main" />
 
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom"
+            android:background="@color/navigation_bottom_background"
+            android:visibility="gone"
+            app:labelVisibilityMode="unlabeled"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            app:menu="@menu/navigation_bottom" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
