@@ -29,6 +29,8 @@ interface WebViewContract: BaseContract {
 
         fun setIconInactive(itemId: Int)
 
+        fun shareText(text: String)
+
     }
 
     interface Presenter: BaseContract.Presenter, AppWebViewCallback {

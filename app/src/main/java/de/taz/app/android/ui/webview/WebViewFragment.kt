@@ -121,4 +121,15 @@ abstract class WebViewFragment(private val _webViewDisplayable: WebViewDisplayab
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 
+    override fun shareText(text: String) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
 }
