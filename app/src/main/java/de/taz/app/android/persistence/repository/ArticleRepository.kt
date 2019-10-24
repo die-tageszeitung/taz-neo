@@ -2,15 +2,19 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
+
+    private val log by Log
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
@@ -70,6 +74,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             getOrThrow(articleName)
         } catch (e: NotFoundException) {
             null
+        }
+    }
+
+    fun getLiveData(articleName: String): LiveData<Article?> {
+        return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
+            input?.let { articleBaseToArticle(input) }
         }
     }
 
@@ -138,6 +148,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun bookmarkArticle(articleBase: ArticleBase) {
+        log.debug("bookmarked from article ${articleBase.articleFileName}")
         appDatabase.articleDao().update(articleBase.copy(bookmarked = true))
     }
 
@@ -154,6 +165,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun debookmarkArticle(articleBase: ArticleBase) {
+        log.debug("removed bookmark from article ${articleBase.articleFileName}")
         appDatabase.articleDao().update(articleBase.copy(bookmarked = false))
     }
 

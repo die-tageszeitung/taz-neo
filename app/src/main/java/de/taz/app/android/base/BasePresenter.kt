@@ -13,8 +13,8 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
     private var view: WeakReference<VIEW>? = null
     var viewModel: VIEW_MODEL? = null
 
-    fun attach(screen: VIEW) {
-        this.view = WeakReference(screen)
+    open fun attach(view: VIEW) {
+        this.view = WeakReference(view)
 
         getView()?.let { it ->
             if (it is FragmentActivity) {

@@ -5,14 +5,14 @@ import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.base.BaseContract
 
-interface MainContract {
-    interface View {
-
-        fun getLifecycleOwner(): LifecycleOwner
+interface MainContract: BaseContract {
+    interface View: BaseContract.View {
 
         fun highlightDrawerIcon(imageView: ImageView)
 
@@ -20,9 +20,7 @@ interface MainContract {
 
         fun showDrawerFragment(fragment: Fragment)
 
-        fun showArticle(article: Article, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
-
-        fun showSection(section: Section, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
+        fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
@@ -34,9 +32,7 @@ interface MainContract {
 
     }
 
-    interface Presenter {
-        fun onViewCreated()
-
+    interface Presenter: BaseContract.Presenter {
         fun onItemClicked(imageView: ImageView)
     }
 

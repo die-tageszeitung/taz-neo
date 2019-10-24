@@ -51,7 +51,7 @@ class SectionListAdapter(private val activity: MainActivity, private var issue: 
         section?.let {
             holder.textView.text = section.title
             holder.textView.setOnClickListener {
-                activity.showSection(section)
+                activity.showInWebView(section)
                 activity.closeDrawer()
             }
         }
