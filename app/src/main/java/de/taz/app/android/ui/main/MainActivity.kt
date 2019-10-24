@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
@@ -95,15 +96,22 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
 
-    override fun showArticle(article: Article, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {
+    override fun showInWebView(
+        webViewDisplayable: WebViewDisplayable,
+        enterAnimation: Int,
+        exitAnimation: Int
+    ) {
         runOnUiThread {
-            showMainFragment(ArticleWebViewFragment(article), enterAnimation, exitAnimation)
-        }
-    }
-
-    override fun showSection(section: Section, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {
-        runOnUiThread {
-            showMainFragment(SectionWebViewFragment(section), enterAnimation, exitAnimation)
+            val fragment = when(webViewDisplayable) {
+                is Article ->
+                    ArticleWebViewFragment(webViewDisplayable)
+                is Section ->
+                    SectionWebViewFragment(webViewDisplayable)
+                else -> null
+            }
+            fragment?.let {
+                showMainFragment(fragment, enterAnimation, exitAnimation)
+            }
         }
     }
 

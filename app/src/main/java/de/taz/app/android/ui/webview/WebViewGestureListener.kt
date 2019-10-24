@@ -36,17 +36,17 @@ class WebViewGestureListener(
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
                     if (diffX > 0) {
-                        appWebViewCallback.onSwipeRight(e1, e2)
+                        appWebViewCallback.onSwipeRight()
                     } else {
-                        appWebViewCallback.onSwipeLeft(e1, e2)
+                        appWebViewCallback.onSwipeLeft()
                     }
                 }
                 result = true
             } else if (abs(diffY) > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
                 if (diffY > 0) {
-                    appWebViewCallback.onSwipeBottom(e1, e2)
+                    appWebViewCallback.onSwipeBottom()
                 } else {
-                    appWebViewCallback.onSwipeTop(e1, e2)
+                    appWebViewCallback.onSwipeTop()
                 }
                 result = true
             }

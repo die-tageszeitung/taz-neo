@@ -1,8 +1,15 @@
 package de.taz.app.android.api.models
 
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.util.FileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 data class Article(
     val articleHtml: FileEntry,
@@ -14,7 +21,7 @@ data class Article(
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList(),
     val bookmarked: Boolean = false
-): ArticleOperations, CacheableDownload {
+): ArticleOperations, CacheableDownload, WebViewDisplayable {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,
         articleDto.title,
@@ -35,6 +42,21 @@ data class Article(
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList)
         return list
+    }
+
+    override fun getFile(): File? {
+        return getSection()?.let { section ->
+            return FileHelper.getInstance()
+                .getFile("${section.issueBase.tag}/$articleFileName")
+        }
+    }
+
+    override fun previous(): Article? {
+        return previousArticle()
+    }
+
+    override fun next(): Article? {
+        return nextArticle()
     }
 
 }

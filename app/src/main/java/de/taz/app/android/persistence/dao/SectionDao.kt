@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.SectionBase
@@ -9,6 +10,9 @@ abstract class SectionDao : BaseDao<SectionBase>() {
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
     abstract fun get(sectionFileName: String): SectionBase
+
+    @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
+    abstract fun getLiveData(sectionFileName: String): LiveData<SectionBase?>
 
     @Query(""" SELECT Section.* FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
