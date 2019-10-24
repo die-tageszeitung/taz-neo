@@ -17,7 +17,6 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
 
     override val visibleItemIds = listOf(
         R.id.bottom_navigation_action_help,
-        R.id.bottom_navigation_action_share,
         R.id.bottom_navigation_action_size
     )
 
