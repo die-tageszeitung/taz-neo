@@ -1,6 +1,8 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
@@ -50,6 +52,12 @@ class SectionRepository private constructor(applicationContext: Context) :
     @Throws(NotFoundException::class)
     fun getOrThrow(sectionFileName: String): Section {
         return sectionBaseToSection(getBaseOrThrow(sectionFileName))
+    }
+
+    fun getLiveData(sectionFileName: String): LiveData<Section?> {
+        return Transformations.map(appDatabase.sectionDao().getLiveData(sectionFileName)) { input ->
+            input?.let { sectionBaseToSection(it) }
+        }
     }
 
     fun get(sectionFileName: String): Section? {

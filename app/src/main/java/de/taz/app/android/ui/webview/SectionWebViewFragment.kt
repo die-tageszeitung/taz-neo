@@ -1,74 +1,54 @@
 package de.taz.app.android.ui.webview
 
-import android.os.Bundle
 import android.widget.TextView
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
+import de.taz.app.android.api.models.IssueBase
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SectionWebViewFragment(val section: Section? = null) : WebViewFragment(), AppWebViewCallback {
+class SectionWebViewFragment(private val section: Section? = null) : WebViewFragment(section) {
 
-    override val menuId: Int = R.menu.navigation_bottom_section
     override val headerId: Int = R.layout.fragment_webview_header_section
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override val visibleItemIds = listOf(
+        R.id.bottom_navigation_action_help,
+        R.id.bottom_navigation_action_share,
+        R.id.bottom_navigation_action_size
+    )
+
+    override fun configureHeader() {
         section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                val issueBase = section.issueBase
-                val file = File(
-                    ContextCompat.getExternalFilesDirs(
-                        requireActivity().applicationContext, null
-                    ).first(),
-                    "${issueBase.tag}/${section.sectionFileName}"
-                )
-                lifecycleScope.launch { fileLiveData.value = file }
-                activity?.runOnUiThread {
-                    view.findViewById<TextView>(R.id.section).apply {
-                        text = section.title
-                    }
-                    view.findViewById<TextView>(R.id.issue_date).apply {
-                        SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(issueBase.date)?.let { issueDate ->
-                            text = SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
-                                issueDate
-                            ).toLowerCase()
-                        }
+                setHeader(section, section.issueBase)
+            }
+        }
+    }
+
+    private fun setHeader(section: Section, issueBase: IssueBase) {
+        activity?.apply {
+            runOnUiThread {
+                findViewById<TextView>(R.id.section).apply {
+                    text = section.title
+                }
+                dateToLowerCaseString(issueBase.date)?.let {
+                    findViewById<TextView>(R.id.issue_date).apply {
+                        text = it
                     }
                 }
             }
         }
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onBottomNavigationItemSelected(menuItem: MenuItem) {
-
     }
 
 
-    override fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent) {
-        super.onSwipeLeft(e1, e2)
-        lifecycleScope.launch(Dispatchers.IO) {
-            section?.nextSection()?.let {
-                (activity as MainActivity).showSection(it, R.anim.slide_in_left, R.anim.slide_out_left)
-            }
-        }
-    }
-
-    override fun onSwipeRight(e1: MotionEvent, e2: MotionEvent) {
-        super.onSwipeLeft(e1, e2)
-        lifecycleScope.launch(Dispatchers.IO) {
-            section?.previousSection()?.let {
-                (activity as MainActivity).showSection(it, R.anim.slide_in_right, R.anim.slide_out_right)
-            }
+    private fun dateToLowerCaseString(date: String): String? {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
+            SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
         }
     }
 

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.view.MotionEvent
+import kotlinx.coroutines.Job
 
 
 interface AppWebViewCallback {
@@ -9,13 +10,13 @@ interface AppWebViewCallback {
 
     fun onScrollFinished()
 
-    fun onSwipeRight(e1: MotionEvent, e2: MotionEvent)
+    fun onSwipeRight(): Job?
 
-    fun onSwipeLeft(e1: MotionEvent, e2: MotionEvent)
+    fun onSwipeLeft(): Job?
 
-    fun onSwipeBottom(e1: MotionEvent, e2: MotionEvent)
+    fun onSwipeBottom()
 
-    fun onSwipeTop(e1: MotionEvent, e2: MotionEvent)
+    fun onSwipeTop()
 
     fun onDoubleTap(e: MotionEvent): Boolean
 }

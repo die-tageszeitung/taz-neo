@@ -6,21 +6,15 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import android.graphics.Bitmap
-import android.view.View
-import android.widget.ProgressBar
 import kotlinx.coroutines.*
 
 
-class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() {
+class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
@@ -66,9 +60,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
                             url.split("/").last()
                         )
                         section?.let {
-                            fragment.lifecycleScope.launch {
-                                showFragment(SectionWebViewFragment(section))
-                            }
+                            presenter.onLinkClicked(section)
                         }
                     }
                 }
@@ -78,9 +70,7 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
                             url.split("/").last()
                         )
                         article?.let {
-                            fragment.lifecycleScope.launch {
-                                showFragment(ArticleWebViewFragment(article))
-                            }
+                            presenter.onLinkClicked(article)
                         }
                     }
                 }
@@ -156,32 +146,9 @@ class AppWebViewClient(private val fragment: WebViewFragment) : WebViewClient() 
         }
     }
 
-    private fun showFragment(newFragment: WebViewFragment) {
-        fragment.activity?.apply {
-            runOnUiThread {
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(
-                        R.id.main_content_fragment_placeholder,
-                        newFragment
-                    )
-                    .commit()
-                drawer_layout.closeDrawers()
-            }
-        }
-    }
-
     override fun onPageFinished(webview: WebView, url: String) {
         super.onPageFinished(webview, url)
 
-        CoroutineScope(Dispatchers.Default).launch {
-            delay(1000)
-            fragment.activity?.let {
-                it.runOnUiThread {
-                    it.findViewById<View>(R.id.web_view_spinner)?.visibility =
-                        View.GONE
-                }
-            }
-        }
+        presenter.onPageFinishedLoading()
     }
 }
