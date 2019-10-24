@@ -82,7 +82,6 @@ abstract class WebViewFragment(private val _webViewDisplayable: WebViewDisplayab
 
     private fun removeHeader() {
         activity?.apply {
-            findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, false)
             findViewById<ViewGroup>(R.id.header_placeholder)?.removeAllViews()
         }
     }
