@@ -113,7 +113,8 @@ class SplashActivity : AppCompatActivity() {
                         fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                             // only delete modified files
                             if (oldFileEntry != newFileEntry) {
-                                oldFileEntry.delete()
+                                val oldFileEntryPath = fileHelper.getFile(oldFileEntry.name).absolutePath
+                                oldFileEntry.delete(oldFileEntryPath)
                             }
                         }
                     }
