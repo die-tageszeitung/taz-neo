@@ -127,7 +127,11 @@ class SectionRepository private constructor(applicationContext: Context) :
                     )
                 }
             )
-            section.articleList.forEach { articleRepository.delete(it) }
+            section.articleList.forEach { article ->
+                if (!article.bookmarked) {
+                    articleRepository.delete(article)
+                }
+            }
 
 
             fileEntryRepository.delete(section.sectionHtml)
