@@ -38,11 +38,14 @@ class FileEntryTest {
         fileEntryRepository.save(fileEntryTest)
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fileEntryTest, fromDB)
+
         val file = fileHelper.getFile(fromDB!!.name)
         file.createNewFile()
-        assertNotNull(file.absolutePath)
-        fileEntryTest.delete()
-        assertFalse(fileHelper.getFile(fromDB!!.name).exists())
+        assertTrue(file.exists())
+
+        fromDB.delete(file.absolutePath)
+        assertNull(fileEntryRepository.get(fromDB.name))
+        assertFalse(fileHelper.getFile(fromDB.name).exists())
     }
 }
 
