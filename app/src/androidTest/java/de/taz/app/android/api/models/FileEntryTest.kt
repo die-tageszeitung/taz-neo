@@ -9,10 +9,12 @@ import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.FileHelper
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 class FileEntryTest {
@@ -30,6 +32,12 @@ class FileEntryTest {
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
         fileHelper = FileHelper.createInstance(context)
+    }
+
+    @After
+    @Throws(IOException::class)
+    fun tearDown() {
+        db.close()
     }
 
     @Test
