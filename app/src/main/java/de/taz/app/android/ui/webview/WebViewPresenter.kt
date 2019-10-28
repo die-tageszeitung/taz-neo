@@ -1,12 +1,14 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.webkit.WebChromeClient
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BasePresenter
@@ -87,6 +89,14 @@ class WebViewPresenter :
             }
         }
 
+        if(menuItem.itemId == R.id.bottom_navigation_action_share && webViewDisplayable is Shareable) {
+            webViewDisplayable.getLink()?.let {
+                getView()?.apply {
+                    shareText(it)
+                    setIconInactive(R.id.bottom_navigation_action_share)
+                }
+            }
+        }
     }
 
     override fun onScrollStarted() {
