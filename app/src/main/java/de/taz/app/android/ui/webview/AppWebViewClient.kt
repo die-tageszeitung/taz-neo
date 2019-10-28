@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview
 
-import android.annotation.TargetApi
 import android.content.Intent
 import android.os.Build
 import android.webkit.WebResourceRequest
@@ -13,6 +12,7 @@ import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import java.io.File
 import android.net.Uri
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.*
 import java.net.URLDecoder
 
@@ -34,7 +34,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
         return handled || super.shouldOverrideUrlLoading(webView, url)
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(webView: WebView?, request: WebResourceRequest?): Boolean {
         val url = URLDecoder.decode(request?.url.toString(), "UTF-8")
         val handled = if (handleLinks(webView, url)) {
@@ -98,7 +98,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun shouldInterceptRequest(
         webView: WebView?,
         request: WebResourceRequest?
