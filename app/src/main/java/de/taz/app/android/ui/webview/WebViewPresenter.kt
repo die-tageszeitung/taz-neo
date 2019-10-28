@@ -66,30 +66,27 @@ class WebViewPresenter :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
-        when (webViewDisplayable) {
-            is Article -> {
-                when (menuItem.itemId) {
-                    R.id.bottom_navigation_action_bookmark -> {
-                        getView()?.let { view ->
-                            val articleRepository = ArticleRepository.getInstance()
-                            if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
-                                view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                    articleRepository.debookmarkArticle(webViewDisplayable)
-                                }
-                                view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                                view.setIconInactive(R.id.bottom_navigation_action_bookmark)
-                            } else {
-                                view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                    articleRepository.bookmarkArticle(webViewDisplayable)
-                                }
-                                view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                                view.setIconActive(R.id.bottom_navigation_action_bookmark)
-                            }
-                        }
+        if (
+            menuItem.itemId == R.id.bottom_navigation_action_bookmark && webViewDisplayable is Article
+        ) {
+            getView()?.let { view ->
+                val articleRepository = ArticleRepository.getInstance()
+                if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
+                    view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                        articleRepository.debookmarkArticle(webViewDisplayable)
                     }
+                    view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
+                    view.setIconInactive(R.id.bottom_navigation_action_bookmark)
+                } else {
+                    view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                        articleRepository.bookmarkArticle(webViewDisplayable)
+                    }
+                    view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
+                    view.setIconActive(R.id.bottom_navigation_action_bookmark)
                 }
             }
         }
+
     }
 
     override fun onScrollStarted() {

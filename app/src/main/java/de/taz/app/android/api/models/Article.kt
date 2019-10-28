@@ -1,14 +1,10 @@
 package de.taz.app.android.api.models
 
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.util.FileHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 data class Article(
