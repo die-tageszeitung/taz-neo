@@ -28,8 +28,8 @@ class ArticleWebViewFragment(private val article: Article? = null) : WebViewFrag
         }
     }
 
-    override fun configureHeader() {
-        activity?.lifecycleScope?.launch(Dispatchers.IO) {
+    override fun configureHeader(): Job? {
+        return activity?.lifecycleScope?.launch(Dispatchers.IO) {
             article?.getSection()?.let { section ->
                 setHeaderForSection(section)
             }
