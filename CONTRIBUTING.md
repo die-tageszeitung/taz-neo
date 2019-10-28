@@ -6,9 +6,11 @@ and [https://chris.beams.io/posts/git-commit/](https://chris.beams.io/posts/git-
 
 ## Code Style Guidelines
 
-* xml IDs MUST be in `snake_case`, variable names — in `camelCase`
+* Xml IDs MUST be in `snake_case`, variable names — in `camelCase`.
+* To improve readability, whenever applicable, we wirte out variable names:
+  e.g. `webView` instead of `wv`.
 * We use synthetic imports of views (i.e. use directly the viewID from the xml
-  layouts for referencing the corresponding views in the Kotlin code.)
+  layouts for referencing the corresponding views in the Kotlin code).
 
 ## Submission Guidelines
 
