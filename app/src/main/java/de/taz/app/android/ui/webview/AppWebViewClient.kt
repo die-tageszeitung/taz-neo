@@ -1,18 +1,22 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Intent
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.annotation.RequiresApi
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import java.io.File
+import android.net.Uri
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.*
+import java.net.URLDecoder
 
+const val MAILTO_PREFIX = "mailto:"
 
 class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient() {
 
@@ -21,29 +25,33 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
 
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")
-    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-        if (handleLinks(view, url)) {
+    override fun shouldOverrideUrlLoading(webView: WebView?, url: String?): Boolean {
+        val handled = if (handleLinks(webView, url)) {
             createNewFragment(url)
+        } else {
+            handleExternally(webView , url)
         }
-        return super.shouldOverrideUrlLoading(view, url)
+        return handled || super.shouldOverrideUrlLoading(webView, url)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-        if (handleLinks(view, request?.url.toString())) {
-            val url = request?.url.toString()
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun shouldOverrideUrlLoading(webView: WebView?, request: WebResourceRequest?): Boolean {
+        val url = URLDecoder.decode(request?.url.toString(), "UTF-8")
+        val handled = if (handleLinks(webView, url)) {
             createNewFragment(url)
+        } else {
+            handleExternally(webView, url)
         }
-        return super.shouldOverrideUrlLoading(view, request)
+        return handled || super.shouldOverrideUrlLoading(webView, request)
     }
 
     /** internal links should be handled by the app, external ones - by a web browser
     this function checks whether a link is internal
      */
-    private fun handleLinks(view: WebView?, url: String?): Boolean {
+    private fun handleLinks(webView: WebView?, url: String?): Boolean {
         url?.let { urlString ->
-            view?.let {
-                if (urlString.startsWith(fileHelper.getFileDirectoryUrl(view.context))) {
+            webView?.let {
+                if (urlString.startsWith(fileHelper.getFileDirectoryUrl(webView.context))) {
                     return true
                 }
             }
@@ -53,7 +61,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
 
     private fun createNewFragment(url: String?): Boolean {
         url?.let {
-            when {
+            return when {
                 it.startsWith("file:///") && it.contains("section") && it.endsWith(".html") -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         val section = SectionRepository.getInstance().get(
@@ -63,6 +71,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
                             presenter.onLinkClicked(section)
                         }
                     }
+                    true
                 }
                 it.startsWith("file:///") && it.contains("art") && it.endsWith(".html") -> {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -73,26 +82,62 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
                             presenter.onLinkClicked(article)
                         }
                     }
+                    true
                 }
-                else -> return false
+                else -> false
             }
         }
         return false
     }
 
     override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        return createCustomWebResourceResponse(view, url)
+        return if (handleLinks(view, url)) {
+            createCustomWebResourceResponse(view, url)
+        } else {
+            return null
+        }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun shouldInterceptRequest(
-        view: WebView?,
+        webView: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? {
         request?.let {
-            return createCustomWebResourceResponse(view, request.url.toString())
+            val url = Uri.decode(request.url.toString())
+            if(handleLinks(webView, url)) {
+                return createCustomWebResourceResponse(webView, url)
+            }
         }
         return null
+    }
+
+    private fun handleExternally(webView: WebView?, url: String?): Boolean {
+        webView?.let {
+            url?.let {
+                log.debug("handling $url externally")
+                if (url.startsWith(MAILTO_PREFIX)) {
+                    sendMail(webView, url)
+                } else {
+                    openInBrowser(webView, url)
+                }
+            }
+        }
+        return true
+    }
+
+    private fun sendMail(webView: WebView, url: String) {
+        val mail = url.replaceFirst(MAILTO_PREFIX, "")
+        log.debug("sending mail to $url")
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse(MAILTO_PREFIX)
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
+        }
+        webView.context?.startActivity(intent)
+    }
+
+    private fun openInBrowser(webView: WebView, url: String) {
+        webView.context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     /**
