@@ -2,7 +2,7 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.PageWithoutFile
 import de.taz.app.android.persistence.join.IssuePageJoin
 
@@ -34,5 +34,5 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         WHERE IssuePageJoin.pageKey == :pageKey
     """
     )
-    abstract fun getIssueBaseForPage(pageKey: String): IssueBase?
+    abstract fun getIssueBaseForPage(pageKey: String): IssueStub?
 }

@@ -3,7 +3,7 @@ package de.taz.app.android.ui.webview
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,18 +23,18 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
     override fun configureHeader(): Job? {
         return section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                setHeader(section, section.issueBase)
+                setHeader(section, section.issueStub)
             }
         }
     }
 
-    private fun setHeader(section: Section, issueBase: IssueBase) {
+    private fun setHeader(section: Section, issueStub: IssueStub) {
         activity?.apply {
             runOnUiThread {
                 findViewById<TextView>(R.id.section).apply {
                     text = section.title
                 }
-                dateToLowerCaseString(issueBase.date)?.let {
+                dateToLowerCaseString(issueStub.date)?.let {
                     findViewById<TextView>(R.id.issue_date).apply {
                         text = it
                     }

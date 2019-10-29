@@ -34,7 +34,7 @@ data class Section(
     }
 
     override fun getFile(): File {
-        return FileHelper.getInstance().getFile("${issueBase.tag}/$sectionFileName")
+        return FileHelper.getInstance().getFile("${issueStub.tag}/$sectionFileName")
     }
 
     override fun previous(): Section? {
