@@ -4,13 +4,13 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 
 @Entity(
     tableName = "IssueImprintJoin",
     foreignKeys = [
         ForeignKey(
-            entity = IssueBase::class,
+            entity = IssueStub::class,
             parentColumns = ["feedName", "date"],
             childColumns = ["issueFeedName", "issueDate"]
         ),

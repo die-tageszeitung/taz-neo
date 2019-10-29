@@ -44,7 +44,7 @@ data class Article(
     override fun getFile(): File? {
         return getSection()?.let { section ->
             return FileHelper.getInstance()
-                .getFile("${section.issueBase.tag}/$articleFileName")
+                .getFile("${section.issueStub.tag}/$articleFileName")
         }
     }
 
