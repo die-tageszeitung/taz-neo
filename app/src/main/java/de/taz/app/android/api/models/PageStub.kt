@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "Page")
-data class PageWithoutFile(
+data class PageStub(
     @PrimaryKey val pdfFileName: String,
     val title: String? = null,
     val pagina: String? = null,

@@ -2,7 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import de.taz.app.android.api.models.Page
-import de.taz.app.android.api.models.PageWithoutFile
+import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.util.SingletonHolder
 
 class PageRepository private constructor(applicationContext: Context) :
@@ -15,7 +15,7 @@ class PageRepository private constructor(applicationContext: Context) :
     fun save(page: Page) {
         appDatabase.runInTransaction {
             appDatabase.pageDao().insertOrReplace(
-                PageWithoutFile(
+                PageStub(
                     page.pagePdf.name,
                     page.title,
                     page.pagina,
@@ -35,7 +35,7 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getWithoutFile(fileName: String): PageWithoutFile? {
+    fun getWithoutFile(fileName: String): PageStub? {
         return appDatabase.pageDao().get(fileName)
     }
 
@@ -66,7 +66,7 @@ class PageRepository private constructor(applicationContext: Context) :
     fun delete(page: Page) {
         appDatabase.runInTransaction {
             appDatabase.pageDao().delete(
-                PageWithoutFile(
+                PageStub(
                     page.pagePdf.name,
                     page.title,
                     page.pagina,

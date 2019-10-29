@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.dao
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.PageWithoutFile
+import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
 
 
@@ -17,7 +17,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         ORDER BY IssuePageJoin.`index` ASC
         """
     )
-    abstract fun getPagesForIssue(feedName: String, date: String): List<PageWithoutFile>
+    abstract fun getPagesForIssue(feedName: String, date: String): List<PageStub>
 
     @Query(
         """SELECT Page.pdfFileName FROM Page INNER JOIN IssuePageJoin 
