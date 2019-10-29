@@ -21,7 +21,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun save(download: Download) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-                val downloadWithoutFile = DownloadWithoutFile(download)
+                val downloadWithoutFile = DownloadStub(download)
                 appDatabase.downloadDao().insertOrReplace(downloadWithoutFile)
             } ?: throw NotFoundException()
         }
@@ -30,7 +30,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun saveIfNotExists(download: Download) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-                val downloadWithoutFile = DownloadWithoutFile(download)
+                val downloadWithoutFile = DownloadStub(download)
                 try {
                     appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
                 } catch (_: SQLiteConstraintException) {
@@ -41,23 +41,23 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun update(download: Download) {
-        appDatabase.downloadDao().update(DownloadWithoutFile(download))
+        appDatabase.downloadDao().update(DownloadStub(download))
     }
 
-    fun update(downloadWithoutFile: DownloadWithoutFile) {
-        appDatabase.downloadDao().update(downloadWithoutFile)
+    fun update(downloadStub: DownloadStub) {
+        appDatabase.downloadDao().update(downloadStub)
     }
 
-    fun getWithoutFile(fileName: String): DownloadWithoutFile? {
+    fun getWithoutFile(fileName: String): DownloadStub? {
         return appDatabase.downloadDao().get(fileName)
     }
 
-    fun getWithoutFile(fileNames: List<String>): List<DownloadWithoutFile?> {
+    fun getWithoutFile(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
     }
 
     @Throws(NotFoundException::class)
-    fun getWithoutFileOrThrow(fileName: String): DownloadWithoutFile {
+    fun getWithoutFileOrThrow(fileName: String): DownloadStub {
         return getWithoutFile(fileName) ?: throw NotFoundException()
     }
 
