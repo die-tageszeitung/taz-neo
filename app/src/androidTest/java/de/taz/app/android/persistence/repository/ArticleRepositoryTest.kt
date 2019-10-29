@@ -18,6 +18,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
+    private lateinit var sectionRepository: SectionRepository
     private lateinit var articleRepository: ArticleRepository
 
     private val issue = IssueTestUtil.getIssue()
@@ -38,6 +39,9 @@ class ArticleRepositoryTest {
 
         articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
+
+        sectionRepository = SectionRepository.createInstance(context)
+        sectionRepository.appDatabase = db
     }
 
     @After
@@ -74,6 +78,31 @@ class ArticleRepositoryTest {
 
         assertEquals(fromDB, article)
         assertEquals(fromDB2, article2)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun delete() {
+        articleRepository.save(article)
+        val fromDB = articleRepository.get(article.articleHtml.name)
+        assertEquals(fromDB, article)
+
+        articleRepository.delete(article)
+        assertNull(articleRepository.get(fromDB!!.articleHtml.name))
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteBookmarkedFails() {
+        articleRepository.save(article)
+        val fromDB = articleRepository.get(article.articleHtml.name)
+        assertEquals(fromDB, article)
+
+        articleRepository.bookmarkArticle(fromDB!!)
+        val fromDBNew = articleRepository.get(article.articleHtml.name)
+        articleRepository.delete(fromDBNew!!)
+        assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))
     }
 
 }

@@ -76,6 +76,18 @@ class FileEntryRepositoryTest {
 
         assertEquals(fromDB, fileEntryTestWithHigherMoTime)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun delete() {
+        fileEntryRepository.save(fileEntryTest)
+        val fromDBBefore = fileEntryRepository.get(fileEntryTest.name)
+        assertEquals(fileEntryTest, fromDBBefore)
+
+        fileEntryRepository.delete(fileEntryTest)
+        val fromDBAfter = fileEntryRepository.get(fileEntryTest.name)
+        assertNull(fromDBAfter)
+    }
 }
 
 val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0)
