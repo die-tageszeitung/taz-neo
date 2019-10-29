@@ -21,7 +21,7 @@ private const val DATABASE_NAME = "db"
         ArticleAuthorImageJoin::class,
         ArticleStub::class,
         ArticleImageJoin::class,
-        DownloadWithoutFile::class,
+        DownloadStub::class,
         FileEntry::class,
         IssueStub::class,
         IssueImprintJoin::class,
