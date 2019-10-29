@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.PageWithoutFile
+import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
 import org.junit.Before
@@ -59,7 +59,7 @@ class PageRepositoryTest {
     fun getWithoutFile() {
         pageRepository.save(page)
         val fromDB = pageRepository.getWithoutFile(page.pagePdf.name)
-        assertEquals(fromDB, PageWithoutFile(page))
+        assertEquals(fromDB, PageStub(page))
     }
 
     @Test
