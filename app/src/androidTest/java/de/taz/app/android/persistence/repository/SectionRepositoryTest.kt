@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
 import org.junit.After
@@ -65,7 +65,7 @@ class SectionRepositoryTest {
     fun readBase() {
         sectionRepository.save(section)
         val fromDB = sectionRepository.getBase(section.sectionHtml.name)
-        assertEquals(fromDB, SectionBase(section))
+        assertEquals(fromDB, SectionStub(section))
     }
 
     @Test

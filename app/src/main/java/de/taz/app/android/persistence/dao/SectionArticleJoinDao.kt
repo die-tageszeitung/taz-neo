@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 
 
@@ -36,12 +36,12 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             
         """
     )
-    abstract fun getSectionBaseForArticleFileName(articleFileName: String): SectionBase?
+    abstract fun getSectionBaseForArticleFileName(articleFileName: String): SectionStub?
 
-    fun getSectionBaseForArticleBase(articleStub: ArticleStub): SectionBase?
+    fun getSectionBaseForArticleBase(articleStub: ArticleStub): SectionStub?
             = getSectionBaseForArticleFileName(articleStub.articleFileName)
 
-    fun getSectionBaseForArticle(article: Article): SectionBase?
+    fun getSectionBaseForArticle(article: Article): SectionStub?
             = getSectionBaseForArticleFileName(article.articleHtml.name)
 
     @Query(

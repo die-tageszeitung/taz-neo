@@ -31,7 +31,7 @@ private const val DATABASE_NAME = "db"
         PageWithoutFile::class,
         ResourceInfoWithoutFiles::class,
         ResourceInfoFileEntryJoin::class,
-        SectionBase::class,
+        SectionStub::class,
         SectionArticleJoin::class,
         SectionImageJoin::class
     ],

@@ -3,7 +3,7 @@ package de.taz.app.android.api.interfaces
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 
@@ -27,7 +27,7 @@ interface ArticleOperations {
         return ArticleRepository.getInstance().nextArticle(articleFileName)
     }
 
-    fun getSectionBase(): SectionBase? {
+    fun getSectionBase(): SectionStub? {
         return SectionRepository.getInstance().getSectionBaseForArticle(articleFileName)
     }
 

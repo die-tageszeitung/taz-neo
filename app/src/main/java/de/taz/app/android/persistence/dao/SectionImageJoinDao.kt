@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionImageJoin
 
 
@@ -23,6 +23,6 @@ abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
     fun getImagesForSection(section: Section): List<FileEntry>? =
         getImagesForSection(section.sectionHtml.name)
 
-    fun getImagesForSection(sectionBase: SectionBase): List<FileEntry>? =
-        getImagesForSection(sectionBase.sectionFileName)
+    fun getImagesForSection(sectionStub: SectionStub): List<FileEntry>? =
+        getImagesForSection(sectionStub.sectionFileName)
 }
