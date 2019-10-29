@@ -57,7 +57,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getWithoutFiles(): ResourceInfoWithoutFiles? {
+    fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
     }
 
