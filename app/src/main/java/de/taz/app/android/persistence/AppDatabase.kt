@@ -19,7 +19,7 @@ private const val DATABASE_NAME = "db"
         AppInfo::class,
         ArticleAudioFileJoin::class,
         ArticleAuthorImageJoin::class,
-        ArticleBase::class,
+        ArticleStub::class,
         ArticleImageJoin::class,
         DownloadWithoutFile::class,
         FileEntry::class,
