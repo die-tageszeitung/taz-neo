@@ -26,6 +26,11 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return getFile(download.path).delete()
     }
 
+    fun deleteFileFromFileSystem(filePath: String) : Boolean {
+        val file = File(filePath)
+        return file.delete()
+    }
+
     fun getFile(fileName: String, internal: Boolean = false): File {
         // TODO read from settings where to save
         // TODO notification if external not writable?

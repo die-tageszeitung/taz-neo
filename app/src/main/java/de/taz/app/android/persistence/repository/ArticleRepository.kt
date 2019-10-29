@@ -55,13 +55,20 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBase(articleName: String): ArticleBase {
+    fun getBase(articleName: String): ArticleBase? {
         return appDatabase.articleDao().get(articleName)
     }
 
     @Throws(NotFoundException::class)
+    fun getBaseOrThrow(articleName: String) : ArticleBase {
+        return getBase(articleName) ?: throw NotFoundException()
+    }
+
+    @Throws(NotFoundException::class)
     fun getOrThrow(articleName: String): Article {
-        return articleBaseToArticle(appDatabase.articleDao().get(articleName))
+        return appDatabase.articleDao().get(articleName)?.let {
+            articleBaseToArticle(it)
+        } ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
@@ -152,12 +159,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().update(articleBase.copy(bookmarked = true))
     }
 
+    @Throws(NotFoundException::class)
     fun bookmarkArticle(articleName: String) {
-        bookmarkArticle(getBase(articleName))
+        bookmarkArticle(getBaseOrThrow(articleName))
     }
 
+    @Throws(NotFoundException::class)
     fun debookmarkArticle(articleName: String) {
-        debookmarkArticle(getBase(articleName))
+        debookmarkArticle(getBaseOrThrow(articleName))
     }
 
     fun debookmarkArticle(article: Article) {
@@ -180,44 +189,43 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
 
     fun delete(article: Article) {
-        appDatabase.runInTransaction {
-            val articleFileName = article.articleHtml.name
+        appDatabase.articleDao().get(article.articleFileName)?.let {
+            if (!it.bookmarked) {
+                val articleFileName = article.articleHtml.name
 
-            // delete authors
-            article.authorList.forEachIndexed { index, author ->
-                author.imageAuthor?.let {
-                    appDatabase.articleAuthorImageJoinDao().delete(
-                        ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
-                    )
-                    fileEntryRepository.delete(it)
+                // delete authors
+                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
+                    articleFileName
+                ).forEach {
+                    appDatabase.articleAuthorImageJoinDao().delete(it)
+                    it.authorFileName?.let { authorFileName ->
+                        fileEntryRepository.delete(fileEntryRepository.getOrThrow(authorFileName))
+                    }
                 }
+
+                // delete audioFile and relation
+                article.audioFile?.let { audioFile ->
+                    appDatabase.articleAudioFileJoinDao().delete(
+                        ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                    )
+                    fileEntryRepository.delete(audioFile)
+                }
+
+                // delete html file
+                fileEntryRepository.delete(article.articleHtml)
+
+                // delete images and relations
+                article.imageList.forEachIndexed { index, fileEntry ->
+                    appDatabase.articleImageJoinDao().delete(
+                        ArticleImageJoin(articleFileName, fileEntry.name, index)
+                    )
+                    if (article.getSection()?.imageList?.contains(fileEntry) != true) {
+                        fileEntryRepository.delete(fileEntry)
+                    }
+                }
+
+                appDatabase.articleDao().delete(ArticleBase(article))
             }
-
-            // delete audioFile and relation
-            article.audioFile?.let { audioFile ->
-                appDatabase.articleAudioFileJoinDao().delete(
-                    ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-                )
-                fileEntryRepository.delete(audioFile)
-            }
-
-            // delete html file
-            fileEntryRepository.delete(article.articleHtml)
-
-            // delete images and relations
-            article.imageList.forEachIndexed { index, fileEntry ->
-                appDatabase.articleImageJoinDao().delete(
-                    ArticleImageJoin(articleFileName, fileEntry.name, index)
-                )
-            }
-
-            /* TODO
-            article.imageList.forEach { image ->
-                if (article.getSection()?.imageList?.contains(image) != true)
-                    fileEntryRepository.delete(image)
-            }*/
-
-            appDatabase.articleDao().delete(ArticleBase(article))
         }
     }
 
