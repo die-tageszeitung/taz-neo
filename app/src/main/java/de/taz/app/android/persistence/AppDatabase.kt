@@ -29,7 +29,7 @@ private const val DATABASE_NAME = "db"
         IssuePageJoin::class,
         IssueSectionJoin::class,
         PageStub::class,
-        ResourceInfoWithoutFiles::class,
+        ResourceInfoStub::class,
         ResourceInfoFileEntryJoin::class,
         SectionStub::class,
         SectionArticleJoin::class,
