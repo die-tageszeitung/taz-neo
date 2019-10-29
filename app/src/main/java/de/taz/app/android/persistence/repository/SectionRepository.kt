@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
@@ -20,7 +20,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     fun save(section: Section) {
         appDatabase.runInTransaction {
-            appDatabase.sectionDao().insertOrReplace(SectionBase(section))
+            appDatabase.sectionDao().insertOrReplace(SectionStub(section))
             fileEntryRepository.save(section.sectionHtml)
             section.articleList.forEach { articleRepository.save(it) }
             appDatabase.sectionArticleJoinDao().insertOrReplace(
@@ -40,12 +40,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBase(sectionFileName: String): SectionBase? {
+    fun getBase(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
-    fun getBaseOrThrow(sectionFileName: String): SectionBase {
+    fun getBaseOrThrow(sectionFileName: String): SectionStub {
         return getBase(sectionFileName) ?: throw NotFoundException()
     }
 
@@ -68,7 +68,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getSectionBaseForArticle(articleFileName: String): SectionBase? {
+    fun getSectionBaseForArticle(articleFileName: String): SectionStub? {
         return appDatabase.sectionArticleJoinDao().getSectionBaseForArticleFileName(articleFileName)
     }
 
@@ -77,7 +77,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         return getSectionBaseForArticle(articleFileName)?.let { sectionBaseToSection(it) }
     }
 
-    fun getNextSectionBase(sectionFileName: String): SectionBase? {
+    fun getNextSectionBase(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
@@ -89,7 +89,7 @@ class SectionRepository private constructor(applicationContext: Context) :
     fun getNextSection(section: SectionOperations): Section? =
         getNextSection(section.sectionFileName)
 
-    fun getPreviousSectionBase(sectionFileName: String): SectionBase? {
+    fun getPreviousSectionBase(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
     }
 
@@ -102,8 +102,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         getPreviousSection(section.sectionFileName)
 
     @Throws(NotFoundException::class)
-    fun sectionBaseToSection(sectionBase: SectionBase): Section {
-        val sectionFileName = sectionBase.sectionFileName
+    fun sectionBaseToSection(sectionStub: SectionStub): Section {
+        val sectionFileName = sectionStub.sectionFileName
         val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
 
         val articles =
@@ -116,8 +116,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         images?.let {
             return Section(
                 sectionFile,
-                sectionBase.title,
-                sectionBase.type,
+                sectionStub.title,
+                sectionStub.type,
                 articles,
                 images
             )
@@ -151,7 +151,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             // TODO delete files only if not part of bookmarked article
             fileEntryRepository.delete(section.imageList)
 
-            appDatabase.sectionDao().delete(SectionBase(section))
+            appDatabase.sectionDao().delete(SectionStub(section))
         }
     }
 }

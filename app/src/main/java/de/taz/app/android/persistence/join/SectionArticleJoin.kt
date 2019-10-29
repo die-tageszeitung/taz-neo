@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 
 @Entity(
     tableName = "SectionArticleJoin",
@@ -15,7 +15,7 @@ import de.taz.app.android.api.models.SectionBase
             childColumns = ["articleFileName"]
         ),
         ForeignKey(
-            entity = SectionBase::class,
+            entity = SectionStub::class,
             parentColumns = ["sectionFileName"],
             childColumns = ["sectionFileName"]
         )
