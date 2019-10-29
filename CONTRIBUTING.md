@@ -10,8 +10,7 @@ and [https://chris.beams.io/posts/git-commit/](https://chris.beams.io/posts/git-
 * Variable names in in the Kotlin code MUST use `camelCase`.
 * To improve readability variable names SHOULD be verbose
   e.g. `webView` instead of `wv`.
-* We use synthetic imports of views (i.e. use directly the viewID from the xml
-  layouts for referencing the corresponding views in the Kotlin code).
+* [Synthetic imports](https://kotlinlang.org/docs/tutorials/android-plugin.html#view-binding) MAY be used to import view components from used XML layouts.
 
 ## Submission Guidelines
 
