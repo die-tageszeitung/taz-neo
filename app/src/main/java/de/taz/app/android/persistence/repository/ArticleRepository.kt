@@ -22,7 +22,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.runInTransaction {
 
             val articleFileName = article.articleHtml.name
-            appDatabase.articleDao().insertOrReplace(ArticleBase(article))
+            appDatabase.articleDao().insertOrReplace(ArticleStub(article))
 
             // save audioFile and relation
             article.audioFile?.let { audioFile ->
@@ -55,12 +55,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBase(articleName: String): ArticleBase? {
+    fun getBase(articleName: String): ArticleStub {
         return appDatabase.articleDao().get(articleName)
     }
 
     @Throws(NotFoundException::class)
-    fun getBaseOrThrow(articleName: String) : ArticleBase {
+    fun getBaseOrThrow(articleName: String) : ArticleStub {
         return getBase(articleName) ?: throw NotFoundException()
     }
 
@@ -90,21 +90,21 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun nextArticleBase(articleName: String): ArticleBase? {
+    fun nextArticleBase(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleBaseInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleBaseInNextSection(articleName)
     }
 
-    fun nextArticleBase(article: Article): ArticleBase? = nextArticleBase(article.articleFileName)
+    fun nextArticleBase(article: Article): ArticleStub? = nextArticleBase(article.articleFileName)
 
-    fun previousArticleBase(articleName: String): ArticleBase? {
+    fun previousArticleBase(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInPreviousSection(
                 articleName
             )
     }
 
-    fun previousArticleBase(article: Article): ArticleBase? = previousArticleBase(article.articleFileName)
+    fun previousArticleBase(article: Article): ArticleStub? = previousArticleBase(article.articleFileName)
 
     fun nextArticle(articleName: String): Article? =
         nextArticleBase(articleName)?.let { articleBaseToArticle(it) }
@@ -117,8 +117,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
 
     @Throws(NotFoundException::class)
-    fun articleBaseToArticle(articleBase: ArticleBase): Article {
-        val articleName = articleBase.articleFileName
+    fun articleBaseToArticle(articleStub: ArticleStub): Article {
+        val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
@@ -140,23 +140,23 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         return Article(
             articleHtml,
-            articleBase.title,
-            articleBase.teaser,
-            articleBase.onlineLink,
+            articleStub.title,
+            articleStub.teaser,
+            articleStub.onlineLink,
             audioFile,
-            articleBase.pageNameList,
+            articleStub.pageNameList,
             articleImages,
             authors
         )
     }
 
     fun bookmarkArticle(article: Article) {
-        bookmarkArticle(ArticleBase(article))
+        bookmarkArticle(ArticleStub(article))
     }
 
-    fun bookmarkArticle(articleBase: ArticleBase) {
-        log.debug("bookmarked from article ${articleBase.articleFileName}")
-        appDatabase.articleDao().update(articleBase.copy(bookmarked = true))
+    fun bookmarkArticle(articleStub: ArticleStub) {
+        log.debug("bookmarked from article ${articleStub.articleFileName}")
+        appDatabase.articleDao().update(articleStub.copy(bookmarked = true))
     }
 
     @Throws(NotFoundException::class)
@@ -170,15 +170,15 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun debookmarkArticle(article: Article) {
-        debookmarkArticle(ArticleBase(article))
+        debookmarkArticle(ArticleStub(article))
     }
 
-    fun debookmarkArticle(articleBase: ArticleBase) {
-        log.debug("removed bookmark from article ${articleBase.articleFileName}")
-        appDatabase.articleDao().update(articleBase.copy(bookmarked = false))
+    fun debookmarkArticle(articleStub: ArticleStub) {
+        log.debug("removed bookmark from article ${articleStub.articleFileName}")
+        appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
     }
 
-    fun getBookmarkedArticleBases(): LiveData<List<ArticleBase>> {
+    fun getBookmarkedArticleBases(): LiveData<List<ArticleStub>> {
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
@@ -224,7 +224,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     }
                 }
 
-                appDatabase.articleDao().delete(ArticleBase(article))
+                appDatabase.articleDao().delete(ArticleStub(article))
             }
         }
     }

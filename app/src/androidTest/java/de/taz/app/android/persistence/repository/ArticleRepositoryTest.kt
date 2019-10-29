@@ -7,7 +7,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
 import org.junit.After
@@ -65,7 +65,7 @@ class ArticleRepositoryTest {
         articleRepository.save(article)
         val fromDB = articleRepository.getBase(article.articleHtml.name)
 
-        assertEquals(fromDB, ArticleBase(article))
+        assertEquals(fromDB, ArticleStub(article))
     }
 
     @Test

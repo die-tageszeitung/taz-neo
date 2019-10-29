@@ -1,7 +1,7 @@
 package de.taz.app.android.api.interfaces
 
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionBase
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -11,11 +11,11 @@ interface ArticleOperations {
 
     val articleFileName: String
 
-    fun nextArticleBase(): ArticleBase? {
+    fun nextArticleBase(): ArticleStub? {
         return ArticleRepository.getInstance().nextArticleBase(articleFileName)
     }
 
-    fun previousArticleBase(): ArticleBase? {
+    fun previousArticleBase(): ArticleStub? {
         return ArticleRepository.getInstance().previousArticleBase(articleFileName)
     }
 
