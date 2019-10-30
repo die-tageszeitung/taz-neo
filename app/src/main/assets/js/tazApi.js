@@ -34,18 +34,13 @@ var tazApi = (function() {
 			ANDROIDAPI.openUrl(url);
 		}
 
-        function onGesture(gesture, x, y) {
-            console.log("onGesture " + gesture + " " + x + "," + y);
-        }
-
 		return {
 			getConfiguration : getConfiguration,
 			setConfiguration : setConfiguration,
 			pageReady : pageReady,
 			nextArticle : nextArticle,
 			previousArticle : previousArticle,
-			openUrl : openUrl,
-			onGesture: onGesture
+			openUrl : openUrl
 		}
 	}());
 }());
