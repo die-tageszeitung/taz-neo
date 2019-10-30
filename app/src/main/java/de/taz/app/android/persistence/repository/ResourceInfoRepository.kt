@@ -48,14 +48,14 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
 
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
-        val resourceInfoWithoutFiles = appDatabase.resourceInfoDao().get()
+        val resourceInfoStub = appDatabase.resourceInfoDao().get()
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
-            resourceInfoWithoutFiles.resourceVersion
+            resourceInfoStub.resourceVersion
         )
         return ResourceInfo(
-            resourceInfoWithoutFiles.resourceVersion,
-            resourceInfoWithoutFiles.resourceBaseUrl,
-            resourceInfoWithoutFiles.resourceZip,
+            resourceInfoStub.resourceVersion,
+            resourceInfoStub.resourceBaseUrl,
+            resourceInfoStub.resourceZip,
             resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
         )
     }
