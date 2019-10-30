@@ -64,7 +64,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueBaseByFeedAndDate(issue.feedName, issue.date)
+        val fromDB = issueRepository.getIssueStubByFeedAndDate(issue.feedName, issue.date)
         assertEquals(fromDB, IssueStub(issue))
     }
 

@@ -38,5 +38,5 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.date == IssueSectionJoin.issueDate
         """
     )
-    abstract fun getIssueBaseForSection(sectionName: String): IssueStub
+    abstract fun getIssueStubForSection(sectionName: String): IssueStub
 }
