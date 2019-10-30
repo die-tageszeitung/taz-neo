@@ -34,5 +34,5 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         WHERE IssuePageJoin.pageKey == :pageKey
     """
     )
-    abstract fun getIssueBaseForPage(pageKey: String): IssueStub?
+    abstract fun getIssueStubForPage(pageKey: String): IssueStub?
 }

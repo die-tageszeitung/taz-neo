@@ -11,7 +11,7 @@ interface SectionOperations {
     val sectionFileName: String
 
     val issueStub: IssueStub
-        get() = IssueRepository.getInstance().getIssueBaseForSection(sectionFileName)
+        get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
 
     fun nextSectionBase(): SectionStub? {
         return SectionRepository.getInstance().getNextSectionBase(sectionFileName)

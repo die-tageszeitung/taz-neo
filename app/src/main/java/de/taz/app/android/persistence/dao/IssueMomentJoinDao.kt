@@ -28,5 +28,5 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
             
         """
     )
-    abstract fun getIssueBase(momentFileName: String): IssueStub
+    abstract fun getIssueStub(momentFileName: String): IssueStub
 }

@@ -61,47 +61,47 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().get()
     }
 
-    fun getLatestIssueBase(): IssueStub? {
+    fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
 
     fun getLatestIssue(): Issue? {
-        return getLatestIssueBase()?.let { issueBaseToIssue(it) }
+        return getLatestIssueStub()?.let { issueStubToIssue(it) }
     }
 
-    fun getLatestIssueBaseLiveData(): LiveData<IssueStub?> {
+    fun getLatestIssueStubLiveData(): LiveData<IssueStub?> {
         return appDatabase.issueDao().getLatestLiveData()
     }
 
     @Throws(NotFoundException::class)
-    fun getLatestIssueBaseOrThrow(): IssueStub {
+    fun getLatestIssueStubOrThrow(): IssueStub {
         return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
     fun getLatestIssueOrThrow(): Issue {
-        return getLatestIssueBase()?.let { issueBaseToIssue(it) } ?: throw NotFoundException()
+        return getLatestIssueStub()?.let { issueStubToIssue(it) } ?: throw NotFoundException()
     }
 
-    fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueStub? {
+    fun getIssueStubByFeedAndDate(feedName: String, date: String): IssueStub? {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
     fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
-        return getIssueBaseByFeedAndDate(feedName, date)?.let {
-            issueBaseToIssue(it)
+        return getIssueStubByFeedAndDate(feedName, date)?.let {
+            issueStubToIssue(it)
         }
     }
 
-    fun getIssueBaseForSection(sectionFileName: String): IssueStub {
-        return appDatabase.issueSectionJoinDao().getIssueBaseForSection(sectionFileName)
+    fun getIssueStubForSection(sectionFileName: String): IssueStub {
+        return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
-    fun getIssueBaseForMoment(moment: Moment): IssueStub {
-        return appDatabase.issueMomentJoinDao().getIssueBase(moment.imageList.first().name)
+    fun getIssueStubForMoment(moment: Moment): IssueStub {
+        return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
     }
 
-    private fun issueBaseToIssue(issueStub: IssueStub): Issue {
+    private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
@@ -143,7 +143,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun getIssue(issueStub: IssueStub): Issue {
-        return issueBaseToIssue(issueStub)
+        return issueStubToIssue(issueStub)
     }
 
     fun delete(issue: Issue) {
