@@ -55,7 +55,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBase(articleName: String): ArticleStub {
+    fun getBase(articleName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleName)
     }
 
@@ -67,7 +67,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     @Throws(NotFoundException::class)
     fun getOrThrow(articleName: String): Article {
         return appDatabase.articleDao().get(articleName)?.let {
-            articleBaseToArticle(it)
+            articleStubToArticle(it)
         } ?: throw NotFoundException()
     }
 
@@ -86,38 +86,38 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(articleName: String): LiveData<Article?> {
         return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
-            input?.let { articleBaseToArticle(input) }
+            input?.let { articleStubToArticle(input) }
         }
     }
 
-    fun nextArticleBase(articleName: String): ArticleStub? {
-        return appDatabase.sectionArticleJoinDao().getNextArticleBaseInSection(articleName)
-            ?: appDatabase.sectionArticleJoinDao().getNextArticleBaseInNextSection(articleName)
+    fun nextArticleStub(articleName: String): ArticleStub? {
+        return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
-    fun nextArticleBase(article: Article): ArticleStub? = nextArticleBase(article.articleFileName)
+    fun nextArticleStub(article: Article): ArticleStub? = nextArticleStub(article.articleFileName)
 
-    fun previousArticleBase(articleName: String): ArticleStub? {
-        return appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInSection(articleName)
-            ?: appDatabase.sectionArticleJoinDao().getPreviousArticleBaseInPreviousSection(
+    fun previousArticleStub(articleName: String): ArticleStub? {
+        return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
+            ?: appDatabase.sectionArticleJoinDao().getPreviousArticleStubInPreviousSection(
                 articleName
             )
     }
 
-    fun previousArticleBase(article: Article): ArticleStub? = previousArticleBase(article.articleFileName)
+    fun previousArticleStub(article: Article): ArticleStub? = previousArticleStub(article.articleFileName)
 
     fun nextArticle(articleName: String): Article? =
-        nextArticleBase(articleName)?.let { articleBaseToArticle(it) }
+        nextArticleStub(articleName)?.let { articleStubToArticle(it) }
 
     fun nextArticle(article: Article): Article? = nextArticle(article.articleFileName)
 
     fun previousArticle(articleName: String): Article? =
-        previousArticleBase(articleName)?.let { articleBaseToArticle(it) }
+        previousArticleStub(articleName)?.let { articleStubToArticle(it) }
 
     fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
 
     @Throws(NotFoundException::class)
-    fun articleBaseToArticle(articleStub: ArticleStub): Article {
+    fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
@@ -178,7 +178,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
     }
 
-    fun getBookmarkedArticleBases(): LiveData<List<ArticleStub>> {
+    fun getBookmarkedArticleStubs(): LiveData<List<ArticleStub>> {
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 

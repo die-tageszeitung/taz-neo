@@ -38,7 +38,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     )
     abstract fun getSectionBaseForArticleFileName(articleFileName: String): SectionStub?
 
-    fun getSectionBaseForArticleBase(articleStub: ArticleStub): SectionStub?
+    fun getSectionBaseForArticleStub(articleStub: ArticleStub): SectionStub?
             = getSectionBaseForArticleFileName(articleStub.articleFileName)
 
     fun getSectionBaseForArticle(article: Article): SectionStub?
@@ -53,7 +53,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     )
     abstract fun getSectionFileNameForArticleFileName(articleFileName: String): String?
 
-    fun getSectionFileNameForArticleBase(articleStub: ArticleStub): String?
+    fun getSectionFileNameForArticleStub(articleStub: ArticleStub): String?
             = getSectionFileNameForArticleFileName(articleStub.articleFileName)
 
     fun getSectionFileNameForArticle(article: Article): String?
@@ -68,7 +68,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    abstract fun getNextArticleBaseInSection(articleFileName: String): ArticleStub?
+    abstract fun getNextArticleStubInSection(articleFileName: String): ArticleStub?
 
     @Query(
         """ SELECT Article.* FROM Article
@@ -86,7 +86,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND Article.articleFileName == SAJ2.articleFileName
     """
     )
-    abstract fun getNextArticleBaseInNextSection(articleFileName: String): ArticleStub?
+    abstract fun getNextArticleStubInNextSection(articleFileName: String): ArticleStub?
 
 
 
@@ -99,7 +99,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    abstract fun getPreviousArticleBaseInSection(articleFileName: String): ArticleStub?
+    abstract fun getPreviousArticleStubInSection(articleFileName: String): ArticleStub?
 
     @Query(
         """ SELECT Article.* FROM Article
@@ -118,7 +118,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           LIMIT 1
       """
     )
-    abstract fun getPreviousArticleBaseInPreviousSection(articleFileName: String): ArticleStub?
+    abstract fun getPreviousArticleStubInPreviousSection(articleFileName: String): ArticleStub?
 
 
     @Query(

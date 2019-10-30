@@ -35,7 +35,7 @@ class BookmarkDrawerFragment: Fragment() {
             layoutManager = LinearLayoutManager(this@BookmarkDrawerFragment.context)
             adapter = recycleAdapter
         }
-        viewModel.bookmarkedArticleBases.observe(this, Observer { bookmarks ->
+        viewModel.bookmarkedArticleStubs.observe(this, Observer { bookmarks ->
             recycleAdapter.setData(bookmarks ?: emptyList())
 // TODO            activity?.findViewById<ImageView>(R.id.drawerMoment)
         })

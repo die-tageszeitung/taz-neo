@@ -6,7 +6,7 @@ import de.taz.app.android.api.models.ArticleStub
 
 class BookmarksViewModel : ViewModel() {
 
-    val bookmarkedArticleBases = MutableLiveData<List<ArticleStub>?>().apply {
+    val bookmarkedArticleStubs = MutableLiveData<List<ArticleStub>?>().apply {
         postValue(null)
     }
 }
