@@ -27,8 +27,8 @@ interface ArticleOperations {
         return ArticleRepository.getInstance().nextArticle(articleFileName)
     }
 
-    fun getSectionBase(): SectionStub? {
-        return SectionRepository.getInstance().getSectionBaseForArticle(articleFileName)
+    fun getSectionStub(): SectionStub? {
+        return SectionRepository.getInstance().getSectionStubForArticle(articleFileName)
     }
 
     fun getSection(): Section? {

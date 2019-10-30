@@ -51,12 +51,12 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(sectionFileName: String): Section {
-        return sectionBaseToSection(getBaseOrThrow(sectionFileName))
+        return sectionStubToSection(getBaseOrThrow(sectionFileName))
     }
 
     fun getLiveData(sectionFileName: String): LiveData<Section?> {
         return Transformations.map(appDatabase.sectionDao().getLiveData(sectionFileName)) { input ->
-            input?.let { sectionBaseToSection(it) }
+            input?.let { sectionStubToSection(it) }
         }
     }
 
@@ -68,41 +68,41 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getSectionBaseForArticle(articleFileName: String): SectionStub? {
-        return appDatabase.sectionArticleJoinDao().getSectionBaseForArticleFileName(articleFileName)
+    fun getSectionStubForArticle(articleFileName: String): SectionStub? {
+        return appDatabase.sectionArticleJoinDao().getSectionStubForArticleFileName(articleFileName)
     }
 
     @Throws(NotFoundException::class)
     fun getSectionForArticle(articleFileName: String): Section? {
-        return getSectionBaseForArticle(articleFileName)?.let { sectionBaseToSection(it) }
+        return getSectionStubForArticle(articleFileName)?.let { sectionStubToSection(it) }
     }
 
-    fun getNextSectionBase(sectionFileName: String): SectionStub? {
+    fun getNextSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
     fun getNextSection(sectionFileName: String): Section? =
-        getNextSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
+        getNextSectionStub(sectionFileName)?.let { sectionStubToSection(it) }
 
     @Throws(NotFoundException::class)
     fun getNextSection(section: SectionOperations): Section? =
         getNextSection(section.sectionFileName)
 
-    fun getPreviousSectionBase(sectionFileName: String): SectionStub? {
+    fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
     fun getPreviousSection(sectionFileName: String): Section? =
-        getPreviousSectionBase(sectionFileName)?.let { sectionBaseToSection(it) }
+        getPreviousSectionStub(sectionFileName)?.let { sectionStubToSection(it) }
 
     @Throws(NotFoundException::class)
     fun getPreviousSection(section: SectionOperations): Section? =
         getPreviousSection(section.sectionFileName)
 
     @Throws(NotFoundException::class)
-    fun sectionBaseToSection(sectionStub: SectionStub): Section {
+    fun sectionStubToSection(sectionStub: SectionStub): Section {
         val sectionFileName = sectionStub.sectionFileName
         val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
 

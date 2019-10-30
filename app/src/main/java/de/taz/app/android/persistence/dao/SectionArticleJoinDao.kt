@@ -36,13 +36,13 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             
         """
     )
-    abstract fun getSectionBaseForArticleFileName(articleFileName: String): SectionStub?
+    abstract fun getSectionStubForArticleFileName(articleFileName: String): SectionStub?
 
-    fun getSectionBaseForArticleStub(articleStub: ArticleStub): SectionStub?
-            = getSectionBaseForArticleFileName(articleStub.articleFileName)
+    fun getSectionStubForArticleStub(articleStub: ArticleStub): SectionStub?
+            = getSectionStubForArticleFileName(articleStub.articleFileName)
 
-    fun getSectionBaseForArticle(article: Article): SectionStub?
-            = getSectionBaseForArticleFileName(article.articleHtml.name)
+    fun getSectionStubForArticle(article: Article): SectionStub?
+            = getSectionStubForArticleFileName(article.articleHtml.name)
 
     @Query(
         """ SELECT Section.sectionFileName FROM Section INNER JOIN SectionArticleJoin

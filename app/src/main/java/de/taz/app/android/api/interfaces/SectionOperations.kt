@@ -13,12 +13,12 @@ interface SectionOperations {
     val issueStub: IssueStub
         get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
 
-    fun nextSectionBase(): SectionStub? {
-        return SectionRepository.getInstance().getNextSectionBase(sectionFileName)
+    fun nextSectionStub(): SectionStub? {
+        return SectionRepository.getInstance().getNextSectionStub(sectionFileName)
     }
 
-    fun previousSectionBase(): SectionStub? {
-        return SectionRepository.getInstance().getPreviousSectionBase(sectionFileName)
+    fun previousSectionStub(): SectionStub? {
+        return SectionRepository.getInstance().getPreviousSectionStub(sectionFileName)
     }
 
     fun nextSection(): Section? {
