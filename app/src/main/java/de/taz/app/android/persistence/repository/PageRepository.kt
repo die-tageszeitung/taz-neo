@@ -41,16 +41,16 @@ class PageRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Page {
-        val pageWithoutFile = appDatabase.pageDao().get(fileName)
+        val pageStub = appDatabase.pageDao().get(fileName)
         val file = fileEntryRepository.getOrThrow(fileName)
 
-        return pageWithoutFile?.let {
+        return pageStub?.let {
             Page(
                 file,
-                pageWithoutFile.title,
-                pageWithoutFile.pagina,
-                pageWithoutFile.type,
-                pageWithoutFile.frameList
+                pageStub.title,
+                pageStub.pagina,
+                pageStub.type,
+                pageStub.frameList
             )
         } ?: throw NotFoundException()
     }
