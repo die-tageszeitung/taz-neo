@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.ArticleStub
 @Dao
 abstract class ArticleDao : BaseDao<ArticleStub>() {
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    abstract fun get(articleFileName: String): ArticleStub
+    abstract fun get(articleFileName: String): ArticleStub?
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
     abstract fun getLiveData(articleFileName: String): LiveData<ArticleStub?>

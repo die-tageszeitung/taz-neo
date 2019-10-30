@@ -11,12 +11,12 @@ interface ArticleOperations {
 
     val articleFileName: String
 
-    fun nextArticleBase(): ArticleStub? {
-        return ArticleRepository.getInstance().nextArticleBase(articleFileName)
+    fun nextArticleStub(): ArticleStub? {
+        return ArticleRepository.getInstance().nextArticleStub(articleFileName)
     }
 
-    fun previousArticleBase(): ArticleStub? {
-        return ArticleRepository.getInstance().previousArticleBase(articleFileName)
+    fun previousArticleStub(): ArticleStub? {
+        return ArticleRepository.getInstance().previousArticleStub(articleFileName)
     }
 
     fun previousArticle(): Article? {
