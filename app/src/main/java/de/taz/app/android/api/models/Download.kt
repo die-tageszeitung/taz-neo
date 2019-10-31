@@ -10,12 +10,12 @@ data class Download(
     var workerManagerId: UUID? = null,
     val tag: String? = null
 ){
-    constructor(downloadWithoutFile: DownloadWithoutFile, file: FileEntry, tag: String? = null): this(
-        downloadWithoutFile.baseUrl,
-        downloadWithoutFile.folder,
+    constructor(downloadStub: DownloadStub, file: FileEntry, tag: String? = null): this(
+        downloadStub.baseUrl,
+        downloadStub.folder,
         file,
-        downloadWithoutFile.status,
-        downloadWithoutFile.workerManagerId,
+        downloadStub.status,
+        downloadStub.workerManagerId,
         tag
     )
 

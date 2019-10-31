@@ -8,7 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.DownloadWithoutFile
+import de.taz.app.android.api.models.DownloadStub
 import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
@@ -57,7 +57,7 @@ class DownloadRepositoryTest {
     fun readBase() {
         downloadRepository.save(download2)
         val fromDB = downloadRepository.getWithoutFile(download2.file.name)
-        assertEquals(fromDB, DownloadWithoutFile(download2))
+        assertEquals(fromDB, DownloadStub(download2))
     }
 
     @Test

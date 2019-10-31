@@ -4,13 +4,13 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.ArticleStub
 
 @Entity(
     tableName = "ArticleAuthor",
     foreignKeys = [
         ForeignKey(
-            entity = ArticleBase::class,
+            entity = ArticleStub::class,
             parentColumns = ["articleFileName"],
             childColumns = ["articleFileName"]
         )

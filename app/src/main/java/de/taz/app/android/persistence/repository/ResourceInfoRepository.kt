@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.api.models.ResourceInfoWithoutFiles
+import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
 
@@ -15,7 +15,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
     fun save(resourceInfo: ResourceInfo) {
         appDatabase.runInTransaction {
             appDatabase.resourceInfoDao().insertOrReplace(
-                ResourceInfoWithoutFiles(
+                ResourceInfoStub(
                     resourceInfo.resourceVersion,
                     resourceInfo.resourceBaseUrl,
                     resourceInfo.resourceZip
@@ -35,27 +35,27 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
     }
 
     @Throws(NotFoundException::class)
-    fun getWithoutFilesOrThrow(): ResourceInfoWithoutFiles {
+    fun getWithoutFilesOrThrow(): ResourceInfoStub {
         getWithoutFiles()?.let {
             return it
         }
         throw NotFoundException()
     }
 
-    fun getWithoutFiles(): ResourceInfoWithoutFiles? {
+    fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
     }
 
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
-        val resourceInfoWithoutFiles = appDatabase.resourceInfoDao().get()
+        val resourceInfoStub = appDatabase.resourceInfoDao().get()
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
-            resourceInfoWithoutFiles.resourceVersion
+            resourceInfoStub.resourceVersion
         )
         return ResourceInfo(
-            resourceInfoWithoutFiles.resourceVersion,
-            resourceInfoWithoutFiles.resourceBaseUrl,
-            resourceInfoWithoutFiles.resourceZip,
+            resourceInfoStub.resourceVersion,
+            resourceInfoStub.resourceBaseUrl,
+            resourceInfoStub.resourceZip,
             resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
         )
     }
@@ -69,6 +69,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
     }
 
     fun delete(resourceInfo: ResourceInfo) {
-        appDatabase.resourceInfoDao().delete(ResourceInfoWithoutFiles(resourceInfo))
+        appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
 }

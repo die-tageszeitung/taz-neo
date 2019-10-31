@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.dao
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 
 
@@ -21,8 +21,8 @@ abstract class ArticleAuthorImageJoinDao : BaseDao<ArticleAuthorImageJoin>() {
 
     fun getAuthorImageJoinForArticle(article: Article) = getAuthorImageJoinForArticle(article.articleHtml.name)
 
-    fun getAuthorImageJoinForArticle(articleBase: ArticleBase) =
-        getAuthorImageJoinForArticle(articleBase.articleFileName)
+    fun getAuthorImageJoinForArticle(articleStub: ArticleStub) =
+        getAuthorImageJoinForArticle(articleStub.articleFileName)
 
 
 }

@@ -22,7 +22,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         appDatabase.runInTransaction {
 
             appDatabase.issueDao().insertOrReplace(
-                IssueBase(issue)
+                IssueStub(issue)
             )
 
             // save pages
@@ -57,93 +57,93 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getWithoutFiles(): ResourceInfoWithoutFiles? {
+    fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
     }
 
-    fun getLatestIssueBase(): IssueBase? {
+    fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
 
     fun getLatestIssue(): Issue? {
-        return getLatestIssueBase()?.let { issueBaseToIssue(it) }
+        return getLatestIssueStub()?.let { issueStubToIssue(it) }
     }
 
-    fun getLatestIssueBaseLiveData(): LiveData<IssueBase?> {
+    fun getLatestIssueStubLiveData(): LiveData<IssueStub?> {
         return appDatabase.issueDao().getLatestLiveData()
     }
 
     @Throws(NotFoundException::class)
-    fun getLatestIssueBaseOrThrow(): IssueBase {
+    fun getLatestIssueStubOrThrow(): IssueStub {
         return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
     fun getLatestIssueOrThrow(): Issue {
-        return getLatestIssueBase()?.let { issueBaseToIssue(it) } ?: throw NotFoundException()
+        return getLatestIssueStub()?.let { issueStubToIssue(it) } ?: throw NotFoundException()
     }
 
-    fun getIssueBaseByFeedAndDate(feedName: String, date: String): IssueBase? {
+    fun getIssueStubByFeedAndDate(feedName: String, date: String): IssueStub? {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
     fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
-        return getIssueBaseByFeedAndDate(feedName, date)?.let {
-            issueBaseToIssue(it)
+        return getIssueStubByFeedAndDate(feedName, date)?.let {
+            issueStubToIssue(it)
         }
     }
 
-    fun getIssueBaseForSection(sectionFileName: String): IssueBase {
-        return appDatabase.issueSectionJoinDao().getIssueBaseForSection(sectionFileName)
+    fun getIssueStubForSection(sectionFileName: String): IssueStub {
+        return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
-    fun getIssueBaseForMoment(moment: Moment): IssueBase {
-        return appDatabase.issueMomentJoinDao().getIssueBase(moment.imageList.first().name)
+    fun getIssueStubForMoment(moment: Moment): IssueStub {
+        return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
     }
 
-    private fun issueBaseToIssue(issueBase: IssueBase): Issue {
-        val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueBase)
+    private fun issueStubToIssue(issueStub: IssueStub): Issue {
+        val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueBase.feedName, issueBase.date
+            issueStub.feedName, issueStub.date
         )?.let { articleRepository.get(it) }
 
         val moment = Moment(
             appDatabase.issueMomentJoinDao().getMomentFiles(
-                issueBase.feedName,
-                issueBase.date
+                issueStub.feedName,
+                issueStub.date
             )
         )
 
         val pageList =
-            appDatabase.issuePageJoinDao().getPageNamesForIssue(issueBase.feedName, issueBase.date)
+            appDatabase.issuePageJoinDao().getPageNamesForIssue(issueStub.feedName, issueStub.date)
                 .map {
                     pageRepository.getOrThrow(it)
                 }
 
         return Issue(
-            issueBase.feedName,
-            issueBase.date,
+            issueStub.feedName,
+            issueStub.date,
             moment,
-            issueBase.key,
-            issueBase.baseUrl,
-            issueBase.status,
-            issueBase.minResourceVersion,
-            issueBase.zipName,
-            issueBase.zipPdfName,
-            issueBase.navButton,
+            issueStub.key,
+            issueStub.baseUrl,
+            issueStub.status,
+            issueStub.minResourceVersion,
+            issueStub.zipName,
+            issueStub.zipPdfName,
+            issueStub.navButton,
             imprint,
-            issueBase.fileList,
-            issueBase.fileListPdf,
+            issueStub.fileList,
+            issueStub.fileListPdf,
             sections,
             pageList
         )
 
     }
 
-    fun getIssue(issueBase: IssueBase): Issue {
-        return issueBaseToIssue(issueBase)
+    fun getIssue(issueStub: IssueStub): Issue {
+        return issueStubToIssue(issueStub)
     }
 
     fun delete(issue: Issue) {
@@ -181,7 +181,7 @@ class IssueRepository private constructor(applicationContext: Context) :
 
 
             appDatabase.issueDao().delete(
-                IssueBase(issue)
+                IssueStub(issue)
             )
 
             // TODO actually delete files! perhaps decide if to keep some

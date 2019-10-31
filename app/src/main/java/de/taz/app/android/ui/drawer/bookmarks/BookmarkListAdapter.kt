@@ -6,14 +6,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
-import de.taz.app.android.api.models.ArticleBase
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.util.ToastHelper
 
 
-class BookmarkListAdapter(private val activity: MainActivity, private var bookmarks: List<ArticleBase> = emptyList()) :
+class BookmarkListAdapter(private val activity: MainActivity, private var bookmarks: List<ArticleStub> = emptyList()) :
     RecyclerView.Adapter<BookmarkListAdapter.SectionListAdapterViewHolder>() {
 
-    fun setData(bookmarks: List<ArticleBase>) {
+    fun setData(bookmarks: List<ArticleStub>) {
         this.bookmarks = bookmarks
         notifyDataSetChanged()
     }
@@ -33,12 +33,12 @@ class BookmarkListAdapter(private val activity: MainActivity, private var bookma
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        val articleBase = bookmarks[position]
-        articleBase.let {
-            holder.textView.text = articleBase.title
+        val articleStub = bookmarks[position]
+        articleStub.let {
+            holder.textView.text = articleStub.title
             holder.textView.setOnClickListener {
-                // TODO activity.showArticle(articleBase)
-                ToastHelper.getInstance().makeToast(articleBase.title ?: "untitled…")
+                // TODO activity.showArticle(articleStub)
+                ToastHelper.getInstance().makeToast(articleStub.title ?: "untitled…")
             }
         }
     }

@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import java.util.*
 
 @Entity(tableName = "Download")
-data class DownloadWithoutFile(
+data class DownloadStub(
     @PrimaryKey val fileName: String,
     val baseUrl: String,
     val folder: String,

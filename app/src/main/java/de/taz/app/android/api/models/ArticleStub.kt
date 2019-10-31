@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import de.taz.app.android.api.interfaces.ArticleOperations
 
 @Entity(tableName = "Article")
-data class ArticleBase(
+data class ArticleStub(
     @PrimaryKey override val articleFileName: String,
     val title: String?,
     val teaser: String?,
