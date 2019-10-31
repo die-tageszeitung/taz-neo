@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.api.models.ResourceInfoWithoutFiles
+import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
 import org.junit.Before
@@ -56,7 +56,7 @@ class ResourceInfoRepositoryTest {
     fun readWithoutFiles() {
         resourceInfoRepository.save(resourceInfo)
         val fromDB = resourceInfoRepository.getWithoutFiles()
-        assertEquals(fromDB, ResourceInfoWithoutFiles(resourceInfo))
+        assertEquals(fromDB, ResourceInfoStub(resourceInfo))
     }
 
     @Test

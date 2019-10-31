@@ -3,15 +3,14 @@ package de.taz.app.android.persistence.join
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import de.taz.app.android.api.models.ArticleBase
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 
 @Entity(
     tableName = "IssueMomentJoin",
     foreignKeys = [
         ForeignKey(
-            entity = IssueBase::class,
+            entity = IssueStub::class,
             parentColumns = ["feedName", "date"],
             childColumns = ["issueFeedName", "issueDate"]
         ),

@@ -4,13 +4,13 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.ResourceInfoWithoutFiles
+import de.taz.app.android.api.models.ResourceInfoStub
 
 @Entity(
     tableName = "ResourceInfoFileEntryJoin",
     foreignKeys = [
         ForeignKey(
-            entity = ResourceInfoWithoutFiles::class,
+            entity = ResourceInfoStub::class,
             parentColumns = ["resourceVersion"],
             childColumns = ["resourceInfoVersion"]
         ),

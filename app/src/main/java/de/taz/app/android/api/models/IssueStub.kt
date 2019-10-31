@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
     tableName = "Issue",
     primaryKeys = ["feedName", "date"]
 )
-data class IssueBase(
+data class IssueStub(
     override val feedName: String,
     override val date: String,
     val key: String? = null,
@@ -32,7 +32,7 @@ data class IssueBase(
 
     suspend fun getIssue(): Issue {
         return withContext(Dispatchers.IO) {
-            IssueRepository.getInstance().getIssue(this@IssueBase)
+            IssueRepository.getInstance().getIssue(this@IssueStub)
         }
     }
 }

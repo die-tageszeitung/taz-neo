@@ -2,8 +2,8 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import de.taz.app.android.api.models.IssueBase
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.IssueSectionJoin
 
 
@@ -17,7 +17,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         ORDER BY IssueSectionJoin.`index` ASC
         """
     )
-    abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionBase>
+    abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionStub>
 
     @Query(
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
@@ -28,8 +28,8 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
     )
     abstract fun getSectionNamesForIssue(feedName: String, date: String): List<String>
 
-    fun getSectionNamesForIssue(issueBase: IssueBase) =
-        getSectionNamesForIssue(issueBase.feedName, issueBase.date)
+    fun getSectionNamesForIssue(issueStub: IssueStub) =
+        getSectionNamesForIssue(issueStub.feedName, issueStub.date)
 
     @Query(
         """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin
@@ -38,5 +38,5 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.date == IssueSectionJoin.issueDate
         """
     )
-    abstract fun getIssueBaseForSection(sectionName: String): IssueBase
+    abstract fun getIssueStubForSection(sectionName: String): IssueStub
 }

@@ -21,8 +21,8 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun save(download: Download) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-                val downloadWithoutFile = DownloadWithoutFile(download)
-                appDatabase.downloadDao().insertOrReplace(downloadWithoutFile)
+                val downloadStub = DownloadStub(download)
+                appDatabase.downloadDao().insertOrReplace(downloadStub)
             } ?: throw NotFoundException()
         }
     }
@@ -30,9 +30,9 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun saveIfNotExists(download: Download) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().getByName(download.file.name)?.let {
-                val downloadWithoutFile = DownloadWithoutFile(download)
+                val downloadStub = DownloadStub(download)
                 try {
-                    appDatabase.downloadDao().insertOrAbort(downloadWithoutFile)
+                    appDatabase.downloadDao().insertOrAbort(downloadStub)
                 } catch (_: SQLiteConstraintException) {
                     // do nothing as already exists
                 }
@@ -41,34 +41,34 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun update(download: Download) {
-        appDatabase.downloadDao().update(DownloadWithoutFile(download))
+        appDatabase.downloadDao().update(DownloadStub(download))
     }
 
-    fun update(downloadWithoutFile: DownloadWithoutFile) {
-        appDatabase.downloadDao().update(downloadWithoutFile)
+    fun update(downloadStub: DownloadStub) {
+        appDatabase.downloadDao().update(downloadStub)
     }
 
-    fun getWithoutFile(fileName: String): DownloadWithoutFile? {
+    fun getWithoutFile(fileName: String): DownloadStub? {
         return appDatabase.downloadDao().get(fileName)
     }
 
-    fun getWithoutFile(fileNames: List<String>): List<DownloadWithoutFile?> {
+    fun getWithoutFile(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
     }
 
     @Throws(NotFoundException::class)
-    fun getWithoutFileOrThrow(fileName: String): DownloadWithoutFile {
+    fun getWithoutFileOrThrow(fileName: String): DownloadStub {
         return getWithoutFile(fileName) ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Download {
         try {
-            val downloadWithoutFile = getWithoutFileOrThrow(fileName)
+            val downloadStub = getWithoutFileOrThrow(fileName)
             val file = fileEntryRepository.getOrThrow(fileName)
 
             return Download(
-                downloadWithoutFile,
+                downloadStub,
                 file
             )
         } catch (e: Exception) {
@@ -92,9 +92,9 @@ class DownloadRepository private constructor(applicationContext: Context) :
     @Throws(NotFoundException::class)
     fun setWorkerId(fileName: String, workerID: UUID) {
         appDatabase.runInTransaction {
-            getWithoutFileOrThrow(fileName).let { downloadWithoutFile ->
-                downloadWithoutFile.workerManagerId = workerID
-                update(downloadWithoutFile)
+            getWithoutFileOrThrow(fileName).let { downloadStub ->
+                downloadStub.workerManagerId = workerID
+                update(downloadStub)
             }
         }
     }

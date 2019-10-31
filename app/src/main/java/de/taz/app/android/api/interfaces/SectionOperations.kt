@@ -1,8 +1,8 @@
 package de.taz.app.android.api.interfaces
 
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 
@@ -10,15 +10,15 @@ interface SectionOperations {
 
     val sectionFileName: String
 
-    val issueBase: IssueBase
-        get() = IssueRepository.getInstance().getIssueBaseForSection(sectionFileName)
+    val issueStub: IssueStub
+        get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
 
-    fun nextSectionBase(): SectionBase? {
-        return SectionRepository.getInstance().getNextSectionBase(sectionFileName)
+    fun nextSectionStub(): SectionStub? {
+        return SectionRepository.getInstance().getNextSectionStub(sectionFileName)
     }
 
-    fun previousSectionBase(): SectionBase? {
-        return SectionRepository.getInstance().getPreviousSectionBase(sectionFileName)
+    fun previousSectionStub(): SectionStub? {
+        return SectionRepository.getInstance().getPreviousSectionStub(sectionFileName)
     }
 
     fun nextSection(): Section? {

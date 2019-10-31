@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.IssueBase
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
@@ -64,8 +64,8 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueBaseByFeedAndDate(issue.feedName, issue.date)
-        assertEquals(fromDB, IssueBase(issue))
+        val fromDB = issueRepository.getIssueStubByFeedAndDate(issue.feedName, issue.date)
+        assertEquals(fromDB, IssueStub(issue))
     }
 
     @Test

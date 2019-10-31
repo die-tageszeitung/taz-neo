@@ -3,16 +3,16 @@ package de.taz.app.android.persistence.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import de.taz.app.android.api.models.SectionBase
+import de.taz.app.android.api.models.SectionStub
 
 @Dao
-abstract class SectionDao : BaseDao<SectionBase>() {
+abstract class SectionDao : BaseDao<SectionStub>() {
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    abstract fun get(sectionFileName: String): SectionBase
+    abstract fun get(sectionFileName: String): SectionStub
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    abstract fun getLiveData(sectionFileName: String): LiveData<SectionBase?>
+    abstract fun getLiveData(sectionFileName: String): LiveData<SectionStub?>
 
     @Query(""" SELECT Section.* FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
@@ -23,7 +23,7 @@ abstract class SectionDao : BaseDao<SectionBase>() {
         AND ISJ1.sectionFileName == :sectionFileName
         AND Section.sectionFileName == ISJ2.sectionFileName
     """)
-    abstract fun getPrevious(sectionFileName: String): SectionBase?
+    abstract fun getPrevious(sectionFileName: String): SectionStub?
 
 
     @Query(""" SELECT Section.* FROM Section 
@@ -35,6 +35,6 @@ abstract class SectionDao : BaseDao<SectionBase>() {
         AND ISJ2.`index` == ISJ1.`index` + 1
         AND Section.sectionFileName == ISJ2.sectionFileName
     """)
-    abstract fun getNext(sectionFileName: String): SectionBase?
+    abstract fun getNext(sectionFileName: String): SectionStub?
 
 }
