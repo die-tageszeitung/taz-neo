@@ -109,10 +109,6 @@ abstract class WebViewFragment(private val _webViewDisplayable: WebViewDisplayab
         return activity as? MainActivity
     }
 
-    override fun getLifecycleOwner(): LifecycleOwner {
-        return this@WebViewFragment
-    }
-
     override fun onBackPressed(): Boolean {
         return presenter.onBackPressed()
     }
