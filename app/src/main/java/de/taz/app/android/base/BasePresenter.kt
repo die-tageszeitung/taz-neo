@@ -6,14 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
+abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
     private val viewModelClass: Class<VIEW_MODEL>
-) : ViewModel() {
+) : ViewModel(), BaseContract.Presenter {
 
     private var view: WeakReference<VIEW>? = null
     var viewModel: VIEW_MODEL? = null
 
-    open fun attach(view: VIEW) {
+    fun attach(view: VIEW) {
         this.view = WeakReference(view)
 
         getView()?.let { it ->
@@ -28,4 +28,5 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
 
     fun getView(): VIEW? = view?.get()
 
+    abstract override fun onViewCreated()
 }
