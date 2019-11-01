@@ -22,6 +22,7 @@ private const val DATABASE_NAME = "db"
         ArticleStub::class,
         ArticleImageJoin::class,
         DownloadStub::class,
+        Feed::class,
         FileEntry::class,
         IssueStub::class,
         IssueImprintJoin::class,
@@ -40,6 +41,7 @@ private const val DATABASE_NAME = "db"
 @TypeConverters(
     AppNameTypeConverter::class,
     AppTypeTypeConverter::class,
+    CycleTypeConverter::class,
     DownloadStatusTypeConverter::class,
     FrameListTypeConverter::class,
     IssueStatusTypeConverter::class,
@@ -68,6 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun articleAuthorImageJoinDao(): ArticleAuthorImageJoinDao
     abstract fun articleImageJoinDao(): ArticleImageJoinDao
     abstract fun downloadDao(): DownloadDao
+    abstract fun feedDao(): FeedDao
     abstract fun fileEntryDao(): FileEntryDao
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao

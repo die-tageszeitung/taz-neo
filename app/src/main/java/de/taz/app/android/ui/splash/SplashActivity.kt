@@ -26,20 +26,41 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
 
-        getLastIssueMoments()
+        initLastIssueMoments()
+        initFeedInformation()
         initAppInfo()
         initResources()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun getLastIssueMoments() {
+    private fun initFeedInformation() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val feedRepository = FeedRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val feeds = apiService.getFeeds()
+                feedRepository.save(feeds)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            }
+        }
+    }
+
+    private fun initLastIssueMoments() {
+        val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val issues = ApiService.getInstance().getIssuesByFeedAndDate(limit = 10)
+                val issues = apiService.getIssuesByFeedAndDate(limit = 10)
                 issueRepository.save(issues)
                 issues.forEach { it.downloadMoment(applicationContext) }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
