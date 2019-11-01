@@ -9,16 +9,20 @@ import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAdapter() {
@@ -34,7 +38,9 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
 
     private var issueStubList: List<IssueStub> = emptyList()
     private val issueMomentBitmapMap: MutableMap<String, Bitmap> = mutableMapOf()
-
+    private val feeds: Map<String, Feed> = runBlocking(Dispatchers.IO) {
+        FeedRepository.getInstance().getAll().associateBy { it.name }
+    }
 
     override fun getCount(): Int {
         return issueStubList.size
@@ -59,6 +65,8 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
 
         view.tag = issueStub.tag
 
+        setImageRatio(view, issueStub)
+
         issueMomentBitmapMap[issueStub.tag]?.let {
             view.findViewById<ImageView>(R.id.fragment_archive_moment_image).apply {
                 setImageBitmap(it)
@@ -71,6 +79,13 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
         view.findViewById<TextView>(R.id.fragment_archive_moment_date).text = issueStub.date
 
         return view
+    }
+
+    private fun setImageRatio(view: View, issueStub: IssueStub) {
+        view.findViewById<View>(R.id.fragment_archive_moment_image_wrapper).apply {
+            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio =
+                feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString()
+        }
     }
 
     fun updateMomentList(issues: List<IssueStub>) {

@@ -10,4 +10,7 @@ abstract class FeedDao: BaseDao<Feed>() {
     @Query("SELECT * FROM Feed WHERE Feed.name == :feedName")
     abstract fun get(feedName: String): Feed
 
+    @Query("SELECT * FROM Feed")
+    abstract fun getAll(): List<Feed>
+
 }

@@ -18,5 +18,9 @@ data class Feed(
         feedDto.momentRatio!!,
         feedDto.issueMinDate!!
     )
+
+    fun momentRatioAsDimensionRatioString(): String {
+        return "1,$momentRatio"
+    }
 }
 
