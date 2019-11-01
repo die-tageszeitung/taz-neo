@@ -13,7 +13,7 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
     private var view: WeakReference<VIEW>? = null
     var viewModel: VIEW_MODEL? = null
 
-    fun attach(view: VIEW) {
+    open fun attach(view: VIEW) {
         this.view = WeakReference(view)
 
         getView()?.let { it ->

@@ -7,10 +7,13 @@ import android.view.View
 import androidx.core.view.iterator
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
+import de.taz.app.android.base.BaseContract
 import de.taz.app.android.base.BaseFragment
 
 
-abstract class BottomNavigationFragment : BaseFragment() {
+abstract class BottomNavigationFragment<PRESENTER: BaseContract.Presenter> : BaseFragment<PRESENTER>() {
+
+    abstract override val presenter: PRESENTER
 
     abstract val visibleItemIds: List<Int>
 

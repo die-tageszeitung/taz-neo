@@ -15,8 +15,8 @@ data class Moment(
         return imageList
     }
 
-    fun getSectionStub() {
-        return SectionRepository.getInstance().
+    fun getIssueStub(): IssueStub {
+        return IssueRepository.getInstance().getIssueStubForMoment(this)
     }
 
 }

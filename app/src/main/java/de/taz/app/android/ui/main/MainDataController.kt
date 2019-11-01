@@ -2,9 +2,10 @@ package de.taz.app.android.ui.main
 
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.base.BaseDataController
 import kotlinx.coroutines.*
 
-class MainDataController : ViewModel(), MainContract.DataController {
+class MainDataController : BaseDataController(), MainContract.DataController {
 
     private val selectedIssue = MutableLiveData<Issue?>().apply {
         postValue(null)
