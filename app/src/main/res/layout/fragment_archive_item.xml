@@ -3,17 +3,20 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:background="@color/tazRed"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:padding="@dimen/fragment_archive_item_padding"
+        android:layout_height="@dimen/fragment_archive_item_height">
 
     <ImageView tools:ignore="ContentDescription"
             android:id="@+id/fragment_archive_moment_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_help"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/fragment_archive_moment_date"
+            />
 
     <TextView
             android:id="@+id/fragment_archive_moment_date"
@@ -22,6 +25,9 @@
             app:layout_constraintTop_toBottomOf="@+id/fragment_archive_moment_image"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:padding="@dimen/fragment_archive_moment_date_padding"
+            android:textAppearance="@style/TextAppearance.Archive.Date"
             />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

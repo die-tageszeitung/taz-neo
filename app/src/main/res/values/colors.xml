@@ -25,4 +25,6 @@
 
     <color name="navigation_bottom_background">@color/darkGrey</color>
     <color name="navigation_bottom_item">@color/grey</color>
+
+    <color name="fragment_archive_background">@color/darkGrey</color>
 </resources>

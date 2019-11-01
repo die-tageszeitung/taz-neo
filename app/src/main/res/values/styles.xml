@@ -73,4 +73,10 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:lineSpacingExtra">32pt</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

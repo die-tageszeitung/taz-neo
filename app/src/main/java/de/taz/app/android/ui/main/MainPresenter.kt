@@ -17,12 +17,13 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
 ) {
 
     override fun onViewCreated() {
-        getView()?.let { view ->
-            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+        getView()?.apply {
+            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 IssueRepository.getInstance().getLatestIssue()?.let { issue ->
                     viewModel?.setIssue(issue)
                 }
             }
+            showMainFragment(ArchiveFragment())
         }
     }
 
