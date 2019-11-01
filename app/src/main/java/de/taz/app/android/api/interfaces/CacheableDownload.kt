@@ -3,7 +3,6 @@ package de.taz.app.android.api.interfaces
 import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
 

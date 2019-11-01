@@ -31,4 +31,10 @@
     <dimen name="fragment_header_article_num_margin_horizontal">10pt</dimen>
     <dimen name="fragment_header_date_margin_bottom">50pt</dimen>
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
+
+
+    <dimen name="fragment_archive_moment_date_padding">5dp</dimen>
+    <dimen name="fragment_archive_item_height">300dp</dimen>
+    <dimen name="fragment_archive_item_padding">25dp</dimen>
+
 </resources>
