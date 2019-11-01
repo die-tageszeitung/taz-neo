@@ -68,6 +68,22 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+
+    /**
+     * function to get available feeds
+     * @return List of [Feed]s
+     */
+    suspend fun getFeeds(): List<Feed> {
+        return catchExceptions(
+            {
+                graphQlClient.query(QueryType.FeedQuery).product!!.feedList?.map {
+                    Feed(it)
+                } ?: emptyList()
+            },
+            "getFeeds"
+        )
+    }
+
     /**
      * function to get an [Issue] by feedName and date
      * @param feedName - the name of the feed
@@ -99,9 +115,9 @@ class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 IssueVariables(feedName, issueDate, limit)
-        ).product!!.feedList!!.first().issueList!!.map { Issue(feedName, it) }
-    }, "getIssuesByFeedAndDate")
-}
+            ).product!!.feedList!!.first().issueList!!.map { Issue(feedName, it) }
+        }, "getIssuesByFeedAndDate")
+    }
 
     /**
      * function to get information about the current resources
@@ -184,7 +200,9 @@ class ApiService private constructor(applicationContext: Context) {
 
 
     object ApiServiceException {
-        class InsufficientDataException(function: String) : Exception("ApiService.$function failed.")
+        class InsufficientDataException(function: String) :
+            Exception("ApiService.$function failed.")
+
         class NoInternetException : Exception("no internet connection")
         class WrongDataException : Exception("data could not be parsed")
     }
