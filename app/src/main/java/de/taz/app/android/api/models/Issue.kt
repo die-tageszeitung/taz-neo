@@ -6,6 +6,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.Job
 
 data class Issue(
     override val feedName: String,
@@ -59,12 +60,19 @@ data class Issue(
         return tag
     }
 
+    fun downloadMoment(applicationContext: Context) {
+        DownloadService.download(applicationContext, moment)
+    }
+
     fun downloadPages(applicationContext: Context) {
         pageList.forEach {
             DownloadService.download(applicationContext, it)
         }
     }
 
+    override fun getIssueOperations(): IssueOperations? {
+        return this
+    }
 }
 
 enum class IssueStatus {

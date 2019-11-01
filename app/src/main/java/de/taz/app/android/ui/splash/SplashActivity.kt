@@ -26,23 +26,22 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
 
+        getLastIssueMoments()
         initAppInfo()
         initResources()
-
-        downloadLatestIssue()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun downloadLatestIssue() {
+    private fun getLastIssueMoments() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val issue = ApiService.getInstance().getIssueByFeedAndDate()
-                issueRepository.save(issue)
-                DownloadService.download(applicationContext, issue)
+                val issues = ApiService.getInstance().getIssuesByFeedAndDate(limit = 10)
+                issueRepository.save(issues)
+                issues.forEach { it.downloadMoment(applicationContext) }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
             } catch (e: ApiService.ApiServiceException.InsufficientDataException) {

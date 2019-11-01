@@ -19,4 +19,8 @@ data class Moment(
         return IssueRepository.getInstance().getIssueStubForMoment(this)
     }
 
+    override fun getIssueOperations(): IssueOperations? {
+        return getIssueStub()
+    }
+
 }
