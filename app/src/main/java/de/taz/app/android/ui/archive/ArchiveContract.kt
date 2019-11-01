@@ -8,11 +8,13 @@ import de.taz.app.android.ui.main.MainContract
 interface ArchiveContract {
 
     interface View: BaseContract.View {
-        fun onDataSetChanged(issueStubs: List<IssueStub>)
 
         fun getMainView(): MainContract.View?
 
         fun hideScrollView()
+
+        fun onDataSetChanged(issueStubs: List<IssueStub>)
+
     }
 
     interface Presenter: BaseContract.Presenter {
