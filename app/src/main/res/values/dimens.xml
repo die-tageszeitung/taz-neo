@@ -26,10 +26,10 @@
     <dimen name="fragment_login_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_header_default_margin_top">30dp</dimen>
-    <dimen name="fragment_header_default_margin_end">18pt</dimen>
+    <dimen name="fragment_header_default_margin_end">18dp</dimen>
     <dimen name="fragment_header_article_margin_top">14dp</dimen>
-    <dimen name="fragment_header_article_num_margin_horizontal">10pt</dimen>
-    <dimen name="fragment_header_date_margin_bottom">50pt</dimen>
+    <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
+    <dimen name="fragment_header_date_margin_bottom">50dp</dimen>
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
 
 

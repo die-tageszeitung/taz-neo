@@ -31,7 +31,7 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         }
 
         context?.let { context ->
-            fragment_archive_grid.adapter = ArchiveListAdapter(context)
+            fragment_archive_grid.adapter = ArchiveListAdapter(this)
         }
 
         presenter.attach(this)
