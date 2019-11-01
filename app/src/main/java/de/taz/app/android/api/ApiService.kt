@@ -79,14 +79,29 @@ class ApiService private constructor(applicationContext: Context) {
         issueDate: String = dateHelper.format(Date())
     ): Issue {
         return catchExceptions({
-            Issue(
-                feedName, graphQlClient.query(
-                    QueryType.IssueByFeedAndDateQuery,
-                    IssueVariables(feedName, issueDate)
-                ).product!!.feedList!!.first().issueList!!.first()
-            )
+            getIssuesByFeedAndDate(feedName, issueDate, 1).first()
         }, "getIssueByFeedAndDate")
     }
+
+    /**
+     * function to get an [Issue] by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date of the issue
+     * @param limit - how many issues will be returned
+     * @return [Issue] of the feed at given date
+     */
+    suspend fun getIssuesByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: String = dateHelper.format(Date()),
+        limit: Int = 2
+    ): List<Issue> {
+        return catchExceptions({
+            graphQlClient.query(
+                QueryType.IssueByFeedAndDateQuery,
+                IssueVariables(feedName, issueDate, limit)
+        ).product!!.feedList!!.first().issueList!!.map { Issue(feedName, it) }
+    }, "getIssuesByFeedAndDate")
+}
 
     /**
      * function to get information about the current resources
