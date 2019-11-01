@@ -15,6 +15,8 @@ import de.taz.app.android.base.BaseContract
 interface MainContract: BaseContract {
     interface View: BaseContract.View {
 
+        fun getApplicationContext(): Context
+
         fun highlightDrawerIcon(imageView: ImageView)
 
         fun setDrawerTitle(@StringRes stringId: Int)

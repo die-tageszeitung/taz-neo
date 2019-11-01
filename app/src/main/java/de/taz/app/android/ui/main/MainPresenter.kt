@@ -5,10 +5,10 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.archive.ArchiveFragment
 import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.login.LoginFragment
-import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -39,7 +39,7 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
                 R.id.drawer_icon_home -> {
                     it.setDrawerTitle(R.string.navigation_drawer_icon_home)
                     // TODO
-                    it.showToast("should show home")
+                    it.showMainFragment(ArchiveFragment())
                 }
                 R.id.drawer_icon_bookmarks -> {
                     it.setDrawerTitle(R.string.navigation_drawer_icon_bookmarks)

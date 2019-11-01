@@ -19,14 +19,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
-abstract class WebViewFragment(private val _webViewDisplayable: WebViewDisplayable? = null) :
-    BottomNavigationFragment(), WebViewContract.View, BackFragment
-{
+abstract class WebViewFragment(
+    private val _webViewDisplayable: WebViewDisplayable? = null
+) : BottomNavigationFragment<WebViewPresenter>(), WebViewContract.View, BackFragment {
 
     @get:LayoutRes
     abstract val headerId: Int
 
-    private val presenter = WebViewPresenter()
+    override val presenter = WebViewPresenter()
 
     override fun getWebViewDisplayable(): WebViewDisplayable? {
         return _webViewDisplayable
