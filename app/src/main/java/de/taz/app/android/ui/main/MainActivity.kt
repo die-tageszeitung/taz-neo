@@ -60,6 +60,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun getMainDataController(): MainContract.DataController {
+        return presenter.viewModel as MainContract.DataController
+    }
+
     override fun highlightDrawerIcon(imageView: ImageView) {
         listOf(
             drawer_icon_content,

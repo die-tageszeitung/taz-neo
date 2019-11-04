@@ -17,6 +17,8 @@ interface MainContract: BaseContract {
 
         fun getApplicationContext(): Context
 
+        fun getMainDataController(): DataController
+
         fun highlightDrawerIcon(imageView: ImageView)
 
         fun setDrawerTitle(@StringRes stringId: Int)
