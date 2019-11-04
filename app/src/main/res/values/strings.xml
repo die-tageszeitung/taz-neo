@@ -2,6 +2,7 @@
     <string name="app_name">taz-android</string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
+    <string name="toast_no_email_client">No configured e-mail client found.</string>
     <string name="toast_login_elapsed">Account no longer valid.</string>
     <string name="toast_login_failed">Login failed.</string>
     <string name="toast_login_successfull">Login succeeded.</string>
