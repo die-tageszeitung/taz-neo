@@ -12,8 +12,8 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseContract
 
-interface MainContract: BaseContract {
-    interface View: BaseContract.View {
+interface MainContract : BaseContract {
+    interface View : BaseContract.View {
 
         fun getApplicationContext(): Context
 
@@ -27,6 +27,8 @@ interface MainContract: BaseContract {
 
         fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
+        fun showArchive()
+
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
         fun closeDrawer()
@@ -39,7 +41,7 @@ interface MainContract: BaseContract {
 
     }
 
-    interface Presenter: BaseContract.Presenter {
+    interface Presenter : BaseContract.Presenter {
         fun onItemClicked(imageView: ImageView)
     }
 
@@ -50,7 +52,10 @@ interface MainContract: BaseContract {
 
         fun observeIssue(lifeCycleOwner: LifecycleOwner, observationCallback: (Issue?) -> (Unit))
 
-        fun observeIssueIsDownloaded(lifeCycleOwner: LifecycleOwner, observationCallback: (Boolean) -> (Unit))
+        fun observeIssueIsDownloaded(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (Boolean) -> (Unit)
+        )
     }
 
 }

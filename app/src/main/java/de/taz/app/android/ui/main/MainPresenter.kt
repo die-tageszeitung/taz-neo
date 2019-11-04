@@ -23,34 +23,37 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
                     viewModel?.setIssue(issue)
                 }
             }
-            showMainFragment(ArchiveFragment())
+            showArchive()
         }
     }
 
 
     override fun onItemClicked(imageView: ImageView) {
         getView()?.let {
-            it.highlightDrawerIcon(imageView)
 
             when (imageView.id) {
                 R.id.drawer_icon_content -> {
+                    it.highlightDrawerIcon(imageView)
                     it.setDrawerTitle(R.string.navigation_drawer_icon_content)
                     it.showDrawerFragment(SectionDrawerFragment())
                 }
                 R.id.drawer_icon_home -> {
                     it.setDrawerTitle(R.string.navigation_drawer_icon_home)
-                    // TODO
-                    it.showMainFragment(ArchiveFragment())
+                    it.showArchive()
+                    it.closeDrawer()
                 }
                 R.id.drawer_icon_bookmarks -> {
+                    it.highlightDrawerIcon(imageView)
                     it.setDrawerTitle(R.string.navigation_drawer_icon_bookmarks)
                     it.showDrawerFragment(BookmarkDrawerFragment())
                 }
                 R.id.drawer_icon_settings -> {
+                    it.highlightDrawerIcon(imageView)
                     it.setDrawerTitle(R.string.navigation_drawer_icon_settings)
                     it.showMainFragment(LoginFragment())
                 }
                 R.id.drawer_icon_help -> {
+                    it.highlightDrawerIcon(imageView)
                     it.setDrawerTitle(R.string.navigation_drawer_icon_help)
                     // TODO
                     it.showToast("should show help")
