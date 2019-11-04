@@ -10,6 +10,8 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.R
+import de.taz.app.android.util.ToastHelper
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
@@ -22,6 +24,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
+    private val toastHelper = ToastHelper.getInstance()
 
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")
@@ -133,7 +136,13 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
             data = Uri.parse(MAILTO_PREFIX)
             putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
         }
-        webView.context?.startActivity(intent)
+        try {
+            webView.context?.startActivity(intent)
+        }
+        catch (e: Exception) {
+            log.warn("Sending email failed", e)
+            toastHelper.makeToast(R.string.toast_no_email_client)
+        }
     }
 
     private fun openInBrowser(webView: WebView, url: String) {
