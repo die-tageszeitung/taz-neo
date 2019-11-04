@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseFragment
@@ -14,6 +15,7 @@ import kotlinx.android.synthetic.main.fragment_archive.*
 class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
 
     override val presenter = ArchivePresenter()
+    val archiveListAdapter= ArchiveListAdapter(this)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,7 +34,6 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
             presenter.onRefresh()
         }
 
-        val archiveListAdapter = ArchiveListAdapter(this)
         fragment_archive_grid.adapter = archiveListAdapter
 
         presenter.onViewCreated()
@@ -41,6 +42,8 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         fragment_archive_grid.setOnItemClickListener { _, _, position, _ ->
             presenter.onItemSelected(archiveListAdapter.getItem(position))
         }
+        
+        fragment_archive_grid.setOnScrollListener(ArchiveOnScrollListener(this))
 
     }
 
