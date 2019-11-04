@@ -26,16 +26,22 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        presenter.attach(this)
+
         fragment_archive_swipe_refresh.setOnRefreshListener {
             presenter.onRefresh()
         }
 
-        context?.let { context ->
-            fragment_archive_grid.adapter = ArchiveListAdapter(this)
+        val archiveListAdapter = ArchiveListAdapter(this)
+        fragment_archive_grid.adapter = archiveListAdapter
+
+        presenter.onViewCreated()
+
+
+        fragment_archive_grid.setOnItemClickListener { _, _, position, _ ->
+            presenter.onItemSelected(archiveListAdapter.getItem(position))
         }
 
-        presenter.attach(this)
-        presenter.onViewCreated()
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {

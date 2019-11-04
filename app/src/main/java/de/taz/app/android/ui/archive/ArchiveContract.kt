@@ -18,10 +18,12 @@ interface ArchiveContract {
     }
 
     interface Presenter: BaseContract.Presenter {
+
+        fun onItemSelected(issueStub: IssueStub)
+
         fun onRefresh()
 
         fun onScroll()
-
     }
 
     interface DataController {
