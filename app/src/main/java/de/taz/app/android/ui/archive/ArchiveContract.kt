@@ -23,7 +23,7 @@ interface ArchiveContract {
 
         fun onRefresh()
 
-        fun onScroll()
+        fun downloadNextIssueMoments(date: String)
     }
 
     interface DataController {

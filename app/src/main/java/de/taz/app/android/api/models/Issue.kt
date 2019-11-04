@@ -5,8 +5,8 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.util.Log
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 data class Issue(
     override val feedName: String,
@@ -25,8 +25,6 @@ data class Issue(
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList()
 ) : IssueOperations, CacheableDownload {
-
-    private val log by Log
 
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
@@ -52,7 +50,6 @@ data class Issue(
             files.add(imprint.getAllFiles())
         }
         files.addAll(sectionList.map { it.getAllFiles() })
-        log.debug("issue $tag has ${files.flatten().size} files")
         return files.flatten().distinct()
     }
 
@@ -60,13 +57,17 @@ data class Issue(
         return tag
     }
 
-    fun downloadMoment(applicationContext: Context) {
-        DownloadService.download(applicationContext, moment)
+    suspend fun downloadMoment(applicationContext: Context) {
+        withContext(Dispatchers.IO) {
+            DownloadService.download(applicationContext, moment)
+        }
     }
 
-    fun downloadPages(applicationContext: Context) {
-        pageList.forEach {
-            DownloadService.download(applicationContext, it)
+    suspend fun downloadPages(applicationContext: Context) {
+        withContext(Dispatchers.IO) {
+            pageList.forEach {
+                DownloadService.download(applicationContext, it)
+            }
         }
     }
 

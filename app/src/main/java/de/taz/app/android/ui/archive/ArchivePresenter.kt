@@ -2,13 +2,14 @@ package de.taz.app.android.ui.archive
 
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,7 +66,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
     }
 
     override fun onRefresh() {
-        // TODO check for new issues and download
+        // check for new issues and download
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
             val todaysIssue = apiService.getIssueByFeedAndDate(feedName)
             if (!issueRepository.exists(todaysIssue)) {
@@ -78,7 +79,23 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
         } ?: getView()?.hideScrollView()
     }
 
-    override fun onScroll() {
-        // TODO who knows what
+    override fun downloadNextIssueMoments(date: String) {
+        val toastHelper = ToastHelper.getInstance()
+
+         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+            try {
+                val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = 10)
+                issueRepository.save(issues)
+                getView()?.getMainView()?.getApplicationContext()?.let { applicationContext ->
+                    issues.forEach { it.downloadMoment(applicationContext) }
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            }
+        }
     }
 }

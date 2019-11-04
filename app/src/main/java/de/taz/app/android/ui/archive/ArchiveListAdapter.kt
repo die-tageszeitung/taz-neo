@@ -16,6 +16,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.FileHelper
@@ -27,17 +28,12 @@ import kotlinx.coroutines.withContext
 
 class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAdapter() {
 
-    private val log by Log
-
     private val momentRepository = MomentRepository.getInstance(
-        archiveFragment.getMainView()?.getApplicationContext()
-    )
-    private val fileHelper = FileHelper.getInstance(
         archiveFragment.getMainView()?.getApplicationContext()
     )
 
     private var issueStubList: List<IssueStub> = emptyList()
-    private val issueMomentBitmapMap: MutableMap<String, Bitmap> = mutableMapOf()
+    val issueMomentBitmapMap: MutableMap<String, Bitmap> = mutableMapOf()
     private val feeds: Map<String, Feed> = runBlocking(Dispatchers.IO) {
         FeedRepository.getInstance().getAll().associateBy { it.name }
     }
@@ -67,15 +63,31 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
 
         setImageRatio(view, issueStub)
 
-        issueMomentBitmapMap[issueStub.tag]?.let {
+        val bitmap = issueMomentBitmapMap[issueStub.tag]
+
+        if (bitmap != null) {
             view.findViewById<ImageView>(R.id.fragment_archive_moment_image).apply {
-                setImageBitmap(it)
+                setImageBitmap(bitmap)
                 visibility = View.VISIBLE
             }
             view.findViewById<View>(R.id.fragment_archive_moment_image_progressbar).visibility =
                 View.GONE
+        } else {
+            archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                momentRepository.get(issueStub)?.let { moment ->
+                    if (!moment.isDownloadedOrDownloading()) {
+                        archiveFragment.getMainView()?.getApplicationContext()?.let {
+                            DownloadService.download(it, moment)
+                        }
+                    }
+                }
+            }
 
+            view.findViewById<ImageView>(R.id.fragment_archive_moment_image).visibility = View.GONE
+            view.findViewById<View>(R.id.fragment_archive_moment_image_progressbar).visibility =
+                View.VISIBLE
         }
+
         view.findViewById<TextView>(R.id.fragment_archive_moment_date).text = issueStub.date
 
         return view
@@ -102,15 +114,12 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
     private fun generateMomentBitmapForIssueStub(issueStub: IssueStub) {
         archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
             momentRepository.get(issueStub)?.let { moment ->
-                val observer = object : Observer<Boolean> {
-                    override fun onChanged(isDownloaded: Boolean?) {
-                        log.debug("issue: ${issueStub.tag} is downloaded? $isDownloaded")
-                        if (isDownloaded == true) {
-                            generateBitMapForMoment(issueStub, moment)
-                            moment.isDownloadedLiveData().removeObserver(this)
-                        }
-                    }
-                }
+                val observer = ArchiveMomentDownloadObserver(
+                    archiveFragment,
+                    this@ArchiveListAdapter,
+                    issueStub,
+                    moment
+                )
 
                 withContext(Dispatchers.Main) {
                     moment.isDownloadedLiveData().observe(
@@ -122,18 +131,51 @@ class ArchiveListAdapter(private val archiveFragment: ArchiveFragment) : BaseAda
         }
     }
 
-    private fun generateBitMapForMoment(issueStub: IssueStub, moment: Moment) {
-        moment.imageList.lastOrNull()?.let {
-            val imgFile = fileHelper.getFile("${issueStub.tag}/${it.name}")
-            if (imgFile.exists()) {
-                issueMomentBitmapMap[issueStub.tag] = BitmapFactory.decodeFile(imgFile.absolutePath)
-                redrawViews()
+}
+
+class ArchiveMomentDownloadObserver(
+    private val archiveFragment: ArchiveFragment,
+    private val archiveListAdapter: ArchiveListAdapter,
+    private val issueStub: IssueStub,
+    private val moment: Moment
+) : Observer<Boolean> {
+
+    private val log by Log
+
+    private val fileHelper = FileHelper.getInstance(
+        archiveFragment.getMainView()?.getApplicationContext()
+    )
+
+    override fun onChanged(isDownloaded: Boolean?) {
+        archiveFragment.viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            log.debug("issue: ${issueStub.tag} is downloaded? $isDownloaded")
+            if (isDownloaded == true) {
+                generateBitMapForMoment(issueStub, moment)
+                withContext(Dispatchers.Main) {
+                    moment.isDownloadedLiveData().removeObserver(this@ArchiveMomentDownloadObserver)
+                }
             }
         }
     }
 
-    private fun redrawViews() {
-        archiveFragment.view?.findViewById<GridView>(R.id.fragment_archive_grid)?.invalidateViews()
+    private suspend fun generateBitMapForMoment(issueStub: IssueStub, moment: Moment) {
+        moment.imageList.lastOrNull()?.let {
+            fileHelper.getFile("${issueStub.tag}/${it.name}").let { imgFile ->
+                if (imgFile.exists()) {
+                    archiveListAdapter.issueMomentBitmapMap[issueStub.tag] =
+                        BitmapFactory.decodeFile(imgFile.absolutePath)
+                    redrawViews()
+                }
+            }
+        }
+    }
+
+    private suspend fun redrawViews() {
+        // TODO improve performance…
+        withContext(Dispatchers.Main) {
+            archiveFragment.view?.findViewById<GridView>(R.id.fragment_archive_grid)
+                ?.invalidateViews()
+        }
     }
 
 }
