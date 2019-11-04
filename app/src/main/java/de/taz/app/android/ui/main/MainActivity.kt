@@ -17,6 +17,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.archive.ArchiveFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.ToastHelper
@@ -157,6 +158,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
         super.onBackPressed()
+    }
+
+    override fun showArchive() {
+        showMainFragment(ArchiveFragment())
     }
 
     override fun showToast(stringId: Int) {
