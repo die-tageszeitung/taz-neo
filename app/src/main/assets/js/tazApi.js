@@ -6,7 +6,15 @@ var tazApi = (function() {
 
         function getConfiguration(name, callback) {
             console.log("getconfiguration " + name + " " + callback);
-            callback(ANDROIDAPI.getConfiguration(name));
+            if (typeof(name) == "string") {
+                console.log("get configuration with a single string");
+                callback(ANDROIDAPI.getConfiguration(name));
+            } else { /* name is supposed to be string array */
+                console.log("get configuration with a string array");
+                for (i in name){
+                    callback(ANDROIDAPI.getConfiguration(name[i]));
+                }
+            }
         }
 
         function setConfiguration(name, value) {
