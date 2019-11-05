@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.main
 
+import android.content.Context
 import android.widget.ImageView
 import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
@@ -29,6 +30,8 @@ interface MainContract: BaseContract {
         fun showToast(@StringRes stringId: Int)
 
         fun showToast(string: String)
+
+        fun getApplicationContext() : Context
 
     }
 
