@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.archive
 
+import android.graphics.Bitmap
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -26,9 +27,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
     override fun onViewCreated() {
         getView()?.let { view ->
             view.getLifecycleOwner().let {
-                viewModel?.observeIssues(it) { issues ->
-                    view.onDataSetChanged(issues ?: emptyList())
-                }
+                viewModel?.observeIssueStubs(it, ArchiveIssuesObserver(this))
             }
         }
     }
@@ -65,6 +64,11 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
         }
     }
 
+    override fun onMomentBitmapCreated(tag: String, bitmap: Bitmap) {
+        viewModel?.addBitmap(tag, bitmap)
+        getView()?.addMoment(tag, bitmap)
+    }
+
     override fun onRefresh() {
         // check for new issues and download
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
@@ -98,4 +102,5 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
             }
         }
     }
+
 }

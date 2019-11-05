@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.archive
 
+import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
 import de.taz.app.android.ui.main.MainContract
@@ -15,21 +17,34 @@ interface ArchiveContract {
 
         fun onDataSetChanged(issueStubs: List<IssueStub>)
 
+        fun addMoment(tag: String, bitmap: Bitmap)
+
     }
 
     interface Presenter: BaseContract.Presenter {
 
+        fun downloadNextIssueMoments(date: String)
+
         fun onItemSelected(issueStub: IssueStub)
 
-        fun onRefresh()
+        fun onMomentBitmapCreated(tag: String, bitmap: Bitmap)
 
-        fun downloadNextIssueMoments(date: String)
+        fun onRefresh()
     }
 
     interface DataController {
+
         fun getIssueStubs(): List<IssueStub>?
 
-        fun observeIssues(lifeCycleOwner: LifecycleOwner, observationCallback: (List<IssueStub>?) -> (Unit))
+        fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
+
+        fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observationCallback: (List<IssueStub>?) -> (Unit))
+
+        fun getMomentBitmapMap(): Map<String, Bitmap>
+
+        fun addBitmap(tag: String, bitmap: Bitmap)
+
+        fun getBitmap(tag: String): Bitmap?
     }
 
 }
