@@ -21,7 +21,7 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
                 viewModel = ViewModelProviders.of(it).get(viewModelClass)
             }
             if (it is Fragment) {
-                viewModel = ViewModelProviders.of(it).get(viewModelClass)
+                viewModel = ViewModelProviders.of(it.requireActivity()).get(viewModelClass)
             }
         }
     }
