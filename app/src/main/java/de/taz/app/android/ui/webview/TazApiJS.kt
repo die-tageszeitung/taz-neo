@@ -27,7 +27,6 @@ class TazApiJS (val context: Context?) {
                 commit()
             }
         }
-        log.debug("configuration has to be set now")
     }
 
     @JavascriptInterface
