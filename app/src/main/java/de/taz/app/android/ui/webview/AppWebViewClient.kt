@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.R
-import de.taz.app.android.util.ToastHelper
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
@@ -24,7 +23,6 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
 
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")
@@ -141,7 +139,7 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
         }
         catch (e: Exception) {
             log.warn("Sending email failed", e)
-            toastHelper.makeToast(R.string.toast_no_email_client)
+            presenter.getView()?.getMainView()?.showToast(R.string.toast_no_email_client)
         }
     }
 
