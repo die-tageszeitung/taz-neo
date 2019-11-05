@@ -66,7 +66,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
 
     override fun onMomentBitmapCreated(tag: String, bitmap: Bitmap) {
         viewModel?.addBitmap(tag, bitmap)
-        getView()?.addMoment(tag, bitmap)
+        getView()?.addBitmap(tag, bitmap)
     }
 
     override fun onRefresh() {
@@ -83,16 +83,13 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
         } ?: getView()?.hideScrollView()
     }
 
-    override fun downloadNextIssueMoments(date: String) {
+    override fun getNextIssueMoments(date: String, limit: Int) {
         val toastHelper = ToastHelper.getInstance()
 
          getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
             try {
-                val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = 10)
+                val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = limit)
                 issueRepository.save(issues)
-                getView()?.getMainView()?.getApplicationContext()?.let { applicationContext ->
-                    issues.forEach { it.downloadMoment(applicationContext) }
-                }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
             } catch (e: ApiService.ApiServiceException.InsufficientDataException) {

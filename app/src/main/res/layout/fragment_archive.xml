@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/fragment_archive_swipe_refresh"
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_archive_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/fragment_archive_background"
         >
 
-        <GridView
+        <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragment_archive_grid"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:stretchMode="columnWidth"
-                android:numColumns="auto_fit"
                 />
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

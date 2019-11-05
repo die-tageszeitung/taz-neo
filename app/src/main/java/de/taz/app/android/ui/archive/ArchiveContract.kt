@@ -17,13 +17,15 @@ interface ArchiveContract {
 
         fun onDataSetChanged(issueStubs: List<IssueStub>)
 
-        fun addMoment(tag: String, bitmap: Bitmap)
+        fun addBitmap(tag: String, bitmap: Bitmap)
+
+        fun addBitmaps(map: Map<String, Bitmap>)
 
     }
 
     interface Presenter: BaseContract.Presenter {
 
-        fun downloadNextIssueMoments(date: String)
+        fun getNextIssueMoments(date: String, limit: Int)
 
         fun onItemSelected(issueStub: IssueStub)
 

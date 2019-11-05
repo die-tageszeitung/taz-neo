@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.archive
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseFragment
@@ -15,7 +17,7 @@ import de.taz.app.android.ui.main.MainContract
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
+
 
 class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
 
@@ -39,16 +41,15 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
             presenter.onRefresh()
         }
 
+        context?.let { context ->
+            fragment_archive_grid.layoutManager =
+                GridLayoutManager(context, calculateNoOfColumns(context))
+        }
         fragment_archive_grid.adapter = archiveListAdapter
 
         presenter.onViewCreated()
 
-
-        fragment_archive_grid.setOnItemClickListener { _, _, position, _ ->
-            presenter.onItemSelected(archiveListAdapter.getItem(position))
-        }
-
-        fragment_archive_grid.setOnScrollListener(ArchiveOnScrollListener(this))
+        fragment_archive_grid.addOnScrollListener(ArchiveOnScrollListener(this))
 
     }
 
@@ -64,18 +65,22 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         return activity as? MainActivity
     }
 
-    override fun addMoment(tag: String, bitmap: Bitmap) {
-        archiveListAdapter.addMomentBitmap(tag, bitmap)
+    override fun addBitmap(tag: String, bitmap: Bitmap) {
         lifecycleScope.launch(Dispatchers.Main) {
-            view?.findViewWithTag<View>(tag)?.apply {
-                findViewById<ImageView>(R.id.fragment_archive_moment_image).apply {
-                    setImageBitmap(bitmap)
-                    visibility = View.VISIBLE
-
-                }
-                findViewById<View>(R.id.fragment_archive_moment_image_progressbar).visibility =
-                    View.GONE
-            }
+            archiveListAdapter.addMomentBitmap(tag, bitmap)
         }
+    }
+
+    override fun addBitmaps(map: Map<String, Bitmap>) {
+        archiveListAdapter.addMomentBitmaps(map)
+    }
+
+    private fun calculateNoOfColumns(context: Context): Int {
+        val displayMetrics = context.resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+
+        val columnWidthDp =
+            resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
+        return (screenWidthDp / columnWidthDp).toInt()
     }
 }
