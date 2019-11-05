@@ -10,6 +10,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.R
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
@@ -133,7 +134,13 @@ class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient(
             data = Uri.parse(MAILTO_PREFIX)
             putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
         }
-        webView.context?.startActivity(intent)
+        try {
+            webView.context?.startActivity(intent)
+        }
+        catch (e: Exception) {
+            log.warn("Sending email failed", e)
+            presenter.getView()?.getMainView()?.showToast(R.string.toast_no_email_client)
+        }
     }
 
     private fun openInBrowser(webView: WebView, url: String) {
