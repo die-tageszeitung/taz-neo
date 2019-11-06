@@ -48,9 +48,22 @@ var tazApi = (function() {
             }
         }
 
+        /**
+            Called after every scroll, the function informs the native code about the current
+            scroll position.
+            This can be used for tracking reading progress for bookmarked articles for instance.
+
+            @params
+            percentSeen (Int 0..100)
+                gibt an, wieviel Prozent der Seite gelesen (bzw. hochgescrollt) worden ist.
+
+            position (Int 0..n)
+                stellt als opakes Datum die Position des Webviews in einer Seite dar
+
+        */
 		function pageReady(percentSeen, position) {
-            console.log("pageready " + percentSeen + " " + position);
-         	ANDROIDAPI.pageReady(percentSeen, position);
+		    console.log("pageready " + percentSeen + " " + position);
+		    ANDROIDAPI.pageReady(percentSeen, position);
         }
 
 		function nextArticle(position) {

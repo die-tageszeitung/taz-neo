@@ -182,11 +182,32 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
+    fun isBookmarked(article: Article): Boolean {
+        return article.bookmarked
+    }
+
+    fun isBookmarked(articleBase: ArticleBase): Boolean {
+        return articleBase.bookmarked
+    }
+
     fun getIndexInSection(articleName: String): Int? {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
     }
 
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
+
+    fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
+        saveScrollingPosition(ArticleBase(article), percentage, position)
+    }
+
+    fun saveScrollingPosition(articleBase: ArticleBase, percentage: Int, position: Int) {
+        val articleBaseLive = getBaseOrThrow(articleBase.articleFileName)
+        if (isBookmarked(articleBaseLive)) {
+            log.debug("save scrolling position for article ${articleBase.articleFileName}")
+            appDatabase.articleDao().update(articleBaseLive.copy(percentage = percentage, position = position))
+        }
+
+    }
 
     fun delete(article: Article) {
         appDatabase.articleDao().get(article.articleFileName)?.let {

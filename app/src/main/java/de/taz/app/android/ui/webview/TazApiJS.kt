@@ -2,11 +2,17 @@ package de.taz.app.android.ui.webview
 
 import android.content.Context
 import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.util.Log
 
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
-class TazApiJS (val context: Context?) {
+class TazApiJS (val view: WebViewContract.View) {
+
+    val context = view.getMainView()?.getApplicationContext()
 
     private val log by Log
 
@@ -30,8 +36,14 @@ class TazApiJS (val context: Context?) {
     }
 
     @JavascriptInterface
-    fun pageReady(percentage: String, position: String) {
+    fun pageReady(percentage: Int, position: Int) {
         log.debug("pageReady $percentage $position")
+        view.getWebViewDisplayable()?.let {
+            if (it is Article) {
+                ArticleRepository.getInstance().saveScrollingPosition(it, percentage, position)
+            }
+        }
+        log.debug("pageReady2")
     }
 
     @JavascriptInterface

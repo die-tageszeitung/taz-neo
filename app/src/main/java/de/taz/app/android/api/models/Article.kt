@@ -17,7 +17,9 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList(),
-    val bookmarked: Boolean = false
+    val bookmarked: Boolean = false,
+    val position: Int = 0,
+    val percentage: Int = 0
 ): ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
     constructor(articleDto: ArticleDto) : this(
         articleDto.articleHtml,
