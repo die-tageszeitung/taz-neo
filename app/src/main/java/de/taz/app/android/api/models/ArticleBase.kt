@@ -11,7 +11,9 @@ data class ArticleBase(
     val teaser: String?,
     val onlineLink: String?,
     val pageNameList: List<String> = emptyList(),
-    val bookmarked: Boolean = false
+    val bookmarked: Boolean = false,
+    val position: Int = 0,
+    val percentage: Int = 0
 ): ArticleOperations {
     constructor(article: Article) : this(
         article.articleHtml.name,
@@ -19,6 +21,8 @@ data class ArticleBase(
         article.teaser,
         article.onlineLink,
         article.pageNameList,
-        article.bookmarked
+        article.bookmarked,
+        article.position,
+        article.percentage
     )
 }

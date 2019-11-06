@@ -39,7 +39,7 @@ class WebViewPresenter:
     private fun configureWebView() {
         getView()?.let {webContractView ->
             webContractView.getMainView()?.let {mainView ->
-                val tazApiJS = TazApiJS(mainView.getApplicationContext())
+                val tazApiJS = TazApiJS(webContractView)
                 webContractView.getWebView().apply {
                     webViewClient = AppWebViewClient(this@WebViewPresenter)
                     webChromeClient = WebChromeClient()
