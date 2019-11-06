@@ -624,6 +624,13 @@
                           "moTime": "1569345759",
                           "sha256": "5def973eb5f064d7fa8150a146e7fcb9e24c9c39d45038ae6d50e12c3509a803",
                           "size": 39355
+                        },
+                        {
+                          "name": "Media.968545.norm.jpg",
+                          "storageType": "issue",
+                          "moTime": "1569345757",
+                          "sha256": "243dd4debd314692ae52e916fd988bd9e09ce912dc9be69079de575f50acfb4f",
+                          "size": 21225
                         }
                       ],
                       "authorList": null
