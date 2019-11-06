@@ -52,7 +52,7 @@ data class Issue(
         }
         files.addAll(sectionList.map { it.getAllFiles() })
         log.debug("issue $tag has ${files.flatten().size} files")
-        return files.flatten()
+        return files.flatten().distinct()
     }
 
     override fun getDownloadTag(): String? {
