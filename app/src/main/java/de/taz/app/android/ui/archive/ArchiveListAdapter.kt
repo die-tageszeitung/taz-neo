@@ -17,7 +17,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.FileHelper
@@ -68,11 +67,24 @@ class ArchiveListAdapter(
     }
 
     fun setIssueStubs(issues: List<IssueStub>) {
-        issueStubList = issues
-        notifyDataSetChanged()
+        if (issues.isNotEmpty() && issueStubList.isNotEmpty()) {
+            val firstOldIndex = issueStubList.indexOf(issues.first())
+            val lastOldIndex = issues.indexOf(issueStubList.last())
+
+            issueStubList = issues
+
+            if (firstOldIndex > 0) {
+                notifyItemRangeInserted(0, firstOldIndex)
+            }
+            if (lastOldIndex < issues.size) {
+                notifyItemRangeInserted(lastOldIndex + 1, issues.size)
+            }
+        } else {
+            issueStubList = issues
+            notifyDataSetChanged()
+        }
     }
 
-    // inflates the cell layout from xml when needed
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(archiveFragment.getMainView()?.getApplicationContext())
             .inflate(R.layout.fragment_archive_item, parent, false)
@@ -88,7 +100,6 @@ class ArchiveListAdapter(
 
     }
 
-    // binds the data to the TextView in each cell
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.dateText
 
@@ -103,7 +114,7 @@ class ArchiveListAdapter(
         } else {
             if (issueStub.tag !in issueStubGenerationList) {
                 issueStubGenerationList.add(issueStub.tag)
-                generateMomentBitmapForIssueStub(issueStub)
+                downloadMomentAndGenerateImage(issueStub)
             }
             showProgressBar(viewHolder)
         }
@@ -124,7 +135,6 @@ class ArchiveListAdapter(
         viewHolder.progressBar.visibility = View.GONE
     }
 
-    // stores and recycles views as they are scrolled off screen
     inner class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateText: TextView = itemView.findViewById(R.id.fragment_archive_moment_date)
         val momentImage: ImageView =
@@ -141,7 +151,7 @@ class ArchiveListAdapter(
         }
     }
 
-    private fun generateMomentBitmapForIssueStub(issueStub: IssueStub) {
+    private fun downloadMomentAndGenerateImage(issueStub: IssueStub) {
 
         archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
 
@@ -150,43 +160,52 @@ class ArchiveListAdapter(
                     if (!moment.isDownloaded()) {
                         log.debug("requesting download of $moment")
                         DownloadService.download(applicationContext, moment)
-                    }
-                    val observer = ArchiveMomentDownloadObserver(archiveFragment, issueStub, moment)
-
-                    withContext(Dispatchers.Main) {
-                        archiveFragment.getLifecycleOwner().let {
-                            moment.isDownloadedLiveData().observe(
-                                it, observer
+                        val observer =
+                            ArchiveMomentDownloadObserver(
+                                this@ArchiveListAdapter,
+                                issueStub,
+                                moment
                             )
+
+                        withContext(Dispatchers.Main) {
+                            archiveFragment.getLifecycleOwner().let {
+                                moment.isDownloadedLiveData().observe(
+                                    it, observer
+                                )
+                            }
+
                         }
+                    } else {
+                        generateBitMapForMoment(issueStub, moment)
                     }
                 }
             }
         }
     }
 
-}
+    private class ArchiveMomentDownloadObserver(
+        private val archiveListAdapter: ArchiveListAdapter,
+        private val issueStub: IssueStub,
+        private val moment: Moment
+    ) : Observer<Boolean> {
 
+        private val log by Log
 
-class ArchiveMomentDownloadObserver(
-    private val archiveFragment: ArchiveFragment,
-    private val issueStub: IssueStub,
-    private val moment: Moment
-) : Observer<Boolean> {
-
-    private val log by Log
-
-    override fun onChanged(isDownloaded: Boolean?) {
-        if (isDownloaded == true) {
-            log.debug("moment is download: $moment")
-            moment.isDownloadedLiveData().removeObserver(this@ArchiveMomentDownloadObserver)
-            archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                log.debug("generating image for $moment")
-                generateBitMapForMoment(issueStub, moment)
+        override fun onChanged(isDownloaded: Boolean?) {
+            if (isDownloaded == true) {
+                log.debug("moment is download: $moment")
+                moment.isDownloadedLiveData().removeObserver(this@ArchiveMomentDownloadObserver)
+                archiveListAdapter.archiveFragment.getLifecycleOwner().lifecycleScope.launch(
+                    Dispatchers.IO
+                ) {
+                    log.debug("generating image for $moment")
+                    archiveListAdapter.generateBitMapForMoment(issueStub, moment)
+                }
+            } else {
+                log.debug("waiting for not yet downloaded: $moment")
             }
-        } else {
-            log.debug("waiting for not yet downloaded: $moment")
         }
+
     }
 
     private fun generateBitMapForMoment(issueStub: IssueStub, moment: Moment) {
@@ -204,5 +223,4 @@ class ArchiveMomentDownloadObserver(
             }
         }
     }
-
 }

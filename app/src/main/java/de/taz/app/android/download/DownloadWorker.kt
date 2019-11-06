@@ -24,10 +24,9 @@ import java.security.MessageDigest
 /**
  * Helper Object used by [WorkManagerDownloadWorker] and [DownloadService] to download
  */
-object DownloadWorker {
+class DownloadWorker(val httpClient: OkHttpClient) {
 
     private val log by Log
-    private val httpClient: OkHttpClient = OkHttpClient.Builder().build()
 
     /**
      * start download of given files/downloads
@@ -122,7 +121,7 @@ class WorkManagerDownloadWorker(
         inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
             async {
                 try {
-                    DownloadWorker.startDownload(appContext, fileName)
+                    DownloadWorker(OkHttpClient()).startDownload(appContext, fileName)
                     log.debug("download of $fileName succeeded")
                     Result.success()
                 } catch (ioe: IOException) {
