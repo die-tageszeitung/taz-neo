@@ -37,6 +37,7 @@ class WebViewDataControllerTest {
     fun tearDown() {
     }
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     @Test
     fun getFileLiveData() {
         // this is needed so fileLiveData updates

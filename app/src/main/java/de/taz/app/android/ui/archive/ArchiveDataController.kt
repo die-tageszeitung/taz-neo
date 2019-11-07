@@ -6,7 +6,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.IssueRepository
 
-class ArchiveDataController : BaseDataController(), ArchiveContract.DataController {
+open class ArchiveDataController : BaseDataController(), ArchiveContract.DataController {
 
     private val issueLiveData: LiveData<List<IssueStub>> =
         IssueRepository.getInstance().getAllStubsLiveData()

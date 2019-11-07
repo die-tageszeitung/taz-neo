@@ -21,7 +21,7 @@ import java.util.*
  * Service class to get Models from GraphQl
  * The DTO objects returned by [GraphQlClient] will be transformed to models here
  */
-class ApiService private constructor(applicationContext: Context) {
+open class ApiService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 

@@ -11,7 +11,7 @@ interface ArchiveContract {
 
     interface View: BaseContract.View {
 
-        fun hideScrollView()
+        fun hideRefreshLoadingIcon()
 
         fun onDataSetChanged(issueStubs: List<IssueStub>)
 
@@ -19,9 +19,9 @@ interface ArchiveContract {
 
         fun addBitmaps(map: Map<String, Bitmap>)
 
-        fun showIssueDownloadingProgressbar(issueStub: IssueStub)
+        fun showProgressbar(issueStub: IssueStub)
 
-        fun hideIssueDownloadingProgressbar(issueStub: IssueStub)
+        fun hideProgressbar(issueStub: IssueStub)
 
     }
 

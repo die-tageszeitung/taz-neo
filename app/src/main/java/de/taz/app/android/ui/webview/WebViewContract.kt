@@ -21,8 +21,6 @@ interface WebViewContract: BaseContract {
 
         fun loadUrl(url: String)
 
-        fun getMainView(): MainContract.View?
-
         fun hideLoadingScreen()
 
         fun setIconActive(itemId: Int)
