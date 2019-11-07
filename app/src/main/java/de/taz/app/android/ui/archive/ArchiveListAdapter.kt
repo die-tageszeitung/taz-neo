@@ -26,6 +26,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
+/**
+ *  [ArchiveListAdapter] binds the [IssueStub]s from [ArchiveDataController] to the [RecyclerView]
+ *  [ViewHolder] is used to recycle views
+ */
 class ArchiveListAdapter(
     private val archiveFragment: ArchiveFragment
 ) : RecyclerView.Adapter<ArchiveListAdapter.ViewHolder>() {
@@ -40,12 +44,12 @@ class ArchiveListAdapter(
         FeedRepository.getInstance().getAll().associateBy { it.name }
     }
 
-    override fun getItemCount(): Int {
-        return issueStubList.size
-    }
-
     fun getItem(position: Int): IssueStub {
         return issueStubList[position]
+    }
+
+    override fun getItemCount(): Int {
+        return issueStubList.size
     }
 
     override fun getItemId(position: Int): Long {
@@ -56,16 +60,11 @@ class ArchiveListAdapter(
         return issueStubList.indexOf(issueStub)
     }
 
-    private fun setImageRatio(view: View, issueStub: IssueStub) {
-        (view.layoutParams as? ConstraintLayout.LayoutParams)?.dimensionRatio =
-            feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString()
-    }
-
-    fun addMomentBitmaps(map: Map<String, Bitmap>) {
+    fun addBitmaps(map: Map<String, Bitmap>) {
         issueMomentBitmapMap.putAll(map)
     }
 
-    fun addMomentBitmap(tag: String, bitmap: Bitmap) {
+    fun addBitmap(tag: String, bitmap: Bitmap) {
         issueMomentBitmapMap[tag] = bitmap
         notifyItemChanged(issueStubList.indexOfFirst { it.tag == tag }, bitmap)
     }
@@ -81,7 +80,7 @@ class ArchiveListAdapter(
                 notifyItemRangeInserted(0, firstOldIndex)
             }
             if (lastOldIndex < issues.size) {
-                notifyItemRangeInserted(lastOldIndex + 1, issues.size -1)
+                notifyItemRangeInserted(lastOldIndex + 1, issues.size - 1)
             }
         } else {
             issueStubList = issues
@@ -95,27 +94,36 @@ class ArchiveListAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+    /**
+     * called if a payload is given/changes
+     * used to draw the image without having to redraw the whole view
+     * and show or hide progressbar
+     */
+    override fun onBindViewHolder(
+        viewHolder: ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
         if (payloads.size == 1) {
             val payload: Any = payloads.first()
             when (payload) {
                 is Bitmap ->
-                    showMomentImage(holder, payload)
+                    showBitmap(viewHolder, payload)
                 is Boolean ->
-                    if (payload) showIssueDownloadingProgressBar(holder)
-                    else hideIssueDownloadingProgressBar(holder)
+                    if (payload) showProgressBar(viewHolder)
+                    else hideProgressBar(viewHolder)
             }
         } else {
-            super.onBindViewHolder(holder, position, payloads)
+            super.onBindViewHolder(viewHolder, position, payloads)
         }
     }
 
-    private fun showIssueDownloadingProgressBar(holder: ViewHolder) {
-        holder.progressBar.visibility = View.VISIBLE
+    private fun showProgressBar(viewHolder: ViewHolder) {
+        viewHolder.progressBar.visibility = View.VISIBLE
     }
 
-    private fun hideIssueDownloadingProgressBar(holder: ViewHolder) {
-        holder.progressBar.visibility = View.GONE
+    private fun hideProgressBar(viewHolder: ViewHolder) {
+        viewHolder.progressBar.visibility = View.GONE
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
@@ -128,31 +136,90 @@ class ArchiveListAdapter(
         val bitmap = issueMomentBitmapMap[issueStub.tag]
 
         if (bitmap != null) {
-            showMomentImage(viewHolder, bitmap)
+            showBitmap(viewHolder, bitmap)
         } else {
             if (issueStub.tag !in issueStubGenerationList) {
                 issueStubGenerationList.add(issueStub.tag)
                 downloadMomentAndGenerateImage(issueStub)
             }
-            showMomentProgressBar(viewHolder)
+            showProgressBar(viewHolder)
+            hideBitmap(viewHolder)
         }
 
         viewHolder.dateText.text = issueStub.date
     }
 
-    private fun showMomentProgressBar(viewHolder: ViewHolder) {
-        viewHolder.momentImage.visibility = View.GONE
-        viewHolder.progressBar.visibility = View.VISIBLE
+    private fun setImageRatio(view: View, issueStub: IssueStub) {
+        (view.layoutParams as? ConstraintLayout.LayoutParams)?.dimensionRatio =
+            feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString()
     }
 
-    private fun showMomentImage(viewHolder: ViewHolder, bitmap: Bitmap) {
+    private fun hideBitmap(viewHolder: ViewHolder) {
+        viewHolder.momentImage.visibility = View.GONE
+    }
+
+    private fun showBitmap(viewHolder: ViewHolder, bitmap: Bitmap) {
         viewHolder.momentImage.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
         }
-        viewHolder.progressBar.visibility = View.GONE
+        hideProgressBar(viewHolder)
     }
 
+
+    private fun downloadMomentAndGenerateImage(issueStub: IssueStub) {
+        archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+
+            val moment = MomentRepository.getInstance().get(issueStub)
+
+            moment?.let {
+                if (!moment.isDownloaded()) {
+                    val applicationContext = archiveFragment.getMainView()?.getApplicationContext()
+
+                    applicationContext?.let {
+                        log.debug("requesting download of $moment")
+                        DownloadService.download(applicationContext, moment)
+                        val observer = ArchiveMomentDownloadObserver(
+                                this@ArchiveListAdapter,
+                                issueStub,
+                                moment
+                            )
+
+                        withContext(Dispatchers.Main) {
+                            archiveFragment.getLifecycleOwner().let {
+                                moment.isDownloadedLiveData().observe(
+                                    it, observer
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    generateBitmapForMoment(issueStub, moment)
+                }
+            }
+        }
+    }
+
+    private fun generateBitmapForMoment(issueStub: IssueStub, moment: Moment) {
+        // get biggest image -> TODO save image resolution?
+        moment.imageList.lastOrNull()?.let {
+            FileHelper.getInstance().getFile("${issueStub.tag}/${it.name}").let { imgFile ->
+                if (imgFile.exists()) {
+                    // cache it and show it
+                    archiveFragment.presenter.onMomentBitmapCreated(
+                        issueStub.tag,
+                        BitmapFactory.decodeFile(imgFile.absolutePath)
+                    )
+                } else {
+                    log.error("imgFile of $moment does not exist")
+                }
+            }
+        }
+    }
+
+    /**
+     * ViewHolder for this Adapter
+     */
     inner class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateText: TextView = itemView.findViewById(R.id.fragment_archive_moment_date)
         val momentImage: ImageView =
@@ -169,38 +236,10 @@ class ArchiveListAdapter(
         }
     }
 
-    private fun downloadMomentAndGenerateImage(issueStub: IssueStub) {
-
-        archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-
-            MomentRepository.getInstance().get(issueStub)?.let { moment ->
-                archiveFragment.getMainView()?.getApplicationContext()?.let { applicationContext ->
-                    if (!moment.isDownloaded()) {
-                        log.debug("requesting download of $moment")
-                        DownloadService.download(applicationContext, moment)
-                        val observer =
-                            ArchiveMomentDownloadObserver(
-                                this@ArchiveListAdapter,
-                                issueStub,
-                                moment
-                            )
-
-                        withContext(Dispatchers.Main) {
-                            archiveFragment.getLifecycleOwner().let {
-                                moment.isDownloadedLiveData().observe(
-                                    it, observer
-                                )
-                            }
-
-                        }
-                    } else {
-                        generateBitMapForMoment(issueStub, moment)
-                    }
-                }
-            }
-        }
-    }
-
+    /**
+     * Observer to generate Images for a [Moment] once it's downloaded
+     * @param archiveListAdapter
+     */
     private class ArchiveMomentDownloadObserver(
         private val archiveListAdapter: ArchiveListAdapter,
         private val issueStub: IssueStub,
@@ -211,34 +250,18 @@ class ArchiveListAdapter(
 
         override fun onChanged(isDownloaded: Boolean?) {
             if (isDownloaded == true) {
-                log.debug("moment is download: $moment")
+                log.debug("moment is downloaded: $moment")
                 moment.isDownloadedLiveData().removeObserver(this@ArchiveMomentDownloadObserver)
                 archiveListAdapter.archiveFragment.getLifecycleOwner().lifecycleScope.launch(
                     Dispatchers.IO
                 ) {
                     log.debug("generating image for $moment")
-                    archiveListAdapter.generateBitMapForMoment(issueStub, moment)
+                    archiveListAdapter.generateBitmapForMoment(issueStub, moment)
                 }
             } else {
                 log.debug("waiting for not yet downloaded: $moment")
             }
         }
 
-    }
-
-    private fun generateBitMapForMoment(issueStub: IssueStub, moment: Moment) {
-        moment.imageList.lastOrNull()?.let {
-            FileHelper.getInstance().getFile("${issueStub.tag}/${it.name}").let { imgFile ->
-                if (imgFile.exists()) {
-                    // cache it and show it
-                    archiveFragment.presenter.onMomentBitmapCreated(
-                        issueStub.tag,
-                        BitmapFactory.decodeFile(imgFile.absolutePath)
-                    )
-                } else {
-                    log.error("imgFile of $moment does not exist")
-                }
-            }
-        }
     }
 }

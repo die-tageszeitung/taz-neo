@@ -11,8 +11,6 @@ interface ArchiveContract {
 
     interface View: BaseContract.View {
 
-        fun getMainView(): MainContract.View?
-
         fun hideScrollView()
 
         fun onDataSetChanged(issueStubs: List<IssueStub>)

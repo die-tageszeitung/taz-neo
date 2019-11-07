@@ -6,20 +6,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseFragment
-import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.main.MainContract
-import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
+/**
+ * Fragment to show the archive - a GridView of available issues
+ */
 class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
 
     override val presenter = ArchivePresenter()
@@ -62,27 +60,14 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         fragment_archive_swipe_refresh.isRefreshing = false
     }
 
-    override fun getMainView(): MainContract.View? {
-        return activity as? MainActivity
-    }
-
     override fun addBitmap(tag: String, bitmap: Bitmap) {
         lifecycleScope.launch(Dispatchers.Main) {
-            archiveListAdapter.addMomentBitmap(tag, bitmap)
+            archiveListAdapter.addBitmap(tag, bitmap)
         }
     }
 
     override fun addBitmaps(map: Map<String, Bitmap>) {
-        archiveListAdapter.addMomentBitmaps(map)
-    }
-
-    private fun calculateNoOfColumns(context: Context): Int {
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
-
-        val columnWidthDp =
-            resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
-        return (screenWidthDp / columnWidthDp).toInt()
+        archiveListAdapter.addBitmaps(map)
     }
 
     override fun hideIssueDownloadingProgressbar(issueStub: IssueStub) {
@@ -97,4 +82,14 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         }
 
     }
+
+    private fun calculateNoOfColumns(context: Context): Int {
+        val displayMetrics = context.resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+
+        val columnWidthDp =
+            resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
+        return (screenWidthDp / columnWidthDp).toInt()
+    }
+
 }
