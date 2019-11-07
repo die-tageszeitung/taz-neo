@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 
-class IssueRepository private constructor(applicationContext: Context) :
+open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)

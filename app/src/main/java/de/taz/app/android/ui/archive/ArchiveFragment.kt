@@ -56,7 +56,7 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         (fragment_archive_grid?.adapter as? ArchiveListAdapter)?.setIssueStubs(issueStubs)
     }
 
-    override fun hideScrollView() {
+    override fun hideRefreshLoadingIcon() {
         fragment_archive_swipe_refresh.isRefreshing = false
     }
 
@@ -70,13 +70,13 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         archiveListAdapter.addBitmaps(map)
     }
 
-    override fun hideIssueDownloadingProgressbar(issueStub: IssueStub) {
+    override fun hideProgressbar(issueStub: IssueStub) {
         archiveListAdapter.apply {
             notifyItemChanged(getItemPosition(issueStub), false)
         }
     }
 
-    override fun showIssueDownloadingProgressbar(issueStub: IssueStub) {
+    override fun showProgressbar(issueStub: IssueStub) {
         archiveListAdapter.apply {
             notifyItemChanged(getItemPosition(issueStub), true)
         }

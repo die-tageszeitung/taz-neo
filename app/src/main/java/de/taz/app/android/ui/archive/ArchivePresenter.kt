@@ -15,14 +15,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataController>(
+class ArchivePresenter(
+    private val apiService: ApiService = ApiService.getInstance(),
+    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+) : BasePresenter<ArchiveContract.View, ArchiveDataController>(
     ArchiveDataController::class.java
 ), ArchiveContract.Presenter {
 
     private var feedName = "taz"
-
-    private val apiService = ApiService.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
 
     override fun onViewCreated() {
         getView()?.let { view ->
@@ -34,7 +34,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
 
     override fun onItemSelected(issueStub: IssueStub) {
         getView()?.apply {
-            showIssueDownloadingProgressbar(issueStub)
+            showProgressbar(issueStub)
 
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
 
@@ -86,23 +86,23 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
                     DownloadService.download(it, todaysIssue.moment)
                 }
             }
-            getView()?.hideScrollView()
-        } ?: getView()?.hideScrollView()
+            getView()?.hideRefreshLoadingIcon()
+        } ?: getView()?.hideRefreshLoadingIcon()
     }
 
     override fun getNextIssueMoments(date: String, limit: Int) {
-        val toastHelper = ToastHelper.getInstance()
+        val mainView = getView()?.getMainView()
 
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
             try {
                 val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = limit)
                 issueRepository.save(issues)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
+                mainView?.showToast(R.string.toast_no_internet)
             } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                mainView?.showToast(R.string.something_went_wrong_try_later)
             } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                mainView?.showToast(R.string.something_went_wrong_try_later)
             }
         }
     }

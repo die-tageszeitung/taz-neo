@@ -5,7 +5,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.base.BaseDataController
 import kotlinx.coroutines.*
 
-class MainDataController : BaseDataController(), MainContract.DataController {
+open class MainDataController : BaseDataController(), MainContract.DataController {
 
     private val selectedIssue = MutableLiveData<Issue?>().apply {
         postValue(null)
