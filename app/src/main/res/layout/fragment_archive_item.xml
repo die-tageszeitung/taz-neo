@@ -33,6 +33,19 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                android:indeterminateTint="@color/colorAccent"
+                />
+
+        <ProgressBar
+                android:id="@+id/fragment_archive_issue_download_progressbar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:indeterminateTint="@color/colorAccent"
+                android:visibility="gone"
+                android:padding="10dp"
+                android:background="#83FFFFFF"
                 />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

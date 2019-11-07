@@ -14,6 +14,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,5 +83,18 @@ class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContra
         val columnWidthDp =
             resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
         return (screenWidthDp / columnWidthDp).toInt()
+    }
+
+    override fun hideIssueDownloadingProgressbar(issueStub: IssueStub) {
+        archiveListAdapter.apply {
+            notifyItemChanged(getItemPosition(issueStub), false)
+        }
+    }
+
+    override fun showIssueDownloadingProgressbar(issueStub: IssueStub) {
+        archiveListAdapter.apply {
+            notifyItemChanged(getItemPosition(issueStub), true)
+        }
+
     }
 }

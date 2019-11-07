@@ -15,7 +15,9 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
@@ -34,7 +36,9 @@ object DownloadService {
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
 
-    private val okHttpClient = OkHttpClient()
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectionPool(ConnectionPool(20, 5, TimeUnit.MINUTES))
+        .build()
 
     /**
      * use [ioScope] to download
