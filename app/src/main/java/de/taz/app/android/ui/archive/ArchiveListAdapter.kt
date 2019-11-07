@@ -111,11 +111,11 @@ class ArchiveListAdapter(
     }
 
     private fun showIssueDownloadingProgressBar(holder: ViewHolder) {
-        holder.issueDownloadProgressBar.visibility = View.VISIBLE
+        holder.progressBar.visibility = View.VISIBLE
     }
 
     private fun hideIssueDownloadingProgressBar(holder: ViewHolder) {
-        holder.issueDownloadProgressBar.visibility = View.GONE
+        holder.progressBar.visibility = View.GONE
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
@@ -142,7 +142,7 @@ class ArchiveListAdapter(
 
     private fun showMomentProgressBar(viewHolder: ViewHolder) {
         viewHolder.momentImage.visibility = View.GONE
-        viewHolder.momemntImageProgressBar.visibility = View.VISIBLE
+        viewHolder.progressBar.visibility = View.VISIBLE
     }
 
     private fun showMomentImage(viewHolder: ViewHolder, bitmap: Bitmap) {
@@ -150,7 +150,7 @@ class ArchiveListAdapter(
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
         }
-        viewHolder.momemntImageProgressBar.visibility = View.GONE
+        viewHolder.progressBar.visibility = View.GONE
     }
 
     inner class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -159,10 +159,8 @@ class ArchiveListAdapter(
             itemView.findViewById(R.id.fragment_archive_moment_image)
         val momentImageWrapper: ConstraintLayout =
             itemView.findViewById(R.id.fragment_archive_moment_image_wrapper)
-        val momemntImageProgressBar: ProgressBar =
+        val progressBar: ProgressBar =
             itemView.findViewById(R.id.fragment_archive_moment_image_progressbar)
-        val issueDownloadProgressBar: ProgressBar =
-            itemView.findViewById(R.id.fragment_archive_issue_download_progressbar)
 
         init {
             itemView.setOnClickListener {
