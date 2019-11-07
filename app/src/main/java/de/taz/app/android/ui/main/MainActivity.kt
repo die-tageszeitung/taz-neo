@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             drawer_icon_settings,
             drawer_icon_help
         ).map {
-            it.drawable.setTint(ContextCompat.getColor(this, R.color.navigation_drawer_icon ))
+            it.drawable.setTint(ContextCompat.getColor(this, R.color.navigation_drawer_icon))
         }
 
         imageView.drawable.setTint(
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         exitAnimation: Int
     ) {
         runOnUiThread {
-            val fragment = when(webViewDisplayable) {
+            val fragment = when (webViewDisplayable) {
                 is Article ->
                     ArticleWebViewFragment(webViewDisplayable)
                 is Section ->
@@ -173,5 +173,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun getLifecycleOwner(): LifecycleOwner = this
+
+    override fun getMainView(): MainContract.View? = this
 
 }

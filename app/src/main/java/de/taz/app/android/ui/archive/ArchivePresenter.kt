@@ -27,7 +27,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
     override fun onViewCreated() {
         getView()?.let { view ->
             view.getLifecycleOwner().let {
-                viewModel?.observeIssueStubs(it, ArchiveIssuesObserver(this))
+                viewModel?.observeIssueStubs(it, ArchiveIssueStubsObserver(this))
             }
         }
     }
