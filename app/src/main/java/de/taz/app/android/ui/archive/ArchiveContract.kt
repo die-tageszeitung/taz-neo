@@ -21,6 +21,10 @@ interface ArchiveContract {
 
         fun addBitmaps(map: Map<String, Bitmap>)
 
+        fun showIssueDownloadingProgressbar(issueStub: IssueStub)
+
+        fun hideIssueDownloadingProgressbar(issueStub: IssueStub)
+
     }
 
     interface Presenter: BaseContract.Presenter {

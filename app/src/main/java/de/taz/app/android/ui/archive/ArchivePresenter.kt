@@ -33,31 +33,38 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
     }
 
     override fun onItemSelected(issueStub: IssueStub) {
-        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-            val issue = issueRepository.getIssue(issueStub)
-            getView()?.getMainView()?.apply {
-                // start download if not yet downloaded
-                if (!issue.isDownloadedOrDownloading()) {
-                    getApplicationContext().let { applicationContext ->
-                        DownloadService.download(applicationContext, issue)
-                    }
-                }
+        getView()?.apply {
+            showIssueDownloadingProgressbar(issueStub)
 
-                // set main issue
-                getMainDataController().setIssue(issue)
+            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
 
-                issue.sectionList.first().let { firstSection ->
-                    val observer = object : Observer<Boolean> {
-                        override fun onChanged(isDownloaded: Boolean?) {
-                            // open last clicked issue if downloaded
-                            if (isDownloaded == true && getMainDataController().getIssue() == issue) {
-                                showMainFragment(SectionWebViewFragment(firstSection))
-                                firstSection.isDownloadedLiveData().removeObserver(this)
-                            }
+                val issue = issueRepository.getIssue(issueStub)
+
+                getView()?.getMainView()?.apply {
+                    // start download if not yet downloaded
+                    if (!issue.isDownloadedOrDownloading()) {
+                        getApplicationContext().let { applicationContext ->
+                            DownloadService.download(applicationContext, issue)
                         }
                     }
-                    withContext(Dispatchers.Main) {
-                        firstSection.isDownloadedLiveData().observe(getLifecycleOwner(), observer)
+
+                    // set main issue
+                    getMainDataController().setIssue(issue)
+
+                    issue.sectionList.first().let { firstSection ->
+                        val observer = object : Observer<Boolean> {
+                            override fun onChanged(isDownloaded: Boolean?) {
+                                // open last clicked issue if downloaded
+                                if (isDownloaded == true && getMainDataController().getIssue() == issue) {
+                                    firstSection.isDownloadedLiveData().removeObserver(this)
+                                    showMainFragment(SectionWebViewFragment(firstSection))
+                                }
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            firstSection.isDownloadedLiveData()
+                                .observe(getLifecycleOwner(), observer)
+                        }
                     }
                 }
             }
@@ -86,7 +93,7 @@ class ArchivePresenter : BasePresenter<ArchiveContract.View, ArchiveDataControll
     override fun getNextIssueMoments(date: String, limit: Int) {
         val toastHelper = ToastHelper.getInstance()
 
-         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
             try {
                 val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = limit)
                 issueRepository.save(issues)

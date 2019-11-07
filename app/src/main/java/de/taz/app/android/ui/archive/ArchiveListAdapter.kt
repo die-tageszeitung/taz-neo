@@ -52,6 +52,10 @@ class ArchiveListAdapter(
         return getItem(position).hashCode().toLong()
     }
 
+    fun getItemPosition(issueStub: IssueStub): Int {
+        return issueStubList.indexOf(issueStub)
+    }
+
     private fun setImageRatio(view: View, issueStub: IssueStub) {
         (view.layoutParams as? ConstraintLayout.LayoutParams)?.dimensionRatio =
             feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString()
@@ -77,7 +81,7 @@ class ArchiveListAdapter(
                 notifyItemRangeInserted(0, firstOldIndex)
             }
             if (lastOldIndex < issues.size) {
-                notifyItemRangeInserted(lastOldIndex + 1, issues.size)
+                notifyItemRangeInserted(lastOldIndex + 1, issues.size -1)
             }
         } else {
             issueStubList = issues
@@ -92,12 +96,26 @@ class ArchiveListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.size == 1 && payloads.first() is Bitmap) {
-            showImage(holder, payloads.first() as Bitmap)
+        if (payloads.size == 1) {
+            val payload: Any = payloads.first()
+            when (payload) {
+                is Bitmap ->
+                    showMomentImage(holder, payload)
+                is Boolean ->
+                    if (payload) showIssueDownloadingProgressBar(holder)
+                    else hideIssueDownloadingProgressBar(holder)
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }
+    }
 
+    private fun showIssueDownloadingProgressBar(holder: ViewHolder) {
+        holder.issueDownloadProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideIssueDownloadingProgressBar(holder: ViewHolder) {
+        holder.issueDownloadProgressBar.visibility = View.GONE
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
@@ -110,29 +128,29 @@ class ArchiveListAdapter(
         val bitmap = issueMomentBitmapMap[issueStub.tag]
 
         if (bitmap != null) {
-            showImage(viewHolder, bitmap)
+            showMomentImage(viewHolder, bitmap)
         } else {
             if (issueStub.tag !in issueStubGenerationList) {
                 issueStubGenerationList.add(issueStub.tag)
                 downloadMomentAndGenerateImage(issueStub)
             }
-            showProgressBar(viewHolder)
+            showMomentProgressBar(viewHolder)
         }
 
         viewHolder.dateText.text = issueStub.date
     }
 
-    private fun showProgressBar(viewHolder: ViewHolder) {
+    private fun showMomentProgressBar(viewHolder: ViewHolder) {
         viewHolder.momentImage.visibility = View.GONE
-        viewHolder.progressBar.visibility = View.VISIBLE
+        viewHolder.momemntImageProgressBar.visibility = View.VISIBLE
     }
 
-    private fun showImage(viewHolder: ViewHolder, bitmap: Bitmap) {
+    private fun showMomentImage(viewHolder: ViewHolder, bitmap: Bitmap) {
         viewHolder.momentImage.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
         }
-        viewHolder.progressBar.visibility = View.GONE
+        viewHolder.momemntImageProgressBar.visibility = View.GONE
     }
 
     inner class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -141,8 +159,10 @@ class ArchiveListAdapter(
             itemView.findViewById(R.id.fragment_archive_moment_image)
         val momentImageWrapper: ConstraintLayout =
             itemView.findViewById(R.id.fragment_archive_moment_image_wrapper)
-        val progressBar: ProgressBar =
+        val momemntImageProgressBar: ProgressBar =
             itemView.findViewById(R.id.fragment_archive_moment_image_progressbar)
+        val issueDownloadProgressBar: ProgressBar =
+            itemView.findViewById(R.id.fragment_archive_issue_download_progressbar)
 
         init {
             itemView.setOnClickListener {

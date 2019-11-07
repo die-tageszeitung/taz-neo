@@ -31,7 +31,7 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
     private fun setHeader(section: Section, issueStub: IssueStub) {
         activity?.apply {
             runOnUiThread {
-                findViewById<TextView>(R.id.section).apply {
+                findViewById<TextView>(R.id.section)?.apply {
                     text = section.title
                 }
                 dateToLowerCaseString(issueStub.date)?.let {
