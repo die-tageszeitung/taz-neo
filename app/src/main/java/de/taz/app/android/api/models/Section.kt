@@ -30,7 +30,7 @@ data class Section(
         val list = mutableListOf(sectionHtml)
         list.addAll(imageList)
         articleList.forEach { article -> list.addAll(article.getAllFiles()) }
-        return list
+        return list.distinct()
     }
 
     override fun getFile(): File {
