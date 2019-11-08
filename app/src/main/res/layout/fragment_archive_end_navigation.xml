@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fragment_archive_header"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/fragment_archive_navigation_end_padding_horizontal"
+        android:paddingTop="@dimen/fragment_archive_navigation_end_padding_top"
+        android:paddingRight="@dimen/fragment_archive_navigation_end_padding_horizontal">
+
+    <TextView
+            android:id="@+id/fragment_archive_navigation_end_feed_heading"
+            style="@style/TextAppearance.Archive.NavigationEnd.Heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/feeds"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+            android:id="@+id/fragment_archive_navigation_end_feed_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_archive_navigation_end_feed_heading"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+    <TextView
+            android:id="@+id/fragment_archive_navigation_end_year_heading"
+            style="@style/TextAppearance.Archive.NavigationEnd.Heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/archive"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_archive_navigation_end_feed_list"
+            android:visibility="gone"
+            />
+
+    <ListView
+            android:id="@+id/fragment_archive_navigation_end_year_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_archive_navigation_end_year_heading"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

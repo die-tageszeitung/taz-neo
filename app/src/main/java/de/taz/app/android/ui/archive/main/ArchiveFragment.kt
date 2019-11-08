@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -10,8 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseFragment
-import de.taz.app.android.base.BaseHeaderFragment
+import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,10 +19,12 @@ import kotlinx.coroutines.launch
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : BaseHeaderFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
+class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
+    ArchiveContract.View {
 
     override val headerLayoutId = R.layout.fragment_archive_header
     override val scrollViewId = R.id.fragment_archive_grid
+    override val endNavigationFragment = ArchiveEndNavigationFragment()
 
     override val presenter = ArchivePresenter()
     val archiveListAdapter = ArchiveListAdapter(this)
@@ -52,7 +54,11 @@ class ArchiveFragment : BaseHeaderFragment<ArchiveContract.Presenter>(), Archive
 
         presenter.onViewCreated()
 
-        fragment_archive_grid.addOnScrollListener(ArchiveOnScrollListener(this))
+        fragment_archive_grid.addOnScrollListener(
+            ArchiveOnScrollListener(
+                this
+            )
+        )
 
     }
 

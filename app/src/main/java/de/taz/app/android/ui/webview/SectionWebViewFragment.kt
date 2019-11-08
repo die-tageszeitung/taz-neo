@@ -35,7 +35,7 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
                     text = section.title
                 }
                 dateToLowerCaseString(issueStub.date)?.let {
-                    findViewById<TextView>(R.id.issue_date).apply {
+                    findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
                 }

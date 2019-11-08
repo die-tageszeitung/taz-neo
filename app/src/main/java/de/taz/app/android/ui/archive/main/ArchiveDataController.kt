@@ -1,17 +1,21 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
 import androidx.lifecycle.*
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseDataController
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 
-open class ArchiveDataController : BaseDataController(), ArchiveContract.DataController {
+open class ArchiveDataController : BaseDataController(),
+    ArchiveContract.DataController {
 
+    /**
+     * issues to be shown
+     */
     private val issueLiveData: LiveData<List<IssueStub>> =
         IssueRepository.getInstance().getAllStubsLiveData()
-
-    private val issueMomentBitmapMap = mutableMapOf<String, Bitmap>()
 
     override fun getIssueStubs(): List<IssueStub>? {
         return issueLiveData.value
@@ -33,6 +37,12 @@ open class ArchiveDataController : BaseDataController(), ArchiveContract.DataCon
             Observer { issues -> observationCallback.invoke(issues) }
         )
     }
+
+    /**
+     * map of [de.taz.app.android.api.interfaces.IssueOperations.tag]
+     * to [Bitmap] of [de.taz.app.android.api.models.Moment]
+     */
+    private val issueMomentBitmapMap = mutableMapOf<String, Bitmap>()
 
     override fun getMomentBitmapMap(): Map<String, Bitmap> {
         return issueMomentBitmapMap

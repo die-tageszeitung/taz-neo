@@ -5,7 +5,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.ui.archive.ArchiveFragment
 import de.taz.app.android.ui.drawer.bookmarks.BookmarkDrawerFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.login.LoginFragment

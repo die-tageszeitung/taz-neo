@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -182,7 +182,8 @@ class ArchiveListAdapter(
                     applicationContext?.let {
                         log.debug("requesting download of $moment")
                         DownloadService.download(applicationContext, moment)
-                        val observer = ArchiveMomentDownloadObserver(
+                        val observer =
+                            ArchiveMomentDownloadObserver(
                                 this@ArchiveListAdapter,
                                 issueStub,
                                 moment

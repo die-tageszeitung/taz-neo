@@ -8,11 +8,10 @@ import androidx.core.view.iterator
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseContract
-import de.taz.app.android.base.BaseFragment
-import de.taz.app.android.base.BaseHeaderFragment
+import de.taz.app.android.base.BaseMainFragment
 
 
-abstract class WebViewBaseFragment<PRESENTER: BaseContract.Presenter> : BaseHeaderFragment<PRESENTER>() {
+abstract class WebViewBaseFragment<PRESENTER: BaseContract.Presenter> : BaseMainFragment<PRESENTER>() {
 
     abstract override val presenter: PRESENTER
 

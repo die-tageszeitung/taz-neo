@@ -2,16 +2,16 @@ package de.taz.app.android.ui.archive
 
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.testIssueStub
+import de.taz.app.android.ui.archive.main.ArchiveContract
+import de.taz.app.android.ui.archive.main.ArchiveDataController
+import de.taz.app.android.ui.archive.main.ArchivePresenter
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.ui.main.MainDataController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After

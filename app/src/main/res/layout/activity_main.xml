@@ -62,4 +62,20 @@
 
     </de.taz.app.android.ui.drawer.NavigationView>
 
+    <de.taz.app.android.ui.drawer.NavigationView
+            android:id="@+id/nav_view_end"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+        <FrameLayout
+                android:id="@+id/nav_view_end_fragment_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+    </de.taz.app.android.ui.drawer.NavigationView>
+
 </de.taz.app.android.ui.drawer.DrawerLayout>
