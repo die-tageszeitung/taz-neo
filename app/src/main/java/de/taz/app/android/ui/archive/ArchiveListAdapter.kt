@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
@@ -153,7 +154,7 @@ class ArchiveListAdapter(
 
     private fun setImageRatio(view: View, issueStub: IssueStub) {
         (view.layoutParams as? ConstraintLayout.LayoutParams)?.dimensionRatio =
-            feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString()
+            feeds[issueStub.feedName]?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
     }
 
     private fun hideBitmap(viewHolder: ViewHolder) {
