@@ -5,4 +5,4 @@ const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
 
 
 // UI
-const val DEFAULT_MOMENT_RATIO = "1.5,1"
+const val DEFAULT_MOMENT_RATIO = "w,1.5:1"
