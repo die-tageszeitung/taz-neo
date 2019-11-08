@@ -20,7 +20,7 @@ data class Feed(
     )
 
     fun momentRatioAsDimensionRatioString(): String {
-        return "1,$momentRatio"
+        return "w,1:$momentRatio"
     }
 }
 

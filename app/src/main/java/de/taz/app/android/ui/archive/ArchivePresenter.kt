@@ -79,13 +79,8 @@ class ArchivePresenter(
     override fun onRefresh() {
         // check for new issues and download
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-            val todaysIssue = apiService.getIssueByFeedAndDate(feedName)
-            if (!issueRepository.exists(todaysIssue)) {
-                issueRepository.save(todaysIssue)
-                getView()?.getMainView()?.getApplicationContext()?.let {
-                    DownloadService.download(it, todaysIssue.moment)
-                }
-            }
+            apiService.getIssuesByFeedAndDate(feedName)
+            issueRepository.save(apiService.getIssuesByFeedAndDate(feedName))
             getView()?.hideRefreshLoadingIcon()
         } ?: getView()?.hideRefreshLoadingIcon()
     }
