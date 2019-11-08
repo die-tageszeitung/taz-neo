@@ -39,6 +39,11 @@
     <dimen name="fragment_archive_moment_date_padding">5dp</dimen>
     <dimen name="fragment_archive_item_width">150dp</dimen>
     <dimen name="fragment_archive_item_padding">25dp</dimen>
+
+    <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
+    <dimen name="fragment_archive_navigation_end_heading_margin_bottom">12dp</dimen>
+
+    <dimen name="fragment_archive_navigation_end_item_text_margin_start">8dp</dimen>
 </resources>
