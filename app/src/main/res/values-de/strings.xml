@@ -32,8 +32,11 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
     <string name="fragment_login_username_title">Abo Nummer</string>
-    <string name="fragment_login_username_hint"></string>
+    <string name="fragment_login_username_hint">Abo Nummer</string>
     <string name="fragment_login_password_title">Passwort</string>
-    <string name="fragment_login_password_hint"></string>
+    <string name="fragment_login_password_hint">Passwort</string>
     <string name="fragment_login_login_button">Anmelden</string>
+
+    <string name="fragment_archive_header_icon">Archiv</string>
+
 </resources>

@@ -13,7 +13,7 @@ import java.util.*
 
 class SectionWebViewFragment(private val section: Section? = null) : WebViewFragment(section) {
 
-    override val headerId: Int = R.layout.fragment_webview_header_section
+    override val headerLayoutId: Int = R.layout.fragment_webview_header_section
 
     override val visibleItemIds = listOf(
         R.id.bottom_navigation_action_help,
