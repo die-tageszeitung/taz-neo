@@ -19,6 +19,7 @@ import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.util.DateHelper
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +40,7 @@ class ArchiveListAdapter(
     private var issueStubList: List<IssueStub> = emptyList()
     private val issueMomentBitmapMap: MutableMap<String, Bitmap> = mutableMapOf()
     private val issueStubGenerationList: MutableList<String> = mutableListOf()
+    private val dateHelper: DateHelper = DateHelper.getInstance()
 
     private val feeds: Map<String, Feed> = runBlocking(Dispatchers.IO) {
         FeedRepository.getInstance().getAll().associateBy { it.name }
@@ -146,7 +148,7 @@ class ArchiveListAdapter(
             hideBitmap(viewHolder)
         }
 
-        viewHolder.dateText.text = issueStub.date
+        viewHolder.dateText.text = dateHelper.stringToLocalizedString(issueStub.date)
     }
 
     private fun setImageRatio(view: View, issueStub: IssueStub) {

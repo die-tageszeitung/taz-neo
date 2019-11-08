@@ -11,10 +11,7 @@ import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.FileHelper
-import de.taz.app.android.util.Log
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlin.Exception
 
@@ -87,11 +84,12 @@ class SplashActivity : AppCompatActivity() {
             SectionRepository.createInstance(it)
 
             AuthHelper.createInstance(it)
+            DateHelper.createInstance(it)
+            FileHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
-            FileHelper.createInstance(it)
         }
     }
 

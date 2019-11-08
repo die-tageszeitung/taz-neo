@@ -16,7 +16,7 @@ class ArchiveOnScrollListener(
 ): RecyclerView.OnScrollListener() {
 
     private val log by Log
-
+    private val dateHelper = DateHelper.getInstance()
     private var lastRequestedDate = ""
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -33,7 +33,7 @@ class ArchiveOnScrollListener(
 
             if (lastRequestedDate == "" || requestDate <= lastRequestedDate) {
                 log.debug("requested next issue Moments for date $requestDate")
-                lastRequestedDate = DateHelper.stringToStringWithDelta(
+                lastRequestedDate = dateHelper.stringToStringWithDelta(
                     requestDate, -NUMBER_OF_REQUESTED_MOMENTS
                 ) ?: ""
 

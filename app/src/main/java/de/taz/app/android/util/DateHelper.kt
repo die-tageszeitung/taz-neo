@@ -1,14 +1,18 @@
 package de.taz.app.android.util
 
-import android.provider.CalendarContract
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.lifecycle.ViewModel
 import java.text.SimpleDateFormat
-import java.time.ZoneId
 import java.util.*
 
-object DateHelper {
+class DateHelper private constructor(applicationContext: Context): ViewModel() {
+
+    companion object : SingletonHolder<DateHelper, Context>(::DateHelper)
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    val cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
+    private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
+    private val localDateFormat = DateFormat.getMediumDateFormat(applicationContext)
 
     fun dateToString(date: Date) : String {
         return dateHelper.format(date)
@@ -30,6 +34,10 @@ object DateHelper {
         return stringToDateWithDelta(string, days)?.let {
             dateToString(it)
         }
+    }
+
+    fun stringToLocalizedString(dateString: String): String? {
+        return stringToDate(dateString)?.let { localDateFormat.format(it) }
     }
 
 }
