@@ -7,9 +7,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseContract
 
 interface MainContract : BaseContract {
@@ -37,7 +35,9 @@ interface MainContract : BaseContract {
 
         fun showToast(string: String)
 
-        fun getApplicationContext() : Context
+        fun lockEndNavigationView()
+
+        fun unlockEndNavigationView()
 
     }
 

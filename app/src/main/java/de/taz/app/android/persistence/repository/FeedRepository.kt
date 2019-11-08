@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.util.SingletonHolder
 
@@ -24,6 +25,10 @@ class FeedRepository private constructor(applicationContext: Context) :
 
     fun getAll(): List<Feed> {
         return appDatabase.feedDao().getAll()
+    }
+
+    fun getAllLiveData(): LiveData<List<Feed>> {
+        return appDatabase.feedDao().getAllLiveData()
     }
 
 }

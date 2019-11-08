@@ -1,8 +1,9 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
 import de.taz.app.android.ui.main.MainContract

@@ -36,6 +36,7 @@
     <string name="fragment_login_password_hint">password</string>
     <string name="fragment_login_login_button">Login</string>
 
-    <string name="fragment_archive_header_icon">Archive</string>
+    <string name="archive">Archive</string>
+    <string name="feeds">Feeds</string>
 
 </resources>

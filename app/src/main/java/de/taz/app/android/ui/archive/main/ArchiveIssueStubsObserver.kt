@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.IssueStub

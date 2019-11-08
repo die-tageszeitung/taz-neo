@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
 import androidx.lifecycle.Observer
@@ -10,7 +10,6 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.webview.SectionWebViewFragment
-import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,7 +26,9 @@ class ArchivePresenter(
     override fun onViewCreated() {
         getView()?.let { view ->
             view.getLifecycleOwner().let {
-                viewModel?.observeIssueStubs(it, ArchiveIssueStubsObserver(this))
+                viewModel?.observeIssueStubs(it,
+                    ArchiveIssueStubsObserver(this)
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive
+package de.taz.app.android.ui.archive.main
 
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,7 +37,9 @@ class ArchiveOnScrollListener(
                     requestDate, -NUMBER_OF_REQUESTED_MOMENTS
                 ) ?: ""
 
-                archiveFragment.presenter.getNextIssueMoments(requestDate, NUMBER_OF_REQUESTED_MOMENTS)
+                archiveFragment.presenter.getNextIssueMoments(requestDate,
+                    NUMBER_OF_REQUESTED_MOMENTS
+                )
             }
         }
     }

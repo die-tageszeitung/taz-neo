@@ -82,4 +82,9 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="TextAppearance.Archive.NavigationEnd.Heading" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">23sp</item>
+    </style>
+
 </resources>

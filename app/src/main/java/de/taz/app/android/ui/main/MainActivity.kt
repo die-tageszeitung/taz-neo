@@ -10,6 +10,8 @@ import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.R
@@ -17,7 +19,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.archive.ArchiveFragment
+import de.taz.app.android.ui.archive.main.ArchiveFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.ToastHelper
@@ -45,6 +47,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         drawer_icon_content.performClick()
 
         presenter.onViewCreated()
+
+        lockEndNavigationView()
     }
 
     private fun setNavigationDrawerIconClickListener() {
@@ -129,6 +133,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     R.id.main_content_fragment_placeholder, fragment
                 ).commit()
         }
+    }
+
+    override fun lockEndNavigationView() {
+        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
+    }
+
+    override fun unlockEndNavigationView() {
+        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
     }
 
     override fun closeDrawer() {
