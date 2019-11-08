@@ -73,8 +73,8 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     private fun showHeader() {
         activity?.apply {
             scrollViewId?.let {
-                val scrollView = findViewById<View>(scrollViewId as Int)
-                if (!scrollView.canScrollVertically(-1)) {
+                val scrollView = view?.findViewById<View>(scrollViewId as Int)
+                if (scrollView?.canScrollVertically(-1) != true) {
                     findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(
                         true,
                         false
@@ -90,11 +90,9 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     private fun setEndNavigation() {
         endNavigationFragment?.let { endNavigationFragment ->
             activity?.apply {
-                findViewById<NavigationView>(R.id.nav_view_end)?.apply {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_view_end_fragment_placeholder, endNavigationFragment)
-                        .commit()
-                }
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.nav_view_end_fragment_placeholder, endNavigationFragment)
+                    .commit()
                 getMainView()?.unlockEndNavigationView()
             }
         }
