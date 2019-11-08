@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseFragment
+import de.taz.app.android.base.BaseHeaderFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +19,10 @@ import kotlinx.coroutines.launch
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : BaseFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
+class ArchiveFragment : BaseHeaderFragment<ArchiveContract.Presenter>(), ArchiveContract.View {
+
+    override val headerLayoutId = R.layout.fragment_archive_header
+    override val scrollViewId = R.id.fragment_archive_grid
 
     override val presenter = ArchivePresenter()
     val archiveListAdapter = ArchiveListAdapter(this)

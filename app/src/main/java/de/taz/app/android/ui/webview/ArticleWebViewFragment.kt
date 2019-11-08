@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
 
 class ArticleWebViewFragment(private val article: Article? = null) : WebViewFragment(article) {
 
-    override val headerId: Int = R.layout.fragment_webview_header_article
+    override val headerLayoutId: Int = R.layout.fragment_webview_header_article
 
     override val visibleItemIds = listOf(
         R.id.bottom_navigation_action_bookmark,

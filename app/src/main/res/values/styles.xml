@@ -76,4 +76,10 @@
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
     </style>
+
+    <style name="TextAppearance.Archive.Header.Icon" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>
