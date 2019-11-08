@@ -15,7 +15,7 @@ class ArchiveEndNavigationPresenter: BasePresenter<ArchiveEndNavigationContract.
         }
     }
 
-    override fun onFeedSelectionChanged(feed: Feed) {
+    override fun onFeedClicked(feed: Feed) {
         // TODO
     }
 

@@ -22,7 +22,7 @@ interface ArchiveEndNavigationContract {
     }
 
     interface Presenter: BaseContract.Presenter {
-        fun onFeedSelectionChanged(feed: Feed)
+        fun onFeedClicked(feed: Feed)
     }
 
 }
