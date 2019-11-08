@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
     ArchiveContract.View {
 
-    override val headerLayoutId = R.layout.fragment_archive_header
     override val scrollViewId = R.id.fragment_archive_grid
     override val endNavigationFragment = ArchiveEndNavigationFragment()
 
