@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
@@ -89,57 +90,12 @@ class ArchiveListAdapter(
     }
 
     private fun filterAndSetIssues() {
-            val filteredIssueStubs = filterIssueStubs()
-
-            if (filteredIssueStubs != visibleIssueStubList) {
-
-                val oldSize = visibleIssueStubList.size
-
-                if (filteredIssueStubs.isNotEmpty() && visibleIssueStubList.isNotEmpty()) {
-                    val firstOldIndex = filteredIssueStubs.indexOf(visibleIssueStubList.first())
-                    val lastOldIndex = filteredIssueStubs.indexOf(visibleIssueStubList.last())
-                    val oldList = visibleIssueStubList
-
-                    visibleIssueStubList = filteredIssueStubs
-
-                    // if new elements in front notify inserted
-                    if (firstOldIndex > 0) {
-                            notifyItemRangeInserted(0, firstOldIndex)
-                    }
-
-                    // check every item in between
-                    (firstOldIndex.until(lastOldIndex)).forEach { oldIndex ->
-                        val old = oldList[oldIndex]
-                        val newOldIndex = oldIndex + firstOldIndex
-
-                        if (old != filteredIssueStubs[newOldIndex]) {
-                            val newIndex = filteredIssueStubs.indexOf(old)
-
-                            // if removed notify removal
-                            if (newIndex < 0) {
-                                    notifyItemRemoved(oldIndex)
-                                // if new items inserted in between notify
-                            } else if (newIndex > newOldIndex) {
-                                    notifyItemRangeInserted(newOldIndex, newIndex - newOldIndex)
-                            }
-                        }
-                    }
-
-                    // if new items at the end notify inserted
-                    if (lastOldIndex < filteredIssueStubs.size) {
-                            notifyItemRangeInserted(lastOldIndex + 1, filteredIssueStubs.size - 1)
-                    }
-                } else {
-                    if (oldSize != filteredIssueStubs.size) {
-                        visibleIssueStubList = filteredIssueStubs
-                            if (oldSize > 0) {
-                                notifyItemRangeRemoved(0, oldSize)
-                            } else if (filteredIssueStubs.isNotEmpty()) {
-                                notifyItemRangeInserted(-1, filteredIssueStubs.size)
-                            }
-                    }
-                }
-            }
+        val filteredIssueStubs = filterIssueStubs()
+        val diffResult = DiffUtil.calculateDiff(
+            ArchiveIssueStubDiffCallback(visibleIssueStubList, filteredIssueStubs)
+        )
+        visibleIssueStubList = filteredIssueStubs
+        diffResult.dispatchUpdatesTo(this)
     }
 
     fun setFeeds(feeds: List<Feed>) {
@@ -147,8 +103,10 @@ class ArchiveListAdapter(
     }
 
     fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        this.inactiveFeedNames = inactiveFeedNames
-        filterAndSetIssues()
+        if (this.inactiveFeedNames != inactiveFeedNames) {
+            this.inactiveFeedNames = inactiveFeedNames
+            filterAndSetIssues()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
