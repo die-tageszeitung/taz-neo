@@ -40,6 +40,10 @@ class ArchiveEndNavigationDataController : BaseDataController(),
         PreferencesHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
     )
 
+    override fun getInactiveFeedNames(): Set<String> {
+        return inactiveFeedNameLiveData.value ?: emptySet()
+    }
+
     override fun observeInactiveFeedNames(
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Set<String>) -> Unit

@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseFragment
-import de.taz.app.android.util.PreferencesHelper
 import kotlinx.android.synthetic.main.fragment_archive_end_navigation.*
 
 class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.Presenter>(),
@@ -20,8 +19,6 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
 
     override val presenter = ArchiveEndNavigationPresenter()
     internal val adapter = FeedAdapter()
-
-    private val preferencesHelper = PreferencesHelper.getInstance(context?.applicationContext)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +51,10 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        adapter.inactiveFeedList = inactiveFeedNames.toMutableList()
+        if(adapter.inactiveFeedList != inactiveFeedNames) {
+            adapter.inactiveFeedList = inactiveFeedNames.toMutableList()
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun setImageInactive(imageView: ImageView) {
@@ -117,12 +117,8 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
                     val feed = feedList[adapterPosition]
                     presenter.onFeedClicked(feed)
                     if (feed.name !in inactiveFeedList) {
-                        inactiveFeedList.add(feed.name)
-                        preferencesHelper.deactivateFeed(feed)
                         setImageInactive(imageView)
                     } else {
-                        inactiveFeedList.remove(feed.name)
-                        preferencesHelper.activateFeed(feed)
                         setImageActive(imageView)
                     }
                 }
