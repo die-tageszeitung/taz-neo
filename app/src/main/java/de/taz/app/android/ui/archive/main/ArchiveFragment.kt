@@ -67,7 +67,7 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
     }
 
     override fun hideRefreshLoadingIcon() {
-        fragment_archive_swipe_refresh.isRefreshing = false
+        fragment_archive_swipe_refresh?.isRefreshing = false
     }
 
     override fun addBitmap(tag: String, bitmap: Bitmap) {

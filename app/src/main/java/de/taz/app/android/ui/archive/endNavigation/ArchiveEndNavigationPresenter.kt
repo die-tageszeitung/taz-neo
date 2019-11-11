@@ -4,12 +4,13 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.util.PreferencesHelper
 
-class ArchiveEndNavigationPresenter :
+class ArchiveEndNavigationPresenter(
+    private val preferencesHelper: PreferencesHelper = PreferencesHelper.getInstance()
+) :
     BasePresenter<ArchiveEndNavigationContract.View, ArchiveEndNavigationDataController>(
         ArchiveEndNavigationDataController::class.java
     ), ArchiveEndNavigationContract.Presenter {
 
-    private val preferencesHelper = PreferencesHelper.getInstance()
 
     override fun onViewCreated() {
         getView()?.let { view ->

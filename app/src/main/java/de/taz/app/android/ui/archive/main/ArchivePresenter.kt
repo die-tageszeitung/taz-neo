@@ -8,6 +8,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,8 @@ import kotlinx.coroutines.withContext
 
 class ArchivePresenter(
     private val apiService: ApiService = ApiService.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
+    private val feedRepository: FeedRepository = FeedRepository.getInstance()
 ) : BasePresenter<ArchiveContract.View, ArchiveDataController>(
     ArchiveDataController::class.java
 ), ArchiveContract.Presenter {
@@ -85,6 +87,7 @@ class ArchivePresenter(
     override fun onRefresh() {
         // check for new issues and download
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+            feedRepository.save(apiService.getFeeds())
             issueRepository.save(apiService.getIssuesByDate())
             getView()?.hideRefreshLoadingIcon()
         } ?: getView()?.hideRefreshLoadingIcon()
