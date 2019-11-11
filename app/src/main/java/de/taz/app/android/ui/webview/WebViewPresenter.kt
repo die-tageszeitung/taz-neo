@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-class WebViewPresenter :
+class WebViewPresenter:
     BasePresenter<WebViewContract.View, WebViewDataController>(WebViewDataController::class.java),
     WebViewContract.Presenter {
 
@@ -36,13 +37,16 @@ class WebViewPresenter :
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
-        getView()?.let {
-            it.getWebView().apply {
-                webViewClient = AppWebViewClient(this@WebViewPresenter)
-                webChromeClient = WebChromeClient()
-                settings.javaScriptEnabled = true
-                addJavascriptInterface(TazApiJS, TAZ_API_JS)
-                setArticleWebViewCallback(this@WebViewPresenter)
+        getView()?.let {webContractView ->
+            webContractView.getMainView()?.let {mainView ->
+                val tazApiJS = TazApiJS(webContractView)
+                webContractView.getWebView().apply {
+                    webViewClient = AppWebViewClient(this@WebViewPresenter)
+                    webChromeClient = WebChromeClient()
+                    settings.javaScriptEnabled = true
+                    addJavascriptInterface(tazApiJS, TAZ_API_JS)
+                    setArticleWebViewCallback(this@WebViewPresenter)
+                }
             }
         }
     }
