@@ -4,19 +4,66 @@ var tazApi = (function() {
 
 	return (function() {
 
+        /**
+            @params
+            name: String or array of strings
+                  Name of the desired configuration variable(s)
+
+            callback: closure
+                      Receives the value of the configuration variable
+                      or a dictionary of values if name was an array of strings
+
+        */
         function getConfiguration(name, callback) {
             console.log("getconfiguration " + name + " " + callback);
-            callback(ANDROIDAPI.getConfiguration(name));
+            if (typeof(name) == "string") {
+                console.log("get configuration with a single string");
+                callback(ANDROIDAPI.getConfiguration(name));
+            } else { /* name is supposed to be string array */
+                console.log("get configuration with a string array");
+                var result = {};
+                for (i in name){
+                    result[name[i]] = ANDROIDAPI.getConfiguration(name[i]);
+                }
+                callback(result);
+            }
         }
 
+        /**
+            @params
+            name: String or a dictionary of String:String
+                  The name of the configuration variable to be set
+                  or a dictionary containing the key:value pairs of configuration variable and new values
+            value: String or nil
+                   New value of the configuration variable or nil if name is a dictionary
+        */
         function setConfiguration(name, value) {
             console.log("setconfiguration " + name + " " + value);
-            ANDROIDAPI.setConfiguration(name, value)
+            if (typeof(name) == "string") {
+                ANDROIDAPI.setConfiguration(name, value);
+            } else { /* name is a dict */
+                for (i in name) {
+                    ANDROIDAPI.setConfiguration(i, name[i])
+                }
+            }
         }
 
+        /**
+            Called after every scroll, the function informs the native code about the current
+            scroll position.
+            This can be used for tracking reading progress for bookmarked articles for instance.
+
+            @params
+            percentSeen (Int 0..100)
+                gibt an, wieviel Prozent der Seite gelesen (bzw. hochgescrollt) worden ist.
+
+            position (Int 0..n)
+                stellt als opakes Datum die Position des Webviews in einer Seite dar
+
+        */
 		function pageReady(percentSeen, position) {
-            console.log("pageready " + percentSeen + " " + position);
-         	ANDROIDAPI.pageReady(percentSeen, position);
+		    console.log("pageready " + percentSeen + " " + position);
+		    ANDROIDAPI.pageReady(percentSeen, position);
         }
 
 		function nextArticle(position) {
@@ -34,18 +81,13 @@ var tazApi = (function() {
 			ANDROIDAPI.openUrl(url);
 		}
 
-        function onGesture(gesture, x, y) {
-            console.log("onGesture " + gesture + " " + x + "," + y);
-        }
-
 		return {
 			getConfiguration : getConfiguration,
 			setConfiguration : setConfiguration,
 			pageReady : pageReady,
 			nextArticle : nextArticle,
 			previousArticle : previousArticle,
-			openUrl : openUrl,
-			onGesture: onGesture
+			openUrl : openUrl
 		}
 	}());
 }());
