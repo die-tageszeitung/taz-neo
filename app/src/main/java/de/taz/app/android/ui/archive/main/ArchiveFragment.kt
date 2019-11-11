@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
@@ -101,4 +102,11 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         return (screenWidthDp / columnWidthDp).toInt()
     }
 
+    override fun setFeeds(feeds: List<Feed>) {
+       archiveListAdapter.setFeeds(feeds)
+    }
+
+    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+        archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
+    }
 }

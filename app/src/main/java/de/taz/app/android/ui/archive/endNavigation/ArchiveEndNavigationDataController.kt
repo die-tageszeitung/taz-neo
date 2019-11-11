@@ -6,6 +6,9 @@ import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
+import de.taz.app.android.util.PreferencesHelper
+import de.taz.app.android.util.SharedPreferenceStringSetLiveData
 
 class ArchiveEndNavigationDataController : BaseDataController(),
     ArchiveEndNavigationContract.DataController {
@@ -28,6 +31,27 @@ class ArchiveEndNavigationDataController : BaseDataController(),
 
     override fun observeFeeds(lifeCycleOwner: LifecycleOwner, observer: Observer<List<Feed>?>) {
         feedsLiveData.observe(lifeCycleOwner, observer)
+    }
+
+    /**
+     * Set of [String] corresponding to the deactivated [Feed]'s [Feed.name]
+     */
+    private val inactiveFeedNameLiveData = SharedPreferenceStringSetLiveData(
+        PreferencesHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
+    )
+
+    override fun observeInactiveFeedNames(
+        lifeCycleOwner: LifecycleOwner,
+        observationCallback: (Set<String>) -> Unit
+    ) {
+        inactiveFeedNameLiveData.observe(
+            lifeCycleOwner,
+            Observer { feeds -> observationCallback.invoke(feeds) }
+        )
+    }
+
+    override fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>) {
+        inactiveFeedNameLiveData.observe(lifeCycleOwner, observer)
     }
 
 }

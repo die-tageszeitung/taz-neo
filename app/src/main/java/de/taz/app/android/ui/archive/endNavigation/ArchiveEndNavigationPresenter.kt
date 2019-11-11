@@ -8,9 +8,16 @@ class ArchiveEndNavigationPresenter: BasePresenter<ArchiveEndNavigationContract.
 ), ArchiveEndNavigationContract.Presenter {
 
     override fun onViewCreated() {
-        getView()?.getLifecycleOwner()?.let {
-            viewModel?.observeFeeds(it) { feeds ->
-                getView()?.setFeeds(feeds ?: emptyList())
+        getView()?.let { view ->
+            view.getLifecycleOwner().let {
+                viewModel?.apply {
+                    observeFeeds(it) { feeds ->
+                        view.setFeeds(feeds ?: emptyList())
+                    }
+                    observeInactiveFeedNames(it) { inactiveFeedNames ->
+                        view.setInactiveFeedNames(inactiveFeedNames)
+                    }
+                }
             }
         }
     }

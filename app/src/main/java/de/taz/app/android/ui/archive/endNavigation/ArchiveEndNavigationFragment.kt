@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.archive.endNavigation;
+package de.taz.app.android.ui.archive.endNavigation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,14 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseFragment
+import de.taz.app.android.util.PreferencesHelper
 import kotlinx.android.synthetic.main.fragment_archive_end_navigation.*
-
 
 class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.Presenter>(),
     ArchiveEndNavigationContract.View {
 
     override val presenter = ArchiveEndNavigationPresenter()
     internal val adapter = FeedAdapter()
+
+    private val preferencesHelper = PreferencesHelper.getInstance(context?.applicationContext)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +53,10 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
         adapter.notifyDataSetChanged()
     }
 
+    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+        adapter.inactiveFeedList = inactiveFeedNames.toMutableList()
+    }
+
     private fun setImageInactive(imageView: ImageView) {
         context?.let { context ->
             imageView.setColorFilter(
@@ -71,7 +77,7 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
 
     inner class FeedAdapter : RecyclerView.Adapter<FeedAdapter.ViewHolder>() {
 
-        val inactiveFeedList = mutableListOf<Feed>()
+        var inactiveFeedList = mutableListOf<String>()
         val feedList = mutableListOf<Feed>()
 
         override fun getItemCount(): Int {
@@ -87,7 +93,7 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val feed = feedList[position]
 
-            if(feed in inactiveFeedList) {
+            if (feed.name in inactiveFeedList) {
                 setImageInactive(holder.imageView)
             } else {
                 setImageActive(holder.imageView)
@@ -110,11 +116,13 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
                 itemView.setOnClickListener {
                     val feed = feedList[adapterPosition]
                     presenter.onFeedClicked(feed)
-                    if (feed !in inactiveFeedList) {
-                        inactiveFeedList.add(feed)
+                    if (feed.name !in inactiveFeedList) {
+                        inactiveFeedList.add(feed.name)
+                        preferencesHelper.deactivateFeed(feed)
                         setImageInactive(imageView)
                     } else {
-                        inactiveFeedList.remove(feed)
+                        inactiveFeedList.remove(feed.name)
+                        preferencesHelper.activateFeed(feed)
                         setImageActive(imageView)
                     }
                 }

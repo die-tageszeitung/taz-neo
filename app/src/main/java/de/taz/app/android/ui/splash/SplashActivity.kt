@@ -57,9 +57,8 @@ class SplashActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val issues = apiService.getIssuesByFeedAndDate(limit = 10)
+                val issues = apiService.getIssuesByDate(limit = 10)
                 issueRepository.save(issues)
-                issues.forEach { it.downloadMoment(applicationContext) }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
             } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
@@ -86,6 +85,7 @@ class SplashActivity : AppCompatActivity() {
             AuthHelper.createInstance(it)
             DateHelper.createInstance(it)
             FileHelper.createInstance(it)
+            PreferencesHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 

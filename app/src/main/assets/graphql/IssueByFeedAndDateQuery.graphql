@@ -1,4 +1,4 @@
-query IssueByFeedAndDateQuery($feedName: String!, $issueDate: String!, $limit: Int!) {
+query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: Int!) {
     product {
         feedList(name: $feedName) {
             name

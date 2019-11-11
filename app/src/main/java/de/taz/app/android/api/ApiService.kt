@@ -106,6 +106,29 @@ open class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
+    suspend fun getIssuesByDate(
+        issueDate: String = dateHelper.format(Date()),
+        limit: Int = 10
+    ): List<Issue> {
+        return catchExceptions({
+            val issues = mutableListOf<Issue>()
+            graphQlClient.query(
+                QueryType.IssueByFeedAndDateQuery,
+                IssueVariables(issueDate = issueDate, limit = limit)
+            ).product!!.feedList!!.forEach { feed ->
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+            }
+            issues
+        }, "getIssuesByFeedAndDate")
+    }
+
+    /**
+     * function to get an [Issue] by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date of the issue
+     * @param limit - how many issues will be returned
+     * @return [Issue] of the feed at given date
+     */
     suspend fun getIssuesByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = dateHelper.format(Date()),

@@ -21,16 +21,21 @@ class ArchivePresenter(
     ArchiveDataController::class.java
 ), ArchiveContract.Presenter {
 
-    private var feedName = "taz"
-
     override fun onViewCreated() {
         getView()?.let { view ->
             view.getLifecycleOwner().let {
-                viewModel?.observeIssueStubs(it,
-                    ArchiveIssueStubsObserver(this)
-                )
+                viewModel?.apply {
+                    observeIssueStubs(it, ArchiveIssueStubsObserver(this@ArchivePresenter))
+                    observeFeeds(it) { feeds ->
+                        view.setFeeds(feeds ?: emptyList())
+                    }
+                    observeInactiveFeedNames(it) { feedNames ->
+                        view.setInactiveFeedNames(feedNames)
+                    }
+                }
             }
         }
+
     }
 
     override fun onItemSelected(issueStub: IssueStub) {
@@ -80,8 +85,7 @@ class ArchivePresenter(
     override fun onRefresh() {
         // check for new issues and download
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-            apiService.getIssuesByFeedAndDate(feedName)
-            issueRepository.save(apiService.getIssuesByFeedAndDate(feedName))
+            issueRepository.save(apiService.getIssuesByDate())
             getView()?.hideRefreshLoadingIcon()
         } ?: getView()?.hideRefreshLoadingIcon()
     }
