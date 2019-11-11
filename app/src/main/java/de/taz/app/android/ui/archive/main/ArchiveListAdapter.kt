@@ -38,7 +38,12 @@ class ArchiveListAdapter(
 
     private val log by Log
 
-    private var issueStubList: List<IssueStub> = emptyList()
+    private var allIssueStubList: List<IssueStub> = emptyList()
+    private var visibleIssueStubList: List<IssueStub> = emptyList()
+
+    private var feedList: List<Feed> = emptyList()
+    private var inactiveFeedNames: Set<String> = emptySet()
+
     private val issueMomentBitmapMap: MutableMap<String, Bitmap> = mutableMapOf()
     private val issueStubGenerationList: MutableList<String> = mutableListOf()
     private val dateHelper: DateHelper = DateHelper.getInstance()
@@ -48,11 +53,11 @@ class ArchiveListAdapter(
     }
 
     fun getItem(position: Int): IssueStub {
-        return issueStubList[position]
+        return visibleIssueStubList[position]
     }
 
     override fun getItemCount(): Int {
-        return issueStubList.size
+        return visibleIssueStubList.size
     }
 
     override fun getItemId(position: Int): Long {
@@ -60,7 +65,7 @@ class ArchiveListAdapter(
     }
 
     fun getItemPosition(issueStub: IssueStub): Int {
-        return issueStubList.indexOf(issueStub)
+        return visibleIssueStubList.indexOf(issueStub)
     }
 
     fun addBitmaps(map: Map<String, Bitmap>) {
@@ -69,26 +74,81 @@ class ArchiveListAdapter(
 
     fun addBitmap(tag: String, bitmap: Bitmap) {
         issueMomentBitmapMap[tag] = bitmap
-        notifyItemChanged(issueStubList.indexOfFirst { it.tag == tag }, bitmap)
+        notifyItemChanged(visibleIssueStubList.indexOfFirst { it.tag == tag }, bitmap)
     }
 
     fun setIssueStubs(issues: List<IssueStub>) {
-        if (issues.isNotEmpty() && issueStubList.isNotEmpty()) {
-            val firstOldIndex = issueStubList.indexOf(issues.first())
-            val lastOldIndex = issues.indexOf(issueStubList.last())
-
-            issueStubList = issues
-
-            if (firstOldIndex > 0) {
-                notifyItemRangeInserted(0, firstOldIndex)
-            }
-            if (lastOldIndex < issues.size) {
-                notifyItemRangeInserted(lastOldIndex + 1, issues.size - 1)
-            }
-        } else {
-            issueStubList = issues
-            notifyDataSetChanged()
+        if (allIssueStubList != issues) {
+            allIssueStubList = issues
+            filterAndSetIssues()
         }
+    }
+
+    private fun filterIssueStubs(): List<IssueStub> {
+        return allIssueStubList.filter { it.feedName !in inactiveFeedNames }
+    }
+
+    private fun filterAndSetIssues() {
+            val filteredIssueStubs = filterIssueStubs()
+
+            if (filteredIssueStubs != visibleIssueStubList) {
+
+                val oldSize = visibleIssueStubList.size
+
+                if (filteredIssueStubs.isNotEmpty() && visibleIssueStubList.isNotEmpty()) {
+                    val firstOldIndex = filteredIssueStubs.indexOf(visibleIssueStubList.first())
+                    val lastOldIndex = filteredIssueStubs.indexOf(visibleIssueStubList.last())
+                    val oldList = visibleIssueStubList
+
+                    visibleIssueStubList = filteredIssueStubs
+
+                    // if new elements in front notify inserted
+                    if (firstOldIndex > 0) {
+                            notifyItemRangeInserted(0, firstOldIndex)
+                    }
+
+                    // check every item in between
+                    (firstOldIndex.until(lastOldIndex)).forEach { oldIndex ->
+                        val old = oldList[oldIndex]
+                        val newOldIndex = oldIndex + firstOldIndex
+
+                        if (old != filteredIssueStubs[newOldIndex]) {
+                            val newIndex = filteredIssueStubs.indexOf(old)
+
+                            // if removed notify removal
+                            if (newIndex < 0) {
+                                    notifyItemRemoved(oldIndex)
+                                // if new items inserted in between notify
+                            } else if (newIndex > newOldIndex) {
+                                    notifyItemRangeInserted(newOldIndex, newIndex - newOldIndex)
+                            }
+                        }
+                    }
+
+                    // if new items at the end notify inserted
+                    if (lastOldIndex < filteredIssueStubs.size) {
+                            notifyItemRangeInserted(lastOldIndex + 1, filteredIssueStubs.size - 1)
+                    }
+                } else {
+                    if (oldSize != filteredIssueStubs.size) {
+                        visibleIssueStubList = filteredIssueStubs
+                            if (oldSize > 0) {
+                                notifyItemRangeRemoved(0, oldSize)
+                            } else if (filteredIssueStubs.isNotEmpty()) {
+                                notifyItemRangeInserted(-1, filteredIssueStubs.size)
+                            }
+                    }
+                }
+            }
+    }
+
+    fun setFeeds(feeds: List<Feed>) {
+        feedList = feeds
+    }
+
+    fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+        this.inactiveFeedNames = inactiveFeedNames
+        filterAndSetIssues()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

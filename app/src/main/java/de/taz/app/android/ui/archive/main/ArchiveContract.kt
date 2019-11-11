@@ -24,6 +24,10 @@ interface ArchiveContract {
 
         fun hideProgressbar(issueStub: IssueStub)
 
+        fun setFeeds(feeds: List<Feed>)
+
+        fun setInactiveFeedNames(inactiveFeedNames: Set<String>)
+
     }
 
     interface Presenter: BaseContract.Presenter {
@@ -50,6 +54,15 @@ interface ArchiveContract {
         fun addBitmap(tag: String, bitmap: Bitmap)
 
         fun getBitmap(tag: String): Bitmap?
-    }
+
+        fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>)
+
+        fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observationCallback: (Set<String>) -> (Unit))
+
+        fun observeFeeds(lifeCycleOwner: LifecycleOwner, observer: Observer<List<Feed>?>)
+
+        fun observeFeeds(lifeCycleOwner: LifecycleOwner, observationCallback: (List<Feed>?) -> (Unit))
+
+   }
 
 }
