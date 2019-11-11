@@ -45,7 +45,6 @@ class TazApiJS (val view: WebViewContract.View) {
                 ArticleRepository.getInstance().saveScrollingPosition(it, percentage, position)
             }
         }
-        log.debug("pageReady2")
     }
 
     @JavascriptInterface
