@@ -21,6 +21,8 @@ interface ArchiveEndNavigationContract {
 
         fun observeFeeds(lifeCycleOwner: LifecycleOwner, observationCallback: (List<Feed>?) -> (Unit))
 
+        fun getInactiveFeedNames(): Set<String>
+
         fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>)
 
         fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observationCallback: (Set<String>) -> (Unit))
