@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.content.Context
 import android.webkit.JavascriptInterface
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.util.Log
@@ -50,11 +51,25 @@ class TazApiJS (val view: WebViewContract.View) {
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.debug("nextArticle $position")
+        view.getMainView()?.let { mainView ->
+            mainView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                view.getWebViewDisplayable()?.next()?.let { next ->
+                    mainView.showInWebView(next, R.anim.slide_in_left, R.anim.slide_out_left)
+                }
+            }
+        }
     }
 
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.debug("previousArticle $position")
+        view.getMainView()?.let { mainView ->
+            mainView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                view.getWebViewDisplayable()?.previous()?.let { previous ->
+                    mainView.showInWebView(previous, R.anim.slide_in_right, R.anim.slide_out_right)
+                }
+            }
+        }
     }
 
     @JavascriptInterface
