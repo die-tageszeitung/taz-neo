@@ -38,16 +38,14 @@ class WebViewPresenter:
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
-        getView()?.let {webContractView ->
-            webContractView.getMainView()?.let {mainView ->
-                val tazApiJS = TazApiJS(webContractView)
-                webContractView.getWebView().apply {
-                    webViewClient = AppWebViewClient(this@WebViewPresenter)
-                    webChromeClient = WebChromeClient()
-                    settings.javaScriptEnabled = true
-                    addJavascriptInterface(tazApiJS, TAZ_API_JS)
-                    setArticleWebViewCallback(this@WebViewPresenter)
-                }
+        getView()?.let { webContractView ->
+            val tazApiJS = TazApiJS(webContractView)
+            webContractView.getWebView().apply {
+                webViewClient = AppWebViewClient(this@WebViewPresenter)
+                webChromeClient = WebChromeClient()
+                settings.javaScriptEnabled = true
+                addJavascriptInterface(tazApiJS, TAZ_API_JS)
+                setArticleWebViewCallback(this@WebViewPresenter)
             }
         }
     }
