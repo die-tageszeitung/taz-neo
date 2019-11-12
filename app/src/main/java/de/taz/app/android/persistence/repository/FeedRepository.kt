@@ -5,13 +5,13 @@ import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.util.SingletonHolder
 
-class FeedRepository private constructor(applicationContext: Context) :
+open class FeedRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<FeedRepository, Context>(::FeedRepository)
 
 
-    fun save(feeds: List<Feed>) {
+    open fun save(feeds: List<Feed>) {
         appDatabase.feedDao().insertOrReplace(feeds)
     }
 

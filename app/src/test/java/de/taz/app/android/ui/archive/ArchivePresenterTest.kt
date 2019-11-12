@@ -2,16 +2,23 @@ package de.taz.app.android.ui.archive
 
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.doThrow
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.testFeeds
+import de.taz.app.android.testIssues
 import de.taz.app.android.ui.archive.main.ArchiveContract
 import de.taz.app.android.ui.archive.main.ArchiveDataController
 import de.taz.app.android.ui.archive.main.ArchivePresenter
 import de.taz.app.android.ui.main.MainContract
-import de.taz.app.android.ui.main.MainDataController
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -22,6 +29,7 @@ import org.junit.Rule
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import java.text.SimpleDateFormat
 
 class ArchivePresenterTest {
 
@@ -40,13 +48,15 @@ class ArchivePresenterTest {
     @Mock
     lateinit var viewModel: ArchiveDataController
     @Mock
-    lateinit var mainViewModel: MainDataController
-    @Mock
     lateinit var apiService: ApiService
+    @Mock
+    lateinit var feedRepository: FeedRepository
     @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
     lateinit var bitmap: Bitmap
+    @Mock
+    lateinit var log: Log
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
@@ -57,8 +67,9 @@ class ArchivePresenterTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
-        presenter = ArchivePresenter(apiService, issueRepository)
 
+        apiService.simpleDateFormat = SimpleDateFormat()
+        presenter = ArchivePresenter(apiService, issueRepository, feedRepository, log)
         presenter.attach(archiveContractView)
 
         Mockito.`when`(archiveContractView.getMainView()).thenReturn(mainContractView)
@@ -66,7 +77,6 @@ class ArchivePresenterTest {
         presenter.viewModel = viewModel
         Mockito.`when`(mainContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
         Mockito.`when`(archiveContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
-
     }
 
     @After
@@ -75,6 +85,15 @@ class ArchivePresenterTest {
     fun tearDown() {
         Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
         mainThreadSurrogate.close()
+    }
+
+    @Test
+    fun onViewCreated() {
+        presenter.onViewCreated()
+
+        Mockito.verify(viewModel).observeFeeds(any(), any())
+        Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
+        Mockito.verify(viewModel).observeIssueStubs(any(), any())
     }
 
     @Test
@@ -88,9 +107,54 @@ class ArchivePresenterTest {
 
     @Test
     fun onRefresh() {
-        presenter.onRefresh()
+        runBlocking {
+            doReturn(testFeeds).`when`(apiService).getFeeds()
+            doReturn(testIssues).`when`(apiService).getIssuesByDate(any(), any())
 
-        Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
+            presenter.onRefresh()
+
+            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
+        }
+    }
+
+    @Test
+    fun onRefreshFails() {
+        runBlocking {
+            doReturn(testFeeds).`when`(apiService).getFeeds()
+            doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService).getIssuesByDate(any(), any())
+
+            presenter.onRefresh()
+
+            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
+        }
+    }
+
+    @Test
+    fun getNextIssueMoments() {
+        runBlocking {
+            doReturn(testIssues).`when`(apiService).getIssuesByDate(any(), any())
+
+            val date = "2010-01-01"
+            val limit = 10
+            presenter.getNextIssueMoments(date, limit)
+
+            Mockito.verify(apiService).getIssuesByDate(date, limit)
+            Mockito.verify(issueRepository).save(testIssues)
+        }
+    }
+
+    @Test
+    fun getNextIssueMomentsFails() {
+        runBlocking {
+            doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService).getIssuesByDate(any(), any())
+
+            val date = "2010-01-01"
+            val limit = 10
+            presenter.getNextIssueMoments(date, limit)
+
+            Mockito.verify(apiService).getIssuesByDate(date, limit)
+            Mockito.verify(mainContractView).showToast(any<@androidx.annotation.StringRes Int>())
+        }
     }
 
 }

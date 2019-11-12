@@ -253,7 +253,9 @@ class ArchiveListAdapter(
 
         init {
             itemView.setOnClickListener {
-                archiveFragment.presenter.onItemSelected(getItem(adapterPosition))
+                archiveFragment.lifecycleScope.launch {
+                    archiveFragment.presenter.onItemSelected(getItem(adapterPosition))
+                }
             }
         }
     }

@@ -1,9 +1,11 @@
 package de.taz.app.android.ui.archive.main
 
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.util.DateHelper
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.launch
 
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
@@ -37,9 +39,12 @@ class ArchiveOnScrollListener(
                     requestDate, -NUMBER_OF_REQUESTED_MOMENTS
                 ) ?: ""
 
-                archiveFragment.presenter.getNextIssueMoments(requestDate,
-                    NUMBER_OF_REQUESTED_MOMENTS
-                )
+                archiveFragment.getLifecycleOwner().lifecycleScope.launch {
+                    archiveFragment.presenter.getNextIssueMoments(
+                        requestDate,
+                        NUMBER_OF_REQUESTED_MOMENTS
+                    )
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
@@ -27,9 +28,11 @@ open class ApiService private constructor(applicationContext: Context) {
 
     private val log by Log
 
-    private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    private val graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
 
     /**
      * function to authenticate with the backend
@@ -73,7 +76,7 @@ open class ApiService private constructor(applicationContext: Context) {
      * function to get available feeds
      * @return List of [Feed]s
      */
-    suspend fun getFeeds(): List<Feed> {
+    open suspend fun getFeeds(): List<Feed> {
         return catchExceptions(
             {
                 graphQlClient.query(QueryType.FeedQuery).product!!.feedList?.map {
@@ -92,7 +95,7 @@ open class ApiService private constructor(applicationContext: Context) {
      */
     suspend fun getIssueByFeedAndDate(
         feedName: String = "taz",
-        issueDate: String = dateHelper.format(Date())
+        issueDate: String = simpleDateFormat.format(Date())
     ): Issue {
         return catchExceptions({
             getIssuesByFeedAndDate(feedName, issueDate, 1).first()
@@ -106,8 +109,13 @@ open class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
-    suspend fun getIssuesByDate(
-        issueDate: String = dateHelper.format(Date()),
+    @Throws(
+        ApiServiceException.InsufficientDataException::class,
+        ApiServiceException.NoInternetException::class,
+        ApiServiceException.WrongDataException::class
+    )
+    open suspend fun getIssuesByDate(
+        issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
         return catchExceptions({
@@ -129,9 +137,9 @@ open class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
-    suspend fun getIssuesByFeedAndDate(
+    open suspend fun getIssuesByFeedAndDate(
         feedName: String = "taz",
-        issueDate: String = dateHelper.format(Date()),
+        issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 2
     ): List<Issue> {
         return catchExceptions({
