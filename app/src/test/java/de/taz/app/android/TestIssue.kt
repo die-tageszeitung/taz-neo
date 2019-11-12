@@ -22,6 +22,7 @@ val testIssue = Issue(
     emptyList(),
     emptyList()
 )
+val testIssues = listOf(testIssue)
 
 val testIssueStub = IssueStub(
     "feed",

@@ -6,24 +6,24 @@ import kotlin.reflect.KProperty
 /**
  * Convenience class to create logs
  */
-class Log(private val tag: String) {
+open class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) = Log(requestBuilder.javaClass.name)
     }
 
-    fun debug(msg: String, throwable: Throwable? = null) =
+    open fun debug(msg: String, throwable: Throwable? = null) =
         Log.d(tag, msg, throwable)
 
 
-    fun error(msg: String, throwable: Throwable? = null) {
+    open fun error(msg: String, throwable: Throwable? = null) {
         Log.e(tag, msg, throwable)
     }
 
-    fun info(msg: String, throwable: Throwable? = null) {
+    open fun info(msg: String, throwable: Throwable? = null) {
         Log.i(tag, msg, throwable)
     }
 
-    fun warn(msg: String, throwable: Throwable? = null) {
+    open fun warn(msg: String, throwable: Throwable? = null) {
         Log.w(tag, msg, throwable)
     }
 }

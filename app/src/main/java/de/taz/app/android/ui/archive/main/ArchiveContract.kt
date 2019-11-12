@@ -32,13 +32,13 @@ interface ArchiveContract {
 
     interface Presenter: BaseContract.Presenter {
 
-        fun getNextIssueMoments(date: String, limit: Int)
+        suspend fun getNextIssueMoments(date: String, limit: Int)
 
-        fun onItemSelected(issueStub: IssueStub)
+        suspend fun onItemSelected(issueStub: IssueStub)
 
         fun onMomentBitmapCreated(tag: String, bitmap: Bitmap)
 
-        fun onRefresh()
+        suspend fun onRefresh()
     }
 
     interface DataController {
@@ -47,19 +47,13 @@ interface ArchiveContract {
 
         fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
 
-        fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observationCallback: (List<IssueStub>?) -> (Unit))
-
         fun getMomentBitmapMap(): Map<String, Bitmap>
 
         fun addBitmap(tag: String, bitmap: Bitmap)
 
         fun getBitmap(tag: String): Bitmap?
 
-        fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>)
-
         fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observationCallback: (Set<String>) -> (Unit))
-
-        fun observeFeeds(lifeCycleOwner: LifecycleOwner, observer: Observer<List<Feed>?>)
 
         fun observeFeeds(lifeCycleOwner: LifecycleOwner, observationCallback: (List<Feed>?) -> (Unit))
 

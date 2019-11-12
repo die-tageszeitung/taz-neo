@@ -2,7 +2,6 @@ package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
@@ -11,14 +10,15 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ArchivePresenter(
     private val apiService: ApiService = ApiService.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val feedRepository: FeedRepository = FeedRepository.getInstance()
+    private val feedRepository: FeedRepository = FeedRepository.getInstance(),
+    private val log: Log = Log(ArchivePresenter::javaClass.name)
 ) : BasePresenter<ArchiveContract.View, ArchiveDataController>(
     ArchiveDataController::class.java
 ), ArchiveContract.Presenter {
@@ -40,12 +40,11 @@ class ArchivePresenter(
 
     }
 
-    override fun onItemSelected(issueStub: IssueStub) {
+    override suspend fun onItemSelected(issueStub: IssueStub) {
         getView()?.apply {
             showProgressbar(issueStub)
 
-            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-
+            withContext(Dispatchers.IO) {
                 val issue = issueRepository.getIssue(issueStub)
 
                 getView()?.getMainView()?.apply {
@@ -84,21 +83,26 @@ class ArchivePresenter(
         getView()?.addBitmap(tag, bitmap)
     }
 
-    override fun onRefresh() {
+    override suspend fun onRefresh() {
         // check for new issues and download
-        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-            feedRepository.save(apiService.getFeeds())
-            issueRepository.save(apiService.getIssuesByDate())
+        withContext(Dispatchers.IO) {
+            try {
+                feedRepository.save(apiService.getFeeds())
+                issueRepository.save(apiService.getIssuesByDate())
+            } catch (e: Exception) {
+                // TODO show toasts?
+                log.debug(e.localizedMessage ?: "error while refreshing")
+            }
             getView()?.hideRefreshLoadingIcon()
-        } ?: getView()?.hideRefreshLoadingIcon()
+        }
     }
 
-    override fun getNextIssueMoments(date: String, limit: Int) {
-        val mainView = getView()?.getMainView()
+    override suspend fun getNextIssueMoments(date: String, limit: Int) {
+        withContext(Dispatchers.IO) {
+            val mainView = getView()?.getMainView()
 
-        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
             try {
-                val issues = apiService.getIssuesByFeedAndDate(issueDate = date, limit = limit)
+                val issues = apiService.getIssuesByDate(issueDate = date, limit = limit)
                 issueRepository.save(issues)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 mainView?.showToast(R.string.toast_no_internet)

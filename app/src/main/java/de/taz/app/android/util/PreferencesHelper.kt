@@ -2,19 +2,20 @@ package de.taz.app.android.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.VisibleForTesting
 import de.taz.app.android.api.models.Feed
 
 const val PREFERENCES_FEEDS_FILE = "preferences_feeds"
 const val PREFERENCES_FEEDS_INACTIVE = "inactiveFeeds"
 
-class PreferencesHelper private constructor(applicationContext: Context) {
+open class PreferencesHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<PreferencesHelper, Context>(::PreferencesHelper)
 
     val feedPreferences: SharedPreferences =
         applicationContext.getSharedPreferences(PREFERENCES_FEEDS_FILE, Context.MODE_PRIVATE)
 
-    fun activateFeed(feed: Feed) {
+    open fun activateFeed(feed: Feed) {
         val oldInactiveFeeds = feedPreferences.getStringSet(PREFERENCES_FEEDS_INACTIVE, emptySet())
         val inactiveFeeds = mutableSetOf<String>()
         oldInactiveFeeds?.forEach {
@@ -26,7 +27,7 @@ class PreferencesHelper private constructor(applicationContext: Context) {
     }
 
 
-    fun deactivateFeed(feed: Feed) {
+    open fun deactivateFeed(feed: Feed) {
         var inactiveFeeds = feedPreferences.getStringSet(PREFERENCES_FEEDS_INACTIVE, emptySet())
 
         if (inactiveFeeds?.contains(feed.name) != true) {

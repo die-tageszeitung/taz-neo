@@ -10,7 +10,7 @@ import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.util.PreferencesHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
 
-class ArchiveEndNavigationDataController : BaseDataController(),
+open class ArchiveEndNavigationDataController : BaseDataController(),
     ArchiveEndNavigationContract.DataController {
 
     /**
@@ -27,10 +27,6 @@ class ArchiveEndNavigationDataController : BaseDataController(),
             lifeCycleOwner,
             Observer { feeds -> observationCallback.invoke(feeds) }
         )
-    }
-
-    override fun observeFeeds(lifeCycleOwner: LifecycleOwner, observer: Observer<List<Feed>?>) {
-        feedsLiveData.observe(lifeCycleOwner, observer)
     }
 
     /**
@@ -52,10 +48,6 @@ class ArchiveEndNavigationDataController : BaseDataController(),
             lifeCycleOwner,
             Observer { feeds -> observationCallback.invoke(feeds) }
         )
-    }
-
-    override fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>) {
-        inactiveFeedNameLiveData.observe(lifeCycleOwner, observer)
     }
 
 }

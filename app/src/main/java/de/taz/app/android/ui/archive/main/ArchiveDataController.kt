@@ -31,16 +31,6 @@ open class ArchiveDataController : BaseDataController(),
         issueLiveData.observe(lifeCycleOwner, observer)
     }
 
-    override fun observeIssueStubs(
-        lifeCycleOwner: LifecycleOwner,
-        observationCallback: (List<IssueStub>?) -> Unit
-    ) {
-        issueLiveData.observe(
-            lifeCycleOwner,
-            Observer { issues -> observationCallback.invoke(issues) }
-        )
-    }
-
     /**
      * map of [de.taz.app.android.api.interfaces.IssueOperations.tag]
      * to [Bitmap] of [de.taz.app.android.api.models.Moment]
@@ -75,10 +65,6 @@ open class ArchiveDataController : BaseDataController(),
         )
     }
 
-    override fun observeFeeds(lifeCycleOwner: LifecycleOwner, observer: Observer<List<Feed>?>) {
-        feedsLiveData.observe(lifeCycleOwner, observer)
-    }
-
     /**
      * Set of [String] corresponding to the deactivated [Feed]'s [Feed.name]
      */
@@ -94,10 +80,6 @@ open class ArchiveDataController : BaseDataController(),
             lifeCycleOwner,
             Observer { feeds -> observationCallback.invoke(feeds) }
         )
-    }
-
-    override fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observer: Observer<Set<String>>) {
-        inactiveFeedNameLiveData.observe(lifeCycleOwner, observer)
     }
 
 }

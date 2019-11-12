@@ -43,7 +43,9 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         presenter.attach(this)
 
         fragment_archive_swipe_refresh.setOnRefreshListener {
-            presenter.onRefresh()
+            lifecycleScope.launch {
+                presenter.onRefresh()
+            }
         }
 
         context?.let { context ->
