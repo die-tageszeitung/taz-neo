@@ -41,6 +41,7 @@ class ArchivePresenter(
     }
 
     override suspend fun onItemSelected(issueStub: IssueStub) {
+        log.debug("onItemSelected called")
         getView()?.apply {
             showProgressbar(issueStub)
 
@@ -84,20 +85,25 @@ class ArchivePresenter(
     }
 
     override suspend fun onRefresh() {
+        log.debug("onRefresh called")
         // check for new issues and download
         withContext(Dispatchers.IO) {
             try {
                 feedRepository.save(apiService.getFeeds())
                 issueRepository.save(apiService.getIssuesByDate())
-            } catch (e: Exception) {
-                // TODO show toasts?
-                log.debug(e.localizedMessage ?: "error while refreshing")
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
             }
             getView()?.hideRefreshLoadingIcon()
         }
     }
 
     override suspend fun getNextIssueMoments(date: String, limit: Int) {
+        log.debug("getNextIssueMoments called")
         withContext(Dispatchers.IO) {
             val mainView = getView()?.getMainView()
 

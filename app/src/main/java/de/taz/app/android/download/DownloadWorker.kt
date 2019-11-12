@@ -66,28 +66,32 @@ class DownloadWorker(val httpClient: OkHttpClient) {
 
                 downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
-                val response = awaitCallback(
-                    httpClient.newCall(
-                        Request.Builder().url(fromDB.url).get().build()
-                    )::enqueue
-                )
+                try {
+                    val response = awaitCallback(
+                        httpClient.newCall(
+                            Request.Builder().url(fromDB.url).get().build()
+                        )::enqueue
+                    )
 
-                val file = fileHelper.getFile(fromDB.path)
-                response.body?.bytes()?.let { bytes ->
-                    // ensure folders are created
-                    fileHelper.getFile(fromDB.folder).mkdirs()
-                    file.writeBytes(bytes)
+                    val file = fileHelper.getFile(fromDB.path)
+                    response.body?.bytes()?.let { bytes ->
+                        // ensure folders are created
+                        fileHelper.getFile(fromDB.folder).mkdirs()
+                        file.writeBytes(bytes)
 
-                    // check sha256
-                    val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
-                        .fold("", { str, it -> str + "%02x".format(it) })
-                    if (sha256 == fromDB.file.sha256) {
-                        log.info("sha256 matched for file ${fromDB.file.name}")
-                    } else {
-                        log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                        // check sha256
+                        val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
+                            .fold("", { str, it -> str + "%02x".format(it) })
+                        if (sha256 == fromDB.file.sha256) {
+                            log.info("sha256 matched for file ${fromDB.file.name}")
+                        } else {
+                            log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                        }
                     }
+                    log.debug("finished download of ${fromDB.file.name}")
+                } catch (e: Exception) {
+                    downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                 }
-                log.debug("finished download of ${fromDB.file.name}")
             } else {
                 log.debug("skipping download of ${fromDB.file.name} as it was already finished")
             }
