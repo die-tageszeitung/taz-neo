@@ -7,13 +7,15 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseContract
 
-interface MainContract: BaseContract {
-    interface View: BaseContract.View {
+interface MainContract : BaseContract {
+    interface View : BaseContract.View {
+
+        fun getApplicationContext(): Context
+
+        fun getMainDataController(): DataController
 
         fun highlightDrawerIcon(imageView: ImageView)
 
@@ -23,6 +25,8 @@ interface MainContract: BaseContract {
 
         fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
+        fun showArchive()
+
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
         fun closeDrawer()
@@ -31,11 +35,13 @@ interface MainContract: BaseContract {
 
         fun showToast(string: String)
 
-        fun getApplicationContext() : Context
+        fun lockEndNavigationView()
+
+        fun unlockEndNavigationView()
 
     }
 
-    interface Presenter: BaseContract.Presenter {
+    interface Presenter : BaseContract.Presenter {
         fun onItemClicked(imageView: ImageView)
     }
 
@@ -46,7 +52,10 @@ interface MainContract: BaseContract {
 
         fun observeIssue(lifeCycleOwner: LifecycleOwner, observationCallback: (Issue?) -> (Unit))
 
-        fun observeIssueIsDownloaded(lifeCycleOwner: LifecycleOwner, observationCallback: (Boolean) -> (Unit))
+        fun observeIssueIsDownloaded(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (Boolean) -> (Unit)
+        )
     }
 
 }

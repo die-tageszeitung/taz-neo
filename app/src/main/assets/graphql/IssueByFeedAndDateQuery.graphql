@@ -1,4 +1,4 @@
-query IssueByDateQuery($feedName: String!, $issueDate: String!) {
+query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: Int!) {
     product {
         feedList(name: $feedName) {
             name
@@ -7,7 +7,7 @@ query IssueByDateQuery($feedName: String!, $issueDate: String!) {
             issueCnt
             issueMaxDate
             issueMinDate
-            issueList(issueDate: $issueDate) {
+            issueList(issueDate: $issueDate, limit: $limit) {
                 date
                 moment {
                     imageList {

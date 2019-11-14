@@ -12,6 +12,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
@@ -37,16 +38,14 @@ class WebViewPresenter:
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
-        getView()?.let {webContractView ->
-            webContractView.getMainView()?.let {mainView ->
-                val tazApiJS = TazApiJS(webContractView)
-                webContractView.getWebView().apply {
-                    webViewClient = AppWebViewClient(this@WebViewPresenter)
-                    webChromeClient = WebChromeClient()
-                    settings.javaScriptEnabled = true
-                    addJavascriptInterface(tazApiJS, TAZ_API_JS)
-                    setArticleWebViewCallback(this@WebViewPresenter)
-                }
+        getView()?.let { webContractView ->
+            val tazApiJS = TazApiJS(webContractView)
+            webContractView.getWebView().apply {
+                webViewClient = AppWebViewClient(this@WebViewPresenter)
+                webChromeClient = WebChromeClient()
+                settings.javaScriptEnabled = true
+                addJavascriptInterface(tazApiJS, TAZ_API_JS)
+                setArticleWebViewCallback(this@WebViewPresenter)
             }
         }
     }
@@ -157,6 +156,12 @@ class WebViewPresenter:
                     return true
                 }
                 return false
+            }
+            is Section -> {
+                getView()?.getMainView()?.let {
+                    it.showArchive()
+                    true
+                }?: false
             }
             else -> false
         }

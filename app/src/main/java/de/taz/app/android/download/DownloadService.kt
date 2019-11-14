@@ -12,10 +12,12 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.ConnectionPool
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
@@ -28,12 +30,15 @@ const val RESOURCE_FOLDER = "resources"
 
 object DownloadService {
 
-    private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private val apiService = ApiService.getInstance()
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectionPool(ConnectionPool(20, 5, TimeUnit.MINUTES))
+        .build()
 
     /**
      * use [ioScope] to download
@@ -52,7 +57,7 @@ object DownloadService {
 
                 createDownloadsForCacheableDownload(appContext, cacheableDownload)
 
-                DownloadWorker.startDownloads(
+                DownloadWorker(okHttpClient).startDownloads(
                     appContext,
                     cacheableDownload.getAllFiles()
                 )
@@ -90,7 +95,7 @@ object DownloadService {
      * use [WorkManager] to download in background
      * @param cacheableDownload - object implementing [CacheableDownload] to download files of
      */
-    suspend fun scheduleDownload(appContext: Context, cacheableDownload: CacheableDownload) {
+    fun scheduleDownload(appContext: Context, cacheableDownload: CacheableDownload) {
         enqueueDownloads(
             appContext,
             createDownloadsForCacheableDownload(appContext, cacheableDownload),
@@ -124,7 +129,7 @@ object DownloadService {
         return WorkManager.getInstance(appContext).enqueue(requests)
     }
 
-    private suspend fun createDownloadsForCacheableDownload(
+    private fun createDownloadsForCacheableDownload(
         appContext: Context,
         cacheableDownload: CacheableDownload
     ): List<Download> {
@@ -135,29 +140,34 @@ object DownloadService {
 
         // create global downloads
         val globalFiles = allFiles.filter { it.storageType == StorageType.global }
-        downloads.addAll(createAndSaveDownloads(
-            appInfoRepository.getOrThrow().globalBaseUrl,
-            GLOBAL_FOLDER,
-            globalFiles,
-            tag
-        ))
-
-        // create resource downloads
-        val resourceInfo = ResourceInfoRepository.getInstance(appContext).get()
-        resourceInfo?.let {
-            val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
+        if(globalFiles.isNotEmpty()) {
             downloads.addAll(createAndSaveDownloads(
-                resourceInfo.resourceBaseUrl,
-                RESOURCE_FOLDER,
-                resourceFiles,
+                appInfoRepository.getOrThrow().globalBaseUrl,
+                GLOBAL_FOLDER,
+                globalFiles,
                 tag
             ))
         }
 
+        // create resource downloads
+        val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
+        if (resourceFiles.isNotEmpty()) {
+            val resourceInfo = ResourceInfoRepository.getInstance(appContext).get()
+            resourceInfo?.let {
+                downloads.addAll(
+                    createAndSaveDownloads(
+                        resourceInfo.resourceBaseUrl,
+                        RESOURCE_FOLDER,
+                        resourceFiles,
+                        tag
+                    )
+                )
+            }
+        }
+
         // create issue downloads
-        val issue = if (cacheableDownload is Issue) cacheableDownload else null
-        issue?.let {
-            val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
+        val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
+        cacheableDownload.getIssueOperations()?.let { issue ->
             downloads.addAll(createAndSaveDownloads(
                 issue.baseUrl,
                 issue.tag,

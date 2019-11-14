@@ -11,10 +11,7 @@ import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.FileHelper
-import de.taz.app.android.util.Log
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlin.Exception
 
@@ -26,23 +23,42 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
         createSingletons()
 
+        initLastIssueMoments()
+        initFeedInformation()
         initAppInfo()
         initResources()
-
-        downloadLatestIssue()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun downloadLatestIssue() {
+    private fun initFeedInformation() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val feedRepository = FeedRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val feeds = apiService.getFeeds()
+                feedRepository.save(feeds)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                toastHelper.makeToast(R.string.something_went_wrong_try_later)
+            }
+        }
+    }
+
+    private fun initLastIssueMoments() {
+        val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val issue = ApiService.getInstance().getIssueByFeedAndDate()
-                issueRepository.save(issue)
-                DownloadService.download(applicationContext, issue)
+                val issues = apiService.getIssuesByDate(limit = 10)
+                issueRepository.save(issues)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
             } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
@@ -67,11 +83,13 @@ class SplashActivity : AppCompatActivity() {
             SectionRepository.createInstance(it)
 
             AuthHelper.createInstance(it)
+            DateHelper.createInstance(it)
+            FileHelper.createInstance(it)
+            PreferencesHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
-            FileHelper.createInstance(it)
         }
     }
 
