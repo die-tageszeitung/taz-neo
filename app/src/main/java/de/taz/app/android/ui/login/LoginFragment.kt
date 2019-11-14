@@ -47,14 +47,14 @@ class LoginFragment : Fragment() {
             }
         }
 
-        AuthHelper.getInstance().tokenLiveData.observe(this, Observer { token ->
+        AuthHelper.getInstance().tokenLiveData.observe(viewLifecycleOwner, Observer { token ->
             if (!token.isNullOrBlank()) {
                 toastHelper.makeToast("logged in")
             }
         })
 
         if (authHelper.authTokenInfo.value?.authInfo?.status != AuthStatus.valid) {
-            authHelper.authTokenInfo.observe(this, Observer { authTokenInfo ->
+            authHelper.authTokenInfo.observe(viewLifecycleOwner, Observer { authTokenInfo ->
                 authTokenInfo?.let {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {

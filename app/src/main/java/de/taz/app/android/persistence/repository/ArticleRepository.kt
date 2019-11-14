@@ -186,8 +186,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return article.bookmarked
     }
 
-    fun isBookmarked(articleBase: ArticleBase): Boolean {
-        return articleBase.bookmarked
+    fun isBookmarked(articleStub: ArticleStub): Boolean {
+        return articleStub.bookmarked
     }
 
     fun getIndexInSection(articleName: String): Int? {
@@ -197,14 +197,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
 
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
-        saveScrollingPosition(ArticleBase(article), percentage, position)
+        saveScrollingPosition(ArticleStub(article), percentage, position)
     }
 
-    fun saveScrollingPosition(articleBase: ArticleBase, percentage: Int, position: Int) {
-        val articleBaseLive = getBaseOrThrow(articleBase.articleFileName)
-        if (isBookmarked(articleBaseLive)) {
-            log.debug("save scrolling position for article ${articleBase.articleFileName}")
-            appDatabase.articleDao().update(articleBaseLive.copy(percentage = percentage, position = position))
+    fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
+        val articleStubLive = getBaseOrThrow(articleStub.articleFileName)
+        if (isBookmarked(articleStubLive)) {
+            log.debug("save scrolling position for article ${articleStub.articleFileName}")
+            appDatabase.articleDao().update(articleStubLive.copy(percentage = percentage, position = position))
         }
 
     }

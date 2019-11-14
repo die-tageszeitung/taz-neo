@@ -13,6 +13,7 @@ class MainDataControllerTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     @Test
     fun observeIssue() {
         val mainDataController = MainDataController()

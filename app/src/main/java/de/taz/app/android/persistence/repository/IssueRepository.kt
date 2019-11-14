@@ -2,13 +2,15 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 
-class IssueRepository private constructor(applicationContext: Context) :
+open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -17,6 +19,10 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+
+    open fun save(issues: List<Issue>)  {
+        issues.forEach { save(it) }
+    }
 
     fun save(issue: Issue) {
         appDatabase.runInTransaction {
@@ -57,8 +63,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getWithoutFiles(): ResourceInfoStub? {
-        return appDatabase.resourceInfoDao().get()
+    fun exists(issueOperations: IssueOperations): Boolean {
+        return getStub(issueOperations.feedName, issueOperations.date) != null
+    }
+
+    fun getStub(issueFeedName: String, issueDate: String): IssueStub? {
+        return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate)
     }
 
     fun getLatestIssueStub(): IssueStub? {
@@ -99,6 +109,12 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getIssueStubForMoment(moment: Moment): IssueStub {
         return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
+    }
+
+    fun getAllStubsLiveData(): LiveData<List<IssueStub>> {
+        return Transformations.map(appDatabase.issueDao().getAllLiveData()) { input ->
+            input ?: emptyList()
+        }
     }
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {

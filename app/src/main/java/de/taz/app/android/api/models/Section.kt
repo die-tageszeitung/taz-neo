@@ -30,6 +30,7 @@ data class Section(
         val list = mutableListOf(sectionHtml)
         list.addAll(imageList)
         articleList.forEach { article -> list.addAll(article.getAllFiles()) }
+        // images may be in section and article
         return list.distinct()
     }
 

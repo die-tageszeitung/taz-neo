@@ -17,4 +17,7 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatestLiveData(): LiveData<IssueStub?>
 
+    @Query("SELECT * FROM Issue ORDER BY date DESC")
+    abstract fun getAllLiveData(): LiveData<List<IssueStub>?>
+
 }

@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
+abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
     private val viewModelClass: Class<VIEW_MODEL>
-) : ViewModel() {
+) : ViewModel(), BaseContract.Presenter {
 
     private var view: WeakReference<VIEW>? = null
     var viewModel: VIEW_MODEL? = null
@@ -21,11 +21,12 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : ViewModel>(
                 viewModel = ViewModelProviders.of(it).get(viewModelClass)
             }
             if (it is Fragment) {
-                viewModel = ViewModelProviders.of(it).get(viewModelClass)
+                viewModel = ViewModelProviders.of(it.requireActivity()).get(viewModelClass)
             }
         }
     }
 
     fun getView(): VIEW? = view?.get()
 
+    abstract override fun onViewCreated()
 }

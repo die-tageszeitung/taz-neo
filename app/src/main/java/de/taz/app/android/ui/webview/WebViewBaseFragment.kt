@@ -5,12 +5,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.iterator
-import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
+import de.taz.app.android.base.BaseContract
+import de.taz.app.android.base.BaseMainFragment
 
 
-abstract class BottomNavigationFragment : Fragment() {
+abstract class WebViewBaseFragment<PRESENTER: BaseContract.Presenter> : BaseMainFragment<PRESENTER>() {
+
+    abstract override val presenter: PRESENTER
 
     abstract val visibleItemIds: List<Int>
 

@@ -6,7 +6,8 @@ import androidx.lifecycle.LifecycleRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.TestCoroutineScope
 
-class TestLifecycleOwner(val testCoroutineScope: CoroutineScope = TestCoroutineScope()) : LifecycleOwner {
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+class TestLifecycleOwner(private val testCoroutineScope: CoroutineScope = TestCoroutineScope()) : LifecycleOwner {
 
     private val lifecycle = LifecycleRegistry(this)
 

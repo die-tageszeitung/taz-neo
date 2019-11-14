@@ -13,7 +13,7 @@ import java.util.*
 
 class SectionWebViewFragment(private val section: Section? = null) : WebViewFragment(section) {
 
-    override val headerId: Int = R.layout.fragment_webview_header_section
+    override val headerLayoutId: Int = R.layout.fragment_webview_header_section
 
     override val visibleItemIds = listOf(
         R.id.bottom_navigation_action_help,
@@ -31,11 +31,11 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
     private fun setHeader(section: Section, issueStub: IssueStub) {
         activity?.apply {
             runOnUiThread {
-                findViewById<TextView>(R.id.section).apply {
+                findViewById<TextView>(R.id.section)?.apply {
                     text = section.title
                 }
                 dateToLowerCaseString(issueStub.date)?.let {
-                    findViewById<TextView>(R.id.issue_date).apply {
+                    findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
                 }

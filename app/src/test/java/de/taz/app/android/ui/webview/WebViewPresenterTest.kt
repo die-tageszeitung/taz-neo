@@ -79,9 +79,11 @@ class WebViewPresenterTest {
         }
     }
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
+    @kotlinx.coroutines.ObsoleteCoroutinesApi
     @Before
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
@@ -101,6 +103,7 @@ class WebViewPresenterTest {
 
     @After
     @kotlinx.coroutines.ExperimentalCoroutinesApi
+    @kotlinx.coroutines.ObsoleteCoroutinesApi
     fun tearDown() {
         Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
         mainThreadSurrogate.close()
