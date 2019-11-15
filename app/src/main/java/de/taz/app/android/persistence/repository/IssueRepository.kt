@@ -97,6 +97,10 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
+    fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
+        return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
+    }
+
     fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
         return getIssueStubByFeedAndDate(feedName, date)?.let {
             issueStubToIssue(it)

@@ -12,17 +12,31 @@
             android:orientation="vertical">
 
         <ImageView
-                android:id="@+id/drawer_moment"
+                android:id="@+id/fragment_drawer_sections_moment"
                 android:layout_width="@dimen/drawer_moment_width"
                 android:layout_height="@dimen/drawer_moment_height"
                 android:contentDescription="@string/nav_header_desc" />
 
+        <TextView
+                android:id="@+id/fragment_drawer_sections_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/drawer_menu_list"
+                android:id="@+id/fragment_drawer_sections_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+
+        <TextView
+                android:id="@+id/fragment_drawer_sections_imprint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/imprint"
+                android:visibility="gone"
+                style="@style/TextAppearance.Drawer.Sections.Imprint" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

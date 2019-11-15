@@ -37,7 +37,7 @@ data class Issue(
         issueDto.zipName,
         issueDto.zipPdfName,
         issueDto.navButton,
-        issueDto.imprint?.let { Article(it) },
+        issueDto.imprint?.let { Article(it, true) },
         issueDto.fileList,
         issueDto.fileListPdf ?: emptyList(),
         issueDto.sectionList?.map { Section(it) } ?: emptyList(),

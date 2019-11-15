@@ -146,15 +146,17 @@ class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
     override fun onBackPressed(): Boolean {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
-        return when (viewModel?.getWebViewDisplayable()) {
+        return when (webViewDisplayable) {
             is Article -> {
-                getView()?.getMainView()?.let {
-                    it.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                        (webViewDisplayable as Article).getSection()?.let { section ->
-                            it.showInWebView(section)
+                if (!webViewDisplayable.isImprint) {
+                    getView()?.getMainView()?.let {
+                        it.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                            (webViewDisplayable as Article).getSection()?.let { section ->
+                                it.showInWebView(section)
+                            }
                         }
+                        return true
                     }
-                    return true
                 }
                 return false
             }
