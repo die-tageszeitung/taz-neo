@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.main
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -24,9 +26,14 @@ import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
+const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
+
 class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val presenter = MainPresenter()
+
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +48,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.onViewCreated(savedInstanceState)
 
         lockEndNavigationView()
+
+        val preferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        preferences.registerOnSharedPreferenceChangeListener(prefListener)
     }
 
     override fun getMainDataController(): MainContract.DataController {
