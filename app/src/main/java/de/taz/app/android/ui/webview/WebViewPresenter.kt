@@ -1,8 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.webkit.WebChromeClient
@@ -21,16 +20,18 @@ import kotlinx.coroutines.launch
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-class WebViewPresenter:
-    BasePresenter<WebViewContract.View, WebViewDataController>(WebViewDataController::class.java),
+class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
+    BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(WebViewDataController<DISPLAYABLE>().javaClass),
     WebViewContract.Presenter {
 
-    override fun attach(view: WebViewContract.View) {
+    override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
         super.attach(view)
-        viewModel?.setWebViewDisplayable(view.getWebViewDisplayable())
+        view.getWebViewDisplayable()?.let {
+            viewModel?.setWebViewDisplayable(it)
+        } ?: view.setWebViewDisplayable(viewModel?.getWebViewDisplayable())
     }
 
-    override fun onViewCreated() {
+    override fun onViewCreated(savedInstanceState: Bundle?) {
         configureWebView()
         observeFile()
     }

@@ -3,13 +3,14 @@ package de.taz.app.android.ui.webview
 import android.view.MenuItem
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseContract
-import de.taz.app.android.ui.main.MainContract
 
 interface WebViewContract: BaseContract {
 
-    interface View: BaseContract.View {
+    interface View<DISPLAYABLE: WebViewDisplayable>: BaseContract.View {
 
-        fun getWebViewDisplayable(): WebViewDisplayable?
+        fun getWebViewDisplayable(): DISPLAYABLE?
+
+        fun setWebViewDisplayable(displayable: DISPLAYABLE?)
 
         fun getWebView(): AppWebView
 
@@ -42,10 +43,10 @@ interface WebViewContract: BaseContract {
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
 
-    interface DataController {
-        fun getWebViewDisplayable(): WebViewDisplayable?
+    interface DataController<DISPLAYABLE: WebViewDisplayable> {
+        fun getWebViewDisplayable(): DISPLAYABLE?
 
-        fun setWebViewDisplayable(webViewDisplayable: WebViewDisplayable?)
+        fun setWebViewDisplayable(displayable: DISPLAYABLE?)
     }
 
 }

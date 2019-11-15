@@ -44,9 +44,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         setNavigationDrawerIconClickListener()
-        drawer_icon_content.performClick()
 
-        presenter.onViewCreated()
+        presenter.onViewCreated(savedInstanceState)
 
         lockEndNavigationView()
     }
@@ -113,9 +112,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         runOnUiThread {
             val fragment = when (webViewDisplayable) {
                 is Article ->
-                    ArticleWebViewFragment(webViewDisplayable)
+                    ArticleWebViewFragment.createInstance(webViewDisplayable)
                 is Section ->
-                    SectionWebViewFragment(webViewDisplayable)
+                    SectionWebViewFragment.createInstance(webViewDisplayable)
                 else -> null
             }
             fragment?.let {
