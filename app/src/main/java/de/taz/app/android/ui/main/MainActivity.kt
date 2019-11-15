@@ -23,6 +23,7 @@ import de.taz.app.android.ui.feed.FeedFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -30,10 +31,22 @@ const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
+    private val fileHelper = FileHelper.getInstance()
+
     private val presenter = MainPresenter()
 
-    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener()
+    private lateinit var tazApiCssPreferences : SharedPreferences
 
+    private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, _ ->
+        val cssFile = fileHelper.getFile("css/tazApi.css")
+        cssFile.printWriter().use { printWriter ->
+            sharedPreferences.all.entries.forEach { entry ->
+                val line = "${entry.key} : ${entry.value}"
+                printWriter.println(line)
+            }
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +62,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         lockEndNavigationView()
 
-        val preferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        preferences.registerOnSharedPreferenceChangeListener(prefListener)
+        tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun getMainDataController(): MainContract.DataController {
@@ -167,5 +180,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun getLifecycleOwner(): LifecycleOwner = this
 
     override fun getMainView(): MainContract.View? = this
+
+    override fun onDestroy() {
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        super.onDestroy()
+    }
 
 }
