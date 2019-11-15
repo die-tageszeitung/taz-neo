@@ -1,5 +1,6 @@
 package de.taz.app.android.base
 
+import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.ui.main.MainContract
 
@@ -11,7 +12,7 @@ interface BaseContract {
     }
 
     interface Presenter {
-        fun onViewCreated()
+        fun onViewCreated(savedInstanceState: Bundle?)
     }
 
     interface DataController

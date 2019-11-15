@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.main
 
+import android.os.Bundle
 import android.widget.ImageView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -15,14 +16,17 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
     MainDataController::class.java
 ) {
 
-    override fun onViewCreated() {
+    override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.apply {
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 IssueRepository.getInstance().getLatestIssue()?.let { issue ->
                     viewModel?.setIssue(issue)
                 }
             }
-            showArchive()
+            // only show archive if created in the beginning else show current fragment
+            if (savedInstanceState == null) {
+                showArchive()
+            }
         }
     }
 

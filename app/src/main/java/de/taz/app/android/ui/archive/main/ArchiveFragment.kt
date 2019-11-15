@@ -54,7 +54,7 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         }
         fragment_archive_grid.adapter = archiveListAdapter
 
-        presenter.onViewCreated()
+        presenter.onViewCreated(savedInstanceState)
 
         fragment_archive_grid.addOnScrollListener(
             ArchiveOnScrollListener(
