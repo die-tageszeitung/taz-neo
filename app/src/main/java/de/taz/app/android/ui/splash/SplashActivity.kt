@@ -146,11 +146,9 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
-        // mock tazApi.css
-        // TODO use real tazApi.css
         fileHelper.getFile(RESOURCE_FOLDER).mkdirs()
-        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").
-            writeText(fileHelper.readFileFromAssets("css/tazApi.css"))
+        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+            .writeText(fileHelper.readFileFromAssets("css/tazApi.css"))
         fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
             .writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
     }
