@@ -5,6 +5,7 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
 import java.io.File
 
@@ -17,11 +18,12 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList(),
+    val isImprint: Boolean = false,
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0
 ): ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
-    constructor(articleDto: ArticleDto) : this(
+    constructor(articleDto: ArticleDto, isImprint: Boolean = false) : this(
         articleDto.articleHtml,
         articleDto.title,
         articleDto.teaser,
@@ -29,7 +31,8 @@ data class Article(
         articleDto.audioFile,
         articleDto.pageNameList ?: emptyList(),
         articleDto.imageList ?: emptyList(),
-        articleDto.authorList ?: emptyList()
+        articleDto.authorList ?: emptyList(),
+        isImprint
     )
 
     override val articleFileName
@@ -44,9 +47,8 @@ data class Article(
     }
 
     override fun getFile(): File? {
-        return getSection()?.let { section ->
-            return FileHelper.getInstance()
-                .getFile("${section.issueStub.tag}/$articleFileName")
+        return getIssueStub()?.let { issueStub ->
+            FileHelper.getInstance().getFile("${issueStub.tag}/$articleFileName")
         }
     }
 
@@ -60,5 +62,13 @@ data class Article(
 
     override fun getLink(): String? {
         return onlineLink
+    }
+
+    fun getIssueStub(): IssueStub? {
+        return if(isImprint) {
+            IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
+        } else {
+            getSection()?.issueStub
+        }
     }
 }

@@ -146,7 +146,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
             audioFile,
             articleStub.pageNameList,
             articleImages,
-            authors
+            authors,
+            articleStub.isImprint,
+            articleStub.bookmarked,
+            articleStub.position,
+            articleStub.percentage
         )
     }
 

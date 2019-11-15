@@ -18,6 +18,7 @@
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/black</color>
+    <color name="drawer_sections_imprint">@color/grey</color>
     <color name="navigation_drawer_header_title">@color/tazRed</color>
 
     <color name="navigation_drawer_icon">@color/grey</color>

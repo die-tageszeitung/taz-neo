@@ -5,11 +5,8 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
-import android.widget.ImageView
 import androidx.annotation.AnimRes
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -24,8 +21,6 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.nav_header_main.*
-import java.util.*
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
@@ -43,52 +38,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
-        setNavigationDrawerIconClickListener()
-
         presenter.onViewCreated(savedInstanceState)
 
         lockEndNavigationView()
     }
 
-    private fun setNavigationDrawerIconClickListener() {
-        listOf(
-            drawer_icon_content,
-            drawer_icon_home,
-            drawer_icon_bookmarks,
-            drawer_icon_settings,
-            drawer_icon_help
-        ).map { imageView ->
-            imageView.setOnClickListener {
-                presenter.onItemClicked(imageView)
-            }
-        }
-    }
-
     override fun getMainDataController(): MainContract.DataController {
         return presenter.viewModel as MainContract.DataController
-    }
-
-    override fun highlightDrawerIcon(imageView: ImageView) {
-        listOf(
-            drawer_icon_content,
-            drawer_icon_home,
-            drawer_icon_bookmarks,
-            drawer_icon_settings,
-            drawer_icon_help
-        ).map {
-            it.drawable.setTint(ContextCompat.getColor(this, R.color.navigation_drawer_icon))
-        }
-
-        imageView.drawable.setTint(
-            ContextCompat.getColor(
-                this,
-                R.color.navigation_drawer_icon_selected
-            )
-        )
-    }
-
-    override fun setDrawerTitle(@StringRes stringId: Int) {
-        drawer_header_title.text = getString(stringId).toLowerCase(Locale.getDefault())
     }
 
     override fun showDrawerFragment(fragment: Fragment) {
