@@ -18,6 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.feed.FeedFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
@@ -38,14 +39,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var tazApiCssPreferences : SharedPreferences
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, _ ->
-        val cssFile = fileHelper.getFile("css/tazApi.css")
+        val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
         cssFile.printWriter().use { printWriter ->
             sharedPreferences.all.entries.forEach { entry ->
-                val line = "${entry.key} : ${entry.value}"
+                val line = "${entry.key} : ${entry.value};"
                 printWriter.println(line)
             }
         }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
