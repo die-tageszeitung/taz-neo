@@ -7,17 +7,32 @@ import android.webkit.WebView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.android.synthetic.main.fragment_webview.*
 
 
-abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: WebViewBaseFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>, BackFragment {
+abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>, BackFragment {
 
     override val scrollViewId = R.id.web_view
 
     override val presenter = WebViewPresenter<DISPLAYABLE>()
+
+    override  val inactiveIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
+        R.id.bottom_navigation_action_help to R.drawable.ic_help,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size
+    )
+
+    override val activeIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
+        R.id.bottom_navigation_action_help to R.drawable.ic_help_active,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,17 +47,6 @@ abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: WebViewBaseFrag
 
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        activity?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.visibility =
-            View.VISIBLE
-    }
-
-    override fun onPause() {
-        activity?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.visibility = View.GONE
-        super.onPause()
     }
 
     override fun getWebView(): AppWebView {

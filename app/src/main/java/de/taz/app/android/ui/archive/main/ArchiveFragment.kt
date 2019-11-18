@@ -26,6 +26,8 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
     override val scrollViewId = R.id.fragment_archive_grid
     override val endNavigationFragment = ArchiveEndNavigationFragment()
 
+    override val bottomNavigationMenuResId: Int = R.menu.navigation_bottom_home
+
     override val presenter = ArchivePresenter()
     val archiveListAdapter = ArchiveListAdapter(this)
 
