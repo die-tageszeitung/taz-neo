@@ -25,17 +25,17 @@ class WebViewPresenterTest {
     @kotlinx.coroutines.ObsoleteCoroutinesApi
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    private lateinit var presenter: WebViewPresenter
+    private lateinit var presenter: WebViewPresenter<WebViewDisplayable>
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var webViewContractView: WebViewContract.View
+    lateinit var webViewContractView: WebViewContract.View<WebViewDisplayable>
     @Mock
     lateinit var mainContractView: MainContract.View
     @Mock
-    lateinit var viewModel: WebViewDataController
+    lateinit var viewModel: WebViewDataController<WebViewDisplayable>
 
     private val webViewDisplayable: WebViewDisplayable = object : WebViewDisplayable {
         override fun getFile(): File? {

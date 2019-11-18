@@ -18,7 +18,7 @@ class WebViewDataControllerTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    private lateinit var webViewDataController: WebViewDataController
+    private lateinit var webViewDataController: WebViewDataController<WebViewDisplayable>
 
     private val webViewDisplayable: WebViewDisplayable = object : WebViewDisplayable {
         override fun getFile(): File? { return File("/path/to/exile") }

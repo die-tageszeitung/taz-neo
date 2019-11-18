@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.archive
 
 import android.graphics.Bitmap
+import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -89,7 +90,7 @@ class ArchivePresenterTest {
 
     @Test
     fun onViewCreated() {
-        presenter.onViewCreated()
+        presenter.onViewCreated(null)
 
         Mockito.verify(viewModel).observeFeeds(any(), any())
         Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
