@@ -26,5 +26,4 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             }
         }
     }
-
 }
