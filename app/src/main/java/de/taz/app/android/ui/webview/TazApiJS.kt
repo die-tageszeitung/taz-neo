@@ -4,6 +4,7 @@ import android.content.Context
 import android.webkit.JavascriptInterface
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.util.Log
@@ -12,7 +13,7 @@ import kotlinx.coroutines.launch
 
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
-class TazApiJS (val view: WebViewContract.View) {
+class TazApiJS<DISPLAYABLE: WebViewDisplayable> (val view: WebViewContract.View<DISPLAYABLE>) {
 
     val context = view.getMainView()?.getApplicationContext()
 
@@ -76,18 +77,11 @@ class TazApiJS (val view: WebViewContract.View) {
         log.debug("openUrl $url")
         // relevant for links in the title for instance
 
-        //TODO urls in title should be adapted to logged in/not logged in users
-        // we should just use "url" here to get the article
-        // right now the links only work for logged in users
-        // these lines are needed to bend it for not logged in users
-        //val (name, suffix) = url.split(".")
-        //val newUrl = "$name.public.$suffix"
-
-        view.getMainView()?.let {
-            it.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                val article = ArticleRepository.getInstance().get(url)
-                val articleWebViewFragment = ArticleWebViewFragment(article)
-                it.showInWebView(articleWebViewFragment.getWebViewDisplayable() as Article)
+        view.getMainView()?.apply {
+            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                ArticleRepository.getInstance().get(url)?.let {
+                    showInWebView(it)
+                }
             }
         }
     }

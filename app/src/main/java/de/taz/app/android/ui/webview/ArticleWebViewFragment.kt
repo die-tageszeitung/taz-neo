@@ -9,7 +9,25 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment(private val article: Article? = null) : WebViewFragment(article) {
+class ArticleWebViewFragment : WebViewFragment<Article>() {
+
+    var article: Article? = null
+
+    companion object {
+        fun createInstance(article: Article): WebViewFragment<Article> {
+            val fragment = ArticleWebViewFragment()
+            fragment.article = article
+            return fragment
+        }
+    }
+
+    override fun getWebViewDisplayable(): Article? {
+        return article
+    }
+
+    override fun setWebViewDisplayable(displayable: Article?) {
+        this.article = displayable
+    }
 
     override val headerLayoutId: Int = R.layout.fragment_webview_header_article
 

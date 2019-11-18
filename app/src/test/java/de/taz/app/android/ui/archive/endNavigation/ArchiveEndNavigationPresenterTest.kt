@@ -66,7 +66,7 @@ class ArchiveEndNavigationPresenterTest {
 
     @Test
     fun onViewCreated() {
-        presenter.onViewCreated()
+        presenter.onViewCreated(null)
         Mockito.verify(viewModel).observeFeeds(any(), any())
         Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
     }

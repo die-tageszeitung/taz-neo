@@ -38,7 +38,7 @@ class ArchiveEndNavigationFragment : BaseFragment<ArchiveEndNavigationContract.P
                 LinearLayoutManager(context)
         }
         presenter.attach(this)
-        presenter.onViewCreated()
+        presenter.onViewCreated(savedInstanceState)
     }
 
     override fun setFeeds(feeds: List<Feed>) {

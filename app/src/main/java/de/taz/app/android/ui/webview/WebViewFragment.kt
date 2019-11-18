@@ -13,17 +13,11 @@ import de.taz.app.android.ui.main.MainContract
 import kotlinx.android.synthetic.main.fragment_webview.*
 
 
-abstract class WebViewFragment(
-    private val _webViewDisplayable: WebViewDisplayable? = null
-) : WebViewBaseFragment<WebViewPresenter>(), WebViewContract.View, BackFragment {
+abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: WebViewBaseFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>, BackFragment {
 
     override val scrollViewId = R.id.web_view
 
-    override val presenter = WebViewPresenter()
-
-    override fun getWebViewDisplayable(): WebViewDisplayable? {
-        return _webViewDisplayable
-    }
+    override val presenter = WebViewPresenter<DISPLAYABLE>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,7 +31,7 @@ abstract class WebViewFragment(
         super.onViewCreated(view, savedInstanceState)
 
         presenter.attach(this)
-        presenter.onViewCreated()
+        presenter.onViewCreated(savedInstanceState)
     }
 
     override fun onResume() {

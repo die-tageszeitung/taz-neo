@@ -11,7 +11,26 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SectionWebViewFragment(private val section: Section? = null) : WebViewFragment(section) {
+class SectionWebViewFragment : WebViewFragment<Section>() {
+
+    var section: Section? = null
+
+    companion object {
+        fun createInstance(section: Section): WebViewFragment<Section> {
+            val fragment = SectionWebViewFragment()
+            fragment.section = section
+            return fragment
+        }
+    }
+
+    override fun getWebViewDisplayable(): Section? {
+        return section
+    }
+
+    override fun setWebViewDisplayable(displayable: Section?) {
+        section = displayable
+    }
+
 
     override val headerLayoutId: Int = R.layout.fragment_webview_header_section
 
@@ -23,7 +42,9 @@ class SectionWebViewFragment(private val section: Section? = null) : WebViewFrag
     override fun configureHeader(): Job? {
         return section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                setHeader(section, section.issueStub)
+                section?.let { section ->
+                    setHeader(section, section.issueStub)
+                }
             }
         }
     }
