@@ -12,7 +12,7 @@ data class ArticleStub(
     val onlineLink: String?,
     val pageNameList: List<String> = emptyList(),
     val bookmarked: Boolean = false,
-    val isImprint: Boolean = false,
+    val articleType: ArticleType = ArticleType.STANDARD,
     val position: Int = 0,
     val percentage: Int = 0
 ): ArticleOperations {
@@ -23,7 +23,7 @@ data class ArticleStub(
         article.onlineLink,
         article.pageNameList,
         article.bookmarked,
-        article.isImprint,
+        article.articleType,
         article.position,
         article.percentage
     )

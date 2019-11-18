@@ -18,12 +18,12 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList(),
-    val isImprint: Boolean = false,
+    val articleType: ArticleType = ArticleType.STANDARD,
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0
 ): ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
-    constructor(articleDto: ArticleDto, isImprint: Boolean = false) : this(
+    constructor(articleDto: ArticleDto, articleType: ArticleType = ArticleType.STANDARD) : this(
         articleDto.articleHtml,
         articleDto.title,
         articleDto.teaser,
@@ -32,7 +32,7 @@ data class Article(
         articleDto.pageNameList ?: emptyList(),
         articleDto.imageList ?: emptyList(),
         articleDto.authorList ?: emptyList(),
-        isImprint
+        articleType
     )
 
     override val articleFileName
@@ -64,8 +64,12 @@ data class Article(
         return onlineLink
     }
 
+    fun isImprint(): Boolean {
+        return articleType == ArticleType.IMPRINT
+    }
+
     fun getIssueStub(): IssueStub? {
-        return if(isImprint) {
+        return if(isImprint()) {
             IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
         } else {
             getSection()?.issueStub

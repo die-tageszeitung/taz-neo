@@ -147,7 +147,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.pageNameList,
             articleImages,
             authors,
-            articleStub.isImprint,
+            articleStub.articleType,
             articleStub.bookmarked,
             articleStub.position,
             articleStub.percentage
