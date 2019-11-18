@@ -11,7 +11,6 @@ open class MainDataController : BaseDataController(), MainContract.DataControlle
         postValue(null)
     }
 
-    // TODO check whether this works with multiple issues
     private val selectedIssueIsDownloaded: LiveData<Boolean> =
         Transformations.map(selectedIssue) { selectedIssue ->
             runBlocking {

@@ -14,12 +14,13 @@ import de.taz.app.android.R
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import kotlinx.coroutines.*
 import java.net.URLDecoder
 
 const val MAILTO_PREFIX = "mailto:"
 
-class AppWebViewClient(private val presenter: WebViewPresenter) : WebViewClient() {
+class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) : WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()

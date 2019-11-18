@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.archive.main
 
 import android.graphics.Bitmap
+import android.os.Bundle
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -23,7 +24,7 @@ class ArchivePresenter(
     ArchiveDataController::class.java
 ), ArchiveContract.Presenter {
 
-    override fun onViewCreated() {
+    override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.let { view ->
             view.getLifecycleOwner().let {
                 viewModel?.apply {
@@ -65,7 +66,7 @@ class ArchivePresenter(
                                 // open last clicked issue if downloaded
                                 if (isDownloaded == true && getMainDataController().getIssue() == issue) {
                                     firstSection.isDownloadedLiveData().removeObserver(this)
-                                    showMainFragment(SectionWebViewFragment(firstSection))
+                                    showMainFragment(SectionWebViewFragment.createInstance(firstSection))
                                 }
                             }
                         }
