@@ -148,7 +148,7 @@ class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
 
         return when (webViewDisplayable) {
             is Article -> {
-                if (!webViewDisplayable.isImprint) {
+                if (!webViewDisplayable.isImprint()) {
                     getView()?.getMainView()?.let {
                         it.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                             (webViewDisplayable as Article).getSection()?.let { section ->
