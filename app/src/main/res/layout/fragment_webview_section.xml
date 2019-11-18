@@ -29,9 +29,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/web_view_wrapper"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
         <de.taz.app.android.ui.webview.AppWebView
@@ -67,16 +67,21 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/navigation_bottom_background"
-            app:labelVisibilityMode="unlabeled"
             app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:menu="@menu/navigation_bottom_section"
-            />
+            android:background="@color/navigation_bottom_background">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                app:labelVisibilityMode="unlabeled"
+                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                app:menu="@menu/navigation_bottom_section" />
+
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

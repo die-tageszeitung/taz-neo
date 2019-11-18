@@ -98,4 +98,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
+        <item name="colorControlHighlight">@color/black</item>
+        <item name="android:background">?android:selectableItemBackgroundBorderless</item>
+    </style>
+
 </resources>
