@@ -48,6 +48,6 @@
             app:labelVisibilityMode="unlabeled"
             app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:menu="@menu/navigation_bottom" />
+            />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

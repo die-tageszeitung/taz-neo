@@ -33,11 +33,7 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
 
 
     override val headerLayoutId: Int = R.layout.fragment_webview_header_section
-
-    override val visibleItemIds = listOf(
-        R.id.bottom_navigation_action_help,
-        R.id.bottom_navigation_action_size
-    )
+    override val bottomNavigationMenuResId: Int = R.menu.navigation_bottom_section
 
     override fun configureHeader(): Job? {
         return section?.let {

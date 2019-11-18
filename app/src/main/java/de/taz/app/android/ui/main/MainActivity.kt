@@ -24,8 +24,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
-    private val toastHelper = ToastHelper.getInstance()
-
     private val presenter = MainPresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,11 +130,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showToast(stringId: Int) {
-        toastHelper.makeToast(stringId)
+        ToastHelper.getInstance(applicationContext).makeToast(stringId)
     }
 
     override fun showToast(string: String) {
-        toastHelper.makeToast(string)
+        ToastHelper.getInstance(applicationContext).makeToast(string)
     }
 
     override fun getLifecycleOwner(): LifecycleOwner = this

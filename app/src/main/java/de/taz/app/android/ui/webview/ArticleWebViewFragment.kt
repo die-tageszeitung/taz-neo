@@ -31,12 +31,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
 
     override val headerLayoutId: Int = R.layout.fragment_webview_header_article
 
-    override val visibleItemIds = listOf(
-        R.id.bottom_navigation_action_bookmark,
-        R.id.bottom_navigation_action_help,
-        R.id.bottom_navigation_action_share,
-        R.id.bottom_navigation_action_size
-    )
+    override val bottomNavigationMenuResId: Int = R.menu.navigation_bottom_article
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

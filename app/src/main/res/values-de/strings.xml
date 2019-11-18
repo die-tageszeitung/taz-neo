@@ -21,9 +21,13 @@
     <string name="navigation_drawer_icon_settings">Einstellungen</string>
     <string name="navigation_drawer_icon_help">Hilfe</string>
 
-    <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
-    <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
+    <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
+    <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
+    <string name="bottom_navigation_action_mp3">MP3 streamen</string>
+    <string name="bottom_navigation_action_search">Suche</string>
+    <string name="bottom_navigation_action_settings">Einstellungen</string>
+    <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
