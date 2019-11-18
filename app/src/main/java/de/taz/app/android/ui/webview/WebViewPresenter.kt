@@ -14,14 +14,17 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.ui.archive.main.ArchiveFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
-    BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(WebViewDataController<DISPLAYABLE>().javaClass),
+class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
+    BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
+        WebViewDataController<DISPLAYABLE>().javaClass
+    ),
     WebViewContract.Presenter {
 
     override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
@@ -72,34 +75,39 @@ class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
-        if (
-            menuItem.itemId == R.id.bottom_navigation_action_bookmark && webViewDisplayable is Article
-        ) {
-            getView()?.let { view ->
-                val articleRepository = ArticleRepository.getInstance()
-                if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
-                    view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                        articleRepository.debookmarkArticle(webViewDisplayable)
-                    }
-                    view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                    view.setIconInactive(R.id.bottom_navigation_action_bookmark)
-                } else {
-                    view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                        articleRepository.bookmarkArticle(webViewDisplayable)
-                    }
-                    view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                    view.setIconActive(R.id.bottom_navigation_action_bookmark)
-                }
-            }
-        }
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home ->
+                getView()?.getMainView()?.showMainFragment(ArchiveFragment())
 
-        if(menuItem.itemId == R.id.bottom_navigation_action_share && webViewDisplayable is Shareable) {
-            webViewDisplayable.getLink()?.let {
-                getView()?.apply {
-                    shareText(it)
-                    setIconInactive(R.id.bottom_navigation_action_share)
+            R.id.bottom_navigation_action_bookmark ->
+                if (webViewDisplayable is Article) {
+                    getView()?.let { view ->
+                        val articleRepository = ArticleRepository.getInstance()
+                        if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
+                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                                articleRepository.debookmarkArticle(webViewDisplayable)
+                            }
+                            view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
+                            view.setIconInactive(R.id.bottom_navigation_action_bookmark)
+                        } else {
+                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                                articleRepository.bookmarkArticle(webViewDisplayable)
+                            }
+                            view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
+                            view.setIconActive(R.id.bottom_navigation_action_bookmark)
+                        }
+                    }
                 }
-            }
+
+            R.id.bottom_navigation_action_share ->
+                if (webViewDisplayable is Shareable) {
+                    webViewDisplayable.getLink()?.let {
+                        getView()?.apply {
+                            shareText(it)
+                            setIconInactive(R.id.bottom_navigation_action_share)
+                        }
+                    }
+                }
         }
     }
 
@@ -164,7 +172,7 @@ class WebViewPresenter<DISPLAYABLE: WebViewDisplayable>:
                 getView()?.getMainView()?.let {
                     it.showArchive()
                     true
-                }?: false
+                } ?: false
             }
             else -> false
         }
