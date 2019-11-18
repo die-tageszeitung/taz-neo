@@ -39,7 +39,6 @@
             android:id="@+id/fragment_archive_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:background="@color/fragment_archive_background">
 
         <androidx.core.widget.NestedScrollView
@@ -71,16 +70,22 @@
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/navigation_bottom_background"
-            app:labelVisibilityMode="unlabeled"
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:menu="@menu/navigation_bottom_home" />
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                app:labelVisibilityMode="unlabeled"
+                app:menu="@menu/navigation_bottom_home"
+                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                />
+
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
