@@ -38,4 +38,5 @@ interface ArticleOperations {
     fun getIndexInSection(): Int? {
         return ArticleRepository.getInstance().getIndexInSection(articleFileName)
     }
+
 }

@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.main
 
 import android.content.Context
-import android.widget.ImageView
 import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
@@ -16,10 +15,6 @@ interface MainContract : BaseContract {
         fun getApplicationContext(): Context
 
         fun getMainDataController(): DataController
-
-        fun highlightDrawerIcon(imageView: ImageView)
-
-        fun setDrawerTitle(@StringRes stringId: Int)
 
         fun showDrawerFragment(fragment: Fragment)
 
@@ -41,9 +36,7 @@ interface MainContract : BaseContract {
 
     }
 
-    interface Presenter : BaseContract.Presenter {
-        fun onItemClicked(imageView: ImageView)
-    }
+    interface Presenter : BaseContract.Presenter
 
     interface DataController {
         fun getIssue(): Issue?

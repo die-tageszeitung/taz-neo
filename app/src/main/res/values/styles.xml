@@ -52,6 +52,10 @@
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
+    <style name="TextAppearance.Drawer.Sections.Imprint" parent="TextAppearance.Drawer.Sections">
+        <item name="android:textColor">@color/drawer_sections_imprint</item>
+    </style>
+
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">32pt</item>

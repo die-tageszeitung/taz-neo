@@ -41,6 +41,7 @@ private const val DATABASE_NAME = "db"
 @TypeConverters(
     AppNameTypeConverter::class,
     AppTypeTypeConverter::class,
+    ArticleTypeTypeConverter::class,
     CycleTypeConverter::class,
     DownloadStatusTypeConverter::class,
     FrameListTypeConverter::class,

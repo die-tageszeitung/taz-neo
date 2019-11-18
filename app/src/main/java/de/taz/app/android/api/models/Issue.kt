@@ -37,7 +37,7 @@ data class Issue(
         issueDto.zipName,
         issueDto.zipPdfName,
         issueDto.navButton,
-        issueDto.imprint?.let { Article(it) },
+        issueDto.imprint?.let { Article(it, ArticleType.IMPRINT) },
         issueDto.fileList,
         issueDto.fileListPdf ?: emptyList(),
         issueDto.sectionList?.map { Section(it) } ?: emptyList(),
@@ -81,4 +81,8 @@ enum class IssueStatus {
     demo,
     locked,
     public
+}
+
+enum class ArticleType {
+   STANDARD, IMPRINT;
 }
