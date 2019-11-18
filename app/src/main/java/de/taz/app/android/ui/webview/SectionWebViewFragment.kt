@@ -1,5 +1,9 @@
 package de.taz.app.android.ui.webview
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -23,6 +27,14 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_webview_section, container, false)
+    }
+
     override fun getWebViewDisplayable(): Section? {
         return section
     }
@@ -31,18 +43,17 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
         section = displayable
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override val headerLayoutId: Int = R.layout.fragment_webview_header_section
-    override val bottomNavigationMenuResId: Int = R.menu.navigation_bottom_section
-
-    override fun configureHeader(): Job? {
-        return section?.let {
+        section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
                 section?.let { section ->
                     setHeader(section, section.issueStub)
                 }
             }
         }
+
     }
 
     private fun setHeader(section: Section, issueStub: IssueStub) {

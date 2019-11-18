@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.webview
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -21,6 +23,14 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_webview_article, container, false)
+    }
+
     override fun getWebViewDisplayable(): Article? {
         return article
     }
@@ -29,20 +39,13 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
         this.article = displayable
     }
 
-    override val headerLayoutId: Int = R.layout.fragment_webview_header_article
-
-    override val bottomNavigationMenuResId: Int = R.menu.navigation_bottom_article
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (article?.bookmarked == true) {
             setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
             setIconActive(R.id.bottom_navigation_action_bookmark)
         }
-    }
-
-    override fun configureHeader(): Job? {
-        return activity?.lifecycleScope?.launch(Dispatchers.IO) {
+        activity?.lifecycleScope?.launch(Dispatchers.IO) {
             article?.getSection()?.let { section ->
                 setHeaderForSection(section)
             }
@@ -54,9 +57,9 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
             runOnUiThread {
                 findViewById<TextView>(R.id.section)?.text = section.title
                 findViewById<TextView>(R.id.article_num)?.text = getString(
-                        R.string.fragment_header_article,
-                        section.articleList.indexOf(article) + 1,
-                        section.articleList.size
+                    R.string.fragment_header_article,
+                    section.articleList.indexOf(article) + 1,
+                    section.articleList.size
                 )
             }
         }

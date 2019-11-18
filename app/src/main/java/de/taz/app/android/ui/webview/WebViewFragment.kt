@@ -4,23 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.webkit.WebView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
-import kotlinx.android.synthetic.main.fragment_webview.*
+import kotlinx.android.synthetic.main.fragment_webview_section.*
 
 
-abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>, BackFragment {
-
-    override val scrollViewId = R.id.web_view
+abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
+    BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>,
+    BackFragment {
 
     override val presenter = WebViewPresenter<DISPLAYABLE>()
 
-    override  val inactiveIconMap = mapOf(
+    override val inactiveIconMap = mapOf(
         R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
         R.id.bottom_navigation_action_help to R.drawable.ic_help,
         R.id.bottom_navigation_action_share to R.drawable.ic_share,
@@ -33,14 +32,6 @@ abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: BaseMainFragmen
         R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
         R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active
     )
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,7 +50,6 @@ abstract class WebViewFragment<DISPLAYABLE: WebViewDisplayable>: BaseMainFragmen
             web_view.visibility = View.VISIBLE
         }
     }
-
 
     override fun loadUrl(url: String) {
         activity?.runOnUiThread {

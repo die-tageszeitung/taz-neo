@@ -9,10 +9,11 @@
         android:clipToPadding="false"
         tools:openDrawer="start">
 
-    <include
-            layout="@layout/app_bar_main"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <FrameLayout
+        android:id="@+id/main_content_fragment_placeholder"
+        tools:showIn="@layout/activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <de.taz.app.android.ui.drawer.NavigationView
             android:id="@+id/nav_view"
