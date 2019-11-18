@@ -39,6 +39,7 @@
 
     <string name="archive">Archiv</string>
     <string name="feeds">Publikationen</string>
+    <string name="imprint">Impressum</string>
 
     <string name="fragment_archive_navigation_end_item_image_active">aktiv</string>
     <string name="fragment_archive_navigation_end_item_image_inactive">inaktiv</string>

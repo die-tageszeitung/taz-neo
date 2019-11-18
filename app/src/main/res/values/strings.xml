@@ -38,6 +38,7 @@
 
     <string name="archive">Archive</string>
     <string name="feeds">Feeds</string>
+    <string name="imprint">Imprint</string>
 
     <string name="fragment_archive_navigation_end_item_image_active">active</string>
     <string name="fragment_archive_navigation_end_item_image_inactive">inactive</string>

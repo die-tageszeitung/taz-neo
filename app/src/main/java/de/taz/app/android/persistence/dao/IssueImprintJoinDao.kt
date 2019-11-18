@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.join.IssueImprintJoin
 
 
@@ -15,5 +16,12 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
         """
     )
     abstract fun getImprintNameForIssue(feedName: String, date: String): String?
+
+    @Query(
+        """SELECT Issue.* FROM Issue INNER JOIN IssueImprintJoin
+        ON IssueImprintJoin.articleFileName == :imprintFileName
+        """
+    )
+    abstract fun getIssueForImprintFileName(imprintFileName: String): IssueStub?
 
 }

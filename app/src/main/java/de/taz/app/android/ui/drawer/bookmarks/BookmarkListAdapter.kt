@@ -26,7 +26,7 @@ class BookmarkListAdapter(private val activity: MainActivity, private var bookma
     ): SectionListAdapterViewHolder {
         // create a new view
         val textView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_drawer_menu_sections_item, parent, false) as TextView
+            .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
         return SectionListAdapterViewHolder(
             textView
         )
