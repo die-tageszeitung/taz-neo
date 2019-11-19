@@ -25,17 +25,13 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     val log by Log
 
-    private var initialSection: Section? = null
-    private var initialArticlePosition: Int? = null
-
+    private var initialArticle: Article? = null
 
     companion object {
-        fun createInstance(section: Section, initialArticle: Article): ArticlePagerFragment {
-            // FIXME: think about using the Bundle with a section id and getting the data from the viewmodel directly
+        fun createInstance(initialArticle: Article): ArticlePagerFragment {
+            // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
             val fragment = ArticlePagerFragment()
-            fragment.initialSection = section
-            fragment.initialArticlePosition = section.articleList.indexOf(initialArticle)
-
+            fragment.initialArticle = initialArticle
             return fragment
         }
     }
@@ -47,8 +43,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         presenter.attach(this)
 
         // Ensure initial fragment states are copied to the model via the presenter
-        initialSection?.let { presenter.setSection(it) }
-        initialArticlePosition?.let { presenter.setCurrrentPosition(it) }
+        initialArticle?.let { presenter.setInitialArticle(it) }
 
         // Initialize the presenter and let it call setSection on this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
@@ -75,10 +70,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         return true
     }
 
-    override fun setSection(section: Section, currentPosition: Int) {
+    override fun setArticles(articles: List<Article>, currentPosition: Int) {
         article_view_pager.apply {
             adapter = ArticlePagerAdapter(
-                section,
+                articles,
                 childFragmentManager
             )
             currentItem = currentPosition
@@ -93,19 +88,17 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     }
 
     private class ArticlePagerAdapter(
-        private val section: Section,
+        private val articles: List<Article>,
         fragmentManager: FragmentManager
     ) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         val log by Log
 
         override fun getItem(position: Int): Fragment {
             // FIXME: out of bounds errors?!
-            val article = section.articleList[position]
-            return ArticleWebViewFragment.createInstance(
-                section.articleList[position]
-            )
+            val article = articles[position]
+            return ArticleWebViewFragment.createInstance(article)
         }
 
-        override fun getCount(): Int = section.articleList.size
+        override fun getCount(): Int = articles.size
     }
 }
