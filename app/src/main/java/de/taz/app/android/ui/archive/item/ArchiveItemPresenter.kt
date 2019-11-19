@@ -73,7 +73,7 @@ class ArchiveItemPresenter :
                 } else {
                     continuation.resume(generateBitmapForMoment(issueStub, moment))
                 }
-            }
+            } ?: continuation.resume(null)
         }
     }
 
@@ -102,6 +102,5 @@ class ArchiveItemPresenter :
         bitmap?.let {
             view.displayIssue(bitmap, issueStub.date)
         }
-
     }
 }
