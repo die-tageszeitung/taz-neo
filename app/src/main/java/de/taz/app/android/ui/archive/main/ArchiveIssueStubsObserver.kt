@@ -14,9 +14,6 @@ class ArchiveIssueStubsObserver(
 
     override fun onChanged(issueStubs: List<IssueStub>?) {
         archivePresenter.getView()?.apply {
-            archivePresenter.viewModel?.getMomentBitmapMap()?.let {
-                addBitmaps(it)
-            }
             onDataSetChanged(issueStubs ?: emptyList())
         }
     }
