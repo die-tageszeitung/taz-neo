@@ -57,15 +57,13 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
     }
 
     private fun setHeader(section: Section, issueStub: IssueStub) {
-        activity?.apply {
-            runOnUiThread {
-                findViewById<TextView>(R.id.section)?.apply {
-                    text = section.title
-                }
-                dateToLowerCaseString(issueStub.date)?.let {
-                    findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = it
-                    }
+        activity?.runOnUiThread {
+            view?.findViewById<TextView>(R.id.section)?.apply {
+                text = section.title
+            }
+            dateToLowerCaseString(issueStub.date)?.let {
+                view?.findViewById<TextView>(R.id.issue_date)?.apply {
+                    text = it
                 }
             }
         }
