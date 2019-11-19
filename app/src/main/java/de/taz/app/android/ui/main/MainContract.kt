@@ -2,6 +2,7 @@ package de.taz.app.android.ui.main
 
 import android.content.Context
 import androidx.annotation.AnimRes
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
@@ -11,6 +12,8 @@ import de.taz.app.android.base.BaseContract
 
 interface MainContract : BaseContract {
     interface View : BaseContract.View {
+
+        fun closeDrawer()
 
         fun getApplicationContext(): Context
 
@@ -23,8 +26,6 @@ interface MainContract : BaseContract {
         fun showArchive()
 
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
-
-        fun closeDrawer()
 
         fun showToast(@StringRes stringId: Int)
 

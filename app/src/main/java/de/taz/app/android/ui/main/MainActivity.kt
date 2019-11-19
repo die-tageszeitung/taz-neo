@@ -22,6 +22,7 @@ import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val presenter = MainPresenter()

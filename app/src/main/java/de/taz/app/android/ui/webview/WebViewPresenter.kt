@@ -108,6 +108,9 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                         }
                     }
                 }
+
+            R.id.bottom_navigation_action_size ->
+                getView()?.toggleBottomSheet()
         }
     }
 
