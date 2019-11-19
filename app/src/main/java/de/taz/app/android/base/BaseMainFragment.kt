@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 
@@ -15,14 +17,12 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         configBottomNavigation()
+        addBottomSheetCallbacks()
     }
 
     override fun onResume() {
         super.onResume()
-
-        // configure NavigationView @ Gravity.End
         setEndNavigation()
     }
 
@@ -142,6 +142,8 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     fun setIconActive(menuItem: MenuItem) {
+        menuItem.isChecked = true
+        menuItem.isCheckable = true
         activeIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
     }
 
@@ -153,20 +155,20 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     fun setIconInactive(menuItem: MenuItem) {
+        menuItem.isChecked = false
+        menuItem.isCheckable = false
         inactiveIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
     }
 
     private fun toggleMenuItem(menuItem: MenuItem) {
         val oldCheckable = menuItem.isChecked && menuItem.isCheckable
-        if (!oldCheckable) {
-            setIconActive(menuItem)
-            onBottomNavigationItemClicked(menuItem)
-        } else {
+        if (oldCheckable) {
             setIconInactive(menuItem)
             onBottomNavigationItemClicked(menuItem)
+        } else {
+            setIconActive(menuItem)
+            onBottomNavigationItemClicked(menuItem)
         }
-        menuItem.isChecked = !oldCheckable
-        menuItem.isCheckable = !oldCheckable
     }
 
     fun isPermanentlyActive(itemId: Int): Boolean {
@@ -193,15 +195,60 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         permanentlyActiveItemIds.remove(menuItem.itemId)
     }
 
-    private fun deactivateAllItems(menu: Menu) {
+    fun deactivateAllItems(menu: Menu) {
         menu.iterator().forEach {
             if (it.itemId !in permanentlyActiveItemIds) {
-                inactiveIconMap[it.itemId]?.let { icon ->
-                    it.setIcon(icon)
-                }
+                setIconInactive(it)
             }
         }
     }
 
+    /**
+     * callbacks for bottomSheet
+     * to use this a class needs to have a View with id [R.id.bottom_sheet_behaviour]
+     * which needs to have
+     * app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+     */
+    internal open val bottomSheetCallback: BottomSheetBehavior.BottomSheetCallback? = null
+
+    private fun addBottomSheetCallbacks() {
+        bottomSheetCallback?.let {
+            view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+                val bottomSheetBehavior = BottomSheetBehavior.from(it)
+                bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
+            }
+        }
+    }
+
+    /**
+     * hide or show bottomSheet depending on if it was visible before or not
+     */
+    override fun showBottomSheet(@LayoutRes layoutId: Int) {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
+    /**
+     * hide or show bottomSheet depending on if it was visible before or not
+     */
+    override fun hideBottomSheet() {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
+
+    override fun toggleBottomSheet() {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+            bottomSheetBehavior.state =
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                    BottomSheetBehavior.STATE_COLLAPSED
+                else
+                    BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
 
 }
