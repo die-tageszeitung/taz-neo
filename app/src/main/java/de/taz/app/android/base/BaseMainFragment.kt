@@ -100,7 +100,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     private fun configBottomNavigation() {
         // only show bottomNavigation if visible items exist
 
-        activity?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
+        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
 
             itemIconTintList = null
 
