@@ -1,36 +1,35 @@
 package de.taz.app.android.base
 
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.IdRes
-import androidx.annotation.LayoutRes
+import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFragment<PRESENTER>(),
     BaseContract.View {
 
-    /**
-     * headerLayoutId - the id of the header layout
-     * if it is null no header will be shown
-     * overwrite [configureHeader] if further configuration is necessary
-     */
-    @get:LayoutRes
-    open val headerLayoutId: Int? = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    /**
-     * scrollViewId - the id of the view used to scroll
-     * used to determine if view is currently at the top in [showHeader]
-     */
-    @get:IdRes
-    open val scrollViewId: Int? = null
+        configBottomNavigation()
+    }
 
-    open fun configureHeader(): Job? = null
+    override fun onResume() {
+        super.onResume()
+
+        // configure NavigationView @ Gravity.End
+        setEndNavigation()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        removeEndNavigationView()
+    }
 
     /**
      * endNavigationFragment - the fragment to be shown in the
@@ -38,51 +37,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
      * if null NavigationView will not be openable
      */
     open val endNavigationFragment: Fragment? = null
-
-    override fun onResume() {
-        super.onResume()
-
-        // configure header
-        setHeader()
-        lifecycleScope.launch {
-            configureHeader()?.join()
-            showHeader()
-        }
-
-        // configure NavigationView @ Gravity.End
-        setEndNavigation()
-    }
-
-    /**
-     * inflates the [headerLayoutId] if given
-     */
-    private fun setHeader() {
-        activity?.apply {
-            headerLayoutId?.let { headerId ->
-                findViewById<ViewGroup>(R.id.header_placeholder)?.apply {
-                    addView(layoutInflater.inflate(headerId, this, false))
-                }
-            }
-        }
-    }
-
-    /**
-     * ensures the header is shown when creating new Fragment
-     * does not show the header if fragment is paused and resumed and not at top
-     */
-    private fun showHeader() {
-        activity?.apply {
-            scrollViewId?.let {
-                val scrollView = view?.findViewById<View>(scrollViewId as Int)
-                if (scrollView?.canScrollVertically(-1) != true) {
-                    findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(
-                        true,
-                        false
-                    )
-                }
-            }
-        }
-    }
 
     /**
      * show [endNavigationFragment]
@@ -95,22 +49,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
                     .commit()
                 getMainView()?.unlockEndNavigationView()
             }
-        }
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        removeHeader()
-        removeEndNavigationView()
-    }
-
-    /**
-     * remove header to be sure no header is shown if another fragment does not use it
-     */
-    private fun removeHeader() {
-        activity?.apply {
-            findViewById<ViewGroup>(R.id.header_placeholder)?.removeAllViews()
         }
     }
 
@@ -129,4 +67,141 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
             getMainView()?.lockEndNavigationView()
         }
     }
+
+
+    /**
+     * icons to show if an ItemNavigationId is active (currently selected)
+     * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
+     */
+    open val activeIconMap: Map<Int, Int> = mapOf()
+
+    /**
+     * icons to show if an ItemNavigationId is inactive (not currently selected)
+     * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
+     */
+    open val inactiveIconMap: Map<Int, Int> = mapOf()
+
+    /**
+     * used to store if an Item should be permanently active
+     * i.e. bookmarks should always be active if article is bookmarked
+     * and ignore currently selected item
+     */
+    private val permanentlyActiveItemIds = mutableListOf<Int>()
+
+    /**
+     * override to react to an item being clicked
+     */
+    open fun onBottomNavigationItemClicked(menuItem: MenuItem) = Unit
+
+    /**
+     * setup BottomNavigationBar
+     * hacks to make icons de- and selectable
+     */
+    private fun configBottomNavigation() {
+        // only show bottomNavigation if visible items exist
+
+        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
+
+            itemIconTintList = null
+
+            deactivateAllItems(menu)
+
+            // hack to not auto select first item
+            menu.getItem(0).isCheckable = false
+
+            // hack to make items de- and selectable
+            setOnNavigationItemSelectedListener { menuItem ->
+                run {
+                    deactivateAllItems(menu)
+                    toggleMenuItem(menuItem)
+                    false
+                }
+            }
+
+            setOnNavigationItemReselectedListener { menuItem ->
+                run {
+                    deactivateAllItems(menu)
+                    toggleMenuItem(menuItem)
+                }
+            }
+        }
+    }
+
+    fun toggleMenuItem(itemId: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { id ->
+            toggleMenuItem(id)
+        }
+    }
+
+    fun setIconActive(itemId: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            setIconActive(menuItem)
+        }
+    }
+
+    fun setIconActive(menuItem: MenuItem) {
+        activeIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
+    }
+
+    fun setIconInactive(itemId: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            setIconInactive(menuItem)
+        }
+    }
+
+    fun setIconInactive(menuItem: MenuItem) {
+        inactiveIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
+    }
+
+    private fun toggleMenuItem(menuItem: MenuItem) {
+        val oldCheckable = menuItem.isChecked && menuItem.isCheckable
+        if (!oldCheckable) {
+            setIconActive(menuItem)
+            onBottomNavigationItemClicked(menuItem)
+        } else {
+            setIconInactive(menuItem)
+            onBottomNavigationItemClicked(menuItem)
+        }
+        menuItem.isChecked = !oldCheckable
+        menuItem.isCheckable = !oldCheckable
+    }
+
+    fun isPermanentlyActive(itemId: Int): Boolean {
+        return itemId in permanentlyActiveItemIds
+    }
+
+    fun isPermanentlyActive(menuItem: MenuItem): Boolean {
+        return isPermanentlyActive(menuItem.itemId)
+    }
+
+    fun setPermanentlyActive(itemId: Int) {
+        permanentlyActiveItemIds.add(itemId)
+    }
+
+    fun setPermanentlyActive(menuItem: MenuItem) {
+        setPermanentlyActive(menuItem.itemId)
+    }
+
+    fun unsetPermanentlyActive(itemId: Int) {
+        permanentlyActiveItemIds.remove(itemId)
+    }
+
+    fun unsetPermanentlyActive(menuItem: MenuItem) {
+        permanentlyActiveItemIds.remove(menuItem.itemId)
+    }
+
+    private fun deactivateAllItems(menu: Menu) {
+        menu.iterator().forEach {
+            if (it.itemId !in permanentlyActiveItemIds) {
+                inactiveIconMap[it.itemId]?.let { icon ->
+                    it.setIcon(icon)
+                }
+            }
+        }
+    }
+
+
 }
