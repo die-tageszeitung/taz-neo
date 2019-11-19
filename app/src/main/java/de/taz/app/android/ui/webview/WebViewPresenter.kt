@@ -72,32 +72,12 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         getView()?.hideLoadingScreen()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
                 getView()?.getMainView()?.showMainFragment(ArchiveFragment())
-
-            R.id.bottom_navigation_action_bookmark ->
-                if (webViewDisplayable is Article) {
-                    getView()?.let { view ->
-                        val articleRepository = ArticleRepository.getInstance()
-                        if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
-                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                articleRepository.debookmarkArticle(webViewDisplayable)
-                            }
-                            view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                            view.setIconInactive(R.id.bottom_navigation_action_bookmark)
-                        } else {
-                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                articleRepository.bookmarkArticle(webViewDisplayable)
-                            }
-                            view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                            view.setIconActive(R.id.bottom_navigation_action_bookmark)
-                        }
-                    }
-                }
 
             R.id.bottom_navigation_action_share ->
                 if (webViewDisplayable is Shareable) {
@@ -109,8 +89,19 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                     }
                 }
 
+            R.id.bottom_navigation_action_bookmark ->
+                if (activated) {
+                    getView()?.showBookmarkBottomSheet()
+                } else {
+                    getView()?.hideBottomSheet()
+                }
+
             R.id.bottom_navigation_action_size ->
-                getView()?.toggleBottomSheet()
+                if (activated) {
+                    getView()?.showFontSettingBottomSheet()
+                } else {
+                    getView()?.hideBottomSheet()
+                }
         }
     }
 

@@ -11,6 +11,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.android.synthetic.main.fragment_webview_section.web_view
@@ -69,8 +71,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         return presenter.onBackPressed()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem, activated)
     }
 
     override fun shareText(text: String) {
@@ -82,6 +84,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
+    }
+
+    override fun showBookmarkBottomSheet() {
+        // TODO show correct fragment
+        showBottomSheet(SectionDrawerFragment())
+    }
+
+    override fun showFontSettingBottomSheet() {
+        // TODO show correct fragment
+        showBottomSheet(ArchiveEndNavigationFragment())
     }
 
 }
