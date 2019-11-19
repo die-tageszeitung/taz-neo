@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<VIEW : BaseContract, VIEW_MODEL : BaseDataController>(
+abstract class BasePresenter<VIEW : BaseContract.View, VIEW_MODEL : BaseDataController>(
     private val viewModelClass: Class<VIEW_MODEL>
 ) : ViewModel(), BaseContract.Presenter {
 
