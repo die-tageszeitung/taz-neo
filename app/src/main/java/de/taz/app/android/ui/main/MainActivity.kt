@@ -17,10 +17,13 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.archive.main.ArchiveFragment
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
@@ -63,17 +66,33 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         enterAnimation: Int,
         exitAnimation: Int
     ) {
+        when (webViewDisplayable) {
+            is Article -> showArticle(webViewDisplayable, enterAnimation, exitAnimation)
+            is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
+        }
+    }
+
+    private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int) {
+        // FIXME: replace with custom loading fragment
+        val fragment = runBlocking(Dispatchers.IO) {
+            val section = article.getSection()
+            if (section != null) {
+                ArticlePagerFragment.createInstance(section, article)
+            } else {
+                ArticleWebViewFragment.createInstance(article)
+            } as Fragment
+        }
+        showFragmentInWebView(fragment, enterAnimation, exitAnimation)
+    }
+
+    private fun showSection(section: Section, enterAnimation: Int, exitAnimation: Int) {
+        val fragment = SectionWebViewFragment.createInstance(section)
+        showFragmentInWebView(fragment, enterAnimation, exitAnimation)
+    }
+
+    private fun showFragmentInWebView(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0) {
         runOnUiThread {
-            val fragment = when (webViewDisplayable) {
-                is Article ->
-                    ArticleWebViewFragment.createInstance(webViewDisplayable)
-                is Section ->
-                    SectionWebViewFragment.createInstance(webViewDisplayable)
-                else -> null
-            }
-            fragment?.let {
-                showMainFragment(fragment, enterAnimation, exitAnimation)
-            }
+            showMainFragment(fragment, enterAnimation, exitAnimation)
         }
     }
 
