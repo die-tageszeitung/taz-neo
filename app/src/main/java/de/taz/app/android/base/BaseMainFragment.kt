@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -91,7 +90,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     /**
      * override to react to an item being clicked
      */
-    open fun onBottomNavigationItemClicked(menuItem: MenuItem) = Unit
+    open fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) = Unit
 
     /**
      * setup BottomNavigationBar
@@ -112,7 +111,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
             // hack to make items de- and selectable
             setOnNavigationItemSelectedListener { menuItem ->
                 run {
-                    deactivateAllItems(menu)
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                     false
                 }
@@ -120,7 +119,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
             setOnNavigationItemReselectedListener { menuItem ->
                 run {
-                    deactivateAllItems(menu)
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                 }
             }
@@ -161,13 +160,12 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     private fun toggleMenuItem(menuItem: MenuItem) {
-        val oldCheckable = menuItem.isChecked && menuItem.isCheckable
-        if (oldCheckable) {
+        if (menuItem.isCheckable) {
             setIconInactive(menuItem)
-            onBottomNavigationItemClicked(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = false)
         } else {
             setIconActive(menuItem)
-            onBottomNavigationItemClicked(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = true)
         }
     }
 
@@ -195,9 +193,9 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         permanentlyActiveItemIds.remove(menuItem.itemId)
     }
 
-    fun deactivateAllItems(menu: Menu) {
+    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
         menu.iterator().forEach {
-            if (it.itemId !in permanentlyActiveItemIds) {
+            if (it.itemId !in permanentlyActiveItemIds && it != except) {
                 setIconInactive(it)
             }
         }
@@ -223,10 +221,18 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     /**
      * hide or show bottomSheet depending on if it was visible before or not
      */
-    override fun showBottomSheet(@LayoutRes layoutId: Int) {
+    override fun showBottomSheet(fragment: Fragment) {
+        // TODO hide then show?!
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
             val bottomSheetBehavior = BottomSheetBehavior.from(it)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            activity?.apply {
+                supportFragmentManager.beginTransaction().replace(
+                    R.id.bottom_sheet_behaviour, fragment
+                ).commitNow()
+
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
         }
     }
 
@@ -237,17 +243,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
             val bottomSheetBehavior = BottomSheetBehavior.from(it)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-    }
-
-    override fun toggleBottomSheet() {
-        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
-            val bottomSheetBehavior = BottomSheetBehavior.from(it)
-            bottomSheetBehavior.state =
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                    BottomSheetBehavior.STATE_COLLAPSED
-                else
-                    BottomSheetBehavior.STATE_EXPANDED
         }
     }
 

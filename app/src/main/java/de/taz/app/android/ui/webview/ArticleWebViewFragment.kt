@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>() {
