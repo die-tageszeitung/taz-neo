@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.archive.main
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -69,16 +67,6 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
 
     override fun hideRefreshLoadingIcon() {
         fragment_archive_swipe_refresh?.isRefreshing = false
-    }
-
-    override fun addBitmap(tag: String, bitmap: Bitmap) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            archiveListAdapter.addBitmap(tag, bitmap)
-        }
-    }
-
-    override fun addBitmaps(map: Map<String, Bitmap>) {
-        archiveListAdapter.addBitmaps(map)
     }
 
     override fun hideProgressbar(issueStub: IssueStub) {

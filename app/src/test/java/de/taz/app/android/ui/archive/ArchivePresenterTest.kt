@@ -1,7 +1,5 @@
 package de.taz.app.android.ui.archive
 
-import android.graphics.Bitmap
-import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -55,8 +53,6 @@ class ArchivePresenterTest {
     @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
-    lateinit var bitmap: Bitmap
-    @Mock
     lateinit var log: Log
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -95,15 +91,6 @@ class ArchivePresenterTest {
         Mockito.verify(viewModel).observeFeeds(any(), any())
         Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
         Mockito.verify(viewModel).observeIssueStubs(any(), any())
-    }
-
-    @Test
-    fun onMomentBitmapCreated() {
-        val tag = "asdf/01.01.1900"
-        presenter.onMomentBitmapCreated(tag, bitmap)
-
-        Mockito.verify(archiveContractView).addBitmap(tag, bitmap)
-        Mockito.verify(viewModel).addBitmap(tag, bitmap)
     }
 
     @Test
