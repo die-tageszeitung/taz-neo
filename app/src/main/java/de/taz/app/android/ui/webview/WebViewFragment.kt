@@ -51,7 +51,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun loadUrl(url: String) {
         activity?.runOnUiThread {
-            activity?.findViewById<WebView>(R.id.web_view)?.loadUrl(url)
+            view?.findViewById<WebView>(R.id.web_view)?.loadUrl(url)
         }
     }
 
