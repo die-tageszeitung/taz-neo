@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-
     override fun showInWebView(
         webViewDisplayable: WebViewDisplayable,
         enterAnimation: Int,
@@ -74,14 +73,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int) {
         // FIXME: replace with custom loading fragment
-        val fragment = runBlocking(Dispatchers.IO) {
-            val section = article.getSection()
-            if (section != null) {
-                ArticlePagerFragment.createInstance(section, article)
-            } else {
-                ArticleWebViewFragment.createInstance(article)
-            } as Fragment
-        }
+        val fragment = ArticlePagerFragment.createInstance(article)
         showFragmentInWebView(fragment, enterAnimation, exitAnimation)
     }
 

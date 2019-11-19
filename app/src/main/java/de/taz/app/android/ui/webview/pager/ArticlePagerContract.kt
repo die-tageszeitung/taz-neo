@@ -1,15 +1,16 @@
 package de.taz.app.android.ui.webview.pager
 
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseContract
 
 interface ArticlePagerContract: BaseContract {
     interface View: BaseContract.View {
-        fun setSection(section: Section, currentPosition: Int)
+        fun setArticles(articles: List<Article>, currentPosition: Int)
     }
 
     interface Presenter: BaseContract.Presenter {
-        fun setSection(section: Section)
+        fun setInitialArticle(article: Article)
         fun setCurrrentPosition(position: Int)
         fun onBackPressed()
     }
