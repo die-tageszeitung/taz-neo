@@ -89,7 +89,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun showBookmarkBottomSheet() {
         // TODO show correct fragment
-        showBottomSheet(SectionDrawerFragment())
+        showBottomSheet(TextSizeFragment())
     }
 
     override fun showFontSettingBottomSheet() {
