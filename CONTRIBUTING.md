@@ -17,7 +17,7 @@ and [https://chris.beams.io/posts/git-commit/](https://chris.beams.io/posts/git-
 * name branches according to following schema
 
   ```
-  <type>/<scope>
+  <type>/<scope>/<reference?>
   ```
 
   where type is one of:
@@ -33,10 +33,14 @@ and [https://chris.beams.io/posts/git-commit/](https://chris.beams.io/posts/git-
   The descriptor may be a route, component, feature, utility, etc.
   It should be one word or camelCased, if needed.
 
+  Reference is optional, if the contents of that branch is related to a reference of a tracking system, you should put it there.
+
   Examples:
 
   ```
   feat/drawer
+  feat/newThing/#31
+  style/cleanup/#122
   refactor/webView
   ```
 
