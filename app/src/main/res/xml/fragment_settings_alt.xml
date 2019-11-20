@@ -45,13 +45,9 @@
                 app:selectable="false"/>
 
         <Preference
-                app:key="manage_account_button"
+                app:key="manage_account"
                 app:title="manage account"
                 android:layout="@layout/custom_preference_manage_account">
-            <intent
-                    android:targetPackage="de.taz.app.android.ui.login"
-                    android:targetClass="de.taz.app.android.ui.login.LoginFragment"
-                    />
         </Preference>
 
     </PreferenceCategory>
