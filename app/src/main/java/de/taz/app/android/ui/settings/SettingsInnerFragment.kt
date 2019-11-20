@@ -10,7 +10,7 @@ import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.main.MainContract
 
 
-class SettingsFragment : PreferenceFragmentCompat(), BaseContract.View  {
+class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
 
     override fun getMainView(): MainContract.View? {
         return activity as? MainContract.View

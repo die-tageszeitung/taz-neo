@@ -10,6 +10,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
+import de.taz.app.android.ui.settings.SettingsInnerFragment
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -96,6 +97,12 @@ class ArchivePresenter(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_bookmark) {
             getView()?.getMainView()?.showMainFragment(BookmarksFragment())
+        }
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        if (menuItem.itemId == R.id.bottom_navigation_action_settings) {
+            getView()?.getMainView()?.showMainFragment(SettingsInnerFragment())
         }
     }
 
