@@ -1,10 +1,14 @@
 image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 
 before_script:
-  - chmod +x ./gradlew
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - sudo chown -R circleci:circleci .
 
 cache:
-  key: ${CI_JOB_NAME}
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+  key: android-base
 
 stages:
   - build
@@ -13,12 +17,14 @@ stages:
 lint:
   stage: build
   script:
-    - ./gradlew -Pci --console=plain :app:lint -PbuildDir=lint
+    - ./gradlew --no-daemon -Pci --console=plain :app:lint -PbuildDir=lint
+  only:
+    - merge_requests
 
 assembleDebug:
   stage: build
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew --no-daemon assembleDebug
   artifacts:
     paths:
     - app/build/outputs/
@@ -26,11 +32,15 @@ assembleDebug:
 unitTests:
   stage: test
   script:
-    - ./gradlew -Pci --console=plain :app:test
+    - ./gradlew --no-daemon -Pci --console=plain :app:test
+  only:
+    - merge_requests
 
 integrationTests:
   stage: test
   script:
     - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
-    - sleep 30 && ./gradlew -Pci --console=plain :app:cAT
+    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:cAT
+  only:
+    - merge_requests
 
