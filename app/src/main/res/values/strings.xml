@@ -46,6 +46,9 @@
     <string name="fragment_archive_navigation_end_item_image_active">active</string>
     <string name="fragment_archive_navigation_end_item_image_inactive">inactive</string>
 
-    <string name="dialog_bottom_night_mode">Nightmode</string>
+    <string name="fragment_bottom_sheet_text_size_decrease">decrease text size</string>
+    <string name="fragment_bottom_sheet_text_size_increase">increase text size</string>
+    <string name="fragment_bottom_sheet_text_night_mode">Night mode</string>
+    <string name="fragment_bottom_sheet_text_size_settings">Settings</string>
 
 </resources>

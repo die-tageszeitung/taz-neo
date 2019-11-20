@@ -222,7 +222,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
      * hide or show bottomSheet depending on if it was visible before or not
      */
     override fun showBottomSheet(fragment: Fragment) {
-        // TODO hide then show?!
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
             val bottomSheetBehavior = BottomSheetBehavior.from(it)
 

@@ -77,15 +77,15 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clipChildren="false">
+                >
 
             <LinearLayout
                     android:id="@+id/bottom_sheet_behaviour"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/tazRed"
                     android:orientation="vertical"
                     app:behavior_hideable="true"
+                    android:elevation="10dp"
                     app:behavior_peekHeight="0dp"
                     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
