@@ -1,16 +1,16 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
@@ -76,6 +76,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
                 articles,
                 childFragmentManager
             )
+            offscreenPageLimit = 1
             currentItem = currentPosition
             addOnPageChangeListener(pageChangeListener)
         }
@@ -90,15 +91,16 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     private class ArticlePagerAdapter(
         private val articles: List<Article>,
         fragmentManager: FragmentManager
-    ) : FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        val log by Log
-
+    ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getItem(position: Int): Fragment {
-            // FIXME: out of bounds errors?!
             val article = articles[position]
             return ArticleWebViewFragment.createInstance(article)
         }
 
         override fun getCount(): Int = articles.size
+
+        // Do not save the state between orientation changes. This will be handled by the presenter
+        // which will instruct to create a new adapter altogether
+        override fun saveState(): Parcelable? = null
     }
 }
