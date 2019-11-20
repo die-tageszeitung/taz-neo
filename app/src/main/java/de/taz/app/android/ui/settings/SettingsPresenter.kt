@@ -9,8 +9,8 @@ class SettingsPresenter : BasePresenter<SettingsFragment, SettingsDataController
 
     }
 
-    fun showLoginFragment() {
-        getView()?.getMainView()?.showMainFragment(LoginFragment())
-    }
+ //   fun showLoginFragment() {
+ //       getView()?.getMainView()?.showMainFragment(LoginFragment())
+ //   }
 
 }

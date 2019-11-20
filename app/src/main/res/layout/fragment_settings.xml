@@ -62,7 +62,7 @@
                         android:textAppearance="@style/TextAppearance.Settings.Entry"
                         android:text="Font size" />
 
-                <TextView
+                <Switch
                         android:id="@+id/fragment_settings_text_epaper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -71,7 +71,8 @@
                         android:textAppearance="@style/TextAppearance.Settings.Entry"
                         android:text="Always read as ePaper" />
 
-                <TextView
+
+                <Switch
                         android:id="@+id/fragment_settings_text_tap_on_edge"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
