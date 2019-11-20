@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/webview_view_pager"
+        android:id="@+id/webview_pager_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/web_view_spinner"
+        android:id="@+id/webview_pager_spinner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
