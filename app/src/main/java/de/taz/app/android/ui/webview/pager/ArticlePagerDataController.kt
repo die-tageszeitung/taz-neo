@@ -17,8 +17,6 @@ class ArticlePagerDataController : BaseDataController(),
     private var section: Section? = null
 
     override fun setInitialArticle(article: Article) {
-        articleList.postValue(listOf(article))
-
         viewModelScope.launch(Dispatchers.IO) {
             section = article.getSection()?.also {
                 setArticleListAndPosition(it.articleList, it.articleList.indexOf(article))
