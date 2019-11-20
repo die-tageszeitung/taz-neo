@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.archive.main
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
@@ -44,8 +43,6 @@ class ArchivePresenter(
     override suspend fun onItemSelected(issueStub: IssueStub) {
         log.debug("onItemSelected called")
         getView()?.apply {
-            showProgressbar(issueStub)
-
             withContext(Dispatchers.IO) {
                 val issue = issueRepository.getIssue(issueStub)
 
@@ -78,11 +75,6 @@ class ArchivePresenter(
                 }
             }
         }
-    }
-
-    override fun onMomentBitmapCreated(tag: String, bitmap: Bitmap) {
-        viewModel?.addBitmap(tag, bitmap)
-        getView()?.addBitmap(tag, bitmap)
     }
 
     override suspend fun onRefresh() {
