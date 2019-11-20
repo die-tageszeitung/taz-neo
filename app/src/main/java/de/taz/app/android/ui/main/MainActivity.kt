@@ -20,6 +20,7 @@ import de.taz.app.android.ui.archive.main.ArchiveFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
@@ -72,13 +73,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int) {
-        // FIXME: replace with custom loading fragment
         val fragment = ArticlePagerFragment.createInstance(article)
         showFragmentInWebView(fragment, enterAnimation, exitAnimation)
     }
 
     private fun showSection(section: Section, enterAnimation: Int, exitAnimation: Int) {
-        val fragment = SectionWebViewFragment.createInstance(section)
+        val fragment = SectionPagerFragment.createInstance(section)
         showFragmentInWebView(fragment, enterAnimation, exitAnimation)
     }
 
