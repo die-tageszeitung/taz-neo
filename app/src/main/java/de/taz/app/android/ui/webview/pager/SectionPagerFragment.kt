@@ -51,7 +51,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        webview_view_pager.adapter = null
+        webview_pager_viewpager.adapter = null
     }
 
     override fun onCreateView(
@@ -71,7 +71,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     }
 
     override fun setSections(sections: List<Section>, currentPosition: Int) {
-        webview_view_pager.apply {
+        webview_pager_viewpager.apply {
             adapter = SectionPagerAdapter(
                 sections,
                 childFragmentManager
@@ -110,9 +110,9 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     private fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            if (web_view_spinner.visibility == View.VISIBLE) {
-                web_view_spinner.visibility = View.GONE
-                webview_view_pager.visibility = View.VISIBLE
+            if (webview_pager_spinner.visibility == View.VISIBLE) {
+                webview_pager_spinner.visibility = View.GONE
+                webview_pager_viewpager.visibility = View.VISIBLE
             }
         }
     }
