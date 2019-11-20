@@ -77,5 +77,4 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
             ).toLowerCase(Locale.getDefault())
         }
     }
-
 }

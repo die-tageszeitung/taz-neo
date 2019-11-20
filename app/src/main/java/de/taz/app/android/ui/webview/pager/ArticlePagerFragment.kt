@@ -15,7 +15,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_article_pager.*
+import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     ArticlePagerContract.View,
@@ -51,7 +51,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        article_view_pager.adapter = null
+        webview_view_pager.adapter = null
     }
 
     override fun onCreateView(
@@ -59,7 +59,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_article_pager, container, false)
+        return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
     // FIXME: would love to register on main instead of implementing this via typechecking
@@ -71,7 +71,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     }
 
     override fun setArticles(articles: List<Article>, currentPosition: Int) {
-        article_view_pager.apply {
+        webview_view_pager.apply {
             adapter = ArticlePagerAdapter(
                 articles,
                 childFragmentManager
@@ -80,6 +80,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
             currentItem = currentPosition
             addOnPageChangeListener(pageChangeListener)
         }
+        hideLoadingScreen()
     }
 
     private val pageChangeListener = object : ViewPager.SimpleOnPageChangeListener() {
@@ -102,5 +103,14 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Do not save the state between orientation changes. This will be handled by the presenter
         // which will instruct to create a new adapter altogether
         override fun saveState(): Parcelable? = null
+    }
+
+    private fun hideLoadingScreen() {
+        activity?.runOnUiThread {
+            if (web_view_spinner.visibility == View.VISIBLE) {
+                web_view_spinner.visibility = View.GONE
+                webview_view_pager.visibility = View.VISIBLE
+            }
+        }
     }
 }
