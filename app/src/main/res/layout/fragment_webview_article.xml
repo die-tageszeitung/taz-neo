@@ -72,19 +72,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:clipChildren="false">
+                android:layout_height="wrap_content">
 
             <LinearLayout
                     android:id="@+id/bottom_sheet_behaviour"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/tazRed"
                     android:orientation="vertical"
                     app:behavior_hideable="true"
                     app:behavior_peekHeight="0dp"
@@ -93,7 +91,7 @@
                 <androidx.fragment.app.FragmentContainerView
                         android:id="@+id/bottom_sheet_fragment_placeholder"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -102,13 +100,13 @@
                 android:layout_height="wrap_content"
                 android:background="@color/navigation_bottom_background">
 
-             <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/navigation_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                app:labelVisibilityMode="unlabeled"
-                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-                app:menu="@menu/navigation_bottom_article" />
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:id="@+id/navigation_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                    app:labelVisibilityMode="unlabeled"
+                    app:menu="@menu/navigation_bottom_article" />
         </FrameLayout>
 
     </LinearLayout>

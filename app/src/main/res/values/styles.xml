@@ -103,4 +103,9 @@
         <item name="android:background">?android:selectableItemBackgroundBorderless</item>
     </style>
 
+    <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">17pt</item>
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
 </resources>

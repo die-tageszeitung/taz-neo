@@ -47,6 +47,9 @@
     <string name="fragment_archive_navigation_end_item_image_active">aktiv</string>
     <string name="fragment_archive_navigation_end_item_image_inactive">inaktiv</string>
 
-    <string name="dialog_bottom_night_mode">Nachtmodus</string>
+    <string name="fragment_bottom_sheet_text_size_decrease">Textgröße erhöhen</string>
+    <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
+    <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
+    <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
 </resources>

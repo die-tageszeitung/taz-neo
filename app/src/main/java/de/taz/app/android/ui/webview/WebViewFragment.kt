@@ -12,6 +12,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
+import de.taz.app.android.ui.bottomSheet.textSize.TextSizeFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
@@ -92,8 +93,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun showFontSettingBottomSheet() {
-        // TODO show correct fragment
-        showBottomSheet(ArchiveEndNavigationFragment())
+        showBottomSheet(TextSizeFragment())
     }
 
 }
