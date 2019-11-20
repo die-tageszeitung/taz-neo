@@ -4,16 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceFragmentCompat
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.login.LoginFragment
 import kotlinx.android.synthetic.main.fragment_settings.*
 
 
-class SettingsFragment : BaseMainFragment<SettingsPresenter>() {
-    override val presenter: SettingsPresenter = SettingsPresenter()
+class SettingsFragment : PreferenceFragmentCompat() {//BaseMainFragment<SettingsPresenter>() {
 
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.fragment_settings_alt, rootKey)
+    }
+
+
+    /*
+    override val presenter: SettingsPresenter = SettingsPresenter()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,5 +36,5 @@ class SettingsFragment : BaseMainFragment<SettingsPresenter>() {
         fragment_settings_manage_account_button.setOnClickListener {
             presenter.showLoginFragment()
         }
-    }
+    }*/
 }
