@@ -5,13 +5,14 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:key="text"
+            app:key="text_category"
             app:title="text">
 
         <Preference
                 app:key="text_font_size23"
                 app:title="Font size"
                 app:defaultValue="20"
+                app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_font_size"
                 />
 
@@ -26,22 +27,26 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:key="account"
+            app:key="account_category"
             app:title="account">
 
         <EditTextPreference
             app:key="account_abo_id"
             app:title="Abo ID"
+            app:useSimpleSummaryProvider="true"
             app:selectable="false"/>
 
         <EditTextPreference
                 app:key="account_password"
                 app:title="Password"
+                app:useSimpleSummaryProvider="true"
                 app:selectable="false"/>
 
         <EditTextPreference
                 app:key="account_status"
                 app:title="Status"
+                app:defaultValue="Subscriber"
+                app:useSimpleSummaryProvider="true"
                 app:selectable="false"/>
 
         <Preference
