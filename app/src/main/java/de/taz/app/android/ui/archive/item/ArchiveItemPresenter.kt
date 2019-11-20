@@ -26,21 +26,17 @@ class ArchiveItemPresenter :
     ArchiveItemContract.Presenter,
     BasePresenter<ArchiveItemContract.View, ArchiveItemDataController>(ArchiveItemDataController::class.java)
 {
-    private lateinit var view: ArchiveItemContract.View
-    private lateinit var lifecycleScope: LifecycleCoroutineScope
-    private lateinit var lifecycleOwner: LifecycleOwner
-
     private val log by Log
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
-        view = getView()!!
-        lifecycleOwner = view.getLifecycleOwner()
-        lifecycleScope = lifecycleOwner.lifecycleScope
+
     }
 
 
     suspend fun downloadMomentAndGenerateImage(issueStub: IssueStub): Bitmap?
             = suspendCoroutine { continuation ->
+        val lifecycleOwner = getView()!!.getLifecycleOwner()
+        val lifecycleScope = lifecycleOwner.lifecycleScope
 
         lifecycleScope.launch(Dispatchers.IO) {
             val moment = MomentRepository.getInstance().get(issueStub)
@@ -48,7 +44,7 @@ class ArchiveItemPresenter :
                 if (!it.isDownloaded()) {
                     log.debug("requesting download of $moment")
 
-                    DownloadService.download(view.getContext(), moment)
+                    DownloadService.download(getView()!!.getContext(), moment)
 
                     val waitForDownloadObserver = object: Observer<Boolean> {
                         override fun onChanged(isDownloaded: Boolean) {
@@ -92,15 +88,15 @@ class ArchiveItemPresenter :
     }
 
     override fun clearIssue() {
-        view.clearIssue()
+        getView()?.clearIssue()
     }
 
     override suspend fun setIssue(issueStub: IssueStub, feed: Feed?) {
         clearIssue()
-        view.setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
+        getView()?.setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
         val bitmap = downloadMomentAndGenerateImage(issueStub)
         bitmap?.let {
-            view.displayIssue(bitmap, issueStub.date)
+            getView()?.displayIssue(bitmap, issueStub.date)
         }
     }
 }

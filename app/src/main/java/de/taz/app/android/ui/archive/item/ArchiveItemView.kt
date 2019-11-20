@@ -16,23 +16,12 @@ import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.DateHelper
 
 
-class ArchiveItemView : RelativeLayout, ArchiveItemContract.View {
+class ArchiveItemView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : RelativeLayout(context, attrs, defStyleAttr), ArchiveItemContract.View {
     val presenter = ArchiveItemPresenter()
-
-    constructor(
-        context: Context,
-        attrs: AttributeSet,
-        defStyleAttr: Int
-    ) : super(context, attrs, defStyleAttr)
-
-    constructor(
-        context: Context,
-        attrs: AttributeSet
-    ): super(context, attrs)
-
-    constructor(
-        context: Context
-    ): super(context)
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
