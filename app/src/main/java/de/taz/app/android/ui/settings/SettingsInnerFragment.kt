@@ -21,7 +21,7 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.fragment_settings_alt, rootKey)
+        setPreferencesFromResource(R.xml.fragment_settings, rootKey)
 
         val manageAccountPreference : Preference? = findPreference("manage_account")
         manageAccountPreference?.setOnPreferenceClickListener {
