@@ -6,12 +6,12 @@
 
     <PreferenceCategory
             app:key="text_category"
-            app:title="text"
+            app:title="@string/settings_category_text"
             android:layout="@layout/custom_preference_category_title">
 
         <Preference
                 app:key="text_font_size23"
-                app:title="Font size"
+                app:title="@string/settings_text_font_size"
                 app:defaultValue="20"
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_font_size"
@@ -20,44 +20,44 @@
         <SwitchPreferenceCompat
                 app:key="text_epaper"
                 android:layout="@layout/custom_preference_switch"
-                app:title="Always read as ePaper"/>
+                app:title="@string/settings_text_epaper"/>
 
         <SwitchPreferenceCompat
                 app:key="text_tap_on_edge"
                 android:layout="@layout/custom_preference_switch"
-                app:title="Enable tap on the edge"/>
+                app:title="@string/settings_text_tap_on_edge"/>
     </PreferenceCategory>
 
     <PreferenceCategory
             app:key="account_category"
-            app:title="account"
+            app:title="@string/settings_category_account"
             android:layout="@layout/custom_preference_category_title">
 
         <EditTextPreference
                 app:key="account_abo_id"
-                app:title="Abo ID"
+                app:title="@string/settings_account_abo_id"
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_edit_text"
                 app:selectable="false"/>
 
         <EditTextPreference
                 app:key="account_password"
-                app:title="Password"
+                app:title="@string/settings_account_password"
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_edit_text"
                 app:selectable="false"/>
 
         <EditTextPreference
                 app:key="account_status"
-                app:title="Status"
-                app:defaultValue="Subscriber"
+                app:title="@string/settings_account_status"
+                app:defaultValue="@string/settings_account_status_subscriber"
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_edit_text"
                 app:selectable="false"/>
 
         <Preference
                 app:key="manage_account"
-                app:title="manage account"
+                app:title="@string/settings_account_manage_account"
                 android:layout="@layout/custom_preference_manage_account">
         </Preference>
 

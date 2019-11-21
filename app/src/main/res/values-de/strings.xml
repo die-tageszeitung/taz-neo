@@ -63,4 +63,16 @@
     <string name="fragment_bottom_sheet_bookmarks_added">Der Artikel wurde der Leseliste hinzugefügt</string>
     <string name="fragment_bottom_sheet_bookmarks_removed">Der Artikel wurde aus der Leseliste entfernt</string>
 
+    <string name="settings_header">einstellungen</string>
+    <string name="settings_category_text">text</string>
+    <string name="settings_category_account">konto</string>
+    <string name="settings_text_font_size">Textgröße</string>
+    <string name="settings_text_epaper">Immer als E-Paper lesen</string>
+    <string name="settings_text_tap_on_edge">Tippen am Rand</string>
+    <string name="settings_account_abo_id">Abo ID</string>
+    <string name="settings_account_password">Passwort</string>
+    <string name="settings_account_status">Status</string>
+    <string name="settings_account_status_subscriber">AbonnentIn</string>
+    <string name="settings_account_manage_account">Konto verwalten</string>
+
 </resources>

@@ -18,7 +18,7 @@
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="@dimen/fragment_settings_title_margin_top"
             android:textAppearance="@style/TextAppearance.Fragment.Header.Default.Title"
-            android:text="settings" />
+            android:text="@string/settings_header" />
 
     <ImageView tools:ignore="ContentDescription"
             android:layout_width="match_parent"
