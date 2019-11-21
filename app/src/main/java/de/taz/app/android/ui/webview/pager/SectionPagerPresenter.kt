@@ -2,7 +2,6 @@ package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
 import androidx.lifecycle.observe
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 
@@ -19,7 +18,6 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
                     localView.setSections(sections, localViewModel.currentPosition)
                 }
             }
-
         }
     }
 
@@ -35,5 +33,17 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
         getView()?.getMainView()?.apply {
             showArchive()
         }
+    }
+
+    override fun trySetSection(section: Section): Boolean {
+        val localView = getView()
+        val localViewModel = viewModel
+        if (localViewModel != null && localView != null) {
+            if (localViewModel.trySetSection(section)) {
+                localView.setCurrenPosition(localViewModel.currentPosition)
+                return true
+            }
+        }
+        return false
     }
 }

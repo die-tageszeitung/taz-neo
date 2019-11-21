@@ -69,6 +69,10 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         return true
     }
 
+    override fun tryLoadSection(section: Section): Boolean {
+        return presenter.trySetSection(section)
+    }
+
     private fun setupViewPager() {
         val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
         val sectionAdapter = SectionPagerAdapter(this, stableIdProvider)
@@ -91,6 +95,10 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
             (adapter as SectionPagerAdapter?)?.submitList(sections)
             setCurrentItem(currentPosition, false)
         }
+    }
+
+    override fun setCurrenPosition(currentPosition: Int) {
+        webview_pager_viewpager.setCurrentItem(currentPosition, false)
     }
 
     private class SectionPagerAdapter(
