@@ -1,20 +1,21 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
+import androidx.lifecycle.ViewModelProviders
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.StableIdProvider
+import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
@@ -45,8 +46,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Ensure initial fragment states are copied to the model via the presenter
         initialArticle?.let { presenter.setInitialArticle(it) }
 
-        // Initialize the presenter and let it call setSection on this fragment to render the pager
+        // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
+
+        setupViewPager()
     }
 
     override fun onDestroyView() {
@@ -70,47 +73,51 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         return true
     }
 
-    override fun setArticles(articles: List<Article>, currentPosition: Int) {
+    private fun setupViewPager() {
+        val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
+        val sectionAdapter = ArticlePagerAdapter(this, stableIdProvider)
         webview_pager_viewpager.apply {
-            adapter = ArticlePagerAdapter(
-                articles,
-                childFragmentManager
-            )
+            adapter = sectionAdapter
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 1
-            currentItem = currentPosition
-            addOnPageChangeListener(pageChangeListener)
+            registerOnPageChangeCallback(pageChangeListener)
         }
-        hideLoadingScreen()
     }
 
-    private val pageChangeListener = object : ViewPager.SimpleOnPageChangeListener() {
+    private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             this@ArticlePagerFragment.presenter.setCurrrentPosition(position)
         }
     }
 
+    override fun setArticles(articles: List<Article>, currentPosition: Int) {
+        webview_pager_viewpager.apply {
+            (adapter as ArticlePagerAdapter?)?.submitList(articles)
+            setCurrentItem(currentPosition, false)
+        }
+    }
+
     private class ArticlePagerAdapter(
-        private val articles: List<Article>,
-        fragmentManager: FragmentManager
-    ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        override fun getItem(position: Int): Fragment {
+        fragment: Fragment,
+        private val stableIdProvider: StableIdProvider
+    ) : FragmentStateAdapter(fragment) {
+        private var articles = emptyList<Article>()
+
+        override fun createFragment(position: Int): Fragment {
             val article = articles[position]
             return ArticleWebViewFragment.createInstance(article)
         }
 
-        override fun getCount(): Int = articles.size
+        override fun getItemCount(): Int = articles.size
 
-        // Do not save the state between orientation changes. This will be handled by the presenter
-        // which will instruct to create a new adapter altogether
-        override fun saveState(): Parcelable? = null
-    }
+        override fun getItemId(position: Int): Long {
+            val filename = articles[position].articleFileName
+            return stableIdProvider.getId(filename)
+        }
 
-    private fun hideLoadingScreen() {
-        activity?.runOnUiThread {
-            if (webview_pager_spinner.visibility == View.VISIBLE) {
-                webview_pager_spinner.visibility = View.GONE
-                webview_pager_viewpager.visibility = View.VISIBLE
-            }
+        fun submitList(newArticles: List<Article>) {
+            articles = newArticles
+            notifyDataSetChanged()
         }
     }
 }

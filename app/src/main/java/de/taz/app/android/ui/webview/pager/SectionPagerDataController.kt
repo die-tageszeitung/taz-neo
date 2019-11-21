@@ -14,6 +14,8 @@ class SectionPagerDataController: BaseDataController(), SectionPagerContract.Dat
     private val sectionList = MutableLiveData<List<Section>>(emptyList())
 
     override fun setInitialSection(section: Section) {
+        setSectionListAndPosition(listOf(section), 0)
+
         viewModelScope.launch(Dispatchers.IO) {
             // FIXME: maybe use a single call on some repo
             val issueRepository = IssueRepository.getInstance()
