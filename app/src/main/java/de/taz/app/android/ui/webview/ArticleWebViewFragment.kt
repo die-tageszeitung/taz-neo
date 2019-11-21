@@ -16,7 +16,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
     var article: Article? = null
 
     companion object {
-        fun createInstance(article: Article): WebViewFragment<Article> {
+        fun createInstance(article: Article): ArticleWebViewFragment {
             val fragment = ArticleWebViewFragment()
             fragment.article = article
             return fragment
