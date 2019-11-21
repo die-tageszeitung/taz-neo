@@ -13,6 +13,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
