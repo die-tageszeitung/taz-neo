@@ -10,7 +10,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
