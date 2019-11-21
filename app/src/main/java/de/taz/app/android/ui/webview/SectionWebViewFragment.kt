@@ -9,15 +9,15 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.util.DateHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class SectionWebViewFragment : WebViewFragment<Section>() {
 
     var section: Section? = null
+    private val dateHelper: DateHelper = DateHelper.getInstance()
 
     override val inactiveIconMap = mapOf(
         R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
@@ -74,7 +74,7 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
                 findViewById<TextView>(R.id.section)?.apply {
                     text = section.title
                 }
-                dateToLowerCaseString(issueStub.date)?.let {
+                dateHelper.dateToLowerCaseString(issueStub.date)?.let {
                     findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
@@ -82,14 +82,4 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
             }
         }
     }
-
-
-    private fun dateToLowerCaseString(date: String): String? {
-        return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
-            SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
-                issueDate
-            ).toLowerCase(Locale.getDefault())
-        }
-    }
-
 }
