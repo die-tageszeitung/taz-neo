@@ -12,6 +12,10 @@ import kotlinx.coroutines.launch
 class SectionPagerDataController: BaseDataController(), SectionPagerContract.DataController {
     override var currentPosition: Int = 0
     private val sectionList = MutableLiveData<List<Section>>(emptyList())
+    private val isLoading = MutableLiveData<Boolean>(true)
+
+    private var sectionListIsLoaded = false
+    private var childIsLoaded = false
 
     override fun setInitialSection(section: Section) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -21,6 +25,11 @@ class SectionPagerDataController: BaseDataController(), SectionPagerContract.Dat
             val issue = issueRepository.getIssue(issueStub)
             val sections = issue.sectionList
             setSectionListAndPosition(sections, sections.indexOf(section))
+
+            sectionListIsLoaded = true
+            if (childIsLoaded) {
+                isLoading.postValue(false)
+            }
         }
     }
 
@@ -31,4 +40,14 @@ class SectionPagerDataController: BaseDataController(), SectionPagerContract.Dat
 
     override fun getSectionList(): LiveData<List<Section>> = sectionList
 
+    override fun isLoading(): LiveData<Boolean> = isLoading
+
+    override fun setSectionLoaded(section: Section) {
+        childIsLoaded = true
+
+        val currentIsLoading = isLoading.value ?: true
+        if (sectionListIsLoaded && currentIsLoading) {
+            isLoading.postValue(false)
+        }
+    }
 }

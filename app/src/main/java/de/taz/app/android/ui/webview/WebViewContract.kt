@@ -22,7 +22,7 @@ interface WebViewContract: BaseContract {
 
         fun loadUrl(url: String)
 
-        fun hideLoadingScreen()
+        fun onUrlLoaded()
 
         fun setIconActive(itemId: Int)
 

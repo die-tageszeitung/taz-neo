@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -17,9 +18,10 @@ import java.util.*
 class SectionWebViewFragment : WebViewFragment<Section>() {
 
     var section: Section? = null
+    var pagerPresenter: SectionPagerContract.Presenter? = null
 
     companion object {
-        fun createInstance(section: Section): WebViewFragment<Section> {
+        fun createInstance(section: Section): SectionWebViewFragment {
             val fragment = SectionWebViewFragment()
             fragment.section = section
             return fragment
@@ -68,12 +70,19 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
         }
     }
 
-
     private fun dateToLowerCaseString(date: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
             SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
                 issueDate
             ).toLowerCase(Locale.getDefault())
+        }
+    }
+
+    override fun onUrlLoaded() {
+        super.onUrlLoaded()
+
+        section?.let {
+            pagerPresenter?.onChildFragmentReady(it)
         }
     }
 }
