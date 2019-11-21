@@ -40,6 +40,7 @@
     <string name="fragment_login_login_button">Anmelden</string>
 
     <string name="archive">Archiv</string>
+    <string name="bookmarks">Leseliste</string>
     <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
     <string name="settings">Einstellungen</string>
