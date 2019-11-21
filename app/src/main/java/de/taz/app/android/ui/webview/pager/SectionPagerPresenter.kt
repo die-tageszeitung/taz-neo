@@ -27,7 +27,7 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
         viewModel?.setInitialSection(section)
     }
 
-    override fun setCurrrentPosition(position: Int) {
+    override fun setCurrentPosition(position: Int) {
         viewModel?.currentPosition = position
     }
 

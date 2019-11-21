@@ -11,7 +11,7 @@ interface SectionPagerContract: BaseContract {
 
     interface Presenter: BaseContract.Presenter {
         fun setInitialSection(section: Section)
-        fun setCurrrentPosition(position: Int)
+        fun setCurrentPosition(position: Int)
         fun onBackPressed()
     }
 
