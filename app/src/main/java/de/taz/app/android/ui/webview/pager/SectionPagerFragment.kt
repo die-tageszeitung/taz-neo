@@ -116,5 +116,4 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
             }
         }
     }
-
 }
