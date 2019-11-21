@@ -3,6 +3,7 @@ package de.taz.app.android.ui.archive.main
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +13,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.launch
 
@@ -97,5 +99,12 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        // TODO -> move to presenter
+        if (menuItem.itemId == R.id.bottom_navigation_action_bookmark) {
+            getMainView()?.showMainFragment(BookmarksFragment())
+        }
     }
 }
