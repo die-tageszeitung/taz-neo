@@ -2,7 +2,6 @@ package de.taz.app.android.ui.main
 
 import android.content.Context
 import androidx.annotation.AnimRes
-import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
