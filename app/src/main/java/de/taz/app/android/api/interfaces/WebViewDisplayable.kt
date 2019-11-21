@@ -2,7 +2,7 @@ package de.taz.app.android.api.interfaces
 
 import java.io.File
 
-interface WebViewDisplayable {
+interface WebViewDisplayable: CacheableDownload {
 
     fun getFile(): File?
 
