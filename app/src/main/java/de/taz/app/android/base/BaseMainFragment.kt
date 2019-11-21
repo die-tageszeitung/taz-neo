@@ -219,7 +219,8 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     /**
-     * hide or show bottomSheet depending on if it was visible before or not
+     * show bottomSheet
+     * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
     override fun showBottomSheet(fragment: Fragment) {
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
@@ -236,7 +237,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     /**
-     * hide or show bottomSheet depending on if it was visible before or not
+     * hide bottomSheet
      */
     override fun hideBottomSheet() {
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
