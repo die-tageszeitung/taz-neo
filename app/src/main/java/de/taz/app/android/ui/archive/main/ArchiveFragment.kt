@@ -102,9 +102,6 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        // TODO -> move to presenter
-        if (menuItem.itemId == R.id.bottom_navigation_action_bookmark) {
-            getMainView()?.showMainFragment(BookmarksFragment())
-        }
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 }
