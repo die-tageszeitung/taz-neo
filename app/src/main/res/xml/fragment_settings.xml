@@ -9,7 +9,7 @@
             app:title="@string/settings_category_text"
             android:layout="@layout/custom_preference_category_title">
 
-        <Preference
+        <EditTextPreference
                 app:key="text_font_size23"
                 app:title="@string/settings_text_font_size"
                 app:defaultValue="20"
