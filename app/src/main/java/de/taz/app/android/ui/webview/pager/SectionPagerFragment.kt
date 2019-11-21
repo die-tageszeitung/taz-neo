@@ -85,7 +85,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     private val pageChangeListener = object : ViewPager.SimpleOnPageChangeListener() {
         override fun onPageSelected(position: Int) {
-            this@SectionPagerFragment.presenter.setCurrrentPosition(position)
+            this@SectionPagerFragment.presenter.setCurrentPosition(position)
         }
     }
 
