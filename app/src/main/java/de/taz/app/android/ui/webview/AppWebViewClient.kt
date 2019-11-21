@@ -202,7 +202,6 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
     override fun onPageFinished(webview: WebView, url: String) {
         super.onPageFinished(webview, url)
 
-        log.debug("page finished")
         presenter.onPageFinishedLoading()
     }
 }

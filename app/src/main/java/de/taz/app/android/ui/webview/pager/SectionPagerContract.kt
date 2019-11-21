@@ -7,21 +7,17 @@ import de.taz.app.android.base.BaseContract
 interface SectionPagerContract: BaseContract {
     interface View: BaseContract.View {
         fun setSections(sections: List<Section>, currentPosition: Int)
-        fun onFinishedLoading()
     }
 
     interface Presenter: BaseContract.Presenter {
         fun setInitialSection(section: Section)
         fun setCurrentPosition(position: Int)
         fun onBackPressed()
-        fun onChildFragmentReady(section: Section)
     }
 
     interface DataController: BaseContract.DataController {
         var currentPosition: Int
         fun setInitialSection(section: Section)
         fun getSectionList(): LiveData<List<Section>>
-        fun isLoading(): LiveData<Boolean>
-        fun setSectionLoaded(section: Section)
     }
 }
