@@ -3,5 +3,7 @@
         android:id="@+id/manage_account_button"
         android:text="manage account"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Settings.ManageAccount.Button"
+        />
 

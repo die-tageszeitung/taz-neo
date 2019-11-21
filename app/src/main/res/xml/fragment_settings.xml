@@ -6,7 +6,8 @@
 
     <PreferenceCategory
             app:key="text_category"
-            app:title="text">
+            app:title="text"
+            android:layout="@layout/custom_preference_category_title">
 
         <Preference
                 app:key="text_font_size23"
@@ -23,23 +24,27 @@
 
         <SwitchPreferenceCompat
                 app:key="text_tap_on_edge"
+                android:layout="@layout/custom_preference_switch"
                 app:title="Enable tap on the edge"/>
     </PreferenceCategory>
 
     <PreferenceCategory
             app:key="account_category"
-            app:title="account">
+            app:title="account"
+            android:layout="@layout/custom_preference_category_title">
 
         <EditTextPreference
-            app:key="account_abo_id"
-            app:title="Abo ID"
-            app:useSimpleSummaryProvider="true"
-            app:selectable="false"/>
+                app:key="account_abo_id"
+                app:title="Abo ID"
+                app:useSimpleSummaryProvider="true"
+                android:layout="@layout/custom_preference_edit_text"
+                app:selectable="false"/>
 
         <EditTextPreference
                 app:key="account_password"
                 app:title="Password"
                 app:useSimpleSummaryProvider="true"
+                android:layout="@layout/custom_preference_edit_text"
                 app:selectable="false"/>
 
         <EditTextPreference
@@ -47,6 +52,7 @@
                 app:title="Status"
                 app:defaultValue="Subscriber"
                 app:useSimpleSummaryProvider="true"
+                android:layout="@layout/custom_preference_edit_text"
                 app:selectable="false"/>
 
         <Preference
