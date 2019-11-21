@@ -9,6 +9,8 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -183,8 +185,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
     }
 
-    fun getBookmarkedArticleStubs(): LiveData<List<ArticleStub>> {
-        return appDatabase.articleDao().getBookmarkedArticlesLiveData()
+    fun getBookmarkedArticles(): LiveData<List<Article>> {
+        return Transformations.map(appDatabase.articleDao().getBookmarkedArticlesLiveData()) {
+            runBlocking(Dispatchers.IO) {
+                it.map { articleStub -> articleStubToArticle(articleStub) }
+            }
+        }
     }
 
     fun isBookmarked(article: Article): Boolean {
