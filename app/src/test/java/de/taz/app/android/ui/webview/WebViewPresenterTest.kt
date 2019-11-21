@@ -4,7 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
+import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -18,6 +20,10 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.io.File
+
+val TEST_FILE = File("/path/to/exile")
+val TEST_FILE_ENTRY = FileEntry("name", StorageType.global, 0L, "sha256", 1L)
+val TEST_FILE_ENTRY_LIST = listOf(TEST_FILE_ENTRY)
 
 class WebViewPresenterTest {
 
@@ -37,8 +43,9 @@ class WebViewPresenterTest {
     lateinit var viewModel: WebViewDataController<WebViewDisplayable>
 
     private val webViewDisplayable: WebViewDisplayable = object : WebViewDisplayable {
+
         override fun getFile(): File? {
-            return File("/path/to/exile")
+            return TEST_FILE
         }
 
         override fun next(): WebViewDisplayable? {
@@ -48,11 +55,16 @@ class WebViewPresenterTest {
         override fun previous(): WebViewDisplayable? {
             return previousWebViewDisplayable
         }
+
+        override fun getAllFiles(): List<FileEntry> {
+            return TEST_FILE_ENTRY_LIST
+        }
     }
 
     private val nextWebViewDisplayable = object : WebViewDisplayable {
+
         override fun getFile(): File? {
-            return File("/path/to/exile")
+            return TEST_FILE
         }
 
         override fun next(): WebViewDisplayable? {
@@ -61,12 +73,16 @@ class WebViewPresenterTest {
 
         override fun previous(): WebViewDisplayable? {
             return webViewDisplayable
+        }
+
+        override fun getAllFiles(): List<FileEntry> {
+            return TEST_FILE_ENTRY_LIST
         }
     }
 
     private val previousWebViewDisplayable = object : WebViewDisplayable {
         override fun getFile(): File? {
-            return File("/path/to/exile")
+            return TEST_FILE
         }
 
         override fun next(): WebViewDisplayable? {
@@ -75,6 +91,10 @@ class WebViewPresenterTest {
 
         override fun previous(): WebViewDisplayable? {
             return null
+        }
+
+        override fun getAllFiles(): List<FileEntry> {
+            return TEST_FILE_ENTRY_LIST
         }
     }
 
@@ -128,4 +148,5 @@ class WebViewPresenterTest {
         presenter.onPageFinishedLoading()
         Mockito.verify(webViewContractView, Mockito.times(1)).hideLoadingScreen()
     }
+
 }

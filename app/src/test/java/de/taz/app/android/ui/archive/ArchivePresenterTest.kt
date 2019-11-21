@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.testIssues
 import de.taz.app.android.ui.archive.main.ArchiveContract
