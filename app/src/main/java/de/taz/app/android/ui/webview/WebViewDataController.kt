@@ -1,13 +1,10 @@
 package de.taz.app.android.ui.webview
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.Observer
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseDataController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import java.io.File
 
 open class WebViewDataController<DISPLAYABLE: WebViewDisplayable> : BaseDataController(), WebViewContract.DataController<DISPLAYABLE> {
 
@@ -15,10 +12,8 @@ open class WebViewDataController<DISPLAYABLE: WebViewDisplayable> : BaseDataCont
         postValue(null)
     }
 
-    val fileLiveData: LiveData<File?> = Transformations.map(webViewDisplayable) {
-        runBlocking(Dispatchers.IO) {
-            it?.getFile()
-        }
+    fun observeWebViewDisplayable(lifecycleOwner: LifecycleOwner, block: (DISPLAYABLE?) -> Unit) {
+        webViewDisplayable.observe(lifecycleOwner, Observer(block))
     }
 
     override fun getWebViewDisplayable(): DISPLAYABLE? {

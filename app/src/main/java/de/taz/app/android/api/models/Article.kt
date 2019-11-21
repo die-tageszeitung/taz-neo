@@ -76,4 +76,7 @@ data class Article(
             getSection()?.issueStub
         }
     }
+
+    override fun getIssueOperations() = getIssueStub()
+
 }

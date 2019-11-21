@@ -13,11 +13,13 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
@@ -56,11 +58,37 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
 
     private fun observeFile() {
         getView()?.let { view ->
-            viewModel?.fileLiveData?.observe(view.getLifecycleOwner(), Observer { file ->
-                file?.let {
-                    view.loadUrl("file://${file.absolutePath}")
+            viewModel?.observeWebViewDisplayable(view.getLifecycleOwner()) { displayable ->
+                displayable?.let {
+                    getView()?.getMainView()?.getApplicationContext()?.let {
+                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                            if (!displayable.isDownloaded()) {
+                                DownloadService.download(it, displayable)
+                            }
+
+                            val observer = object : Observer<Boolean> {
+                                override fun onChanged(isDownloaded: Boolean?) {
+                                    if (isDownloaded == true) {
+                                        displayable.isDownloadedLiveData().removeObserver(this)
+                                        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+                                            displayable.getFile()?.let { file ->
+                                                withContext(Dispatchers.Main) {
+                                                    getView()?.loadUrl("file://${file.absolutePath}")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                displayable.isDownloadedLiveData()
+                                    .observe(view.getLifecycleOwner(), observer)
+                            }
+                        }
+                    }
                 }
-            })
+            }
         }
     }
 
