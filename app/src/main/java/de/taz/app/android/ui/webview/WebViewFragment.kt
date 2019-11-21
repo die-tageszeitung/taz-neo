@@ -42,7 +42,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         return web_view
     }
 
-    private fun hideLoadingScreen() {
+    override fun hideLoadingScreen() {
         activity?.runOnUiThread {
             web_view_spinner?.visibility = View.GONE
             web_view?.visibility = View.VISIBLE
@@ -53,10 +53,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         activity?.runOnUiThread {
             view?.findViewById<WebView>(R.id.web_view)?.loadUrl(url)
         }
-    }
-
-    override fun onUrlLoaded() {
-        hideLoadingScreen()
     }
 
     override fun getMainView(): MainContract.View? {

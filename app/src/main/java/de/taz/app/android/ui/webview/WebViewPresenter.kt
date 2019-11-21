@@ -15,7 +15,6 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.archive.main.ArchiveFragment
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -27,8 +26,6 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         WebViewDataController<DISPLAYABLE>().javaClass
     ),
     WebViewContract.Presenter {
-
-    val log by Log
 
     override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
         super.attach(view)
@@ -72,8 +69,7 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun onPageFinishedLoading() {
-        log.debug("onPageFinished")
-        getView()?.onUrlLoaded()
+        getView()?.hideLoadingScreen()
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {

@@ -47,8 +47,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
-
-        hideLoadingScreen()
     }
 
     override fun onDestroyView() {
@@ -76,17 +74,12 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         webview_pager_viewpager.apply {
             adapter = SectionPagerAdapter(
                 sections,
-                presenter,
                 childFragmentManager
             )
             offscreenPageLimit = 1
             currentItem = currentPosition
             addOnPageChangeListener(pageChangeListener)
         }
-    }
-
-    override fun onFinishedLoading() {
-        log.debug("finishedLoadingPager")
         hideLoadingScreen()
     }
 
@@ -98,7 +91,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     private class SectionPagerAdapter(
         private val sections: List<Section>,
-        private val presenter: SectionPagerContract.Presenter,
         fragmentManager: FragmentManager
     ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         val log by Log
@@ -106,9 +98,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         override fun getItem(position: Int): Fragment {
             val section = sections[position]
             log.debug("getItem($position) = ${section.sectionFileName}")
-            val fragment =  SectionWebViewFragment.createInstance(section)
-            fragment.pagerPresenter = presenter
-            return fragment
+            return SectionWebViewFragment.createInstance(section)
         }
 
         override fun getCount(): Int = sections.size
