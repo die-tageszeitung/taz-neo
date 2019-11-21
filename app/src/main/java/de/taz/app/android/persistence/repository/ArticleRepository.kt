@@ -140,6 +140,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         return Article(
             articleHtml,
+            articleStub.date,
             articleStub.title,
             articleStub.teaser,
             articleStub.onlineLink,

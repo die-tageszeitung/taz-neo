@@ -117,6 +117,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         images?.let {
             return Section(
                 sectionFile,
+                sectionStub.date,
                 sectionStub.title,
                 sectionStub.type,
                 articles,
