@@ -33,4 +33,12 @@ class SectionPagerDataController: BaseDataController(), SectionPagerContract.Dat
 
     override fun getSectionList(): LiveData<List<Section>> = sectionList
 
+    override fun trySetSection(section: Section): Boolean {
+        val position = sectionList.value?.indexOf(section) ?: -1
+        if (position >= 0) {
+            currentPosition = position
+            return true
+        }
+        return false
+    }
 }
