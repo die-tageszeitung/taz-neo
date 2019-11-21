@@ -40,7 +40,6 @@ data class Article(
 
     override fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(articleHtml)
-        audioFile?.let { list.add(audioFile) }
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList)
         return list
