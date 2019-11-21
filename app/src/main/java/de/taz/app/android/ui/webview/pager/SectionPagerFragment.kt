@@ -106,12 +106,9 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         private val stableIdProvider: StableIdProvider
     ) : FragmentStateAdapter(fragment) {
         private var sections = emptyList<Section>()
-        val log by Log
 
         override fun createFragment(position: Int): Fragment {
-            val id = getItemId(position)
             val section = sections[position]
-            log.debug("create fragment: pos=$position id=$id section=${section.sectionFileName}")
             return SectionWebViewFragment.createInstance(section)
         }
 

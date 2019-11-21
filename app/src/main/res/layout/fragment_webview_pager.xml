@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<androidx.viewpager2.widget.ViewPager2 xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/webview_pager_viewpager"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/webview_pager_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</FrameLayout>
+    android:layout_height="match_parent" />
