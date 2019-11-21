@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.FileEntry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -24,6 +25,7 @@ class WebViewDataControllerTest {
         override fun getFile(): File? { return File("/path/to/exile") }
         override fun next(): WebViewDisplayable? { return null }
         override fun previous(): WebViewDisplayable? { return null }
+        override fun getAllFiles(): List<FileEntry> { return emptyList() }
     }
 
     @Before
@@ -39,19 +41,24 @@ class WebViewDataControllerTest {
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     @Test
-    fun getFileLiveData() {
+    fun observeWebViewDisplayable() {
         // this is needed so fileLiveData updates
-        webViewDataController.fileLiveData.observe(TestLifecycleOwner(), Observer {})
+        var called = false
+        webViewDataController.observeWebViewDisplayable(TestLifecycleOwner()) { displayable ->
+            if (displayable != null) {
+                called = true
+            }
+        }
 
-        assertNull(webViewDataController.fileLiveData.value)
+        assertFalse(called)
 
         webViewDataController.setWebViewDisplayable(webViewDisplayable)
-        assertEquals(webViewDataController.fileLiveData.value, webViewDisplayable.getFile())
-
+        assertTrue(called)
     }
 
     @Test
     fun webViewDisplayable() {
+        assertNull(webViewDataController.webViewDisplayable.value)
         webViewDataController.setWebViewDisplayable(webViewDisplayable)
         assertEquals(webViewDataController.getWebViewDisplayable(), webViewDisplayable)
     }

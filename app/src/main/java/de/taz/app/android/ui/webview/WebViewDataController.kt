@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -8,7 +9,8 @@ import de.taz.app.android.base.BaseDataController
 
 open class WebViewDataController<DISPLAYABLE: WebViewDisplayable> : BaseDataController(), WebViewContract.DataController<DISPLAYABLE> {
 
-    private val webViewDisplayable = MutableLiveData<DISPLAYABLE?>().apply {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    open val webViewDisplayable = MutableLiveData<DISPLAYABLE?>().apply {
         postValue(null)
     }
 
