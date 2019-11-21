@@ -37,10 +37,22 @@ class TextSizeFragment : BaseFragment<TextSizePresenter>(), TextSizeContract.Vie
         fragment_bottom_sheet_text_size_text_size_increase?.setOnClickListener {
             presenter.increaseTextSize()
         }
+
+        fragment_bottom_sheet_text_size_night_mode?.setOnClickListener {
+            presenter.onNightModeChanged(
+                !fragment_bottom_sheet_text_size_night_mode_switch.isChecked
+            )
+        }
+
+        fragment_bottom_sheet_text_size_night_mode_switch?.setOnClickListener {
+            presenter.onNightModeChanged(
+                fragment_bottom_sheet_text_size_night_mode_switch.isChecked
+            )
+        }
     }
 
     override fun setNightMode(active: Boolean) {
-        fragment_bottom_sheet_text_size_night_mode_switch?.isActivated = active
+        fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
     }
 
     override fun setTextSizePercentage(percent: Int) {

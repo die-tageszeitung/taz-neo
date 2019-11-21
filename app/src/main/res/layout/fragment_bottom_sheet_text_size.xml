@@ -115,6 +115,9 @@
             android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingBottom="@dimen/bottom_sheet_setting_padding_bottom"
             android:paddingTop="@dimen/bottom_sheet_setting_padding_bottom"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_text_size">
 
         <TextView
@@ -142,7 +145,11 @@
             android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingBottom="@dimen/bottom_sheet_setting_padding_bottom"
-            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode">
+            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            >
 
         <TextView
                 style="@style/TextAppearance.BottomSheet.Setting"
