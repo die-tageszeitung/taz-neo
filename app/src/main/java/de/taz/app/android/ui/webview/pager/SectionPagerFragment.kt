@@ -97,7 +97,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         }
     }
 
-    override fun setCurrenPosition(currentPosition: Int) {
+    override fun setCurrentPosition(currentPosition: Int) {
         webview_pager_viewpager.setCurrentItem(currentPosition, false)
     }
 
