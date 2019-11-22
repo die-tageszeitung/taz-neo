@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.main
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
@@ -14,6 +13,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.preference.PreferenceManager
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
@@ -25,6 +25,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -32,13 +33,17 @@ const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
+    private val log by Log
+
     private val fileHelper = FileHelper.getInstance()
 
     private val presenter = MainPresenter()
 
     private lateinit var tazApiCssPreferences : SharedPreferences
+    private lateinit var sharedPreferences: SharedPreferences
 
-    private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, _ ->
+    private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+        log.debug("Shared pref changed: $key")
         val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
         cssFile.printWriter().use { printWriter ->
             sharedPreferences.all.entries.forEach { entry ->
@@ -62,8 +67,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         lockEndNavigationView()
 
-        tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        //tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        //tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val epaperEnabled = sharedPreferences.getBoolean("text_epaper", true)
+        val accountStatus = sharedPreferences.getString("account_status", "unknown")
+        val fontSize = sharedPreferences.getString("text_font_size", "unknown")
+        log.debug("is epaper enabled: $epaperEnabled")
+        log.debug("account status: $accountStatus")
+        log.debug("font size: $fontSize")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sharedPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun getMainDataController(): MainContract.DataController {
