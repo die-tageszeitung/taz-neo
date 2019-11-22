@@ -13,13 +13,13 @@
             android:layout_height="match_parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/buttons"
+            app:layout_constraintRight_toLeftOf="@id/settings_text_buttons"
             android:textAppearance="@style/TextAppearance.Settings.Entry"
             app:layout_constraintHorizontal_weight="3"
             />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/buttons"
+            android:id="@+id/settings_text_buttons"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             app:layout_constraintLeft_toRightOf="@android:id/title"
@@ -28,11 +28,11 @@
             >
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/decrease"
+                android:id="@+id/settings_text_decrease"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/summary_wrap"
+                app:layout_constraintRight_toLeftOf="@id/settings_text_summary_wrap"
                 android:background="?android:attr/selectableItemBackground"
                 >
             <TextView
@@ -49,11 +49,11 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/summary_wrap"
+                android:id="@+id/settings_text_summary_wrap"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                app:layout_constraintLeft_toRightOf="@id/decrease"
-                app:layout_constraintRight_toLeftOf="@id/increase"
+                app:layout_constraintLeft_toRightOf="@id/settings_text_decrease"
+                app:layout_constraintRight_toLeftOf="@id/settings_text_increase"
                 >
             <TextView
                     android:id="@android:id/summary"
@@ -68,10 +68,10 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/increase"
+                android:id="@+id/settings_text_increase"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                app:layout_constraintLeft_toRightOf="@id/summary_wrap"
+                app:layout_constraintLeft_toRightOf="@id/settings_text_summary_wrap"
                 app:layout_constraintRight_toRightOf="parent"
                 android:background="?android:attr/selectableItemBackground"
                 >
