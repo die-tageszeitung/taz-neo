@@ -1,9 +1,11 @@
 package de.taz.app.android.ui.archive.main
 
 import android.view.ViewGroup
+import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.archive.item.ArchiveItemView
@@ -77,6 +79,11 @@ class ArchiveListAdapter(
         val archiveItemView = ArchiveItemView(
             archiveFragment.requireContext()
         )
+        val padding = archiveFragment.requireContext().resources.getDimension(
+            R.dimen.fragment_archive_item_padding
+        )
+
+        archiveItemView.setPadding(padding.toInt())
         return ViewHolder(archiveItemView)
     }
 

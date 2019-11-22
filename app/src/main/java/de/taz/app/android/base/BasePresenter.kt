@@ -1,6 +1,5 @@
 package de.taz.app.android.base
 
-import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
@@ -25,6 +24,4 @@ abstract class BasePresenter<VIEW : BaseContract.View, VIEW_MODEL : BaseDataCont
     }
 
     fun getView(): VIEW? = view?.get()
-
-    abstract override fun onViewCreated(savedInstanceState: Bundle?)
 }
