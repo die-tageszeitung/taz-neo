@@ -5,7 +5,7 @@
         android:background="@color/white"
         android:clickable="false"
         android:focusable="false"
-        android:padding="16dp">
+        android:padding="@dimen/fragment_settings_padding">
 
     <!--  Overriding android ids results automatic persistence / setting of title -->
     <TextView
@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Settings.Entry"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="@dimen/fragment_settings_edit_text_margin_end"
             />
 
     <TextView

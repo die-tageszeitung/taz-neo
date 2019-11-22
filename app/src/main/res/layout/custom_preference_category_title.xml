@@ -5,5 +5,5 @@
         android:layout_height="wrap_content"
         android:layout_toStartOf="@android:id/widget_frame"
         android:textAppearance="@style/TextAppearance.Settings.Category"
-        android:padding="16dp"
+        android:padding="@dimen/fragment_settings_padding"
         />
