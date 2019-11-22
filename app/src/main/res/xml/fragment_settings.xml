@@ -10,7 +10,7 @@
             android:layout="@layout/custom_preference_category_title">
 
         <EditTextPreference
-                app:key="text_font_size23"
+                app:key="text_font_size"
                 app:title="@string/settings_text_font_size"
                 app:defaultValue="20"
                 app:useSimpleSummaryProvider="true"
