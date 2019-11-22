@@ -40,7 +40,7 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
         val localViewModel = viewModel
         if (localViewModel != null && localView != null) {
             if (localViewModel.trySetSection(section)) {
-                localView.setCurrenPosition(localViewModel.currentPosition)
+                localView.setCurrentPosition(localViewModel.currentPosition)
                 return true
             }
         }
