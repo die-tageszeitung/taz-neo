@@ -12,7 +12,6 @@
             android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@android:id/widget_frame"
             android:textAppearance="@style/TextAppearance.Settings.Entry"
             android:layout_marginEnd="16dp"
             />
