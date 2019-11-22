@@ -11,8 +11,6 @@ interface ArchiveContract {
 
     interface View: BaseContract.View {
 
-        fun hideRefreshLoadingIcon()
-
         fun onDataSetChanged(issueStubs: List<IssueStub>)
 
         fun showProgressbar(issueStub: IssueStub)

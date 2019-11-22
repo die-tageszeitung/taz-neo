@@ -14,7 +14,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.archive.main.ArchiveFragment
+import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -77,7 +77,7 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
 
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(ArchiveFragment())
+                getView()?.getMainView()?.showMainFragment(FeedFragment())
 
             R.id.bottom_navigation_action_bookmark ->
                 if (webViewDisplayable is Article) {
@@ -147,7 +147,7 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
             }
             is Section -> {
                 getView()?.getMainView()?.let {
-                    it.showArchive()
+                    it.showFeed()
                     true
                 } ?: false
             }

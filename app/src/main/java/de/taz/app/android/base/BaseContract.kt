@@ -20,7 +20,7 @@ interface BaseContract {
     }
 
     interface Presenter {
-        fun onViewCreated(savedInstanceState: Bundle?)
+        fun onViewCreated(savedInstanceState: Bundle?) = Unit
     }
 
     interface DataController

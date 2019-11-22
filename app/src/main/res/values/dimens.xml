@@ -40,6 +40,8 @@
     <dimen name="fragment_archive_item_width">150dp</dimen>
     <dimen name="fragment_archive_item_padding">25dp</dimen>
 
+    <dimen name="fragment_coverflow_item_padding">10dp</dimen>
+
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
