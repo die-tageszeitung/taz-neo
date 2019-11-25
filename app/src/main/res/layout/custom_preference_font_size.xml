@@ -32,7 +32,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/settings_text_summary_wrap"
+                app:layout_constraintRight_toLeftOf="@id/settings_text_size_wrap"
                 android:background="?android:attr/selectableItemBackground"
                 >
             <TextView
@@ -50,7 +50,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/settings_text_summary_wrap"
+                android:id="@+id/settings_text_size_wrap"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintLeft_toRightOf="@id/settings_text_decrease"
@@ -72,7 +72,7 @@
                 android:id="@+id/settings_text_increase"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                app:layout_constraintLeft_toRightOf="@id/settings_text_summary_wrap"
+                app:layout_constraintLeft_toRightOf="@id/settings_text_size_wrap"
                 app:layout_constraintRight_toRightOf="parent"
                 android:background="?android:attr/selectableItemBackground"
                 >
