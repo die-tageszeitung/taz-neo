@@ -8,7 +8,6 @@ import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.testFeeds
 import de.taz.app.android.testIssues
 import de.taz.app.android.ui.archive.main.ArchiveContract
 import de.taz.app.android.ui.archive.main.ArchiveDataController
@@ -91,30 +90,6 @@ class ArchivePresenterTest {
         Mockito.verify(viewModel).observeFeeds(any(), any())
         Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
         Mockito.verify(viewModel).observeIssueStubs(any(), any())
-    }
-
-    @Test
-    fun onRefresh() {
-        runBlocking {
-            doReturn(testFeeds).`when`(apiService).getFeeds()
-            doReturn(testIssues).`when`(apiService).getIssuesByDate(any(), any())
-
-            presenter.onRefresh()
-
-            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
-        }
-    }
-
-    @Test
-    fun onRefreshFails() {
-        runBlocking {
-            doReturn(testFeeds).`when`(apiService).getFeeds()
-            doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService).getIssuesByDate(any(), any())
-
-            presenter.onRefresh()
-
-            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
-        }
     }
 
     @Test
