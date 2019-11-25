@@ -6,3 +6,7 @@ const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
 
 // UI
 const val DEFAULT_MOMENT_RATIO = "w,1.5:1"
+
+
+// Preferences
+const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"

@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
@@ -29,7 +30,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
-const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val presenter = MainPresenter()
 
     private lateinit var tazApiCssPreferences : SharedPreferences
-    private lateinit var sharedPreferences: SharedPreferences
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("Shared pref changed: $key")
@@ -67,26 +66,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         lockEndNavigationView()
 
-        //tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        //tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
 
-        val epaperEnabled = sharedPreferences.getBoolean("text_epaper", true)
-        val accountStatus = sharedPreferences.getString("account_status", "unknown")
-        val fontSize = sharedPreferences.getString("text_font_size", "unknown")
-        log.debug("is epaper enabled: $epaperEnabled")
-        log.debug("account status: $accountStatus")
-        log.debug("font size: $fontSize")
     }
 
     override fun onResume() {
         super.onResume()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun onPause() {
         super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun getMainDataController(): MainContract.DataController {
@@ -203,10 +195,5 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun getLifecycleOwner(): LifecycleOwner = this
 
     override fun getMainView(): MainContract.View? = this
-
-    override fun onDestroy() {
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
-        super.onDestroy()
-    }
 
 }
