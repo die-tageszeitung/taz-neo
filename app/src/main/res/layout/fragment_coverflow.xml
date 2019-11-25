@@ -11,8 +11,8 @@
         android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="38dp"
-        android:paddingRight="38dp">
+        android:paddingLeft="@dimen/fragment_coverflow_item_padding"
+        android:paddingRight="@dimen/fragment_coverflow_item_padding">
 
         <de.taz.app.android.ui.coverflow.CoverflowViewPager
             android:id="@+id/coverflow_pager"
