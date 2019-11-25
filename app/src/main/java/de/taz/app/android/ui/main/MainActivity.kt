@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.main
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
@@ -44,12 +45,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("Shared pref changed: $key")
         val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
-        cssFile.printWriter().use { printWriter ->
-            sharedPreferences.all.entries.forEach { entry ->
-                val line = "${entry.key} : ${entry.value};"
-                printWriter.println(line)
+        val cssString = """
+            ${if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""}
+            html, body {
+                font-size: ${sharedPreferences.getString("text_font_size", "18")}px;
             }
-        }
+        """.trimIndent()
+        cssFile.writeText(cssString)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
