@@ -17,23 +17,28 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_bottom_sheet_text_size_text_size_decrease"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_text_size_percentage_wrapper"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
+            <TextView
+                    style="@style/TextAppearance.BottomSheet.TextSize.Decrease"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:contentDescription="@string/fragment_bottom_sheet_text_size_decrease"
+                    android:gravity="center"
                     android:paddingTop="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
                     android:paddingBottom="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
+                    android:text="a"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_text_size" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,22 +84,26 @@
                 android:id="@+id/fragment_bottom_sheet_text_size_text_size_increase"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_text_size_text_size_percentage_wrapper"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
+            <TextView
+                    style="@style/TextAppearance.BottomSheet.TextSize.Increase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:contentDescription="@string/fragment_bottom_sheet_text_size_increase"
+                    android:gravity="center"
                     android:paddingTop="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
                     android:paddingBottom="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
+                    android:text="a"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_text_size" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -113,7 +122,6 @@
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
-            android:paddingBottom="@dimen/bottom_sheet_setting_padding_bottom"
             android:paddingTop="@dimen/bottom_sheet_setting_padding_bottom"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
@@ -144,7 +152,6 @@
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
-            android:paddingBottom="@dimen/bottom_sheet_setting_padding_bottom"
             app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
@@ -161,9 +168,10 @@
 
         <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/ic_settings"
                 tools:ignore="ContentDescription" />
 
