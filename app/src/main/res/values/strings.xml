@@ -72,5 +72,7 @@
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">Subscriber</string>
     <string name="settings_account_manage_account">manage account</string>
+    <string name="settings_decrease_font_size">Decrease font size</string>
+    <string name="settings_increase_font_size">Increase font size</string>
 
 </resources>

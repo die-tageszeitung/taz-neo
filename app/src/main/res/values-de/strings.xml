@@ -74,5 +74,7 @@
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">AbonnentIn</string>
     <string name="settings_account_manage_account">Konto verwalten</string>
+    <string name="settings_decrease_font_size">Textgröße verkleinern</string>
+    <string name="settings_increase_font_size">Textgröße vergrößern</string>
 
 </resources>
