@@ -60,37 +60,31 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         getView()?.let { view ->
             viewModel?.observeWebViewDisplayable(view.getLifecycleOwner()) { displayable ->
                 displayable?.let {
-                    getView()?.getMainView()?.getApplicationContext()?.let {
-                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                            if (!displayable.isDownloaded()) {
-                                DownloadService.download(it, displayable)
-                            }
-
-                            val observer = object : Observer<Boolean> {
-                                override fun onChanged(isDownloaded: Boolean?) {
-                                    if (isDownloaded == true) {
-                                        displayable.isDownloadedLiveData().removeObserver(this)
-                                        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-                                            displayable.getFile()?.let { file ->
-                                                withContext(Dispatchers.Main) {
-                                                    getView()?.loadUrl("file://${file.absolutePath}")
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            withContext(Dispatchers.Main) {
-                                displayable.isDownloadedLiveData()
-                                    .observe(view.getLifecycleOwner(), observer)
-                            }
-                        }
-                    }
+                    ensureDownloadedAndShow(displayable)
                 }
             }
         }
     }
+
+    private fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
+        getView()?.let { view ->
+            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                if (!displayable.isDownloaded()) {
+                    view.getMainView()?.getApplicationContext()?.let {
+                        DownloadService.download(it, displayable)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    displayable.isDownloadedLiveData().observe(
+                        view.getLifecycleOwner(),
+                        DisplayableDownloadedObserver(displayable)
+                    )
+                }
+            }
+        }
+    }
+
 
     override fun onLinkClicked(webViewDisplayable: WebViewDisplayable) {
         getView()?.getMainView()?.showInWebView(webViewDisplayable)
@@ -157,9 +151,7 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun onBackPressed(): Boolean {
-        val webViewDisplayable = viewModel?.getWebViewDisplayable()
-
-        return when (webViewDisplayable) {
+        return when (val webViewDisplayable = viewModel?.getWebViewDisplayable()) {
             is Article -> {
                 if (!webViewDisplayable.isImprint()) {
                     getView()?.getMainView()?.let {
@@ -183,4 +175,20 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         }
     }
 
+    private inner class DisplayableDownloadedObserver(
+        private val displayable: DISPLAYABLE
+    ) : Observer<Boolean> {
+        override fun onChanged(isDownloaded: Boolean?) {
+            if (isDownloaded == true) {
+                displayable.isDownloadedLiveData().removeObserver(this)
+                getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+                    displayable.getFile()?.let { file ->
+                        withContext(Dispatchers.Main) {
+                            getView()?.loadUrl("file://${file.absolutePath}")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
