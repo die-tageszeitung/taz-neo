@@ -24,7 +24,7 @@ class TextSizePreference @JvmOverloads constructor(
             }
 
             val textView = it.findViewById(R.id.settings_text_size) as? TextView
-            textView?.text = getPersistedString("100")
+            textView?.text = context.getString(R.string.percentage).format(getPersistedString("100").toInt())
 
             it.findViewById(R.id.settings_text_increase)?.setOnClickListener {
                 modifySize(10)
