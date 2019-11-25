@@ -5,7 +5,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:padding="@dimen/fragment_settings_padding">
+        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+        >
 
     <TextView
             android:id="@android:id/title"
@@ -16,6 +18,8 @@
             app:layout_constraintRight_toLeftOf="@id/settings_text_buttons"
             android:textAppearance="@style/TextAppearance.Settings.Entry"
             app:layout_constraintHorizontal_weight="3"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
             />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -57,13 +61,16 @@
                 app:layout_constraintRight_toLeftOf="@id/settings_text_increase"
                 >
             <TextView
-                    android:id="@android:id/summary"
+                    android:id="@+id/settings_text_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/fragment_settings_padding_vertical"
+                    android:paddingBottom="@dimen/fragment_settings_padding_vertical"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
+
                     android:textAppearance="@style/TextAppearance.Settings.Entry"
                     />
         </androidx.constraintlayout.widget.ConstraintLayout>

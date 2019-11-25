@@ -12,10 +12,10 @@
         <de.taz.app.android.ui.settings.TextSizePreference
                 app:key="text_font_size"
                 app:title="@string/settings_text_font_size"
-                app:defaultValue="20"
+                app:defaultValue="100"
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/custom_preference_font_size"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 />
 
         <!--<SwitchPreferenceCompat

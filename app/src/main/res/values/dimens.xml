@@ -29,7 +29,8 @@
     <dimen name="fragment_login_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_title_margin_top">10dp</dimen>
-    <dimen name="fragment_settings_padding">16dp</dimen>
+    <dimen name="fragment_settings_padding_horizontal">16dp</dimen>
+    <dimen name="fragment_settings_padding_vertical">16dp</dimen>
     <dimen name="fragment_settings_edit_text_margin_end">16dp</dimen>
 
     <dimen name="fragment_header_default_margin_top">30dp</dimen>
