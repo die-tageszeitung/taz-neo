@@ -65,6 +65,7 @@
     <string name="settings_category_text">text</string>
     <string name="settings_category_account">account</string>
     <string name="settings_text_font_size">Font size</string>
+    <string name="settings_text_night_mode">Night mode</string>
     <string name="settings_text_epaper">Always read as ePaper</string>
     <string name="settings_text_tap_on_edge">Enable tap on the edge</string>
     <string name="settings_account_abo_id">Abo ID</string>
