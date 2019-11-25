@@ -110,12 +110,12 @@
     </style>
 
     <style name="TextAppearance.BottomSheet.TextSize.Decrease" parent="TextAppearance.AppCompat">
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.TextSize.Increase" parent="TextAppearance.BottomSheet.TextSize.Decrease">
-        <item name="android:textSize">23dp</item>
+        <item name="android:textSize">25sp</item>
     </style>
 
 </resources>
