@@ -5,7 +5,9 @@
         android:background="@color/white"
         android:clickable="false"
         android:focusable="false"
-        android:padding="@dimen/fragment_settings_padding">
+        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+        >
 
     <!--  Overriding android ids results automatic persistence / setting of title -->
     <TextView
@@ -14,6 +16,8 @@
             android:layout_height="wrap_content"
             android:layout_toStartOf="@android:id/widget_frame"
             android:textAppearance="@style/TextAppearance.Settings.Entry"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
     />
 
     <LinearLayout
@@ -21,5 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
             android:orientation="vertical" />
 </RelativeLayout>
