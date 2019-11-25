@@ -34,27 +34,24 @@ class BookmarksViewHolder(
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
     init {
-        bookmarkBox = itemView.findViewById(R.id.bookmark)
-        bookmarkTitle = itemView.findViewById(R.id.bookmark_title)
-        bookmarkDate = itemView.findViewById(R.id.bookmark_date)
-        bookmarkImage = itemView.findViewById(R.id.bookmark_image)
-        bookmarkShare = itemView.findViewById(R.id.bookmark_share)
-        bookmarkDelete = itemView.findViewById(R.id.bookmark_delete)
+        bookmarkBox = itemView.findViewById(R.id.fragment_bookmark)
+        bookmarkTitle = itemView.findViewById(R.id.fragment_bookmark_title)
+        bookmarkDate = itemView.findViewById(R.id.fragment_bookmark_date)
+        bookmarkImage = itemView.findViewById(R.id.fragment_bookmark_image)
+        bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share)
+        bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete)
     }
 
     fun bind(article: Article) {
         article.let {
             bookmarkDate?.text = dateHelper.dateToLowerCaseString(article.date)
 
-            val imgFile = if (article.imageList.isNotEmpty()) {
-                fileHelper.getFile("taz/${article.date}/${article.imageList.first().name}")
-            } else {
-                fileHelper.getFile("")
-            }
-
-            if (imgFile.exists()) {
-                val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                bookmarkImage?.setImageBitmap(myBitmap)
+            if (article.imageList.isNotEmpty()) {
+                val imgFile = fileHelper.getFile("taz/${article.date}/${article.imageList.first().name}")
+                if (imgFile.exists()) {
+                    val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+                    bookmarkImage?.setImageBitmap(myBitmap)
+                }
             }
 
             bookmarkTitle?.text = article.title
