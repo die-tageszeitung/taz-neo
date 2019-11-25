@@ -17,10 +17,10 @@
                 android:layout="@layout/custom_preference_font_size"
                 />
 
-        <SwitchPreferenceCompat
+        <!--<SwitchPreferenceCompat
                 app:key="text_epaper"
                 android:layout="@layout/custom_preference_switch"
-                app:title="@string/settings_text_epaper"/>
+                app:title="@string/settings_text_epaper"/>-->
 
         <SwitchPreferenceCompat
                 app:key="text_tap_on_edge"
