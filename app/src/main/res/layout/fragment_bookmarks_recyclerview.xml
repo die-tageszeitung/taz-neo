@@ -9,7 +9,7 @@
     android:paddingEnd="@dimen/fragment_login_padding_horizontal">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bookmark"
+        android:id="@+id/fragment_bookmark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
@@ -18,7 +18,7 @@
         tools:layout_editor_absoluteX="7dp">
 
         <TextView
-            android:id="@+id/bookmark_title"
+            android:id="@+id/fragment_bookmark_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
@@ -26,21 +26,21 @@
             android:maxLines="3"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/bookmark_image"
+            app:layout_constraintEnd_toStartOf="@+id/fragment_bookmark_image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/bookmark_date"
+            android:id="@+id/fragment_bookmark_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|start"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bookmark_title" />
+            app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark_title" />
 
         <ImageView
-            android:id="@+id/bookmark_image"
+            android:id="@+id/fragment_bookmark_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -53,23 +53,23 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
-        android:id="@+id/bookmark_share"
+        android:id="@+id/fragment_bookmark_share"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bookmark"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark"
         app:srcCompat="@drawable/ic_share" />
 
     <ImageView
-        android:id="@+id/bookmark_delete"
+        android:id="@+id/fragment_bookmark_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bookmark"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark"
         app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <View
@@ -81,7 +81,7 @@
         android:background="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bookmark_delete" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark_delete" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
