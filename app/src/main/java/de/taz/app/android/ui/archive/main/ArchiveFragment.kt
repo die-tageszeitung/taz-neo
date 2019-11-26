@@ -3,6 +3,7 @@ package de.taz.app.android.ui.archive.main
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
@@ -97,5 +98,9 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 }

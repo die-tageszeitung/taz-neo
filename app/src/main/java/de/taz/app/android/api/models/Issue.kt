@@ -37,10 +37,10 @@ data class Issue(
         issueDto.zipName,
         issueDto.zipPdfName,
         issueDto.navButton,
-        issueDto.imprint?.let { Article(it, ArticleType.IMPRINT) },
+        issueDto.imprint?.let { Article(issueDto.date, it, ArticleType.IMPRINT) },
         issueDto.fileList,
         issueDto.fileListPdf ?: emptyList(),
-        issueDto.sectionList?.map { Section(it) } ?: emptyList(),
+        issueDto.sectionList?.map { Section(issueDto.date, it) } ?: emptyList(),
         issueDto.pageList ?: emptyList()
     )
 

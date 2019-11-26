@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.archive.main
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -9,6 +10,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +112,11 @@ class ArchivePresenter(
             } catch (e: ApiService.ApiServiceException.WrongDataException) {
                 mainView?.showToast(R.string.something_went_wrong_try_later)
             }
+        }
+    }
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        if (menuItem.itemId == R.id.bottom_navigation_action_bookmark) {
+            getView()?.getMainView()?.showMainFragment(BookmarksFragment())
         }
     }
 

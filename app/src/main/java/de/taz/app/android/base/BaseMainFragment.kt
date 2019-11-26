@@ -7,6 +7,7 @@ import android.view.View
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 
@@ -15,14 +16,12 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         configBottomNavigation()
+        addBottomSheetCallbacks()
     }
 
     override fun onResume() {
         super.onResume()
-
-        // configure NavigationView @ Gravity.End
         setEndNavigation()
     }
 
@@ -91,7 +90,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     /**
      * override to react to an item being clicked
      */
-    open fun onBottomNavigationItemClicked(menuItem: MenuItem) = Unit
+    open fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) = Unit
 
     /**
      * setup BottomNavigationBar
@@ -112,7 +111,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
             // hack to make items de- and selectable
             setOnNavigationItemSelectedListener { menuItem ->
                 run {
-                    deactivateAllItems(menu)
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                     false
                 }
@@ -120,7 +119,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
             setOnNavigationItemReselectedListener { menuItem ->
                 run {
-                    deactivateAllItems(menu)
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                 }
             }
@@ -142,6 +141,8 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     fun setIconActive(menuItem: MenuItem) {
+        menuItem.isChecked = true
+        menuItem.isCheckable = true
         activeIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
     }
 
@@ -153,20 +154,19 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     fun setIconInactive(menuItem: MenuItem) {
+        menuItem.isChecked = false
+        menuItem.isCheckable = false
         inactiveIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
     }
 
     private fun toggleMenuItem(menuItem: MenuItem) {
-        val oldCheckable = menuItem.isChecked && menuItem.isCheckable
-        if (!oldCheckable) {
-            setIconActive(menuItem)
-            onBottomNavigationItemClicked(menuItem)
-        } else {
+        if (menuItem.isCheckable) {
             setIconInactive(menuItem)
-            onBottomNavigationItemClicked(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = false)
+        } else {
+            setIconActive(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = true)
         }
-        menuItem.isChecked = !oldCheckable
-        menuItem.isCheckable = !oldCheckable
     }
 
     fun isPermanentlyActive(itemId: Int): Boolean {
@@ -193,15 +193,57 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         permanentlyActiveItemIds.remove(menuItem.itemId)
     }
 
-    private fun deactivateAllItems(menu: Menu) {
+    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
         menu.iterator().forEach {
-            if (it.itemId !in permanentlyActiveItemIds) {
-                inactiveIconMap[it.itemId]?.let { icon ->
-                    it.setIcon(icon)
-                }
+            if (it.itemId !in permanentlyActiveItemIds && it != except) {
+                setIconInactive(it)
             }
         }
     }
 
+    /**
+     * callbacks for bottomSheet
+     * to use this a class needs to have a View with id [R.id.bottom_sheet_behaviour]
+     * which needs to have
+     * app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+     */
+    internal open val bottomSheetCallback: BottomSheetBehavior.BottomSheetCallback? = null
+
+    private fun addBottomSheetCallbacks() {
+        bottomSheetCallback?.let {
+            view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+                val bottomSheetBehavior = BottomSheetBehavior.from(it)
+                bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
+            }
+        }
+    }
+
+    /**
+     * show bottomSheet
+     * @param fragment: The [Fragment] which will be shown in the BottomSheet
+     */
+    override fun showBottomSheet(fragment: Fragment) {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+
+            activity?.apply {
+                supportFragmentManager.beginTransaction().replace(
+                    R.id.bottom_sheet_behaviour, fragment
+                ).commitNow()
+
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+    }
+
+    /**
+     * hide bottomSheet
+     */
+    override fun hideBottomSheet() {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
 
 }

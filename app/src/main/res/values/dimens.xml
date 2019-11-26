@@ -46,4 +46,11 @@
     <dimen name="fragment_archive_navigation_end_heading_margin_bottom">12dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_text_margin_start">8dp</dimen>
+
+    <dimen name="bottom_sheet_setting_padding_horizontal">20dp</dimen>
+    <dimen name="bottom_sheet_setting_padding_bottom">20dp</dimen>
+
+    <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
+
+    <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
 </resources>
