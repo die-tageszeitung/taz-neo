@@ -50,7 +50,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        webview_pager_viewpager.adapter = null
+        webview_pager_viewpager?.adapter = null
     }
 
     override fun onCreateView(
@@ -61,9 +61,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
-    // FIXME: would love to register on main instead of implementing this via typechecking
-    // This would also allow us to stack back handlers: for example while drawer is open its back handler is active,
-    // when it is unregistered the previous callback handler will become active again.
     override fun onBackPressed(): Boolean {
         presenter.onBackPressed()
         return true
@@ -118,33 +115,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
             sections = newSections
             notifyDataSetChanged()
         }
-
-//        fun submitList(newSections: List<Section>) {
-//            if (sections.size == 1) {
-//                val position =
-//                    newSections.indexOfFirst { section -> section.sectionFileName == sections[0].sectionFileName }
-//                submitListContainingCurrent(newSections, position)
-//            } else {
-//                sections = newSections
-//                notifyDataSetChanged()
-//            }
-//        }
-//
-//        private fun submitListContainingCurrent(newSections: List<Section>, position: Int) {
-//            sections = newSections
-//            if (position >= 0) {
-//                if (position > 0) {
-//                    notifyItemRangeInserted(0, position)
-//                }
-//                if (position < sections.size - 1) {
-//                    val positionStart = position + 1
-//                    val itemCount = sections.size - positionStart
-//                    notifyItemRangeInserted(positionStart, itemCount)
-//                }
-//            } else {
-//                notifyDataSetChanged()
-//            }
-//        }
 
         override fun getItemId(position: Int): Long {
             val filename = sections[position].sectionFileName
