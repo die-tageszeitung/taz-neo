@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
+import java.util.*
 
 class BookmarksFragment :
     BaseMainFragment<BookmarksPresenter>(),
@@ -47,7 +48,9 @@ class BookmarksFragment :
         presenter.onViewCreated(savedInstanceState)
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(R.string.fragment_bookmarks_title).toLowerCase()
+            text = context.getString(
+                R.string.fragment_bookmarks_title
+            ).toLowerCase(Locale.getDefault())
         }
     }
 
@@ -55,7 +58,7 @@ class BookmarksFragment :
         recycleAdapter.setData(bookmarks)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 
