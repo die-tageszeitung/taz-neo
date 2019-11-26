@@ -30,6 +30,10 @@ interface WebViewContract: BaseContract {
 
         fun shareText(text: String)
 
+        fun showFontSettingBottomSheet()
+
+        fun showBookmarkBottomSheet()
+
     }
 
     interface Presenter: BaseContract.Presenter, AppWebViewCallback {
@@ -40,7 +44,7 @@ interface WebViewContract: BaseContract {
 
         fun onBackPressed(): Boolean
 
-        fun onBottomNavigationItemClicked(menuItem: MenuItem)
+        fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean)
     }
 
     interface DataController<DISPLAYABLE: WebViewDisplayable> {

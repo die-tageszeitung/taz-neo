@@ -2,15 +2,20 @@ package de.taz.app.android.ui.webview
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.MenuItem
+import android.view.View
 import android.webkit.WebView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.bottomSheet.textSize.TextSizeFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
-import kotlinx.android.synthetic.main.fragment_webview_section.*
+import kotlinx.android.synthetic.main.fragment_webview_section.web_view
+import kotlinx.android.synthetic.main.fragment_webview_section.web_view_spinner
 
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
@@ -19,23 +24,25 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override val presenter = WebViewPresenter<DISPLAYABLE>()
 
-    override val inactiveIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size
-    )
+    override val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onSlide(p0: View, p1: Float) {
+        }
 
-    override val activeIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active
-    )
+        override fun onStateChanged(bottomSheetView: View, state: Int) {
+            if (state == BottomSheetBehavior.STATE_COLLAPSED) {
+                view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
+                    this@WebViewFragment.deactivateAllItems(menu)
+                }
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
+
     }
 
     override fun getWebView(): AppWebView {
@@ -63,8 +70,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         return presenter.onBackPressed()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem, activated)
     }
 
     override fun shareText(text: String) {
@@ -76,6 +83,15 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
+    }
+
+    override fun showBookmarkBottomSheet() {
+        // TODO show correct fragment
+        showBottomSheet(TextSizeFragment())
+    }
+
+    override fun showFontSettingBottomSheet() {
+        showBottomSheet(TextSizeFragment())
     }
 
 }

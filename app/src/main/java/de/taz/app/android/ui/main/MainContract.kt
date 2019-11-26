@@ -12,6 +12,8 @@ import de.taz.app.android.base.BaseContract
 interface MainContract : BaseContract {
     interface View : BaseContract.View {
 
+        fun closeDrawer()
+
         fun getApplicationContext(): Context
 
         fun getMainDataController(): DataController
@@ -23,8 +25,6 @@ interface MainContract : BaseContract {
         fun showArchive()
 
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
-
-        fun closeDrawer()
 
         fun showToast(@StringRes stringId: Int)
 
