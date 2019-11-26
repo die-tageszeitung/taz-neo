@@ -57,4 +57,8 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
 
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
+
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="ic_circle_size">12dp</dimen>
+
 </resources>

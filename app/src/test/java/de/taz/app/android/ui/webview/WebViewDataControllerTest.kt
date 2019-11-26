@@ -42,7 +42,6 @@ class WebViewDataControllerTest {
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     @Test
     fun observeWebViewDisplayable() {
-        // this is needed so fileLiveData updates
         var called = false
         webViewDataController.observeWebViewDisplayable(TestLifecycleOwner()) { displayable ->
             if (displayable != null) {
