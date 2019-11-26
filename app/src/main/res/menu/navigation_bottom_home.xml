@@ -17,6 +17,6 @@
              android:icon="@drawable/ic_search"
              android:title="@string/bottom_navigation_action_search" />-->
      <item android:id="@+id/bottom_navigation_action_settings"
-           android:title="@string/bottom_navigation_action_settings"
+           android:title="@string/settings"
            android:icon="@drawable/ic_settings" />
 </menu>

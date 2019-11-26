@@ -72,7 +72,7 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         getView()?.hideLoadingScreen()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
         when (menuItem.itemId) {
@@ -107,6 +107,13 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                             setIconInactive(R.id.bottom_navigation_action_share)
                         }
                     }
+                }
+
+            R.id.bottom_navigation_action_size ->
+                if (activated) {
+                    getView()?.showFontSettingBottomSheet()
+                } else {
+                    getView()?.hideBottomSheet()
                 }
         }
     }
