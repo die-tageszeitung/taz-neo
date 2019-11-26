@@ -40,4 +40,12 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
         return stringToDate(dateString)?.let { localDateFormat.format(it) }
     }
 
+    fun dateToLowerCaseString(date: String): String? {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
+            SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
+        }
+    }
+
 }

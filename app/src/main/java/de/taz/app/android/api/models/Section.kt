@@ -10,16 +10,18 @@ import java.io.File
 
 data class Section(
     val sectionHtml: FileEntry,
+    val date: String,
     val title: String,
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
 ) : SectionOperations, CacheableDownload, WebViewDisplayable {
-    constructor(sectionDto: SectionDto) : this(
+    constructor(date: String, sectionDto: SectionDto) : this(
         sectionDto.sectionHtml,
+        date,
         sectionDto.title,
         sectionDto.type,
-        sectionDto.articleList?.map { Article(it) } ?: listOf(),
+        sectionDto.articleList?.map { Article(date, it) } ?: listOf(),
         sectionDto.imageList ?: listOf()
     )
 

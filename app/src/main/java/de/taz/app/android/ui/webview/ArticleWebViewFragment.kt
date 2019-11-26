@@ -15,6 +15,18 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
 
     var article: Article? = null
 
+    override val inactiveIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size
+    )
+
+    override val activeIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active
+    )
+
     companion object {
         fun createInstance(article: Article): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
