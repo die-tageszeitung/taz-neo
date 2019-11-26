@@ -73,7 +73,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     private fun setupViewPager() {
         val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
         val sectionAdapter = SectionPagerAdapter(this, stableIdProvider)
-        webview_pager_viewpager.apply {
+        webview_pager_viewpager?.apply {
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 1
