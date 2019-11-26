@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:splitMotionEvents="true"
     android:stretchMode="columnWidth"
+    android:nestedScrollingEnabled="true"
     android:paddingTop="72dp"
     android:clipToPadding="false" />
 

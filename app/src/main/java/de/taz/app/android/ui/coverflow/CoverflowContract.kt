@@ -14,7 +14,6 @@ interface CoverflowContract {
     }
 
     interface Presenter: BaseContract.Presenter {
-        suspend fun onRefresh()
     }
 
     interface DataController {
