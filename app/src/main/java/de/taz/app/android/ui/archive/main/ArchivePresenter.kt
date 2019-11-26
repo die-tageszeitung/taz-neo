@@ -8,10 +8,8 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
-import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +17,6 @@ import kotlinx.coroutines.withContext
 class ArchivePresenter(
     private val apiService: ApiService = ApiService.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val feedRepository: FeedRepository = FeedRepository.getInstance(),
     private val log: Log = Log(ArchivePresenter::javaClass.name)
 ) : BasePresenter<ArchiveContract.View, ArchiveDataController>(
     ArchiveDataController::class.java
@@ -76,24 +73,6 @@ class ArchivePresenter(
                     }
                 }
             }
-        }
-    }
-
-    override suspend fun onRefresh() {
-        log.debug("onRefresh called")
-        // check for new issues and download
-        withContext(Dispatchers.IO) {
-            try {
-                feedRepository.save(apiService.getFeeds())
-                issueRepository.save(apiService.getIssuesByDate())
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            }
-            getView()?.hideRefreshLoadingIcon()
         }
     }
 

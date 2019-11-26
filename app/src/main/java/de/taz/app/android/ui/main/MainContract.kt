@@ -22,7 +22,7 @@ interface MainContract : BaseContract {
 
         fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 
-        fun showArchive()
+        fun showFeed()
 
         fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
 

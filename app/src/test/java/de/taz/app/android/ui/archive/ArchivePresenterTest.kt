@@ -8,7 +8,6 @@ import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.testFeeds
 import de.taz.app.android.testIssues
 import de.taz.app.android.ui.archive.main.ArchiveContract
 import de.taz.app.android.ui.archive.main.ArchiveDataController
@@ -49,8 +48,6 @@ class ArchivePresenterTest {
     @Mock
     lateinit var apiService: ApiService
     @Mock
-    lateinit var feedRepository: FeedRepository
-    @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
     lateinit var log: Log
@@ -66,7 +63,7 @@ class ArchivePresenterTest {
         MockitoAnnotations.initMocks(this)
 
         apiService.simpleDateFormat = SimpleDateFormat()
-        presenter = ArchivePresenter(apiService, issueRepository, feedRepository, log)
+        presenter = ArchivePresenter(apiService, issueRepository, log)
         presenter.attach(archiveContractView)
 
         Mockito.`when`(archiveContractView.getMainView()).thenReturn(mainContractView)
@@ -91,30 +88,6 @@ class ArchivePresenterTest {
         Mockito.verify(viewModel).observeFeeds(any(), any())
         Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
         Mockito.verify(viewModel).observeIssueStubs(any(), any())
-    }
-
-    @Test
-    fun onRefresh() {
-        runBlocking {
-            doReturn(testFeeds).`when`(apiService).getFeeds()
-            doReturn(testIssues).`when`(apiService).getIssuesByDate(any(), any())
-
-            presenter.onRefresh()
-
-            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
-        }
-    }
-
-    @Test
-    fun onRefreshFails() {
-        runBlocking {
-            doReturn(testFeeds).`when`(apiService).getFeeds()
-            doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService).getIssuesByDate(any(), any())
-
-            presenter.onRefresh()
-
-            Mockito.verify(archiveContractView).hideRefreshLoadingIcon()
-        }
     }
 
     @Test
