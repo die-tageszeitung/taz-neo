@@ -11,6 +11,7 @@ import java.io.File
 
 data class Article(
     val articleHtml: FileEntry,
+    val date: String,
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
@@ -23,8 +24,9 @@ data class Article(
     val position: Int = 0,
     val percentage: Int = 0
 ): ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
-    constructor(articleDto: ArticleDto, articleType: ArticleType = ArticleType.STANDARD) : this(
+    constructor(date: String, articleDto: ArticleDto, articleType: ArticleType = ArticleType.STANDARD) : this(
         articleDto.articleHtml,
+        date,
         articleDto.title,
         articleDto.teaser,
         articleDto.onlineLink,
