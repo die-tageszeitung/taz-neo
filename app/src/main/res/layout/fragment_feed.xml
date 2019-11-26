@@ -8,8 +8,9 @@
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
-    <de.taz.app.android.ui.feed.VerticalViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/feed_archive_pager"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/fragment_archive_background" />

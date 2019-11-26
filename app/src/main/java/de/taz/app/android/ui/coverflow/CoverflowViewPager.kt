@@ -2,6 +2,7 @@ package de.taz.app.android.ui.coverflow
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.MotionEvent
 import androidx.viewpager.widget.ViewPager
 import de.taz.app.android.util.Log
 

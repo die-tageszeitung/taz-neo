@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_feed.*
 
@@ -22,13 +23,16 @@ class FeedFragment : BaseMainFragment<FeedPresenter>() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
-        feed_archive_pager.adapter = FeedFragmentPagerAdapter(childFragmentManager)
+        feed_archive_pager.adapter = FeedFragmentPagerAdapter(childFragmentManager, lifecycle)
+        feed_archive_pager.isNestedScrollingEnabled = true
+        // reduce viewpager2 sensitivity to make the view less finnicky
+        feed_archive_pager.reduceDragSensitivity(8)
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
