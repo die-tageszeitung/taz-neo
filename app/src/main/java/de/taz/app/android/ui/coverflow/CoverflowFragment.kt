@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
@@ -34,16 +35,6 @@ class CoverflowFragment: Fragment(), CoverflowContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
-        coverflow_refresh_layout.setOnRefreshListener {
-            lifecycleScope.launch {
-                presenter.onRefresh()
-                hideRefreshLoadingIcon()
-            }
-        }
-    }
-
-    private fun hideRefreshLoadingIcon() {
-        coverflow_refresh_layout.isRefreshing = false
     }
 
     override fun onDatasetChanged(issues: List<IssueStub>, feed: Feed?) {
