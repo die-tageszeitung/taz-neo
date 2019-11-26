@@ -128,36 +128,6 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         return false
     }
 
-    override fun onSwipeLeft(): Job? {
-        getView()?.let { view ->
-            return view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                viewModel?.getWebViewDisplayable()?.next()?.let { next ->
-                    view.getMainView()
-                        ?.showInWebView(next, R.anim.slide_in_left, R.anim.slide_out_left)
-                }
-            }
-        }
-        return null
-    }
-
-    override fun onSwipeRight(): Job? {
-        getView()?.let { view ->
-            return view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                viewModel?.getWebViewDisplayable()?.previous()?.let { previous ->
-                    view.getMainView()
-                        ?.showInWebView(previous, R.anim.slide_in_right, R.anim.slide_out_right)
-                }
-            }
-        }
-        return null
-    }
-
-    override fun onSwipeTop() {
-    }
-
-    override fun onSwipeBottom() {
-    }
-
     override fun onBackPressed(): Boolean {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 

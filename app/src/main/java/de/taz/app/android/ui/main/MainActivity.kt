@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.annotation.AnimRes
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,8 +18,9 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.archive.main.ArchiveFragment
-import de.taz.app.android.ui.webview.ArticleWebViewFragment
-import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import de.taz.app.android.ui.webview.pager.SectionPagerContract
+import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -57,24 +59,39 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-
     override fun showInWebView(
         webViewDisplayable: WebViewDisplayable,
         enterAnimation: Int,
         exitAnimation: Int
     ) {
+        when (webViewDisplayable) {
+            is Article -> showArticle(webViewDisplayable, enterAnimation, exitAnimation)
+            is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
+        }
+    }
+
+    private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int) {
+        val fragment = ArticlePagerFragment.createInstance(article)
+        showMainFragment(fragment, enterAnimation, exitAnimation)
+    }
+
+    private fun showSection(section: Section, enterAnimation: Int, exitAnimation: Int) {
         runOnUiThread {
-            val fragment = when (webViewDisplayable) {
-                is Article ->
-                    ArticleWebViewFragment.createInstance(webViewDisplayable)
-                is Section ->
-                    SectionWebViewFragment.createInstance(webViewDisplayable)
-                else -> null
-            }
-            fragment?.let {
+            if (!tryShowExistingSection(section)) {
+                val fragment = SectionPagerFragment.createInstance(section)
                 showMainFragment(fragment, enterAnimation, exitAnimation)
             }
         }
+    }
+
+    @MainThread
+    private fun tryShowExistingSection(section: Section): Boolean {
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
+        if (currentFragment is SectionPagerContract.View) {
+            return currentFragment.tryLoadSection(section)
+        }
+        return false
     }
 
     override fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {

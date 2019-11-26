@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
-import de.taz.app.android.R
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.ui.main.MainContract
@@ -128,25 +127,5 @@ class WebViewPresenterTest {
         // hide loading screen when page has finished loading
         presenter.onPageFinishedLoading()
         Mockito.verify(webViewContractView, Mockito.times(1)).hideLoadingScreen()
-    }
-
-    @Test
-    fun onSwipeLeft() = runBlocking {
-        // show next item if swiping left
-        presenter.onSwipeLeft()?.join()
-        Mockito.verify(mainContractView).showInWebView(
-            eq(nextWebViewDisplayable), eq(R.anim.slide_in_left), eq(R.anim.slide_out_left)
-        )
-    }
-
-    @Test
-    fun onSwipeRight() = runBlocking {
-        // show previous item if swiping right
-        presenter.onSwipeRight()?.join()
-        Mockito.verify(mainContractView).showInWebView(
-            eq(previousWebViewDisplayable),
-            eq(R.anim.slide_in_right),
-            eq(R.anim.slide_out_right)
-        )
     }
 }

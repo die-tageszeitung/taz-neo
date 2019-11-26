@@ -65,17 +65,14 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
     }
 
     private fun setHeaderForSection(section: Section) {
-        activity?.apply {
-            runOnUiThread {
-                findViewById<TextView>(R.id.section)?.text = section.title
-                findViewById<TextView>(R.id.article_num)?.text = getString(
-                    R.string.fragment_header_article,
-                    section.articleList.indexOf(article) + 1,
-                    section.articleList.size
-                )
-            }
+        activity?.runOnUiThread {
+            view?.findViewById<TextView>(R.id.section)?.text = section.title
+            view?.findViewById<TextView>(R.id.article_num)?.text = getString(
+                R.string.fragment_header_article,
+                section.articleList.indexOf(article) + 1,
+                section.articleList.size
+            )
         }
     }
-
 }
 

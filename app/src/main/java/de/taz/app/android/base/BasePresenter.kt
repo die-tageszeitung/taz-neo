@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
+abstract class BasePresenter<VIEW : BaseContract.View, VIEW_MODEL : BaseDataController>(
     private val viewModelClass: Class<VIEW_MODEL>
 ) : ViewModel(), BaseContract.Presenter {
 
@@ -17,13 +17,10 @@ abstract class BasePresenter<VIEW, VIEW_MODEL : BaseDataController>(
     open fun attach(view: VIEW) {
         this.view = WeakReference(view)
 
-        getView()?.let { it ->
-            if (it is FragmentActivity) {
-                viewModel = ViewModelProviders.of(it).get(viewModelClass)
-            }
-            if (it is Fragment) {
-                viewModel = ViewModelProviders.of(it.requireActivity()).get(viewModelClass)
-            }
+        viewModel = when (view) {
+            is FragmentActivity -> ViewModelProviders.of(view).get(viewModelClass)
+            is Fragment -> ViewModelProviders.of(view).get(viewModelClass)
+            else -> null
         }
     }
 

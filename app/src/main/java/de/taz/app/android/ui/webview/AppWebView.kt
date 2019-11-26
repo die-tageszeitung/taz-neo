@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.view.MotionEvent
-import android.view.GestureDetector
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.animation.ObjectAnimator
 import android.content.Context
@@ -48,7 +47,6 @@ class AppWebView @JvmOverloads constructor(
     }
 
     private var callback: AppWebViewCallback? = null
-    private var gestureDetector: GestureDetector? = null
 
 
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
@@ -93,7 +91,6 @@ class AppWebView @JvmOverloads constructor(
 
     fun setArticleWebViewCallback(listener: AppWebViewCallback) {
         callback = listener
-        gestureDetector = GestureDetector(context, WebViewGestureListener(listener))
     }
 
     private var lastMotionY = 0
@@ -151,10 +148,6 @@ class AppWebView @JvmOverloads constructor(
             else -> { }
         }
 
-        gestureDetector?.let {
-            if (!isScrolling)
-                return it.onTouchEvent(event) || super.onTouchEvent(event)
-        }
         return super.onTouchEvent(event)
     }
 

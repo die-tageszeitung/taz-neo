@@ -3,10 +3,8 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/web_view_scroll"
         android:layout_marginEnd="@dimen/fragment_header_default_margin_end"
         android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
         app:layout_constraintTop_toTopOf="parent">

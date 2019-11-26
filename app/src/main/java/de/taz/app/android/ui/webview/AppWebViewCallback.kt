@@ -10,13 +10,5 @@ interface AppWebViewCallback {
 
     fun onScrollFinished()
 
-    fun onSwipeRight(): Job?
-
-    fun onSwipeLeft(): Job?
-
-    fun onSwipeBottom()
-
-    fun onSwipeTop()
-
     fun onDoubleTap(e: MotionEvent): Boolean
 }
