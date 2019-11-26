@@ -48,8 +48,6 @@ class ArchivePresenterTest {
     @Mock
     lateinit var apiService: ApiService
     @Mock
-    lateinit var feedRepository: FeedRepository
-    @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
     lateinit var log: Log
@@ -65,7 +63,7 @@ class ArchivePresenterTest {
         MockitoAnnotations.initMocks(this)
 
         apiService.simpleDateFormat = SimpleDateFormat()
-        presenter = ArchivePresenter(apiService, issueRepository, feedRepository, log)
+        presenter = ArchivePresenter(apiService, issueRepository, log)
         presenter.attach(archiveContractView)
 
         Mockito.`when`(archiveContractView.getMainView()).thenReturn(mainContractView)
