@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
-import kotlinx.coroutines.launch
 
 /**
  * Fragment to show the archive - a GridView of available issues
@@ -40,12 +39,6 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
 
         presenter.attach(this)
 
-        fragment_archive_swipe_refresh.setOnRefreshListener {
-            lifecycleScope.launch {
-                presenter.onRefresh()
-            }
-        }
-
         context?.let { context ->
             fragment_archive_grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns(context))
@@ -64,10 +57,6 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
         (fragment_archive_grid?.adapter as? ArchiveListAdapter)?.setIssueStubs(issueStubs)
-    }
-
-    override fun hideRefreshLoadingIcon() {
-        fragment_archive_swipe_refresh?.isRefreshing = false
     }
 
     override fun hideProgressbar(issueStub: IssueStub) {

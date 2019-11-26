@@ -76,7 +76,7 @@
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/grey</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -105,7 +105,7 @@
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
         <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/grey</item>
+        <item name="android:textColor">@color/lightGrey</item>
         <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_bottom</item>
     </style>
 

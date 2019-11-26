@@ -11,8 +11,6 @@ interface ArchiveContract {
 
     interface View: BaseContract.View {
 
-        fun hideRefreshLoadingIcon()
-
         fun onDataSetChanged(issueStubs: List<IssueStub>)
 
         fun showProgressbar(issueStub: IssueStub)
@@ -30,8 +28,6 @@ interface ArchiveContract {
         suspend fun getNextIssueMoments(date: String, limit: Int)
 
         suspend fun onItemSelected(issueStub: IssueStub)
-
-        suspend fun onRefresh()
 
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
