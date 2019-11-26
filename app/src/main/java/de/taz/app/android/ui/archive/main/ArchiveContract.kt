@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.archive.main
 
+import android.view.MenuItem
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.Feed
@@ -31,6 +32,8 @@ interface ArchiveContract {
         suspend fun onItemSelected(issueStub: IssueStub)
 
         suspend fun onRefresh()
+
+        fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
 
     interface DataController {
