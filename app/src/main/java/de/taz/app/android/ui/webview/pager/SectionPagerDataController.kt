@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SectionPagerDataController: BaseDataController(), SectionPagerContract.DataController {
+open class SectionPagerDataController: BaseDataController(), SectionPagerContract.DataController {
     override var currentPosition: Int = 0
     private val sectionList = MutableLiveData<List<Section>>(emptyList())
 

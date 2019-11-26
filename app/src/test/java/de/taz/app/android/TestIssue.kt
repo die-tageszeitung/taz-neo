@@ -1,9 +1,23 @@
 package de.taz.app.android
 
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.dto.SectionType
+import de.taz.app.android.api.interfaces.StorageType
+import de.taz.app.android.api.models.*
+
+val testSection = Section(
+    FileEntry(
+        "sectionFileEntry",
+        StorageType.issue,
+        1337L,
+        "?",
+        0L
+    ),
+    "1313-12-13",
+    "a section",
+    SectionType.articles,
+    emptyList(),
+    emptyList()
+)
 
 val testIssue = Issue(
     "taz",
@@ -19,7 +33,7 @@ val testIssue = Issue(
     null,
     emptyList(),
     emptyList(),
-    emptyList(),
+    listOf(testSection),
     emptyList()
 )
 val testIssues = listOf(testIssue)

@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview.pager
 
 import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.testSection
 import de.taz.app.android.ui.main.MainContract
 import org.junit.Assert.*
 import org.junit.Before
@@ -19,13 +20,12 @@ class SectionPagerPresenterTest {
 
     @Mock
     lateinit var dataController: SectionPagerDataController
-    //    lateinit var dataController: SectionPagerContract.DataController
 
     val presenter = SectionPagerPresenter()
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.initMocks(this)
         presenter.attach(view)
 
         presenter.viewModel = dataController
@@ -37,7 +37,7 @@ class SectionPagerPresenterTest {
 
     @Test
     fun testSetInitialSection() {
-        val section: Section =  mock()
+        val section: Section = testSection
         presenter.setInitialSection(section)
         verify(dataController).setInitialSection(section)
     }
@@ -50,7 +50,7 @@ class SectionPagerPresenterTest {
 
     @Test
     fun testTrySetSectionTrue() {
-        val section: Section = mock()
+        val section: Section = testSection
         whenever(dataController.trySetSection(section)).thenReturn(true)
         whenever(dataController.currentPosition).thenReturn(23)
 
@@ -60,7 +60,7 @@ class SectionPagerPresenterTest {
 
     @Test
     fun testTrySetSectionFalse() {
-        val section: Section = mock()
+        val section: Section = testSection
         whenever(dataController.trySetSection(any())).thenReturn(false)
 
         assertFalse(presenter.trySetSection(section))
