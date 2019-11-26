@@ -40,7 +40,6 @@
     <string name="fragment_login_login_button">Anmelden</string>
 
     <string name="archive">Archiv</string>
-    <string name="bookmarks">Leseliste</string>
     <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
     <string name="settings">Einstellungen</string>
@@ -52,5 +51,10 @@
     <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
     <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
+
+
+    <string name="fragment_bookmarks_title">Leseliste</string>
+    <string name="fragment_bookmarks_delete">Löschen</string>
+    <string name="fragment_bookmarks_share">Teilen</string>
 
 </resources>

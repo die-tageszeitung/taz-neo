@@ -14,8 +14,7 @@
         android:layout_height="wrap_content"
 
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="7dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/fragment_bookmark_title"
@@ -41,12 +40,13 @@
 
         <ImageView
             android:id="@+id/fragment_bookmark_image"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="@dimen/fragment_bookmarks_thumbnail_size"
+            android:layout_height="@dimen/fragment_bookmarks_thumbnail_size"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
+            tools:ignore="ContentDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,6 +60,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark"
+        android:contentDescription="@string/fragment_bookmarks_share"
         app:srcCompat="@drawable/ic_share" />
 
     <ImageView
@@ -70,6 +71,7 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark"
+        android:contentDescription="@string/fragment_bookmarks_delete"
         app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <View
