@@ -13,7 +13,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
-import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlinx.coroutines.launch
 
@@ -101,7 +100,7 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 }
