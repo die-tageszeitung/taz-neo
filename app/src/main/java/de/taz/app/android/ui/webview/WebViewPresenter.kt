@@ -74,14 +74,12 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                         DownloadService.download(it, displayable)
                     }
                 }
-
-                withContext(Dispatchers.Main) {
-                    displayable.isDownloadedLiveData().observe(
-                        view.getLifecycleOwner(),
-                        DisplayableDownloadedObserver(displayable)
-                    )
-                }
             }
+
+            displayable.isDownloadedLiveData().observe(
+                view.getLifecycleOwner(),
+                DisplayableDownloadedObserver(displayable)
+            )
         }
     }
 
