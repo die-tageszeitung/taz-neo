@@ -1,13 +1,9 @@
 package de.taz.app.android.ui.coverflow
 
-import android.content.Context;
-import android.graphics.Point;
-import android.util.AttributeSet;
+import android.content.Context
+import android.graphics.Point
+import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.viewpager.widget.ViewPager
 import de.taz.app.android.util.Log
