@@ -65,7 +65,7 @@ class ArchivePresenter(
                                 // open last clicked issue if downloaded
                                 if (isDownloaded == true && getMainDataController().getIssue() == issue) {
                                     firstSection.isDownloadedLiveData().removeObserver(this)
-                                    showMainFragment(SectionWebViewFragment.createInstance(firstSection))
+                                    showInWebView(firstSection)
                                 }
                             }
                         }

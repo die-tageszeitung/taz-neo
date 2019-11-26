@@ -51,8 +51,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            web_view_spinner.visibility = View.GONE
-            web_view.visibility = View.VISIBLE
+            web_view_spinner?.visibility = View.GONE
+            web_view?.visibility = View.VISIBLE
         }
     }
 

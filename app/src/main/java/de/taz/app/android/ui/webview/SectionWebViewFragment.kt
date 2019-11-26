@@ -11,7 +11,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.util.DateHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SectionWebViewFragment : WebViewFragment<Section>() {
@@ -71,11 +70,11 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
     private fun setHeader(section: Section, issueStub: IssueStub) {
         activity?.apply {
             runOnUiThread {
-                findViewById<TextView>(R.id.section)?.apply {
+                view?.findViewById<TextView>(R.id.section)?.apply {
                     text = section.title
                 }
                 dateHelper.dateToLowerCaseString(issueStub.date)?.let {
-                    findViewById<TextView>(R.id.issue_date)?.apply {
+                    view?.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
                 }
