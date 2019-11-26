@@ -29,8 +29,6 @@ interface ArchiveContract {
 
         suspend fun onItemSelected(issueStub: IssueStub)
 
-        suspend fun onRefresh()
-
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
 

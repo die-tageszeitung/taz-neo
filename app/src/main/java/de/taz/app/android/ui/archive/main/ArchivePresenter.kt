@@ -8,10 +8,8 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
-import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +17,6 @@ import kotlinx.coroutines.withContext
 class ArchivePresenter(
     private val apiService: ApiService = ApiService.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val feedRepository: FeedRepository = FeedRepository.getInstance(),
     private val log: Log = Log(ArchivePresenter::javaClass.name)
 ) : BasePresenter<ArchiveContract.View, ArchiveDataController>(
     ArchiveDataController::class.java
