@@ -54,7 +54,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        webview_pager_viewpager.adapter = null
+        webview_pager_viewpager?.adapter = null
     }
 
     override fun onCreateView(
@@ -76,7 +76,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     private fun setupViewPager() {
         val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
         val sectionAdapter = ArticlePagerAdapter(this, stableIdProvider)
-        webview_pager_viewpager.apply {
+        webview_pager_viewpager?.apply {
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 1
