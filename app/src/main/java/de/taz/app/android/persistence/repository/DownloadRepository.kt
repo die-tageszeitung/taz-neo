@@ -143,7 +143,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
 
     fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
         val mediatorLiveData = MediatorLiveData<Boolean>()
-        mediatorLiveData.value = false
+        mediatorLiveData.postValue(false)
 
         var trueCountdown = fileNames.size
         fileNames.forEach { fileName ->
@@ -155,7 +155,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
                 }
 
                 if (trueCountdown <= 0) {
-                    mediatorLiveData.value = true
+                    mediatorLiveData.postValue(true)
                 }
             }
         }

@@ -72,13 +72,24 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
      * icons to show if an ItemNavigationId is active (currently selected)
      * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
      */
-    open val activeIconMap: Map<Int, Int> = mapOf()
+
+    val activeIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active,
+        R.id.bottom_navigation_action_home to R.drawable.ic_home_active
+    )
 
     /**
      * icons to show if an ItemNavigationId is inactive (not currently selected)
      * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
      */
-    open val inactiveIconMap: Map<Int, Int> = mapOf()
+    val inactiveIconMap = mapOf(
+        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
+        R.id.bottom_navigation_action_share to R.drawable.ic_share,
+        R.id.bottom_navigation_action_size to R.drawable.ic_text_size,
+        R.id.bottom_navigation_action_home to R.drawable.ic_home
+    )
 
     /**
      * used to store if an Item should be permanently active
