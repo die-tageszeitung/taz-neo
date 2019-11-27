@@ -17,7 +17,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.archive.main.ArchiveFragment
 import de.taz.app.android.ui.feed.FeedFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract

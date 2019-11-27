@@ -24,20 +24,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override val presenter = WebViewPresenter<DISPLAYABLE>()
 
-    override val inactiveIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size,
-        R.id.bottom_navigation_action_home to R.drawable.ic_home
-    )
-
-    override val activeIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active,
-        R.id.bottom_navigation_action_home to R.drawable.ic_home_active
-    )
-
     override val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onSlide(p0: View, p1: Float) {
         }
