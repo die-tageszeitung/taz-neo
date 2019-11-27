@@ -81,13 +81,23 @@ var tazApi = (function() {
 			ANDROIDAPI.openUrl(url);
 		}
 
+        function injectCss(encodedCssContent) {
+            var parent = document.getElementsByTagName('head').item(0);
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            // Tell the browser to BASE64-decode the string
+            style.innerHTML = window.atob(encodedCssContent);
+            parent.appendChild(style);
+        }
+
 		return {
 			getConfiguration : getConfiguration,
 			setConfiguration : setConfiguration,
 			pageReady : pageReady,
 			nextArticle : nextArticle,
 			previousArticle : previousArticle,
-			openUrl : openUrl
+			openUrl : openUrl,
+			injectCss: injectCss
 		}
 	}());
 }());
