@@ -40,4 +40,8 @@ open class PreferencesHelper private constructor(applicationContext: Context) {
         feedPreferences.edit().putStringSet(PREFERENCES_FEEDS_INACTIVE, inactiveFeeds).apply()
     }
 
+    open fun computeFontSize(percentage: String) : String {
+        val fontSize = percentage.toInt() * 0.01 * 18
+        return fontSize.toString()
+    }
 }
