@@ -39,4 +39,13 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         """
     )
     abstract fun getIssueStubForSection(sectionName: String): IssueStub
+    @Query(
+        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
+        ON IssueSectionJoin.sectionFileName == Section.sectionFileName
+        WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+        ORDER BY IssueSectionJoin.`index` ASC LIMIT 1
+        """
+    )
+    abstract fun getFirstSectionForIssue(feedName: String, date: String): SectionStub
+
 }

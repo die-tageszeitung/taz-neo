@@ -48,5 +48,6 @@ data class Section(
         return nextSection()
     }
 
+    override fun getIssueOperations() = issueStub
 }
 

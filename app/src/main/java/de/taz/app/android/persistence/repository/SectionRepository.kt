@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
@@ -11,7 +12,7 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
 
-class SectionRepository private constructor(applicationContext: Context) :
+open class SectionRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<SectionRepository, Context>(::SectionRepository)
@@ -67,6 +68,14 @@ class SectionRepository private constructor(applicationContext: Context) :
         } catch (nfe: NotFoundException) {
             null
         }
+    }
+
+    fun getFirstSectionForIssueStub(issueStub: IssueStub): Section {
+        return sectionStubToSection(
+            appDatabase.issueSectionJoinDao().getFirstSectionForIssue(
+                issueStub.feedName, issueStub.date
+            )
+        )
     }
 
     fun getSectionStubForArticle(articleFileName: String): SectionStub? {
