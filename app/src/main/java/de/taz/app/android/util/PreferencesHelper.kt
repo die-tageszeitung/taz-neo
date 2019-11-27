@@ -8,6 +8,8 @@ import de.taz.app.android.api.models.Feed
 const val PREFERENCES_FEEDS_FILE = "preferences_feeds"
 const val PREFERENCES_FEEDS_INACTIVE = "inactiveFeeds"
 
+const val SETTINGS_TEXT_DEFAULT_FONT_SIZE = 18
+
 open class PreferencesHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<PreferencesHelper, Context>(::PreferencesHelper)
@@ -40,8 +42,12 @@ open class PreferencesHelper private constructor(applicationContext: Context) {
         feedPreferences.edit().putStringSet(PREFERENCES_FEEDS_INACTIVE, inactiveFeeds).apply()
     }
 
+    /**
+     * Computes an actual font size using the default font size and the display percentage
+     * entered by the user
+     */
     open fun computeFontSize(percentage: String) : String {
-        val fontSize = percentage.toInt() * 0.01 * 18
+        val fontSize = percentage.toInt() * 0.01 * SETTINGS_TEXT_DEFAULT_FONT_SIZE
         return fontSize.toString()
     }
 }

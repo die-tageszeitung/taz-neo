@@ -7,6 +7,10 @@ import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceViewHolder
 import de.taz.app.android.R
 
+
+const val FONT_SIZE_DECREASE_PERCENTAGE = -10
+const val FONT_SIZE_INCREASE_PERCENTAGE = 10
+
 class TextSizePreference @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0
 ) : EditTextPreference (context, attributeSet, defStyleAttr, defStyleRes) {
@@ -20,14 +24,14 @@ class TextSizePreference @JvmOverloads constructor(
         holder?.let {
             it.itemView.isClickable = false
             it.findViewById(R.id.settings_text_decrease)?.setOnClickListener{
-                modifySize(-10)
+                modifySize(FONT_SIZE_DECREASE_PERCENTAGE)
             }
 
             val textView = it.findViewById(R.id.settings_text_size) as? TextView
             textView?.text = context.getString(R.string.percentage).format(getPersistedString("100").toInt())
 
             it.findViewById(R.id.settings_text_increase)?.setOnClickListener {
-                modifySize(10)
+                modifySize(FONT_SIZE_INCREASE_PERCENTAGE)
             }
         }
     }
