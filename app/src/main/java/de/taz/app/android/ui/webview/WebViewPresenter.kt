@@ -67,17 +67,17 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     private fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
-        getView()?.let { view ->
-            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+        getView()?.apply {
+            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 if (!displayable.isDownloaded()) {
-                    view.getMainView()?.getApplicationContext()?.let {
+                    getMainView()?.getApplicationContext()?.let {
                         DownloadService.download(it, displayable)
                     }
                 }
             }
 
             displayable.isDownloadedLiveData().observe(
-                view.getLifecycleOwner(),
+                getLifecycleOwner(),
                 DisplayableDownloadedObserver(displayable)
             )
         }
