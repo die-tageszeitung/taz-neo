@@ -15,11 +15,11 @@
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/feed_archive_pager"
+            android:nestedScrollingEnabled="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/fragment_archive_background"
             android:orientation="vertical" />
-
 
         <LinearLayout
             android:layout_width="match_parent"

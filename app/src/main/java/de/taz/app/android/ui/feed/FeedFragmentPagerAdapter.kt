@@ -10,6 +10,9 @@ import de.taz.app.android.ui.coverflow.CoverflowFragment
 
 const val FEED_VIEW_FRAGMENT_COUNT = 2
 
+const val COVERFLOW_PAGER_POSITION = 0
+const val ARCHIVE_PAGER_POSITION = 1
+
 class FeedFragmentPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
     override fun getItemCount(): Int {
@@ -18,8 +21,8 @@ class FeedFragmentPagerAdapter(fragmentManager: FragmentManager, lifecycle: Life
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> CoverflowFragment()
-            1 -> ArchiveFragment()
+            COVERFLOW_PAGER_POSITION -> CoverflowFragment()
+            ARCHIVE_PAGER_POSITION -> ArchiveFragment()
             else -> throw IllegalStateException("Invalid position in ViewPager")
         }
     }
