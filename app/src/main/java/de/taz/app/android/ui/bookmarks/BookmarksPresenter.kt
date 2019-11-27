@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.bookmarks
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.lifecycle.Observer
@@ -12,7 +11,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataController>
     (BookmarksDataController::class.java), BookmarksContract.Presenter {
@@ -27,16 +25,6 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
 
     override fun openArticle(article: Article) {
         getView()?.getMainView()?.showInWebView(article)
-    }
-
-    override fun shareArticle(article: Article) {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, article.onlineLink)
-            type = "text/plain"
-        }
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        getView()?.getMainView()?.getApplicationContext()?.startActivity(shareIntent, null)
     }
 
     override fun debookmarkArticle(article: Article) {
@@ -56,6 +44,12 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
                 getView()?.getMainView()?.showMainFragment(FeedFragment())
+        }
+    }
+
+    override fun shareArticle(article: Article) {
+        getView()?.let { view ->
+            view.shareArticle(article)
         }
     }
 }

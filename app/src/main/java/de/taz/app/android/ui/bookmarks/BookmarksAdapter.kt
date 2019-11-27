@@ -5,10 +5,12 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.api.models.Article
 
 
-class BookmarksAdapter(val bookmarksPresenter: BookmarksContract.Presenter) :
+class BookmarksAdapter(
+    private val bookmarksPresenter: BookmarksContract.Presenter
+) :
     RecyclerView.Adapter<BookmarksViewHolder>() {
 
-    private var bookmarks : List<Article> = emptyList()
+    private var bookmarks: List<Article> = emptyList()
 
     fun setData(bookmarks: List<Article>) {
         this.bookmarks = bookmarks

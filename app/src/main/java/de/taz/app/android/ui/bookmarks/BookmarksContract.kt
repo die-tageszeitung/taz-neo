@@ -8,7 +8,9 @@ interface BookmarksContract {
 
     interface View : BaseContract.View {
 
-        fun setBookmarks(bookmarks : List<Article>)
+        fun setBookmarks(bookmarks: List<Article>)
+
+        fun shareArticle(article: Article)
     }
 
     interface Presenter : BaseContract.Presenter {
@@ -19,9 +21,9 @@ interface BookmarksContract {
 
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
 
-        fun openArticle(article : Article)
+        fun openArticle(article: Article)
 
-        fun shareArticle(article : Article)
+        fun shareArticle(article: Article)
     }
 
     interface DataController : BaseContract.DataController
