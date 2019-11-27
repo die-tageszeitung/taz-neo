@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bookmarks
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -66,4 +67,13 @@ class BookmarksFragment :
         return presenter.onBackPressed()
     }
 
+    override fun shareArticle(article: Article) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, article.onlineLink)
+            type = "text/plain"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
 }

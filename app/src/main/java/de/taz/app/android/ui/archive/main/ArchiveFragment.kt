@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
