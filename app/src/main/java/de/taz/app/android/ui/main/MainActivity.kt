@@ -28,6 +28,7 @@ import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.PreferencesHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val log by Log
 
     private val fileHelper = FileHelper.getInstance()
+
+    private val preferencesHelper = PreferencesHelper.getInstance()
 
     private val presenter = MainPresenter()
 
@@ -48,11 +51,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val cssString = """
             ${if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""}
             html, body {
-                font-size: ${sharedPreferences.getString("text_font_size", "18")}px;
+                font-size: ${preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "18")!!)}px;
             }
         """.trimIndent()
         cssFile.writeText(cssString)
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
