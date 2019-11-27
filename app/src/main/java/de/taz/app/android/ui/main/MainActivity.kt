@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val cssString = """
             ${if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""}
             html, body {
-                font-size: ${preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "18")!!)}px;
+                font-size: ${preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "18") ?: "18")}px;
             }
         """.trimIndent()
         cssFile.writeText(cssString)
