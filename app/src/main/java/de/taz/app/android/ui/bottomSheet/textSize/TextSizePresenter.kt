@@ -3,6 +3,7 @@ package de.taz.app.android.ui.bottomSheet.textSize
 import android.os.Bundle
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.ui.archive.main.ArchiveFragment
+import de.taz.app.android.ui.feed.FeedFragment
 
 const val MIN_TEXT_SIZE = 0
 const val MAX_TEST_SIZE = 200
@@ -34,7 +35,7 @@ class TextSizePresenter : BasePresenter<TextSizeContract.View, TextSizeDataContr
 
     override fun onSettingsSelected() {
         // TODO show correct fragment
-        getView()?.getMainView()?.showMainFragment(ArchiveFragment())
+        getView()?.getMainView()?.showMainFragment(FeedFragment())
     }
 
     override fun decreaseTextSize() {
