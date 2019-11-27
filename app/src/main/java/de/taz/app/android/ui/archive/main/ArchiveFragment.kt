@@ -6,14 +6,12 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.archive.endNavigation.ArchiveEndNavigationFragment
-import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
