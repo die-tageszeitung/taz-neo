@@ -2,6 +2,7 @@ package de.taz.app.android.ui.feed
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -30,4 +31,7 @@ class FeedFragment : BaseMainFragment<FeedPresenter>() {
         feed_archive_pager.adapter = FeedFragmentPagerAdapter(childFragmentManager)
     }
 
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem, activated)
+    }
 }
