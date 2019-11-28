@@ -23,7 +23,9 @@ import kotlinx.coroutines.withContext
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
+class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
+    private val articleRepository: ArticleRepository = ArticleRepository.getInstance()
+) :
     BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
         WebViewDataController<DISPLAYABLE>().javaClass
     ),
@@ -100,22 +102,15 @@ class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                 getView()?.getMainView()?.showMainFragment(FeedFragment())
 
             R.id.bottom_navigation_action_bookmark ->
-                if (webViewDisplayable is Article) {
-                    getView()?.let { view ->
-                        val articleRepository = ArticleRepository.getInstance()
-                        if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
-                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                articleRepository.debookmarkArticle(webViewDisplayable)
-                            }
-                            view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                            view.setIconInactive(R.id.bottom_navigation_action_bookmark)
-                        } else {
-                            view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                articleRepository.bookmarkArticle(webViewDisplayable)
-                            }
-                            view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                            view.setIconActive(R.id.bottom_navigation_action_bookmark)
+                getView()?.let { view ->
+                    if (activated) {
+                        webViewDisplayable as Article
+                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                            articleRepository.bookmarkArticle(webViewDisplayable)
                         }
+                        view.showBookmarkBottomSheet()
+                    } else {
+                        view.hideBottomSheet()
                     }
                 }
 
