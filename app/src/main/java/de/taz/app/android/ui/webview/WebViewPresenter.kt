@@ -17,13 +17,12 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
+abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance()
 ) :
     BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(

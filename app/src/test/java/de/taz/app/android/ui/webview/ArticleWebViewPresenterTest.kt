@@ -6,8 +6,9 @@ import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.testArticle
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -26,43 +27,22 @@ val TEST_FILE = File("/path/to/exile")
 val TEST_FILE_ENTRY = FileEntry("name", StorageType.global, 0L, "sha256", 1L)
 val TEST_FILE_ENTRY_LIST = listOf(TEST_FILE_ENTRY)
 
-class WebViewPresenterTest {
+class ArticleWebViewPresenterTest {
 
     @kotlinx.coroutines.ObsoleteCoroutinesApi
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    private lateinit var presenter: WebViewPresenter<WebViewDisplayable>
+    private lateinit var presenter: ArticleWebViewPresenter
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var articleRepository: ArticleRepository
-    @Mock
-    lateinit var webViewContractView: WebViewContract.View<WebViewDisplayable>
+    lateinit var webViewContractView: WebViewContract.View<Article>
     @Mock
     lateinit var mainContractView: MainContract.View
     @Mock
-    lateinit var viewModel: WebViewDataController<WebViewDisplayable>
-
-    private val webViewDisplayable: WebViewDisplayable = object : WebViewDisplayable {
-
-        override fun getFile(): File? {
-            return TEST_FILE
-        }
-
-        override fun next(): WebViewDisplayable? {
-            return nextWebViewDisplayable
-        }
-
-        override fun previous(): WebViewDisplayable? {
-            return previousWebViewDisplayable
-        }
-
-        override fun getAllFiles(): List<FileEntry> {
-            return TEST_FILE_ENTRY_LIST
-        }
-    }
+    lateinit var viewModel: WebViewDataController<Article>
 
     private val nextWebViewDisplayable = object : WebViewDisplayable {
 
@@ -75,7 +55,7 @@ class WebViewPresenterTest {
         }
 
         override fun previous(): WebViewDisplayable? {
-            return webViewDisplayable
+            return testArticle
         }
 
         override fun getAllFiles(): List<FileEntry> {
@@ -89,7 +69,7 @@ class WebViewPresenterTest {
         }
 
         override fun next(): WebViewDisplayable? {
-            return webViewDisplayable
+            return testArticle
         }
 
         override fun previous(): WebViewDisplayable? {
@@ -110,14 +90,14 @@ class WebViewPresenterTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
-        presenter = WebViewPresenter(articleRepository)
+        presenter = ArticleWebViewPresenter()
 
         presenter.attach(webViewContractView)
 
         Mockito.`when`(webViewContractView.getMainView()).thenReturn(mainContractView)
 
         presenter.viewModel = viewModel
-        Mockito.`when`(viewModel.getWebViewDisplayable()).thenReturn(webViewDisplayable)
+        Mockito.`when`(viewModel.getWebViewDisplayable()).thenReturn(testArticle)
 
         Mockito.`when`(webViewContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
         Mockito.`when`(mainContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
@@ -140,9 +120,9 @@ class WebViewPresenterTest {
 
     @Test
     fun onLinkClicked() {
-        presenter.onLinkClicked(webViewDisplayable)
+        presenter.onLinkClicked(testArticle)
 
-        Mockito.verify(mainContractView).showInWebView(eq(webViewDisplayable), any(), any())
+        Mockito.verify(mainContractView).showInWebView(eq(testArticle), any(), any())
     }
 
     @Test
