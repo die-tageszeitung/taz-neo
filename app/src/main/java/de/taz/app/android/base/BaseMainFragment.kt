@@ -237,13 +237,11 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
             val bottomSheetBehavior = BottomSheetBehavior.from(it)
 
-            activity?.apply {
-                supportFragmentManager.beginTransaction().replace(
-                    R.id.bottom_sheet_behaviour, fragment
-                ).commitNow()
+            childFragmentManager.beginTransaction().replace(
+                R.id.bottom_sheet_behaviour, fragment
+            ).commitNow()
 
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
