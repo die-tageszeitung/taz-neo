@@ -12,7 +12,7 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-class ArticleRepository private constructor(applicationContext: Context) :
+open class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
 
