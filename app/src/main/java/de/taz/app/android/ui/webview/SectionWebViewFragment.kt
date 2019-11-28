@@ -18,6 +18,8 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
     var section: Section? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
+    override val presenter = SectionWebViewPresenter()
+
     companion object {
         fun createInstance(section: Section): WebViewFragment<Section> {
             val fragment = SectionWebViewFragment()

@@ -24,8 +24,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>,
     BackFragment {
 
-    override val presenter = WebViewPresenter<DISPLAYABLE>()
-
     override val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onSlide(p0: View, p1: Float) {
         }
