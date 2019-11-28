@@ -4,6 +4,15 @@ import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.api.models.*
 
+val testFileEntry = FileEntry(
+    "fileName",
+    StorageType.issue,
+    161L,
+    "sha256",
+    0L
+)
+
+
 val testSection = Section(
     FileEntry(
         "sectionFileEntry",
@@ -50,4 +59,13 @@ val testIssueStub = IssueStub(
     null,
     emptyList(),
     emptyList()
+)
+
+val testArticle = Article(
+    testFileEntry,
+    "1999-01-01",
+    "super Artikel",
+    "hervorragender artikel …",
+    "https://example.com",
+    null
 )
