@@ -9,16 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
-    private val articleRepository: ArticleRepository = ArticleRepository.getInstance()
-) :
+abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
         WebViewDataController<DISPLAYABLE>().javaClass
     ),

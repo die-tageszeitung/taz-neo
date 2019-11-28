@@ -4,10 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
-import de.taz.app.android.api.interfaces.StorageType
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.testArticle
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.coroutines.Dispatchers
@@ -21,11 +18,6 @@ import org.junit.Before
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import java.io.File
-
-val TEST_FILE = File("/path/to/exile")
-val TEST_FILE_ENTRY = FileEntry("name", StorageType.global, 0L, "sha256", 1L)
-val TEST_FILE_ENTRY_LIST = listOf(TEST_FILE_ENTRY)
 
 class ArticleWebViewPresenterTest {
 
@@ -43,43 +35,6 @@ class ArticleWebViewPresenterTest {
     lateinit var mainContractView: MainContract.View
     @Mock
     lateinit var viewModel: WebViewDataController<Article>
-
-    private val nextWebViewDisplayable = object : WebViewDisplayable {
-
-        override fun getFile(): File? {
-            return TEST_FILE
-        }
-
-        override fun next(): WebViewDisplayable? {
-            return null
-        }
-
-        override fun previous(): WebViewDisplayable? {
-            return testArticle
-        }
-
-        override fun getAllFiles(): List<FileEntry> {
-            return TEST_FILE_ENTRY_LIST
-        }
-    }
-
-    private val previousWebViewDisplayable = object : WebViewDisplayable {
-        override fun getFile(): File? {
-            return TEST_FILE
-        }
-
-        override fun next(): WebViewDisplayable? {
-            return testArticle
-        }
-
-        override fun previous(): WebViewDisplayable? {
-            return null
-        }
-
-        override fun getAllFiles(): List<FileEntry> {
-            return TEST_FILE_ENTRY_LIST
-        }
-    }
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
