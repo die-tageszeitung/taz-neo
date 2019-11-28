@@ -106,7 +106,12 @@
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_bottom</item>
+        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
+    </style>
+
+    <style name="TextAppearance.BottomSheet.InfoText" parent="TextAppearance.BottomSheet.Setting">
+        <item name="android:textSize">11sp</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.TextSize.Decrease" parent="TextAppearance.AppCompat">

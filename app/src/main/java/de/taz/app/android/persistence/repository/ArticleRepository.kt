@@ -57,13 +57,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBase(articleName: String): ArticleStub? {
+    fun getStub(articleName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleName)
     }
 
+    fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
+        return appDatabase.articleDao().getLiveData(articleName)
+    }
+
     @Throws(NotFoundException::class)
-    fun getBaseOrThrow(articleName: String) : ArticleStub {
-        return getBase(articleName) ?: throw NotFoundException()
+    fun getStubOrThrow(articleName: String) : ArticleStub {
+        return getStub(articleName) ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
@@ -168,12 +172,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun bookmarkArticle(articleName: String) {
-        bookmarkArticle(getBaseOrThrow(articleName))
+        bookmarkArticle(getStubOrThrow(articleName))
     }
 
     @Throws(NotFoundException::class)
     fun debookmarkArticle(articleName: String) {
-        debookmarkArticle(getBaseOrThrow(articleName))
+        debookmarkArticle(getStubOrThrow(articleName))
     }
 
     fun debookmarkArticle(article: Article) {
@@ -212,7 +216,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
-        val articleStubLive = getBaseOrThrow(articleStub.articleFileName)
+        val articleStubLive = getStubOrThrow(articleStub.articleFileName)
         if (isBookmarked(articleStubLive)) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
             appDatabase.articleDao().update(articleStubLive.copy(percentage = percentage, position = position))

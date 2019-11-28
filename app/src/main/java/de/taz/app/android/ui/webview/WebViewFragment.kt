@@ -9,8 +9,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSize.TextSizeFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
@@ -87,8 +89,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun showBookmarkBottomSheet() {
-        // TODO show correct fragment
-        showBottomSheet(TextSizeFragment())
+        val article = getWebViewDisplayable() as? Article
+        article?. let {
+            showBottomSheet(BookmarkSheetFragment(article.articleFileName))
+        }
     }
 
     override fun showFontSettingBottomSheet() {
