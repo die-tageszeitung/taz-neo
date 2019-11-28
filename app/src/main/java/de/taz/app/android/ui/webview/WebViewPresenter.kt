@@ -2,20 +2,14 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.MotionEvent
 import android.webkit.WebChromeClient
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,45 +87,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
         getView()?.hideLoadingScreen()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
-        val webViewDisplayable = viewModel?.getWebViewDisplayable()
-
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(FeedFragment())
-
-            R.id.bottom_navigation_action_bookmark ->
-                getView()?.let { view ->
-                    if (activated) {
-                        webViewDisplayable as Article
-                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                            articleRepository.bookmarkArticle(webViewDisplayable)
-                        }
-                        view.showBookmarkBottomSheet()
-                    } else {
-                        view.hideBottomSheet()
-                    }
-                }
-
-            R.id.bottom_navigation_action_share ->
-                if (webViewDisplayable is Shareable) {
-                    webViewDisplayable.getLink()?.let {
-                        getView()?.apply {
-                            shareText(it)
-                            setIconInactive(R.id.bottom_navigation_action_share)
-                        }
-                    }
-                }
-
-            R.id.bottom_navigation_action_size ->
-                if (activated) {
-                    getView()?.showFontSettingBottomSheet()
-                } else {
-                    getView()?.hideBottomSheet()
-                }
-        }
-    }
-
     override fun onScrollStarted() {
     }
 
@@ -140,31 +95,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
-    }
-
-    override fun onBackPressed(): Boolean {
-        return when (val webViewDisplayable = viewModel?.getWebViewDisplayable()) {
-            is Article -> {
-                if (!webViewDisplayable.isImprint()) {
-                    getView()?.getMainView()?.let {
-                        it.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                            (webViewDisplayable as Article).getSection()?.let { section ->
-                                it.showInWebView(section)
-                            }
-                        }
-                        return true
-                    }
-                }
-                return false
-            }
-            is Section -> {
-                getView()?.getMainView()?.let {
-                    it.showFeed()
-                    true
-                } ?: false
-            }
-            else -> false
-        }
     }
 
     private inner class DisplayableDownloadedObserver(
