@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
+import java.util.*
 
 class SettingsOuterFragment : BaseMainFragment<SettingsContract.Presenter>() {
 
@@ -31,6 +33,7 @@ class SettingsOuterFragment : BaseMainFragment<SettingsContract.Presenter>() {
 
         presenter.attach(this)
 
+        view.findViewById<TextView>(R.id.fragment_settings_header_title).text = getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
