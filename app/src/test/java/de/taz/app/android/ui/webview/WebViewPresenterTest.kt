@@ -7,6 +7,7 @@ import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -35,6 +36,8 @@ class WebViewPresenterTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
+    @Mock
+    lateinit var articleRepository: ArticleRepository
     @Mock
     lateinit var webViewContractView: WebViewContract.View<WebViewDisplayable>
     @Mock
@@ -107,7 +110,7 @@ class WebViewPresenterTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
-        presenter = WebViewPresenter()
+        presenter = WebViewPresenter(articleRepository)
 
         presenter.attach(webViewContractView)
 

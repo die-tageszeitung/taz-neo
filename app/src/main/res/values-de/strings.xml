@@ -57,4 +57,10 @@
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
 
+    <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">Meine Leseliste</string>
+    <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Artikel zur Leseliste hinzufügen</string>
+    <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Aus der Leseliste entfernen</string>
+    <string name="fragment_bottom_sheet_bookmarks_added">Der Artikel wurde der Leseliste hinzugefügt</string>
+    <string name="fragment_bottom_sheet_bookmarks_removed">Der Artikel wurde aus der Leseliste entfernt</string>
+
 </resources>

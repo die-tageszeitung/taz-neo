@@ -63,7 +63,7 @@ class ArticleRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         articleRepository.save(article)
-        val fromDB = articleRepository.getBase(article.articleHtml.name)
+        val fromDB = articleRepository.getStub(article.articleHtml.name)
 
         assertEquals(fromDB, ArticleStub(article))
     }
