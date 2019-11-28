@@ -2,7 +2,6 @@ package de.taz.app.android.ui.bottomSheet.textSize
 
 import android.os.Bundle
 import de.taz.app.android.base.BasePresenter
-import de.taz.app.android.ui.archive.main.ArchiveFragment
 import de.taz.app.android.ui.feed.FeedFragment
 
 const val MIN_TEXT_SIZE = 0
