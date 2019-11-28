@@ -5,7 +5,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.feed.FeedFragment
 import kotlinx.coroutines.Dispatchers
