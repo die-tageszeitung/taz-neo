@@ -1,17 +1,12 @@
 package de.taz.app.android.ui.coverflow
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
-import androidx.core.view.setPadding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
-import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.archive.item.ArchiveItemView
 import kotlinx.coroutines.launch

@@ -12,7 +12,7 @@
     android:paddingLeft="@dimen/fragment_coverflow_item_padding"
     android:paddingRight="@dimen/fragment_coverflow_item_padding">
 
-    <de.taz.app.android.ui.coverflow.CoverflowViewPager
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/coverflow_pager"
         android:clipChildren="false"
         android:layout_width="0dp"
