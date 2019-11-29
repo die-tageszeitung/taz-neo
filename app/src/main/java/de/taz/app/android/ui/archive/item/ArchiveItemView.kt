@@ -3,6 +3,7 @@ package de.taz.app.android.ui.archive.item
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.View
@@ -12,7 +13,6 @@ import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.DateHelper
 import kotlinx.android.synthetic.main.view_archive_item.view.*
@@ -31,6 +31,25 @@ class ArchiveItemView @JvmOverloads constructor(
         inflate(context, R.layout.view_archive_item, this)
 
         clearIssue()
+
+        attrs?.let {
+            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.ArchiveItemView)
+            val textColor = ta.getColor(
+                R.styleable.ArchiveItemView_archive_item_text_color,
+                Color.WHITE
+            )
+            val textAlign = ta.getInteger(
+                R.styleable.ArchiveItemView_archive_item_text_orientation,
+                View.TEXT_ALIGNMENT_CENTER
+            )
+            ta.recycle()
+
+            fragment_archive_moment_date?.apply {
+                setTextColor(textColor)
+                textAlignment = textAlign
+            }
+        }
+
         presenter.attach(this)
         presenter.onViewCreated(null)
     }
@@ -86,7 +105,11 @@ class ArchiveItemView @JvmOverloads constructor(
     }
 
     private fun setDimension(dimenstionString: String) {
-        (fragment_archive_moment_image_wrapper.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimenstionString
+        fragment_archive_moment_image_wrapper.apply {
+            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimenstionString
+            requestLayout()
+        }
+
     }
 
     override fun setDimension(feed: Feed?) {

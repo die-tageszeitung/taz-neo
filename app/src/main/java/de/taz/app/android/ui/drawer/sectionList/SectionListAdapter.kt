@@ -128,9 +128,13 @@ class SectionListAdapter(
                 fragment.view?.findViewById<ArchiveItemView>(
                     R.id.fragment_drawer_sections_moment
                 )?.setDimension(feed)
-
             }
         }
+    }
+
+    private fun redrawFragment() {
+        fragment.parentFragmentManager.beginTransaction().detach(
+            fragment).attach(fragment).commit()
     }
 
     override fun getItemCount() = issue?.sectionList?.size ?: 0
