@@ -57,19 +57,7 @@ class ArchivePresenter(
                     getMainDataController().setIssue(issue)
 
                     issue.sectionList.first().let { firstSection ->
-                        val observer = object : Observer<Boolean> {
-                            override fun onChanged(isDownloaded: Boolean?) {
-                                // open last clicked issue if downloaded
-                                if (isDownloaded == true && getMainDataController().getIssue() == issue) {
-                                    firstSection.isDownloadedLiveData().removeObserver(this)
-                                    showInWebView(firstSection)
-                                }
-                            }
-                        }
-                        withContext(Dispatchers.Main) {
-                            firstSection.isDownloadedLiveData()
-                                .observe(getLifecycleOwner(), observer)
-                        }
+                        showInWebView(firstSection)
                     }
                 }
             }

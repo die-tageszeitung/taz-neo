@@ -9,7 +9,10 @@ import android.view.View
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
+import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.DateHelper
 import kotlinx.android.synthetic.main.view_archive_item.view.*
@@ -82,8 +85,12 @@ class ArchiveItemView @JvmOverloads constructor(
         fragment_archive_moment_image_progressbar.visibility = View.GONE
     }
 
-    override fun setDimension(dimenstionString: String) {
+    private fun setDimension(dimenstionString: String) {
         (fragment_archive_moment_image_wrapper.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimenstionString
+    }
+
+    override fun setDimension(feed: Feed?) {
+        setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
     }
 
     //TODO: We need to implement this to comply with BaseContract.View although unneeded. The TODO is to refactor these interfaces
