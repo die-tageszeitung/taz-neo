@@ -36,6 +36,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintDimensionRatio="1:1.5"
                 android:visibility="invisible"
                 tools:ignore="ContentDescription" />
 
@@ -53,12 +54,13 @@
 
         <TextView
             android:id="@+id/fragment_archive_moment_date"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/fragment_archive_moment_date_padding"
             android:textAppearance="@style/TextAppearance.Archive.Date"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:gravity="center"
             app:layout_constraintTop_toBottomOf="@+id/fragment_archive_moment_image_wrapper" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

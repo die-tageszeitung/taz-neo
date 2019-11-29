@@ -2,5 +2,16 @@
 <resources>
     <declare-styleable name="ArchiveItemView">
         <attr name="archive_item_padding" format="dimension" />
+        <attr name="archive_item_text_color" format="color" />
+        <attr name="archive_item_text_orientation" >
+            <flag name="inherit" value="0" />
+            <flag name="gravity" value="1" />
+            <flag name="text_start" value="2" />
+            <flag name="text_end" value="3" />
+            <flag name="center" value="4" />
+            <flag name="view_start" value="5" />
+            <flag name="view_end" value="6" />
+        </attr>
+
     </declare-styleable>
 </resources>
