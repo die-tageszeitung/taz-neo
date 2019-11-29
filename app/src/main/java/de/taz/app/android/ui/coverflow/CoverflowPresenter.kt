@@ -12,11 +12,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CoverflowPresenter(
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val feedRepository: FeedRepository = FeedRepository.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance()
-) :
+class CoverflowPresenter() :
     BasePresenter<CoverflowContract.View, CoverflowDataController>(CoverflowDataController::class.java),
     CoverflowContract.Presenter
 {
@@ -60,21 +56,5 @@ class CoverflowPresenter(
             })
     }
 
-    override suspend fun onRefresh() {
-        log.debug("onRefresh called")
-        // check for new issues and download
-        withContext(Dispatchers.IO) {
-            try {
-                feedRepository.save(apiService.getFeeds())
-                issueRepository.save(apiService.getIssuesByDate())
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            }
-        }
-    }
 
 }

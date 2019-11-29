@@ -5,9 +5,9 @@
     android:id="@+id/fragment_archive_grid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:nestedScrollingEnabled="true"
     android:splitMotionEvents="true"
     android:stretchMode="columnWidth"
+    android:nestedScrollingEnabled="false"
     android:paddingTop="72dp"
     android:clipToPadding="false" />
 

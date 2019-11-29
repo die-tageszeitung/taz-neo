@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
@@ -15,7 +14,6 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.launch
 
 
 class CoverflowFragment: Fragment(), CoverflowContract.View {
@@ -34,16 +32,6 @@ class CoverflowFragment: Fragment(), CoverflowContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
-        coverflow_refresh_layout.setOnRefreshListener {
-            lifecycleScope.launch {
-                presenter.onRefresh()
-                hideRefreshLoadingIcon()
-            }
-        }
-    }
-
-    private fun hideRefreshLoadingIcon() {
-        coverflow_refresh_layout.isRefreshing = false
     }
 
     override fun onDatasetChanged(issues: List<IssueStub>, feed: Feed?) {
@@ -63,6 +51,4 @@ class CoverflowFragment: Fragment(), CoverflowContract.View {
             coverflow_pager.currentItem = it.count - 1
         }
     }
-
-
 }

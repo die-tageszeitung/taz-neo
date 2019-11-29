@@ -32,7 +32,6 @@ class ZoomPageTransformer : PageTransformer {
 
         when {
             position <= 1 && position >= -1 -> {
-                log.debug(abs(position).toString())
                 val scaleFactor = max(MIN_SCALE, 1 - (SCALE_DIFF * abs(position)))
                 translationX = translationXAtScale(view, position, scaleFactor)
                 scaleX = scaleFactor
