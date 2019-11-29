@@ -14,7 +14,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.preference.PreferenceManager
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable

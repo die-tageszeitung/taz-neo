@@ -55,7 +55,7 @@ class TextSizeFragment : BaseFragment<TextSizePresenter>(), TextSizeContract.Vie
         fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
     }
 
-    override fun setTextSizePercentage(percent: Int) {
+    override fun setTextSizePercentage(percent: String) {
         fragment_bottom_sheet_text_size_text_size_percentage?.text = "$percent%"
     }
 
