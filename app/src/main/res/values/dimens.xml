@@ -28,6 +28,13 @@
     <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
     <dimen name="fragment_login_description_margin_top">10dp</dimen>
 
+    <dimen name="fragment_settings_title_margin_top">10dp</dimen>
+    <dimen name="fragment_settings_padding_horizontal">16dp</dimen>
+    <dimen name="fragment_settings_padding_vertical">16dp</dimen>
+    <dimen name="fragment_settings_edit_text_margin_end">16dp</dimen>
+    <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
+    <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
+
     <dimen name="fragment_header_default_margin_top">30dp</dimen>
     <dimen name="fragment_header_default_margin_end">18dp</dimen>
     <dimen name="fragment_header_article_margin_top">14dp</dimen>

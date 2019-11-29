@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+        >
+
+    <TextView
+            android:id="@android:id/title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/settings_text_buttons"
+            android:textAppearance="@style/TextAppearance.Settings.Entry"
+            app:layout_constraintHorizontal_weight="3"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
+            />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/settings_text_buttons"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintLeft_toRightOf="@android:id/title"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_weight="2"
+            >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/settings_text_decrease"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/settings_text_size_wrap"
+                android:background="?android:attr/selectableItemBackground"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="@string/settings_decrease_font_size"
+                    android:textSize = "@dimen/fragment_settings_text_font_size_decrease_small_a"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:text="a" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/settings_text_size_wrap"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintLeft_toRightOf="@id/settings_text_decrease"
+                app:layout_constraintRight_toLeftOf="@id/settings_text_increase"
+                >
+            <TextView
+                    android:id="@+id/settings_text_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/fragment_settings_padding_vertical"
+                    android:paddingBottom="@dimen/fragment_settings_padding_vertical"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+
+                    android:textAppearance="@style/TextAppearance.Settings.Entry"
+                    />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/settings_text_increase"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintLeft_toRightOf="@id/settings_text_size_wrap"
+                app:layout_constraintRight_toRightOf="parent"
+                android:background="?android:attr/selectableItemBackground"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="@string/settings_increase_font_size"
+                    android:textSize = "@dimen/fragment_settings_text_font_size_increase_big_a"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:text="a" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+

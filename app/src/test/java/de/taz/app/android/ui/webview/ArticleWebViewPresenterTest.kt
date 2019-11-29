@@ -80,11 +80,4 @@ class ArticleWebViewPresenterTest {
         Mockito.verify(mainContractView).showInWebView(eq(testArticle), any(), any())
     }
 
-    @Test
-    fun hideLoadingScreen() {
-        // hide loading screen when page has finished loading
-        presenter.onPageFinishedLoading()
-        Mockito.verify(webViewContractView, Mockito.times(1)).hideLoadingScreen()
-    }
-
 }
