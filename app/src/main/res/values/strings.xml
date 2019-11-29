@@ -61,4 +61,20 @@
     <string name="fragment_bottom_sheet_bookmarks_added">Article has been added to bookmarks</string>
     <string name="fragment_bottom_sheet_bookmarks_removed">Bookmark removed</string>
 
+    <string name="settings_header">settings</string>
+    <string name="settings_category_text">text</string>
+    <string name="settings_category_account">account</string>
+    <string name="settings_text_font_size">Font size</string>
+    <string name="settings_text_night_mode">Night mode</string>
+    <string name="settings_text_epaper">Always read as ePaper</string>
+    <string name="settings_text_tap_on_edge">Enable tap on the edge</string>
+    <string name="settings_account_abo_id">Abo ID</string>
+    <string name="settings_account_password">Password</string>
+    <string name="settings_account_status">Status</string>
+    <string name="settings_account_status_subscriber">Subscriber</string>
+    <string name="settings_account_manage_account">manage account</string>
+    <string name="settings_decrease_font_size">Decrease font size</string>
+    <string name="settings_increase_font_size">Increase font size</string>
+
+    <string name="percentage">%d\%%</string>
 </resources>

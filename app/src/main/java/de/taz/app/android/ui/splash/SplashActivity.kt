@@ -146,12 +146,15 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
-        // mock tazApi.css
-        // TODO use real tazApi.css
         fileHelper.getFile(RESOURCE_FOLDER).mkdirs()
-        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").createNewFile()
-        fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
-            .writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+        val tazApiCssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+        if (!tazApiCssFile.exists()){
+            tazApiCssFile.createNewFile()
+        }
+        val tazApiJsFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
+        if (!tazApiJsFile.exists()) {
+            tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+        }
     }
 
 }

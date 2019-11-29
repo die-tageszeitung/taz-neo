@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.main
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -12,21 +14,52 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.preference.PreferenceManager
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.feed.FeedFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
+import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.PreferencesHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity(), MainContract.View {
 
+    private val log by Log
+
+    private val fileHelper = FileHelper.getInstance()
+
+    private val preferencesHelper = PreferencesHelper.getInstance()
+
     private val presenter = MainPresenter()
+
+    private lateinit var tazApiCssPreferences : SharedPreferences
+
+    private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+        log.debug("Shared pref changed: $key")
+        val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+
+        val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""
+        val fontSizePx = preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
+        val cssString = """
+            $nightModeCssString
+            html, body {
+                font-size: ${fontSizePx}px;
+            }
+        """.trimIndent()
+        cssFile.writeText(cssString)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +74,20 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.onViewCreated(savedInstanceState)
 
         lockEndNavigationView()
+
+        tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun getMainDataController(): MainContract.DataController {

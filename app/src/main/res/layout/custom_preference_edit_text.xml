@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:clickable="false"
+        android:focusable="false"
+        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+        >
+
+    <!--  Overriding android ids results automatic persistence / setting of title -->
+    <TextView
+            android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Settings.Entry"
+            android:layout_marginEnd="@dimen/fragment_settings_edit_text_margin_end"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
+            />
+
+    <TextView
+            android:id="@android:id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@android:id/title"
+            android:textAppearance="@style/TextAppearance.Settings.Entry"
+            android:paddingTop="@dimen/fragment_settings_padding_vertical"
+            android:paddingBottom="@dimen/fragment_settings_padding_vertical"
+            />
+</RelativeLayout>

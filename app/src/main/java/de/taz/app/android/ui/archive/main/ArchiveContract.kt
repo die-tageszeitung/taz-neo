@@ -29,7 +29,6 @@ interface ArchiveContract {
 
         suspend fun onItemSelected(issueStub: IssueStub)
 
-        fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
 
     interface DataController {

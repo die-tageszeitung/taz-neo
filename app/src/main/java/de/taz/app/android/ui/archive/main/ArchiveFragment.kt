@@ -88,7 +88,4 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
-        presenter.onBottomNavigationItemClicked(menuItem)
-    }
 }

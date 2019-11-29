@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/manage_account_button"
+        android:text="@string/settings_account_manage_account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Settings.ManageAccount.Button"
+        android:backgroundTint="@color/lightGrey"
+        />
+
