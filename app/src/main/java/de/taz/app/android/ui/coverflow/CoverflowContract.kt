@@ -13,9 +13,7 @@ interface CoverflowContract {
         fun skipToEnd()
     }
 
-    interface Presenter: BaseContract.Presenter {
-        suspend fun onRefresh()
-    }
+    interface Presenter: BaseContract.Presenter
 
     interface DataController {
         val feeds: LiveData<Map<String, Feed>>
