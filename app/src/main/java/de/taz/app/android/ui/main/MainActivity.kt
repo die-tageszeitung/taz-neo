@@ -48,10 +48,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("Shared pref changed: $key")
         val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+
+        val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""
+        val fontSizePx = preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
         val cssString = """
-            ${if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""}
+            $nightModeCssString
             html, body {
-                font-size: ${preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "18") ?: "18")}px;
+                font-size: ${fontSizePx}px;
             }
         """.trimIndent()
         cssFile.writeText(cssString)

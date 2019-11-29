@@ -98,7 +98,7 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
         val encoded = Base64.encodeToString(tazApiCssBytes, Base64.NO_WRAP)
         getView()?.getWebView()?.let{
-            it.loadUrl("javascript:(function() {" + "injectCss(encoded);" + "})()")
+            it.evaluateJavascript("(function() {" + "injectCss(encoded);" + "})()", null)
         }
 
     }
