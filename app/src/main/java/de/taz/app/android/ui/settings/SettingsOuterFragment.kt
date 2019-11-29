@@ -36,7 +36,7 @@ class SettingsOuterFragment : BaseMainFragment<SettingsContract.Presenter>() {
         view.findViewById<TextView>(R.id.fragment_settings_header_title).text = getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 }
