@@ -13,7 +13,7 @@ interface ArchiveItemContract {
         fun displayIssue(momentImageBitmap: Bitmap, date: String)
         fun clearIssue()
         fun getContext(): Context
-        fun setDimension(dimenstionString: String)
+        fun setDimension(feed: Feed?)
     }
 
     interface Presenter: BaseContract.Presenter {

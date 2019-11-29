@@ -4,48 +4,81 @@ import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.ui.archive.item.ArchiveItemView
 import de.taz.app.android.util.FileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 
-class SectionListAdapter(private val activity: MainActivity, private var issue: Issue? = null) :
-    RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
+class SectionListAdapter(
+    private val fragment: SectionDrawerFragment,
+    private var issue: Issue? = null
+) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
-    private val fileHelper = FileHelper.getInstance(activity.applicationContext)
+    private val fileHelper = FileHelper.getInstance()
+    private val feedRepository = FeedRepository.getInstance()
 
     fun setData(newIssue: Issue?) {
         this.issue = newIssue
-        issue?.let { issue ->
-            issue.moment.imageList.lastOrNull()?.let {
-                val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
+        newIssue?.let { issue ->
+            downloadIssue(issue)
 
-                if (imgFile.exists()) {
-                    val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                    activity.findViewById<ImageView>(R.id.fragment_drawer_sections_moment)
-                        ?.setImageBitmap(myBitmap)
-                }
+            fragment.getMainView()?.apply {
+                issue.moment.isDownloadedLiveData().observe(
+                    getLifecycleOwner(),
+                    MomentDownloadedObserver()
+                )
             }
-            activity.findViewById<TextView>(R.id.fragment_drawer_sections_date).text =
-                DateHelper.getInstance().stringToLocalizedString(issue.date)
 
-            issue.imprint?.let {
-                activity.findViewById<TextView>(R.id.fragment_drawer_sections_imprint)?.apply {
-                    text = text.toString().toLowerCase(Locale.getDefault())
-                    setOnClickListener {
-                        activity.showInWebView(issue.imprint)
-                        activity.closeDrawer()
-                    }
-                    visibility = View.VISIBLE
-                }
-            }
+            issue.imprint?.let { showImprint(it) }
             notifyDataSetChanged()
+        }
+    }
+
+    private fun downloadIssue(issue: Issue) {
+        fragment.getMainView()?.apply {
+            lifecycleScope.launch(Dispatchers.IO) {
+                if (!issue.moment.isDownloaded()) {
+                    issue.downloadMoment(applicationContext)
+                }
+            }
+        }
+    }
+
+    private fun showImprint(imprint: Article) {
+        fragment.view?.findViewById<TextView>(
+            R.id.fragment_drawer_sections_imprint
+        )?.apply {
+            text = text.toString().toLowerCase(Locale.getDefault())
+            setOnClickListener {
+                fragment.getMainView()?.apply {
+                    showInWebView(imprint)
+                    closeDrawer()
+                }
+            }
+            visibility = View.VISIBLE
+        }
+    }
+
+
+    inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
+        override fun onChanged(isDownloaded: Boolean?) {
+            if (isDownloaded == true) {
+                issue?.let { issue ->
+                    issue.moment.isDownloadedLiveData().removeObserver(this)
+                    setMomentRatio(issue)
+                    setMomentImage(issue)
+                }
+            }
         }
     }
 
@@ -68,8 +101,34 @@ class SectionListAdapter(private val activity: MainActivity, private var issue: 
         section?.let {
             holder.textView.text = section.title
             holder.textView.setOnClickListener {
-                activity.showInWebView(section)
-                activity.closeDrawer()
+                fragment.getMainView()?.apply {
+                    showInWebView(section)
+                    closeDrawer()
+                }
+            }
+        }
+    }
+
+    private fun setMomentImage(issue: Issue) {
+        issue.moment.imageList.lastOrNull()?.let {
+            val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
+            if (imgFile.exists()) {
+                val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+                fragment.view?.findViewById<ArchiveItemView>(
+                    R.id.fragment_drawer_sections_moment
+                )?.displayIssue(myBitmap, issue.date)
+            }
+        }
+    }
+
+    private fun setMomentRatio(issue: Issue) {
+        fragment.lifecycleScope.launch(Dispatchers.IO) {
+            val feed = feedRepository.get(issue.feedName)
+            withContext(Dispatchers.Main) {
+                fragment.view?.findViewById<ArchiveItemView>(
+                    R.id.fragment_drawer_sections_moment
+                )?.setDimension(feed)
+
             }
         }
     }
