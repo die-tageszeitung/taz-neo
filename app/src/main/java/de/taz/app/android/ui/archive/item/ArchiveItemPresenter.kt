@@ -28,12 +28,7 @@ class ArchiveItemPresenter :
 {
     private val log by Log
 
-    override fun onViewCreated(savedInstanceState: Bundle?) {
-
-    }
-
-
-    suspend fun downloadMomentAndGenerateImage(issueStub: IssueStub): Bitmap?
+    private suspend fun downloadMomentAndGenerateImage(issueStub: IssueStub): Bitmap?
             = suspendCoroutine { continuation ->
         val lifecycleOwner = getView()!!.getLifecycleOwner()
         val lifecycleScope = lifecycleOwner.lifecycleScope
@@ -93,7 +88,7 @@ class ArchiveItemPresenter :
 
     override suspend fun setIssue(issueStub: IssueStub, feed: Feed?) {
         clearIssue()
-        getView()?.setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
+        getView()?.setDimension(feed)
         val bitmap = downloadMomentAndGenerateImage(issueStub)
         bitmap?.let {
             getView()?.displayIssue(bitmap, issueStub.date)
