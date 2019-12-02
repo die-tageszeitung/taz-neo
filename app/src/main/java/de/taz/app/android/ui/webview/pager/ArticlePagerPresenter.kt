@@ -38,11 +38,9 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localView != null && localViewModel != null) {
-            getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+            localView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 localViewModel.getCurrentSection()?.also {
-                    withContext(Dispatchers.Main) {
-                        localView.getMainView()?.showInWebView(it)
-                    }
+                    localView.getMainView()?.showInWebView(it)
                 }
             }
         }
