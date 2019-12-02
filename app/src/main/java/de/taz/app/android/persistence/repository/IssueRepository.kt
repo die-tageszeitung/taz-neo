@@ -111,6 +111,10 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
+    fun getIssueForSection(sectionFileName: String): Issue {
+        return issueStubToIssue(getIssueStubForSection(sectionFileName))
+    }
+
     fun getIssueStubForMoment(moment: Moment): IssueStub {
         return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
     }
