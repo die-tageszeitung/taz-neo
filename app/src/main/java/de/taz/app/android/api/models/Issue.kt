@@ -74,6 +74,15 @@ data class Issue(
     override fun getIssueOperations(): IssueOperations? {
         return this
     }
+
+    fun getArticleList(): List<Article> {
+        val articleList = mutableListOf<Article>()
+        sectionList.forEach {
+            articleList.addAll(it.articleList)
+        }
+        return articleList
+    }
+
 }
 
 enum class IssueStatus {

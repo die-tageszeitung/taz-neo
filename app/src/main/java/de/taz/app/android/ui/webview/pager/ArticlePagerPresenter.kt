@@ -34,7 +34,7 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localView != null && localViewModel != null) {
-            localViewModel.getSection()?.also {
+            localViewModel.getCurrentSection()?.also {
                 localView.getMainView()?.showInWebView(it)
             }
         }
