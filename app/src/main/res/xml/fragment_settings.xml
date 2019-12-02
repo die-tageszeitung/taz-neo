@@ -23,9 +23,11 @@
                 android:layout="@layout/custom_preference_switch"
                 app:title="@string/settings_text_epaper"/>-->
 
-        <SwitchPreferenceCompat
+        <de.taz.app.android.ui.settings.NightmodePreference
                 app:key="text_night_mode"
                 android:layout="@layout/custom_preference_switch"
+                android:defaultValue="false"
+                android:persistent="true"
                 app:title="@string/settings_text_night_mode"/>
 
         <SwitchPreferenceCompat
