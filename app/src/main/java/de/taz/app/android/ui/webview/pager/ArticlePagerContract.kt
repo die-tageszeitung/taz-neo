@@ -19,7 +19,7 @@ interface ArticlePagerContract: BaseContract {
     interface DataController: BaseContract.DataController {
         var currentPosition: Int
         fun setInitialArticle(article: Article)
-        fun getCurrentSection(): Section?
+        suspend fun getCurrentSection(): Section?
         fun getArticleList(): LiveData<List<Article>>
     }
 }
