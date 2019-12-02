@@ -46,7 +46,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     }
 
-    override fun getWebView(): AppWebView {
+    override fun getWebView(): AppWebView? {
         return web_view
     }
 
