@@ -62,6 +62,9 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
                 section.articleList.indexOf(article) + 1,
                 section.articleList.size
             )
+            view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
+                presenter.showSection()
+            }
         }
     }
 }

@@ -69,7 +69,7 @@ class ArticleWebViewPresenter : WebViewPresenter<Article>() {
         return false
     }
 
-    private fun showSection() {
+    fun showSection() {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
         getView()?.getMainView()?.let {
