@@ -39,6 +39,7 @@ class ArticleWebViewPresenter : WebViewPresenter<Article>() {
                         view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
                         view.setIconActive(R.id.bottom_navigation_action_bookmark)
                     }
+                    getView()?.showBookmarkBottomSheet()
                 }
 
             R.id.bottom_navigation_action_share ->
