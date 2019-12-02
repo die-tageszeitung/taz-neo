@@ -1,9 +1,13 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BasePresenter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePagerDataController>(
     ArticlePagerDataController::class.java
@@ -34,8 +38,12 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localView != null && localViewModel != null) {
-            localViewModel.getCurrentSection()?.also {
-                localView.getMainView()?.showInWebView(it)
+            getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+                localViewModel.getCurrentSection()?.also {
+                    withContext(Dispatchers.Main) {
+                        localView.getMainView()?.showInWebView(it)
+                    }
+                }
             }
         }
     }
