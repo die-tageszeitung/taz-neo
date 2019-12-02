@@ -12,7 +12,7 @@ interface WebViewContract: BaseContract {
 
         fun setWebViewDisplayable(displayable: DISPLAYABLE?)
 
-        fun getWebView(): AppWebView
+        fun getWebView(): AppWebView?
 
         fun isPermanentlyActive(itemId: Int): Boolean
 
