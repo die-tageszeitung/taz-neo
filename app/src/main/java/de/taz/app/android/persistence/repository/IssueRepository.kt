@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
@@ -125,6 +126,10 @@ open class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    private fun getAllIssuesList(): List<IssueStub> {
+        return appDatabase.issueDao().getAllIssueStubs()
+    }
+
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
@@ -173,7 +178,8 @@ open class IssueRepository private constructor(applicationContext: Context) :
     fun delete(issue: Issue) {
         appDatabase.runInTransaction {
 
-            // TODO cancel Downloads
+            // stop all current downloads
+            DownloadService.cancelAllDownloads()
 
             // delete moment
             momentRepository.delete(issue.moment, issue.feedName, issue.date)
@@ -200,18 +206,29 @@ open class IssueRepository private constructor(applicationContext: Context) :
                     .delete(sectionList.mapIndexed { index, it ->
                         IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
                     })
-                sectionList.forEach { sectionRepository.delete(it) }
+                try {
+                    sectionList.forEach { sectionRepository.delete(it) }
+                } catch (e: Exception) {
+                    log.warn(e.toString())
+                }
             }
 
-
-            appDatabase.issueDao().delete(
-                IssueStub(issue)
-            )
-
+            try {
+                appDatabase.issueDao().delete(
+                    IssueStub(issue)
+                )
+            } catch (e: Exception) {
+                log.warn(e.toString())
+            }
             // TODO actually delete files! perhaps decide if to keep some
 
         }
     }
 
+    fun deleteAllIssues() {
+        getAllIssuesList().forEach {
+            delete(issueStubToIssue(it))
+        }
+    }
 
 }
