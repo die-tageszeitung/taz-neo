@@ -19,7 +19,7 @@ var tazApi = (function() {
             if (typeof(name) == "string") {
                 console.log("get configuration with a single string");
                 callback(ANDROIDAPI.getConfiguration(name));
-            } else { /* name is supposed to be string array */
+            } else { /** name is supposed to be string array */
                 console.log("get configuration with a string array");
                 var result = {};
                 for (i in name){
@@ -85,7 +85,7 @@ var tazApi = (function() {
             var parent = document.getElementsByTagName('head').item(0);
             var style = document.createElement('style');
             style.type = 'text/css';
-            // Tell the browser to BASE64-decode the string
+            /** Tell the browser to BASE64-decode the string */
             style.innerHTML = window.atob(encodedCssContent);
             parent.appendChild(style);
         }
