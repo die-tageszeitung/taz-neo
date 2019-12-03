@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Base64
+import de.taz.app.android.util.Log
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -24,6 +25,8 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         WebViewDataController<DISPLAYABLE>().javaClass
     ),
     WebViewContract.Presenter {
+
+    private val log by Log
 
     override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
 
@@ -86,21 +89,18 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun onPageFinishedLoading() {
-        injectCss()
         getView()?.hideLoadingScreen()
     }
 
     /**
      * This method will help to re-inject tazApi.css upon changes to the file
      */
-    private fun injectCss() {
+    fun injectCss() {
+        log.debug("Injecting css")
         val fileHelper = FileHelper.getInstance()
         val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
         val encoded = Base64.encodeToString(tazApiCssBytes, Base64.NO_WRAP)
-        getView()?.getWebView()?.let{
-            it.evaluateJavascript("(function() {" + "injectCss(encoded);" + "})()", null)
-        }
-
+        getView()?.getWebView()?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
     }
 
     override fun onScrollStarted() {
