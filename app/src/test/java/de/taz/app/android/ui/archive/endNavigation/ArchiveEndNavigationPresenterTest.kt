@@ -5,6 +5,9 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.testFeed
+import de.taz.app.android.ui.home.feedFilter.FeedFilterContract
+import de.taz.app.android.ui.home.feedFilter.FeedFilterDataController
+import de.taz.app.android.ui.home.feedFilter.FeedFilterPresenter
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.PreferencesHelper
 import kotlinx.coroutines.Dispatchers
@@ -24,17 +27,17 @@ class ArchiveEndNavigationPresenterTest {
     @kotlinx.coroutines.ObsoleteCoroutinesApi
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    private lateinit var presenter: ArchiveEndNavigationPresenter
+    private lateinit var presenter: FeedFilterPresenter
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var contractView: ArchiveEndNavigationContract.View
+    lateinit var contractView: FeedFilterContract.View
     @Mock
     lateinit var mainContractView: MainContract.View
     @Mock
-    lateinit var viewModel: ArchiveEndNavigationDataController
+    lateinit var viewModel: FeedFilterDataController
     @Mock
     lateinit var preferencesHelper: PreferencesHelper
 
@@ -50,7 +53,10 @@ class ArchiveEndNavigationPresenterTest {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
 
-        presenter = ArchiveEndNavigationPresenter(preferencesHelper)
+        presenter =
+            FeedFilterPresenter(
+                preferencesHelper
+            )
         presenter.attach(contractView)
         presenter.viewModel = viewModel
 
