@@ -96,7 +96,9 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                     val totalItemCount = adapter.itemCount
 
                     if (position > totalItemCount - 2 * visibleItemCount) {
-                        presenter.getNextIssueMoments(adapter.getItem(0).date)
+                        adapter.getItem(0)?.date?.let { requestDate ->
+                            presenter.getNextIssueMoments(requestDate)
+                        }
                     }
                 }
             }
