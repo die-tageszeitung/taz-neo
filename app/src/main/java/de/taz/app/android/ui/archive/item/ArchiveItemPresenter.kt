@@ -2,17 +2,13 @@ package de.taz.app.android.ui.archive.item
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Bundle
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.DEFAULT_MOMENT_RATIO
+import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
@@ -22,7 +18,9 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ArchiveItemPresenter :
+class ArchiveItemPresenter(
+    val issueRepository: IssueRepository = IssueRepository.getInstance()
+) :
     ArchiveItemContract.Presenter,
     BasePresenter<ArchiveItemContract.View, ArchiveItemDataController>(ArchiveItemDataController::class.java)
 {
