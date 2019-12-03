@@ -69,7 +69,11 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+        val oldItemCount = coverFlowPagerAdapter.itemCount
         coverFlowPagerAdapter.setInactiveFeedNames(inactiveFeedNames)
+        if (oldItemCount == 0) {
+            skipToEnd()
+        }
     }
 
     override fun getLifecycleOwner(): LifecycleOwner {
