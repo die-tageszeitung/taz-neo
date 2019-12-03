@@ -8,9 +8,9 @@ import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.testIssues
-import de.taz.app.android.ui.archive.main.ArchiveContract
-import de.taz.app.android.ui.archive.main.ArchiveDataController
-import de.taz.app.android.ui.archive.main.ArchivePresenter
+import de.taz.app.android.ui.home.page.archive.ArchiveContract
+import de.taz.app.android.ui.home.page.archive.ArchiveDataController
+import de.taz.app.android.ui.home.page.archive.ArchivePresenter
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +62,11 @@ class ArchivePresenterTest {
         MockitoAnnotations.initMocks(this)
 
         apiService.simpleDateFormat = SimpleDateFormat()
-        presenter = ArchivePresenter(apiService, issueRepository, log)
+        presenter = ArchivePresenter(
+            apiService,
+            issueRepository,
+            log
+        )
         presenter.attach(archiveContractView)
 
         Mockito.`when`(archiveContractView.getMainView()).thenReturn(mainContractView)
@@ -96,7 +100,7 @@ class ArchivePresenterTest {
 
             val date = "2010-01-01"
             val limit = 10
-            presenter.getNextIssueMoments(date, limit)
+            presenter.downloadNextIssues(date, limit)
 
             Mockito.verify(apiService).getIssuesByDate(date, limit)
             Mockito.verify(issueRepository).save(testIssues)
@@ -110,7 +114,7 @@ class ArchivePresenterTest {
 
             val date = "2010-01-01"
             val limit = 10
-            presenter.getNextIssueMoments(date, limit)
+            presenter.downloadNextIssues(date, limit)
 
             Mockito.verify(apiService).getIssuesByDate(date, limit)
             Mockito.verify(mainContractView).showToast(any<@androidx.annotation.StringRes Int>())

@@ -11,7 +11,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.ui.archive.item.ArchiveItemView
+import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.FileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -114,7 +114,7 @@ class SectionListAdapter(
             val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
             if (imgFile.exists()) {
                 val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                fragment.view?.findViewById<ArchiveItemView>(
+                fragment.view?.findViewById<MomentView>(
                     R.id.fragment_drawer_sections_moment
                 )?.displayIssue(myBitmap, issue.date)
             }
@@ -125,7 +125,7 @@ class SectionListAdapter(
         fragment.lifecycleScope.launch(Dispatchers.IO) {
             val feed = feedRepository.get(issue.feedName)
             withContext(Dispatchers.Main) {
-                fragment.view?.findViewById<ArchiveItemView>(
+                fragment.view?.findViewById<MomentView>(
                     R.id.fragment_drawer_sections_moment
                 )?.setDimension(feed)
             }

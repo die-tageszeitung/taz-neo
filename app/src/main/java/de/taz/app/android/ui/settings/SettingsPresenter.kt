@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import de.taz.app.android.R
 import de.taz.app.android.base.BasePresenter
-import de.taz.app.android.ui.feed.FeedFragment
+import de.taz.app.android.ui.home.HomeFragment
 
 class SettingsPresenter : BasePresenter<SettingsOuterFragment, SettingsDataController>(SettingsDataController::class.java),
       SettingsContract.Presenter{
@@ -15,7 +15,7 @@ class SettingsPresenter : BasePresenter<SettingsOuterFragment, SettingsDataContr
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            getView()?.getMainView()?.showMainFragment(FeedFragment())
+            getView()?.getMainView()?.showMainFragment(HomeFragment())
         }
     }
 }
