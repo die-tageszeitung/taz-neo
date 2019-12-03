@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.splash
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +14,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
+import java.util.*
 import kotlin.Exception
 
 class SplashActivity : AppCompatActivity() {
@@ -21,6 +23,9 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        generateInstallationId()
+
         createSingletons()
 
         initLastIssueMoments()
@@ -29,6 +34,21 @@ class SplashActivity : AppCompatActivity() {
         initResources()
 
         startActivity(Intent(this, MainActivity::class.java))
+    }
+
+    private fun generateInstallationId() {
+        val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+
+        val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
+        installationId?.let {
+            log.debug("InstallationId: $installationId")
+        } ?: run {
+            val uuid = UUID.randomUUID().toString()
+            preferences.edit().putString(
+                PREFERENCES_AUTH_INSTALLATION_ID, uuid
+            ).apply()
+            log.debug("initialized InstallationId: $uuid")
+        }
     }
 
     private fun initFeedInformation() {
