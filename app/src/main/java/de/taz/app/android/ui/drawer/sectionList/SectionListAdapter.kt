@@ -132,10 +132,5 @@ class SectionListAdapter(
         }
     }
 
-    private fun redrawFragment() {
-        fragment.parentFragmentManager.beginTransaction().detach(
-            fragment).attach(fragment).commit()
-    }
-
     override fun getItemCount() = issue?.sectionList?.size ?: 0
 }
