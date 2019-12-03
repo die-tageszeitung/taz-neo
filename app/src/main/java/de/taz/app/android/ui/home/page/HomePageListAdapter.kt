@@ -10,6 +10,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.launch
+import java.lang.IndexOutOfBoundsException
 
 /**
  *  [HomePageListAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
@@ -30,8 +31,12 @@ class HomePageListAdapter(
     private val feedMap
         get() = feedList.associateBy { it.name }
 
-    fun getItem(position: Int): IssueStub {
-        return visibleIssueStubList[position]
+    fun getItem(position: Int): IssueStub? {
+        return try {
+            visibleIssueStubList[position]
+        } catch (e: IndexOutOfBoundsException) {
+            return null
+        }
     }
 
     override fun getItemCount(): Int {
@@ -90,10 +95,11 @@ class HomePageListAdapter(
 
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val issueStub = getItem(position)
-        fragment.getLifecycleOwner().lifecycleScope.launch {
-            viewHolder.itemView as MomentView
-            viewHolder.itemView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
+        getItem(position)?.let { issueStub ->
+            fragment.getLifecycleOwner().lifecycleScope.launch {
+                viewHolder.itemView as MomentView
+                viewHolder.itemView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
+            }
         }
     }
 
@@ -105,7 +111,9 @@ class HomePageListAdapter(
         init {
             itemView.setOnClickListener {
                 fragment.getLifecycleOwner().lifecycleScope.launch {
-                    presenter.onItemSelected(getItem(adapterPosition))
+                    getItem(adapterPosition)?.let {
+                        presenter.onItemSelected(it)
+                    }
                 }
             }
         }
