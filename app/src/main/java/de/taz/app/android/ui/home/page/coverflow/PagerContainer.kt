@@ -70,7 +70,7 @@ class PagerContainer : ConstraintLayout {
 
     inner class PagerContainerChangeCallback : ViewPager2.OnPageChangeCallback() {
 
-        override fun onPageSelected(position: Int) {}
+        override fun onPageSelected(position: Int) = Unit
 
         override fun onPageScrollStateChanged(state: Int) {
             needsRedraw = state != ViewPager2.SCROLL_STATE_IDLE
