@@ -179,45 +179,49 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-            // stop all current downloads
-            DownloadService.cancelAllDownloads()
+        // stop all current downloads
+        DownloadService.cancelAllDownloads()
 
-            // delete moment
-            momentRepository.delete(issue.moment, issue.feedName, issue.date)
+        // delete moment
+        momentRepository.delete(issue.moment, issue.feedName, issue.date)
 
-            // delete imprint
-            issue.imprint?.let { imprint ->
-                appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
-                )
-                articleRepository.delete(imprint)
-            }
-            // delete page relation
-            appDatabase.issuePageJoinDao().delete(
-                issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
-                }
+        // delete imprint
+        issue.imprint?.let { imprint ->
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
             )
-            // delete pages
-            pageRepository.delete(issue.pageList)
-
-            // delete sections
-            issue.sectionList.let { sectionList ->
-                appDatabase.issueSectionJoinDao()
-                    .delete(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
-                    })
-                sectionList.forEach { sectionRepository.delete(it) }
+            articleRepository.delete(imprint)
+        }
+        // delete page relation
+        appDatabase.issuePageJoinDao().delete(
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
             }
+        )
+        // delete pages
+        pageRepository.delete(issue.pageList)
 
+        // delete sections
+        issue.sectionList.let { sectionList ->
+            appDatabase.issueSectionJoinDao()
+                .delete(sectionList.mapIndexed { index, it ->
+                    IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                })
             try {
-                appDatabase.issueDao().delete(
-                    IssueStub(issue)
-                )
+                sectionList.forEach { sectionRepository.delete(it) }
             } catch (e: Exception) {
                 log.warn(e.toString())
             }
-            // TODO actually delete files! perhaps decide if to keep some
+        }
+
+        try {
+            appDatabase.issueDao().delete(
+                IssueStub(issue)
+            )
+        } catch (e: Exception) {
+            log.warn(e.toString())
+        }
+        // TODO actually delete files! perhaps decide if to keep some
 
     }
 
