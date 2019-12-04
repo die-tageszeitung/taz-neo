@@ -4,7 +4,7 @@ var tazApi = (function() {
 
 	return (function() {
 
-        /**
+        /*
             @params
             name: String or array of strings
                   Name of the desired configuration variable(s)
@@ -19,7 +19,7 @@ var tazApi = (function() {
             if (typeof(name) == "string") {
                 console.log("get configuration with a single string");
                 callback(ANDROIDAPI.getConfiguration(name));
-            } else { /** name is supposed to be string array */
+            } else { /* name is supposed to be string array */
                 console.log("get configuration with a string array");
                 var result = {};
                 for (i in name){
@@ -29,7 +29,7 @@ var tazApi = (function() {
             }
         }
 
-        /**
+        /*
             @params
             name: String or a dictionary of String:String
                   The name of the configuration variable to be set
@@ -48,7 +48,7 @@ var tazApi = (function() {
             }
         }
 
-        /**
+        /*
             Called after every scroll, the function informs the native code about the current
             scroll position.
             This can be used for tracking reading progress for bookmarked articles for instance.
@@ -85,7 +85,7 @@ var tazApi = (function() {
             var parent = document.getElementsByTagName('head').item(0);
             var style = document.createElement('style');
             style.type = 'text/css';
-            /** Tell the browser to BASE64-decode the string */
+            /* Tell the browser to BASE64-decode the string */
             style.innerHTML = window.atob(encodedCssContent);
             parent.appendChild(style);
         }
