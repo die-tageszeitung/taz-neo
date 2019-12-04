@@ -12,6 +12,7 @@ import de.taz.app.android.ui.home.page.archive.ArchiveContract
 import de.taz.app.android.ui.home.page.archive.ArchiveDataController
 import de.taz.app.android.ui.home.page.archive.ArchivePresenter
 import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.util.DateHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -49,7 +50,7 @@ class ArchivePresenterTest {
     @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
-    lateinit var log: Log
+    lateinit var dateHelper: DateHelper
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
@@ -65,7 +66,7 @@ class ArchivePresenterTest {
         presenter = ArchivePresenter(
             apiService,
             issueRepository,
-            log
+            dateHelper
         )
         presenter.attach(archiveContractView)
 
