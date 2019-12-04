@@ -2,35 +2,34 @@ package de.taz.app.android.ui.login
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.ui.main.MainDataController
+import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
-import de.taz.app.android.util.awaitCallback
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class LoginFragment : Fragment() {
+class LoginFragment :
+    BaseMainFragment<LoginContract.Presenter>(),
+    BackFragment {
+
+    override val presenter = LoginPresenter()
 
     private val presenter = LoginPresenter()
     private val authHelper = AuthHelper.getInstance()
     private val toastHelper = ToastHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
-    private val log by Log
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +41,10 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        presenter.attach(this)
+        presenter.onViewCreated(savedInstanceState)
         fragment_login_login_button.setOnClickListener {
+            web_view_spinner.visibility = View.VISIBLE
             lifecycleScope.launch(Dispatchers.Default) {
                 authHelper.authTokenInfo.postValue(
                     ApiService.getInstance().authenticate(
@@ -64,10 +66,10 @@ class LoginFragment : Fragment() {
                 authTokenInfo?.let {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
-                            toastHelper.makeToast(R.string.toast_login_successfull)
                             runBlocking(Dispatchers.IO) {
                                 issueRepository.deleteAllIssues()
                             }
+                            toastHelper.makeToast(R.string.toast_login_successfull)
                         }
                         AuthStatus.elapsed -> {
                             toastHelper.makeToast(R.string.toast_login_elapsed)
@@ -76,10 +78,19 @@ class LoginFragment : Fragment() {
                             toastHelper.makeToast(R.string.toast_login_failed)
                         }
                     }
+                    web_view_spinner.visibility = View.GONE
 
                 }
             })
         }
+    }
+
+    override fun onBackPressed(): Boolean {
+        return presenter.onBackPressed()
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 
 }

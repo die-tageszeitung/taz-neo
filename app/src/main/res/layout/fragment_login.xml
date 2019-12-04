@@ -1,76 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:statusBarBackground="@android:color/transparent"
+    tools:context="de.taz.app.android.ui.main.MainActivity">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:paddingStart="@dimen/fragment_login_padding_horizontal"
-        android:paddingEnd="@dimen/fragment_login_padding_horizontal"
-        >
+        android:paddingEnd="@dimen/fragment_login_padding_horizontal">
 
-    <include android:id="@+id/fragment_login_header"
+        <include
+            android:id="@+id/fragment_login_header"
             layout="@layout/fragment_header_default" />
 
 
-    <TextView
+        <TextView
             android:id="@+id/fragment_login_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_header"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="@dimen/fragment_login_title_margin_top"
+            android:text="@string/fragment_login_title"
             android:textAppearance="@style/TextAppearance.Fragment.Title"
-            android:text="@string/fragment_login_title" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_header" />
 
-    <TextView
+        <TextView
             android:id="@+id/fragment_login_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_login_title"
             android:layout_marginTop="@dimen/fragment_login_description_margin_top"
-            android:text="@string/fragment_login_description" />
+            android:text="@string/fragment_login_description"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_title" />
 
-    <TextView
+        <TextView
             android:id="@+id/fragment_login_username_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_login_description"
-            app:layout_constraintStart_toStartOf="parent"
             android:labelFor="@+id/fragment_login_username"
-            android:text="@string/fragment_login_username_title" />
+            android:text="@string/fragment_login_username_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_description" />
 
-    <EditText
+        <EditText
             android:id="@+id/fragment_login_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_title"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_title" />
 
-    <TextView
+        <TextView
             android:id="@+id/fragment_login_password_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_username"
-            app:layout_constraintStart_toStartOf="parent"
             android:labelFor="@+id/fragment_login_password"
-            android:text="@string/fragment_login_password_title" />
+            android:text="@string/fragment_login_password_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_username" />
 
-    <EditText
+        <EditText
             android:id="@+id/fragment_login_password"
             android:layout_width="match_parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_title"
-            android:inputType="textPassword"
+            android:layout_height="wrap_content"
             android:hint="@string/fragment_login_password_hint"
-            android:layout_height="wrap_content" />
+            android:inputType="textPassword"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_title" />
 
-    <Button
+        <Button
             android:id="@+id/fragment_login_login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_login_password"
-            app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="@dimen/fragment_login_login_button_margin_top"
-            android:text="@string/fragment_login_login_button" />
+            android:text="@string/fragment_login_login_button"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_password" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/web_view_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="2dp"
+            android:background="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/navigation_bottom_bookmarks" />
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
