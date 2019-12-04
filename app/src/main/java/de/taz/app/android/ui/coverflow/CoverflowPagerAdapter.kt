@@ -41,6 +41,10 @@ class CoverflowPagerAdapter(
         return `object` === view
     }
 
+    fun getIssueAtPosition(position: Int): IssueStub {
+        return issues[position]
+    }
+
     private fun getViewAtPosition(position: Int): ArchiveItemView {
         val issue = issues[position]
         val view = ArchiveItemView(context)

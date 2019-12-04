@@ -34,7 +34,7 @@ class FeedFragment : BaseMainFragment<FeedPresenter>(), FeedContract.View {
         feed_archive_pager.adapter = FeedFragmentPagerAdapter(childFragmentManager, lifecycle)
 
         // reduce viewpager2 sensitivity to make the view less finnicky
-        feed_archive_pager.reduceDragSensitivity(12)
+        feed_archive_pager.reduceDragSensitivity(6)
         feed_archive_pager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
