@@ -29,7 +29,7 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
             true
         }
 
-        findPreference<NightmodePreference>("text_night_mode")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
+        findPreference<CustomSwitchPreference>("text_night_mode")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
         findPreference<TextSizePreference>("text_font_size")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
 
     }
