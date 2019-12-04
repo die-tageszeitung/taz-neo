@@ -83,6 +83,15 @@ var tazApi = (function() {
 
         function injectCss(encodedCssContent) {
             var parent = document.getElementsByTagName('head').item(0);
+
+            /* remove old previously injected style elements */
+            var oldStyleElements = parent.getElementsByTagName('style');
+
+            for (element of oldStyleElements) {
+                parent.removeChild(element);
+            }
+
+            /* inject new css */
             var style = document.createElement('style');
             style.type = 'text/css';
             /* Tell the browser to BASE64-decode the string */
