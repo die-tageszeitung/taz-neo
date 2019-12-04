@@ -48,7 +48,7 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     private fun configureWebView() {
         getView()?.let { webContractView ->
             val tazApiJS = TazApiJS(webContractView)
-            webContractView.getWebView().apply {
+            webContractView.getWebView()?.apply {
                 webViewClient = AppWebViewClient(this@WebViewPresenter)
                 webChromeClient = WebChromeClient()
                 settings.javaScriptEnabled = true

@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
@@ -27,6 +28,10 @@ interface SectionOperations {
 
     fun previousSection(): Section? {
         return SectionRepository.getInstance().getPreviousSection(sectionFileName)
+    }
+
+    fun getIssue(): Issue {
+        return IssueRepository.getInstance().getIssueForSection(sectionFileName)
     }
 
 }

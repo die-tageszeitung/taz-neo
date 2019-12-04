@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<de.taz.app.android.ui.home.page.coverflow.PagerContainer
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coverflow_refresh_layout"
+    android:id="@+id/coverflow_pager_container"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/fragment_coverflow_item_padding"
+    android:paddingRight="@dimen/fragment_coverflow_item_padding">
 
-    <de.taz.app.android.ui.coverflow.PagerContainer
-        android:id="@+id/coverflow_pager_container"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/coverflow_pager"
         android:clipChildren="false"
-        android:clipToPadding="false"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/fragment_coverflow_item_padding"
-        android:paddingRight="@dimen/fragment_coverflow_item_padding">
-
-        <de.taz.app.android.ui.coverflow.CoverflowViewPager
-            android:id="@+id/coverflow_pager"
-            android:clipChildren="false"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </de.taz.app.android.ui.coverflow.PagerContainer>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</de.taz.app.android.ui.home.page.coverflow.PagerContainer>

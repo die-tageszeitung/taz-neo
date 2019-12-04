@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
@@ -44,6 +45,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
+        webview_pager_viewpager.reduceDragSensitivity()
 
         setupViewPager()
     }

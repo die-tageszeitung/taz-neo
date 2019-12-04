@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
@@ -46,6 +47,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Ensure initial fragment states are copied to the model via the presenter
         initialArticle?.let { presenter.setInitialArticle(it) }
 
+        webview_pager_viewpager.reduceDragSensitivity()
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 
