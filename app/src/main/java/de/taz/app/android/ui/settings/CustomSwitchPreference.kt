@@ -8,7 +8,7 @@ import androidx.preference.SwitchPreference
 import de.taz.app.android.R
 
 
-class NightmodePreference @JvmOverloads constructor(
+class CustomSwitchPreference @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0
 ) : SwitchPreference(context, attributeSet, defStyleAttr, defStyleRes) {
 
