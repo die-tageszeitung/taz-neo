@@ -28,6 +28,9 @@ class CustomSwitchPreference @JvmOverloads constructor(
                 persistBoolean(switchLayout.isChecked)
             }
 
+            it.isDividerAllowedAbove = false
+            it.isDividerAllowedBelow = false
+
             it.findViewById(R.id.settings_night_mode)
         }
     }
