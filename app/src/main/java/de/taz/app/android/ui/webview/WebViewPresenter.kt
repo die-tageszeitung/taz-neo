@@ -112,7 +112,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
                 font-size: ${fontSizePx}px;
             }
         """.trimIndent()
-        //val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
         getView()?.getWebView()?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)

@@ -91,6 +91,14 @@ var tazApi = (function() {
                 parent.removeChild(element);
             }
 
+            /* remove current tazApi.css as well, since it sometimes contradicts the injected style */
+            for (element of parent.getElementsByTagName('link')) {
+                if (element.href.indexOf('tazApi.css') >= 0) {
+                    document.getElementsByTagName('head').item(0).removeChild(element);
+                }
+            }
+
+
             /* inject new css */
             var style = document.createElement('style');
             style.type = 'text/css';
