@@ -2,6 +2,7 @@ package de.taz.app.android.ui.archive.item
 
 import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.TestLifecycleOwner
+import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.setMain
@@ -18,6 +19,8 @@ class ArchiveItemPresenterTest {
 
     @Mock
     lateinit var archiveItemContractView: ArchiveItemContract.View
+    @Mock
+    lateinit var issueRepository: IssueRepository
 
     private val lifecycleOwner = TestLifecycleOwner()
 
@@ -29,7 +32,7 @@ class ArchiveItemPresenterTest {
         MockitoAnnotations.initMocks(this)
 
         doReturn(lifecycleOwner).`when`(archiveItemContractView).getLifecycleOwner()
-        presenter = ArchiveItemPresenter()
+        presenter = ArchiveItemPresenter(issueRepository)
 
         presenter.attach(archiveItemContractView)
         presenter.onViewCreated(null)
