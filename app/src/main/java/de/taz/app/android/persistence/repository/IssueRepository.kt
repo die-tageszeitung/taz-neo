@@ -9,6 +9,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 open class IssueRepository private constructor(applicationContext: Context) :
@@ -16,12 +17,14 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
 
+    private val log by Log
+
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
 
-    open fun save(issues: List<Issue>)  {
+    open fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
     }
 
@@ -176,8 +179,6 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        appDatabase.runInTransaction {
-
             // stop all current downloads
             DownloadService.cancelAllDownloads()
 
@@ -206,11 +207,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
                     .delete(sectionList.mapIndexed { index, it ->
                         IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
                     })
-                try {
-                    sectionList.forEach { sectionRepository.delete(it) }
-                } catch (e: Exception) {
-                    log.warn(e.toString())
-                }
+                sectionList.forEach { sectionRepository.delete(it) }
             }
 
             try {
@@ -222,7 +219,6 @@ open class IssueRepository private constructor(applicationContext: Context) :
             }
             // TODO actually delete files! perhaps decide if to keep some
 
-        }
     }
 
     fun deleteAllIssues() {

@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.SectionOperations
@@ -136,34 +137,37 @@ open class SectionRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(section: Section) {
-        appDatabase.runInTransaction {
-            appDatabase.sectionArticleJoinDao().delete(
-                section.articleList.mapIndexed { index, article ->
-                    SectionArticleJoin(
-                        section.sectionHtml.name,
-                        article.articleHtml.name,
-                        index
-                    )
-                }
-            )
-            section.articleList.forEach { article ->
-                if (!article.bookmarked) {
-                    articleRepository.delete(article)
-                }
+        appDatabase.sectionArticleJoinDao().delete(
+            section.articleList.mapIndexed { index, article ->
+                SectionArticleJoin(
+                    section.sectionHtml.name,
+                    article.articleHtml.name,
+                    index
+                )
             }
-
-
-            fileEntryRepository.delete(section.sectionHtml)
-
-            appDatabase.sectionImageJoinDao()
-                .delete(section.imageList.mapIndexed { index, fileEntry ->
-                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
-                })
-            // TODO delete files only if not part of bookmarked article
-            fileEntryRepository.delete(section.imageList)
-
-            appDatabase.sectionDao().delete(SectionStub(section))
+        )
+        section.articleList.forEach { article ->
+            if (!article.bookmarked) {
+                articleRepository.delete(article)
+            }
         }
+
+
+        fileEntryRepository.delete(section.sectionHtml)
+
+        appDatabase.sectionImageJoinDao().delete(
+            section.imageList.mapIndexed { index, fileEntry ->
+                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+            }
+        )
+
+        try {
+            fileEntryRepository.delete(section.imageList)
+        } catch (e: SQLiteConstraintException) {
+            // do not delete still used by (presumably bookmarked) article
+        }
+
+        appDatabase.sectionDao().delete(SectionStub(section))
     }
 }
 
