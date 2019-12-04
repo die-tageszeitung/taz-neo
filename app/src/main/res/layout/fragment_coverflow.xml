@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<de.taz.app.android.ui.coverflow.PagerContainer
+<de.taz.app.android.ui.home.page.coverflow.PagerContainer
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coverflow_pager_container"
@@ -12,7 +12,7 @@
     android:paddingLeft="@dimen/fragment_coverflow_item_padding"
     android:paddingRight="@dimen/fragment_coverflow_item_padding">
 
-    <de.taz.app.android.ui.coverflow.CoverflowViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/coverflow_pager"
         android:clipChildren="false"
         android:layout_width="0dp"
@@ -22,4 +22,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-</de.taz.app.android.ui.coverflow.PagerContainer>
+</de.taz.app.android.ui.home.page.coverflow.PagerContainer>

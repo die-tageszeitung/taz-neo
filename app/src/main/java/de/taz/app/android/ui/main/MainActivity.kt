@@ -14,7 +14,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.preference.PreferenceManager
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -22,7 +21,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.feed.FeedFragment
+import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
@@ -190,7 +189,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showFeed() {
-        showMainFragment(FeedFragment())
+        showMainFragment(HomeFragment())
     }
 
     override fun showToast(stringId: Int) {
