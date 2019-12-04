@@ -43,7 +43,7 @@ var tazApi = (function() {
                 ANDROIDAPI.setConfiguration(name, value);
             } else { /* name is a dict */
                 for (i in name) {
-                    ANDROIDAPI.setConfiguration(i, name[i])
+                    ANDROIDAPI.setConfiguration(i, name[i]);
                 }
             }
         }
@@ -98,6 +98,6 @@ var tazApi = (function() {
 			previousArticle : previousArticle,
 			openUrl : openUrl,
 			injectCss: injectCss
-		}
+		};
 	}());
 }());
