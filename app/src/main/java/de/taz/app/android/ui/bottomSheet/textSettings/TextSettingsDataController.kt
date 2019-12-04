@@ -1,14 +1,13 @@
-package de.taz.app.android.ui.bottomSheet.textSize
+package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 
-class TextSizeDataController: BaseDataController(), TextSizeContract.DataController {
+class TextSettingsDataController: BaseDataController(), TextSettingsContract.DataController {
 
     private lateinit var textSizeLiveData: SharedPreferenceStringLiveData
     private lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
