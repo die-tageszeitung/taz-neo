@@ -16,7 +16,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
-import de.taz.app.android.ui.bottomSheet.textSize.TextSizeFragment
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
@@ -115,7 +115,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun showFontSettingBottomSheet() {
-        showBottomSheet(TextSizeFragment())
+        showBottomSheet(TextSettingsFragment())
     }
 
     override fun onDestroy() {

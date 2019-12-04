@@ -1,7 +1,6 @@
-package de.taz.app.android.ui.bottomSheet.textSize
+package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import de.taz.app.android.util.Log
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -11,9 +10,9 @@ import de.taz.app.android.ui.settings.SettingsOuterFragment
 const val MIN_TEXT_SIZE = 0
 const val MAX_TEST_SIZE = 200
 
-class TextSizePresenter : BasePresenter<TextSizeContract.View, TextSizeDataController>(
-    TextSizeDataController::class.java
-), TextSizeContract.Presenter {
+class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsDataController>(
+    TextSettingsDataController::class.java
+), TextSettingsContract.Presenter {
 
     private val log by Log
 

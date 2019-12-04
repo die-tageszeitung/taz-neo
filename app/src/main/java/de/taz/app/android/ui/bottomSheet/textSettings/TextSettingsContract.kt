@@ -1,10 +1,10 @@
-package de.taz.app.android.ui.bottomSheet.textSize
+package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.base.BaseContract
 
-interface TextSizeContract {
+interface TextSettingsContract {
 
     interface View: BaseContract.View {
 
