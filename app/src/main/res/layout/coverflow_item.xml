@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<de.taz.app.android.ui.archive.item.ArchiveItemView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/coverflow_item"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-/>

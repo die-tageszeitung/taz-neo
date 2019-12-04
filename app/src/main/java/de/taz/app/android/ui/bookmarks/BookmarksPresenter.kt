@@ -8,7 +8,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.feed.FeedFragment
+import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -36,14 +36,14 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
     }
 
     override fun onBackPressed(): Boolean {
-        getView()?.getMainView()?.showMainFragment(FeedFragment())
+        getView()?.getMainView()?.showMainFragment(HomeFragment())
         return true
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(FeedFragment())
+                getView()?.getMainView()?.showMainFragment(HomeFragment())
         }
     }
 

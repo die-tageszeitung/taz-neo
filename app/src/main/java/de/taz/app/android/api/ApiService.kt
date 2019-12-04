@@ -3,6 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
@@ -10,6 +11,7 @@ import de.taz.app.android.api.variables.AuthenticationVariables
 import de.taz.app.android.api.variables.DownloadStartVariables
 import de.taz.app.android.api.variables.DownloadStopVariables
 import de.taz.app.android.api.variables.IssueVariables
+import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.net.SocketTimeoutException
@@ -33,6 +35,8 @@ open class ApiService private constructor(applicationContext: Context) {
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var authHelper = AuthHelper.getInstance(applicationContext)
 
     /**
      * function to authenticate with the backend
@@ -129,7 +133,6 @@ open class ApiService private constructor(applicationContext: Context) {
 
     /**
      * function to get an [Issue] by feedName and date
-     * @param feedName - the name of the feed
      * @param issueDate - the date of the issue
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
@@ -204,11 +207,11 @@ open class ApiService private constructor(applicationContext: Context) {
     suspend fun notifyServerOfDownloadStart(
         feedName: String,
         issueDate: String,
-        deviceName: String = "TODO",
-        deviceVersion: String = "TODO",
-        appVersion: String = "TODO",
+        deviceName: String = android.os.Build.MODEL,
+        deviceVersion: String = android.os.Build.VERSION.RELEASE,
+        appVersion: String = BuildConfig.VERSION_NAME,
         isPush: Boolean = false, // TODO
-        installationId: UUID = UUID.randomUUID(), // TODO
+        installationId: String = authHelper.installationId,
         deviceFormat: DeviceFormat = DeviceFormat.mobile,
         deviceType: DeviceType = DeviceType.android
     ): String {
@@ -223,7 +226,7 @@ open class ApiService private constructor(applicationContext: Context) {
                         deviceVersion,
                         appVersion,
                         isPush,
-                        installationId.toString(),
+                        installationId,
                         deviceFormat,
                         deviceType
                     )
