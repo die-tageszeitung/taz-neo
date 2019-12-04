@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.*
@@ -66,7 +67,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     @Throws(NotFoundException::class)
-    fun getStubOrThrow(articleName: String) : ArticleStub {
+    fun getStubOrThrow(articleName: String): ArticleStub {
         return getStub(articleName) ?: throw NotFoundException()
     }
 
@@ -110,7 +111,8 @@ open class ArticleRepository private constructor(applicationContext: Context) :
             )
     }
 
-    fun previousArticleStub(article: Article): ArticleStub? = previousArticleStub(article.articleFileName)
+    fun previousArticleStub(article: Article): ArticleStub? =
+        previousArticleStub(article.articleFileName)
 
     fun nextArticle(articleName: String): Article? =
         nextArticleStub(articleName)?.let { articleStubToArticle(it) }
@@ -219,7 +221,8 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         val articleStubLive = getStubOrThrow(articleStub.articleFileName)
         if (isBookmarked(articleStubLive)) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
-            appDatabase.articleDao().update(articleStubLive.copy(percentage = percentage, position = position))
+            appDatabase.articleDao()
+                .update(articleStubLive.copy(percentage = percentage, position = position))
         }
 
     }
@@ -232,15 +235,23 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                 // delete authors
                 appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
                     articleFileName
-                ).forEach {
-                    appDatabase.articleAuthorImageJoinDao().delete(it)
-                    it.authorFileName?.let { authorFileName ->
-                        fileEntryRepository.delete(fileEntryRepository.getOrThrow(authorFileName))
+                ).forEach { articleAuthorImageJoin ->
+                    log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
+                    appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
+                    articleAuthorImageJoin.authorFileName?.let { authorFileName ->
+                        try {
+                            fileEntryRepository.delete(fileEntryRepository.getOrThrow(authorFileName))
+                        } catch (e: SQLiteConstraintException) {
+                            // do nothing as author is still referenced by another article
+                        } catch (e: NotFoundException) {
+                            log.warn("deleted file $authorFileName did not exist!")
+                        }
                     }
                 }
 
                 // delete audioFile and relation
                 article.audioFile?.let { audioFile ->
+                    log.debug("deleting ArticleAudioFile ${audioFile.name}")
                     appDatabase.articleAudioFileJoinDao().delete(
                         ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
                     )
@@ -255,12 +266,17 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                     appDatabase.articleImageJoinDao().delete(
                         ArticleImageJoin(articleFileName, fileEntry.name, index)
                     )
-                    if (article.getSection()?.imageList?.contains(fileEntry) != true) {
+                    log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
+                    try {
                         fileEntryRepository.delete(fileEntry)
+                        log.debug("deleted FileEntry of image ${fileEntry.name}")
+                    } catch (e: SQLiteConstraintException) {
+                        // do not delete - still used by section
                     }
                 }
 
                 appDatabase.articleDao().delete(ArticleStub(article))
+                log.debug("deleted ArticleStub $articleFileName")
             }
         }
     }
