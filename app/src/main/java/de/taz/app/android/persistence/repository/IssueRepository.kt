@@ -23,6 +23,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+    private val log by Log
 
     open fun save(issues: List<Issue>) {
         issues.forEach { save(it) }

@@ -66,8 +66,10 @@ class LoginFragment :
                 authTokenInfo?.let {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
+                            toastHelper.makeToast(R.string.toast_login_successfull)
                             runBlocking(Dispatchers.IO) {
                                 issueRepository.deleteAllIssues()
+                                log.debug("ALL DELETED!")
                             }
                             toastHelper.makeToast(R.string.toast_login_successfull)
                         }
