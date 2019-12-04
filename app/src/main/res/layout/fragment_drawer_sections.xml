@@ -11,7 +11,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-        <de.taz.app.android.ui.archive.item.ArchiveItemView
+        <de.taz.app.android.ui.moment.MomentView
                 android:id="@+id/fragment_drawer_sections_moment"
                 android:layout_width="@dimen/fragment_drawer_moment_width"
                 android:layout_height="wrap_content"

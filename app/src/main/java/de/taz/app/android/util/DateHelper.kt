@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-class DateHelper private constructor(applicationContext: Context): ViewModel() {
+open class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     companion object : SingletonHolder<DateHelper, Context>(::DateHelper)
 
