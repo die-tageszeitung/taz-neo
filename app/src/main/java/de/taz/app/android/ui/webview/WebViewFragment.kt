@@ -46,8 +46,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     }
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-        log.debug("Shared pref changed: $key")
-        presenter.injectCss()
+        log.debug("WebViewFragment: shared pref changed: $key")
+        presenter.injectCss(sharedPreferences)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +58,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
            tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
        }
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

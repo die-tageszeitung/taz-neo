@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MotionEvent
 import android.webkit.WebChromeClient
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Base64
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.PreferencesHelper
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -93,13 +95,26 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     /**
-     * This method will help to re-inject tazApi.css upon changes to the file
+     * This method will help to re-inject css into the WebView upon changes
+     * to the corresponding shared preferences
      */
-    fun injectCss() {
+    fun injectCss(sharedPreferences: SharedPreferences) {
         log.debug("Injecting css")
         val fileHelper = FileHelper.getInstance()
-        val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
-        val encoded = Base64.encodeToString(tazApiCssBytes, Base64.NO_WRAP)
+        val preferencesHelper = PreferencesHelper.getInstance()
+
+        val nightModeCssFile = fileHelper.getFile("$RESOURCE_FOLDER/themeNight.css")
+        val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"$nightModeCssFile\";" else ""
+        val fontSizePx = preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
+        val cssString = """
+            $nightModeCssString
+            html, body {
+                font-size: ${fontSizePx}px;
+            }
+        """.trimIndent()
+        //val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
+        val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
+        log.debug("Injected css: $cssString")
         getView()?.getWebView()?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
     }
 
