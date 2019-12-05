@@ -15,16 +15,22 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.main.MainDataController
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.util.awaitCallback
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class LoginFragment : Fragment() {
 
+    private val presenter = LoginPresenter()
     private val authHelper = AuthHelper.getInstance()
     private val toastHelper = ToastHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
+    private val log by Log
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,34 +65,8 @@ class LoginFragment : Fragment() {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
                             toastHelper.makeToast(R.string.toast_login_successfull)
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                issueRepository.getLatestIssue()?.let { latestIssue ->
-                                   issueRepository.delete(latestIssue)
-                                }
-
-                                activity?.let { activity ->
-                                    val issue = ApiService.getInstance().getIssueByFeedAndDate()
-                                    issueRepository.save(issue)
-                                    DownloadService.download(activity.applicationContext, issue)
-
-                                    lifecycleScope.launch {
-                                        lifecycleScope.launch {
-                                            val isDownloadedLiveData =
-                                                issue.isDownloadedLiveData()
-                                            isDownloadedLiveData.observe(
-                                                activity,
-                                                Observer { downloaded ->
-                                                    if (downloaded) {
-                                                        ViewModelProviders.of(activity)
-                                                            .get(MainDataController::class.java)
-                                                            .setIssue(issue)
-                                                        toastHelper.makeToast("issue downloaded")
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
+                            runBlocking(Dispatchers.IO) {
+                                issueRepository.deleteAllIssues()
                             }
                         }
                         AuthStatus.elapsed -> {
