@@ -14,7 +14,7 @@ data class Issue(
     val moment: Moment,
     val key: String? = null,
     override val baseUrl: String,
-    val status: IssueStatus,
+    override val status: IssueStatus,
     val minResourceVersion: Int,
     val zipName: String? = null,
     val zipPdfName: String? = null,

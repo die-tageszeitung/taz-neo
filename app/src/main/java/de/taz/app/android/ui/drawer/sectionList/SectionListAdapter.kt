@@ -57,7 +57,7 @@ class SectionListAdapter(
                         issueStub
                     )
                 )
-                imprint = issueRepository.getImprint(issueStub.feedName, issueStub.date)
+                imprint = issueRepository.getImprint(issueStub)
             }
             moment?.let ( ::downloadIssueMoment )
 

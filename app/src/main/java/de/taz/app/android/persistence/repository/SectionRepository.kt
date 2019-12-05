@@ -73,7 +73,7 @@ open class SectionRepository private constructor(applicationContext: Context) :
     fun getFirstSectionForIssueStub(issueStub: IssueStub): Section {
         return sectionStubToSection(
             appDatabase.issueSectionJoinDao().getFirstSectionForIssue(
-                issueStub.feedName, issueStub.date
+                issueStub.feedName, issueStub.date, issueStub.status
             )
         )
     }
