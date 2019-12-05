@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.bottomSheet.textSize
+package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
 
-class TextSizeFragment : BaseFragment<TextSizePresenter>(), TextSizeContract.View {
+class TextSettingsFragment : BaseFragment<TextSizePresenter>(), TextSettingsContract.View {
 
     override val presenter = TextSizePresenter()
 
@@ -55,7 +55,7 @@ class TextSizeFragment : BaseFragment<TextSizePresenter>(), TextSizeContract.Vie
         fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
     }
 
-    override fun setTextSizePercentage(percent: Int) {
+    override fun setTextSizePercentage(percent: String) {
         fragment_bottom_sheet_text_size_text_size_percentage?.text = "$percent%"
     }
 

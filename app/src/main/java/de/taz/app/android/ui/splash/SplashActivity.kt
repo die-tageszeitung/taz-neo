@@ -108,6 +108,7 @@ class SplashActivity : AppCompatActivity() {
             PreferencesHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
+            TazApiCssHelper.createInstance(it)
 
             ApiService.createInstance(it)
         }

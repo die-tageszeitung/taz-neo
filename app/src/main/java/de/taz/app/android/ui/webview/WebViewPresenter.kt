@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MotionEvent
 import android.webkit.WebChromeClient
@@ -9,12 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.download.RESOURCE_FOLDER
-import de.taz.app.android.util.FileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Base64
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.TazApiCssHelper
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -24,6 +25,8 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         WebViewDataController<DISPLAYABLE>().javaClass
     ),
     WebViewContract.Presenter {
+
+    private val log by Log
 
     override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
 
@@ -86,21 +89,21 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     override fun onPageFinishedLoading() {
-        injectCss()
         getView()?.hideLoadingScreen()
     }
 
     /**
-     * This method will help to re-inject tazApi.css upon changes to the file
+     * This method will help to re-inject css into the WebView upon changes
+     * to the corresponding shared preferences
      */
-    private fun injectCss() {
-        val fileHelper = FileHelper.getInstance()
-        val tazApiCssBytes = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css").readBytes()
-        val encoded = Base64.encodeToString(tazApiCssBytes, Base64.NO_WRAP)
-        getView()?.getWebView()?.let{
-            it.evaluateJavascript("(function() {" + "injectCss(encoded);" + "})()", null)
-        }
+    fun injectCss(sharedPreferences: SharedPreferences) {
+        log.debug("Injecting css")
+        val tazApiCssHelper = TazApiCssHelper.getInstance()
 
+        val cssString = tazApiCssHelper.generateCssString(sharedPreferences)
+        val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
+        log.debug("Injected css: $cssString")
+        getView()?.getWebView()?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
     }
 
     override fun onScrollStarted() {
