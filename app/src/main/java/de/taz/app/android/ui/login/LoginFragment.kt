@@ -6,13 +6,16 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.main.MainDataController
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -26,7 +29,6 @@ class LoginFragment :
 
     override val presenter = LoginPresenter()
 
-    private val presenter = LoginPresenter()
     private val authHelper = AuthHelper.getInstance()
     private val toastHelper = ToastHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
@@ -66,12 +68,35 @@ class LoginFragment :
                 authTokenInfo?.let {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
-                            toastHelper.makeToast(R.string.toast_login_successfull)
                             runBlocking(Dispatchers.IO) {
                                 issueRepository.deleteAllIssues()
-                                log.debug("ALL DELETED!")
                             }
                             toastHelper.makeToast(R.string.toast_login_successfull)
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                activity?.let { activity ->
+                                    val issue = ApiService.getInstance().getIssueByFeedAndDate()
+                                    issueRepository.save(issue)
+                                    DownloadService.download(activity.applicationContext, issue)
+
+                                    lifecycleScope.launch {
+                                        lifecycleScope.launch {
+                                            val isDownloadedLiveData =
+                                                issue.isDownloadedLiveData()
+                                            isDownloadedLiveData.observe(
+                                                activity,
+                                                Observer { downloaded ->
+                                                    if (downloaded) {
+                                                        ViewModelProviders.of(activity)
+                                                            .get(MainDataController::class.java)
+                                                            .setIssue(issue)
+                                                        toastHelper.makeToast("issue downloaded")
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                         AuthStatus.elapsed -> {
                             toastHelper.makeToast(R.string.toast_login_elapsed)
