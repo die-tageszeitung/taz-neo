@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,9 +31,9 @@ class SectionDrawerFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val viewModel = ViewModelProviders.of(requireActivity()).get(MainDataController::class.java)
 
-        viewModel.observeIssue(viewLifecycleOwner) { issue ->
-            issue?.let {
-                recyclerAdapter.setData(issue)
+        viewModel.observeIssueStub(viewLifecycleOwner) { issueStub ->
+            issueStub?.let {
+                recyclerAdapter.setData(issueStub)
             }
         }
 
@@ -41,7 +42,6 @@ class SectionDrawerFragment : Fragment() {
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = recyclerAdapter
         }
-
     }
 
     fun getMainView(): MainActivity? {

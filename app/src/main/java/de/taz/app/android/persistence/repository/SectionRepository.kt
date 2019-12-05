@@ -4,9 +4,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -74,7 +74,7 @@ open class SectionRepository private constructor(applicationContext: Context) :
     fun getFirstSectionForIssueStub(issueStub: IssueStub): Section {
         return sectionStubToSection(
             appDatabase.issueSectionJoinDao().getFirstSectionForIssue(
-                issueStub.feedName, issueStub.date
+                issueStub.feedName, issueStub.date, issueStub.status
             )
         )
     }
@@ -90,6 +90,18 @@ open class SectionRepository private constructor(applicationContext: Context) :
 
     fun getNextSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
+    }
+
+    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations): List<SectionStub> {
+        return appDatabase.sectionDao().getSectionsForIssue(
+            issueOperations.feedName, issueOperations.date
+        )
+    }
+
+    fun getSectionsForIssueOperations(issueOperations: IssueOperations): List<Section> {
+        return appDatabase.sectionDao().getSectionsForIssue(
+            issueOperations.feedName, issueOperations.date
+        ).map { sectionStubToSection(it) }
     }
 
     @Throws(NotFoundException::class)

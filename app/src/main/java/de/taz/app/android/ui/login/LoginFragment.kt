@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -88,7 +89,7 @@ class LoginFragment :
                                                     if (downloaded) {
                                                         ViewModelProviders.of(activity)
                                                             .get(MainDataController::class.java)
-                                                            .setIssue(issue)
+                                                            .setIssueStub(IssueStub(issue))
                                                         toastHelper.makeToast("issue downloaded")
                                                     }
                                                 }

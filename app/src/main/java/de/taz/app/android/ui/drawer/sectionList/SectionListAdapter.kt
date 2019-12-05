@@ -8,47 +8,78 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.FileHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 
 class SectionListAdapter(
     private val fragment: SectionDrawerFragment,
-    private var issue: Issue? = null
+    private var issueStub: IssueStub? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()
     private val feedRepository = FeedRepository.getInstance()
+    private val issueRepository = IssueRepository.getInstance()
+    private val momentRepository = MomentRepository.getInstance()
+    private val sectionRepository = SectionRepository.getInstance()
 
-    fun setData(newIssue: Issue?) {
-        this.issue = newIssue
-        newIssue?.let { issue ->
-            downloadIssue(issue)
+    private var moment: Moment? = null
+    private val sectionList = mutableListOf<SectionStub>()
+    private var imprint: Article? = null
 
-            fragment.getMainView()?.apply {
-                issue.moment.isDownloadedLiveData().observe(
-                    getLifecycleOwner(),
-                    MomentDownloadedObserver()
+    private var currentJob: Job? = null
+    private val observer = MomentDownloadedObserver()
+
+    fun setData(newIssueStub: IssueStub?) {
+        this.issueStub = newIssueStub
+
+        moment?.isDownloadedLiveData()?.removeObserver(observer)
+
+        sectionList.clear()
+        moment = null
+        imprint = null
+
+        drawIssue()
+    }
+
+    private fun drawIssue() {
+        currentJob?.cancel()
+        currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
+            issueStub?.let { issueStub ->
+
+                moment = momentRepository.get(issueStub)
+                sectionList.addAll(
+                    sectionRepository.getSectionStubsForIssueOperations(
+                        issueStub
+                    )
                 )
+                imprint = issueRepository.getImprint(issueStub)
             }
+            moment?.let ( ::downloadIssueMoment )
 
-            issue.imprint?.let { showImprint(it) }
-            notifyDataSetChanged()
+            withContext(Dispatchers.Main) {
+                imprint?.let(::showImprint)
+
+                fragment.getMainView()?.apply {
+                    moment?.isDownloadedLiveData()?.observe(
+                        getLifecycleOwner(),
+                        observer
+                    )
+                }
+                notifyDataSetChanged()
+            }
         }
     }
 
-    private fun downloadIssue(issue: Issue) {
+    private fun downloadIssueMoment(moment: Moment) {
         fragment.getMainView()?.apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                if (!issue.moment.isDownloaded()) {
-                    issue.downloadMoment(applicationContext)
+                if (!moment.isDownloaded()) {
+                    moment.download(applicationContext)
                 }
             }
         }
@@ -73,8 +104,8 @@ class SectionListAdapter(
     inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
         override fun onChanged(isDownloaded: Boolean?) {
             if (isDownloaded == true) {
-                issue?.let { issue ->
-                    issue.moment.isDownloadedLiveData().removeObserver(this)
+                issueStub?.let { issue ->
+                    moment?.isDownloadedLiveData()?.removeObserver(this)
                     setMomentRatio(issue)
                     setMomentImage(issue)
                 }
@@ -82,7 +113,8 @@ class SectionListAdapter(
         }
     }
 
-    class SectionListAdapterViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+    class SectionListAdapterViewHolder(val textView: TextView) :
+        RecyclerView.ViewHolder(textView)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -97,20 +129,23 @@ class SectionListAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        val section = issue?.sectionList?.get(position)
-        section?.let {
-            holder.textView.text = section.title
+        val sectionStub = sectionList.get(position)
+        sectionStub.let {
+            holder.textView.text = sectionStub.title
             holder.textView.setOnClickListener {
                 fragment.getMainView()?.apply {
-                    showInWebView(section)
-                    closeDrawer()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val section = sectionRepository.sectionStubToSection(sectionStub)
+                        showInWebView(section)
+                        closeDrawer()
+                    }
                 }
             }
         }
     }
 
-    private fun setMomentImage(issue: Issue) {
-        issue.moment.imageList.lastOrNull()?.let {
+    private fun setMomentImage(issue: IssueStub) {
+        moment?.imageList?.lastOrNull()?.let {
             val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
             if (imgFile.exists()) {
                 val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
@@ -121,7 +156,7 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentRatio(issue: Issue) {
+    private fun setMomentRatio(issue: IssueStub) {
         fragment.lifecycleScope.launch(Dispatchers.IO) {
             val feed = feedRepository.get(issue.feedName)
             withContext(Dispatchers.Main) {
@@ -132,5 +167,5 @@ class SectionListAdapter(
         }
     }
 
-    override fun getItemCount() = issue?.sectionList?.size ?: 0
+    override fun getItemCount() = sectionList.size
 }

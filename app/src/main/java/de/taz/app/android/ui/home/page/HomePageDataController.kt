@@ -15,6 +15,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     /**
      * issues to be shown
      */
+    // TODO FILTER IF AUTHENTICATED
     private val issueLiveData: LiveData<List<IssueStub>> =
         IssueRepository.getInstance().getAllStubsLiveData()
 

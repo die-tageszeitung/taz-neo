@@ -60,7 +60,7 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                     }
 
                     // set main issue
-                    getMainDataController().setIssue(issue)
+                    getMainDataController().setIssueStub(issueStub)
 
                     issue.sectionList.first().let { firstSection ->
                         showInWebView(firstSection)
