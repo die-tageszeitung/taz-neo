@@ -2,45 +2,31 @@ package de.taz.app.android.ui.main
 
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseDataController
 import kotlinx.coroutines.*
 
 open class MainDataController : BaseDataController(), MainContract.DataController {
 
-    private val selectedIssue = MutableLiveData<Issue?>().apply {
+    private val selectedIssue = MutableLiveData<IssueStub?>().apply {
         postValue(null)
     }
 
-    private val selectedIssueIsDownloaded: LiveData<Boolean> =
-        Transformations.map(selectedIssue) { selectedIssue ->
-            runBlocking {
-                selectedIssue?.isDownloadedLiveData()?.value
-            }
-        }
-
-    override fun observeIssue(
+    override fun observeIssueStub(
         lifeCycleOwner: LifecycleOwner,
-        observationCallback: (Issue?) -> (Unit)
+        observationCallback: (IssueStub?) -> (Unit)
     ) {
         selectedIssue.observe(
             lifeCycleOwner,
-            Observer { issue -> observationCallback.invoke(issue) })
+            Observer { issueStub -> observationCallback.invoke(issueStub) })
     }
 
-    override fun observeIssueIsDownloaded(
-        lifeCycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit
-    ) {
-        selectedIssueIsDownloaded.observe(
-            lifeCycleOwner,
-            Observer { isDownloaded -> observationCallback.invoke(isDownloaded ?: false) })
-    }
-
-    override fun getIssue(): Issue? {
+    override fun getIssueStub(): IssueStub? {
         return selectedIssue.value
     }
 
-    override fun setIssue(issue: Issue) {
-        return selectedIssue.postValue(issue)
+    override fun setIssueStub(issueStub: IssueStub) {
+        return selectedIssue.postValue(issueStub)
     }
 
 }

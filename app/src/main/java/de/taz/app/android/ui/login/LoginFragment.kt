@@ -63,30 +63,6 @@ class LoginFragment : Fragment() {
                                 issueRepository.getLatestIssue()?.let { latestIssue ->
                                    issueRepository.delete(latestIssue)
                                 }
-
-                                activity?.let { activity ->
-                                    val issue = ApiService.getInstance().getIssueByFeedAndDate()
-                                    issueRepository.save(issue)
-                                    DownloadService.download(activity.applicationContext, issue)
-
-                                    lifecycleScope.launch {
-                                        lifecycleScope.launch {
-                                            val isDownloadedLiveData =
-                                                issue.isDownloadedLiveData()
-                                            isDownloadedLiveData.observe(
-                                                activity,
-                                                Observer { downloaded ->
-                                                    if (downloaded) {
-                                                        ViewModelProviders.of(activity)
-                                                            .get(MainDataController::class.java)
-                                                            .setIssue(issue)
-                                                        toastHelper.makeToast("issue downloaded")
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
                             }
                         }
                         AuthStatus.elapsed -> {
