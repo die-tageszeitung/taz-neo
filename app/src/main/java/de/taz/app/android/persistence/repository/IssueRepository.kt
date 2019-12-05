@@ -23,7 +23,6 @@ open class IssueRepository private constructor(applicationContext: Context) :
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
-    private val log by Log
 
     open fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
@@ -208,20 +207,13 @@ open class IssueRepository private constructor(applicationContext: Context) :
                 .delete(sectionList.mapIndexed { index, it ->
                     IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
                 })
-            try {
-                sectionList.forEach { sectionRepository.delete(it) }
-            } catch (e: Exception) {
-                log.warn(e.toString())
-            }
+            sectionList.forEach { sectionRepository.delete(it) }
         }
 
-        try {
-            appDatabase.issueDao().delete(
-                IssueStub(issue)
-            )
-        } catch (e: Exception) {
-            log.warn(e.toString())
-        }
+        appDatabase.issueDao().delete(
+            IssueStub(issue)
+        )
+
         // TODO actually delete files! perhaps decide if to keep some
 
     }
