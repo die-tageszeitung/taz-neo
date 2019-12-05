@@ -27,4 +27,7 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue ORDER BY date DESC")
     abstract fun getAllIssueStubs(): List<IssueStub>
 
+    @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
+    abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
+
 }

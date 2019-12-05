@@ -164,7 +164,6 @@ open class SectionRepository private constructor(applicationContext: Context) :
             }
         }
 
-
         fileEntryRepository.delete(section.sectionHtml)
 
         appDatabase.sectionImageJoinDao().delete(
