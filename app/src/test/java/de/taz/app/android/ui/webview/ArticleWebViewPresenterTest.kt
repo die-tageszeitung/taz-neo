@@ -52,7 +52,6 @@ class ArticleWebViewPresenterTest {
         Mockito.`when`(webViewContractView.getMainView()).thenReturn(mainContractView)
 
         presenter.viewModel = viewModel
-        Mockito.`when`(viewModel.getWebViewDisplayable()).thenReturn(testArticle)
 
         Mockito.`when`(webViewContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
         Mockito.`when`(mainContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
