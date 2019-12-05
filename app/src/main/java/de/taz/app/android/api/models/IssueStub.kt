@@ -8,14 +8,14 @@ import kotlinx.coroutines.withContext
 
 @Entity(
     tableName = "Issue",
-    primaryKeys = ["feedName", "date"]
+    primaryKeys = ["feedName", "date", "status"]
 )
 data class IssueStub(
     override val feedName: String,
     override val date: String,
     val key: String? = null,
     override val baseUrl: String,
-    val status: IssueStatus,
+    override val status: IssueStatus,
     val minResourceVersion: Int,
     val zipName: String? = null,
     val zipPdfName: String? = null,

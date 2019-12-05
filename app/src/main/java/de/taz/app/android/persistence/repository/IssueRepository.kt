@@ -20,7 +20,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
 
-    open fun save(issues: List<Issue>)  {
+    open fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
     }
 
@@ -37,18 +37,29 @@ open class IssueRepository private constructor(applicationContext: Context) :
             // save page relation
             appDatabase.issuePageJoinDao().insertOrReplace(
                 issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                    IssuePageJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        page.pagePdf.name,
+                        index
+                    )
                 }
             )
 
             // save moment
-            momentRepository.save(issue.moment, issue.feedName, issue.date)
+            momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
 
             // save imprint
             issue.imprint?.let { imprint ->
                 articleRepository.save(imprint)
                 appDatabase.issueImprintJoinDao().insertOrReplace(
-                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                    IssueImprintJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        imprint.articleHtml.name
+                    )
                 )
             }
 
@@ -57,18 +68,28 @@ open class IssueRepository private constructor(applicationContext: Context) :
                 sectionList.forEach { sectionRepository.save(it) }
                 appDatabase.issueSectionJoinDao()
                     .insertOrReplace(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                        IssueSectionJoin(
+                            issue.feedName,
+                            issue.date,
+                            issue.status,
+                            it.sectionHtml.name,
+                            index
+                        )
                     })
             }
         }
     }
 
     fun exists(issueOperations: IssueOperations): Boolean {
-        return getStub(issueOperations.feedName, issueOperations.date) != null
+        return getStub(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status
+        ) != null
     }
 
-    fun getStub(issueFeedName: String, issueDate: String): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate)
+    fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate, issueStatus)
     }
 
     fun getLatestIssueStub(): IssueStub? {
@@ -93,16 +114,16 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return getLatestIssueStub()?.let { issueStubToIssue(it) } ?: throw NotFoundException()
     }
 
-    fun getIssueStubByFeedAndDate(feedName: String, date: String): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(feedName, date)
+    fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getByFeedAndDate(feedName, date, status)
     }
 
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }
 
-    fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
-        return getIssueStubByFeedAndDate(feedName, date)?.let {
+    fun getIssueByFeedAndDate(feedName: String, date: String, status: IssueStatus): Issue? {
+        return getIssueStubByFeedAndDate(feedName, date, status)?.let {
             issueStubToIssue(it)
         }
     }
@@ -125,16 +146,30 @@ open class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getImprintStub(issueFeedName: String, issueDate: String): ArticleStub? {
+    fun getAllStubsExceptPublicLiveData(): LiveData<List<IssueStub>> {
+        return Transformations.map(appDatabase.issueDao().getAllLiveDataExceptPublic()) { input ->
+            input ?: emptyList()
+        }
+    }
+
+    fun getImprintStub(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): ArticleStub? {
         val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueFeedName, issueDate
+            issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.getStub(it) }
     }
 
-    fun getImprint(issueFeedName: String, issueDate: String): Article? {
+    fun getImprint(issueOperations: IssueOperations): Article? {
+        return getImprint(issueOperations.feedName, issueOperations.date, issueOperations.status)
+    }
+
+    fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Article? {
         val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueFeedName, issueDate
+            issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
     }
@@ -144,18 +179,20 @@ open class IssueRepository private constructor(applicationContext: Context) :
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueStub.feedName, issueStub.date
+            issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
         val moment = Moment(
             appDatabase.issueMomentJoinDao().getMomentFiles(
                 issueStub.feedName,
-                issueStub.date
+                issueStub.date,
+                issueStub.status
             )
         )
 
         val pageList =
-            appDatabase.issuePageJoinDao().getPageNamesForIssue(issueStub.feedName, issueStub.date)
+            appDatabase.issuePageJoinDao()
+                .getPageNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
                 .map {
                     pageRepository.getOrThrow(it)
                 }
@@ -185,47 +222,49 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        appDatabase.runInTransaction {
+        // TODO cancel Downloads
 
-            // TODO cancel Downloads
+        // delete moment
+        momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
 
-            // delete moment
-            momentRepository.delete(issue.moment, issue.feedName, issue.date)
-
-            // delete imprint
-            issue.imprint?.let { imprint ->
-                appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
-                )
-                articleRepository.delete(imprint)
-            }
-            // delete page relation
-            appDatabase.issuePageJoinDao().delete(
-                issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
-                }
+        // delete imprint
+        issue.imprint?.let { imprint ->
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(issue.feedName, issue.date, issue.status, imprint.articleHtml.name)
             )
-            // delete pages
-            pageRepository.delete(issue.pageList)
-
-            // delete sections
-            issue.sectionList.let { sectionList ->
-                appDatabase.issueSectionJoinDao()
-                    .delete(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
-                    })
-                sectionList.forEach { sectionRepository.delete(it) }
-            }
-
-
-            appDatabase.issueDao().delete(
-                IssueStub(issue)
-            )
-
-            // TODO actually delete files! perhaps decide if to keep some
-
+            articleRepository.delete(imprint)
         }
-    }
+        // delete page relation
+        appDatabase.issuePageJoinDao().delete(
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(issue.feedName, issue.date, issue.status, page.pagePdf.name, index)
+            }
+        )
+        // delete pages
+        pageRepository.delete(issue.pageList)
 
+        // delete sections
+        issue.sectionList.let { sectionList ->
+            appDatabase.issueSectionJoinDao()
+                .delete(sectionList.mapIndexed { index, it ->
+                    IssueSectionJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        it.sectionHtml.name,
+                        index
+                    )
+                })
+            sectionList.forEach { sectionRepository.delete(it) }
+        }
+
+
+        appDatabase.issueDao().delete(
+            IssueStub(issue)
+        )
+
+        // TODO actually delete files! perhaps decide if to keep some
+
+    }
 
 }
