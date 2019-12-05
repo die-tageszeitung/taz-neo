@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -113,6 +114,12 @@ object DownloadService {
             .enqueue(createScheduleDownloadsRequest(issueFeedName, issueDate))
     }
 
+    /**
+     * stop all running jobs on [ioScope]
+     */
+    fun cancelAllDownloads() {
+        ioScope.cancel()
+    }
 
     /**
      * enqueue [Download]s with [WorkManager]
