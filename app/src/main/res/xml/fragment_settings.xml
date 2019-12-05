@@ -5,7 +5,27 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:key="text_category"
+            app:key="category_general"
+            app:title="@string/settings_category_general"
+            android:layout="@layout/custom_preference_category_title">
+
+        <EditTextPreference
+                app:key="general_keep_number_issues"
+                app:title="@string/settings_general_keep_number_issues"
+                app:useSimpleSummaryProvider="true"
+                app:allowDividerAbove="false"
+                app:allowDividerBelow="false"
+                app:negativeButtonText="cancel"
+                app:positiveButtonText="ok"
+                android:singleLineTitle="true"
+                android:defaultValue="20"
+                android:layout="@layout/custom_preference_edit_text"
+                />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            app:key="category_text"
             app:title="@string/settings_category_text"
             android:layout="@layout/custom_preference_category_title">
 
@@ -37,7 +57,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:key="account_category"
+            app:key="category_account"
             app:title="@string/settings_category_account"
             android:layout="@layout/custom_preference_category_title">
 
