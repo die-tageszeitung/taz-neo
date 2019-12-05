@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueMomentJoin
@@ -12,44 +11,50 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
-    fun save(moment: Moment, issueFeedName: String, issueDate: String) {
+    fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().insertOrReplace(moment.imageList)
             appDatabase.issueMomentJoinDao().insertOrReplace(
                 moment.imageList.mapIndexed { index, fileEntry ->
-                    IssueMomentJoin(issueFeedName, issueDate, fileEntry.name, index)
+                    IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
                 }
             )
         }
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(issueFeedName: String, issueDate: String): Moment {
-        return Moment(appDatabase.issueMomentJoinDao().getMomentFiles(issueFeedName, issueDate))
+    fun getOrThrow(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment {
+        return Moment(
+            appDatabase.issueMomentJoinDao().getMomentFiles(
+                issueFeedName,
+                issueDate,
+                issueStatus
+            )
+        )
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(issue: IssueOperations): Moment {
-        return getOrThrow(issue.feedName, issue.date)
+    fun getOrThrow(issueOperations: IssueOperations): Moment {
+        return getOrThrow(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    fun get(issueFeedName: String, issueDate: String): Moment? {
+    fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
         return try {
-            getOrThrow(issueFeedName, issueDate)
+            getOrThrow(issueFeedName, issueDate, issueStatus)
         } catch (e: NotFoundException) {
             null
         }
     }
 
-    fun get(issue: IssueOperations): Moment? {
-        return get(issue.feedName, issue.date)
+    fun get(issueOperations: IssueOperations): Moment? {
+        return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    fun delete(moment: Moment, issueFeedName: String, issueDate: String) {
+    fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.runInTransaction {
             appDatabase.issueMomentJoinDao().delete(
                 moment.imageList.mapIndexed { index, fileEntry ->
-                    IssueMomentJoin(issueFeedName, issueDate, fileEntry.name, index)
+                    IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
                 }
             )
             appDatabase.fileEntryDao().delete(moment.imageList)

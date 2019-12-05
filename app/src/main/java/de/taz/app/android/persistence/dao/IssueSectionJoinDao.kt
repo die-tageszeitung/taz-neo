@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.IssueSectionJoin
@@ -14,22 +15,24 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+            AND IssueSectionJoin.issueStatus == :status
         ORDER BY IssueSectionJoin.`index` ASC
         """
     )
-    abstract fun getSectionsForIssue(feedName: String, date: String): List<SectionStub>
+    abstract fun getSectionsForIssue(feedName: String, date: String, status: IssueStatus): List<SectionStub>
 
     @Query(
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
-        WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+        WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName 
+            AND IssueSectionJoin.issueStatus == :status
         ORDER BY IssueSectionJoin.`index` ASC
         """
     )
-    abstract fun getSectionNamesForIssue(feedName: String, date: String): List<String>
+    abstract fun getSectionNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
 
     fun getSectionNamesForIssue(issueStub: IssueStub) =
-        getSectionNamesForIssue(issueStub.feedName, issueStub.date)
+        getSectionNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
 
     @Query(
         """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin
@@ -39,13 +42,15 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         """
     )
     abstract fun getIssueStubForSection(sectionName: String): IssueStub
+
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
+            AND IssueSectionJoin.issueStatus == :status
         ORDER BY IssueSectionJoin.`index` ASC LIMIT 1
         """
     )
-    abstract fun getFirstSectionForIssue(feedName: String, date: String): SectionStub
+    abstract fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub
 
 }

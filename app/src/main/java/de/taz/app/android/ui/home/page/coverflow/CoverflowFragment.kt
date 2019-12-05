@@ -121,9 +121,7 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                     MainDataController::class.java
                 )
                 coverFlowPagerAdapter.getItem(position)?.let { issueStub ->
-                    issueRepository.getIssue(issueStub).let { issue ->
-                        viewModel.setIssue(issue)
-                    }
+                    viewModel.setIssueStub(issueStub)
                 }
             }
 
