@@ -12,7 +12,7 @@ abstract class SharedPreferenceLiveData<T>(
     private val preferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == this.key) {
-                setValue(getValueFromPreferences(key, defaultValue))
+                postValue(getValueFromPreferences(key, defaultValue))
             }
         }
 
@@ -20,7 +20,7 @@ abstract class SharedPreferenceLiveData<T>(
 
     override fun onActive() {
         super.onActive()
-        setValue(getValueFromPreferences(key, defaultValue))
+        postValue(getValueFromPreferences(key, defaultValue))
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
