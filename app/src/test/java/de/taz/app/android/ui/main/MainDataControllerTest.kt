@@ -2,7 +2,7 @@ package de.taz.app.android.ui.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import de.taz.app.android.TestLifecycleOwner
-import de.taz.app.android.testIssue
+import de.taz.app.android.testIssueStub
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -20,10 +20,10 @@ class MainDataControllerTest {
         val testLifecycleOwner = TestLifecycleOwner()
 
         var called = false
-        mainDataController.observeIssue(testLifecycleOwner) {
+        mainDataController.observeIssueStub(testLifecycleOwner) {
             called = true
         }
-        mainDataController.setIssue(testIssue)
+        mainDataController.setIssueStub(testIssueStub)
 
         assertTrue(called)
     }
@@ -32,11 +32,11 @@ class MainDataControllerTest {
     fun getIssue() {
         val mainDataController = MainDataController()
 
-        assertEquals(null, mainDataController.getIssue())
+        assertEquals(null, mainDataController.getIssueStub())
 
-        mainDataController.setIssue(testIssue)
+        mainDataController.setIssueStub(testIssueStub)
 
-        assertEquals(testIssue, mainDataController.getIssue())
+        assertEquals(testIssueStub, mainDataController.getIssueStub())
     }
 
 }
