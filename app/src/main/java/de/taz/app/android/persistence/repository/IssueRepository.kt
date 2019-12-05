@@ -125,6 +125,22 @@ open class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getImprintStub(issueFeedName: String, issueDate: String): ArticleStub? {
+        return appDatabase.issueImprintJoinDao().getImprintNameForIssue(
+            issueFeedName, issueDate
+        )?.let {
+            articleRepository.getStub(it)
+        }
+    }
+
+    fun getImprint(issueFeedName: String, issueDate: String): Article? {
+                return appDatabase.issueImprintJoinDao().getImprintNameForIssue(
+            issueFeedName, issueDate
+        )?.let {
+            articleRepository.get(it)
+        }
+    }
+
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
