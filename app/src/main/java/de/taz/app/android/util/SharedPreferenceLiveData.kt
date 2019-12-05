@@ -31,11 +31,6 @@ abstract class SharedPreferenceLiveData<T>(
 
     abstract fun saveValueToPreferences(value: T)
 
-    override fun postValue(value: T) {
-        saveValueToPreferences(value)
-        super.postValue(value)
-    }
-
     override fun setValue(value: T) {
         saveValueToPreferences(value)
         super.setValue(value)
