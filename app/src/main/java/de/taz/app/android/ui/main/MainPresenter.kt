@@ -15,8 +15,8 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.apply {
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                IssueRepository.getInstance().getLatestIssue()?.let { issue ->
-                    viewModel?.setIssue(issue)
+                IssueRepository.getInstance().getLatestIssueStub()?.let { issueStub ->
+                    viewModel?.setIssueStub(issueStub)
                 }
             }
             // only show archive if created in the beginning else show current fragment

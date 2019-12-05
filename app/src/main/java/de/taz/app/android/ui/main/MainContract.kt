@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
 
 interface MainContract : BaseContract {
@@ -39,16 +40,11 @@ interface MainContract : BaseContract {
     interface Presenter : BaseContract.Presenter
 
     interface DataController {
-        fun getIssue(): Issue?
+        fun getIssueStub(): IssueStub?
 
-        fun setIssue(issue: Issue)
+        fun setIssueStub(issueStub: IssueStub)
 
-        fun observeIssue(lifeCycleOwner: LifecycleOwner, observationCallback: (Issue?) -> (Unit))
-
-        fun observeIssueIsDownloaded(
-            lifeCycleOwner: LifecycleOwner,
-            observationCallback: (Boolean) -> (Unit)
-        )
+        fun observeIssueStub(lifeCycleOwner: LifecycleOwner, observationCallback: (IssueStub?) -> (Unit))
     }
 
 }
