@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
@@ -14,6 +15,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import de.taz.app.android.BuildConfig
 import androidx.preference.PreferenceManager
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -59,6 +61,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         setContentView(R.layout.activity_main)
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
+
+            activity_main_version.text = BuildConfig.VERSION_NAME
+            activity_main_version.visibility = View.VISIBLE
         }
 
         presenter.onViewCreated(savedInstanceState)
