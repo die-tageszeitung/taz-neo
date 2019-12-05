@@ -2,10 +2,7 @@ package de.taz.app.android.ui.settings
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import androidx.preference.EditTextPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.*
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseContract
@@ -32,7 +29,7 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
             true
         }
 
-        findPreference<SwitchPreferenceCompat>("text_night_mode")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
+        findPreference<CustomSwitchPreference>("text_night_mode")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
         findPreference<TextSizePreference>("text_font_size")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
 
     }

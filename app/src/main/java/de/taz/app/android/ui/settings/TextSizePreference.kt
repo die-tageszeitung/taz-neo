@@ -33,6 +33,9 @@ class TextSizePreference @JvmOverloads constructor(
             it.findViewById(R.id.settings_text_increase)?.setOnClickListener {
                 modifySize(FONT_SIZE_INCREASE_PERCENTAGE)
             }
+
+            it.isDividerAllowedAbove = false
+            it.isDividerAllowedBelow = false
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.preference.PreferenceManager
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -25,10 +26,7 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.FileHelper
-import de.taz.app.android.util.Log
-import de.taz.app.android.util.PreferencesHelper
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -38,7 +36,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val fileHelper = FileHelper.getInstance()
 
-    private val preferencesHelper = PreferencesHelper.getInstance()
+    private val tazApiCssHelper = TazApiCssHelper.getInstance()
 
     private val presenter = MainPresenter()
 
@@ -47,15 +45,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("Shared pref changed: $key")
         val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+        val cssString = tazApiCssHelper.generateCssString(sharedPreferences)
 
-        val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"themeNight.css\";" else ""
-        val fontSizePx = preferencesHelper.computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
-        val cssString = """
-            $nightModeCssString
-            html, body {
-                font-size: ${fontSizePx}px;
-            }
-        """.trimIndent()
         cssFile.writeText(cssString)
     }
 
@@ -75,6 +66,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         lockEndNavigationView()
 
         tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        PreferenceManager.setDefaultValues(this, PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE, R.xml.fragment_settings, false)
         tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
 
     }

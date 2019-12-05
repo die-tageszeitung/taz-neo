@@ -4,7 +4,7 @@ var tazApi = (function() {
 
 	return (function() {
 
-        /**
+        /*
             @params
             name: String or array of strings
                   Name of the desired configuration variable(s)
@@ -29,7 +29,7 @@ var tazApi = (function() {
             }
         }
 
-        /**
+        /*
             @params
             name: String or a dictionary of String:String
                   The name of the configuration variable to be set
@@ -43,12 +43,12 @@ var tazApi = (function() {
                 ANDROIDAPI.setConfiguration(name, value);
             } else { /* name is a dict */
                 for (i in name) {
-                    ANDROIDAPI.setConfiguration(i, name[i])
+                    ANDROIDAPI.setConfiguration(i, name[i]);
                 }
             }
         }
 
-        /**
+        /*
             Called after every scroll, the function informs the native code about the current
             scroll position.
             This can be used for tracking reading progress for bookmarked articles for instance.
@@ -83,9 +83,26 @@ var tazApi = (function() {
 
         function injectCss(encodedCssContent) {
             var parent = document.getElementsByTagName('head').item(0);
+
+            /* remove old previously injected style elements */
+            var oldStyleElements = parent.getElementsByTagName('style');
+
+            for (element of oldStyleElements) {
+                parent.removeChild(element);
+            }
+
+            /* remove current tazApi.css as well, since it sometimes contradicts the injected style */
+            for (element of parent.getElementsByTagName('link')) {
+                if (element.href.indexOf('tazApi.css') >= 0) {
+                    document.getElementsByTagName('head').item(0).removeChild(element);
+                }
+            }
+
+
+            /* inject new css */
             var style = document.createElement('style');
             style.type = 'text/css';
-            // Tell the browser to BASE64-decode the string
+            /* Tell the browser to BASE64-decode the string */
             style.innerHTML = window.atob(encodedCssContent);
             parent.appendChild(style);
         }
@@ -98,6 +115,6 @@ var tazApi = (function() {
 			previousArticle : previousArticle,
 			openUrl : openUrl,
 			injectCss: injectCss
-		}
+		};
 	}());
 }());
