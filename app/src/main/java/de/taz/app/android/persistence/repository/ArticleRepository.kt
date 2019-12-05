@@ -229,6 +229,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
 
     fun delete(article: Article) {
         appDatabase.articleDao().get(article.articleFileName)?.let {
+            val articleStub = ArticleStub(article)
             if (!it.bookmarked) {
                 val articleFileName = article.articleHtml.name
 
@@ -275,8 +276,8 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                     }
                 }
 
-                appDatabase.articleDao().delete(ArticleStub(article))
-                log.debug("deleted ArticleStub $articleFileName")
+                log.debug("delete ArticleStub $article")
+                appDatabase.articleDao().delete(articleStub)
             }
         }
     }

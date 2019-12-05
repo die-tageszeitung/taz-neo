@@ -69,11 +69,11 @@ class LoginFragment :
                 authTokenInfo?.let {
                     when (authTokenInfo.authInfo.status) {
                         AuthStatus.valid -> {
-                            runBlocking(Dispatchers.IO) {
-                                issueRepository.deleteAllIssues()
-                            }
                             toastHelper.makeToast(R.string.toast_login_successfull)
                             lifecycleScope.launch(Dispatchers.IO) {
+
+                                issueRepository.deletePublicIssues()
+
                                 activity?.let { activity ->
                                     val issue = ApiService.getInstance().getIssueByFeedAndDate()
                                     issueRepository.save(issue)

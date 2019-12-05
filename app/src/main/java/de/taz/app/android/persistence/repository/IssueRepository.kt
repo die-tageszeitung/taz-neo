@@ -154,6 +154,10 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getAllIssueStubs()
     }
 
+    private fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
+        return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
+    }
+
     fun getAllStubsExceptPublicLiveData(): LiveData<List<IssueStub>> {
         return Transformations.map(appDatabase.issueDao().getAllLiveDataExceptPublic()) { input ->
             input ?: emptyList()
@@ -231,22 +235,22 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     fun delete(issue: Issue) {
         // stop all current downloads
-        DownloadService.cancelAllDownloads()
+        //DownloadService.cancelAllDownloads()
 
         // delete moment
-        momentRepository.delete(issue.moment, issue.feedName, issue.date)
+        momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
 
         // delete imprint
         issue.imprint?.let { imprint ->
             appDatabase.issueImprintJoinDao().delete(
-                IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                IssueImprintJoin(issue.feedName, issue.date, issue.status, imprint.articleHtml.name)
             )
             articleRepository.delete(imprint)
         }
         // delete page relation
         appDatabase.issuePageJoinDao().delete(
             issue.pageList.mapIndexed { index, page ->
-                IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                IssuePageJoin(issue.feedName, issue.date, issue.status, page.pagePdf.name, index)
             }
         )
         // delete pages
@@ -256,7 +260,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         issue.sectionList.let { sectionList ->
             appDatabase.issueSectionJoinDao()
                 .delete(sectionList.mapIndexed { index, it ->
-                    IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                    IssueSectionJoin(issue.feedName, issue.date, issue.status, it.sectionHtml.name, index)
                 })
             sectionList.forEach { sectionRepository.delete(it) }
         }
@@ -269,8 +273,8 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     }
 
-    fun deleteAllIssues() {
-        getAllIssuesList().forEach {
+    fun deletePublicIssues() {
+        getIssuesListByStatus(IssueStatus.public).forEach {
             delete(issueStubToIssue(it))
         }
     }
