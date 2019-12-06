@@ -56,7 +56,9 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun writeAndRead() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueByFeedAndDate(issue.feedName, issue.date)
+        val fromDB = issueRepository.getIssueByFeedAndDate(
+            issue.feedName, issue.date, issue.status
+        )
         assertEquals(fromDB, issue)
     }
 
@@ -64,7 +66,9 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueStubByFeedAndDate(issue.feedName, issue.date)
+        val fromDB = issueRepository.getIssueStubByFeedAndDate(
+            issue.feedName, issue.date, issue.status
+        )
         assertEquals(fromDB, IssueStub(issue))
     }
 
@@ -74,8 +78,12 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issueRepository.save(issue2)
 
-        val fromDB = issueRepository.getIssueByFeedAndDate(issue.feedName, issue.date)
-        val fromDB2 = issueRepository.getIssueByFeedAndDate(issue2.feedName, issue2.date)
+        val fromDB = issueRepository.getIssueByFeedAndDate(
+            issue.feedName, issue.date, issue.status
+        )
+        val fromDB2 = issueRepository.getIssueByFeedAndDate(
+            issue2.feedName, issue2.date, issue.status
+        )
 
         assertEquals(fromDB, issue)
         assertEquals(fromDB2, issue2)
@@ -93,11 +101,11 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getNextSection() {
         issueRepository.save(issue)
-        issue.sectionList.forEachIndexed { index, section->
-            if (index == issue.sectionList.size -1) {
+        issue.sectionList.forEachIndexed { index, section ->
+            if (index == issue.sectionList.size - 1) {
                 assertNull(section.nextSection())
             } else {
-                assertEquals(issue.sectionList[index +1], section.nextSection())
+                assertEquals(issue.sectionList[index + 1], section.nextSection())
             }
 
         }
@@ -107,11 +115,11 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getPreviousSection() {
         issueRepository.save(issue)
-        issue.sectionList.forEachIndexed { index, section->
+        issue.sectionList.forEachIndexed { index, section ->
             if (index == 0) {
                 assertNull(section.previousSection())
             } else {
-                assertEquals(issue.sectionList[index -1], section.previousSection())
+                assertEquals(issue.sectionList[index - 1], section.previousSection())
             }
         }
     }
@@ -122,10 +130,15 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->
-                if(sectionIndex == issue.sectionList.size - 1 && articleIndex == section.articleList.size - 1 ) {
+                if (sectionIndex == issue.sectionList.size - 1 &&
+                    articleIndex == section.articleList.size - 1
+                ) {
                     assertNull(article.nextArticle())
-                } else if(articleIndex == section.articleList.size - 1) {
-                    assertEquals(article.nextArticle(), issue.sectionList[sectionIndex + 1].articleList.first())
+                } else if (articleIndex == section.articleList.size - 1) {
+                    assertEquals(
+                        article.nextArticle(),
+                        issue.sectionList[sectionIndex + 1].articleList.first()
+                    )
                 } else {
                     assertEquals(article.nextArticle(), section.articleList[articleIndex + 1])
                 }
@@ -139,10 +152,13 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->
-                if(sectionIndex == 0 && articleIndex == 0 ) {
+                if (sectionIndex == 0 && articleIndex == 0) {
                     assertNull(article.previousArticle())
-                } else if(articleIndex == 0) {
-                    assertEquals(article.previousArticle(), issue.sectionList[sectionIndex - 1].articleList.last())
+                } else if (articleIndex == 0) {
+                    assertEquals(
+                        article.previousArticle(),
+                        issue.sectionList[sectionIndex - 1].articleList.last()
+                    )
                 } else {
                     assertEquals(article.previousArticle(), section.articleList[articleIndex - 1])
                 }
