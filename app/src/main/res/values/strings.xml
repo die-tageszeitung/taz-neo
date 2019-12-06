@@ -74,7 +74,8 @@
     <string name="settings_account_manage_account">manage account</string>
     <string name="settings_decrease_font_size">Decrease font size</string>
     <string name="settings_increase_font_size">Increase font size</string>
-    <string name="settings_general_keep_number_issues">Delete taz after XX days</string>
+    <string name="settings_general_keep_number_issues">Delete taz after</string>
+    <string name="settings_general_keep_number_issues_days">days</string>
 
     <string name="percentage">%d\%%</string>
 </resources>

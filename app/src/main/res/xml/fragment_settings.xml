@@ -12,7 +12,6 @@
         <EditTextPreference
                 app:key="general_keep_number_issues"
                 app:title="@string/settings_general_keep_number_issues"
-                app:useSimpleSummaryProvider="true"
                 app:allowDividerAbove="false"
                 app:allowDividerBelow="false"
                 app:negativeButtonText="cancel"
