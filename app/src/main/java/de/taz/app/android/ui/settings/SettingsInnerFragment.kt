@@ -8,11 +8,13 @@ import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseContract
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.main.MainContract
 
 
 class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
+    val issueRepository = IssueRepository.getInstance()
 
     override fun getMainView(): MainContract.View? {
         return activity as? MainContract.View
@@ -44,6 +46,28 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
         keepNumberIssues?.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
             val text = preference.text
            "$text ${resources.getString(R.string.settings_general_keep_number_issues_days)}"
+        }
+
+        keepNumberIssues?.setOnPreferenceChangeListener { preference, newValue ->
+            (preference as? EditTextPreference)?.let { editTextPreference ->
+                (newValue as? String)?.let {
+                    if (newValue.toInt() < editTextPreference.text.toInt()) { //check whether new storage limit is smaller, only then check whether number of saved issues is exceeded
+                        issueRepository.getAllDownloadedStubs()?.let { allDownloadedStubs ->
+                            if (allDownloadedStubs.size > newValue.toInt()) {
+                                //delete older issues
+                                var numberDownloadedIssues = allDownloadedStubs.size
+                                while (numberDownloadedIssues > newValue.toInt()) {
+                                    issueRepository.getEarliestDownloadedIssue()?.let {
+                                        issueRepository.delete(it)
+                                        numberDownloadedIssues--
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            true
         }
 
     }
