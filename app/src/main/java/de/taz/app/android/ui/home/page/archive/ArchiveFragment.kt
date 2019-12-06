@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
@@ -68,6 +69,10 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
         val columnWidthDp =
             resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
         return (screenWidthDp / columnWidthDp).toInt()
+    }
+
+    override fun setAuthStatus(authStatus: AuthStatus) {
+        archiveListAdapter.setAuthStatus(authStatus)
     }
 
     override fun setFeeds(feeds: List<Feed>) {

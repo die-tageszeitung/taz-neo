@@ -23,7 +23,7 @@ class MainDataControllerTest {
         mainDataController.observeIssueStub(testLifecycleOwner) {
             called = true
         }
-        mainDataController.setIssueStub(testIssueStub)
+        mainDataController.setIssueOperations(testIssueStub)
 
         assertTrue(called)
     }
@@ -34,7 +34,7 @@ class MainDataControllerTest {
 
         assertEquals(null, mainDataController.getIssueStub())
 
-        mainDataController.setIssueStub(testIssueStub)
+        mainDataController.setIssueOperations(testIssueStub)
 
         assertEquals(testIssueStub, mainDataController.getIssueStub())
     }

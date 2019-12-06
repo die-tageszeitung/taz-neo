@@ -1,38 +1,19 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.main.MainDataController
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.fragment_login.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class LoginFragment :
     BaseMainFragment<LoginContract.Presenter>(),
-    BackFragment {
+    BackFragment, LoginContract.View {
 
     override val presenter = LoginPresenter()
-
-    private val authHelper = AuthHelper.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,71 +27,36 @@ class LoginFragment :
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
+
         fragment_login_login_button.setOnClickListener {
-            web_view_spinner.visibility = View.VISIBLE
-            lifecycleScope.launch(Dispatchers.Default) {
-                authHelper.authTokenInfo.postValue(
-                    ApiService.getInstance().authenticate(
-                        fragment_login_username.text.toString(),
-                        fragment_login_password.text.toString()
-                    )
-                )
-            }
+            login()
         }
 
-        AuthHelper.getInstance().tokenLiveData.observe(viewLifecycleOwner, Observer { token ->
-            if (!token.isNullOrBlank()) {
-                toastHelper.makeToast("logged in")
+        fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    login()
+                    return true
+                }
+                return false
             }
         })
+    }
 
-        if (authHelper.authTokenInfo.value?.authInfo?.status != AuthStatus.valid) {
-            authHelper.authTokenInfo.observe(viewLifecycleOwner, Observer { authTokenInfo ->
-                authTokenInfo?.let {
-                    when (authTokenInfo.authInfo.status) {
-                        AuthStatus.valid -> {
-                            toastHelper.makeToast(R.string.toast_login_successfull)
-                            lifecycleScope.launch(Dispatchers.IO) {
+    private fun login() {
+        presenter.login(
+            fragment_login_username.text.toString(),
+            fragment_login_password.text.toString()
+        )
+        getMainView()?.hideKeyBoard()
+    }
 
-                                issueRepository.deletePublicIssues()
+    override fun showLoadingScreen() {
+        fragment_login_loading_screen.visibility = View.VISIBLE
+    }
 
-                                activity?.let { activity ->
-                                    val issue = ApiService.getInstance().getIssueByFeedAndDate()
-                                    issueRepository.save(issue)
-                                    DownloadService.download(activity.applicationContext, issue)
-
-                                    lifecycleScope.launch {
-                                        lifecycleScope.launch {
-                                            val isDownloadedLiveData =
-                                                issue.isDownloadedLiveData()
-                                            isDownloadedLiveData.observe(
-                                                activity,
-                                                Observer { downloaded ->
-                                                    if (downloaded) {
-                                                        ViewModelProviders.of(activity)
-                                                            .get(MainDataController::class.java)
-                                                            .setIssueStub(IssueStub(issue))
-                                                        toastHelper.makeToast("issue downloaded")
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        AuthStatus.elapsed -> {
-                            toastHelper.makeToast(R.string.toast_login_elapsed)
-                        }
-                        AuthStatus.notValid -> {
-                            toastHelper.makeToast(R.string.toast_login_failed)
-                        }
-                    }
-                    web_view_spinner.visibility = View.GONE
-
-                }
-            })
-        }
+    override fun hideLoadingScreen() {
+        fragment_login_loading_screen.visibility = View.GONE
     }
 
     override fun onBackPressed(): Boolean {

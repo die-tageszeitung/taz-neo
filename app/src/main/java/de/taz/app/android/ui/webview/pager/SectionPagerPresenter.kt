@@ -31,7 +31,7 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
 
     override fun onBackPressed() {
         getView()?.getMainView()?.apply {
-            showFeed()
+            showHome()
         }
     }
 

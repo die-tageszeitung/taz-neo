@@ -11,10 +11,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.home.page.HomePageListAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
@@ -22,7 +22,6 @@ import de.taz.app.android.ui.main.MainDataController
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -31,7 +30,6 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     override val presenter = CoverflowPresenter()
 
     val log by Log
-    private val issueRepository = IssueRepository.getInstance()
 
     private val coverFlowPagerAdapter = HomePageListAdapter(
         this@CoverflowFragment,
@@ -69,6 +67,10 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
         }
     }
 
+    override fun setAuthStatus(authStatus: AuthStatus) {
+        coverFlowPagerAdapter.setAuthStatus(authStatus)
+    }
+
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
     }
@@ -98,9 +100,9 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     inner class CoverFlowOnPageChangeCallback : ViewPager2.OnPageChangeCallback() {
 
         override fun onPageSelected(position: Int) {
-
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                informSideBarOfIssueChange(position)
+
+                getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))
 
                 val visibleItemCount = 3
                 val totalItemCount = coverFlowPagerAdapter.itemCount
@@ -109,19 +111,6 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                     coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
                         presenter.getNextIssueMoments(requestDate)
                     }
-                }
-            }
-
-        }
-
-        @UiThread
-        private fun informSideBarOfIssueChange(position: Int) {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val viewModel = ViewModelProviders.of(requireActivity()).get(
-                    MainDataController::class.java
-                )
-                coverFlowPagerAdapter.getItem(position)?.let { issueStub ->
-                    viewModel.setIssueStub(issueStub)
                 }
             }
 

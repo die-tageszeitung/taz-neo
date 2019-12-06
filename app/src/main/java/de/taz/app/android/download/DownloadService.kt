@@ -1,7 +1,6 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import androidx.lifecycle.Observer
 import androidx.work.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -12,12 +11,10 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
@@ -41,18 +38,23 @@ object DownloadService {
         .connectionPool(ConnectionPool(20, 5, TimeUnit.MINUTES))
         .build()
 
+    private val downloadJobs = Collections.synchronizedList(mutableListOf<Job>())
+
     /**
      * use [ioScope] to download
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
     fun download(appContext: Context, cacheableDownload: CacheableDownload) {
-        if (!cacheableDownload.isDownloadedOrDownloading()) {
-            ioScope.launch {
-                val issue = if (cacheableDownload is Issue) cacheableDownload else null
 
-                val start = System.currentTimeMillis()
-                val downloadId = issue?.let {
+        if (!cacheableDownload.isDownloadedOrDownloading()) {
+
+            var downloadId: String? = null
+            val start: Long = System.currentTimeMillis()
+            val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
+            val job = ioScope.launch {
+                downloadId = issue?.let {
                     apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
                 }
 
@@ -62,29 +64,23 @@ object DownloadService {
                     appContext,
                     cacheableDownload.getAllFiles()
                 )
+            }
 
-                // if it's an issue tell the server we downloaded it
-                issue?.let {
-                    downloadId?.let {
-                        val observer: Observer<Boolean> = object : Observer<Boolean> {
-                            override fun onChanged(downloaded: Boolean) {
-                                if (downloaded) {
-                                    val observer = this
-                                    issue.isDownloadedLiveData().removeObserver(observer)
-                                    val seconds =
-                                        ((System.currentTimeMillis() - start) / 1000).toFloat()
-                                    ioScope.launch {
-                                        apiService.notifyServerOfDownloadStop(
-                                            downloadId,
-                                            seconds
-                                        )
-                                    }
-                                }
-                            }
-                        }
+            downloadJobs.add(job)
 
-                        CoroutineScope(Dispatchers.Main).launch {
-                            issue.isDownloadedLiveData().observeForever(observer)
+            job.invokeOnCompletion { cause ->
+                // remove all jobs
+                downloadJobs.remove(job)
+
+                // tell server we downloaded complete issue
+                if (cause == null && issue != null) {
+                    downloadId?.let { downloadId ->
+                        val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            apiService.notifyServerOfDownloadStop(
+                                downloadId,
+                                seconds
+                            )
                         }
                     }
                 }
@@ -118,7 +114,9 @@ object DownloadService {
      * stop all running jobs on [ioScope]
      */
     fun cancelAllDownloads() {
-        ioScope.cancel()
+        downloadJobs.forEach {
+            it.cancel()
+        }
     }
 
     /**
@@ -147,13 +145,15 @@ object DownloadService {
 
         // create global downloads
         val globalFiles = allFiles.filter { it.storageType == StorageType.global }
-        if(globalFiles.isNotEmpty()) {
-            downloads.addAll(createAndSaveDownloads(
-                appInfoRepository.getOrThrow().globalBaseUrl,
-                GLOBAL_FOLDER,
-                globalFiles,
-                tag
-            ))
+        if (globalFiles.isNotEmpty()) {
+            downloads.addAll(
+                createAndSaveDownloads(
+                    appInfoRepository.getOrThrow().globalBaseUrl,
+                    GLOBAL_FOLDER,
+                    globalFiles,
+                    tag
+                )
+            )
         }
 
         // create resource downloads
@@ -175,12 +175,14 @@ object DownloadService {
         // create issue downloads
         val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
         cacheableDownload.getIssueOperations()?.let { issue ->
-            downloads.addAll(createAndSaveDownloads(
-                issue.baseUrl,
-                issue.tag,
-                issueFiles,
-                tag
-            ))
+            downloads.addAll(
+                createAndSaveDownloads(
+                    issue.baseUrl,
+                    issue.tag,
+                    issueFiles,
+                    tag
+                )
+            )
         }
 
         return downloads

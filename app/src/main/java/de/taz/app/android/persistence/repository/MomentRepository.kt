@@ -51,13 +51,11 @@ class MomentRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        appDatabase.runInTransaction {
-            appDatabase.issueMomentJoinDao().delete(
-                moment.imageList.mapIndexed { index, fileEntry ->
-                    IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
-                }
-            )
-            appDatabase.fileEntryDao().delete(moment.imageList)
-        }
+        appDatabase.issueMomentJoinDao().delete(
+            moment.imageList.mapIndexed { index, fileEntry ->
+                IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+            }
+        )
+        appDatabase.fileEntryDao().delete(moment.imageList)
     }
 }

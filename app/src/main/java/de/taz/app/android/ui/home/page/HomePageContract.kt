@@ -3,6 +3,7 @@ package de.taz.app.android.ui.home.page
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
@@ -14,6 +15,8 @@ interface HomePageContract {
         fun getContext(): Context?
 
         fun onDataSetChanged(issueStubs: List<IssueStub>)
+
+        fun setAuthStatus(authStatus: AuthStatus)
 
         fun setFeeds(feeds: List<Feed>)
 
@@ -34,6 +37,9 @@ interface HomePageContract {
     interface DataController {
 
         fun getIssueStubs(): List<IssueStub>?
+
+        fun observeAuthStatus(lifeCycleOwner: LifecycleOwner, observer: Observer<AuthStatus>)
+        fun observeAuthStatus(lifeCycleOwner: LifecycleOwner, observationCallback: (AuthStatus) -> (Unit))
 
         fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
 

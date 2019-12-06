@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -235,10 +236,14 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     fun delete(issue: Issue) {
         // stop all current downloads
-        //DownloadService.cancelAllDownloads()
+        DownloadService.cancelAllDownloads()
 
         // delete moment
-        momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
+        try {
+            momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
+        } catch (e: SQLiteConstraintException) {
+            // do not delete - used by non/public issue
+        }
 
         // delete imprint
         issue.imprint?.let { imprint ->
