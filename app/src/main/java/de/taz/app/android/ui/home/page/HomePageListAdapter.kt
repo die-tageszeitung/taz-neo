@@ -6,7 +6,9 @@ import androidx.annotation.LayoutRes
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.launch
@@ -25,6 +27,7 @@ class HomePageListAdapter(
     private var allIssueStubList: List<IssueStub> = emptyList()
     private var visibleIssueStubList: List<IssueStub> = emptyList()
 
+    private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
 
@@ -47,8 +50,11 @@ class HomePageListAdapter(
         return getItem(position).hashCode().toLong()
     }
 
-    fun getItemPosition(issueStub: IssueStub): Int {
-        return visibleIssueStubList.indexOf(issueStub)
+    fun setAuthStatus(authStatus: AuthStatus) {
+        if (this.authStatus != authStatus) {
+            this.authStatus = authStatus
+            filterAndSetIssues()
+        }
     }
 
     fun setIssueStubs(issues: List<IssueStub>) {
@@ -59,7 +65,10 @@ class HomePageListAdapter(
     }
 
     private fun filterIssueStubs(): List<IssueStub> {
-        return allIssueStubList.filter { it.feedName !in inactiveFeedNames }
+        val authenticated = authStatus == AuthStatus.valid
+        return allIssueStubList.filter {
+            it.feedName !in inactiveFeedNames && (!authenticated || it.status != IssueStatus.public)
+        }
     }
 
     private fun filterAndSetIssues() {

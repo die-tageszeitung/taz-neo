@@ -53,6 +53,9 @@
             android:id="@+id/fragment_login_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+                android:inputType="text"
+            android:nextFocusForward="@id/fragment_login_password"
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_title" />
 
         <TextView
@@ -70,6 +73,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/fragment_login_password_hint"
             android:inputType="textPassword"
+            android:imeOptions="actionDone"
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_title" />
 
         <Button
@@ -82,7 +86,7 @@
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_password" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_spinner"
+            android:id="@+id/fragment_login_loading_screen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:translationZ="2dp"

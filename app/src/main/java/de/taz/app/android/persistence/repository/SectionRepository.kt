@@ -94,13 +94,13 @@ open class SectionRepository private constructor(applicationContext: Context) :
 
     fun getSectionStubsForIssueOperations(issueOperations: IssueOperations): List<SectionStub> {
         return appDatabase.sectionDao().getSectionsForIssue(
-            issueOperations.feedName, issueOperations.date
+            issueOperations.feedName, issueOperations.date, issueOperations.status
         )
     }
 
     fun getSectionsForIssueOperations(issueOperations: IssueOperations): List<Section> {
         return appDatabase.sectionDao().getSectionsForIssue(
-            issueOperations.feedName, issueOperations.date
+            issueOperations.feedName, issueOperations.date, issueOperations.status
         ).map { sectionStubToSection(it) }
     }
 

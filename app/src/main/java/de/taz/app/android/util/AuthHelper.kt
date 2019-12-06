@@ -1,8 +1,10 @@
 package de.taz.app.android.util
 
 import android.content.Context
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.AuthTokenInfo
 
 const val PREFERENCES_AUTH = "auth"
@@ -28,7 +30,9 @@ class AuthHelper private constructor(applicationContext: Context): ViewModel() {
         ).value ?: ""
 
 
-    var authTokenInfo = MutableLiveData<AuthTokenInfo?>().apply { value = null }
+    val authTokenInfo = MutableLiveData<AuthTokenInfo?>().apply { value = null }
+
+    val authStatus = MediatorLiveData<AuthStatus>()
 
     init {
         authTokenInfo.observeForever { authTokenInfo ->
@@ -36,6 +40,11 @@ class AuthHelper private constructor(applicationContext: Context): ViewModel() {
                 tokenLiveData.postValue(authTokenInfo?.token ?: "")
             }
         }
+
+        authStatus.addSource(authTokenInfo) { authTokenInfo ->
+            authStatus.postValue(authTokenInfo?.authInfo?.status ?: AuthStatus.notValid)
+        }
+
     }
 
 }

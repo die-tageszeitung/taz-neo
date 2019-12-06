@@ -53,7 +53,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-       getMainView()?.getApplicationContext()?.let {applicationContext ->
+       getMainView()?.getApplicationContext()?.let { applicationContext ->
            tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
            tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
        }
@@ -80,7 +80,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun loadUrl(url: String) {
         activity?.runOnUiThread {
-            view?.findViewById<WebView>(R.id.web_view)?.loadUrl(url)
+            view?.findViewById<AppWebView>(R.id.web_view)?.loadUrl(url)
         }
     }
 
@@ -120,6 +120,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun onDestroy() {
         super.onDestroy()
+        web_view?.destroy()
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 }

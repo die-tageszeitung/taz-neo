@@ -23,7 +23,7 @@ class SectionWebViewPresenter : WebViewPresenter<Section>() {
 
     override fun onBackPressed(): Boolean {
         return getView()?.getMainView()?.let {
-            it.showFeed()
+            it.showHome()
             true
         } ?: false
     }
