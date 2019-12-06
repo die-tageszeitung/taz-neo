@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueMomentJoin
@@ -51,11 +52,17 @@ class MomentRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        appDatabase.issueMomentJoinDao().delete(
-            moment.imageList.mapIndexed { index, fileEntry ->
-                IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+        appDatabase.runInTransaction {
+            appDatabase.issueMomentJoinDao().delete(
+                moment.imageList.mapIndexed { index, fileEntry ->
+                    IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+                }
+            )
+            try {
+                appDatabase.fileEntryDao().delete(moment.imageList)
+            } catch (e: SQLiteConstraintException) {
+                // do not delete is used by another issue
             }
-        )
-        appDatabase.fileEntryDao().delete(moment.imageList)
+        }
     }
 }

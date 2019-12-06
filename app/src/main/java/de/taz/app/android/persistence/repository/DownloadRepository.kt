@@ -110,10 +110,12 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(fileName: String) {
-        try {
-            appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))
-        } catch (e: Exception) {
-            // do nothing already deleted
+        appDatabase.runInTransaction {
+            try {
+                appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))
+            } catch (e: Exception) {
+                // do nothing already deleted
+            }
         }
     }
 
