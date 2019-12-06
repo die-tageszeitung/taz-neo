@@ -179,6 +179,16 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getEarliestDownloadedIssue(): Issue? {
+        return getEarliestDownloadedIssueStub()?.let { issueStubToIssue(it) }
+    }
+
+    @UiThread
+    fun getEarliestDownloadedIssueStub(): IssueStub? {
+        return appDatabase.issueDao().getEarliestDownloaded()
+    }
+
+    @UiThread
     fun getImprint(issueOperations: IssueOperations): Article? {
         return getImprint(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
