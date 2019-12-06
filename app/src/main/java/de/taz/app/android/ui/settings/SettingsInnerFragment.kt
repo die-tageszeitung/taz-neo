@@ -2,7 +2,6 @@ package de.taz.app.android.ui.settings
 
 import android.os.Bundle
 import android.text.InputType
-import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.*
 import de.taz.app.android.PREFERENCES_GENERAL
@@ -40,6 +39,11 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
 
         keepNumberIssues?.setOnBindEditTextListener { editText ->
             editText.inputType = InputType.TYPE_CLASS_NUMBER
+        }
+
+        keepNumberIssues?.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
+            val text = preference.text
+           "$text ${resources.getString(R.string.settings_general_keep_number_issues_days)}"
         }
 
     }
