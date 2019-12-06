@@ -69,6 +69,8 @@ class ResourceInfoRepository private constructor(applicationContext: Context): R
     }
 
     fun delete(resourceInfo: ResourceInfo) {
-        appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
+        appDatabase.runInTransaction {
+            appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
+        }
     }
 }

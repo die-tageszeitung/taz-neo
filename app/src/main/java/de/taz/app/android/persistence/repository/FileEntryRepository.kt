@@ -41,7 +41,9 @@ class FileEntryRepository private constructor(
     }
 
     fun delete(fileEntry: FileEntry) {
-        appDatabase.fileEntryDao().delete(fileEntry)
+        appDatabase.runInTransaction {
+            appDatabase.fileEntryDao().delete(fileEntry)
+        }
     }
 
     fun delete(fileEntries: List<FileEntry>) {

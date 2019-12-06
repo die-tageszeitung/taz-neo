@@ -64,16 +64,18 @@ class PageRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(page: Page) {
-        appDatabase.pageDao().delete(
-            PageStub(
-                page.pagePdf.name,
-                page.title,
-                page.pagina,
-                page.type,
-                page.frameList
+        appDatabase.runInTransaction {
+            appDatabase.pageDao().delete(
+                PageStub(
+                    page.pagePdf.name,
+                    page.title,
+                    page.pagina,
+                    page.type,
+                    page.frameList
+                )
             )
-        )
-        fileEntryRepository.delete(page.pagePdf)
+            fileEntryRepository.delete(page.pagePdf)
+        }
     }
 
     fun delete(pages: List<Page>) {

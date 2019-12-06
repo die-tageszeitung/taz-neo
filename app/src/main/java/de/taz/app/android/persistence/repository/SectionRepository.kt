@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -71,14 +70,6 @@ open class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getFirstSectionForIssueStub(issueStub: IssueStub): Section {
-        return sectionStubToSection(
-            appDatabase.issueSectionJoinDao().getFirstSectionForIssue(
-                issueStub.feedName, issueStub.date, issueStub.status
-            )
-        )
-    }
-
     fun getSectionStubForArticle(articleFileName: String): SectionStub? {
         return appDatabase.sectionArticleJoinDao().getSectionStubForArticleFileName(articleFileName)
     }
@@ -96,12 +87,6 @@ open class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getSectionsForIssue(
             issueOperations.feedName, issueOperations.date, issueOperations.status
         )
-    }
-
-    fun getSectionsForIssueOperations(issueOperations: IssueOperations): List<Section> {
-        return appDatabase.sectionDao().getSectionsForIssue(
-            issueOperations.feedName, issueOperations.date, issueOperations.status
-        ).map { sectionStubToSection(it) }
     }
 
     @Throws(NotFoundException::class)
@@ -149,36 +134,40 @@ open class SectionRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(section: Section) {
-        appDatabase.sectionArticleJoinDao().delete(
-            section.articleList.mapIndexed { index, article ->
-                SectionArticleJoin(
-                    section.sectionHtml.name,
-                    article.articleHtml.name,
-                    index
-                )
+        appDatabase.runInTransaction {
+            appDatabase.sectionArticleJoinDao().delete(
+                section.articleList.mapIndexed { index, article ->
+                    SectionArticleJoin(
+                        section.sectionHtml.name,
+                        article.articleHtml.name,
+                        index
+                    )
+                }
+            )
+            section.articleList.forEach { article ->
+                if (!article.bookmarked) {
+                    articleRepository.delete(article)
+                }
             }
-        )
-        section.articleList.forEach { article ->
-            if (!article.bookmarked) {
-                articleRepository.delete(article)
+
+            fileEntryRepository.delete(section.sectionHtml)
+
+            appDatabase.sectionImageJoinDao().delete(
+                section.imageList.mapIndexed { index, fileEntry ->
+                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+                }
+            )
+
+            section.imageList.forEach {
+                try {
+                    fileEntryRepository.delete(it)
+                } catch (e: SQLiteConstraintException) {
+                    // do not delete still used by (presumably bookmarked) article
+                }
             }
+
+            appDatabase.sectionDao().delete(SectionStub(section))
         }
-
-        fileEntryRepository.delete(section.sectionHtml)
-
-        appDatabase.sectionImageJoinDao().delete(
-            section.imageList.mapIndexed { index, fileEntry ->
-                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
-            }
-        )
-
-        try {
-            fileEntryRepository.delete(section.imageList)
-        } catch (e: SQLiteConstraintException) {
-            // do not delete still used by (presumably bookmarked) article
-        }
-
-        appDatabase.sectionDao().delete(SectionStub(section))
     }
 }
 

@@ -228,58 +228,63 @@ open class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(article: Article) {
-        appDatabase.articleDao().get(article.articleFileName)?.let {
-            val articleStub = ArticleStub(article)
-            if (!it.bookmarked) {
-                val articleFileName = article.articleHtml.name
+        appDatabase.runInTransaction {
+            appDatabase.articleDao().get(article.articleFileName)?.let {
+                val articleStub = ArticleStub(article)
+                if (!it.bookmarked) {
+                    val articleFileName = article.articleHtml.name
 
-                // delete authors
-                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
-                    articleFileName
-                ).forEach { articleAuthorImageJoin ->
-                    log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
-                    appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
-                    articleAuthorImageJoin.authorFileName?.let { authorFileName ->
-                        try {
-                            fileEntryRepository.delete(fileEntryRepository.getOrThrow(authorFileName))
-                        } catch (e: SQLiteConstraintException) {
-                            // do nothing as author is still referenced by another article
-                        } catch (e: NotFoundException) {
-                            log.warn("deleted file $authorFileName did not exist!")
+                    // delete authors
+                    appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
+                        articleFileName
+                    ).forEach { articleAuthorImageJoin ->
+                        log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
+                        appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
+                        articleAuthorImageJoin.authorFileName?.let { authorFileName ->
+                            try {
+                                fileEntryRepository.delete(
+                                    fileEntryRepository.getOrThrow(
+                                        authorFileName
+                                    )
+                                )
+                            } catch (e: SQLiteConstraintException) {
+                                // do nothing as author is still referenced by another article
+                            } catch (e: NotFoundException) {
+                                log.warn("deleted file $authorFileName did not exist!")
+                            }
                         }
                     }
-                }
 
-                // delete audioFile and relation
-                article.audioFile?.let { audioFile ->
-                    log.debug("deleting ArticleAudioFile ${audioFile.name}")
-                    appDatabase.articleAudioFileJoinDao().delete(
-                        ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-                    )
-                    fileEntryRepository.delete(audioFile)
-                }
-
-                // delete html file
-                fileEntryRepository.delete(article.articleHtml)
-
-                // delete images and relations
-                article.imageList.forEachIndexed { index, fileEntry ->
-                    appDatabase.articleImageJoinDao().delete(
-                        ArticleImageJoin(articleFileName, fileEntry.name, index)
-                    )
-                    log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
-                    try {
-                        fileEntryRepository.delete(fileEntry)
-                        log.debug("deleted FileEntry of image ${fileEntry.name}")
-                    } catch (e: SQLiteConstraintException) {
-                        // do not delete - still used by section
+                    // delete audioFile and relation
+                    article.audioFile?.let { audioFile ->
+                        log.debug("deleting ArticleAudioFile ${audioFile.name}")
+                        appDatabase.articleAudioFileJoinDao().delete(
+                            ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                        )
+                        fileEntryRepository.delete(audioFile)
                     }
-                }
 
-                log.debug("delete ArticleStub $article")
-                appDatabase.articleDao().delete(articleStub)
+                    // delete html file
+                    fileEntryRepository.delete(article.articleHtml)
+
+                    // delete images and relations
+                    article.imageList.forEachIndexed { index, fileEntry ->
+                        appDatabase.articleImageJoinDao().delete(
+                            ArticleImageJoin(articleFileName, fileEntry.name, index)
+                        )
+                        log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
+                        try {
+                            fileEntryRepository.delete(fileEntry)
+                            log.debug("deleted FileEntry of image ${fileEntry.name}")
+                        } catch (e: SQLiteConstraintException) {
+                            // do not delete - still used by section
+                        }
+                    }
+
+                    log.debug("delete ArticleStub $article")
+                    appDatabase.articleDao().delete(articleStub)
+                }
             }
         }
     }
-
 }
