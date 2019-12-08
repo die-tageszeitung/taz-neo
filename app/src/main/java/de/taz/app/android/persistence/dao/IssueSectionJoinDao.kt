@@ -36,9 +36,10 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
 
     @Query(
         """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin
-            ON IssueSectionJoin.sectionFileName == :sectionName
+            ON IssueSectionJoin.sectionFileName IS :sectionName
             AND Issue.feedName == IssueSectionJoin.issueFeedName
             AND Issue.date == IssueSectionJoin.issueDate
+            AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
     abstract fun getIssueStubForSection(sectionName: String): IssueStub

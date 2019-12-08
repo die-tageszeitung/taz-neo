@@ -182,7 +182,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
-        if (AuthHelper.getInstance().authStatus.value == AuthStatus.valid) {
+        if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
             IssueRepository.getInstance().deletePublicIssues()
         }
     }

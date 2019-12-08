@@ -8,7 +8,7 @@ import de.taz.app.android.util.AuthHelper
 
 class LoginDataController: BaseDataController(), LoginContract.DataController {
 
-    private val authStatus = AuthHelper.getInstance().authStatus
+    private val authStatus = AuthHelper.getInstance().authStatusLiveData
 
     override fun observeAuthStatus(
         lifecycleOwner: LifecycleOwner,
