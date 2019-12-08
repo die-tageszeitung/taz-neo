@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.annotation.UiThread
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.util.SingletonHolder
@@ -12,6 +13,7 @@ class PageRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
+    @UiThread
     fun save(page: Page) {
         appDatabase.runInTransaction {
             appDatabase.pageDao().insertOrReplace(
@@ -27,6 +29,7 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun save(pages: List<Page>) {
         appDatabase.runInTransaction {
             pages.forEach { page ->
@@ -35,10 +38,12 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun getWithoutFile(fileName: String): PageStub? {
         return appDatabase.pageDao().get(fileName)
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Page {
         val pageStub = appDatabase.pageDao().get(fileName)
@@ -55,6 +60,7 @@ class PageRepository private constructor(applicationContext: Context) :
         } ?: throw NotFoundException()
     }
 
+    @UiThread
     fun get(fileName: String): Page? {
         return try {
             getOrThrow(fileName)
@@ -63,6 +69,7 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun delete(page: Page) {
         appDatabase.runInTransaction {
             appDatabase.pageDao().delete(
@@ -78,6 +85,7 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun delete(pages: List<Page>) {
         pages.map { delete(it) }
     }
