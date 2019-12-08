@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import androidx.annotation.UiThread
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -69,6 +70,7 @@ data class Article(
         return articleType == ArticleType.IMPRINT
     }
 
+    @UiThread
     fun getIssueStub(): IssueStub? {
         return if(isImprint()) {
             IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
@@ -77,6 +79,10 @@ data class Article(
         }
     }
 
+    @UiThread
+    fun getIssue(): Issue? {
+        return getIssueStub()?.let { IssueRepository.getInstance().getIssue(it) }
+    }
     override fun getIssueOperations() = getIssueStub()
 
 }
