@@ -81,7 +81,7 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> (val view: WebViewContract.View<
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 ArticleRepository.getInstance().get(url)?.let {
                     showInWebView(it)
-                }
+                } ?: view.loadUrl(url)
             }
         }
     }
