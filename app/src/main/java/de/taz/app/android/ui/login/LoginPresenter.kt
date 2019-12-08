@@ -32,6 +32,7 @@ class LoginPresenter(
                             getMainView()?.showHome()
                         }
                         getMainView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+                            DownloadService.cancelAllDownloads()
                             downloadLatestIssueMoment()
                             deletePublicIssues()
                         }
@@ -61,9 +62,10 @@ class LoginPresenter(
 
     override fun login(username: String, password: String) {
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.Default) {
-            authHelper.authTokenInfo.postValue(
-                apiService.authenticate(username, password)
-            )
+            apiService.authenticate(username, password).let {
+                authHelper.authStatusLiveData.postValue(it.authInfo.status)
+                authHelper.tokenLiveData.postValue(it.token)
+            }
         }
     }
 

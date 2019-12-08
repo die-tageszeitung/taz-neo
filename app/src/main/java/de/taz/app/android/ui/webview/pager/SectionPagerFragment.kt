@@ -14,7 +14,6 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*

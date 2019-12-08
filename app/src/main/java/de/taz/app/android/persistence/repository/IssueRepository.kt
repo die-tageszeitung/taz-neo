@@ -2,23 +2,20 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
-
-    private val log by Log
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
@@ -29,6 +26,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         issues.forEach { save(it) }
     }
 
+    @UiThread
     fun save(issue: Issue) {
         appDatabase.runInTransaction {
 
@@ -85,6 +83,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun exists(issueOperations: IssueOperations): Boolean {
         return getStub(
             issueOperations.feedName,
@@ -93,78 +92,78 @@ open class IssueRepository private constructor(applicationContext: Context) :
         ) != null
     }
 
+    @UiThread
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate, issueStatus)
     }
 
+    @UiThread
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
 
+    @UiThread
     fun getLatestIssue(): Issue? {
         return getLatestIssueStub()?.let { issueStubToIssue(it) }
     }
 
-    fun getLatestIssueStubLiveData(): LiveData<IssueStub?> {
-        return appDatabase.issueDao().getLatestLiveData()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getLatestIssueStubOrThrow(): IssueStub {
-        return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getLatestIssueOrThrow(): Issue {
-        return getLatestIssueStub()?.let { issueStubToIssue(it) } ?: throw NotFoundException()
-    }
-
+    @UiThread
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date, status)
     }
 
+    @UiThread
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }
 
+    @UiThread
     fun getIssueByFeedAndDate(feedName: String, date: String, status: IssueStatus): Issue? {
         return getIssueStubByFeedAndDate(feedName, date, status)?.let {
             issueStubToIssue(it)
         }
     }
 
+    @UiThread
     fun getIssueStubForSection(sectionFileName: String): IssueStub {
         return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
+    @UiThread
     fun getIssueForSection(sectionFileName: String): Issue {
         return issueStubToIssue(getIssueStubForSection(sectionFileName))
     }
 
+    @UiThread
     fun getIssueStubForMoment(moment: Moment): IssueStub {
         return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
     }
 
+    @UiThread
     fun getAllStubsLiveData(): LiveData<List<IssueStub>> {
         return Transformations.map(appDatabase.issueDao().getAllLiveData()) { input ->
             input ?: emptyList()
         }
     }
 
+    @UiThread
     private fun getAllIssuesList(): List<IssueStub> {
         return appDatabase.issueDao().getAllIssueStubs()
     }
 
+    @UiThread
     private fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
         return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
     }
 
+    @UiThread
     fun getAllStubsExceptPublicLiveData(): LiveData<List<IssueStub>> {
         return Transformations.map(appDatabase.issueDao().getAllLiveDataExceptPublic()) { input ->
             input ?: emptyList()
         }
     }
 
+    @UiThread
     fun getImprintStub(
         issueFeedName: String,
         issueDate: String,
@@ -176,10 +175,12 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return imprintName?.let { articleRepository.getStub(it) }
     }
 
+    @UiThread
     fun getImprint(issueOperations: IssueOperations): Article? {
         return getImprint(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
+    @UiThread
     fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Article? {
         val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
@@ -187,6 +188,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         return imprintName?.let { articleRepository.get(it) }
     }
 
+    @UiThread
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
@@ -230,15 +232,14 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     }
 
+    @UiThread
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
     }
 
+    @UiThread
     fun delete(issue: Issue) {
         appDatabase.runInTransaction {
-            // stop all current downloads
-            DownloadService.cancelAllDownloads()
-
             // delete moment
             momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
 
@@ -252,7 +253,11 @@ open class IssueRepository private constructor(applicationContext: Context) :
                         imprint.articleHtml.name
                     )
                 )
-                articleRepository.delete(imprint)
+                try {
+                    articleRepository.delete(imprint)
+                } catch (e: SQLiteConstraintException) {
+                    // do not delete used by another issue
+                }
             }
             // delete page relation
             appDatabase.issuePageJoinDao().delete(
@@ -292,6 +297,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun deletePublicIssues() {
         getIssuesListByStatus(IssueStatus.public).forEach {
             delete(issueStubToIssue(it))

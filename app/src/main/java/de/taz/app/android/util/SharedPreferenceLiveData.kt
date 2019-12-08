@@ -2,6 +2,7 @@ package de.taz.app.android.util
 
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
+import de.taz.app.android.api.models.AuthStatus
 
 abstract class SharedPreferenceLiveData<T>(
     val sharedPreferences: SharedPreferences,
@@ -128,5 +129,24 @@ class SharedPreferenceStringSetLiveData(sharedPrefs: SharedPreferences, key: Str
             commit()
         }
     }
+}
+
+class SharedPreferencesAuthStatusLiveData(
+    sharedPrefs: SharedPreferences, key: String, defValue: AuthStatus
+): SharedPreferenceLiveData<AuthStatus>(sharedPrefs, key, defValue) {
+
+
+    override fun getValueFromPreferences(key: String, defValue: AuthStatus): AuthStatus {
+        val name = sharedPreferences.getString(key, defValue.name)
+        return AuthStatus.valueOf(name ?: defValue.name)
+    }
+
+    override fun saveValueToPreferences(value:AuthStatus) {
+        with (sharedPreferences.edit()) {
+            putString(key, value.name)
+            commit()
+        }
+    }
+
 }
 

@@ -34,7 +34,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     /**
      * authentication status
      */
-    private val authStatus = AuthHelper.getInstance().authStatus
+    private val authStatus = AuthHelper.getInstance().authStatusLiveData
 
     override fun observeAuthStatus(
         lifeCycleOwner: LifecycleOwner,
