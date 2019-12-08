@@ -15,8 +15,7 @@ class ArticlePagerDataController(
 ) : BaseDataController(),
     ArticlePagerContract.DataController {
     override var currentPosition = 0
-    private val articleList =
-        MutableLiveData<List<Article>>(emptyList())
+    private val articleList = MutableLiveData<List<Article>>(emptyList())
 
     override fun setInitialArticle(article: Article) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -24,6 +23,8 @@ class ArticlePagerDataController(
                 val issue = it.getIssue()
                 val articleList = issue.getArticleList()
                 setArticleListAndPosition(articleList, articleList.indexOf(article))
+            } ?: run {
+                setArticleListAndPosition(listOf(article), 0)
             }
         }
     }
