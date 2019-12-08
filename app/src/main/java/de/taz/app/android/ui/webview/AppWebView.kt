@@ -77,13 +77,13 @@ class AppWebView @JvmOverloads constructor(
 
     override fun loadUrl(url: String) {
         log.info("url: $url")
-
-        if (url.startsWith(MAILTO_PREFIX)) {
-            sendMail(url)
+        val decodedUrl = URLDecoder.decode(url, "UTF-8")
+        if (decodedUrl.startsWith(MAILTO_PREFIX)) {
+            sendMail(decodedUrl)
             return
         }
 
-        super.loadUrl(URLDecoder.decode(url, "UTF-8"))
+        super.loadUrl(decodedUrl)
     }
 
 
