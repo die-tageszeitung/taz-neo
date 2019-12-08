@@ -250,7 +250,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
                             } catch (e: NotFoundException) {
-                                log.warn("deleted file $authorFileName did not exist!")
+                                log.warn("tried to delete non-existent file: $authorFileName")
                             }
                         }
                     }
