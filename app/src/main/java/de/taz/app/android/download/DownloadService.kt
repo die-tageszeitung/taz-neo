@@ -111,7 +111,7 @@ object DownloadService {
     }
 
     /**
-     * stop all running jobs on [ioScope]
+     * cancel all running download jobs
      */
     fun cancelAllDownloads() {
         downloadJobs.forEach {
