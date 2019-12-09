@@ -48,7 +48,7 @@ class LoginFragment :
             fragment_login_username.text.toString(),
             fragment_login_password.text.toString()
         )
-        getMainView()?.hideKeyBoard()
+        getMainView()?.hideKeyboard()
     }
 
     override fun showLoadingScreen() {

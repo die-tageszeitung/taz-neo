@@ -216,9 +216,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    override fun hideKeyBoard() {
-        val imm: InputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    override fun hideKeyboard() {
+        val inputMethodManager: InputMethodManager = getSystemService(
+            Activity.INPUT_METHOD_SERVICE
+        ) as InputMethodManager
         val view = currentFocus ?: View(this)
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
