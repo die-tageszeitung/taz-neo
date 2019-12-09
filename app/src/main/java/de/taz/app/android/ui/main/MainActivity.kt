@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
@@ -7,6 +8,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
@@ -15,10 +17,12 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import de.taz.app.android.BuildConfig
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
@@ -28,8 +32,13 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.*
+import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.TazApiCssHelper
+import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(), MainContract.View {
@@ -185,7 +194,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         super.onBackPressed()
     }
 
-    override fun showFeed() {
+    override fun showHome() {
         showMainFragment(HomeFragment())
     }
 
@@ -201,4 +210,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun getMainView(): MainContract.View? = this
 
+    override fun setDrawerIssue(issueOperations: IssueOperations?) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            presenter.viewModel?.setIssueOperations(issueOperations)
+        }
+    }
+
+    override fun hideKeyboard() {
+        val inputMethodManager: InputMethodManager = getSystemService(
+            Activity.INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+        val view = currentFocus ?: View(this)
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 }

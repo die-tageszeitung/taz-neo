@@ -18,8 +18,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import kotlinx.coroutines.*
 import java.net.URLDecoder
 
-const val MAILTO_PREFIX = "mailto:"
-
 class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) : WebViewClient() {
 
     private val log by Log
@@ -28,23 +26,21 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(webView: WebView?, url: String?): Boolean {
-        val handled = if (handleLinks(webView, url)) {
-            createNewFragment(url)
-        } else {
-            handleExternally(webView , url)
-        }
-        return handled || super.shouldOverrideUrlLoading(webView, url)
+        return shouldOverride(webView, url) || super.shouldOverrideUrlLoading(webView, url)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(webView: WebView?, request: WebResourceRequest?): Boolean {
-        val url = URLDecoder.decode(request?.url.toString(), "UTF-8")
-        val handled = if (handleLinks(webView, url)) {
-            createNewFragment(url)
+        return shouldOverride(webView, request?.url.toString()) || super.shouldOverrideUrlLoading(webView, request)
+    }
+
+    private fun shouldOverride(webView: WebView?, url: String?): Boolean {
+        val decodedUrl = URLDecoder.decode(url.toString(), "UTF-8")
+        return if (handleLinks(webView, decodedUrl)) {
+            createNewFragment(decodedUrl)
         } else {
-            handleExternally(webView, url)
+            handleExternally(webView, decodedUrl)
         }
-        return handled || super.shouldOverrideUrlLoading(webView, request)
     }
 
     /** internal links should be handled by the app, external ones - by a web browser
@@ -118,30 +114,10 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
         webView?.let {
             url?.let {
                 log.debug("handling $url externally")
-                if (url.startsWith(MAILTO_PREFIX)) {
-                    sendMail(webView, url)
-                } else {
-                    openInBrowser(webView, url)
-                }
+                openInBrowser(webView, url)
             }
         }
         return true
-    }
-
-    private fun sendMail(webView: WebView, url: String) {
-        val mail = url.replaceFirst(MAILTO_PREFIX, "")
-        log.debug("sending mail to $url")
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse(MAILTO_PREFIX)
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
-        }
-        try {
-            webView.context?.startActivity(intent)
-        }
-        catch (e: Exception) {
-            log.warn("Sending email failed", e)
-            presenter.getView()?.getMainView()?.showToast(R.string.toast_no_email_client)
-        }
     }
 
     private fun openInBrowser(webView: WebView, url: String) {

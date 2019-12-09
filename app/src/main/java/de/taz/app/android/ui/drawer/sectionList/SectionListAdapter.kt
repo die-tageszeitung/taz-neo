@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.moment.MomentView
@@ -18,7 +19,7 @@ import java.util.*
 
 class SectionListAdapter(
     private val fragment: SectionDrawerFragment,
-    private var issueStub: IssueStub? = null
+    private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()
@@ -34,8 +35,8 @@ class SectionListAdapter(
     private var currentJob: Job? = null
     private val observer = MomentDownloadedObserver()
 
-    fun setData(newIssueStub: IssueStub?) {
-        this.issueStub = newIssueStub
+    fun setData(newIssueOperations: IssueOperations?) {
+        this.issueOperations = newIssueOperations
 
         moment?.isDownloadedLiveData()?.removeObserver(observer)
 
@@ -49,7 +50,7 @@ class SectionListAdapter(
     private fun drawIssue() {
         currentJob?.cancel()
         currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
-            issueStub?.let { issueStub ->
+            issueOperations?.let { issueStub ->
 
                 moment = momentRepository.get(issueStub)
                 sectionList.addAll(
@@ -57,7 +58,7 @@ class SectionListAdapter(
                         issueStub
                     )
                 )
-                imprint = issueRepository.getImprint(issueStub.feedName, issueStub.date)
+                imprint = issueRepository.getImprint(issueStub)
             }
             moment?.let ( ::downloadIssueMoment )
 
@@ -104,7 +105,7 @@ class SectionListAdapter(
     inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
         override fun onChanged(isDownloaded: Boolean?) {
             if (isDownloaded == true) {
-                issueStub?.let { issue ->
+                issueOperations?.let { issue ->
                     moment?.isDownloadedLiveData()?.removeObserver(this)
                     setMomentRatio(issue)
                     setMomentImage(issue)
@@ -144,7 +145,7 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentImage(issue: IssueStub) {
+    private fun setMomentImage(issue: IssueOperations) {
         moment?.imageList?.lastOrNull()?.let {
             val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
             if (imgFile.exists()) {
@@ -156,7 +157,7 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentRatio(issue: IssueStub) {
+    private fun setMomentRatio(issue: IssueOperations) {
         fragment.lifecycleScope.launch(Dispatchers.IO) {
             val feed = feedRepository.get(issue.feedName)
             withContext(Dispatchers.Main) {

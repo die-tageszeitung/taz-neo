@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
@@ -17,6 +18,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun save(download: Download) {
         appDatabase.runInTransaction {
@@ -27,6 +29,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun saveIfNotExists(download: Download) {
         appDatabase.runInTransaction {
             appDatabase.fileEntryDao().getByName(download.file.name)?.let {
@@ -40,27 +43,33 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun update(download: Download) {
         appDatabase.downloadDao().update(DownloadStub(download))
     }
 
+    @UiThread
     fun update(downloadStub: DownloadStub) {
         appDatabase.downloadDao().update(downloadStub)
     }
 
+    @UiThread
     fun getWithoutFile(fileName: String): DownloadStub? {
         return appDatabase.downloadDao().get(fileName)
     }
 
+    @UiThread
     fun getWithoutFile(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getWithoutFileOrThrow(fileName: String): DownloadStub {
         return getWithoutFile(fileName) ?: throw NotFoundException()
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Download {
         try {
@@ -76,11 +85,13 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(fileNames: List<String>): List<Download> {
         return fileNames.map { getOrThrow(it) }
     }
 
+    @UiThread
     fun get(fileName: String): Download? {
         return try {
             getOrThrow(fileName)
@@ -89,6 +100,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun setWorkerId(fileName: String, workerID: UUID) {
         appDatabase.runInTransaction {
@@ -99,6 +111,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun setStatus(download: Download, downloadStatus: DownloadStatus) {
         appDatabase.runInTransaction {
@@ -109,18 +122,23 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun delete(fileName: String) {
-        try {
-            appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))
-        } catch (e: Exception) {
-            // do nothing already deleted
+        appDatabase.runInTransaction {
+            try {
+                appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))
+            } catch (e: Exception) {
+                // do nothing already deleted
+            }
         }
     }
 
+    @UiThread
     fun isDownloaded(fileName: String): Boolean {
         return getWithoutFile(fileName)?.status == DownloadStatus.done
     }
 
+    @UiThread
     fun isDownloaded(fileNames: List<String>): Boolean {
         val downloads = getWithoutFile(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
@@ -128,6 +146,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
         } == null
     }
 
+    @UiThread
     fun isDownloadedOrDownloading(fileNames: List<String>): Boolean {
         val downloads = getWithoutFile(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
@@ -135,12 +154,14 @@ class DownloadRepository private constructor(applicationContext: Context) :
         } == null
     }
 
+    @UiThread
     fun getLiveData(fileName: String): LiveData<Boolean> {
         return Transformations.map(appDatabase.downloadDao().getLiveData(fileName)) { input ->
             input?.status == DownloadStatus.done
         }
     }
 
+    @UiThread
     fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
         val mediatorLiveData = MediatorLiveData<Boolean>()
         mediatorLiveData.postValue(false)

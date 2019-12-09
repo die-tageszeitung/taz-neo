@@ -3,10 +3,13 @@ package de.taz.app.android.util
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.api.models.AuthInfo
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.AuthTokenInfo
 
 const val PREFERENCES_AUTH = "auth"
 const val PREFERENCES_AUTH_TOKEN = "token"
+const val PREFERENCES_AUTH_STATUS= "status"
 const val PREFERENCES_AUTH_INSTALLATION_ID = "installation_id"
 
 /**
@@ -27,15 +30,8 @@ class AuthHelper private constructor(applicationContext: Context): ViewModel() {
             preferences, PREFERENCES_AUTH_INSTALLATION_ID, ""
         ).value ?: ""
 
-
-    var authTokenInfo = MutableLiveData<AuthTokenInfo?>().apply { value = null }
-
-    init {
-        authTokenInfo.observeForever { authTokenInfo ->
-            if (!authTokenInfo?.token.isNullOrBlank()) {
-                tokenLiveData.postValue(authTokenInfo?.token ?: "")
-            }
-        }
-    }
+    val authStatusLiveData = SharedPreferencesAuthStatusLiveData(
+        preferences, PREFERENCES_AUTH_STATUS, AuthStatus.notValid
+    )
 
 }

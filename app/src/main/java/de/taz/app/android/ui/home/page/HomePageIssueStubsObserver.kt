@@ -6,7 +6,7 @@ import de.taz.app.android.api.models.IssueStub
 /**
  * HomePageIssuesObserver is used by [HomePagePresenter]
  * to observe [HomePageDataController]'s issueStubList and bitmaps.
- * It updates [HomePageListAdapter]
+ * It updates [HomePageAdapter]
  */
 class HomePageIssueStubsObserver(
     private val homePagePresenter: HomePageContract.Presenter

@@ -7,7 +7,6 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePagerDataController>(
     ArticlePagerDataController::class.java
@@ -41,6 +40,12 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
             localView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 localViewModel.getCurrentSection()?.also {
                     localView.getMainView()?.showInWebView(it)
+                } ?: run {
+                    localViewModel.getArticleList().value?.get(
+                        localViewModel.currentPosition
+                    )?.getIssue()?.sectionList?.first()?.let {
+                        localView.getMainView()?.showInWebView(it)
+                    }
                 }
             }
         }

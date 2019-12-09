@@ -1,6 +1,8 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
+import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -20,10 +22,11 @@ open class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
 
-    open fun save(issues: List<Issue>)  {
+    open fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
     }
 
+    @UiThread
     fun save(issue: Issue) {
         appDatabase.runInTransaction {
 
@@ -37,18 +40,29 @@ open class IssueRepository private constructor(applicationContext: Context) :
             // save page relation
             appDatabase.issuePageJoinDao().insertOrReplace(
                 issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                    IssuePageJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        page.pagePdf.name,
+                        index
+                    )
                 }
             )
 
             // save moment
-            momentRepository.save(issue.moment, issue.feedName, issue.date)
+            momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
 
             // save imprint
             issue.imprint?.let { imprint ->
                 articleRepository.save(imprint)
                 appDatabase.issueImprintJoinDao().insertOrReplace(
-                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                    IssueImprintJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        imprint.articleHtml.name
+                    )
                 )
             }
 
@@ -57,105 +71,143 @@ open class IssueRepository private constructor(applicationContext: Context) :
                 sectionList.forEach { sectionRepository.save(it) }
                 appDatabase.issueSectionJoinDao()
                     .insertOrReplace(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                        IssueSectionJoin(
+                            issue.feedName,
+                            issue.date,
+                            issue.status,
+                            it.sectionHtml.name,
+                            index
+                        )
                     })
             }
         }
     }
 
+    @UiThread
     fun exists(issueOperations: IssueOperations): Boolean {
-        return getStub(issueOperations.feedName, issueOperations.date) != null
+        return getStub(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status
+        ) != null
     }
 
-    fun getStub(issueFeedName: String, issueDate: String): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate)
+    @UiThread
+    fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
     }
 
+    @UiThread
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
 
+    @UiThread
     fun getLatestIssue(): Issue? {
         return getLatestIssueStub()?.let { issueStubToIssue(it) }
     }
 
-    fun getLatestIssueStubLiveData(): LiveData<IssueStub?> {
-        return appDatabase.issueDao().getLatestLiveData()
+    @UiThread
+    fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
     }
 
-    @Throws(NotFoundException::class)
-    fun getLatestIssueStubOrThrow(): IssueStub {
-        return appDatabase.issueDao().getLatest() ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getLatestIssueOrThrow(): Issue {
-        return getLatestIssueStub()?.let { issueStubToIssue(it) } ?: throw NotFoundException()
-    }
-
-    fun getIssueStubByFeedAndDate(feedName: String, date: String): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(feedName, date)
-    }
-
+    @UiThread
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }
 
-    fun getIssueByFeedAndDate(feedName: String, date: String): Issue? {
-        return getIssueStubByFeedAndDate(feedName, date)?.let {
+    @UiThread
+    fun getIssueByFeedAndDate(feedName: String, date: String, status: IssueStatus): Issue? {
+        return getIssueStubByFeedAndDate(feedName, date, status)?.let {
             issueStubToIssue(it)
         }
     }
 
+    @UiThread
     fun getIssueStubForSection(sectionFileName: String): IssueStub {
         return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
+    @UiThread
     fun getIssueForSection(sectionFileName: String): Issue {
         return issueStubToIssue(getIssueStubForSection(sectionFileName))
     }
 
+    @UiThread
     fun getIssueStubForMoment(moment: Moment): IssueStub {
         return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
     }
 
+    @UiThread
     fun getAllStubsLiveData(): LiveData<List<IssueStub>> {
         return Transformations.map(appDatabase.issueDao().getAllLiveData()) { input ->
             input ?: emptyList()
         }
     }
 
-    fun getImprintStub(issueFeedName: String, issueDate: String): ArticleStub? {
+    @UiThread
+    private fun getAllIssuesList(): List<IssueStub> {
+        return appDatabase.issueDao().getAllIssueStubs()
+    }
+
+    @UiThread
+    private fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
+        return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
+    }
+
+    @UiThread
+    fun getAllStubsExceptPublicLiveData(): LiveData<List<IssueStub>> {
+        return Transformations.map(appDatabase.issueDao().getAllLiveDataExceptPublic()) { input ->
+            input ?: emptyList()
+        }
+    }
+
+    @UiThread
+    fun getImprintStub(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): ArticleStub? {
         val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueFeedName, issueDate
+            issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.getStub(it) }
     }
 
-    fun getImprint(issueFeedName: String, issueDate: String): Article? {
+    @UiThread
+    fun getImprint(issueOperations: IssueOperations): Article? {
+        return getImprint(issueOperations.feedName, issueOperations.date, issueOperations.status)
+    }
+
+    @UiThread
+    fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Article? {
         val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueFeedName, issueDate
+            issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
     }
 
+    @UiThread
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
         val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
-            issueStub.feedName, issueStub.date
+            issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
         val moment = Moment(
             appDatabase.issueMomentJoinDao().getMomentFiles(
                 issueStub.feedName,
-                issueStub.date
+                issueStub.date,
+                issueStub.status
             )
         )
 
         val pageList =
-            appDatabase.issuePageJoinDao().getPageNamesForIssue(issueStub.feedName, issueStub.date)
+            appDatabase.issuePageJoinDao()
+                .getPageNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
                 .map {
                     pageRepository.getOrThrow(it)
                 }
@@ -180,29 +232,43 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     }
 
+    @UiThread
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
     }
 
+    @UiThread
     fun delete(issue: Issue) {
         appDatabase.runInTransaction {
-
-            // TODO cancel Downloads
-
             // delete moment
-            momentRepository.delete(issue.moment, issue.feedName, issue.date)
+            momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
 
             // delete imprint
             issue.imprint?.let { imprint ->
                 appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(issue.feedName, issue.date, imprint.articleHtml.name)
+                    IssueImprintJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        imprint.articleHtml.name
+                    )
                 )
-                articleRepository.delete(imprint)
+                try {
+                    articleRepository.delete(imprint)
+                } catch (e: SQLiteConstraintException) {
+                    // do not delete used by another issue
+                }
             }
             // delete page relation
             appDatabase.issuePageJoinDao().delete(
                 issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(issue.feedName, issue.date, page.pagePdf.name, index)
+                    IssuePageJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        page.pagePdf.name,
+                        index
+                    )
                 }
             )
             // delete pages
@@ -212,20 +278,30 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issue.sectionList.let { sectionList ->
                 appDatabase.issueSectionJoinDao()
                     .delete(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(issue.feedName, issue.date, it.sectionHtml.name, index)
+                        IssueSectionJoin(
+                            issue.feedName,
+                            issue.date,
+                            issue.status,
+                            it.sectionHtml.name,
+                            index
+                        )
                     })
                 sectionList.forEach { sectionRepository.delete(it) }
             }
-
 
             appDatabase.issueDao().delete(
                 IssueStub(issue)
             )
 
             // TODO actually delete files! perhaps decide if to keep some
-
         }
     }
 
+    @UiThread
+    fun deletePublicIssues() {
+        getIssuesListByStatus(IssueStatus.public).forEach {
+            delete(issueStubToIssue(it))
+        }
+    }
 
 }

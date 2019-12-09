@@ -12,8 +12,8 @@ class BookmarkSheetDataController : BaseDataController(), BookmarkSheetContract.
 
     private var articleStubLiveData: LiveData<ArticleStub?> = MutableLiveData<ArticleStub?>().apply { postValue(null) }
 
-    override fun setArticleStub(articleName: String) {
-        articleStubLiveData = ArticleRepository.getInstance().getStubLiveData(articleName)
+    override fun setArticleStub(articleFileName: String) {
+        articleStubLiveData = ArticleRepository.getInstance().getStubLiveData(articleFileName)
     }
 
     override fun getArticleStub(): ArticleStub? {

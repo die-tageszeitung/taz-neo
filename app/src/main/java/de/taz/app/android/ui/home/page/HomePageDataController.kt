@@ -1,11 +1,13 @@
 package de.taz.app.android.ui.home.page
 
 import androidx.lifecycle.*
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.util.PreferencesHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
@@ -30,6 +32,24 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     }
 
     /**
+     * authentication status
+     */
+    private val authStatus = AuthHelper.getInstance().authStatusLiveData
+
+    override fun observeAuthStatus(
+        lifeCycleOwner: LifecycleOwner,
+        observer: Observer<AuthStatus>
+    ) {
+        authStatus.observe(lifeCycleOwner, observer)
+    }
+
+    override fun observeAuthStatus(
+        lifeCycleOwner: LifecycleOwner,
+        observationCallback: (AuthStatus) -> Unit
+    ) {
+        authStatus.observe(lifeCycleOwner, Observer(observationCallback))
+    }
+    /**
      * feeds to be used in filtering and endNavigationView
      */
     private val feedsLiveData: LiveData<List<Feed>> =
@@ -41,7 +61,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     ) {
         feedsLiveData.observe(
             lifeCycleOwner,
-            Observer { feeds -> observationCallback.invoke(feeds) }
+            Observer(observationCallback)
         )
     }
 
@@ -58,7 +78,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     ) {
         inactiveFeedNameLiveData.observe(
             lifeCycleOwner,
-            Observer { feeds -> observationCallback.invoke(feeds) }
+            Observer(observationCallback)
         )
     }
 

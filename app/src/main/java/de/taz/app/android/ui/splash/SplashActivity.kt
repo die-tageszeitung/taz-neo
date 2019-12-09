@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
@@ -28,10 +29,12 @@ class SplashActivity : AppCompatActivity() {
 
         createSingletons()
 
-        initLastIssueMoments()
+        initLastIssues()
         initFeedInformation()
         initAppInfo()
         initResources()
+
+        deletePublicIssuesIfLoggedIn()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
@@ -70,7 +73,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private fun initLastIssueMoments() {
+    private fun initLastIssues() {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
@@ -175,6 +178,12 @@ class SplashActivity : AppCompatActivity() {
         val tazApiJsFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
         if (!tazApiJsFile.exists()) {
             tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+        }
+    }
+
+    private fun deletePublicIssuesIfLoggedIn() {
+        if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
+            IssueRepository.getInstance().deletePublicIssues()
         }
     }
 

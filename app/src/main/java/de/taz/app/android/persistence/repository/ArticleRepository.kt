@@ -1,6 +1,8 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
+import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.*
@@ -20,6 +22,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
+    @UiThread
     fun save(article: Article) {
         appDatabase.runInTransaction {
 
@@ -57,19 +60,23 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun getStub(articleName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleName)
     }
 
+    @UiThread
     fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
         return appDatabase.articleDao().getLiveData(articleName)
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
-    fun getStubOrThrow(articleName: String) : ArticleStub {
+    fun getStubOrThrow(articleName: String): ArticleStub {
         return getStub(articleName) ?: throw NotFoundException()
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(articleName: String): Article {
         return appDatabase.articleDao().get(articleName)?.let {
@@ -77,11 +84,13 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         } ?: throw NotFoundException()
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(articleNames: List<String>): List<Article> {
         return articleNames.map { getOrThrow(it) }
     }
 
+    @UiThread
     fun get(articleName: String): Article? {
         return try {
             getOrThrow(articleName)
@@ -90,19 +99,23 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun getLiveData(articleName: String): LiveData<Article?> {
         return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
             input?.let { articleStubToArticle(input) }
         }
     }
 
+    @UiThread
     fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
+    @UiThread
     fun nextArticleStub(article: Article): ArticleStub? = nextArticleStub(article.articleFileName)
 
+    @UiThread
     fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getPreviousArticleStubInPreviousSection(
@@ -110,18 +123,25 @@ open class ArticleRepository private constructor(applicationContext: Context) :
             )
     }
 
-    fun previousArticleStub(article: Article): ArticleStub? = previousArticleStub(article.articleFileName)
+    @UiThread
+    fun previousArticleStub(article: Article): ArticleStub? =
+        previousArticleStub(article.articleFileName)
 
+    @UiThread
     fun nextArticle(articleName: String): Article? =
         nextArticleStub(articleName)?.let { articleStubToArticle(it) }
 
+    @UiThread
     fun nextArticle(article: Article): Article? = nextArticle(article.articleFileName)
 
+    @UiThread
     fun previousArticle(articleName: String): Article? =
         previousArticleStub(articleName)?.let { articleStubToArticle(it) }
 
+    @UiThread
     fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
@@ -161,34 +181,41 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         )
     }
 
+    @UiThread
     fun bookmarkArticle(article: Article) {
         bookmarkArticle(ArticleStub(article))
     }
 
+    @UiThread
     fun bookmarkArticle(articleStub: ArticleStub) {
         log.debug("bookmarked from article ${articleStub.articleFileName}")
         appDatabase.articleDao().update(articleStub.copy(bookmarked = true))
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun bookmarkArticle(articleName: String) {
         bookmarkArticle(getStubOrThrow(articleName))
     }
 
+    @UiThread
     @Throws(NotFoundException::class)
     fun debookmarkArticle(articleName: String) {
         debookmarkArticle(getStubOrThrow(articleName))
     }
 
+    @UiThread
     fun debookmarkArticle(article: Article) {
         debookmarkArticle(ArticleStub(article))
     }
 
+    @UiThread
     fun debookmarkArticle(articleStub: ArticleStub) {
         log.debug("removed bookmark from article ${articleStub.articleFileName}")
         appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
     }
 
+    @UiThread
     fun getBookmarkedArticles(): LiveData<List<Article>> {
         return Transformations.map(appDatabase.articleDao().getBookmarkedArticlesLiveData()) {
             runBlocking(Dispatchers.IO) {
@@ -197,72 +224,99 @@ open class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @UiThread
     fun isBookmarked(article: Article): Boolean {
         return article.bookmarked
     }
 
+    @UiThread
     fun isBookmarked(articleStub: ArticleStub): Boolean {
         return articleStub.bookmarked
     }
 
+    @UiThread
     fun getIndexInSection(articleName: String): Int? {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
     }
 
+    @UiThread
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
 
+    @UiThread
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
         saveScrollingPosition(ArticleStub(article), percentage, position)
     }
 
+    @UiThread
     fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
         val articleStubLive = getStubOrThrow(articleStub.articleFileName)
         if (isBookmarked(articleStubLive)) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
-            appDatabase.articleDao().update(articleStubLive.copy(percentage = percentage, position = position))
+            appDatabase.articleDao()
+                .update(articleStubLive.copy(percentage = percentage, position = position))
         }
 
     }
 
+    @UiThread
     fun delete(article: Article) {
-        appDatabase.articleDao().get(article.articleFileName)?.let {
-            if (!it.bookmarked) {
-                val articleFileName = article.articleHtml.name
+        appDatabase.runInTransaction {
+            appDatabase.articleDao().get(article.articleFileName)?.let {
+                val articleStub = ArticleStub(article)
+                if (!it.bookmarked) {
+                    val articleFileName = article.articleHtml.name
 
-                // delete authors
-                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
-                    articleFileName
-                ).forEach {
-                    appDatabase.articleAuthorImageJoinDao().delete(it)
-                    it.authorFileName?.let { authorFileName ->
-                        fileEntryRepository.delete(fileEntryRepository.getOrThrow(authorFileName))
+                    // delete authors
+                    appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
+                        articleFileName
+                    ).forEach { articleAuthorImageJoin ->
+                        log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
+                        appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
+                        articleAuthorImageJoin.authorFileName?.let { authorFileName ->
+                            try {
+                                fileEntryRepository.delete(
+                                    fileEntryRepository.getOrThrow(
+                                        authorFileName
+                                    )
+                                )
+                            } catch (e: SQLiteConstraintException) {
+                                // do nothing as author is still referenced by another article
+                            } catch (e: NotFoundException) {
+                                log.warn("tried to delete non-existent file: $authorFileName")
+                            }
+                        }
                     }
-                }
 
-                // delete audioFile and relation
-                article.audioFile?.let { audioFile ->
-                    appDatabase.articleAudioFileJoinDao().delete(
-                        ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-                    )
-                    fileEntryRepository.delete(audioFile)
-                }
-
-                // delete html file
-                fileEntryRepository.delete(article.articleHtml)
-
-                // delete images and relations
-                article.imageList.forEachIndexed { index, fileEntry ->
-                    appDatabase.articleImageJoinDao().delete(
-                        ArticleImageJoin(articleFileName, fileEntry.name, index)
-                    )
-                    if (article.getSection()?.imageList?.contains(fileEntry) != true) {
-                        fileEntryRepository.delete(fileEntry)
+                    // delete audioFile and relation
+                    article.audioFile?.let { audioFile ->
+                        log.debug("deleting ArticleAudioFile ${audioFile.name}")
+                        appDatabase.articleAudioFileJoinDao().delete(
+                            ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                        )
+                        fileEntryRepository.delete(audioFile)
                     }
-                }
 
-                appDatabase.articleDao().delete(ArticleStub(article))
+                    // delete html file
+                    fileEntryRepository.delete(article.articleHtml)
+
+                    // delete images and relations
+                    article.imageList.forEachIndexed { index, fileEntry ->
+                        appDatabase.articleImageJoinDao().delete(
+                            ArticleImageJoin(articleFileName, fileEntry.name, index)
+                        )
+                        log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
+                        try {
+                            fileEntryRepository.delete(fileEntry)
+                            log.debug("deleted FileEntry of image ${fileEntry.name}")
+                        } catch (e: SQLiteConstraintException) {
+                            // do not delete - still used by section
+                        }
+                    }
+
+                    log.debug("delete ArticleStub $article")
+                    appDatabase.articleDao().delete(articleStub)
+                }
             }
         }
     }
-
 }
