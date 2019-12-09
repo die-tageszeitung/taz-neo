@@ -69,7 +69,7 @@ object DownloadService {
             downloadJobs.add(job)
 
             job.invokeOnCompletion { cause ->
-                // remove all jobs
+                // remove the job
                 downloadJobs.remove(job)
 
                 // tell server we downloaded complete issue
