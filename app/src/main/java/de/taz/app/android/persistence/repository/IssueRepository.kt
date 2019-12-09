@@ -11,6 +11,9 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -299,8 +302,10 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     @UiThread
     fun deletePublicIssues() {
-        getIssuesListByStatus(IssueStatus.public).forEach {
-            delete(issueStubToIssue(it))
+        CoroutineScope(Dispatchers.IO).launch {
+            getIssuesListByStatus(IssueStatus.public).forEach {
+                delete(issueStubToIssue(it))
+            }
         }
     }
 
