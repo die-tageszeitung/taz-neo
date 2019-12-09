@@ -4,7 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.testArticle
 import de.taz.app.android.ui.main.MainContract
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +37,10 @@ class ArticleWebViewPresenterTest {
     lateinit var mainContractView: MainContract.View
     @Mock
     lateinit var viewModel: WebViewDataController<Article>
+    @Mock
+    lateinit var apiService: ApiService
+    @Mock
+    lateinit var resourceInfoRepository: ResourceInfoRepository
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
@@ -45,7 +51,7 @@ class ArticleWebViewPresenterTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
-        presenter = ArticleWebViewPresenter()
+        presenter = ArticleWebViewPresenter(apiService, resourceInfoRepository)
 
         presenter.attach(webViewContractView)
 

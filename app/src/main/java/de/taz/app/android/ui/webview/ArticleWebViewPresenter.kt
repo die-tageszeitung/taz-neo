@@ -3,14 +3,19 @@ package de.taz.app.android.ui.webview
 import android.view.MenuItem
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ArticleWebViewPresenter : WebViewPresenter<Article>() {
+class ArticleWebViewPresenter(
+    apiService: ApiService = ApiService.getInstance(),
+    resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
+) : WebViewPresenter<Article>(apiService, resourceInfoRepository) {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
