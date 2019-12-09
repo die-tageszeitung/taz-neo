@@ -10,7 +10,7 @@ import de.taz.app.android.api.models.IssueStub
 abstract class IssueDao: BaseDao<IssueStub>() {
 
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
-    abstract fun getByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub?
+    abstract fun getByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): IssueStub?
 
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatest(): IssueStub?

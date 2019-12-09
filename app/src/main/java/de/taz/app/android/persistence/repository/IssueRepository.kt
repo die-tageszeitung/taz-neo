@@ -94,7 +94,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     @UiThread
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(issueFeedName, issueDate, issueStatus)
+        return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
     }
 
     @UiThread
@@ -109,7 +109,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
 
     @UiThread
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
-        return appDatabase.issueDao().getByFeedAndDate(feedName, date, status)
+        return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
     }
 
     @UiThread
