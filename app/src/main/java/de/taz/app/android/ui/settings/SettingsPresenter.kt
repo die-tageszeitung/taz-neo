@@ -18,4 +18,9 @@ class SettingsPresenter : BasePresenter<SettingsOuterFragment, SettingsDataContr
             getView()?.getMainView()?.showMainFragment(HomeFragment())
         }
     }
+
+    override fun onBackPressed(): Boolean {
+        getView()?.getMainView()?.showMainFragment(HomeFragment())
+        return true
+    }
 }
