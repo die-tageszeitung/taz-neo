@@ -121,7 +121,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
                             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                                 displayable.getFile()?.let { file ->
                                     log.debug("file ${file.absolutePath} exists: ${file.exists()}")
-                                    // ?!
                                     getView()?.loadUrl("file://${file.absolutePath}")
                                 }
                             }
