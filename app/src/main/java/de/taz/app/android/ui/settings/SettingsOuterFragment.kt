@@ -8,9 +8,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.ui.BackFragment
 import java.util.*
 
-class SettingsOuterFragment : BaseMainFragment<SettingsContract.Presenter>() {
+class SettingsOuterFragment :
+    BaseMainFragment<SettingsContract.Presenter>(),
+    BackFragment {
 
     override val presenter = SettingsPresenter()
 
@@ -38,5 +41,9 @@ class SettingsOuterFragment : BaseMainFragment<SettingsContract.Presenter>() {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         presenter.onBottomNavigationItemClicked(menuItem)
+    }
+
+    override fun onBackPressed(): Boolean {
+        return presenter.onBackPressed()
     }
 }
