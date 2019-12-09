@@ -1,6 +1,7 @@
 package de.taz.app.android.download
 
 import android.content.Context
+import android.os.AsyncTask
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -87,8 +88,9 @@ class DownloadWorker(val httpClient: OkHttpClient) {
                         } else {
                             log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
                         }
-                    }
-                    log.debug("finished download of ${fromDB.file.name}")
+                        downloadRepository.setStatus(fromDB, DownloadStatus.done)
+                        log.debug("finished download of ${fromDB.file.name}")
+                    } ?: downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                 } catch (e: Exception) {
                     downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                 }
@@ -96,16 +98,15 @@ class DownloadWorker(val httpClient: OkHttpClient) {
                 log.debug("skipping download of ${fromDB.file.name} as it was already finished")
             }
 
-
-            // update download and save
-            // cancel workmanager request if one exists
-            fromDB.workerManagerId?.let {
-                WorkManager.getInstance(appContext).cancelWorkById(it)
+            // cancel workmanager request if downloaded successfully
+            if (fromDB.status == DownloadStatus.done) {
+                fromDB.workerManagerId?.let {
+                    WorkManager.getInstance(appContext).cancelWorkById(it)
+                    log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+                }
                 fromDB.workerManagerId = null
-                log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+                downloadRepository.update(fromDB)
             }
-            fromDB.status = DownloadStatus.done
-            downloadRepository.update(fromDB)
         } ?: log.error("download $fileName not found")
     }
 
