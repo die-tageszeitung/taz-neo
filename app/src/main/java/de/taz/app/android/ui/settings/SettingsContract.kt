@@ -8,6 +8,8 @@ interface SettingsContract {
     interface Presenter: BaseContract.Presenter {
 
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
+
+        fun onBackPressed(): Boolean
     }
 
 }
