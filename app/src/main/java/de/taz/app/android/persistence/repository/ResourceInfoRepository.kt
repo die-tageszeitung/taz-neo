@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
 
-class ResourceInfoRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
+open class ResourceInfoRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
