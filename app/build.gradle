@@ -103,6 +103,8 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:2.2.0"
 
     implementation 'com.squareup.okhttp3:okhttp:4.2.0'
+    implementation 'org.conscrypt:conscrypt-android:2.2.1'
+
     implementation 'com.squareup.moshi:moshi:1.8.0'
 
     implementation 'com.google.android.material:material:1.0.0'
