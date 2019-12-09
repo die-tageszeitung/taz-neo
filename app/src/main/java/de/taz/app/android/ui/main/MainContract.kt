@@ -18,7 +18,7 @@ interface MainContract : BaseContract {
 
         fun getMainDataController(): DataController
 
-        fun hideKeyBoard()
+        fun hideKeyboard()
 
         fun setDrawerIssue(issueOperations: IssueOperations?)
 
