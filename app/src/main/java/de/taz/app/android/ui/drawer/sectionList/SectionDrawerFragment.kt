@@ -32,9 +32,7 @@ class SectionDrawerFragment : Fragment() {
         val viewModel = ViewModelProviders.of(requireActivity()).get(MainDataController::class.java)
 
         viewModel.observeIssueStub(viewLifecycleOwner) { issueStub ->
-            issueStub?.let {
-                recyclerAdapter.setData(issueStub)
-            }
+            recyclerAdapter.setData(issueStub)
         }
 
         fragment_drawer_sections_list.apply {

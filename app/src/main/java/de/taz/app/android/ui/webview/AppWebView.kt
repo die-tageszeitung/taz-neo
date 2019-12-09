@@ -4,14 +4,19 @@ import android.view.MotionEvent
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
 import android.webkit.WebView
 import androidx.core.view.NestedScrollingChild2
 import androidx.core.view.NestedScrollingChildHelper
 import de.taz.app.android.util.Log
+import java.net.URLDecoder
 import kotlin.math.round
 
+
+const val MAILTO_PREFIX = "mailto:"
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
@@ -72,8 +77,26 @@ class AppWebView @JvmOverloads constructor(
 
     override fun loadUrl(url: String) {
         log.info("url: $url")
-        super.loadUrl(url)
+        val decodedUrl = URLDecoder.decode(url, "UTF-8")
+        if (decodedUrl.startsWith(MAILTO_PREFIX)) {
+            sendMail(decodedUrl)
+            return
+        }
+
+        super.loadUrl(decodedUrl)
     }
+
+
+    private fun sendMail(url: String) {
+        val mail = url.replaceFirst(MAILTO_PREFIX, "")
+        log.debug("sending mail to $url")
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse(MAILTO_PREFIX)
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
+        }
+        context?.startActivity(intent)
+    }
+
 
     override fun loadDataWithBaseURL(
         baseUrl: String?,

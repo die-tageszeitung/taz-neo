@@ -12,15 +12,23 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import android.util.Base64
+import androidx.annotation.UiThread
+import androidx.lifecycle.MediatorLiveData
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.TazApiCssHelper
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
 
-abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
+abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
+    private val apiService: ApiService = ApiService.getInstance(),
+    private val resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
+) :
     BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
         WebViewDataController<DISPLAYABLE>().javaClass
     ),
@@ -57,29 +65,70 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
     }
 
     private fun observeFile() {
-        getView()?.let { view ->
-            viewModel?.observeWebViewDisplayable(view.getLifecycleOwner()) { displayable ->
+        getView()?.apply {
+            viewModel?.observeWebViewDisplayable(getLifecycleOwner()) { displayable ->
                 displayable?.let {
-                    ensureDownloadedAndShow(displayable)
+                    getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                        ensureDownloadedAndShow(displayable)
+                    }
                 }
             }
         }
     }
 
-    private fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
-        getView()?.apply {
-            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                if (!displayable.isDownloaded()) {
-                    getMainView()?.getApplicationContext()?.let {
-                        DownloadService.download(it, displayable)
-                    }
+    @UiThread
+    private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
+        val isDisplayableLiveData = MediatorLiveData<Boolean>()
+
+        val resourceInfo = resourceInfoRepository.get() ?: run {
+            apiService.getResourceInfo().let {
+                resourceInfoRepository.save(it)
+                it
+            }
+        }
+
+        getView()?.getMainView()?.getApplicationContext()?.let {
+            DownloadService.download(it, displayable)
+            DownloadService.download(it, resourceInfo)
+        }
+
+        // displayable needs to be downloaded
+        isDisplayableLiveData.addSource(displayable.isDownloadedLiveData()) { isDownloaded ->
+            if (isDownloaded) {
+                isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
+                runBlocking(Dispatchers.IO) {
+                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
                 }
             }
+        }
 
-            displayable.isDownloadedLiveData().observe(
-                getLifecycleOwner(),
-                DisplayableDownloadedObserver(displayable)
-            )
+        // resources need to be downloaded
+        isDisplayableLiveData.addSource(resourceInfo.isDownloadedLiveData()) { isDownloaded ->
+            if (isDownloaded) {
+                isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
+                runBlocking(Dispatchers.IO) {
+                    isDisplayableLiveData.postValue(displayable.isDownloaded())
+                }
+            }
+        }
+
+        getView()?.apply {
+            withContext(Dispatchers.Main) {
+                isDisplayableLiveData.observe(
+                    getLifecycleOwner(),
+                    Observer { isDisplayable ->
+                        if (isDisplayable) {
+                            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                                displayable.getFile()?.let { file ->
+                                    log.debug("file ${file.absolutePath} exists: ${file.exists()}")
+                                    // ?!
+                                    getView()?.loadUrl("file://${file.absolutePath}")
+                                }
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -103,7 +152,8 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         val cssString = tazApiCssHelper.generateCssString(sharedPreferences)
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
-        getView()?.getWebView()?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
+        getView()?.getWebView()
+            ?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
     }
 
     override fun onScrollStarted() {
@@ -116,20 +166,4 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable> :
         return false
     }
 
-    private inner class DisplayableDownloadedObserver(
-        private val displayable: DISPLAYABLE
-    ) : Observer<Boolean> {
-        override fun onChanged(isDownloaded: Boolean?) {
-            if (isDownloaded == true) {
-                displayable.isDownloadedLiveData().removeObserver(this)
-                getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-                    displayable.getFile()?.let { file ->
-                        withContext(Dispatchers.Main) {
-                            getView()?.loadUrl("file://${file.absolutePath}")
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

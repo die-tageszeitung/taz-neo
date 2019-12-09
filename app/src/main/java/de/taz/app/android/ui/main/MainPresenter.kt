@@ -16,13 +16,13 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
         getView()?.apply {
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 IssueRepository.getInstance().getLatestIssueStub()?.let { issueStub ->
-                    viewModel?.setIssueStub(issueStub)
+                    viewModel?.setIssueOperations(issueStub)
                 }
             }
             // only show archive if created in the beginning else show current fragment
             if (savedInstanceState == null) {
                 showDrawerFragment(SectionDrawerFragment())
-                showFeed()
+                showHome()
             }
         }
     }

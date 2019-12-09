@@ -40,6 +40,9 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                     observeInactiveFeedNames(it) { feedNames ->
                         view.setInactiveFeedNames(feedNames)
                     }
+                    observeAuthStatus(it) { authStatus ->
+                        view.setAuthStatus(authStatus)
+                    }
                 }
             }
         }
@@ -60,7 +63,7 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                     }
 
                     // set main issue
-                    getMainDataController().setIssueStub(issueStub)
+                    getMainDataController().setIssueOperations(issueStub)
 
                     issue.sectionList.first().let { firstSection ->
                         showInWebView(firstSection)

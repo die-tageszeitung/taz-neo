@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.dao
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.join.IssueMomentJoin
 
@@ -14,10 +15,11 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
         """SELECT FileEntry.*FROM FileEntry INNER JOIN IssueMomentJoin
         ON FileEntry.name == IssueMomentJoin.momentFileName
         WHERE  IssueMomentJoin.issueDate == :date AND IssueMomentJoin.issueFeedName == :feedName
+            AND IssueMomentJoin.issueStatus == :status
         ORDER BY IssueMomentJoin.`index` ASC
         """
     )
-    abstract fun getMomentFiles(feedName: String, date: String): List<FileEntry>
+    abstract fun getMomentFiles(feedName: String, date: String, status: IssueStatus): List<FileEntry>
 
 
     @Query(

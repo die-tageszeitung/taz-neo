@@ -1,30 +1,19 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.ui.main.MainDataController
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.ui.BackFragment
 import kotlinx.android.synthetic.main.fragment_login.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class LoginFragment : Fragment() {
+class LoginFragment :
+    BaseMainFragment<LoginContract.Presenter>(),
+    BackFragment, LoginContract.View {
 
-    private val authHelper = AuthHelper.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
+    override val presenter = LoginPresenter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,46 +25,46 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        presenter.attach(this)
+        presenter.onViewCreated(savedInstanceState)
+
         fragment_login_login_button.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.Default) {
-                authHelper.authTokenInfo.postValue(
-                    ApiService.getInstance().authenticate(
-                        fragment_login_username.text.toString(),
-                        fragment_login_password.text.toString()
-                    )
-                )
-            }
+            login()
         }
 
-        AuthHelper.getInstance().tokenLiveData.observe(viewLifecycleOwner, Observer { token ->
-            if (!token.isNullOrBlank()) {
-                toastHelper.makeToast("logged in")
+        fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    login()
+                    return true
+                }
+                return false
             }
         })
+    }
 
-        if (authHelper.authTokenInfo.value?.authInfo?.status != AuthStatus.valid) {
-            authHelper.authTokenInfo.observe(viewLifecycleOwner, Observer { authTokenInfo ->
-                authTokenInfo?.let {
-                    when (authTokenInfo.authInfo.status) {
-                        AuthStatus.valid -> {
-                            toastHelper.makeToast(R.string.toast_login_successfull)
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                issueRepository.getLatestIssue()?.let { latestIssue ->
-                                   issueRepository.delete(latestIssue)
-                                }
-                            }
-                        }
-                        AuthStatus.elapsed -> {
-                            toastHelper.makeToast(R.string.toast_login_elapsed)
-                        }
-                        AuthStatus.notValid -> {
-                            toastHelper.makeToast(R.string.toast_login_failed)
-                        }
-                    }
+    private fun login() {
+        presenter.login(
+            fragment_login_username.text.toString(),
+            fragment_login_password.text.toString()
+        )
+        getMainView()?.hideKeyboard()
+    }
 
-                }
-            })
-        }
+    override fun showLoadingScreen() {
+        fragment_login_loading_screen.visibility = View.VISIBLE
+    }
+
+    override fun hideLoadingScreen() {
+        fragment_login_loading_screen.visibility = View.GONE
+    }
+
+    override fun onBackPressed(): Boolean {
+        return presenter.onBackPressed()
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 
 }
