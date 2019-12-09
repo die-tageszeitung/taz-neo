@@ -138,7 +138,9 @@ class SectionListAdapter(
                     lifecycleScope.launch(Dispatchers.IO) {
                         val section = sectionRepository.sectionStubToSection(sectionStub)
                         showInWebView(section)
-                        closeDrawer()
+                        withContext(Dispatchers.Main) {
+                            closeDrawer()
+                        }
                     }
                 }
             }
