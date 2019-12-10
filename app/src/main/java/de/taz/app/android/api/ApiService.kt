@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.R
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
@@ -14,6 +15,7 @@ import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
+import de.taz.app.android.util.ToastHelper
 import java.net.SocketTimeoutException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -50,7 +52,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.WrongDataException::class
     )
     suspend fun authenticate(user: String, password: String): AuthTokenInfo {
-        return catchExceptions({
+        return transformExceptions({
             graphQlClient.query(
                 QueryType.AuthenticationQuery,
                 AuthenticationVariables(user, password)
@@ -68,7 +70,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.WrongDataException::class
     )
     suspend fun getAppInfo(): AppInfo {
-        return catchExceptions(
+        return transformExceptions(
             { AppInfo(graphQlClient.query(QueryType.AppInfoQuery).product!!) },
             "getAppInfo"
         )
@@ -84,7 +86,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.WrongDataException::class
     )
     suspend fun getAuthInfo(): AuthInfo {
-        return catchExceptions(
+        return transformExceptions(
             { graphQlClient.query(QueryType.AuthInfoQuery).product!!.authInfo!! },
             "getAuthInfo"
         )
@@ -101,7 +103,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.WrongDataException::class
     )
     open suspend fun getFeeds(): List<Feed> {
-        return catchExceptions(
+        return transformExceptions(
             {
                 graphQlClient.query(QueryType.FeedQuery).product!!.feedList?.map {
                     Feed(it)
@@ -126,7 +128,7 @@ open class ApiService private constructor(applicationContext: Context) {
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
     ): Issue {
-        return catchExceptions({
+        return transformExceptions({
             getIssuesByFeedAndDate(feedName, issueDate, 1).first()
         }, "getIssueByFeedAndDate")
     }
@@ -146,7 +148,7 @@ open class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
-        return catchExceptions({
+        return transformExceptions({
             val issues = mutableListOf<Issue>()
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
@@ -175,7 +177,7 @@ open class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 2
     ): List<Issue> {
-        return catchExceptions({
+        return transformExceptions({
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 IssueVariables(feedName, issueDate, limit)
@@ -193,7 +195,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.WrongDataException::class
     )
     suspend fun getResourceInfo(): ResourceInfo {
-        return catchExceptions(
+        return transformExceptions(
             { ResourceInfo(graphQlClient.query(QueryType.ResourceInfoQuery).product!!) },
             "getResourceInfo"
         )
@@ -215,7 +217,7 @@ open class ApiService private constructor(applicationContext: Context) {
         deviceFormat: DeviceFormat = DeviceFormat.mobile,
         deviceType: DeviceType = DeviceType.android
     ): String {
-        return catchExceptions(
+        return transformExceptions(
             {
                 val data = graphQlClient.query(
                     QueryType.DownloadStart,
@@ -248,7 +250,7 @@ open class ApiService private constructor(applicationContext: Context) {
         id: String,
         time: Float
     ): Boolean {
-        return catchExceptions(
+        return transformExceptions(
             {
                 log.debug("Notifying server that download complete. ID: $id")
                 graphQlClient.query(
@@ -265,7 +267,7 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class,
         ApiServiceException.WrongDataException::class
     )
-    private suspend fun <T> catchExceptions(block: suspend () -> T, tag: String): T {
+    private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T {
         return try {
             block()
         } catch (npe: NullPointerException) {
@@ -280,7 +282,6 @@ open class ApiService private constructor(applicationContext: Context) {
             throw ApiServiceException.WrongDataException()
         }
     }
-
 
     object ApiServiceException {
         class InsufficientDataException(function: String) :

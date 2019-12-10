@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import android.util.Base64
 import androidx.annotation.UiThread
 import androidx.lifecycle.MediatorLiveData
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
@@ -81,52 +82,66 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
         val isDisplayableLiveData = MediatorLiveData<Boolean>()
 
         val resourceInfo = resourceInfoRepository.get() ?: run {
-            apiService.getResourceInfo().let {
-                resourceInfoRepository.save(it)
-                it
+            try {
+                apiService.getResourceInfo().let {
+                    resourceInfoRepository.save(it)
+                    it
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
+                null
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+                null
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+                null
             }
         }
 
-        getView()?.getMainView()?.getApplicationContext()?.let {
-            DownloadService.download(it, displayable)
-            DownloadService.download(it, resourceInfo)
-        }
+        resourceInfo?.let {
 
-        // displayable needs to be downloaded
-        isDisplayableLiveData.addSource(displayable.isDownloadedLiveData()) { isDownloaded ->
-            if (isDownloaded) {
-                isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
-                runBlocking(Dispatchers.IO) {
-                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+            getView()?.getMainView()?.getApplicationContext()?.let {
+                DownloadService.download(it, displayable)
+                DownloadService.download(it, resourceInfo)
+            }
+
+            // displayable needs to be downloaded
+            isDisplayableLiveData.addSource(displayable.isDownloadedLiveData()) { isDownloaded ->
+                if (isDownloaded) {
+                    isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
+                    runBlocking(Dispatchers.IO) {
+                        isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+                    }
                 }
             }
-        }
 
-        // resources need to be downloaded
-        isDisplayableLiveData.addSource(resourceInfo.isDownloadedLiveData()) { isDownloaded ->
-            if (isDownloaded) {
-                isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
-                runBlocking(Dispatchers.IO) {
-                    isDisplayableLiveData.postValue(displayable.isDownloaded())
+            // resources need to be downloaded
+            isDisplayableLiveData.addSource(resourceInfo.isDownloadedLiveData()) { isDownloaded ->
+                if (isDownloaded) {
+                    isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
+                    runBlocking(Dispatchers.IO) {
+                        isDisplayableLiveData.postValue(displayable.isDownloaded())
+                    }
                 }
             }
-        }
 
-        getView()?.apply {
-            withContext(Dispatchers.Main) {
-                isDisplayableLiveData.observe(
-                    getLifecycleOwner(),
-                    Observer { isDisplayable ->
-                        if (isDisplayable) {
-                            getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                                displayable.getFile()?.let { file ->
-                                    log.debug("file ${file.absolutePath} exists: ${file.exists()}")
-                                    getView()?.loadUrl("file://${file.absolutePath}")
+            getView()?.apply {
+                withContext(Dispatchers.Main) {
+                    isDisplayableLiveData.observe(
+                        getLifecycleOwner(),
+                        Observer { isDisplayable ->
+                            if (isDisplayable) {
+                                getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                                    displayable.getFile()?.let { file ->
+                                        log.debug("file ${file.absolutePath} exists: ${file.exists()}")
+                                        getView()?.loadUrl("file://${file.absolutePath}")
+                                    }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
