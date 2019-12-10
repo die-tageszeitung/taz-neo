@@ -64,7 +64,7 @@ class LoginPresenter(
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.Default) {
             apiService.authenticate(username, password).let {
                 authHelper.authStatusLiveData.postValue(it.authInfo.status)
-                authHelper.tokenLiveData.postValue(it.token)
+                authHelper.tokenLiveData.postValue(it.token ?: "")
             }
         }
     }
