@@ -3,6 +3,7 @@ package de.taz.app.android.ui.settings
 import android.os.Bundle
 import android.text.InputType
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -11,6 +12,8 @@ import de.taz.app.android.base.BaseContract
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.main.MainContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
@@ -52,14 +55,16 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
             (preference as? EditTextPreference)?.let { editTextPreference ->
                 (newValue as? String)?.let {
                     if (newValue.toInt() < editTextPreference.text.toInt()) { //check whether new storage limit is smaller, only then check whether number of saved issues is exceeded
-                        issueRepository.getAllDownloadedStubs()?.let { allDownloadedStubs ->
-                            if (allDownloadedStubs.size > newValue.toInt()) {
-                                //delete older issues
-                                var numberDownloadedIssues = allDownloadedStubs.size
-                                while (numberDownloadedIssues > newValue.toInt()) {
-                                    issueRepository.getEarliestDownloadedIssue()?.let {
-                                        issueRepository.delete(it)
-                                        numberDownloadedIssues--
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            issueRepository.getAllDownloadedStubs()?.let { allDownloadedStubs ->
+                                if (allDownloadedStubs.size > newValue.toInt()) {
+                                    //delete older issues
+                                    var numberDownloadedIssues = allDownloadedStubs.size
+                                    while (numberDownloadedIssues > newValue.toInt()) {
+                                        issueRepository.getEarliestDownloadedIssue()?.let {
+                                            issueRepository.delete(it)
+                                            numberDownloadedIssues--
+                                        }
                                     }
                                 }
                             }
