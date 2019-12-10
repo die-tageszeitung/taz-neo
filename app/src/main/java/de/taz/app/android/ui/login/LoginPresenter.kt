@@ -62,9 +62,17 @@ class LoginPresenter(
 
     override fun login(username: String, password: String) {
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.Default) {
-            apiService.authenticate(username, password).let {
-                authHelper.authStatusLiveData.postValue(it.authInfo.status)
-                authHelper.tokenLiveData.postValue(it.token ?: "")
+            try {
+                apiService.authenticate(username, password).let {
+                    authHelper.authStatusLiveData.postValue(it.authInfo.status)
+                    authHelper.tokenLiveData.postValue(it.token ?: "")
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
+            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+            } catch (e: ApiService.ApiServiceException.WrongDataException) {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
             }
         }
     }

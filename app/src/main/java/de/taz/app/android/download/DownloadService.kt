@@ -2,6 +2,7 @@ package de.taz.app.android.download
 
 import android.content.Context
 import androidx.work.*
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.StorageType
@@ -11,6 +12,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -25,6 +27,7 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 const val GLOBAL_FOLDER = "global"
 const val RESOURCE_FOLDER = "resources"
 
+const val CAUSE_NO_INTERNET = "no internet"
 
 object DownloadService {
 
@@ -54,8 +57,12 @@ object DownloadService {
             val issue = if (cacheableDownload is Issue) cacheableDownload else null
 
             val job = ioScope.launch {
-                downloadId = issue?.let {
-                    apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                try {
+                    downloadId = issue?.let {
+                        apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                    }
+                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                    this.cancel(CAUSE_NO_INTERNET, e)
                 }
 
                 createDownloadsForCacheableDownload(appContext, cacheableDownload)
@@ -77,11 +84,19 @@ object DownloadService {
                     downloadId?.let { downloadId ->
                         val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
                         CoroutineScope(Dispatchers.IO).launch {
+                            try {
                             apiService.notifyServerOfDownloadStop(
                                 downloadId,
                                 seconds
                             )
+                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                // do not tell server we downloaded as we do not have internet
+                            }
                         }
+                    }
+                } else {
+                    if (cause is ApiService.ApiServiceException.NoInternetException) {
+                        ToastHelper.getInstance(appContext).makeToast(R.string.toast_no_internet)
                     }
                 }
             }
