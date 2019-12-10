@@ -35,6 +35,11 @@ class SectionDrawerFragment : Fragment() {
             recyclerAdapter.setData(issueStub)
         }
 
+        fragment_drawer_sections_moment.setOnClickListener {
+            getMainView()?.showHome()
+            getMainView()?.closeDrawer()
+        }
+
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
