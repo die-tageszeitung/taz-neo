@@ -167,6 +167,11 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getAllDownloadedStubs(): List<IssueStub>? {
+        return appDatabase.issueDao().getAllDownloaded()
+    }
+
+    @UiThread
     fun getImprintStub(
         issueFeedName: String,
         issueDate: String,
@@ -177,6 +182,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         )
         return imprintName?.let { articleRepository.getStub(it) }
     }
+
 
     @UiThread
     fun getEarliestDownloadedIssue(): Issue? {
