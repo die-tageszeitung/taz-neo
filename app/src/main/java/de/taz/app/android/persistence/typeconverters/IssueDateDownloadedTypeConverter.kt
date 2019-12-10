@@ -5,16 +5,16 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class IssueDateDownloadedTypeConverter {
+class IssueDateDownloadTypeConverter {
     private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     @TypeConverter
-    fun toString(issueDateDownloaded: Date): String {
-        return simpleDateFormat.format(issueDateDownloaded)
+    fun toString(issueDateDownload: Date): String {
+        return simpleDateFormat.format(issueDateDownload)
     }
 
     @TypeConverter
-    fun toIssueDateDownloaded(value: String): Date {
+    fun toIssueDateDownload(value: String): Date? {
         return simpleDateFormat.parse(value) ?: Date()
     }
 }

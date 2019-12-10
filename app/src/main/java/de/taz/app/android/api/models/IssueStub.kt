@@ -23,13 +23,13 @@ data class IssueStub(
     val navButton: NavButton? = null,
     val fileList: List<String>,
     val fileListPdf: List<String> = emptyList(),
-    override var dateDownloaded: Date? = null
+    override val dateDownload: Date = Date()
 ): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
         issue.minResourceVersion, issue.zipName, issue.zipPdfName,
-        issue.navButton, issue.fileList, issue.fileListPdf, issue.dateDownloaded
+        issue.navButton, issue.fileList, issue.fileListPdf, issue.dateDownload
     )
 
     suspend fun getIssue(): Issue {
