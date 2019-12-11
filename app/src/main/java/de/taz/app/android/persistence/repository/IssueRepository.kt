@@ -227,6 +227,18 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun resetDownloadDate(issue: Issue) {
+        resetDownloadDate(IssueStub(issue))
+    }
+
+    @UiThread
+    fun resetDownloadDate(issueStub: IssueStub) {
+        appDatabase.runInTransaction {
+            update(issueStub.copy(dateDownload = null))
+        }
+    }
+
+    @UiThread
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }

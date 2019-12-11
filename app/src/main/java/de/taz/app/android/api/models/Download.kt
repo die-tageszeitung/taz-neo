@@ -26,5 +26,6 @@ enum class DownloadStatus {
     aborted,
     done,
     started,
-    pending
+    pending,
+    deleted
 }
