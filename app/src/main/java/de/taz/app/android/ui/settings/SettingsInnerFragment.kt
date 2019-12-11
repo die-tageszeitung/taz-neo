@@ -62,7 +62,7 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
                                     var numberDownloadedIssues = allDownloadedStubs.size
                                     while (numberDownloadedIssues > newValue.toInt()) {
                                         issueRepository.getEarliestDownloadedIssue()?.let {
-                                            issueRepository.delete(it)
+                                            it.deleteFiles()
                                             numberDownloadedIssues--
                                         }
                                     }

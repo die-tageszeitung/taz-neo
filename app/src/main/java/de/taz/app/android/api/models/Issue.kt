@@ -5,10 +5,12 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.util.FileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
 import java.util.*
 
 data class Issue(
@@ -87,6 +89,66 @@ data class Issue(
         return articleList
     }
 
+    fun deleteFiles() {
+        val appDatabase = AppDatabase.getInstance()
+        val fileHelper = FileHelper.getInstance()
+        val downloadRepository = DownloadRepository.getInstance()
+
+        // set status for associated downloads to deleted
+
+
+        // delete all associated file entries (without moment)
+        // delete imprint
+       imprint?.let { imprint ->
+           val download = downloadRepository.getOrThrow(imprint.articleFileName)
+           downloadRepository.setStatus(download, DownloadStatus.deleted)
+           fileHelper.deleteFileFromFileSystem(imprint.articleHtml.name)
+        }
+
+        // delete pages
+        pageList.map { page ->
+            val download = downloadRepository.getOrThrow(page.pagePdf.name)
+            downloadRepository.setStatus(download, DownloadStatus.deleted)
+            fileHelper.deleteFileFromFileSystem(page.pagePdf.name)
+        }
+
+        // delete sections
+        sectionList.map { section ->
+            val download = downloadRepository.getOrThrow(section.sectionHtml.name) //what's the difference betweeen sectionHtml.name and sectionFileName?
+            downloadRepository.setStatus(download, DownloadStatus.deleted)
+            fileHelper.deleteFileFromFileSystem(section.sectionHtml.name)
+        }
+
+        // delete articles
+        getArticleList().map { article ->
+            if (!article.bookmarked) {
+                //delete audio files
+                article.audioFile?.let { audioFile ->
+                    val download = downloadRepository.getOrThrow(audioFile.name)
+                    downloadRepository.setStatus(download, DownloadStatus.deleted)
+                    fileHelper.deleteFileFromFileSystem(audioFile.name)
+                }
+                // delete authors
+                // how to make sure they are not used somewhere else?
+
+                // delete images
+                article.imageList.map { image ->
+                    val download = downloadRepository.getOrThrow(image.name)
+                    downloadRepository.setStatus(download, DownloadStatus.deleted)
+                    fileHelper.deleteFileFromFileSystem(image.name)
+
+                }
+
+                val download = downloadRepository.getOrThrow(article.articleFileName)
+                downloadRepository.setStatus(download, DownloadStatus.deleted)
+                fileHelper.deleteFileFromFileSystem(article.articleFileName)
+            }
+        }
+
+        // set dateDownload = null
+        IssueRepository.getInstance().resetDownloadDate(this)
+    }
+
 }
 
 enum class IssueStatus {
@@ -97,5 +159,5 @@ enum class IssueStatus {
 }
 
 enum class ArticleType {
-   STANDARD, IMPRINT;
+    STANDARD, IMPRINT;
 }
