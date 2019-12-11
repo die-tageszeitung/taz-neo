@@ -14,6 +14,7 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -93,6 +94,11 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueOperations.date,
             issueOperations.status
         ) != null
+    }
+
+    @UiThread
+    fun update(issueStub: IssueStub) {
+        appDatabase.issueDao().update(issueStub)
     }
 
     @UiThread
@@ -205,6 +211,19 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
+    }
+
+    @UiThread
+    fun setDownloadDate(issue: Issue, dateDownload: Date) {
+        setDownloadDate(IssueStub(issue), dateDownload)
+    }
+
+    @UiThread
+    fun setDownloadDate(issueStub: IssueStub, dateDownload: Date){
+        appDatabase.runInTransaction {
+            update(issueStub.copy(dateDownload = dateDownload))
+        }
+
     }
 
     @UiThread

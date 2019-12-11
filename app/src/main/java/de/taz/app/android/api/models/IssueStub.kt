@@ -23,7 +23,7 @@ data class IssueStub(
     val navButton: NavButton? = null,
     val fileList: List<String>,
     val fileListPdf: List<String> = emptyList(),
-    override val dateDownload: Date = Date()
+    override val dateDownload: Date? = null
 ): IssueOperations {
 
     constructor(issue: Issue): this (
