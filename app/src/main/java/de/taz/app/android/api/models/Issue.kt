@@ -27,7 +27,7 @@ data class Issue(
     val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
-    override val dateDownload: Date = Date()
+    override val dateDownload: Date? = null
 ) : IssueOperations, CacheableDownload {
 
     constructor(feedName: String, issueDto: IssueDto) : this(

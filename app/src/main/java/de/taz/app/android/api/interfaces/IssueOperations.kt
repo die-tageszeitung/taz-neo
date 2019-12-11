@@ -9,7 +9,7 @@ interface IssueOperations {
     val feedName: String
     val date: String
     val status: IssueStatus
-    val dateDownload: Date
+    val dateDownload: Date?
 
     val tag: String
         get() = "$feedName/$date"
