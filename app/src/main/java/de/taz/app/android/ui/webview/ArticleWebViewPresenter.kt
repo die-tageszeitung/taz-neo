@@ -6,7 +6,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
@@ -25,26 +24,12 @@ class ArticleWebViewPresenter(
                 getView()?.getMainView()?.showMainFragment(HomeFragment())
 
             R.id.bottom_navigation_action_bookmark ->
-                getView()?.let { view ->
-                    val articleRepository = ArticleRepository.getInstance()
-                    if (view.isPermanentlyActive(R.id.bottom_navigation_action_bookmark)) {
-                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                            webViewDisplayable?.let {
-                                articleRepository.debookmarkArticle(webViewDisplayable)
-                            }
-                        }
-                        view.unsetPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                        view.setIconInactive(R.id.bottom_navigation_action_bookmark)
+                getView()?.apply {
+                    if (isBottomSheetVisible()) {
+                        hideBottomSheet()
                     } else {
-                        view.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                            webViewDisplayable?.let {
-                                articleRepository.bookmarkArticle(webViewDisplayable)
-                            }
-                        }
-                        view.setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-                        view.setIconActive(R.id.bottom_navigation_action_bookmark)
+                        showBookmarkBottomSheet()
                     }
-                    getView()?.showBookmarkBottomSheet()
                 }
 
             R.id.bottom_navigation_action_share ->
