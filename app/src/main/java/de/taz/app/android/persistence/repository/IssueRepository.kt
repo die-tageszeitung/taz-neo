@@ -96,6 +96,17 @@ open class IssueRepository private constructor(applicationContext: Context) :
         ) != null
     }
 
+    open fun saveIfDoNotExist(issues: List<Issue>) {
+        issues.forEach { saveIfDoesNotExist(it) }
+    }
+
+    @UiThread
+    fun saveIfDoesNotExist(issue: Issue) {
+        if (!exists(issue)) {
+            save(issue)
+        }
+    }
+
     @UiThread
     fun update(issueStub: IssueStub) {
         appDatabase.issueDao().update(issueStub)
@@ -277,7 +288,8 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueStub.fileList,
             issueStub.fileListPdf,
             sections,
-            pageList
+            pageList,
+            issueStub.dateDownload
         )
 
     }

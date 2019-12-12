@@ -116,7 +116,7 @@ class SplashActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val issues = apiService.getIssuesByDate(limit = 10)
-                issueRepository.save(issues)
+                issueRepository.saveIfDoNotExist(issues)
                 log.debug("Initialized Issues")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
