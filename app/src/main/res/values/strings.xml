@@ -58,8 +58,6 @@
     <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">My bookmarks</string>
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
-    <string name="fragment_bottom_sheet_bookmarks_added">Article has been added to bookmarks</string>
-    <string name="fragment_bottom_sheet_bookmarks_removed">Bookmark removed</string>
 
     <string name="settings_header">settings</string>
     <string name="settings_category_text">text</string>
