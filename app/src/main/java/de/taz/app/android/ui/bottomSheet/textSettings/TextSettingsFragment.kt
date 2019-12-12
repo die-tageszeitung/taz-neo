@@ -34,6 +34,10 @@ class TextSettingsFragment : BaseFragment<TextSizePresenter>(), TextSettingsCont
             presenter.decreaseTextSize()
         }
 
+        fragment_bottom_sheet_text_size_text_size_percentage_wrapper?.setOnClickListener {
+            presenter.resetTextSize()
+        }
+
         fragment_bottom_sheet_text_size_text_size_increase?.setOnClickListener {
             presenter.increaseTextSize()
         }
