@@ -190,6 +190,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
+        // TODO: check if BottomSheet is shown, then hide it before popStack
         if (count > 1) {
             supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
                 if (it is BackFragment && it.onBackPressed()) {
