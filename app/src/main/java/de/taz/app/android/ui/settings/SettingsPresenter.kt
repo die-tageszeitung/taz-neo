@@ -15,12 +15,7 @@ class SettingsPresenter : BasePresenter<SettingsOuterFragment, SettingsDataContr
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            getView()?.getMainView()?.showMainFragment(HomeFragment())
+            getView()?.getMainView()?.showHome()
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        getView()?.getMainView()?.showMainFragment(HomeFragment())
-        return true
     }
 }

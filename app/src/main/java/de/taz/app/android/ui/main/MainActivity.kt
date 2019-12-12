@@ -153,7 +153,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setCustomAnimations(enterAnimation, exitAnimation)
                 .replace(
                     R.id.main_content_fragment_placeholder, fragment
-                ).commit()
+                )
+                .addToBackStack(fragment::javaClass.name)
+                .commit()
         }
     }
 
@@ -186,16 +188,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
      * back button
      */
     override fun onBackPressed() {
-        supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
-            if (it is BackFragment && it.onBackPressed()) {
-                return
+        val count = supportFragmentManager.backStackEntryCount
+
+        if (count > 1) {
+            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
+                if (it is BackFragment && it.onBackPressed()) {
+                    return
+                } else {
+                    supportFragmentManager.popBackStack()
+                }
             }
         }
-        super.onBackPressed()
     }
 
     override fun showHome() {
-        showMainFragment(HomeFragment())
+        supportFragmentManager.popBackStack(
+                supportFragmentManager.getBackStackEntryAt(1).id,
+                1
+            )
     }
 
     override fun showToast(stringId: Int) {

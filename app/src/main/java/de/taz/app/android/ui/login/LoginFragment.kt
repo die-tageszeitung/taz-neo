@@ -6,12 +6,11 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.BackFragment
 import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment :
     BaseMainFragment<LoginContract.Presenter>(),
-    BackFragment, LoginContract.View {
+    LoginContract.View {
 
     override val presenter = LoginPresenter()
 
@@ -57,10 +56,6 @@ class LoginFragment :
 
     override fun hideLoadingScreen() {
         fragment_login_loading_screen.visibility = View.GONE
-    }
-
-    override fun onBackPressed(): Boolean {
-        return presenter.onBackPressed()
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
