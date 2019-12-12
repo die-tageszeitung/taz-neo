@@ -121,6 +121,13 @@ data class Issue(
             val download = downloadRepository.getOrThrow(section.sectionHtml.name) //what's the difference betweeen sectionHtml.name and sectionFileName?
             downloadRepository.setStatus(download, DownloadStatus.deleted)
             fileHelper.deleteFileFromFileSystem("$tag/${section.sectionHtml.name}")
+
+            // delete images
+            section.imageList.map { image ->
+                val download = downloadRepository.getOrThrow(image.name)
+                downloadRepository.setStatus(download, DownloadStatus.deleted)
+                fileHelper.deleteFileFromFileSystem("$tag/${image.name}")
+            }
         }
 
         // delete articles
