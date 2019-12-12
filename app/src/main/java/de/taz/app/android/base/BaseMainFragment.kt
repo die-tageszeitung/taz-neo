@@ -230,6 +230,19 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     }
 
     /**
+     * check whether the bottomSheet is visible or not
+     * @return true if visible else false
+     */
+    override fun isBottomSheetVisible(): Boolean {
+        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
+            val bottomSheetBehavior = BottomSheetBehavior.from(it)
+            return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+        }
+        return false
+    }
+
+
+    /**
      * show bottomSheet
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
