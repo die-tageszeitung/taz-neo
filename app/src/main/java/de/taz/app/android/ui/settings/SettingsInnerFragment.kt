@@ -12,11 +12,15 @@ import de.taz.app.android.base.BaseContract
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
+
+    private val log by Log
+
     val issueRepository = IssueRepository.getInstance()
 
     override fun getMainView(): MainContract.View? {
@@ -57,6 +61,7 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
                     if (newValue.toInt() < editTextPreference.text.toInt()) { //check whether new storage limit is smaller, only then check whether number of saved issues is exceeded
                         lifecycleScope.launch(Dispatchers.IO) {
                             issueRepository.getAllDownloadedStubs()?.let { allDownloadedStubs ->
+                                log.debug("all donwloaded stubs: $allDownloadedStubs")
                                 if (allDownloadedStubs.size > newValue.toInt()) {
                                     //delete older issues
                                     var numberDownloadedIssues = allDownloadedStubs.size

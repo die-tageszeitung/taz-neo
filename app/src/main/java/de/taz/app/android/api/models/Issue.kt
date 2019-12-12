@@ -5,10 +5,10 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -50,6 +50,8 @@ data class Issue(
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
 
+    private val log by Log
+
     override fun getAllFiles(): List<FileEntry> {
         val files = mutableListOf(moment.imageList)
         imprint?.let {
@@ -90,7 +92,7 @@ data class Issue(
     }
 
     fun deleteFiles() {
-        val appDatabase = AppDatabase.getInstance()
+        log.debug("deleting issue $tag, downloaded on $dateDownload")
         val fileHelper = FileHelper.getInstance()
         val downloadRepository = DownloadRepository.getInstance()
 
@@ -100,23 +102,25 @@ data class Issue(
         // delete all associated file entries (without moment)
         // delete imprint
        imprint?.let { imprint ->
+           log.debug("deleting imprint: ${imprint.articleFileName} for issue $tag")
            val download = downloadRepository.getOrThrow(imprint.articleFileName)
            downloadRepository.setStatus(download, DownloadStatus.deleted)
-           fileHelper.deleteFileFromFileSystem(imprint.articleHtml.name)
+           log.debug("imprint filename to be deleted from filesystem: ${imprint.articleHtml.name}")
+           fileHelper.deleteFileFromFileSystem("$tag/${imprint.articleHtml.name}")
         }
 
         // delete pages
         pageList.map { page ->
             val download = downloadRepository.getOrThrow(page.pagePdf.name)
             downloadRepository.setStatus(download, DownloadStatus.deleted)
-            fileHelper.deleteFileFromFileSystem(page.pagePdf.name)
+            fileHelper.deleteFileFromFileSystem("$tag/${page.pagePdf.name}")
         }
 
         // delete sections
         sectionList.map { section ->
             val download = downloadRepository.getOrThrow(section.sectionHtml.name) //what's the difference betweeen sectionHtml.name and sectionFileName?
             downloadRepository.setStatus(download, DownloadStatus.deleted)
-            fileHelper.deleteFileFromFileSystem(section.sectionHtml.name)
+            fileHelper.deleteFileFromFileSystem("$tag/${section.sectionHtml.name}")
         }
 
         // delete articles
@@ -126,7 +130,7 @@ data class Issue(
                 article.audioFile?.let { audioFile ->
                     val download = downloadRepository.getOrThrow(audioFile.name)
                     downloadRepository.setStatus(download, DownloadStatus.deleted)
-                    fileHelper.deleteFileFromFileSystem(audioFile.name)
+                    fileHelper.deleteFileFromFileSystem("$tag/${audioFile.name}")
                 }
                 // delete authors
                 // how to make sure they are not used somewhere else?
@@ -135,13 +139,13 @@ data class Issue(
                 article.imageList.map { image ->
                     val download = downloadRepository.getOrThrow(image.name)
                     downloadRepository.setStatus(download, DownloadStatus.deleted)
-                    fileHelper.deleteFileFromFileSystem(image.name)
+                    fileHelper.deleteFileFromFileSystem("$tag/${image.name}")
 
                 }
 
                 val download = downloadRepository.getOrThrow(article.articleFileName)
                 downloadRepository.setStatus(download, DownloadStatus.deleted)
-                fileHelper.deleteFileFromFileSystem(article.articleFileName)
+                fileHelper.deleteFileFromFileSystem("$tag/${article.articleFileName}")
             }
         }
 
