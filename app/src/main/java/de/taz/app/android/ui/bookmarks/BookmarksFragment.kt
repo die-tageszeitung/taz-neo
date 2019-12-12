@@ -11,14 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.BackFragment
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import java.util.*
 
 class BookmarksFragment :
     BaseMainFragment<BookmarksPresenter>(),
-    BookmarksContract.View,
-    BackFragment {
+    BookmarksContract.View {
 
     override val presenter: BookmarksPresenter = BookmarksPresenter()
 
@@ -61,10 +59,6 @@ class BookmarksFragment :
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         presenter.onBottomNavigationItemClicked(menuItem)
-    }
-
-    override fun onBackPressed(): Boolean {
-        return presenter.onBackPressed()
     }
 
     override fun shareArticle(article: Article) {

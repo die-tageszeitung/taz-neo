@@ -21,7 +21,7 @@ class ArticleWebViewPresenter(
 
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(HomeFragment())
+                getView()?.getMainView()?.showHome()
 
             R.id.bottom_navigation_action_bookmark ->
                 getView()?.apply {
@@ -49,15 +49,6 @@ class ArticleWebViewPresenter(
                     getView()?.hideBottomSheet()
                 }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        val webViewDisplayable = viewModel?.getWebViewDisplayable()
-        if (webViewDisplayable?.isImprint() == false) {
-                showSection()
-                return true
-            }
-        return false
     }
 
     fun showSection() {

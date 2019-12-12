@@ -5,6 +5,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
+import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,7 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             // only show archive if created in the beginning else show current fragment
             if (savedInstanceState == null) {
                 showDrawerFragment(SectionDrawerFragment())
-                showHome()
+                showMainFragment(HomeFragment())
             }
         }
     }

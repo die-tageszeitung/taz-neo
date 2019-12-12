@@ -36,14 +36,14 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
     }
 
     override fun onBackPressed(): Boolean {
-        getView()?.getMainView()?.showMainFragment(HomeFragment())
+        getView()?.getMainView()?.showHome()
         return true
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(HomeFragment())
+                getView()?.getMainView()?.showHome()
         }
     }
 

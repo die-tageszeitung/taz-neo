@@ -14,7 +14,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -25,8 +24,8 @@ import kotlinx.android.synthetic.main.fragment_webview_section.web_view_spinner
 
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
-    BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(), WebViewContract.View<DISPLAYABLE>,
-    BackFragment {
+    BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(),
+    WebViewContract.View<DISPLAYABLE> {
 
     private val log by Log
 
@@ -86,10 +85,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun getMainView(): MainContract.View? {
         return activity as? MainActivity
-    }
-
-    override fun onBackPressed(): Boolean {
-        return presenter.onBackPressed()
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {

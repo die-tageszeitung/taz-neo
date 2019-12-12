@@ -6,10 +6,6 @@ import de.taz.app.android.base.BaseContract
 interface SettingsContract {
 
     interface Presenter: BaseContract.Presenter {
-
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
-
-        fun onBackPressed(): Boolean
     }
-
 }

@@ -12,8 +12,6 @@ interface LoginContract {
     }
 
     interface Presenter : BaseContract.Presenter {
-        fun onBackPressed(): Boolean
-
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
 
         fun login(username: String, password: String)
