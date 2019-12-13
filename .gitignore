@@ -194,4 +194,7 @@ tags
 app/schemas
 app/lint
 
+.sentryclirc
+app/src/main/resources/
+sentry.properties
 # End of https://www.gitignore.io/api/vim,java,linux,kotlin,android,androidstudio
