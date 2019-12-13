@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">taz-android</string>
+    <string name="app_name">taz neo</string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
