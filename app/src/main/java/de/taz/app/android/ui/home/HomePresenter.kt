@@ -25,10 +25,6 @@ class HomePresenter(
                 issueRepository.save(apiService.getIssuesByDate())
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
             }
         }
     }

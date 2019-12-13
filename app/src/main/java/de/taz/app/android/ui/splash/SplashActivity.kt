@@ -65,10 +65,6 @@ class SplashActivity : AppCompatActivity() {
                 feedRepository.save(feeds)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
             }
         }
     }
@@ -84,10 +80,6 @@ class SplashActivity : AppCompatActivity() {
                 issueRepository.save(issues)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
             }
         }
     }
@@ -123,9 +115,9 @@ class SplashActivity : AppCompatActivity() {
     private fun initAppInfo() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                AppInfoRepository.getInstance(applicationContext).save(
-                    ApiService.getInstance(applicationContext).getAppInfo()
-                )
+                ApiService.getInstance(applicationContext).getAppInfo()?.let {
+                    AppInfoRepository.getInstance(applicationContext).save(it)
+                }
             } catch (e: Exception) {
                 log.warn("unable to get AppInfo", e)
             }
@@ -146,24 +138,27 @@ class SplashActivity : AppCompatActivity() {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()
 
-                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                    resourceInfoRepository.save(fromServer)
+                fromServer?.let {
+                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
+                        resourceInfoRepository.save(fromServer)
 
-                    // delete old stuff
-                    local?.let { resourceInfoRepository.delete(local) }
-                    fromServer.resourceList.forEach { newFileEntry ->
-                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                            // only delete modified files
-                            if (oldFileEntry != newFileEntry) {
-                                val oldFileEntryPath = fileHelper.getFile(oldFileEntry.name).absolutePath
-                                oldFileEntry.delete(oldFileEntryPath)
+                        // delete old stuff
+                        local?.let { resourceInfoRepository.delete(local) }
+                        fromServer.resourceList.forEach { newFileEntry ->
+                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                                // only delete modified files
+                                if (oldFileEntry != newFileEntry) {
+                                    val oldFileEntryPath =
+                                        fileHelper.getFile(oldFileEntry.name).absolutePath
+                                    oldFileEntry.delete(oldFileEntryPath)
+                                }
                             }
                         }
-                    }
 
-                    // ensure resources are downloaded
-                    DownloadService.scheduleDownload(applicationContext, fromServer)
-                    DownloadService.download(applicationContext, fromServer)
+                        // ensure resources are downloaded
+                        DownloadService.scheduleDownload(applicationContext, fromServer)
+                        DownloadService.download(applicationContext, fromServer)
+                    }
                 }
             } catch (e: Exception) {
                 log.warn("unable to get ResourceInfo", e)

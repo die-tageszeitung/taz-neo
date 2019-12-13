@@ -15,7 +15,9 @@ import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import io.sentry.Sentry
 import kotlinx.coroutines.*
+import java.lang.Exception
 import java.net.URLDecoder
 
 class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) : WebViewClient() {
@@ -152,26 +154,32 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
      * handle correctly different resource types
      * TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
      */
-    private fun createCustomWebResourceResponse(view: WebView?, url: String?): WebResourceResponse {
+    private fun createCustomWebResourceResponse(view: WebView?, url: String?): WebResourceResponse? {
         val newUrl = overrideInternalLinks(view, url)
         val data = File(newUrl.toString().removePrefix("file:///"))
         log.debug("Intercepted Url is $url")
 
-        return when {
-            url.toString().endsWith(".css") ->
-                WebResourceResponse("text/css", "UTF-8", data.inputStream())
-            url.toString().endsWith(".html") ->
-                WebResourceResponse("text/html", "UTF-8", data.inputStream())
-            url.toString().endsWith(".js") ->
-                WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
-            url.toString().endsWith(".png") ->
-                WebResourceResponse("image/png", "binary", data.inputStream())
-            url.toString().endsWith(".svg") ->
-                WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
-            url.toString().endsWith(".woff") ->
-                WebResourceResponse("font/woff", "binary", data.inputStream())
-            else ->
-                WebResourceResponse("text/plain", "UTF-8", data.inputStream())
+        return try {
+            when {
+                url.toString().endsWith(".css") ->
+                    WebResourceResponse("text/css", "UTF-8", data.inputStream())
+                url.toString().endsWith(".html") ->
+                    WebResourceResponse("text/html", "UTF-8", data.inputStream())
+                url.toString().endsWith(".js") ->
+                    WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
+                url.toString().endsWith(".png") ->
+                    WebResourceResponse("image/png", "binary", data.inputStream())
+                url.toString().endsWith(".svg") ->
+                    WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
+                url.toString().endsWith(".woff") ->
+                    WebResourceResponse("font/woff", "binary", data.inputStream())
+                else ->
+                    WebResourceResponse("text/plain", "UTF-8", data.inputStream())
+            }
+        } catch (e: Exception) {
+            log.error("trying to open non-existent file $url")
+            Sentry.capture(e)
+            null
         }
     }
 
