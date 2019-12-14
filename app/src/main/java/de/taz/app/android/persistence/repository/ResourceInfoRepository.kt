@@ -8,7 +8,8 @@ import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
 
-open class ResourceInfoRepository private constructor(applicationContext: Context): RepositoryBase(applicationContext) {
+open class ResourceInfoRepository private constructor(applicationContext: Context) :
+    RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
@@ -77,6 +78,12 @@ open class ResourceInfoRepository private constructor(applicationContext: Contex
     @UiThread
     fun delete(resourceInfo: ResourceInfo) {
         appDatabase.runInTransaction {
+            appDatabase.resourceInfoFileEntryJoinDao().delete(
+                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
+                }
+            )
+
             appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
         }
     }
