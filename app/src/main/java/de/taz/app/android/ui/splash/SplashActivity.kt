@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.download.RESOURCE_FOLDER
@@ -19,13 +17,6 @@ import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
 import java.util.*
-import kotlin.Exception
-
-
-const val SENTRY_DEVICE_NAME = "deviceName"
-const val SENTRY_DEVICE_VERSION = "deviceVersion"
-const val SENTRY_DEVICE_FORMAT = "deviceFormat"
-const val SENTRY_DEVICE_TYPE = "deviceType"
 
 
 class SplashActivity : AppCompatActivity() {
@@ -71,42 +62,7 @@ class SplashActivity : AppCompatActivity() {
 
         Sentry.getContext().user = UserBuilder()
             .setId(installationId)
-            .setData(mapOf(
-                SENTRY_DEVICE_NAME to android.os.Build.MODEL,
-                SENTRY_DEVICE_VERSION to android.os.Build.VERSION.RELEASE,
-                SENTRY_DEVICE_FORMAT to DeviceFormat.mobile.name,
-                SENTRY_DEVICE_TYPE to DeviceType.android.name
-            )) .build()
-    }
-
-    private fun initFeedInformation() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val feedRepository = FeedRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val feeds = apiService.getFeeds()
-                feedRepository.save(feeds)
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-            }
-        }
-    }
-
-    private fun initLastIssues() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val issueRepository = IssueRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val issues = apiService.getIssuesByDate(limit = 10)
-                issueRepository.save(issues)
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-            }
-        }
+            .build()
     }
 
     private fun createSingletons() {
@@ -132,6 +88,41 @@ class SplashActivity : AppCompatActivity() {
 
             ApiService.createInstance(it)
         }
+        log.debug("Singletons initialized")
+    }
+
+    private fun initFeedInformation() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val feedRepository = FeedRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val feeds = apiService.getFeeds()
+                feedRepository.save(feeds)
+                log.debug("Initialized Feeds")
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+                log.debug("Initializing Feeds failed")
+            }
+        }
+    }
+
+    private fun initLastIssues() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val issues = apiService.getIssuesByDate(limit = 10)
+                issueRepository.save(issues)
+                log.debug("Initialized Issues")
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+                log.debug("Initializing Issues failed")
+            }
+        }
     }
 
     /**
@@ -142,9 +133,10 @@ class SplashActivity : AppCompatActivity() {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
+                    log.warn("Initialized AppInfo")
                 }
-            } catch (e: Exception) {
-                log.warn("unable to get AppInfo", e)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                log.warn("Initializing AppInfo failed")
             }
         }
     }
@@ -183,10 +175,12 @@ class SplashActivity : AppCompatActivity() {
                         // ensure resources are downloaded
                         DownloadService.scheduleDownload(applicationContext, fromServer)
                         DownloadService.download(applicationContext, fromServer)
+                        local?.let { log.debug("Initialized ResourceInfo") }
+                            ?: log.debug("Updated ResourceInfo")
                     }
                 }
-            } catch (e: Exception) {
-                log.warn("unable to get ResourceInfo", e)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                log.warn("Initializing ResourceInfo failed")
             }
         }
 
@@ -194,15 +188,18 @@ class SplashActivity : AppCompatActivity() {
         val tazApiCssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
         if (!tazApiCssFile.exists()){
             tazApiCssFile.createNewFile()
+            log.debug("Created tazApi.css")
         }
         val tazApiJsFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
         if (!tazApiJsFile.exists()) {
             tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+            log.debug("Created tazApi.js")
         }
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
         if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
+            log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
         }
     }
