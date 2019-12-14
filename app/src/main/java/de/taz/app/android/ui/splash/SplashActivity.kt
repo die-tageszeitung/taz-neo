@@ -159,18 +159,16 @@ class SplashActivity : AppCompatActivity() {
                     if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
                         resourceInfoRepository.save(fromServer)
 
-                        // delete old stuff
-                        local?.let { resourceInfoRepository.delete(local) }
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                // only delete modified files
-                                if (oldFileEntry != newFileEntry) {
-                                    val oldFileEntryPath =
-                                        fileHelper.getFile(oldFileEntry.name).absolutePath
-                                    oldFileEntry.delete(oldFileEntryPath)
-                                }
+                    fromServer.resourceList.forEach { newFileEntry ->
+                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                            // only delete modified files
+                            if (oldFileEntry != newFileEntry) {
+                                oldFileEntry.delete()
                             }
                         }
+                    }
+
+                    local?.let { resourceInfoRepository.delete(local) }
 
                         // ensure resources are downloaded
                         DownloadService.scheduleDownload(applicationContext, fromServer)

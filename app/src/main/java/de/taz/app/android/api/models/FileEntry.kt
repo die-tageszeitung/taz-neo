@@ -22,10 +22,9 @@ data class FileEntry(
         fileEntry.name, fileEntry.storageType, fileEntry.moTime, fileEntry.sha256, fileEntry.size
     )
 
-    fun delete(absolutePath: String) {
+    fun delete() {
         val fileHelper = FileHelper.getInstance()
         fileHelper.deleteFile(name)
-        fileHelper.deleteFileFromFileSystem(absolutePath)
         DownloadRepository.getInstance().delete(name)
         FileEntryRepository.getInstance().delete(this)
     }
