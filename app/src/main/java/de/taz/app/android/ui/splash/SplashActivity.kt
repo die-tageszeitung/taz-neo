@@ -4,9 +4,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
+import de.taz.app.android.api.dto.DeviceFormat
+import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.download.RESOURCE_FOLDER
@@ -14,9 +15,18 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.*
+import io.sentry.Sentry
+import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.Exception
+
+
+const val SENTRY_DEVICE_NAME = "deviceName"
+const val SENTRY_DEVICE_VERSION = "deviceVersion"
+const val SENTRY_DEVICE_FORMAT = "deviceFormat"
+const val SENTRY_DEVICE_TYPE = "deviceType"
+
 
 class SplashActivity : AppCompatActivity() {
 
@@ -26,6 +36,7 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
 
         generateInstallationId()
+        setupSentry()
 
         createSingletons()
 
@@ -52,6 +63,20 @@ class SplashActivity : AppCompatActivity() {
             ).apply()
             log.debug("initialized InstallationId: $uuid")
         }
+    }
+
+    private fun setupSentry() {
+        val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+        val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
+
+        Sentry.getContext().user = UserBuilder()
+            .setId(installationId)
+            .setData(mapOf(
+                SENTRY_DEVICE_NAME to android.os.Build.MODEL,
+                SENTRY_DEVICE_VERSION to android.os.Build.VERSION.RELEASE,
+                SENTRY_DEVICE_FORMAT to DeviceFormat.mobile.name,
+                SENTRY_DEVICE_TYPE to DeviceType.android.name
+            )) .build()
     }
 
     private fun initFeedInformation() {
