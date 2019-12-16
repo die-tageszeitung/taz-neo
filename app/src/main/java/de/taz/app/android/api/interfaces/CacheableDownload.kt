@@ -11,6 +11,14 @@ import de.taz.app.android.persistence.repository.DownloadRepository
  */
 interface CacheableDownload {
 
+    /**
+     * remove all downloaded files
+     * metadata will be kepts
+     */
+    fun deleteFiles() {
+        getAllFiles().forEach { it.delete() }
+    }
+
     fun download(applicationContext: Context) {
         DownloadService.download(applicationContext, this)
     }

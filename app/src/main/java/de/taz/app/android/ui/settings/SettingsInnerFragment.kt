@@ -12,12 +12,14 @@ import de.taz.app.android.base.BaseContract
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.util.DownloadedIssueHelper
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.custom_preference_switch.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
+class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View {
 
     private val log by Log
 
@@ -34,51 +36,25 @@ class SettingsInnerFragment : PreferenceFragmentCompat(), BaseContract.View  {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.fragment_settings, rootKey)
 
-        val manageAccountPreference : Preference? = findPreference("manage_account")
+        val manageAccountPreference: Preference? = findPreference("manage_account")
         manageAccountPreference?.setOnPreferenceClickListener {
             this.getMainView()?.showMainFragment(LoginFragment())
             true
         }
 
-        findPreference<CustomSwitchPreference>("text_night_mode")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
-        findPreference<TextSizePreference>("text_font_size")?.preferenceManager?.sharedPreferencesName = PREFERENCES_TAZAPICSS
+        findPreference<CustomSwitchPreference>("text_night_mode")?.preferenceManager?.sharedPreferencesName =
+            PREFERENCES_TAZAPICSS
+        findPreference<TextSizePreference>("text_font_size")?.preferenceManager?.sharedPreferencesName =
+            PREFERENCES_TAZAPICSS
 
-        val keepNumberIssues = findPreference<EditTextPreference>("general_keep_number_issues")
-        keepNumberIssues?.preferenceManager?.sharedPreferencesName = PREFERENCES_GENERAL
+        findPreference<EditTextPreference>("general_keep_number_issues")?.apply {
+            preferenceManager?.sharedPreferencesName = PREFERENCES_GENERAL
 
-        keepNumberIssues?.setOnBindEditTextListener { editText ->
-            editText.inputType = InputType.TYPE_CLASS_NUMBER
-        }
-
-        keepNumberIssues?.summaryProvider = Preference.SummaryProvider<EditTextPreference> { preference ->
-            val text = preference.text
-           "$text ${resources.getString(R.string.settings_general_keep_number_issues_days)}"
-        }
-
-        keepNumberIssues?.setOnPreferenceChangeListener { preference, newValue ->
-            (preference as? EditTextPreference)?.let { editTextPreference ->
-                (newValue as? String)?.let {
-                    if (newValue.toInt() < editTextPreference.text.toInt()) { //check whether new storage limit is smaller, only then check whether number of saved issues is exceeded
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            issueRepository.getAllDownloadedStubs()?.let { allDownloadedStubs ->
-                                log.debug("all donwloaded stubs: $allDownloadedStubs")
-                                if (allDownloadedStubs.size > newValue.toInt()) {
-                                    //delete older issues
-                                    var numberDownloadedIssues = allDownloadedStubs.size
-                                    while (numberDownloadedIssues > newValue.toInt()) {
-                                        issueRepository.getEarliestDownloadedIssue()?.let {
-                                            it.deleteFiles()
-                                            numberDownloadedIssues--
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            setOnBindEditTextListener { editText ->
+                editText.inputType = InputType.TYPE_CLASS_NUMBER
             }
-            true
-        }
 
+            //text = getString(R.string.settings_general_keep_number_issues, getPeris) // TODO NUMBER!
+        }
     }
 }
