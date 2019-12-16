@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showHome() {
         supportFragmentManager.popBackStack(
                 supportFragmentManager.getBackStackEntryAt(1).id,
-                1
+                POP_BACK_STACK_INCLUSIVE
             )
     }
 
