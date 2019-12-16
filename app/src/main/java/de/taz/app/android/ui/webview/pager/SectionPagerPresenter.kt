@@ -30,8 +30,12 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
     }
 
     override fun onBackPressed() {
-        getView()?.getMainView()?.apply {
-            showHome()
+        if (getView()?.isBottomSheetVisible() == true) {
+            getView()?.hideBottomSheet()
+        } else {
+            getView()?.getMainView()?.apply {
+                showHome()
+            }
         }
     }
 
