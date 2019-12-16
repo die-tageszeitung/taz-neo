@@ -7,7 +7,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
