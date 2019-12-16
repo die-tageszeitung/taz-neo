@@ -8,7 +8,9 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
 
-class BookmarkSheetFragment(private val articleFileName: String) : BaseFragment<BookmarkSheetPresenter>(), BookmarkSheetContract.View {
+class BookmarkSheetFragment(private val articleFileName: String) :
+    BaseFragment<BookmarkSheetPresenter>(),
+    BookmarkSheetContract.View {
 
     override val presenter = BookmarkSheetPresenter()
 
@@ -47,5 +49,4 @@ class BookmarkSheetFragment(private val articleFileName: String) : BaseFragment<
     override fun getArticleFileName(): String {
         return articleFileName
     }
-
 }

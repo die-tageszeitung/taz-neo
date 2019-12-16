@@ -42,8 +42,6 @@ interface WebViewContract: BaseContract {
 
         fun onPageFinishedLoading()
 
-        fun onBackPressed(): Boolean
-
         fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean)
     }
 

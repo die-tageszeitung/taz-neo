@@ -22,7 +22,6 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             // only show archive if created in the beginning else show current fragment
             if (savedInstanceState == null) {
                 showDrawerFragment(SectionDrawerFragment())
-                showHome()
             }
         }
     }

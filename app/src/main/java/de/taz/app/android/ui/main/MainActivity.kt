@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -153,7 +154,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setCustomAnimations(enterAnimation, exitAnimation)
                 .replace(
                     R.id.main_content_fragment_placeholder, fragment
-                ).commit()
+                )
+                .addToBackStack(fragment::javaClass.name)
+                .commit()
         }
     }
 
@@ -186,16 +189,27 @@ class MainActivity : AppCompatActivity(), MainContract.View {
      * back button
      */
     override fun onBackPressed() {
-        supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
-            if (it is BackFragment && it.onBackPressed()) {
-                return
-            }
+        val count = supportFragmentManager.backStackEntryCount
+
+        if (count > 0) {
+            supportFragmentManager
+                .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
+                    if (it is BackFragment && it.onBackPressed()) {
+                        return
+                    } else {
+                        supportFragmentManager.popBackStack()
+                    }
+                }
+        } else {
+            super.onBackPressed()
         }
-        super.onBackPressed()
     }
 
     override fun showHome() {
-        showMainFragment(HomeFragment())
+        supportFragmentManager.popBackStack(
+            HomeFragment::javaClass.name,
+            POP_BACK_STACK_INCLUSIVE
+        )
     }
 
     override fun showToast(stringId: Int) {

@@ -49,11 +49,6 @@ class LoginPresenter(
         }
     }
 
-    override fun onBackPressed(): Boolean {
-        getView()?.getMainView()?.showHome()
-        return true
-    }
-
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
             getView()?.getMainView()?.showHome()
