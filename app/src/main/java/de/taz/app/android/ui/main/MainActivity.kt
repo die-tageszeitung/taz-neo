@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -189,23 +190,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
-        // TODO: check if BottomSheet is shown, then hide it before popStack
+        // the first fragment is the red taz logo which should never be popped, that is why > 1
         if (count > 1) {
-            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)?.let {
-                if (it is BackFragment && it.onBackPressed()) {
-                    return
-                } else {
-                    supportFragmentManager.popBackStack()
+            supportFragmentManager
+                .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
+                    if (it is BackFragment && it.onBackPressed()) {
+                        return
+                    } else {
+                        supportFragmentManager.popBackStack()
+                    }
                 }
-            }
         }
     }
 
     override fun showHome() {
         supportFragmentManager.popBackStack(
-                supportFragmentManager.getBackStackEntryAt(1).id,
-                POP_BACK_STACK_INCLUSIVE
-            )
+            supportFragmentManager.getBackStackEntryAt(1).id,
+            POP_BACK_STACK_INCLUSIVE
+        )
     }
 
     override fun showToast(stringId: Int) {
