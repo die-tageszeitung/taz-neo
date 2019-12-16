@@ -74,7 +74,6 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
     }
 
     override suspend fun getNextIssueMoments(date: String) {
-
         if (lastRequestedDate == "" || date <= lastRequestedDate) {
             lastRequestedDate = dateHelper.stringToStringWithDelta(
                 date, -NUMBER_OF_REQUESTED_MOMENTS
@@ -98,10 +97,6 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                 issueRepository.save(issues)
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 mainView?.showToast(R.string.toast_no_internet)
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                mainView?.showToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                mainView?.showToast(R.string.something_went_wrong_try_later)
             }
         }
     }

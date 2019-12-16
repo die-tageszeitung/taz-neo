@@ -1,7 +1,6 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import android.os.AsyncTask
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -14,6 +13,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
+import io.sentry.Sentry
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
@@ -25,7 +25,7 @@ import java.security.MessageDigest
 /**
  * Helper Object used by [WorkManagerDownloadWorker] and [DownloadService] to download
  */
-class DownloadWorker(val httpClient: OkHttpClient) {
+class DownloadWorker(private val httpClient: OkHttpClient) {
 
     private val log by Log
 
@@ -93,6 +93,7 @@ class DownloadWorker(val httpClient: OkHttpClient) {
                     } ?: downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                 } catch (e: Exception) {
                     downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                    Sentry.capture(e)
                 }
             } else {
                 log.debug("skipping download of ${fromDB.file.name} as it was already finished")
@@ -148,12 +149,13 @@ class ScheduleIssueDownloadWorkManagerWorker(
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date).let { issue ->
+                        ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date)?.let { issue ->
                             IssueRepository.getInstance(appContext).save(issue)
                             DownloadService.scheduleDownload(appContext, issue)
                             Result.success()
-                        }
+                        } ?: Result.failure()
                     } catch (e: Exception) {
+                        Sentry.capture(e)
                         Result.failure()
                     }
                 }

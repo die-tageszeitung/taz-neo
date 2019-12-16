@@ -63,28 +63,27 @@ class LoginPresenter(
     override fun login(username: String, password: String) {
         getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.Default) {
             try {
-                apiService.authenticate(username, password).let {
+                apiService.authenticate(username, password)?.let {
                     authHelper.authStatusLiveData.postValue(it.authInfo.status)
                     authHelper.tokenLiveData.postValue(it.token ?: "")
+                } ?: run {
+                    getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
             }
         }
     }
 
     @UiThread
     private suspend fun downloadLatestIssueMoment() {
-        val issue = ApiService.getInstance().getIssueByFeedAndDate()
-        issueRepository.save(issue)
-        getView()?.getMainView()?.apply {
-            setDrawerIssue(issue)
-            getApplicationContext().let {
-                DownloadService.download(it, issue.moment)
+        ApiService.getInstance().getIssueByFeedAndDate()?.let { issue ->
+            issueRepository.save(issue)
+            getView()?.getMainView()?.apply {
+                setDrawerIssue(issue)
+                getApplicationContext().let {
+                    DownloadService.download(it, issue.moment)
+                }
             }
         }
     }

@@ -83,18 +83,15 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
 
         val resourceInfo = resourceInfoRepository.get() ?: run {
             try {
-                apiService.getResourceInfo().let {
+                apiService.getResourceInfo()?.let {
                     resourceInfoRepository.save(it)
                     it
+                } ?: run {
+                    getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+                    null
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-                null
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-                null
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
                 null
             }
         }

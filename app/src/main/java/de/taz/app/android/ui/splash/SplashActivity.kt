@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.AuthStatus
@@ -14,9 +13,11 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.*
+import io.sentry.Sentry
+import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
 import java.util.*
-import kotlin.Exception
+
 
 class SplashActivity : AppCompatActivity() {
 
@@ -26,6 +27,7 @@ class SplashActivity : AppCompatActivity() {
         super.onResume()
 
         generateInstallationId()
+        setupSentry()
 
         createSingletons()
 
@@ -54,42 +56,13 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private fun initFeedInformation() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val feedRepository = FeedRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
+    private fun setupSentry() {
+        val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+        val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val feeds = apiService.getFeeds()
-                feedRepository.save(feeds)
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            }
-        }
-    }
-
-    private fun initLastIssues() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val issueRepository = IssueRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val issues = apiService.getIssuesByDate(limit = 10)
-                issueRepository.save(issues)
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-            } catch (e: ApiService.ApiServiceException.InsufficientDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            } catch (e: ApiService.ApiServiceException.WrongDataException) {
-                toastHelper.makeToast(R.string.something_went_wrong_try_later)
-            }
-        }
+        Sentry.getContext().user = UserBuilder()
+            .setId(installationId)
+            .build()
     }
 
     private fun createSingletons() {
@@ -115,6 +88,41 @@ class SplashActivity : AppCompatActivity() {
 
             ApiService.createInstance(it)
         }
+        log.debug("Singletons initialized")
+    }
+
+    private fun initFeedInformation() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val feedRepository = FeedRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val feeds = apiService.getFeeds()
+                feedRepository.save(feeds)
+                log.debug("Initialized Feeds")
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+                log.debug("Initializing Feeds failed")
+            }
+        }
+    }
+
+    private fun initLastIssues() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val issues = apiService.getIssuesByDate(limit = 10)
+                issueRepository.save(issues)
+                log.debug("Initialized Issues")
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                toastHelper.showNoConnectionToast()
+                log.debug("Initializing Issues failed")
+            }
+        }
     }
 
     /**
@@ -123,11 +131,12 @@ class SplashActivity : AppCompatActivity() {
     private fun initAppInfo() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                AppInfoRepository.getInstance(applicationContext).save(
-                    ApiService.getInstance(applicationContext).getAppInfo()
-                )
-            } catch (e: Exception) {
-                log.warn("unable to get AppInfo", e)
+                ApiService.getInstance(applicationContext).getAppInfo()?.let {
+                    AppInfoRepository.getInstance(applicationContext).save(it)
+                    log.warn("Initialized AppInfo")
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                log.warn("Initializing AppInfo failed")
             }
         }
     }
@@ -146,27 +155,32 @@ class SplashActivity : AppCompatActivity() {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()
 
-                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                    resourceInfoRepository.save(fromServer)
+                fromServer?.let {
+                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
+                        resourceInfoRepository.save(fromServer)
 
-                    // delete old stuff
-                    local?.let { resourceInfoRepository.delete(local) }
-                    fromServer.resourceList.forEach { newFileEntry ->
-                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                            // only delete modified files
-                            if (oldFileEntry != newFileEntry) {
-                                val oldFileEntryPath = fileHelper.getFile(oldFileEntry.name).absolutePath
-                                oldFileEntry.delete(oldFileEntryPath)
+                        // delete old stuff
+                        local?.let { resourceInfoRepository.delete(local) }
+                        fromServer.resourceList.forEach { newFileEntry ->
+                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                                // only delete modified files
+                                if (oldFileEntry != newFileEntry) {
+                                    val oldFileEntryPath =
+                                        fileHelper.getFile(oldFileEntry.name).absolutePath
+                                    oldFileEntry.delete(oldFileEntryPath)
+                                }
                             }
                         }
-                    }
 
-                    // ensure resources are downloaded
-                    DownloadService.scheduleDownload(applicationContext, fromServer)
-                    DownloadService.download(applicationContext, fromServer)
+                        // ensure resources are downloaded
+                        DownloadService.scheduleDownload(applicationContext, fromServer)
+                        DownloadService.download(applicationContext, fromServer)
+                        local?.let { log.debug("Initialized ResourceInfo") }
+                            ?: log.debug("Updated ResourceInfo")
+                    }
                 }
-            } catch (e: Exception) {
-                log.warn("unable to get ResourceInfo", e)
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                log.warn("Initializing ResourceInfo failed")
             }
         }
 
@@ -174,15 +188,18 @@ class SplashActivity : AppCompatActivity() {
         val tazApiCssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
         if (!tazApiCssFile.exists()){
             tazApiCssFile.createNewFile()
+            log.debug("Created tazApi.css")
         }
         val tazApiJsFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.js")
         if (!tazApiJsFile.exists()) {
             tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+            log.debug("Created tazApi.js")
         }
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
         if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
+            log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
         }
     }

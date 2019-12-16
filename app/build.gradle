@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'io.sentry.android.gradle'
 
 android {
     compileSdkVersion 29
@@ -29,6 +30,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    lintOptions {
+        lintConfig file("lint.xml")
     }
 
     flavorDimensions "store", "owner"
@@ -112,6 +117,10 @@ dependencies {
     // stetho debug bridge
     implementation 'com.facebook.stetho:stetho:1.5.1'
     //implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
+
+    // error reports
+    implementation 'io.sentry:sentry-android:1.7.28'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
 
     // testing
     testImplementation 'android.arch.core:core-testing:1.1.1'
