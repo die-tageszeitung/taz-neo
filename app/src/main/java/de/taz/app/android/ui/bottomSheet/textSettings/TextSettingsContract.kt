@@ -25,6 +25,8 @@ interface TextSettingsContract {
         fun decreaseTextSize()
 
         fun increaseTextSize()
+
+        fun resetTextSize()
     }
 
     interface DataController: BaseContract.DataController {

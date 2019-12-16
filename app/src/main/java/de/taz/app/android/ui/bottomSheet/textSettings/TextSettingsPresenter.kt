@@ -14,8 +14,6 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
     TextSettingsDataController::class.java
 ), TextSettingsContract.Presenter {
 
-    private val log by Log
-
     override fun onViewCreated(savedInstanceState: Bundle?) {
         val tazApiCssPreferences = getView()?.getMainView()?.getApplicationContext()?.getSharedPreferences(
             PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
@@ -53,6 +51,12 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
             if (newSize >= MIN_TEXT_SIZE) {
                 setTextSizePercent(newSize.toString())
             }
+        }
+    }
+
+    override fun resetTextSize() {
+        viewModel?.apply {
+            setTextSizePercent("100")
         }
     }
 
