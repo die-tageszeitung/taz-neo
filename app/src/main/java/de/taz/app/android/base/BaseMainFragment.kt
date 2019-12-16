@@ -236,7 +236,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     override fun isBottomSheetVisible(): Boolean {
         view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
             val bottomSheetBehavior = BottomSheetBehavior.from(it)
-            return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+            return bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED
         }
         return false
     }

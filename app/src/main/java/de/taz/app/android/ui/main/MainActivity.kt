@@ -29,6 +29,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.download.RESOURCE_FOLDER
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
@@ -190,8 +191,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
-        // the first fragment is the red taz logo which should never be popped, that is why > 1
-        if (count > 1) {
+        if (count > 0) {
             supportFragmentManager
                 .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
                     if (it is BackFragment && it.onBackPressed()) {
@@ -200,12 +200,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         supportFragmentManager.popBackStack()
                     }
                 }
+        } else {
+            super.onBackPressed()
         }
     }
 
     override fun showHome() {
         supportFragmentManager.popBackStack(
-            supportFragmentManager.getBackStackEntryAt(1).id,
+            HomeFragment::javaClass.name,
             POP_BACK_STACK_INCLUSIVE
         )
     }
