@@ -1,14 +1,11 @@
 package de.taz.app.android.util
 
-import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 
 const val SETTINGS_TEXT_DEFAULT_FONT_SIZE = 18
 
-class TazApiCssHelper private constructor(applicationContext: Context) {
-
-    companion object : SingletonHolder<TazApiCssHelper, Context>(::TazApiCssHelper)
+object TazApiCssHelper {
 
     private val fileHelper = FileHelper.getInstance()
 

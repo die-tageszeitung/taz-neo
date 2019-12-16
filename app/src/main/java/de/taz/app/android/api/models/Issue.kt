@@ -91,72 +91,8 @@ data class Issue(
         return articleList
     }
 
-    fun deleteFiles() {
-        log.debug("deleting issue $tag, downloaded on $dateDownload")
-        val fileHelper = FileHelper.getInstance()
-        val downloadRepository = DownloadRepository.getInstance()
-
-        // set status for associated downloads to deleted
-
-
-        // delete all associated file entries (without moment)
-        // delete imprint
-       imprint?.let { imprint ->
-           log.debug("deleting imprint: ${imprint.articleFileName} for issue $tag")
-           val download = downloadRepository.getOrThrow(imprint.articleFileName)
-           downloadRepository.setStatus(download, DownloadStatus.deleted)
-           log.debug("imprint filename to be deleted from filesystem: ${imprint.articleHtml.name}")
-           fileHelper.deleteFileFromFileSystem("$tag/${imprint.articleHtml.name}")
-        }
-
-        // delete pages
-        pageList.map { page ->
-            val download = downloadRepository.getOrThrow(page.pagePdf.name)
-            downloadRepository.setStatus(download, DownloadStatus.deleted)
-            fileHelper.deleteFileFromFileSystem("$tag/${page.pagePdf.name}")
-        }
-
-        // delete sections
-        sectionList.map { section ->
-            val download = downloadRepository.getOrThrow(section.sectionHtml.name) //what's the difference betweeen sectionHtml.name and sectionFileName?
-            downloadRepository.setStatus(download, DownloadStatus.deleted)
-            fileHelper.deleteFileFromFileSystem("$tag/${section.sectionHtml.name}")
-
-            // delete images
-            section.imageList.map { image ->
-                val download = downloadRepository.getOrThrow(image.name)
-                downloadRepository.setStatus(download, DownloadStatus.deleted)
-                fileHelper.deleteFileFromFileSystem("$tag/${image.name}")
-            }
-        }
-
-        // delete articles
-        getArticleList().map { article ->
-            if (!article.bookmarked) {
-                //delete audio files
-                article.audioFile?.let { audioFile ->
-                    val download = downloadRepository.getOrThrow(audioFile.name)
-                    downloadRepository.setStatus(download, DownloadStatus.deleted)
-                    fileHelper.deleteFileFromFileSystem("$tag/${audioFile.name}")
-                }
-                // delete authors
-                // how to make sure they are not used somewhere else?
-
-                // delete images
-                article.imageList.map { image ->
-                    val download = downloadRepository.getOrThrow(image.name)
-                    downloadRepository.setStatus(download, DownloadStatus.deleted)
-                    fileHelper.deleteFileFromFileSystem("$tag/${image.name}")
-
-                }
-
-                val download = downloadRepository.getOrThrow(article.articleFileName)
-                downloadRepository.setStatus(download, DownloadStatus.deleted)
-                fileHelper.deleteFileFromFileSystem("$tag/${article.articleFileName}")
-            }
-        }
-
-        // set dateDownload = null
+    override fun deleteFiles() {
+        super.deleteFiles()
         IssueRepository.getInstance().resetDownloadDate(this)
     }
 

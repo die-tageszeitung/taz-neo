@@ -77,7 +77,6 @@
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d\%%</string>
-    <string name="settings_general_keep_number_issues">Die taz nach</string>
-    <string name="settings_general_keep_number_issues_days">Tagen löschen</string>
+    <string name="settings_general_keep_number_issues">Die letzten %d Ausgaben speichern</string>
 
 </resources>

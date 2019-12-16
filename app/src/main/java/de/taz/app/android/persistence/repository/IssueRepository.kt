@@ -189,6 +189,11 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getAllDownloadedStubsLiveData(): LiveData<List<IssueStub>?> {
+        return appDatabase.issueDao().getAllDownloadedLiveData()
+    }
+
+    @UiThread
     fun getImprintStub(
         issueFeedName: String,
         issueDate: String,
