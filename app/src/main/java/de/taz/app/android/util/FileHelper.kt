@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import androidx.core.content.ContextCompat
 import de.taz.app.android.api.models.Download
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import kotlinx.io.IOException
 import java.io.BufferedReader
@@ -16,6 +17,21 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     private val downloadRepository = DownloadRepository.getInstance(applicationContext)
 
+    fun createFile(fileName: String) : Boolean {
+        return downloadRepository.get(fileName)?.let {
+            createFile(it)
+        } ?: false
+    }
+
+    fun createFile(download: Download): Boolean {
+        createFileDirs(download)
+        return getFile(download).createNewFile()
+    }
+
+    fun createFileDirs(download: Download): Boolean {
+        return getFile(download).mkdirs()
+    }
+
     fun deleteFile(fileName: String): Boolean {
         return downloadRepository.get(fileName)?.let { download ->
             deleteFileForDownload(download)
@@ -23,7 +39,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
     }
 
     fun deleteFileForDownload(download: Download): Boolean {
-        return getFile(download.path).delete()
+        return getFile(download).delete()
     }
 
     fun deleteFileFromFileSystem(filePath: String) : Boolean {
@@ -31,13 +47,25 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return file.delete()
     }
 
-    fun getFile(fileName: String, internal: Boolean = false): File {
+    fun getFile(fileEntryName: String): File? {
+        return downloadRepository.get(fileEntryName)?.let { getFile(it) }
+    }
+
+    fun getFile(fileEntry: FileEntry): File? {
+        return getFile(fileEntry.name)
+    }
+
+    fun getFile(download: Download): File {
+        return getFileByPath(download.path)
+    }
+
+    fun getFileByPath(filePath: String, internal: Boolean = false): File {
         // TODO read from settings where to save
         // TODO notification if external not writable?
         return if (internal || !isExternalStorageWritable())
-            File(applicationContext.filesDir, fileName)
+            File(applicationContext.filesDir, filePath)
         else {
-            return File(ContextCompat.getExternalFilesDirs(applicationContext, null).first(), fileName)
+            return File(ContextCompat.getExternalFilesDirs(applicationContext, null).first(), filePath)
         }
     }
 
