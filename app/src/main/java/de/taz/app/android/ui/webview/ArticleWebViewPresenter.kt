@@ -7,7 +7,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -21,7 +20,7 @@ class ArticleWebViewPresenter(
 
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                getView()?.getMainView()?.showMainFragment(HomeFragment())
+                getView()?.getMainView()?.showHome()
 
             R.id.bottom_navigation_action_bookmark ->
                 getView()?.apply {
@@ -49,15 +48,6 @@ class ArticleWebViewPresenter(
                     getView()?.hideBottomSheet()
                 }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        val webViewDisplayable = viewModel?.getWebViewDisplayable()
-        if (webViewDisplayable?.isImprint() == false) {
-                showSection()
-                return true
-            }
-        return false
     }
 
     fun showSection() {

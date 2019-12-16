@@ -13,10 +13,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <FrameLayout
+        <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/main_content_fragment_placeholder"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:name="de.taz.app.android.ui.home.HomeFragment"
+                android:tag="de.taz.app.android.ui.home.HomeFragment"
                 tools:showIn="@layout/activity_main" />
 
         <TextView
