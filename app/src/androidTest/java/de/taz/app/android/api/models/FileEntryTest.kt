@@ -33,7 +33,7 @@ class FileEntryTest {
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
         downloadRepository = DownloadRepository.getInstance(context)
-        downloadRepository.appDatabase= db
+        downloadRepository.appDatabase = db
         fileHelper = FileHelper.createInstance(context)
     }
 
