@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">taz-android</string>
+    <string name="app_name">taz neo</string>
 
     <string name="toast_no_internet">Keine Internetvergindung.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
