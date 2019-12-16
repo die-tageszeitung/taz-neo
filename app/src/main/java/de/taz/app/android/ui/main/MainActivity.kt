@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("Shared pref changed: $key")
-        val cssFile = fileHelper.getFile("$RESOURCE_FOLDER/tazApi.css")
+        val cssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
         val cssString = tazApiCssHelper.generateCssString(sharedPreferences)
 
         cssFile.writeText(cssString)

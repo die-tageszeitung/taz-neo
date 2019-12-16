@@ -1,12 +1,12 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import android.webkit.CookieSyncManager.createInstance
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.FileHelper
 import org.junit.After
@@ -23,6 +23,7 @@ class FileEntryTest {
     private lateinit var context: Context
     private lateinit var db: AppDatabase
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var downloadRepository: DownloadRepository
 
     @Before
     fun setup() {
@@ -31,6 +32,8 @@ class FileEntryTest {
             context, AppDatabase::class.java).build()
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
+        downloadRepository = DownloadRepository.getInstance(context)
+        downloadRepository.appDatabase = db
         fileHelper = FileHelper.createInstance(context)
     }
 
@@ -47,13 +50,23 @@ class FileEntryTest {
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fileEntryTest, fromDB)
 
-        val file = fileHelper.getFile(fromDB!!.name)
-        file.createNewFile()
-        assertTrue(file.exists())
+        val download = Download(
+            "https://example.com",
+            "fodlr",
+            fileEntryTest
+        )
+        downloadRepository.save(download)
 
-        fromDB.delete(file.absolutePath)
-        assertNull(fileEntryRepository.get(fromDB.name))
-        assertFalse(fileHelper.getFile(fromDB.name).exists())
+        fileHelper.createFile(download)
+        val createdFile = fileHelper.getFile(fileEntryTest.name)
+        assertTrue(createdFile?.exists() == true)
+
+
+        fromDB!!.apply {
+            delete()
+            assertNull(fileEntryRepository.get(fromDB.name))
+            assertTrue(createdFile?.exists() == false)
+        }
     }
 }
 

@@ -36,7 +36,7 @@ data class Section(
         return list.distinct()
     }
 
-    override fun getFile(): File {
+    override fun getFile(): File? {
         return FileHelper.getInstance().getFile("${issueStub.tag}/$sectionFileName")
     }
 
