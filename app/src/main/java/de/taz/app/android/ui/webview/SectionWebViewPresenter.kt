@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import android.view.MenuItem
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.ui.home.HomeFragment
 
 class SectionWebViewPresenter : WebViewPresenter<Section>() {
 
