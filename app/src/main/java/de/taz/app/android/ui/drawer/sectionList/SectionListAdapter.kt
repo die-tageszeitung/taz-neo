@@ -149,12 +149,13 @@ class SectionListAdapter(
 
     private fun setMomentImage(issue: IssueOperations) {
         moment?.imageList?.lastOrNull()?.let {
-            val imgFile = fileHelper.getFile("${issue.tag}/${it.name}")
-            if (imgFile.exists()) {
-                BitmapFactory.decodeFile(imgFile.absolutePath)?.let { bitmap ->
-                    fragment.view?.findViewById<MomentView>(
-                        R.id.fragment_drawer_sections_moment
-                    )?.displayIssue(bitmap, issue.date)
+            fileHelper.getFile(it)?.apply {
+                if (exists()) {
+                    BitmapFactory.decodeFile(absolutePath)?.let { bitmap ->
+                        fragment.view?.findViewById<MomentView>(
+                            R.id.fragment_drawer_sections_moment
+                        )?.displayIssue(bitmap, issue.date)
+                    }
                 }
             }
         }

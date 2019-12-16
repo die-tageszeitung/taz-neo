@@ -71,15 +71,16 @@ class MomentViewPresenter(
 
     private fun generateBitmapForMoment(issueStub: IssueStub, moment: Moment): Bitmap? {
         // get biggest image -> TODO save image resolution?
-        return moment.imageList.lastOrNull()?.let {
-            val imgFile = FileHelper.getInstance().getFile("${issueStub.tag}/${it.name}")
-            if (imgFile.exists()) {
-                BitmapFactory.decodeFile(imgFile.absolutePath)
-            } else {
-                log.error("imgFile of $moment does not exist")
-                null
+        moment.imageList.lastOrNull()?.let {
+            FileHelper.getInstance().getFile(it)?.apply {
+                if (exists()) {
+                    return BitmapFactory.decodeFile(absolutePath)
+                } else {
+                    log.error("imgFile of $moment does not exist")
+                }
             }
         }
+        return null
     }
 
     override fun clearIssue() {

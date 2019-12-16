@@ -47,10 +47,11 @@ class BookmarksViewHolder(
             bookmarkDate?.text = dateHelper.dateToLowerCaseString(article.date)
 
             if (article.imageList.isNotEmpty()) {
-                val imgFile = fileHelper.getFile("taz/${article.date}/${article.imageList.first().name}")
-                if (imgFile.exists()) {
-                    val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-                    bookmarkImage?.setImageBitmap(myBitmap)
+                fileHelper.getFile(article.imageList.first().name)?.apply {
+                    if (exists()) {
+                        val myBitmap = BitmapFactory.decodeFile(absolutePath)
+                        bookmarkImage?.setImageBitmap(myBitmap)
+                    }
                 }
             }
 

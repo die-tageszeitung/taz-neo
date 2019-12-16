@@ -74,10 +74,10 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
                         )::enqueue
                     )
 
-                    val file = fileHelper.getFile(fromDB.path)
+                    val file = fileHelper.getFile(fromDB)
                     response.body?.bytes()?.let { bytes ->
                         // ensure folders are created
-                        fileHelper.getFile(fromDB.folder).mkdirs()
+                        fileHelper.createFileDirs(fromDB)
                         file.writeBytes(bytes)
 
                         // check sha256
