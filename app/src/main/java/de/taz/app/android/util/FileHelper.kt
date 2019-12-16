@@ -38,8 +38,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
     }
 
     fun deleteFileFromFileSystem(filePath: String) : Boolean {
-        val file = getFile(filePath)
-        return file.delete()
+        return getFile(filePath)?.delete() ?: false
     }
 
     fun getDir(fileEntry: FileEntry): File {
