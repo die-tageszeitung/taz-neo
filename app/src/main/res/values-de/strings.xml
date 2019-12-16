@@ -60,8 +60,6 @@
     <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">Meine Leseliste</string>
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Artikel zur Leseliste hinzufügen</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Aus der Leseliste entfernen</string>
-    <string name="fragment_bottom_sheet_bookmarks_added">Der Artikel wurde der Leseliste hinzugefügt</string>
-    <string name="fragment_bottom_sheet_bookmarks_removed">Der Artikel wurde aus der Leseliste entfernt</string>
 
     <string name="settings_header">Einstellungen</string>
     <string name="settings_category_text">Text</string>

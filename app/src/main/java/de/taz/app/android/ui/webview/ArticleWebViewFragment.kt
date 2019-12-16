@@ -43,6 +43,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // TODO needs to be livedata
         if (article?.bookmarked == true) {
             setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
             setIconActive(R.id.bottom_navigation_action_bookmark)

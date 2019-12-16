@@ -36,12 +36,6 @@ class BookmarkSheetFragment(private val articleFileName: String) : BaseFragment<
     }
 
     override fun setIsBookmarked(bookmarked: Boolean) {
-         fragment_bottom_sheet_bookmarks_text?.text = getText(
-             if (bookmarked)
-                 R.string.fragment_bottom_sheet_bookmarks_added
-             else
-                 R.string.fragment_bottom_sheet_bookmarks_removed
-         )
          fragment_bottom_sheet_bookmarks_add?.text = getText(
              if (bookmarked)
                  R.string.fragment_bottom_sheet_bookmarks_remove_bookmark
