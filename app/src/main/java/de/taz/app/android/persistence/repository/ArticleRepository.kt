@@ -11,6 +11,7 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -282,6 +283,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
                             } catch (e: NotFoundException) {
+                                Sentry.capture(e)
                                 log.warn("tried to delete non-existent file: $authorFileName")
                             }
                         }

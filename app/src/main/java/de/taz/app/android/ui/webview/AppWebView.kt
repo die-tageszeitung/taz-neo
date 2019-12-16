@@ -55,7 +55,6 @@ class AppWebView @JvmOverloads constructor(
 
 
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
-        log.debug("l: $l, t: $t, oldl: $oldl, oldt: $oldt")
         checkY = t
         checkX = l
         super.onScrollChanged(l, t, oldl, oldt)

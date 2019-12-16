@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.R
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
@@ -15,7 +14,7 @@ import de.taz.app.android.api.variables.IssueVariables
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.ToastHelper
+import io.sentry.Sentry
 import java.net.SocketTimeoutException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -32,7 +31,6 @@ open class ApiService private constructor(applicationContext: Context) {
 
     private val log by Log
 
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -46,17 +44,13 @@ open class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
-    @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
-    )
-    suspend fun authenticate(user: String, password: String): AuthTokenInfo {
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         return transformExceptions({
             graphQlClient.query(
                 QueryType.AuthenticationQuery,
                 AuthenticationVariables(user, password)
-            ).authentificationToken!!
+            )?.authentificationToken
         }, "authenticate")
     }
 
@@ -65,13 +59,11 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
-    suspend fun getAppInfo(): AppInfo {
+    suspend fun getAppInfo(): AppInfo? {
         return transformExceptions(
-            { AppInfo(graphQlClient.query(QueryType.AppInfoQuery).product!!) },
+            { graphQlClient.query(QueryType.AppInfoQuery)?.product?.let { AppInfo(it) } },
             "getAppInfo"
         )
     }
@@ -81,13 +73,11 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [AuthInfo] indicating if authenticated and if not why not
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
-    suspend fun getAuthInfo(): AuthInfo {
+    suspend fun getAuthInfo(): AuthInfo? {
         return transformExceptions(
-            { graphQlClient.query(QueryType.AuthInfoQuery).product!!.authInfo!! },
+            { graphQlClient.query(QueryType.AuthInfoQuery)?.product?.authInfo },
             "getAuthInfo"
         )
     }
@@ -98,19 +88,17 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return List of [Feed]s
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
     open suspend fun getFeeds(): List<Feed> {
         return transformExceptions(
             {
-                graphQlClient.query(QueryType.FeedQuery).product!!.feedList?.map {
+                graphQlClient.query(QueryType.FeedQuery)?.product?.feedList?.map {
                     Feed(it)
-                } ?: emptyList()
+                }
             },
             "getFeeds"
-        )
+        ) ?: emptyList()
     }
 
     /**
@@ -120,14 +108,12 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [Issue] of the feed at given date
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
     suspend fun getIssueByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
-    ): Issue {
+    ): Issue? {
         return transformExceptions({
             getIssuesByFeedAndDate(feedName, issueDate, 1).first()
         }, "getIssueByFeedAndDate")
@@ -140,9 +126,7 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [Issue] of the feed at given date
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
     open suspend fun getIssuesByDate(
         issueDate: String = simpleDateFormat.format(Date()),
@@ -153,11 +137,11 @@ open class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 IssueVariables(issueDate = issueDate, limit = limit)
-            ).product!!.feedList!!.forEach { feed ->
+            )?.product?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues
-        }, "getIssuesByFeedAndDate")
+        }, "getIssuesByFeedAndDate") ?: emptyList()
     }
 
     /**
@@ -168,9 +152,7 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [Issue] of the feed at given date
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
     open suspend fun getIssuesByFeedAndDate(
         feedName: String = "taz",
@@ -181,8 +163,8 @@ open class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 IssueVariables(feedName, issueDate, limit)
-            ).product!!.feedList!!.first().issueList!!.map { Issue(feedName, it) }
-        }, "getIssuesByFeedAndDate")
+            )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+        }, "getIssuesByFeedAndDate") ?: emptyList()
     }
 
     /**
@@ -190,21 +172,17 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [ResourceInfo] with the current [ResourceInfo.resourceVersion] and the information needed to download it
      */
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
-    suspend fun getResourceInfo(): ResourceInfo {
+    suspend fun getResourceInfo(): ResourceInfo? {
         return transformExceptions(
-            { ResourceInfo(graphQlClient.query(QueryType.ResourceInfoQuery).product!!) },
+            { graphQlClient.query(QueryType.ResourceInfoQuery)?.product?.let { ResourceInfo(it) } },
             "getResourceInfo"
         )
     }
 
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
     suspend fun notifyServerOfDownloadStart(
         feedName: String,
@@ -216,10 +194,10 @@ open class ApiService private constructor(applicationContext: Context) {
         installationId: String = authHelper.installationId,
         deviceFormat: DeviceFormat = DeviceFormat.mobile,
         deviceType: DeviceType = DeviceType.android
-    ): String {
+    ): String? {
         return transformExceptions(
             {
-                val data = graphQlClient.query(
+                graphQlClient.query(
                     QueryType.DownloadStart,
                     DownloadStartVariables(
                         feedName,
@@ -232,46 +210,38 @@ open class ApiService private constructor(applicationContext: Context) {
                         deviceFormat,
                         deviceType
                     )
-                )
-                val id = data.downloadStart!!
-                log.debug("Notified server that download started. ID: $id")
-                id
+                )?.downloadStart?.let { id ->
+                    log.debug("Notified server that download started. ID: $id")
+                    id
+                }
             },
             "notifyServerOfDownloadStart"
         )
     }
 
-    @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
-    )
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun notifyServerOfDownloadStop(
         id: String,
         time: Float
-    ): Boolean {
+    ): Boolean? {
         return transformExceptions(
             {
                 log.debug("Notifying server that download complete. ID: $id")
                 graphQlClient.query(
                     QueryType.DownloadStop,
                     DownloadStopVariables(id, time)
-                ).downloadStop!!
+                )?.downloadStop
             },
             "notifyServerOfDownloadStop"
         )
     }
 
     @Throws(
-        ApiServiceException.InsufficientDataException::class,
-        ApiServiceException.NoInternetException::class,
-        ApiServiceException.WrongDataException::class
+        ApiServiceException.NoInternetException::class
     )
-    private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T {
-        return try {
-            block()
-        } catch (npe: NullPointerException) {
-            throw ApiServiceException.InsufficientDataException(tag)
+    private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
+        try {
+            return block()
         } catch (uhe: UnknownHostException) {
             throw ApiServiceException.NoInternetException()
         } catch (ce: ConnectException) {
@@ -279,8 +249,13 @@ open class ApiService private constructor(applicationContext: Context) {
         } catch (ste: SocketTimeoutException) {
             throw ApiServiceException.NoInternetException()
         } catch (jee: JsonEncodingException) {
-            throw ApiServiceException.WrongDataException()
+            // inform sentry of malformed JSON response
+            Sentry.capture(ApiServiceException.WrongDataException())
+        } catch (npe: NullPointerException) {
+            // inform sentry of missing data in response
+            Sentry.capture(ApiServiceException.InsufficientDataException(tag))
         }
+        return null
     }
 
     object ApiServiceException {
