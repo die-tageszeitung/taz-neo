@@ -1,6 +1,7 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.interfaces.File
@@ -8,6 +9,7 @@ import de.taz.app.android.api.interfaces.StorageType
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
 import kotlinx.serialization.Serializable
 
 const val GLOBAL_FOLDER = "global"
@@ -22,6 +24,7 @@ data class FileEntry(
     override val size: Long,
     val folder: String
 ) : File {
+
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
         fileEntryDto.name,
         fileEntryDto.storageType,
@@ -34,11 +37,10 @@ data class FileEntry(
     val path
         get() = "$folder/$name"
 
-    fun delete() {
+    fun deleteFile() {
         val fileHelper = FileHelper.getInstance()
         fileHelper.deleteFile(name)
         DownloadRepository.getInstance().delete(name)
-        FileEntryRepository.getInstance().delete(this)
     }
 
     companion object {

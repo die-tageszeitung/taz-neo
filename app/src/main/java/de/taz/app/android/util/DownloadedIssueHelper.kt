@@ -3,8 +3,12 @@ package de.taz.app.android.util
 import android.content.Context
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.persistence.repository.IssueRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO 20 to constant
+const val KEEP_ISSUES_DOWNLOADED_DEFAULT = 20
 
 class DownloadedIssueHelper private constructor(applicationContext: Context){
 
@@ -16,8 +20,8 @@ class DownloadedIssueHelper private constructor(applicationContext: Context){
         PREFERENCES_GENERAL, Context.MODE_PRIVATE
     )
 
-    private val storedIssueNumberLiveData = SharedPreferenceIntLiveData(
-        generalSettings, "general_keep_number_issues", 20
+    private val storedIssueNumberLiveData = SharedPreferenceStringLiveData(
+        generalSettings, "general_keep_number_issues", KEEP_ISSUES_DOWNLOADED_DEFAULT.toString()
     )
     private val downloadIssueNumberLiveData = issueRepository.getAllDownloadedStubsLiveData()
 
@@ -27,13 +31,15 @@ class DownloadedIssueHelper private constructor(applicationContext: Context){
     }
 
     private fun ensureIssueCount() {
-        var downloadedIssueCount = downloadIssueNumberLiveData.value?.size ?: 0
-        val storedIssuePreference = storedIssueNumberLiveData.value ?: 20
+        CoroutineScope(Dispatchers.IO).launch {
+            var downloadedIssueCount = downloadIssueNumberLiveData.value?.size ?: 0
+            val storedIssuePreference = storedIssueNumberLiveData.value?.toInt() ?: KEEP_ISSUES_DOWNLOADED_DEFAULT
 
-        while (downloadedIssueCount > storedIssuePreference) {
-            issueRepository.getEarliestDownloadedIssue()?.let {
-                it.deleteFiles()
-                downloadedIssueCount--
+            while (downloadedIssueCount > storedIssuePreference) {
+                issueRepository.getEarliestDownloadedIssue()?.let {
+                    it.deleteFiles()
+                    downloadedIssueCount--
+                }
             }
         }
     }

@@ -86,6 +86,7 @@ class SplashActivity : AppCompatActivity() {
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
+            DownloadedIssueHelper.createInstance(it)
         }
         log.debug("Singletons initialized")
     }
@@ -162,7 +163,7 @@ class SplashActivity : AppCompatActivity() {
                         fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                             // only delete modified files
                             if (oldFileEntry != newFileEntry) {
-                                oldFileEntry.delete()
+                                oldFileEntry.deleteFile()
                             }
                         }
                     }

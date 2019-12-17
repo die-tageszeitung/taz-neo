@@ -62,7 +62,7 @@ class FileEntryTest {
 
 
         fromDB!!.apply {
-            delete()
+            deleteFile()
             assertNull(fileEntryRepository.get(fromDB.name))
             assertFalse(createdFile.exists())
         }

@@ -13,6 +13,7 @@
                 app:key="general_keep_number_issues"
                 app:allowDividerAbove="false"
                 app:allowDividerBelow="false"
+                app:persistent="true"
                 android:title="@string/settings_general_keep_number_issues"
                 app:negativeButtonText="@android:string/cancel"
                 app:positiveButtonText="@android:string/ok"
