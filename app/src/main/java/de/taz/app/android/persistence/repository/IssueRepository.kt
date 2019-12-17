@@ -295,8 +295,6 @@ open class IssueRepository private constructor(applicationContext: Context) :
             appDatabase.issueDao().delete(
                 IssueStub(issue)
             )
-
-            // TODO actually delete files! perhaps decide if to keep some
         }
     }
 

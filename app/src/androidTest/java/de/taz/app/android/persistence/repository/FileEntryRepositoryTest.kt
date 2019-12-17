@@ -90,7 +90,7 @@ class FileEntryRepositoryTest {
     }
 }
 
-val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0)
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0)
-val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0)
-val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0)
+val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0, "folder1")
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "folder2")
+val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0, "folder3")
+val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0, "folder4")

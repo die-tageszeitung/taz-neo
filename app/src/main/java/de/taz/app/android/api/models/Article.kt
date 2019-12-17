@@ -12,7 +12,8 @@ import java.io.File
 
 data class Article(
     val articleHtml: FileEntry,
-    val date: String,
+    val issueFeedName: String,
+    val issueDate: String,
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
@@ -24,17 +25,24 @@ data class Article(
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0
-): ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
-    constructor(date: String, articleDto: ArticleDto, articleType: ArticleType = ArticleType.STANDARD) : this(
-        articleDto.articleHtml,
-        date,
+) : ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
+
+    constructor(
+        issueFeedName: String,
+        issueDate: String,
+        articleDto: ArticleDto,
+        articleType: ArticleType = ArticleType.STANDARD
+    ) : this(
+        FileEntry(articleDto.articleHtml, "$issueFeedName/$issueDate"),
+        issueFeedName,
+        issueDate,
         articleDto.title,
         articleDto.teaser,
         articleDto.onlineLink,
-        articleDto.audioFile,
+        articleDto.audioFile?.let { FileEntry(it, "$issueFeedName/$issueDate") },
         articleDto.pageNameList ?: emptyList(),
-        articleDto.imageList ?: emptyList(),
-        articleDto.authorList ?: emptyList(),
+        articleDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+        articleDto.authorList?.map { Author(it) } ?: emptyList(),
         articleType
     )
 
@@ -49,9 +57,7 @@ data class Article(
     }
 
     override fun getFile(): File? {
-        return getIssueStub()?.let { issueStub ->
-            FileHelper.getInstance().getFile("${issueStub.tag}/$articleFileName")
-        }
+        return FileHelper.getInstance().getFile(articleHtml)
     }
 
     override fun previous(): Article? {
@@ -72,7 +78,7 @@ data class Article(
 
     @UiThread
     fun getIssueStub(): IssueStub? {
-        return if(isImprint()) {
+        return if (isImprint()) {
             IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
         } else {
             getSection()?.issueStub
@@ -83,6 +89,7 @@ data class Article(
     fun getIssue(): Issue? {
         return getIssueStub()?.let { IssueRepository.getInstance().getIssue(it) }
     }
+
     override fun getIssueOperations() = getIssueStub()
 
 }

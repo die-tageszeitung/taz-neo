@@ -52,22 +52,21 @@ class FileEntryTest {
 
         val download = Download(
             "https://example.com",
-            "fodlr",
             fileEntryTest
         )
         downloadRepository.save(download)
 
-        fileHelper.createFile(download)
-        val createdFile = fileHelper.getFile(fileEntryTest.name)
-        assertTrue(createdFile?.exists() == true)
+        fileHelper.createFile(fileEntryTest)
+        val createdFile = fileHelper.getFile(fileEntryTest)
+        assertTrue(createdFile.exists())
 
 
         fromDB!!.apply {
             delete()
             assertNull(fileEntryRepository.get(fromDB.name))
-            assertTrue(createdFile?.exists() == false)
+            assertFalse(createdFile.exists())
         }
     }
 }
 
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0)
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "fodlr")
