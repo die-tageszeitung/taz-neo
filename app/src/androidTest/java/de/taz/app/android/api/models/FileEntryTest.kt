@@ -45,7 +45,7 @@ class FileEntryTest {
 
     @Test
     @Throws(Exception::class)
-    fun delete() {
+    fun deleteFile() {
         fileEntryRepository.save(fileEntryTest)
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fileEntryTest, fromDB)
@@ -63,7 +63,6 @@ class FileEntryTest {
 
         fromDB!!.apply {
             deleteFile()
-            assertNull(fileEntryRepository.get(fromDB.name))
             assertFalse(createdFile.exists())
         }
     }
