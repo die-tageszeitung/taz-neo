@@ -19,7 +19,7 @@ object TazApiCssHelper {
     }
 
     fun generateCssString(sharedPreferences: SharedPreferences) : String {
-        val nightModeCssFile = fileHelper.getFile("$RESOURCE_FOLDER/themeNight.css")
+        val nightModeCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/themeNight.css")
         val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"$nightModeCssFile\";" else ""
         val fontSizePx = computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
         return """

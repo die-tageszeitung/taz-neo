@@ -16,7 +16,7 @@ interface CacheableDownload {
      * metadata will be kepts
      */
     fun deleteFiles() {
-        getAllFiles().forEach { it.delete() }
+        getAllFiles().forEach { it.deleteFile() }
     }
 
     fun download(applicationContext: Context) {
