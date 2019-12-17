@@ -1,6 +1,7 @@
 package de.taz.app.android.download
 
 import android.content.Context
+import androidx.annotation.UiThread
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -9,6 +10,7 @@ import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
@@ -56,59 +58,63 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
      * start download
      * @param fileName - [FileEntry.name] of [FileEntry] to download
      */
+    @UiThread
     suspend fun startDownload(appContext: Context, fileName: String) {
         val downloadRepository = DownloadRepository.getInstance(appContext)
+        val fileEntryRepository = FileEntryRepository.getInstance(appContext)
         val fileHelper = FileHelper.createInstance(appContext)
 
-        downloadRepository.get(fileName)?.let { fromDB ->
-            // download only if not already downloaded
-            if (fromDB.status != DownloadStatus.done) {
-                log.debug("starting download of ${fromDB.file.name}")
+        fileEntryRepository.get(fileName)?.let { fileEntry ->
+            downloadRepository.get(fileName)?.let { fromDB ->
+                // download only if not already downloaded
+                if (fromDB.status != DownloadStatus.done) {
+                    log.debug("starting download of ${fromDB.file.name}")
 
-                downloadRepository.setStatus(fromDB, DownloadStatus.started)
+                    downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
-                try {
-                    val response = awaitCallback(
-                        httpClient.newCall(
-                            Request.Builder().url(fromDB.url).get().build()
-                        )::enqueue
-                    )
+                    try {
+                        val response = awaitCallback(
+                            httpClient.newCall(
+                                Request.Builder().url(fromDB.url).get().build()
+                            )::enqueue
+                        )
 
-                    val file = fileHelper.getFile(fromDB)
-                    response.body?.bytes()?.let { bytes ->
-                        // ensure folders are created
-                        fileHelper.createFileDirs(fromDB)
-                        file.writeBytes(bytes)
+                        val file = fileHelper.getFile(fileEntry)
+                        response.body?.bytes()?.let { bytes ->
+                            // ensure folders are created
+                            fileHelper.createFileDirs(fileEntry)
+                            file.writeBytes(bytes)
 
-                        // check sha256
-                        val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
-                            .fold("", { str, it -> str + "%02x".format(it) })
-                        if (sha256 == fromDB.file.sha256) {
-                            log.info("sha256 matched for file ${fromDB.file.name}")
-                        } else {
-                            log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
-                        }
-                        downloadRepository.setStatus(fromDB, DownloadStatus.done)
-                        log.debug("finished download of ${fromDB.file.name}")
-                    } ?: downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
-                } catch (e: Exception) {
-                    downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
-                    Sentry.capture(e)
+                            // check sha256
+                            val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
+                                .fold("", { str, it -> str + "%02x".format(it) })
+                            if (sha256 == fromDB.file.sha256) {
+                                log.info("sha256 matched for file ${fromDB.file.name}")
+                            } else {
+                                log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                            }
+                            downloadRepository.setStatus(fromDB, DownloadStatus.done)
+                            log.debug("finished download of ${fromDB.file.name}")
+                        } ?: downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                    } catch (e: Exception) {
+                        downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                        Sentry.capture(e)
+                    }
+                } else {
+                    log.debug("skipping download of ${fromDB.file.name} as it was already finished")
                 }
-            } else {
-                log.debug("skipping download of ${fromDB.file.name} as it was already finished")
-            }
 
-            // cancel workmanager request if downloaded successfully
-            if (fromDB.status == DownloadStatus.done) {
-                fromDB.workerManagerId?.let {
-                    WorkManager.getInstance(appContext).cancelWorkById(it)
-                    log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+                // cancel workmanager request if downloaded successfully
+                if (fromDB.status == DownloadStatus.done) {
+                    fromDB.workerManagerId?.let {
+                        WorkManager.getInstance(appContext).cancelWorkById(it)
+                        log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+                    }
+                    fromDB.workerManagerId = null
+                    downloadRepository.update(fromDB)
                 }
-                fromDB.workerManagerId = null
-                downloadRepository.update(fromDB)
-            }
-        } ?: log.error("download $fileName not found")
+            } ?: log.error("download $fileName not found")
+        }
     }
 
 }

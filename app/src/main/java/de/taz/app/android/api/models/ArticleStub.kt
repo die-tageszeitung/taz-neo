@@ -7,7 +7,8 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 @Entity(tableName = "Article")
 data class ArticleStub(
     @PrimaryKey override val articleFileName: String,
-    val date: String,
+    val issueFeedName: String,
+    val issueDate: String,
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
@@ -19,7 +20,8 @@ data class ArticleStub(
 ): ArticleOperations {
     constructor(article: Article) : this(
         article.articleHtml.name,
-        article.date,
+        article.issueFeedName,
+        article.issueDate,
         article.title,
         article.teaser,
         article.onlineLink,

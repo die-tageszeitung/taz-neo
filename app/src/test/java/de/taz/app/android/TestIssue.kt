@@ -9,7 +9,8 @@ val testFileEntry = FileEntry(
     StorageType.issue,
     161L,
     "sha256",
-    0L
+    0L,
+    "folder"
 )
 
 
@@ -19,7 +20,8 @@ val testSection = Section(
         StorageType.issue,
         1337L,
         "?",
-        0L
+        0,
+        "folder"
     ),
     "1313-12-13",
     "a section",
@@ -63,6 +65,7 @@ val testIssueStub = IssueStub(
 
 val testArticle = Article(
     testFileEntry,
+    "taz",
     "1999-01-01",
     "super Artikel",
     "hervorragender artikel …",

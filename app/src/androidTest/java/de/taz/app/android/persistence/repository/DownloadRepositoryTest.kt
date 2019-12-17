@@ -9,7 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.DownloadStub
-import de.taz.app.android.download.RESOURCE_FOLDER
+import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
 import org.junit.After
@@ -73,5 +73,5 @@ class DownloadRepositoryTest {
 
 }
 
-private val download = Download("http://example.com/", RESOURCE_FOLDER, fileEntryTest, DownloadStatus.started, UUID.randomUUID())
-private val download2 = Download("http://example.com", "another/folder/", fileEntryTest2, DownloadStatus.done)
+private val download = Download("http://example.com/", fileEntryTest, DownloadStatus.started, UUID.randomUUID())
+private val download2 = Download("http://example.com", fileEntryTest2, DownloadStatus.done)

@@ -24,9 +24,6 @@ const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_DATE = "extra.issue.date"
 
 
-const val GLOBAL_FOLDER = "global"
-const val RESOURCE_FOLDER = "resources"
-
 const val CAUSE_NO_INTERNET = "no internet"
 
 object DownloadService {
@@ -158,13 +155,11 @@ object DownloadService {
         val allFiles = cacheableDownload.getAllFiles()
         val tag = cacheableDownload.getDownloadTag()
 
-        // create global downloads
         val globalFiles = allFiles.filter { it.storageType == StorageType.global }
         if (globalFiles.isNotEmpty()) {
             downloads.addAll(
                 createAndSaveDownloads(
                     appInfoRepository.getOrThrow().globalBaseUrl,
-                    GLOBAL_FOLDER,
                     globalFiles,
                     tag
                 )
@@ -179,7 +174,6 @@ object DownloadService {
                 downloads.addAll(
                     createAndSaveDownloads(
                         resourceInfo.resourceBaseUrl,
-                        RESOURCE_FOLDER,
                         resourceFiles,
                         tag
                     )
@@ -193,7 +187,6 @@ object DownloadService {
             downloads.addAll(
                 createAndSaveDownloads(
                     issue.baseUrl,
-                    issue.tag,
                     issueFiles,
                     tag
                 )
@@ -270,11 +263,10 @@ object DownloadService {
      */
     private fun createAndSaveDownloads(
         baseUrl: String,
-        folderPath: String,
         fileEntries: List<FileEntry>,
         tag: String?
     ): List<Download> {
-        return fileEntries.map { createAndSaveDownload(baseUrl, folderPath, it, tag) }
+        return fileEntries.map { createAndSaveDownload(baseUrl, it, tag) }
     }
 
     /**
@@ -284,13 +276,11 @@ object DownloadService {
      */
     private fun createAndSaveDownload(
         baseUrl: String,
-        folderPath: String,
         fileEntry: FileEntry,
         tag: String?
     ): Download {
         val download = Download(
             baseUrl,
-            folderPath,
             fileEntry,
             tag = tag
         )

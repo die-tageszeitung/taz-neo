@@ -8,14 +8,12 @@ import java.util.*
 data class DownloadStub(
     @PrimaryKey val fileName: String,
     val baseUrl: String,
-    val folder: String,
     var workerManagerId: UUID? = null,
     var status: DownloadStatus = DownloadStatus.pending
 ) {
     constructor(download: Download) : this(
         download.file.name,
         download.baseUrl,
-        download.folder,
         download.workerManagerId,
         download.status
     )
