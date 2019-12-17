@@ -29,7 +29,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
-        Moment(issueDto.moment),
+        Moment(feedName, issueDto.date, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,
@@ -37,11 +37,11 @@ data class Issue(
         issueDto.zipName,
         issueDto.zipPdfName,
         issueDto.navButton,
-        issueDto.imprint?.let { Article(issueDto.date, it, ArticleType.IMPRINT) },
+        issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
         issueDto.fileList,
         issueDto.fileListPdf ?: emptyList(),
-        issueDto.sectionList?.map { Section(issueDto.date, it) } ?: emptyList(),
-        issueDto.pageList ?: emptyList()
+        issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
+        issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
 
     override fun getAllFiles(): List<FileEntry> {

@@ -72,7 +72,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
     @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Download {
-        try {
             val downloadStub = getWithoutFileOrThrow(fileName)
             val file = fileEntryRepository.getOrThrow(fileName)
 
@@ -80,9 +79,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
                 downloadStub,
                 file
             )
-        } catch (e: Exception) {
-            throw NotFoundException()
-        }
     }
 
     @UiThread

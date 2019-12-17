@@ -8,7 +8,9 @@ import de.taz.app.android.persistence.repository.IssueRepository
 data class Moment(
     val imageList: List<FileEntry> = emptyList()
 ): CacheableDownload {
-    constructor(momentDto: MomentDto): this(momentDto.imageList ?: emptyList())
+    constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto): this(
+        momentDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList()
+    )
 
     override fun getAllFiles(): List<FileEntry> {
         return imageList

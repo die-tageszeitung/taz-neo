@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 
+const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
 
 data class ResourceInfo(
@@ -15,7 +16,7 @@ data class ResourceInfo(
         productDto.resourceVersion!!,
         productDto.resourceBaseUrl!!,
         productDto.resourceZip!!,
-        productDto.resourceList!!
+        productDto.resourceList!!.map { FileEntry(it, RESOURCE_FOLDER) }
     )
 
     override fun getAllFiles(): List<FileEntry> {

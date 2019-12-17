@@ -10,19 +10,19 @@ import java.io.File
 
 data class Section(
     val sectionHtml: FileEntry,
-    val date: String,
+    val issueDate: String,
     val title: String,
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList()
 ) : SectionOperations, CacheableDownload, WebViewDisplayable {
-    constructor(date: String, sectionDto: SectionDto) : this(
-        sectionDto.sectionHtml,
-        date,
+    constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
+        FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
+        issueDate,
         sectionDto.title,
         sectionDto.type,
-        sectionDto.articleList?.map { Article(date, it) } ?: listOf(),
-        sectionDto.imageList ?: listOf()
+        sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) } ?: listOf(),
+        sectionDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: listOf()
     )
 
     override val sectionFileName: String
@@ -37,7 +37,7 @@ data class Section(
     }
 
     override fun getFile(): File? {
-        return FileHelper.getInstance().getFile("${issueStub.tag}/$sectionFileName")
+        return FileHelper.getInstance().getFile(sectionHtml)
     }
 
     override fun previous(): Section? {

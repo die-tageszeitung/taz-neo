@@ -2,10 +2,10 @@ package de.taz.app.android.util
 
 import android.content.Context
 import android.os.Environment
+import androidx.annotation.UiThread
 import androidx.core.content.ContextCompat
-import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.io.IOException
 import java.io.BufferedReader
 import java.io.File
@@ -15,48 +15,39 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<FileHelper, Context>(::FileHelper)
 
-    private val downloadRepository = DownloadRepository.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    fun createFile(fileName: String) : Boolean {
-        return downloadRepository.get(fileName)?.let {
-            createFile(it)
-        } ?: false
+    fun createFile(fileEntry: FileEntry): Boolean {
+        createFileDirs(fileEntry)
+        return getFile(fileEntry).createNewFile()
     }
 
-    fun createFile(download: Download): Boolean {
-        createFileDirs(download)
-        return getFile(download).createNewFile()
+    fun createFileDirs(fileEntry: FileEntry): Boolean {
+        return getDir(fileEntry).mkdirs()
     }
 
-    fun createFileDirs(download: Download): Boolean {
-        return getFile(download).mkdirs()
-    }
-
+    @UiThread
     fun deleteFile(fileName: String): Boolean {
-        return downloadRepository.get(fileName)?.let { download ->
+        return fileEntryRepository.get(fileName)?.let { download ->
             deleteFileForDownload(download)
         } ?: false
     }
 
-    fun deleteFileForDownload(download: Download): Boolean {
-        return getFile(download).delete()
+    fun deleteFileForDownload(fileEntry: FileEntry): Boolean {
+        return getFile(fileEntry).delete()
     }
 
-    fun deleteFileFromFileSystem(filePath: String) : Boolean {
-        val file = File(filePath)
-        return file.delete()
+    fun getDir(fileEntry: FileEntry): File {
+        return getFileByPath(fileEntry.folder)
     }
 
+    @UiThread
     fun getFile(fileEntryName: String): File? {
-        return downloadRepository.get(fileEntryName)?.let { getFile(it) }
+        return fileEntryRepository.get(fileEntryName)?.let { getFile(it) }
     }
 
-    fun getFile(fileEntry: FileEntry): File? {
-        return getFile(fileEntry.name)
-    }
-
-    fun getFile(download: Download): File {
-        return getFileByPath(download.path)
+    fun getFile(fileEntry: FileEntry): File {
+        return getFileByPath(fileEntry.path)
     }
 
     fun getFileByPath(filePath: String, internal: Boolean = false): File {
@@ -84,6 +75,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
+    @UiThread
     @Throws(IOException::class)
     fun readFileFromAssets(path: String): String {
         var bufferedReader: BufferedReader? = null
