@@ -15,12 +15,14 @@ abstract class SectionDao : BaseDao<SectionStub>() {
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
     abstract fun getLiveData(sectionFileName: String): LiveData<SectionStub?>
 
-    @Query("""SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
-        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.date == IssueSectionJoin.issueDate
+    @Query(
+        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
+        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.issueDate == IssueSectionJoin.issueDate
         WHERE IssueSectionJoin.issueDate == :issueDate AND IssueSectionJoin.issueFeedName == :issueFeedName
             AND IssueSectionJoin.issueStatus == :issueStatus
         ORDER BY IssueSectionJoin.`index` ASC
-    """)
+    """
+    )
     abstract fun getSectionsForIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): List<SectionStub>
 
     @Query(""" SELECT Section.* FROM Section 

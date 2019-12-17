@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.annotation.UiThread
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
@@ -26,7 +27,7 @@ open class ResourceInfoRepository private constructor(applicationContext: Contex
             )
             // save file resourceList
             fileEntryRepository.save(
-                resourceInfo.resourceList.map { FileEntry(it) }
+                resourceInfo.resourceList
             )
             // save relation to files
             appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
@@ -62,7 +63,7 @@ open class ResourceInfoRepository private constructor(applicationContext: Contex
             resourceInfoStub.resourceVersion,
             resourceInfoStub.resourceBaseUrl,
             resourceInfoStub.resourceZip,
-            resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size) }
+            resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size, RESOURCE_FOLDER ) }
         )
     }
 

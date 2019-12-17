@@ -44,7 +44,7 @@ class BookmarksViewHolder(
 
     fun bind(article: Article) {
         article.let {
-            bookmarkDate?.text = dateHelper.dateToLowerCaseString(article.date)
+            bookmarkDate?.text = dateHelper.dateToLowerCaseString(article.issueDate)
 
             if (article.imageList.isNotEmpty()) {
                 fileHelper.getFile(article.imageList.first().name)?.apply {

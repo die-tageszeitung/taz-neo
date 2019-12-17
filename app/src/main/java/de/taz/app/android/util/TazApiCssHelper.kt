@@ -2,7 +2,7 @@ package de.taz.app.android.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import de.taz.app.android.download.RESOURCE_FOLDER
+import de.taz.app.android.api.models.RESOURCE_FOLDER
 
 const val SETTINGS_TEXT_DEFAULT_FONT_SIZE = 18
 

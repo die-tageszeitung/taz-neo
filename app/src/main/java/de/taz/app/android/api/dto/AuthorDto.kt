@@ -1,5 +1,6 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.Author
-
-typealias AuthorDto = Author
+data class AuthorDto(
+    val name: String? = null,
+    val imageAuthor: FileEntryDto? = null
+)

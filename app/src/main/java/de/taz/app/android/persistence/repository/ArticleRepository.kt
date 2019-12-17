@@ -167,7 +167,8 @@ open class ArticleRepository private constructor(applicationContext: Context) :
 
         return Article(
             articleHtml,
-            articleStub.date,
+            articleStub.issueFeedName,
+            articleStub.issueDate,
             articleStub.title,
             articleStub.teaser,
             articleStub.onlineLink,
