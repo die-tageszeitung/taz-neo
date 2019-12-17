@@ -77,6 +77,6 @@
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d\%%</string>
-    <string name="settings_general_keep_number_issues">Die letzten %d Ausgaben speichern</string>
-
+    <string name="settings_general_keep_number_issues">Die letzten %s Ausgaben speichern</string>
+    <string name="settings_general_keep_number_issue_titles">Ausgabenanzahl behalten</string>
 </resources>
