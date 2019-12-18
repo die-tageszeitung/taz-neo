@@ -5,8 +5,8 @@
 
     <item>
         <bitmap
-                android:src="@drawable/ic_launcher_foreground"
-        android:gravity="center" />
+                android:gravity="center"
+                android:src="@drawable/ic_launcher_foreground" />
     </item>
 
 </layer-list>
