@@ -5,7 +5,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
-import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
