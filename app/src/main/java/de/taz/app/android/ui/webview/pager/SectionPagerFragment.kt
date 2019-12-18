@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,12 +27,22 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     private var initialSection: Section? = null
 
+    private var stableIdProvider: StableIdViewModel? = null
+    private var sectionAdapter: SectionPagerAdapter? = null
+
     companion object {
         fun createInstance(initialSection: Section): SectionPagerFragment {
             // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
             val fragment = SectionPagerFragment()
             fragment.initialSection = initialSection
             return fragment
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            sectionAdapter = SectionPagerAdapter(this, it)
         }
     }
 
@@ -63,12 +74,19 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     }
 
     override fun onBackPressed(): Boolean {
-        (webview_pager_viewpager.adapter as? SectionPagerAdapter)
-        val fragment = childFragmentManager.fragments.firstOrNull { it.isVisible } as? SectionWebViewFragment
-        fragment?.let {
+        getCurrentFragment()?.let {
             return it.onBackPressed()
         }
         return false
+    }
+
+    private fun getCurrentFragment(): SectionWebViewFragment? {
+        return childFragmentManager.fragments.firstOrNull {
+            (it as? SectionWebViewFragment)?.let { fragment ->
+                return@firstOrNull fragment.section == sectionAdapter?.getCurrentSection()
+            }
+            return@firstOrNull false
+        } as? SectionWebViewFragment
     }
 
     override fun tryLoadSection(section: Section): Boolean {
@@ -76,8 +94,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     }
 
     private fun setupViewPager() {
-        val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
-        val sectionAdapter = SectionPagerAdapter(this, stableIdProvider)
         webview_pager_viewpager?.apply {
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -103,7 +119,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         webview_pager_viewpager.setCurrentItem(currentPosition, false)
     }
 
-    private class SectionPagerAdapter(
+    private inner class SectionPagerAdapter(
         fragment: Fragment,
         private val stableIdProvider: StableIdProvider
     ) : FragmentStateAdapter(fragment) {
@@ -124,6 +140,10 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         override fun getItemId(position: Int): Long {
             val filename = sections[position].sectionFileName
             return stableIdProvider.getId(filename)
+        }
+
+        fun getCurrentSection(): Section {
+            return sections[webview_pager_viewpager.currentItem]
         }
     }
 }
