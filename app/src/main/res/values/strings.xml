@@ -60,6 +60,7 @@
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
 
     <string name="settings_header">settings</string>
+    <string name="settings_category_general">general</string>
     <string name="settings_category_text">text</string>
     <string name="settings_category_account">account</string>
     <string name="settings_text_font_size">Font size</string>
@@ -73,6 +74,8 @@
     <string name="settings_account_manage_account">manage account</string>
     <string name="settings_decrease_font_size">Decrease font size</string>
     <string name="settings_increase_font_size">Increase font size</string>
+    <string name="settings_general_keep_number_issues">Keep last %s issues</string>
+    <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
 
     <string name="percentage">%d\%%</string>
 </resources>

@@ -5,8 +5,10 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 data class Issue(
     override val feedName: String,
@@ -23,7 +25,8 @@ data class Issue(
     val fileList: List<String> = emptyList(),
     val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
-    val pageList: List<Page> = emptyList()
+    val pageList: List<Page> = emptyList(),
+    override val dateDownload: Date? = null
 ) : IssueOperations, CacheableDownload {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -83,6 +86,11 @@ data class Issue(
         return articleList
     }
 
+    override fun deleteFiles() {
+        super.deleteFiles()
+        IssueRepository.getInstance().resetDownloadDate(this)
+    }
+
 }
 
 enum class IssueStatus {
@@ -93,5 +101,5 @@ enum class IssueStatus {
 }
 
 enum class ArticleType {
-   STANDARD, IMPRINT;
+    STANDARD, IMPRINT;
 }

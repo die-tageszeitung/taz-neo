@@ -13,7 +13,7 @@ class CustomSwitchPreference @JvmOverloads constructor(
 ) : SwitchPreference(context, attributeSet, defStyleAttr, defStyleRes) {
 
     init {
-        widgetLayoutResource = R.layout.custom_preference_switch_2
+        widgetLayoutResource = R.layout.preference_switch
     }
 
     override fun onBindViewHolder(holder: PreferenceViewHolder?) {

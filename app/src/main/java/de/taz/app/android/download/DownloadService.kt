@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
@@ -33,6 +34,7 @@ object DownloadService {
     private val apiService = ApiService.getInstance()
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
+    private val issueRepository = IssueRepository.getInstance()
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectionPool(ConnectionPool(20, 5, TimeUnit.MINUTES))
@@ -52,6 +54,10 @@ object DownloadService {
             var downloadId: String? = null
             val start: Long = System.currentTimeMillis()
             val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
+            issue?.let{
+                issueRepository.setDownloadDate(issue, Date())
+            }
 
             val job = ioScope.launch {
                 try {

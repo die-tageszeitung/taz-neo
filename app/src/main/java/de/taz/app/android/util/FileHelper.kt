@@ -28,12 +28,12 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     @UiThread
     fun deleteFile(fileName: String): Boolean {
-        return fileEntryRepository.get(fileName)?.let { download ->
-            deleteFileForDownload(download)
+        return fileEntryRepository.get(fileName)?.let { fileEntry ->
+            deleteFile(fileEntry)
         } ?: false
     }
 
-    fun deleteFileForDownload(fileEntry: FileEntry): Boolean {
+    fun deleteFile(fileEntry: FileEntry): Boolean {
         return getFile(fileEntry).delete()
     }
 

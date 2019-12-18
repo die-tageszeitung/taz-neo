@@ -22,6 +22,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.security.MessageDigest
+import java.util.*
 
 
 /**
@@ -157,6 +158,7 @@ class ScheduleIssueDownloadWorkManagerWorker(
                     try {
                         ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date)?.let { issue ->
                             IssueRepository.getInstance(appContext).save(issue)
+                            IssueRepository.getInstance(appContext).setDownloadDate(issue, Date())
                             DownloadService.scheduleDownload(appContext, issue)
                             Result.success()
                         } ?: Result.failure()

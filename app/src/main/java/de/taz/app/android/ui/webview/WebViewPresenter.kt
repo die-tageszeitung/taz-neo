@@ -158,9 +158,8 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
      */
     fun injectCss(sharedPreferences: SharedPreferences) {
         log.debug("Injecting css")
-        val tazApiCssHelper = TazApiCssHelper.getInstance()
 
-        val cssString = tazApiCssHelper.generateCssString(sharedPreferences)
+        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
         getView()?.getWebView()

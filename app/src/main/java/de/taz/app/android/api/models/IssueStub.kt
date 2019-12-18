@@ -5,6 +5,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 @Entity(
     tableName = "Issue",
@@ -21,13 +22,14 @@ data class IssueStub(
     val zipPdfName: String? = null,
     val navButton: NavButton? = null,
     val fileList: List<String>,
-    val fileListPdf: List<String> = emptyList()
+    val fileListPdf: List<String> = emptyList(),
+    override val dateDownload: Date? = null
 ): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
         issue.minResourceVersion, issue.zipName, issue.zipPdfName,
-        issue.navButton, issue.fileList, issue.fileListPdf
+        issue.navButton, issue.fileList, issue.fileListPdf, issue.dateDownload
     )
 
     suspend fun getIssue(): Issue {
