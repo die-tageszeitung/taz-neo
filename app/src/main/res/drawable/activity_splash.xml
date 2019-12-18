@@ -3,9 +3,10 @@
 
     <item android:drawable="@drawable/bg_activity_splash" />
 
-    <item
-        android:drawable="@drawable/ic_logo"
-        android:gravity="center"
-    />
+    <item>
+        <bitmap
+                android:gravity="center"
+                android:src="@drawable/ic_launcher_foreground" />
+    </item>
 
 </layer-list>
