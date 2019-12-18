@@ -5,7 +5,7 @@ import androidx.work.*
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.interfaces.StorageType
+import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue

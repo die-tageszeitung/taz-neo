@@ -1,7 +1,9 @@
 package de.taz.app.android.api.dto
 
+import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.models.*
 
+@JsonClass(generateAdapter = true)
 open class IssueDto(
     open val date: String,
     open val moment: MomentDto,

@@ -1,7 +1,9 @@
 package de.taz.app.android.api.variables
 
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 
+@JsonClass(generateAdapter = true)
 data class IssueVariables(
     val feedName: String? = null,
     val issueDate: String,

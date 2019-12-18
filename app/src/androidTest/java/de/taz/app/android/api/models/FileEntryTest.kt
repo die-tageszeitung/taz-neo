@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.api.interfaces.StorageType
+import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository

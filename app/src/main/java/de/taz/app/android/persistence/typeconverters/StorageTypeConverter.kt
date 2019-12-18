@@ -1,7 +1,7 @@
 package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
-import de.taz.app.android.api.interfaces.StorageType
+import de.taz.app.android.api.dto.StorageType
 
 
 class StorageTypeConverter {

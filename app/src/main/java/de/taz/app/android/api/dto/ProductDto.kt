@@ -1,7 +1,9 @@
 package de.taz.app.android.api.dto
 
+import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.models.AuthInfo
 
+@JsonClass(generateAdapter = true)
 data class ProductDto (
     val resourceVersion: Int? = null,
     val resourceBaseUrl: String? = null,
@@ -14,6 +16,8 @@ data class ProductDto (
     val feedList: List<FeedDto>? = null
 )
 
+@JsonClass(generateAdapter = false)
 enum class AppName { taz, lmd }
 
+@JsonClass(generateAdapter = false)
 enum class AppType { production, test, local }
