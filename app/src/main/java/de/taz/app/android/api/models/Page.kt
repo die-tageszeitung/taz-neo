@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 
@@ -25,6 +26,7 @@ data class Page (
     }
 }
 
+@JsonClass(generateAdapter = false)
 enum class PageType {
     left,
     right,

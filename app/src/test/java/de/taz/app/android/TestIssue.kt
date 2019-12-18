@@ -1,7 +1,7 @@
 package de.taz.app.android
 
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.interfaces.StorageType
+import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.*
 
 val testFileEntry = FileEntry(

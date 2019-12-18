@@ -1,5 +1,8 @@
 package de.taz.app.android.api.dto
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class SectionDto (
     val sectionHtml: FileEntryDto,
     val title: String,
@@ -8,6 +11,7 @@ data class SectionDto (
     val imageList: List<FileEntryDto>? = null
 )
 
+@JsonClass(generateAdapter = false)
 enum class SectionType {
     articles
 }
