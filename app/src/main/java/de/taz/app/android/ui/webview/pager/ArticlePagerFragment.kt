@@ -82,7 +82,8 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         getCurrentFragment()?.let {
             return it.onBackPressed()
         }
-        return false
+        presenter.onBackPressed()
+        return true
     }
 
     private fun getCurrentFragment(): ArticleWebViewFragment? {

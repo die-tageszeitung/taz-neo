@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseDataController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticlePagerDataController : BaseDataController(),
     ArticlePagerContract.DataController {
@@ -28,6 +29,10 @@ class ArticlePagerDataController : BaseDataController(),
     private fun setArticleListAndPosition(articles: List<Article>, position: Int) {
         currentPosition = if (position >= 0) position else 0
         articleList.postValue(articles)
+    }
+
+    override suspend fun getCurrentSection() = withContext(Dispatchers.IO) {
+        articleList.value?.get(currentPosition)?.getSection()
     }
 
     override fun getArticleList(): LiveData<List<Article>> = articleList
