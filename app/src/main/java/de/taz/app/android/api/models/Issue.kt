@@ -5,10 +5,7 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.FileHelper
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -49,8 +46,6 @@ data class Issue(
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
-
-    private val log by Log
 
     override fun getAllFiles(): List<FileEntry> {
         val files = mutableListOf(moment.imageList)
