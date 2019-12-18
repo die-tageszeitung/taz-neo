@@ -20,8 +20,7 @@ import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
-    ArticlePagerContract.View,
-    BackFragment {
+    ArticlePagerContract.View, BackFragment {
 
     override val presenter = ArticlePagerPresenter()
 
@@ -67,12 +66,13 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
-    // FIXME: would love to register on main instead of implementing this via typechecking
-    // This would also allow us to stack back handlers: for example while drawer is open its back handler is active,
-    // when it is unregistered the previous callback handler will become active again.
     override fun onBackPressed(): Boolean {
-        presenter.onBackPressed()
-        return true
+        val fragment =
+            childFragmentManager.fragments.firstOrNull { it.isVisible } as? ArticleWebViewFragment
+        fragment?.let {
+            return it.onBackPressed()
+        }
+        return false
     }
 
     private fun setupViewPager() {

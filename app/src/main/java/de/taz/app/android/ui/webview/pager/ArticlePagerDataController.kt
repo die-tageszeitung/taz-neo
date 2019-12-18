@@ -5,14 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseDataController
-import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class ArticlePagerDataController(
-    val articleRepository: ArticleRepository = ArticleRepository.getInstance()
-) : BaseDataController(),
+class ArticlePagerDataController : BaseDataController(),
     ArticlePagerContract.DataController {
     override var currentPosition = 0
     private val articleList = MutableLiveData<List<Article>>(emptyList())
@@ -32,10 +28,6 @@ class ArticlePagerDataController(
     private fun setArticleListAndPosition(articles: List<Article>, position: Int) {
         currentPosition = if (position >= 0) position else 0
         articleList.postValue(articles)
-    }
-
-    override suspend fun getCurrentSection() = withContext(Dispatchers.IO) {
-        articleList.value?.get(currentPosition)?.getSection()
     }
 
     override fun getArticleList(): LiveData<List<Article>> = articleList

@@ -4,9 +4,9 @@ import android.view.MenuItem
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseContract
 
-interface WebViewContract: BaseContract {
+interface WebViewContract : BaseContract {
 
-    interface View<DISPLAYABLE: WebViewDisplayable>: BaseContract.View {
+    interface View<DISPLAYABLE : WebViewDisplayable> : BaseContract.View {
 
         fun getWebViewDisplayable(): DISPLAYABLE?
 
@@ -26,7 +26,9 @@ interface WebViewContract: BaseContract {
 
     }
 
-    interface Presenter: BaseContract.Presenter, AppWebViewCallback {
+    interface Presenter : BaseContract.Presenter, AppWebViewCallback {
+
+        fun onBackPressed(): Boolean
 
         fun onLinkClicked(webViewDisplayable: WebViewDisplayable)
 
@@ -35,7 +37,7 @@ interface WebViewContract: BaseContract {
         fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean)
     }
 
-    interface DataController<DISPLAYABLE: WebViewDisplayable> {
+    interface DataController<DISPLAYABLE : WebViewDisplayable> {
         fun getWebViewDisplayable(): DISPLAYABLE?
 
         fun setWebViewDisplayable(displayable: DISPLAYABLE?)
