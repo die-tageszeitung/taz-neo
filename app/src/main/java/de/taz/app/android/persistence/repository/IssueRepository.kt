@@ -14,6 +14,7 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 open class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -95,6 +96,22 @@ open class IssueRepository private constructor(applicationContext: Context) :
         ) != null
     }
 
+    open fun saveIfDoNotExist(issues: List<Issue>) {
+        issues.forEach { saveIfDoesNotExist(it) }
+    }
+
+    @UiThread
+    fun saveIfDoesNotExist(issue: Issue) {
+        if (!exists(issue)) {
+            save(issue)
+        }
+    }
+
+    @UiThread
+    fun update(issueStub: IssueStub) {
+        appDatabase.issueDao().update(issueStub)
+    }
+
     @UiThread
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
@@ -167,6 +184,16 @@ open class IssueRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getAllDownloadedStubs(): List<IssueStub>? {
+        return appDatabase.issueDao().getAllDownloaded()
+    }
+
+    @UiThread
+    fun getAllDownloadedStubsLiveData(): LiveData<List<IssueStub>?> {
+        return appDatabase.issueDao().getAllDownloadedLiveData()
+    }
+
+    @UiThread
     fun getImprintStub(
         issueFeedName: String,
         issueDate: String,
@@ -176,6 +203,17 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.getStub(it) }
+    }
+
+
+    @UiThread
+    fun getEarliestDownloadedIssue(): Issue? {
+        return getEarliestDownloadedIssueStub()?.let { issueStubToIssue(it) }
+    }
+
+    @UiThread
+    fun getEarliestDownloadedIssueStub(): IssueStub? {
+        return appDatabase.issueDao().getEarliestDownloaded()
     }
 
     @UiThread
@@ -189,6 +227,31 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
+    }
+
+    @UiThread
+    fun setDownloadDate(issue: Issue, dateDownload: Date) {
+        setDownloadDate(IssueStub(issue), dateDownload)
+    }
+
+    @UiThread
+    fun setDownloadDate(issueStub: IssueStub, dateDownload: Date){
+        appDatabase.runInTransaction {
+            update(issueStub.copy(dateDownload = dateDownload))
+        }
+
+    }
+
+    @UiThread
+    fun resetDownloadDate(issue: Issue) {
+        resetDownloadDate(IssueStub(issue))
+    }
+
+    @UiThread
+    fun resetDownloadDate(issueStub: IssueStub) {
+        appDatabase.runInTransaction {
+            update(issueStub.copy(dateDownload = null))
+        }
     }
 
     @UiThread
@@ -230,7 +293,8 @@ open class IssueRepository private constructor(applicationContext: Context) :
             issueStub.fileList,
             issueStub.fileListPdf,
             sections,
-            pageList
+            pageList,
+            issueStub.dateDownload
         )
 
     }

@@ -16,7 +16,7 @@ class TextSizePreference @JvmOverloads constructor(
 ) : EditTextPreference (context, attributeSet, defStyleAttr, defStyleRes) {
 
     init {
-        widgetLayoutResource = R.layout.custom_preference_font_size
+        widgetLayoutResource = R.layout.preference_font_size
     }
 
     override fun onBindViewHolder(holder: PreferenceViewHolder?) {

@@ -84,9 +84,9 @@ class SplashActivity : AppCompatActivity() {
             PreferencesHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
-            TazApiCssHelper.createInstance(it)
 
             ApiService.createInstance(it)
+            DownloadedIssueHelper.createInstance(it)
         }
         log.debug("Singletons initialized")
     }
@@ -116,7 +116,7 @@ class SplashActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val issues = apiService.getIssuesByDate(limit = 10)
-                issueRepository.save(issues)
+                issueRepository.saveIfDoNotExist(issues)
                 log.debug("Initialized Issues")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
@@ -163,7 +163,7 @@ class SplashActivity : AppCompatActivity() {
                         fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                             // only delete modified files
                             if (oldFileEntry != newFileEntry) {
-                                oldFileEntry.delete()
+                                oldFileEntry.deleteFile()
                             }
                         }
                     }

@@ -30,4 +30,13 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
 
+    @Query("SELECT * FROM Issue WHERE dateDownload != \"\" ORDER BY dateDownload ASC LIMIT 1")
+    abstract fun getEarliestDownloaded(): IssueStub?
+
+    @Query("SELECT * FROM Issue WHERE dateDownload != \"\"")
+    abstract fun getAllDownloaded(): List<IssueStub>?
+
+    @Query("SELECT * FROM Issue WHERE dateDownload != \"\"")
+    abstract fun getAllDownloadedLiveData(): LiveData<List<IssueStub>?>
+
 }

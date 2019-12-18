@@ -1,14 +1,11 @@
 package de.taz.app.android.util
 
-import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 
 const val SETTINGS_TEXT_DEFAULT_FONT_SIZE = 18
 
-class TazApiCssHelper private constructor(applicationContext: Context) {
-
-    companion object : SingletonHolder<TazApiCssHelper, Context>(::TazApiCssHelper)
+object TazApiCssHelper {
 
     private val fileHelper = FileHelper.getInstance()
 
@@ -22,7 +19,7 @@ class TazApiCssHelper private constructor(applicationContext: Context) {
     }
 
     fun generateCssString(sharedPreferences: SharedPreferences) : String {
-        val nightModeCssFile = fileHelper.getFile("$RESOURCE_FOLDER/themeNight.css")
+        val nightModeCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/themeNight.css")
         val nightModeCssString = if (sharedPreferences.getBoolean("text_night_mode", false)) "@import \"$nightModeCssFile\";" else ""
         val fontSizePx = computeFontSize(sharedPreferences.getString("text_font_size", "100") ?: "100")
         return """

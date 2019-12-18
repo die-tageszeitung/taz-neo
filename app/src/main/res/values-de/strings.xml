@@ -62,6 +62,7 @@
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Aus der Leseliste entfernen</string>
 
     <string name="settings_header">Einstellungen</string>
+    <string name="settings_category_general">Allgemein</string>
     <string name="settings_category_text">Text</string>
     <string name="settings_category_account">Konto</string>
     <string name="settings_text_font_size">Textgröße</string>
@@ -76,5 +77,6 @@
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d\%%</string>
-
+    <string name="settings_general_keep_number_issues">Die letzten %s Ausgaben speichern</string>
+    <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
 </resources>

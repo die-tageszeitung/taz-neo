@@ -112,8 +112,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun setStatus(download: Download, downloadStatus: DownloadStatus) {
         appDatabase.runInTransaction {
             getWithoutFileOrThrow(download.file.name).let {
-                it.status = downloadStatus
-                update(it)
+                update(it.copy(status = downloadStatus))
             }
         }
     }
