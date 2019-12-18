@@ -111,12 +111,12 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.2.1'
 
     implementation 'com.squareup.moshi:moshi:1.8.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
 
     implementation 'com.google.android.material:material:1.0.0'
 
     // stetho debug bridge
     implementation 'com.facebook.stetho:stetho:1.5.1'
-    //implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
 
     // error reports
     implementation 'io.sentry:sentry-android:1.7.28'

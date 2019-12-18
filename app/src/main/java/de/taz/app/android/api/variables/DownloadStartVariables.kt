@@ -1,10 +1,12 @@
 package de.taz.app.android.api.variables
 
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import java.util.*
 
+@JsonClass(generateAdapter = true)
 data class DownloadStartVariables(
         val feedName: String,
         val issueDate: String,

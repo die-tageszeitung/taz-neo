@@ -1,12 +1,20 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.interfaces.File
-import de.taz.app.android.api.interfaces.StorageType
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class FileEntryDto(
-    override val name: String,
-    override val storageType: StorageType,
-    override val moTime: Long,
-    override val sha256: String,
-    override val size: Long
-) : File
+    val name: String,
+    val storageType: StorageType,
+    val moTime: Long,
+    val sha256: String,
+    val size: Long
+)
+
+@JsonClass(generateAdapter = false)
+enum class StorageType {
+    issue,
+    global,
+    public,
+    resource
+}
