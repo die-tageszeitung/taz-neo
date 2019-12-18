@@ -15,7 +15,6 @@ interface SectionPagerContract: BaseContract {
         fun setInitialSection(section: Section)
         fun setCurrentPosition(position: Int)
         fun trySetSection(section: Section): Boolean
-        fun onBackPressed()
     }
 
     interface DataController: BaseContract.DataController {

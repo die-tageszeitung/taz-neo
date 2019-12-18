@@ -63,8 +63,12 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     }
 
     override fun onBackPressed(): Boolean {
-        presenter.onBackPressed()
-        return true
+        (webview_pager_viewpager.adapter as? SectionPagerAdapter)
+        val fragment = childFragmentManager.fragments.firstOrNull { it.isVisible } as? SectionWebViewFragment
+        fragment?.let {
+            return it.onBackPressed()
+        }
+        return false
     }
 
     override fun tryLoadSection(section: Section): Boolean {

@@ -61,4 +61,23 @@ class ArticleWebViewPresenter(
         }
     }
 
+    override fun onBackPressed(): Boolean {
+        val localView = getView()
+        val localViewModel = viewModel
+        if (localView?.isBottomSheetVisible() == true) {
+            localView.hideBottomSheet()
+            return true
+        } else {
+            if (localView != null && localViewModel != null) {
+                localView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
+                    localViewModel.getWebViewDisplayable()?.getSection()?.also {
+                        localView.getMainView()?.showInWebView(it)
+                    }
+                }
+                return true
+            }
+        }
+        return false
+    }
+
 }
