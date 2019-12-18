@@ -1,9 +1,11 @@
 package de.taz.app.android.base
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -89,12 +91,15 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
             itemIconTintList = null
 
+            deactivateAllItems(menu)
+
             // hack to not auto select first item
             menu.getItem(0).isCheckable = false
 
             // hack to make items de- and selectable
             setOnNavigationItemSelectedListener { menuItem ->
                 run {
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                     false
                 }
@@ -102,6 +107,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
             setOnNavigationItemReselectedListener { menuItem ->
                 run {
+                    deactivateAllItems(menu, except = menuItem)
                     toggleMenuItem(menuItem)
                 }
             }
@@ -115,6 +121,37 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         }
     }
 
+    fun activateItem(itemId: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            activateItem(menuItem)
+        }
+    }
+
+    fun activateItem(menuItem: MenuItem) {
+        menuItem.isChecked = true
+        menuItem.isCheckable = true
+    }
+
+    fun deactivateItem(itemId: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            deactivateItem(menuItem)
+        }
+    }
+
+    fun deactivateItem(menuItem: MenuItem) {
+        menuItem.isChecked = false
+        menuItem.isCheckable = false
+    }
+
+    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
+        menu.iterator().forEach {
+            if (it.itemId !in permanentlyActiveItemIds && it != except) {
+                deactivateItem(it)
+            }
+        }
+    }
 
     fun setIcon(itemId: Int, @DrawableRes iconRes: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
@@ -123,8 +160,10 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
 
     private fun toggleMenuItem(menuItem: MenuItem) {
         if (menuItem.isCheckable) {
+            deactivateItem(menuItem)
             onBottomNavigationItemClicked(menuItem, activated = false)
         } else {
+            activateItem(menuItem)
             onBottomNavigationItemClicked(menuItem, activated = true)
         }
     }
