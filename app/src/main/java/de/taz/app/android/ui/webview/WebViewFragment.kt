@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -35,13 +33,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         override fun onSlide(p0: View, p1: Float) {
         }
 
-        override fun onStateChanged(bottomSheetView: View, state: Int) {
-            if (state == BottomSheetBehavior.STATE_COLLAPSED) {
-                view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
-                    this@WebViewFragment.deactivateAllItems(menu)
-                }
-            }
-        }
+        override fun onStateChanged(bottomSheetView: View, state: Int) = Unit
     }
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->

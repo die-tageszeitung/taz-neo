@@ -45,8 +45,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
         super.onViewCreated(view, savedInstanceState)
         // TODO needs to be livedata
         if (article?.bookmarked == true) {
-            setPermanentlyActive(R.id.bottom_navigation_action_bookmark)
-            setIconActive(R.id.bottom_navigation_action_bookmark)
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
         }
         activity?.lifecycleScope?.launch(Dispatchers.IO) {
             article?.getSection()?.let { section ->

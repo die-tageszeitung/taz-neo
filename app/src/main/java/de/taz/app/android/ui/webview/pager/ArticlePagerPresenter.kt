@@ -21,7 +21,6 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
                     localView.setArticles(articles, localViewModel.currentPosition)
                 }
             }
-
         }
     }
 
