@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,9 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     private var initialArticle: Article? = null
 
+    private var stableIdProvider: StableIdProvider? = null
+    private var articlePagerAdapter: ArticlePagerAdapter? = null
+
     companion object {
         fun createInstance(initialArticle: Article): ArticlePagerFragment {
             // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
@@ -35,6 +39,14 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
             fragment.initialArticle = initialArticle
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            articlePagerAdapter = ArticlePagerAdapter(this, it)
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,19 +79,25 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     }
 
     override fun onBackPressed(): Boolean {
-        val fragment =
-            childFragmentManager.fragments.firstOrNull { it.isVisible } as? ArticleWebViewFragment
-        fragment?.let {
+        getCurrentFragment()?.let {
             return it.onBackPressed()
         }
         return false
     }
 
+    private fun getCurrentFragment(): ArticleWebViewFragment? {
+        return childFragmentManager.fragments.firstOrNull {
+            (it as? ArticleWebViewFragment)?.let { fragment ->
+                return@firstOrNull fragment.article == articlePagerAdapter?.getCurrentArticle()
+            }
+            return@firstOrNull false
+        } as? ArticleWebViewFragment
+    }
+
+
     private fun setupViewPager() {
-        val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
-        val sectionAdapter = ArticlePagerAdapter(this, stableIdProvider)
         webview_pager_viewpager?.apply {
-            adapter = sectionAdapter
+            adapter = articlePagerAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 1
             registerOnPageChangeCallback(pageChangeListener)
@@ -99,7 +117,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         }
     }
 
-    private class ArticlePagerAdapter(
+    private inner class ArticlePagerAdapter(
         fragment: Fragment,
         private val stableIdProvider: StableIdProvider
     ) : FragmentStateAdapter(fragment) {
@@ -120,6 +138,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         fun submitList(newArticles: List<Article>) {
             articles = newArticles
             notifyDataSetChanged()
+        }
+
+        fun getCurrentArticle(): Article {
+            return articles[webview_pager_viewpager.currentItem]
         }
     }
 }
