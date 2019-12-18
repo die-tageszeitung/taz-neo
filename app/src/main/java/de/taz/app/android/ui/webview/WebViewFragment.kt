@@ -35,13 +35,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         override fun onSlide(p0: View, p1: Float) {
         }
 
-        override fun onStateChanged(bottomSheetView: View, state: Int) {
-            if (state == BottomSheetBehavior.STATE_COLLAPSED) {
-                view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
-                    this@WebViewFragment.deactivateAllItems(menu)
-                }
-            }
-        }
+        override fun onStateChanged(bottomSheetView: View, state: Int) = Unit
     }
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
