@@ -29,6 +29,12 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
         viewModel?.currentPosition = position
     }
 
+    override fun onBackPressed() {
+        getView()?.getMainView()?.apply {
+            showHome()
+        }
+    }
+
     override fun trySetSection(section: Section): Boolean {
         val localView = getView()
         val localViewModel = viewModel

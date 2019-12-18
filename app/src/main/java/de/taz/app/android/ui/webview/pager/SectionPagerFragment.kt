@@ -75,9 +75,10 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     override fun onBackPressed(): Boolean {
         getCurrentFragment()?.let {
-            return it.onBackPressed()
+            if (it.onBackPressed()) return true
         }
-        return false
+        presenter.onBackPressed()
+        return true
     }
 
     private fun getCurrentFragment(): SectionWebViewFragment? {
