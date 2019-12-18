@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.DrawableRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -67,30 +68,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         }
     }
 
-
-    /**
-     * icons to show if an ItemNavigationId is active (currently selected)
-     * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
-     */
-
-    val activeIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark_active,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share_active,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size_active,
-        R.id.bottom_navigation_action_home to R.drawable.ic_home_active
-    )
-
-    /**
-     * icons to show if an ItemNavigationId is inactive (not currently selected)
-     * map of ItemNavigationId [@MenuRes] to Drawable [@Drawable]
-     */
-    val inactiveIconMap = mapOf(
-        R.id.bottom_navigation_action_bookmark to R.drawable.ic_bookmark,
-        R.id.bottom_navigation_action_share to R.drawable.ic_share,
-        R.id.bottom_navigation_action_size to R.drawable.ic_text_size,
-        R.id.bottom_navigation_action_home to R.drawable.ic_home
-    )
-
     /**
      * used to store if an Item should be permanently active
      * i.e. bookmarks should always be active if article is bookmarked
@@ -144,71 +121,50 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         }
     }
 
-    fun setIconActive(itemId: Int) {
+    fun activateItem(itemId: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
         menu?.findItem(itemId)?.let { menuItem ->
-            setIconActive(menuItem)
+            activateItem(menuItem)
         }
     }
 
-    fun setIconActive(menuItem: MenuItem) {
+    fun activateItem(menuItem: MenuItem) {
         menuItem.isChecked = true
         menuItem.isCheckable = true
-        activeIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
     }
 
-    fun setIconInactive(itemId: Int) {
+    fun deactivateItem(itemId: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
         menu?.findItem(itemId)?.let { menuItem ->
-            setIconInactive(menuItem)
+            deactivateItem(menuItem)
         }
     }
 
-    fun setIconInactive(menuItem: MenuItem) {
+    fun deactivateItem(menuItem: MenuItem) {
         menuItem.isChecked = false
         menuItem.isCheckable = false
-        inactiveIconMap[menuItem.itemId]?.let { menuItem.setIcon(it) }
-    }
-
-    private fun toggleMenuItem(menuItem: MenuItem) {
-        if (menuItem.isCheckable) {
-            setIconInactive(menuItem)
-            onBottomNavigationItemClicked(menuItem, activated = false)
-        } else {
-            setIconActive(menuItem)
-            onBottomNavigationItemClicked(menuItem, activated = true)
-        }
-    }
-
-    fun isPermanentlyActive(itemId: Int): Boolean {
-        return itemId in permanentlyActiveItemIds
-    }
-
-    fun isPermanentlyActive(menuItem: MenuItem): Boolean {
-        return isPermanentlyActive(menuItem.itemId)
-    }
-
-    fun setPermanentlyActive(itemId: Int) {
-        permanentlyActiveItemIds.add(itemId)
-    }
-
-    fun setPermanentlyActive(menuItem: MenuItem) {
-        setPermanentlyActive(menuItem.itemId)
-    }
-
-    fun unsetPermanentlyActive(itemId: Int) {
-        permanentlyActiveItemIds.remove(itemId)
-    }
-
-    fun unsetPermanentlyActive(menuItem: MenuItem) {
-        permanentlyActiveItemIds.remove(menuItem.itemId)
     }
 
     fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
         menu.iterator().forEach {
             if (it.itemId !in permanentlyActiveItemIds && it != except) {
-                setIconInactive(it)
+                deactivateItem(it)
             }
+        }
+    }
+
+    fun setIcon(itemId: Int, @DrawableRes iconRes: Int) {
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.setIcon(iconRes)
+    }
+
+    private fun toggleMenuItem(menuItem: MenuItem) {
+        if (menuItem.isCheckable) {
+            deactivateItem(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = false)
+        } else {
+            activateItem(menuItem)
+            onBottomNavigationItemClicked(menuItem, activated = true)
         }
     }
 
