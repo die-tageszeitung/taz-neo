@@ -1,6 +1,7 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
+import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -92,7 +93,7 @@ data class Issue(
     }
 
 }
-
+@JsonClass(generateAdapter = false)
 enum class IssueStatus {
     regular,
     demo,

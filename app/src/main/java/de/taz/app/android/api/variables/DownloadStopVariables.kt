@@ -1,7 +1,9 @@
 package de.taz.app.android.api.variables
 
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 
+@JsonClass(generateAdapter = true)
 data class DownloadStopVariables(
     val id: String,
     val time: Float

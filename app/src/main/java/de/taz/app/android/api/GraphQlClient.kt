@@ -50,8 +50,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 )::enqueue
             )
 
-            val tmp = jsonAdapter.fromJson(response.body?.string().toString())!!
-            tmp.data
+            val string = response.body?.string().toString()
+            jsonAdapter.fromJson(string)!!.data
         }
     }
 
