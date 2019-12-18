@@ -36,7 +36,6 @@ class ArticleWebViewPresenter(
                     webViewDisplayable.getLink()?.let {
                         getView()?.apply {
                             shareText(it)
-                            setIconInactive(R.id.bottom_navigation_action_share)
                         }
                     }
                 }

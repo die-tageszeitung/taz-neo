@@ -14,19 +14,9 @@ interface WebViewContract: BaseContract {
 
         fun getWebView(): AppWebView?
 
-        fun isPermanentlyActive(itemId: Int): Boolean
-
-        fun setPermanentlyActive(itemId: Int)
-
-        fun unsetPermanentlyActive(itemId: Int)
-
         fun loadUrl(url: String)
 
         fun hideLoadingScreen()
-
-        fun setIconActive(itemId: Int)
-
-        fun setIconInactive(itemId: Int)
 
         fun shareText(text: String)
 
