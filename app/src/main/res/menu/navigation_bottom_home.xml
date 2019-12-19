@@ -3,9 +3,9 @@
 <!--     <item android:id="@+id/bottom_navigation_action_pdf"
              android:title="@string/bottom_navigation_action_pdf"
              android:icon="@drawable/ic_pdf" /> -->
-     <item android:id="@+id/bottom_navigation_action_share"
+     <!--<item android:id="@+id/bottom_navigation_action_share"
           android:title="@string/bottom_navigation_action_share"
-          android:icon="@drawable/ic_share" />
+          android:icon="@drawable/ic_share" />-->
      <item android:id="@+id/bottom_navigation_action_bookmark"
           android:title="@string/bottom_navigation_action_bookmark"
           android:icon="@drawable/ic_bookmark" />
