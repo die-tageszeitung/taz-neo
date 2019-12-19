@@ -9,9 +9,10 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.ui.BackFragment
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<Article>() {
+class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     var article: Article? = null
 
@@ -67,5 +68,10 @@ class ArticleWebViewFragment : WebViewFragment<Article>() {
             }
         }
     }
+
+    override fun onBackPressed(): Boolean {
+        return presenter.onBackPressed()
+    }
+
 }
 

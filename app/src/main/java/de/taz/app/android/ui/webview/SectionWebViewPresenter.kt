@@ -20,4 +20,11 @@ class SectionWebViewPresenter : WebViewPresenter<Section>() {
         }
     }
 
+    override fun onBackPressed(): Boolean {
+        if (getView()?.isBottomSheetVisible() == true) {
+            getView()?.hideBottomSheet()
+            return true
+        }
+        return false
+    }
 }

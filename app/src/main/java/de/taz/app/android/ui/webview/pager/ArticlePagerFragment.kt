@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,14 +21,16 @@ import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
-    ArticlePagerContract.View,
-    BackFragment {
+    ArticlePagerContract.View, BackFragment {
 
     override val presenter = ArticlePagerPresenter()
 
     val log by Log
 
     private var initialArticle: Article? = null
+
+    private var stableIdProvider: StableIdProvider? = null
+    private var articlePagerAdapter: ArticlePagerAdapter? = null
 
     companion object {
         fun createInstance(initialArticle: Article): ArticlePagerFragment {
@@ -36,6 +39,14 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
             fragment.initialArticle = initialArticle
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            articlePagerAdapter = ArticlePagerAdapter(this, it)
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,19 +78,27 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
-    // FIXME: would love to register on main instead of implementing this via typechecking
-    // This would also allow us to stack back handlers: for example while drawer is open its back handler is active,
-    // when it is unregistered the previous callback handler will become active again.
     override fun onBackPressed(): Boolean {
+        getCurrentFragment()?.let {
+            if (it.onBackPressed()) return true
+        }
         presenter.onBackPressed()
         return true
     }
 
+    private fun getCurrentFragment(): ArticleWebViewFragment? {
+        return childFragmentManager.fragments.firstOrNull {
+            (it as? ArticleWebViewFragment)?.let { fragment ->
+                return@firstOrNull fragment.article == articlePagerAdapter?.getCurrentArticle()
+            }
+            return@firstOrNull false
+        } as? ArticleWebViewFragment
+    }
+
+
     private fun setupViewPager() {
-        val stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java)
-        val sectionAdapter = ArticlePagerAdapter(this, stableIdProvider)
         webview_pager_viewpager?.apply {
-            adapter = sectionAdapter
+            adapter = articlePagerAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 1
             registerOnPageChangeCallback(pageChangeListener)
@@ -99,7 +118,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         }
     }
 
-    private class ArticlePagerAdapter(
+    private inner class ArticlePagerAdapter(
         fragment: Fragment,
         private val stableIdProvider: StableIdProvider
     ) : FragmentStateAdapter(fragment) {
@@ -120,6 +139,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         fun submitList(newArticles: List<Article>) {
             articles = newArticles
             notifyDataSetChanged()
+        }
+
+        fun getCurrentArticle(): Article {
+            return articles[webview_pager_viewpager.currentItem]
         }
     }
 }
