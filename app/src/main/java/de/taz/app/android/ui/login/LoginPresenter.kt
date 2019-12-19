@@ -33,7 +33,7 @@ class LoginPresenter(
                         }
                         getMainView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
                             DownloadService.cancelAllDownloads()
-                            downloadLatestIssueMoment()
+                            downloadLatestIssueMoments()
                             deletePublicIssues()
                         }
                     }
@@ -71,8 +71,8 @@ class LoginPresenter(
     }
 
     @UiThread
-    private suspend fun downloadLatestIssueMoment() {
-        ApiService.getInstance().getIssueByFeedAndDate()?.let { issue ->
+    private suspend fun downloadLatestIssueMoments() {
+        ApiService.getInstance().getIssuesByDate().forEach { issue ->
             issueRepository.save(issue)
             getView()?.getMainView()?.apply {
                 setDrawerIssue(issue)
