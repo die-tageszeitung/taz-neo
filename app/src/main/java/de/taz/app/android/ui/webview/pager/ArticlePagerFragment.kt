@@ -80,7 +80,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     override fun onBackPressed(): Boolean {
         getCurrentFragment()?.let {
-            return it.onBackPressed()
+            if (it.onBackPressed()) return true
         }
         presenter.onBackPressed()
         return true
