@@ -120,8 +120,8 @@ open class ApiService private constructor(applicationContext: Context) {
     }
 
     /**
-     * function to get an [Issue] by feedName and date
-     * @param issueDate - the date of the issue
+     * function to get [Issue]s by date
+     * @param issueDate - the date of the issue last issue
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
