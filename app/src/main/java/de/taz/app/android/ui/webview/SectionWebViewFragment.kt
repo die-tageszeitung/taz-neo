@@ -9,11 +9,12 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.DateHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SectionWebViewFragment : WebViewFragment<Section>() {
+class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
 
     var section: Section? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
@@ -71,4 +72,9 @@ class SectionWebViewFragment : WebViewFragment<Section>() {
             }
         }
     }
+
+    override fun onBackPressed(): Boolean {
+        return presenter.onBackPressed()
+    }
+
 }

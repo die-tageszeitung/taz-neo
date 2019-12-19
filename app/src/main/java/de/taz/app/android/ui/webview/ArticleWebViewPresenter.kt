@@ -61,4 +61,13 @@ class ArticleWebViewPresenter(
         }
     }
 
+    override fun onBackPressed(): Boolean {
+        val localView = getView()
+        if (localView?.isBottomSheetVisible() == true) {
+            localView.hideBottomSheet()
+            return true
+        }
+        return false
+    }
+
 }
