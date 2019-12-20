@@ -60,6 +60,7 @@
             app:title="@string/settings_category_account"
             android:layout="@layout/preference_category_title">
 
+        <!--
         <EditTextPreference
                 app:key="account_abo_id"
                 app:title="@string/settings_account_abo_id"
@@ -81,6 +82,7 @@
                 app:useSimpleSummaryProvider="true"
                 android:layout="@layout/preference_edit_text"
                 app:selectable="false"/>
+-->
 
         <Preference
                 app:key="manage_account"
