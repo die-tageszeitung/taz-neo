@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="tazRed">#E20036</color>
+    <color name="tazRed">#d50d2e</color>
 
     <color name="white">#fff</color>
     <color name="lightGrey">#9C9C9C</color>
