@@ -163,13 +163,15 @@ object DownloadService {
 
         val globalFiles = allFiles.filter { it.storageType == StorageType.global }
         if (globalFiles.isNotEmpty()) {
-            downloads.addAll(
-                createAndSaveDownloads(
-                    appInfoRepository.getOrThrow().globalBaseUrl,
-                    globalFiles,
-                    tag
+            appInfoRepository.get()?.let {
+                downloads.addAll(
+                    createAndSaveDownloads(
+                        it.globalBaseUrl,
+                        globalFiles,
+                        tag
+                    )
                 )
-            )
+            }
         }
 
         // create resource downloads
