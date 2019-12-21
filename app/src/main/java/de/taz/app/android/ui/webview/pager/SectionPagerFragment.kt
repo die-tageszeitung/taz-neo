@@ -18,6 +18,8 @@ import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
+const val SECTION_POSITION = "position"
+
 class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     SectionPagerContract.View,
     BackFragment {
@@ -28,6 +30,8 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
     private var stableIdProvider: StableIdViewModel? = null
     private var sectionAdapter: SectionPagerAdapter? = null
+
+    private var currentPosition: Int? = null
 
     companion object {
         fun createInstance(initialSection: Section): SectionPagerFragment {
@@ -54,11 +58,15 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         }
 
         setupViewPager()
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        webview_pager_viewpager?.adapter = null
+        if (savedInstanceState?.containsKey(SECTION_POSITION) == true) {
+            currentPosition = savedInstanceState.getInt(SECTION_POSITION)
+        }
+
+        currentPosition?.let {
+            presenter.setCurrentPosition(it)
+            webview_pager_viewpager.currentItem = it
+        }
     }
 
     override fun onCreateView(
@@ -112,8 +120,24 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         }
     }
 
-    override fun setCurrentPosition(currentPosition: Int) {
-        webview_pager_viewpager.setCurrentItem(currentPosition, false)
+    override fun setCurrentPosition(position: Int) {
+        webview_pager_viewpager.setCurrentItem(position, false)
+    }
+
+    override fun persistPosition(position: Int) {
+        currentPosition = position
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        currentPosition?.let {
+            outState.putInt(SECTION_POSITION, it)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        webview_pager_viewpager?.adapter = null
     }
 
     private inner class SectionPagerAdapter(

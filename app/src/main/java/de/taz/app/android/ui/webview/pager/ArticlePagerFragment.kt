@@ -19,7 +19,7 @@ import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
-const val POSITION = "position"
+const val ARTICLE_POSITION = "position"
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     ArticlePagerContract.View, BackFragment {
@@ -63,8 +63,8 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
         setupViewPager()
 
-        if (savedInstanceState?.containsKey(POSITION) == true) {
-            currentPosition = savedInstanceState.getInt(POSITION)
+        if (savedInstanceState?.containsKey(ARTICLE_POSITION) == true) {
+            currentPosition = savedInstanceState.getInt(ARTICLE_POSITION)
         }
 
         currentPosition?.let {
@@ -80,7 +80,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     override fun onSaveInstanceState(outState: Bundle) {
         currentPosition?.let {
-            outState.putInt(POSITION, it)
+            outState.putInt(ARTICLE_POSITION, it)
         }
         super.onSaveInstanceState(outState)
     }
