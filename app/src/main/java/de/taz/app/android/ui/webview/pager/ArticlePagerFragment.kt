@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview.pager
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +19,8 @@ import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
+const val ARTICLE_POSITION = "position"
+
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     ArticlePagerContract.View, BackFragment {
 
@@ -32,6 +33,8 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     private var stableIdProvider: StableIdProvider? = null
     private var articlePagerAdapter: ArticlePagerAdapter? = null
 
+    private var currentPosition: Int? = null
+
     companion object {
         fun createInstance(initialArticle: Article): ArticlePagerFragment {
             // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
@@ -39,14 +42,6 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
             fragment.initialArticle = initialArticle
             return fragment
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
-            articlePagerAdapter = ArticlePagerAdapter(this, it)
-        }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,12 +57,37 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            articlePagerAdapter = ArticlePagerAdapter(this, it)
+        }
+
         setupViewPager()
+
+        if (savedInstanceState?.containsKey(ARTICLE_POSITION) == true) {
+            currentPosition = savedInstanceState.getInt(ARTICLE_POSITION)
+        }
+
+        currentPosition?.let {
+            presenter.setCurrentPosition(it)
+            webview_pager_viewpager.currentItem = it
+        }
+
+    }
+
+    override fun persistPosition(position: Int) {
+        currentPosition = position
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        currentPosition?.let {
+            outState.putInt(ARTICLE_POSITION, it)
+        }
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         webview_pager_viewpager?.adapter = null
+        super.onDestroyView()
     }
 
     override fun onCreateView(
@@ -95,7 +115,6 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         } as? ArticleWebViewFragment
     }
 
-
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             adapter = articlePagerAdapter
@@ -107,7 +126,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            this@ArticlePagerFragment.presenter.setCurrrentPosition(position)
+            this@ArticlePagerFragment.presenter.setCurrentPosition(position)
         }
     }
 

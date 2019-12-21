@@ -27,6 +27,7 @@ class SectionPagerPresenter : BasePresenter<SectionPagerContract.View, SectionPa
 
     override fun setCurrentPosition(position: Int) {
         viewModel?.currentPosition = position
+        getView()?.persistPosition(position)
     }
 
     override fun onBackPressed() {

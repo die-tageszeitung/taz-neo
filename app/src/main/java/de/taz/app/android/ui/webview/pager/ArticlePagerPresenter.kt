@@ -18,8 +18,11 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         if (localViewModel != null && localView != null) {
             localViewModel.getArticleList().observe(localView.getLifecycleOwner()) { articles ->
                 if (articles.isNotEmpty()) {
-                    localView.setArticles(articles, localViewModel.currentPosition)
+                    localView.setArticles(articles, localViewModel.getCurrentPosition())
                 }
+            }
+            localViewModel.observeCurrentPosition(localView.getLifecycleOwner()) { position ->
+                localView.persistPosition(position)
             }
         }
     }
@@ -28,8 +31,12 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         viewModel?.setInitialArticle(article)
     }
 
-    override fun setCurrrentPosition(position: Int) {
-        viewModel?.currentPosition = position
+    override fun getCurrentPosition(): Int? {
+        return viewModel?.getCurrentPosition()
+    }
+
+    override fun setCurrentPosition(position: Int) {
+        viewModel?.setCurrentPosition(position)
     }
 
     override fun onBackPressed() {
@@ -41,7 +48,7 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
                     localView.getMainView()?.showInWebView(it)
                 } ?: run {
                     localViewModel.getArticleList().value?.get(
-                        localViewModel.currentPosition
+                        localViewModel.getCurrentPosition()
                     )?.getIssue()?.sectionList?.first()?.let {
                         localView.getMainView()?.showInWebView(it)
                     }

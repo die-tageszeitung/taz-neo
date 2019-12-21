@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview.pager
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +18,8 @@ import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
+const val SECTION_POSITION = "position"
+
 class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     SectionPagerContract.View,
     BackFragment {
@@ -30,19 +31,14 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
     private var stableIdProvider: StableIdViewModel? = null
     private var sectionAdapter: SectionPagerAdapter? = null
 
+    private var currentPosition: Int? = null
+
     companion object {
         fun createInstance(initialSection: Section): SectionPagerFragment {
             // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
             val fragment = SectionPagerFragment()
             fragment.initialSection = initialSection
             return fragment
-        }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
-            sectionAdapter = SectionPagerAdapter(this, it)
         }
     }
 
@@ -57,12 +53,20 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         presenter.onViewCreated(savedInstanceState)
         webview_pager_viewpager.reduceDragSensitivity()
 
-        setupViewPager()
-    }
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            sectionAdapter = SectionPagerAdapter(this, it)
+        }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        webview_pager_viewpager?.adapter = null
+        setupViewPager()
+
+        if (savedInstanceState?.containsKey(SECTION_POSITION) == true) {
+            currentPosition = savedInstanceState.getInt(SECTION_POSITION)
+        }
+
+        currentPosition?.let {
+            presenter.setCurrentPosition(it)
+            webview_pager_viewpager.currentItem = it
+        }
     }
 
     override fun onCreateView(
@@ -116,8 +120,24 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         }
     }
 
-    override fun setCurrentPosition(currentPosition: Int) {
-        webview_pager_viewpager.setCurrentItem(currentPosition, false)
+    override fun setCurrentPosition(position: Int) {
+        webview_pager_viewpager.setCurrentItem(position, false)
+    }
+
+    override fun persistPosition(position: Int) {
+        currentPosition = position
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        currentPosition?.let {
+            outState.putInt(SECTION_POSITION, it)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        webview_pager_viewpager?.adapter = null
     }
 
     private inner class SectionPagerAdapter(
