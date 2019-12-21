@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/section"
             app:srcCompat="@drawable/ic_dotted_line"
+            android:rotation="180"
             />
 
     <TextView

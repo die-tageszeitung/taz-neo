@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.FileHelper
@@ -141,6 +142,7 @@ class SectionListAdapter(
                         withContext(Dispatchers.Main) {
                             closeDrawer()
                         }
+                        DownloadService.download(applicationContext, section.getIssue())
                     }
                 }
             }
