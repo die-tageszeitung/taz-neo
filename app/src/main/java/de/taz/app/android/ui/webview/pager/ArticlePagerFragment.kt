@@ -19,6 +19,8 @@ import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
+const val POSITION = "position"
+
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     ArticlePagerContract.View, BackFragment {
 
@@ -61,6 +63,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
         setupViewPager()
 
+        if (savedInstanceState?.containsKey(POSITION) == true) {
+            currentPosition = savedInstanceState.getInt(POSITION)
+        }
+
         currentPosition?.let {
             presenter.setCurrentPosition(it)
             webview_pager_viewpager.currentItem = it
@@ -70,6 +76,13 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     override fun persistPosition(position: Int) {
         currentPosition = position
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        currentPosition?.let {
+            outState.putInt(POSITION, it)
+        }
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {
