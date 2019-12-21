@@ -8,7 +8,8 @@ interface SectionPagerContract: BaseContract {
     interface View: BaseContract.View {
         fun setSections(sections: List<Section>, currentPosition: Int)
         fun tryLoadSection(section: Section): Boolean
-        fun setCurrentPosition(currentPosition: Int)
+        fun setCurrentPosition(position: Int)
+        fun persistPosition(position: Int)
     }
 
     interface Presenter: BaseContract.Presenter {
