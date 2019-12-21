@@ -39,13 +39,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
-            sectionAdapter = SectionPagerAdapter(this, it)
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Attach the presenter to this view and ensure its datamodel is created and bound to this fragments lifecycle
         presenter.attach(this)
@@ -56,6 +49,10 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
         webview_pager_viewpager.reduceDragSensitivity()
+
+        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+            sectionAdapter = SectionPagerAdapter(this, it)
+        }
 
         setupViewPager()
     }
