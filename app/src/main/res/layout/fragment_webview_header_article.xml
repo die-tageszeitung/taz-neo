@@ -7,7 +7,8 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_marginTop="@dimen/fragment_header_article_margin_top"
-        android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
+        android:paddingBottom="@dimen/fragment_header_article_margin_bottom"
+        android:layout_marginEnd="@dimen/fragment_header_default_margin_end"
         app:layout_constraintTop_toTopOf="parent">
 
     <TextView
@@ -37,6 +38,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/section"
             app:srcCompat="@drawable/ic_dotted_line"
+            android:rotation="180"
             />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

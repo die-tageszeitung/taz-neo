@@ -12,7 +12,8 @@
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white">
+            android:background="@color/white"
+            app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar_layout"
@@ -40,7 +41,8 @@
                 android:layout_height="match_parent"
                 android:visibility="gone"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:overScrollMode="never" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/web_view_spinner"

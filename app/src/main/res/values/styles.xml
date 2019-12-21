@@ -58,7 +58,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
-        <item name="android:textColor">@color/drawer_sections_item</item>
+        <item name="android:textColor">@color/tazRed</item>
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
@@ -77,10 +77,11 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColor">@color/darkGrey</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
     </style>
