@@ -14,6 +14,7 @@ import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.lang.Exception
 
 open class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -317,7 +318,11 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                     }
 
                     log.debug("delete ArticleStub $article")
-                    appDatabase.articleDao().delete(articleStub)
+                    try {
+                        appDatabase.articleDao().delete(articleStub)
+                    } catch (e: Exception) {
+                        Sentry.capture(e)
+                    }
                 }
             }
         }

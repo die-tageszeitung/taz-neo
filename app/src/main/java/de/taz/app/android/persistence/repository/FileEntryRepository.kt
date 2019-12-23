@@ -49,6 +49,11 @@ class FileEntryRepository private constructor(
     @UiThread
     fun delete(fileEntry: FileEntry) {
         appDatabase.runInTransaction {
+            appDatabase.downloadDao().apply {
+                get(fileEntry.name)?.let {
+                    delete(it)
+                }
+            }
             appDatabase.fileEntryDao().delete(fileEntry)
         }
     }
