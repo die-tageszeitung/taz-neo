@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview.pager
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseDataController
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -15,21 +14,21 @@ class ArticlePagerDataController : BaseDataController(),
 
     private val currentPosition = MutableLiveData<Int>().apply { postValue(DEFAULT_POSITION) }
 
-    private val log by Log
-
     private val articleList = MutableLiveData<List<Article>>(emptyList())
 
     override fun setInitialArticle(article: Article) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val issue = article.getIssue()
-            val articleList = issue?.getArticleList()
-            withContext(Dispatchers.Main) {
-                articleList?.let {
-                    setArticleListAndPosition(articleList)
-                    setPosition(articleList.indexOf(article))
-                } ?: run {
-                    setArticleListAndPosition(listOf(article))
-                    setPosition(0)
+        if (articleList.value?.isEmpty() == true) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val issue = article.getIssue()
+                val articleList = issue?.getArticleList()
+                withContext(Dispatchers.Main) {
+                    articleList?.let {
+                        initializePosition(articleList.indexOf(article))
+                        setArticleListAndPosition(articleList)
+                    } ?: run {
+                        initializePosition(0)
+                        setArticleListAndPosition(listOf(article))
+                    }
                 }
             }
         }
@@ -47,8 +46,7 @@ class ArticlePagerDataController : BaseDataController(),
         currentPosition.observe(viewLifecycleOwner, Observer(block))
     }
 
-    private fun setPosition(position: Int) {
-        log.debug("setPosition $position")
+    private fun initializePosition(position: Int) {
         setCurrentPosition(if (position >= 0) position else DEFAULT_POSITION)
     }
 
