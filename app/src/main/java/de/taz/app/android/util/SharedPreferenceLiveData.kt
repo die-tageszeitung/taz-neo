@@ -10,6 +10,10 @@ abstract class SharedPreferenceLiveData<T>(
     private val defaultValue: T
 ) : MutableLiveData<T>() {
 
+    override fun getValue(): T? {
+        return super.getValue() ?: getValueFromPreferences(key, defaultValue)
+    }
+
     private val preferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == this.key) {

@@ -57,7 +57,7 @@ class HomeFragment : BaseMainFragment<HomePresenter>(), HomeContract.View {
                 hideRefreshLoadingIcon()
             }
         }
-        coverflow_refresh_layout.reduceDragSensitivity(10)
+        coverflow_refresh_layout?.reduceDragSensitivity(10)
 
     }
 
@@ -66,14 +66,14 @@ class HomeFragment : BaseMainFragment<HomePresenter>(), HomeContract.View {
     }
 
     override fun enableRefresh() {
-        coverflow_refresh_layout.isEnabled = true
+        coverflow_refresh_layout?.isEnabled = true
     }
 
     override fun disableRefresh() {
-        coverflow_refresh_layout.isEnabled = false
+        coverflow_refresh_layout?.isEnabled = false
     }
 
     private fun hideRefreshLoadingIcon() {
-        coverflow_refresh_layout.isRefreshing = false
+        coverflow_refresh_layout?.isRefreshing = false
     }
 }
