@@ -16,8 +16,10 @@ import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import io.sentry.Sentry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
@@ -81,7 +83,10 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
                         )
 
                         val file = fileHelper.getFile(fileEntry)
-                        response.body?.bytes()?.let { bytes ->
+
+                        val bytes = withContext(Dispatchers.IO) { response.body?.bytes()}
+                        @Suppress("NAME_SHADOWING")
+                        bytes?.let { bytes ->
                             // ensure folders are created
                             fileHelper.createFileDirs(fileEntry)
                             file.writeBytes(bytes)

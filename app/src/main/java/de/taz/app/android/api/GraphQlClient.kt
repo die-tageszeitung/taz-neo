@@ -12,6 +12,8 @@ import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -50,8 +52,12 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 )::enqueue
             )
 
-            val string = response.body?.string().toString()
-            jsonAdapter.fromJson(string)!!.data
+            val string = withContext(Dispatchers.IO) {
+                response.body?.string().toString()
+            }
+            withContext(Dispatchers.IO) {
+                jsonAdapter.fromJson(string)!!.data
+            }
         }
     }
 
