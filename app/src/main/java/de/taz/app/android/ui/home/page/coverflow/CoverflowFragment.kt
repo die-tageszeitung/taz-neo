@@ -102,9 +102,8 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                 getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))
 
                 val visibleItemCount = 3
-                val totalItemCount = coverFlowPagerAdapter.itemCount
 
-                if (position > totalItemCount - 2 * visibleItemCount) {
+                if (position < 2 * visibleItemCount) {
                     coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
                         presenter.getNextIssueMoments(requestDate)
                     }
