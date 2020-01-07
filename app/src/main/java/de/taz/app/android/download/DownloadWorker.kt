@@ -69,8 +69,8 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
 
         fileEntryRepository.get(fileName)?.let { fileEntry ->
             downloadRepository.get(fileName)?.let { fromDB ->
-                // download only if not already downloaded
-                if (fromDB.status != DownloadStatus.done) {
+                // download only if not already downloaded or downloading
+                if (fromDB.status !in arrayOf(DownloadStatus.done, DownloadStatus.started)) {
                     log.debug("starting download of ${fromDB.file.name}")
 
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
@@ -84,7 +84,7 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
 
                         val file = fileHelper.getFile(fileEntry)
 
-                        val bytes = withContext(Dispatchers.IO) { response.body?.bytes()}
+                        val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
                         @Suppress("NAME_SHADOWING")
                         bytes?.let { bytes ->
                             // ensure folders are created

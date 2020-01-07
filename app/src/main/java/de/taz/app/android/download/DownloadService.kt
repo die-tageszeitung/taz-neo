@@ -49,12 +49,11 @@ object DownloadService {
      */
     fun download(appContext: Context, cacheableDownload: CacheableDownload) {
 
+        var downloadId: String? = null
+        val start: Long = System.currentTimeMillis()
+        val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
         if (!cacheableDownload.isDownloadedOrDownloading()) {
-
-            var downloadId: String? = null
-            val start: Long = System.currentTimeMillis()
-            val issue = if (cacheableDownload is Issue) cacheableDownload else null
-
             issue?.let{
                 issueRepository.setDownloadDate(issue, Date())
             }
