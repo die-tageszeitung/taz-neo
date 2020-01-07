@@ -9,6 +9,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.DateHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,6 +23,8 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
 ) : BasePresenter<VIEW, HomePageDataController>(
     HomePageDataController::class.java
 ), HomePageContract.Presenter {
+
+    private val log by Log
 
     private var lastRequestedDate = ""
 
@@ -74,7 +77,8 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
     }
 
     override suspend fun getNextIssueMoments(date: String) {
-        if (lastRequestedDate == "" || date <= lastRequestedDate) {
+        if (lastRequestedDate.isEmpty() || date <= lastRequestedDate) {
+            log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
             lastRequestedDate = dateHelper.stringToStringWithDelta(
                 date, -NUMBER_OF_REQUESTED_MOMENTS
             ) ?: ""
