@@ -90,7 +90,7 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
 
     override fun skipToEnd() {
         coverflow_pager.adapter?.let {
-            coverflow_pager.currentItem = it.itemCount - 1
+            coverflow_pager.setCurrentItem(it.itemCount - 1, false)
         }
     }
 
