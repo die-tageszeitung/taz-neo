@@ -61,6 +61,8 @@
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Artikel zur Leseliste hinzufügen</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Aus der Leseliste entfernen</string>
 
+    <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
+
     <string name="settings_header">Einstellungen</string>
     <string name="settings_category_general">Allgemein</string>
     <string name="settings_category_text">Text</string>
