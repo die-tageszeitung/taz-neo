@@ -12,6 +12,7 @@ import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
+import de.taz.app.android.util.okHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -22,7 +23,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * class to get DTOs from the [GRAPHQL_ENDPOINT]
  */
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: OkHttpClient = httpClient(),
+    private val httpClient: OkHttpClient = okHttpClient,
     private val url: String = GRAPHQL_ENDPOINT,
     private val queryService: QueryService = QueryService.getInstance()
 ) {
@@ -61,17 +62,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
         }
     }
 
-}
-
-/**
- * helper class to initialize the HttpClient
- */
-private fun httpClient(): OkHttpClient {
-    return OkHttpClient
-        .Builder()
-        .addInterceptor(AcceptHeaderInterceptor())
-        .addInterceptor(AuthenticationHeaderInterceptor())
-        .build()
 }
 
 /**

@@ -59,7 +59,7 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
 
                 getView()?.getMainView()?.apply {
                     // start download if not yet downloaded
-                    if (!issue.isDownloadedOrDownloading()) {
+                    if (!issue.isDownloaded()) {
                         getApplicationContext().let { applicationContext ->
                             DownloadService.download(applicationContext, issue)
                         }
