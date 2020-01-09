@@ -15,10 +15,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.*
-import okhttp3.ConnectionPool
-import okhttp3.OkHttpClient
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
@@ -35,10 +32,6 @@ object DownloadService {
     private val appInfoRepository = AppInfoRepository.getInstance()
     private val downloadRepository = DownloadRepository.getInstance()
     private val issueRepository = IssueRepository.getInstance()
-
-    private val okHttpClient = OkHttpClient.Builder()
-        .connectionPool(ConnectionPool(20, 5, TimeUnit.MINUTES))
-        .build()
 
     private val downloadJobs = Collections.synchronizedList(mutableListOf<Job>())
 
@@ -69,7 +62,7 @@ object DownloadService {
 
                 createDownloadsForCacheableDownload(appContext, cacheableDownload)
 
-                DownloadWorker(okHttpClient).startDownloads(
+                DownloadWorker().startDownloads(
                     appContext,
                     cacheableDownload.getAllFiles()
                 )

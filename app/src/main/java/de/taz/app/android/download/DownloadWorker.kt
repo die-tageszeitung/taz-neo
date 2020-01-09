@@ -15,6 +15,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
+import de.taz.app.android.util.okHttpClient
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -30,7 +31,7 @@ import java.util.*
 /**
  * Helper Object used by [WorkManagerDownloadWorker] and [DownloadService] to download
  */
-class DownloadWorker(private val httpClient: OkHttpClient) {
+class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
 
     private val log by Log
 
@@ -101,13 +102,17 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
                             }
                             downloadRepository.setStatus(fromDB, DownloadStatus.done)
                             log.debug("finished download of ${fromDB.file.name}")
-                        } ?: downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                        } ?: run {
+                            log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                            downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                        }
                     } catch (e: Exception) {
+                        log.debug("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                         Sentry.capture(e)
                     }
                 } else {
-                    log.debug("skipping download of ${fromDB.file.name} as it was already finished")
+                    log.debug("skipping download of ${fromDB.file.name} - already downloading/ed")
                 }
 
                 // cancel workmanager request if downloaded successfully
@@ -119,7 +124,7 @@ class DownloadWorker(private val httpClient: OkHttpClient) {
                     fromDB.workerManagerId = null
                     downloadRepository.update(fromDB)
                 }
-            } ?: log.error("download $fileName not found")
+            } ?: log.error("download for $fileName not found")
         }
     }
 
@@ -139,7 +144,7 @@ class WorkManagerDownloadWorker(
         inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
             async {
                 try {
-                    DownloadWorker(OkHttpClient()).startDownload(appContext, fileName)
+                    DownloadWorker().startDownload(appContext, fileName)
                     log.debug("download of $fileName succeeded")
                     Result.success()
                 } catch (ioe: IOException) {
