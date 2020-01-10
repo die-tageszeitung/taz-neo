@@ -313,6 +313,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                             fileEntryRepository.delete(fileEntry)
                             log.debug("deleted FileEntry of image ${fileEntry.name}")
                         } catch (e: SQLiteConstraintException) {
+                            log.error("FileEntry ${fileEntry.name} not deleted, maybe still used by section?")
                             // do not delete - still used by section
                         }
                     }
