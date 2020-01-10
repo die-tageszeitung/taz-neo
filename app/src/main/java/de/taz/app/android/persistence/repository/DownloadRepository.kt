@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
@@ -17,6 +18,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val log by Log
 
     @UiThread
     @Throws(NotFoundException::class)
@@ -108,11 +110,12 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    @Throws(NotFoundException::class)
     fun setStatus(download: Download, downloadStatus: DownloadStatus) {
         appDatabase.runInTransaction {
-            getWithoutFileOrThrow(download.file.name).let {
-                update(it.copy(status = downloadStatus))
+            try {
+                update(getWithoutFileOrThrow(download.file.name).copy(status = downloadStatus))
+            } catch (e: NotFoundException) {
+                log.error("${e.message.toString()}: ${download.file.name}")
             }
         }
     }
