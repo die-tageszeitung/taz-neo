@@ -1,0 +1,9 @@
+query CheckAboId(
+    $aboId: Int!,
+    $password: String!
+)  {
+    checkAboId(
+        aboId: $aboId,
+        password: $password
+    )
+}
