@@ -16,7 +16,9 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localViewModel != null && localView != null) {
-            localViewModel.getArticleList().observe(localView.getLifecycleOwner()) { articles ->
+            localViewModel.getArticleList(
+                localViewModel!!.bookmarksArticle).observe(localView.getLifecycleOwner()
+            ) { articles ->
                 if (articles.isNotEmpty()) {
                     localView.setArticles(articles, localViewModel.getCurrentPosition())
                 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.base.BaseDataController
+import de.taz.app.android.ui.bookmarks.BookmarksDataController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,5 +69,8 @@ class ArticlePagerDataController : BaseDataController(),
         articleList.value?.get(getCurrentPosition())?.getSection()
     }
 
-    override fun getArticleList(): LiveData<List<Article>> = articleList
+    override fun getArticleList(bookmarksArticle: Boolean): LiveData<List<Article>> {
+        val bookmarkList = BookmarksDataController().bookmarkedArticles
+        return if (bookmarksArticle) bookmarkList else articleList
+    }
 }
