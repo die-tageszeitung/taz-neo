@@ -228,6 +228,15 @@ open class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getBookmarkedArticlesList(): List<Article> {
+        return runBlocking(Dispatchers.IO) {
+            appDatabase.articleDao().getBookmarkedArticlesList().map {
+                articleStubToArticle(it)
+            }
+        }
+    }
+
+    @UiThread
     fun isBookmarked(article: Article): Boolean {
         return article.bookmarked
     }

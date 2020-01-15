@@ -19,4 +19,6 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     @Query("SELECT * FROM Article WHERE Article.bookmarked != 0")
     abstract fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
 
+    @Query("SELECT * FROM Article WHERE Article.bookmarked != 0")
+    abstract fun getBookmarkedArticlesList(): List<ArticleStub>
 }
