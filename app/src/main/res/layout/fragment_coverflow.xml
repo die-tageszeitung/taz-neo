@@ -16,7 +16,7 @@
 
     <de.taz.app.android.ui.home.page.coverflow.PagerContainer
             android:id="@+id/coverflow_pager_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:clipChildren="false"
             android:clipToPadding="false"
@@ -30,9 +30,9 @@
         <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/coverflow_pager"
                 android:layout_width="wrap_content"
-                android:background="@color/lightGrey"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
+                android:background="@color/lightGrey"
                 android:clipChildren="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
