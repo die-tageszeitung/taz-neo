@@ -8,12 +8,13 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.home.HomeFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataController>
     (BookmarksDataController::class.java), BookmarksContract.Presenter {
+
+    private val ARTICLE_FROM_BOOKMARKS = true
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.let { view ->
@@ -24,7 +25,7 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
     }
 
     override fun openArticle(article: Article) {
-        getView()?.getMainView()?.showInWebView(article)
+        getView()?.getMainView()?.showInWebView(article, 0, 0, ARTICLE_FROM_BOOKMARKS)
     }
 
     override fun debookmarkArticle(article: Article) {

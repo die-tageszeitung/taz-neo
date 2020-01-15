@@ -13,7 +13,7 @@ interface ArticlePagerContract: BaseContract {
     }
 
     interface Presenter: BaseContract.Presenter {
-        fun setInitialArticle(article: Article)
+        fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         fun getCurrentPosition(): Int?
         fun setCurrentPosition(position: Int)
         fun onBackPressed()
@@ -23,8 +23,8 @@ interface ArticlePagerContract: BaseContract {
         fun getCurrentPosition(): Int
         fun setCurrentPosition(position: Int)
         fun observeCurrentPosition(viewLifecycleOwner: LifecycleOwner, block: (Int) -> Unit)
-        fun setInitialArticle(article: Article)
+        fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         suspend fun getCurrentSection(): Section?
-        fun getArticleList(): LiveData<List<Article>>
+        fun getArticleList(bookmarksArticle: Boolean = false): LiveData<List<Article>>
     }
 }

@@ -17,11 +17,14 @@ class ArticlePagerDataController : BaseDataController(),
 
     private val articleList = MutableLiveData<List<Article>>(emptyList())
 
-    override fun setInitialArticle(article: Article) {
+    var bookmarksArticle: Boolean = false
+
+    override fun setInitialArticle(article: Article, bookmarksArticle: Boolean) {
+        this.bookmarksArticle = bookmarksArticle
         if (articleList.value?.isEmpty() == true) {
             viewModelScope.launch(Dispatchers.IO) {
                 val issue = article.getIssue()
-                val articleList = issue?.getArticleList()
+                val articleList =  issue?.getArticleList()
                 withContext(Dispatchers.Main) {
                     if (article.articleType !== ArticleType.IMPRINT) {
                         articleList?.let {

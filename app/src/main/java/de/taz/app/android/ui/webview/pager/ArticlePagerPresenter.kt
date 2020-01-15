@@ -27,8 +27,8 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         }
     }
 
-    override fun setInitialArticle(article: Article) {
-        viewModel?.setInitialArticle(article)
+    override fun setInitialArticle(article: Article, bookmarksArticle: Boolean) {
+        viewModel?.setInitialArticle(article, bookmarksArticle)
     }
 
     override fun getCurrentPosition(): Int? {
