@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview.pager
 
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.base.BaseDataController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,13 +23,19 @@ class ArticlePagerDataController : BaseDataController(),
                 val issue = article.getIssue()
                 val articleList = issue?.getArticleList()
                 withContext(Dispatchers.Main) {
-                    articleList?.let {
-                        initializePosition(articleList.indexOf(article))
-                        setArticleListAndPosition(articleList)
-                    } ?: run {
+                    if (article.articleType !== ArticleType.IMPRINT) {
+                        articleList?.let {
+                            initializePosition(articleList.indexOf(article))
+                            setArticleListAndPosition(articleList)
+                        } ?: run {
+                            initializePosition(0)
+                            setArticleListAndPosition(listOf(article))
+                        }
+                    } else {
                         initializePosition(0)
                         setArticleListAndPosition(listOf(article))
                     }
+
                 }
             }
         }
