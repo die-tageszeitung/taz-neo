@@ -46,12 +46,14 @@ open class ApiService private constructor(applicationContext: Context) {
      */
     @Throws(ApiServiceException.NoInternetException::class)
     suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
+        val tag = "authenticate"
+        log.debug("$tag username: $user")
         return transformExceptions({
             graphQlClient.query(
                 QueryType.AuthenticationQuery,
                 AuthenticationVariables(user, password)
             )?.authentificationToken
-        }, "authenticate")
+        }, tag)
     }
 
     /**
@@ -62,9 +64,10 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class
     )
     suspend fun getAppInfo(): AppInfo? {
+        val tag = "getAppInfo"
+        log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.AppInfoQuery)?.product?.let { AppInfo(it) } },
-            "getAppInfo"
+            { graphQlClient.query(QueryType.AppInfoQuery)?.product?.let { AppInfo(it) } }, tag
         )
     }
 
@@ -76,9 +79,10 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class
     )
     suspend fun getAuthInfo(): AuthInfo? {
+        val tag = "getAuthInfo"
+        log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.AuthInfoQuery)?.product?.authInfo },
-            "getAuthInfo"
+            { graphQlClient.query(QueryType.AuthInfoQuery)?.product?.authInfo }, tag
         )
     }
 
@@ -91,14 +95,13 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class
     )
     open suspend fun getFeeds(): List<Feed> {
-        return transformExceptions(
-            {
-                graphQlClient.query(QueryType.FeedQuery)?.product?.feedList?.map {
-                    Feed(it)
-                }
-            },
-            "getFeeds"
-        ) ?: emptyList()
+        val tag = "getFeeds"
+        log.debug(tag)
+        return transformExceptions({
+            graphQlClient.query(QueryType.FeedQuery)?.product?.feedList?.map {
+                Feed(it)
+            }
+        }, tag) ?: emptyList()
     }
 
     /**
@@ -114,9 +117,11 @@ open class ApiService private constructor(applicationContext: Context) {
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
     ): Issue? {
+        val tag = "getIssueByFeedAndDate"
+        log.debug("$tag feedName: $feedName issueDate: $issueDate")
         return transformExceptions({
             getIssuesByFeedAndDate(feedName, issueDate, 1).first()
-        }, "getIssueByFeedAndDate")
+        }, tag)
     }
 
     /**
@@ -132,6 +137,8 @@ open class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
+        val tag = "getIssuesByFeedAndDate"
+        log.debug("$tag issueDate: $issueDate limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()
             graphQlClient.query(
@@ -141,7 +148,7 @@ open class ApiService private constructor(applicationContext: Context) {
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues
-        }, "getIssuesByFeedAndDate") ?: emptyList()
+        }, tag) ?: emptyList()
     }
 
     /**
@@ -159,12 +166,14 @@ open class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 2
     ): List<Issue> {
+        val tag = "getIssuesByFeedAndDate"
+        log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
         return transformExceptions({
             graphQlClient.query(
                 QueryType.IssueByFeedAndDateQuery,
                 IssueVariables(feedName, issueDate, limit)
             )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
-        }, "getIssuesByFeedAndDate") ?: emptyList()
+        }, tag) ?: emptyList()
     }
 
     /**
@@ -175,9 +184,11 @@ open class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class
     )
     suspend fun getResourceInfo(): ResourceInfo? {
+        val tag = "getResourceInfo"
+        log.debug(tag)
         return transformExceptions(
             { graphQlClient.query(QueryType.ResourceInfoQuery)?.product?.let { ResourceInfo(it) } },
-            "getResourceInfo"
+            tag
         )
     }
 
@@ -224,6 +235,8 @@ open class ApiService private constructor(applicationContext: Context) {
         id: String,
         time: Float
     ): Boolean? {
+        val tag = "notifyServerOfDownloadStop"
+        log.debug("$tag downloadId: $id time: $time")
         return transformExceptions(
             {
                 log.debug("Notifying server that download complete. ID: $id")
@@ -232,7 +245,7 @@ open class ApiService private constructor(applicationContext: Context) {
                     DownloadStopVariables(id, time)
                 )?.downloadStop
             },
-            "notifyServerOfDownloadStop"
+            tag
         )
     }
 
@@ -243,10 +256,13 @@ open class ApiService private constructor(applicationContext: Context) {
         try {
             return block()
         } catch (uhe: UnknownHostException) {
+            log.debug("UnknownHostException ${uhe.localizedMessage}")
             throw ApiServiceException.NoInternetException()
         } catch (ce: ConnectException) {
+            log.debug("ConnectException ${ce.localizedMessage}")
             throw ApiServiceException.NoInternetException()
         } catch (ste: SocketTimeoutException) {
+            log.debug("SocketTimeoutException ${ste.localizedMessage}")
             throw ApiServiceException.NoInternetException()
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
