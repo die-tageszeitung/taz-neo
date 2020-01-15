@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 open class SectionRepository private constructor(applicationContext: Context) :
@@ -20,6 +21,7 @@ open class SectionRepository private constructor(applicationContext: Context) :
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val log by Log
 
     @UiThread
     fun save(section: Section) {
@@ -179,7 +181,9 @@ open class SectionRepository private constructor(applicationContext: Context) :
             section.imageList.forEach {
                 try {
                     fileEntryRepository.delete(it)
+                    log.debug("deleted FileEntry of image $it")
                 } catch (e: SQLiteConstraintException) {
+                    log.error("FileEntry $it not deleted, maybe still used by a bookmarked article?")
                     // do not delete still used by (presumably bookmarked) article
                 }
             }
