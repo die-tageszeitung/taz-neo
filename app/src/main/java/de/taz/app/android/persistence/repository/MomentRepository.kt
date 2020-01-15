@@ -6,12 +6,16 @@ import androidx.annotation.UiThread
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueMomentJoin
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 class MomentRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
+
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val log by Log
 
     @UiThread
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
@@ -66,8 +70,10 @@ class MomentRepository private constructor(applicationContext: Context) :
                 }
             )
             try {
-                appDatabase.fileEntryDao().delete(moment.imageList)
+                fileEntryRepository.delete(moment.imageList)
+                log.debug("deleted FileEntry of image ${moment.imageList}")
             } catch (e: SQLiteConstraintException) {
+                log.error("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
                 // do not delete is used by another issue
             }
         }
