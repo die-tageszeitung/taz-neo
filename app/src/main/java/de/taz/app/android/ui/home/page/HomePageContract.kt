@@ -32,6 +32,10 @@ interface HomePageContract {
 
         suspend fun onItemSelected(issueStub: IssueStub)
 
+        fun getCurrentPosition(): Int?
+
+        fun setCurrentPosition(position: Int)
+
     }
 
     interface DataController {
@@ -47,6 +51,9 @@ interface HomePageContract {
 
         fun observeFeeds(lifeCycleOwner: LifecycleOwner, observationCallback: (List<Feed>?) -> (Unit))
 
+        fun setCurrentPosition(position: Int)
+        fun getCurrentPosition(): Int?
+        fun observeCurrentPosition(lifeCycleOwner: LifecycleOwner, observationCallback: (Int?) -> Unit)
    }
 
 }
