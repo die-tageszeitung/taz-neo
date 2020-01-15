@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 
@@ -18,18 +19,20 @@ import java.lang.IndexOutOfBoundsException
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
  *  [ViewHolder] is used to recycle views
  */
-class HomePageAdapter(
+open class HomePageAdapter(
     private val fragment: HomePageContract.View,
     @LayoutRes private val itemLayoutRes: Int,
     private val presenter: HomePageContract.Presenter
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private var allIssueStubList: List<IssueStub> = emptyList()
-    private var visibleIssueStubList: List<IssueStub> = emptyList()
+    protected var visibleIssueStubList: List<IssueStub> = emptyList()
 
     private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
+
+    private val log by Log
 
     private val feedMap
         get() = feedList.associateBy { it.name }
@@ -52,13 +55,15 @@ class HomePageAdapter(
 
     fun setAuthStatus(authStatus: AuthStatus) {
         if (this.authStatus != authStatus) {
+            log.debug("setting authStatus to ${authStatus.name}")
             this.authStatus = authStatus
             filterAndSetIssues()
         }
     }
 
-    fun setIssueStubs(issues: List<IssueStub>) {
+    open fun setIssueStubs(issues: List<IssueStub>) {
         if (allIssueStubList != issues) {
+            log.debug("settings issueStubs to a list of ${issues.size} issues")
             allIssueStubList = issues
             filterAndSetIssues()
         }
@@ -73,6 +78,7 @@ class HomePageAdapter(
 
     private fun filterAndSetIssues() {
         val filteredIssueStubs = filterIssueStubs()
+        log.debug("after filtering ${filteredIssueStubs.size} remain")
         val diffResult = DiffUtil.calculateDiff(
             HomePageListDiffCallback(
                 visibleIssueStubList,
@@ -87,8 +93,9 @@ class HomePageAdapter(
         feedList = feeds
     }
 
-    fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+    open fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         if (this.inactiveFeedNames != inactiveFeedNames) {
+            log.debug("settings inactive feeds to a list of ${inactiveFeedNames.size} feeds")
             this.inactiveFeedNames = inactiveFeedNames
             filterAndSetIssues()
         }

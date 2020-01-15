@@ -13,7 +13,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
@@ -28,7 +27,7 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
 
     val log by Log
 
-    private val coverFlowPagerAdapter = HomePageAdapter(
+    private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
         presenter
@@ -55,28 +54,29 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        val oldItemCount = coverFlowPagerAdapter.itemCount
         coverFlowPagerAdapter.apply {
             setIssueStubs(issueStubs.reversed())
-        }
-        if (oldItemCount == 0) {
-            skipToEnd()
         }
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
         coverFlowPagerAdapter.setAuthStatus(authStatus)
+        presenter.getCurrentPosition()?.let {
+            skipToPosition(it)
+        }
     }
 
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
+        presenter.getCurrentPosition()?.let {
+            skipToPosition(it)
+        }
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        val oldItemCount = coverFlowPagerAdapter.itemCount
         coverFlowPagerAdapter.setInactiveFeedNames(inactiveFeedNames)
-        if (oldItemCount == 0) {
-            skipToEnd()
+        presenter.getCurrentPosition()?.let {
+            skipToPosition(it)
         }
     }
 
@@ -89,14 +89,24 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     }
 
     override fun skipToEnd() {
-        coverflow_pager.adapter?.let {
-            coverflow_pager.currentItem = it.itemCount - 1
+        coverflow_pager.adapter?.apply {
+            log.debug("skipping to item @ position ${itemCount-1}")
+            coverflow_pager.setCurrentItem(itemCount - 1, false)
+        }
+    }
+
+    override fun skipToPosition(position: Int) {
+        coverflow_pager.adapter?.apply {
+            log.debug("skipping to item @ position $position")
+            coverflow_pager.setCurrentItem(position, false)
         }
     }
 
     inner class CoverFlowOnPageChangeCallback : ViewPager2.OnPageChangeCallback() {
 
         override fun onPageSelected(position: Int) {
+            presenter.setCurrentPosition(position)
+
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
 
                 getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))

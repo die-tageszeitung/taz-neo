@@ -82,4 +82,22 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         )
     }
 
+    /**
+     *
+     */
+
+    private val currentPosition = MutableLiveData<Int?>().apply { postValue(null) }
+
+    override fun setCurrentPosition(position: Int) {
+        currentPosition.postValue(position)
+    }
+
+    override fun getCurrentPosition(): Int? {
+        return currentPosition.value
+    }
+
+    override fun observeCurrentPosition(lifeCycleOwner: LifecycleOwner, observationCallback: (Int?) -> Unit) {
+        currentPosition.observe(lifeCycleOwner, Observer(observationCallback))
+    }
+
 }
