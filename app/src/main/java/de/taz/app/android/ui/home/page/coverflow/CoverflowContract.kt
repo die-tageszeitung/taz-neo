@@ -6,6 +6,7 @@ interface CoverflowContract {
 
     interface View: HomePageContract.View {
         fun skipToEnd()
+        fun skipToPosition(position: Int)
     }
 
     interface Presenter: HomePageContract.Presenter

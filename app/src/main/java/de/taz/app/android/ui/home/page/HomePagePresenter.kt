@@ -29,7 +29,8 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
         getView()?.let { view ->
             view.getLifecycleOwner().let {
                 viewModel?.apply {
-                    observeIssueStubs(it,
+                    observeIssueStubs(
+                        it,
                         HomePageIssueStubsObserver(
                             this@HomePagePresenter
                         )
@@ -46,7 +47,6 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                 }
             }
         }
-
     }
 
     override suspend fun onItemSelected(issueStub: IssueStub) {
@@ -86,6 +86,14 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                 )
             }
         }
+    }
+
+    override fun getCurrentPosition(): Int? {
+        return viewModel?.getCurrentPosition()
+    }
+
+    override fun setCurrentPosition(position: Int) {
+        viewModel?.setCurrentPosition(position)
     }
 
     suspend fun downloadNextIssues(date: String, limit: Int) {
