@@ -41,21 +41,24 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         viewModel?.setCurrentPosition(position)
     }
 
-    override fun onBackPressed() {
+    override fun onBackPressed(): Boolean {
         val localView = getView()
         val localViewModel = viewModel
-        if (localView != null && localViewModel != null) {
+        if (localView != null && localViewModel != null && !localViewModel.bookmarksArticle) {
             localView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 localViewModel.getCurrentSection()?.also {
                     localView.getMainView()?.showInWebView(it)
                 } ?: run {
-                    localViewModel.getArticleList().value?.get(
+                    localViewModel.getArticleList(localViewModel!!.bookmarksArticle).value?.get(
                         localViewModel.getCurrentPosition()
                     )?.getIssue()?.sectionList?.first()?.let {
                         localView.getMainView()?.showInWebView(it)
                     }
                 }
             }
+            return true
+        } else {
+            return false
         }
     }
 

@@ -16,7 +16,7 @@ interface ArticlePagerContract: BaseContract {
         fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         fun getCurrentPosition(): Int?
         fun setCurrentPosition(position: Int)
-        fun onBackPressed()
+        fun onBackPressed(): Boolean
     }
 
     interface DataController: BaseContract.DataController {
