@@ -82,7 +82,7 @@ class ArticleWebViewPresenterTest {
     fun onLinkClicked() {
         presenter.onLinkClicked(testArticle)
 
-        Mockito.verify(mainContractView).showInWebView(eq(testArticle), any(), any())
+        Mockito.verify(mainContractView).showInWebView(eq(testArticle), any(), any(), any())
     }
 
 }
