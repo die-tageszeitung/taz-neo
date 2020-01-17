@@ -14,8 +14,6 @@ import kotlinx.coroutines.launch
 class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataController>
     (BookmarksDataController::class.java), BookmarksContract.Presenter {
 
-    private val ARTICLE_FROM_BOOKMARKS = true
-
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.let { view ->
             viewModel?.bookmarkedArticles?.observe(view.getLifecycleOwner(), Observer { bookmarks ->
@@ -25,7 +23,7 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
     }
 
     override fun openArticle(article: Article) {
-        getView()?.getMainView()?.showInWebView(article, 0, 0, ARTICLE_FROM_BOOKMARKS)
+        getView()?.getMainView()?.showInWebView(article, bookmarksArticle = true)
     }
 
     override fun debookmarkArticle(article: Article) {
