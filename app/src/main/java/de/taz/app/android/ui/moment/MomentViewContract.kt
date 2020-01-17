@@ -10,7 +10,7 @@ import de.taz.app.android.base.BaseContract
 interface MomentViewContract {
 
     interface View: BaseContract.View {
-        fun displayIssue(momentImageBitmap: Bitmap, date: String)
+        fun displayIssue(momentImageBitmap: Bitmap, date: String?)
         fun clearIssue()
         fun getContext(): Context
         fun setDimension(feed: Feed?)

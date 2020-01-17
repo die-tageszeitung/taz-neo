@@ -13,6 +13,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.util.DateHelper
 import de.taz.app.android.util.FileHelper
 import kotlinx.coroutines.*
 import java.util.*
@@ -109,7 +110,8 @@ class SectionListAdapter(
                 issueOperations?.let { issue ->
                     moment?.isDownloadedLiveData()?.removeObserver(this)
                     setMomentRatio(issue)
-                    setMomentImage(issue)
+                    setMomentImage()
+                    setMomentDate(issue)
                 }
             }
         }
@@ -149,14 +151,14 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentImage(issue: IssueOperations) {
+    private fun setMomentImage() {
         moment?.imageList?.lastOrNull()?.let {
             val file = fileHelper.getFile(it)
             if (file.exists()) {
                 BitmapFactory.decodeFile(file.absolutePath)?.let { bitmap ->
                     fragment.view?.findViewById<MomentView>(
                         R.id.fragment_drawer_sections_moment
-                    )?.displayIssue(bitmap, issue.date)
+                    )?.displayIssue(bitmap, null)
                 }
             }
         }
@@ -173,5 +175,13 @@ class SectionListAdapter(
         }
     }
 
+    private fun setMomentDate(issue: IssueOperations) {
+        val dateHelper = DateHelper.getInstance()
+        fragment.view?.findViewById<TextView>(
+            R.id.fragment_drawer_sections_date
+        )?.apply {
+            text = dateHelper.dateToLowerCaseString(issue.date)
+        }
+    }
     override fun getItemCount() = sectionList.size
 }
