@@ -25,6 +25,6 @@ interface ArticlePagerContract: BaseContract {
         fun observeCurrentPosition(viewLifecycleOwner: LifecycleOwner, block: (Int) -> Unit)
         fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         suspend fun getCurrentSection(): Section?
-        fun getArticleList(bookmarksArticle: Boolean = false): LiveData<List<Article>>
+        fun getArticleList(): LiveData<List<Article>>
     }
 }
