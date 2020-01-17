@@ -16,8 +16,7 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localViewModel != null && localView != null) {
-            localViewModel.getArticleList(
-                localViewModel.bookmarksArticle).observe(localView.getLifecycleOwner()
+            localViewModel.getArticleList().observe(localView.getLifecycleOwner()
             ) { articles ->
                 if (articles.isNotEmpty()) {
                     localView.setArticles(articles, localViewModel.getCurrentPosition())
@@ -49,7 +48,7 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
                 localViewModel.getCurrentSection()?.also {
                     localView.getMainView()?.showInWebView(it)
                 } ?: run {
-                    localViewModel.getArticleList(localViewModel.bookmarksArticle).value?.get(
+                    localViewModel.getArticleList().value?.get(
                         localViewModel.getCurrentPosition()
                     )?.getIssue()?.sectionList?.first()?.let {
                         localView.getMainView()?.showInWebView(it)

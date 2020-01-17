@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.base.BaseDataController
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarksDataController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,8 +26,10 @@ class ArticlePagerDataController : BaseDataController(),
         if (articleList.value?.isEmpty() == true) {
             viewModelScope.launch(Dispatchers.IO) {
                 val issue = article.getIssue()
-                val bookmarks =BookmarksDataController().bookmarksList
-                val articleList = if (bookmarksArticle) bookmarks else issue?.getArticleList()
+                val articleList =
+                    if (bookmarksArticle) ArticleRepository.getInstance().getBookmarkedArticlesList()
+                    else issue?.getArticleList()
+
                 withContext(Dispatchers.Main) {
                     if (article.articleType !== ArticleType.IMPRINT) {
                         articleList?.let {
@@ -70,8 +73,7 @@ class ArticlePagerDataController : BaseDataController(),
         articleList.value?.get(getCurrentPosition())?.getSection()
     }
 
-    override fun getArticleList(bookmarksArticle: Boolean): LiveData<List<Article>> {
-        val bookmarkList = BookmarksDataController().bookmarkedArticles
-        return if (bookmarksArticle) bookmarkList else articleList
+    override fun getArticleList(): LiveData<List<Article>> {
+        return articleList
     }
 }
