@@ -27,8 +27,11 @@ class ArticlePagerDataController : BaseDataController(),
             viewModelScope.launch(Dispatchers.IO) {
                 val issue = article.getIssue()
                 val articleList =
-                    if (bookmarksArticle) ArticleRepository.getInstance().getBookmarkedArticlesList()
-                    else issue?.getArticleList()
+                    if (bookmarksArticle) {
+                        ArticleRepository.getInstance().getBookmarkedArticlesList()
+                    } else {
+                        issue?.getArticleList()
+                    }
 
                 withContext(Dispatchers.Main) {
                     if (article.articleType !== ArticleType.IMPRINT) {
