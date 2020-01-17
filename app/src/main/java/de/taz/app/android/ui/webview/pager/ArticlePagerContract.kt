@@ -13,17 +13,17 @@ interface ArticlePagerContract: BaseContract {
     }
 
     interface Presenter: BaseContract.Presenter {
-        fun setInitialArticle(article: Article)
+        fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         fun getCurrentPosition(): Int?
         fun setCurrentPosition(position: Int)
-        fun onBackPressed()
+        fun onBackPressed(): Boolean
     }
 
     interface DataController: BaseContract.DataController {
         fun getCurrentPosition(): Int
         fun setCurrentPosition(position: Int)
         fun observeCurrentPosition(viewLifecycleOwner: LifecycleOwner, block: (Int) -> Unit)
-        fun setInitialArticle(article: Article)
+        fun setInitialArticle(article: Article, bookmarksArticle: Boolean = false)
         suspend fun getCurrentSection(): Section?
         fun getArticleList(): LiveData<List<Article>>
     }

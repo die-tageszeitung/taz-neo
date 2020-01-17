@@ -24,7 +24,7 @@ interface MainContract : BaseContract {
 
         fun showDrawerFragment(fragment: Fragment)
 
-        fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
+        fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0, bookmarksArticle: Boolean = false)
 
         fun showHome()
 

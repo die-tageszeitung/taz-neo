@@ -35,11 +35,14 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
 
     private var currentPosition: Int? = null
 
+    private var bookmarksArticle = false
+
     companion object {
-        fun createInstance(initialArticle: Article): ArticlePagerFragment {
+        fun createInstance(initialArticle: Article, bookmarksArticle: Boolean): ArticlePagerFragment {
             // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
             val fragment = ArticlePagerFragment()
             fragment.initialArticle = initialArticle
+            fragment.bookmarksArticle = bookmarksArticle
             return fragment
         }
     }
@@ -51,7 +54,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         presenter.attach(this)
 
         // Ensure initial fragment states are copied to the model via the presenter
-        initialArticle?.let { presenter.setInitialArticle(it) }
+        initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
 
         webview_pager_viewpager.reduceDragSensitivity()
         // Initialize the presenter and let it call this fragment to render the pager
@@ -102,8 +105,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         getCurrentFragment()?.let {
             if (it.onBackPressed()) return true
         }
-        presenter.onBackPressed()
-        return true
+        return presenter.onBackPressed()
     }
 
     private fun getCurrentFragment(): ArticleWebViewFragment? {

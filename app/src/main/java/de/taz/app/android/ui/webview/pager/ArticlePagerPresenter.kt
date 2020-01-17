@@ -16,7 +16,8 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         val localView = getView()
         val localViewModel = viewModel
         if (localViewModel != null && localView != null) {
-            localViewModel.getArticleList().observe(localView.getLifecycleOwner()) { articles ->
+            localViewModel.getArticleList().observe(localView.getLifecycleOwner()
+            ) { articles ->
                 if (articles.isNotEmpty()) {
                     localView.setArticles(articles, localViewModel.getCurrentPosition())
                 }
@@ -27,8 +28,8 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         }
     }
 
-    override fun setInitialArticle(article: Article) {
-        viewModel?.setInitialArticle(article)
+    override fun setInitialArticle(article: Article, bookmarksArticle: Boolean) {
+        viewModel?.setInitialArticle(article, bookmarksArticle)
     }
 
     override fun getCurrentPosition(): Int? {
@@ -39,10 +40,10 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
         viewModel?.setCurrentPosition(position)
     }
 
-    override fun onBackPressed() {
+    override fun onBackPressed(): Boolean {
         val localView = getView()
         val localViewModel = viewModel
-        if (localView != null && localViewModel != null) {
+        if (localView != null && localViewModel != null && !localViewModel.bookmarksArticle) {
             localView.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 localViewModel.getCurrentSection()?.also {
                     localView.getMainView()?.showInWebView(it)
@@ -54,6 +55,9 @@ class ArticlePagerPresenter : BasePresenter<ArticlePagerContract.View, ArticlePa
                     }
                 }
             }
+            return true
+        } else {
+            return false
         }
     }
 
