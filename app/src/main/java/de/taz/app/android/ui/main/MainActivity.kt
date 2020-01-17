@@ -113,16 +113,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showInWebView(
         webViewDisplayable: WebViewDisplayable,
         enterAnimation: Int,
-        exitAnimation: Int
+        exitAnimation: Int,
+        bookmarksArticle: Boolean
     ) {
         when (webViewDisplayable) {
-            is Article -> showArticle(webViewDisplayable, enterAnimation, exitAnimation)
+            is Article -> showArticle(webViewDisplayable, enterAnimation, exitAnimation, bookmarksArticle)
             is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
         }
     }
 
-    private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int) {
-        val fragment = ArticlePagerFragment.createInstance(article)
+    private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int, bookmarksArticle: Boolean) {
+        val fragment = ArticlePagerFragment.createInstance(article, bookmarksArticle)
         showMainFragment(fragment, enterAnimation, exitAnimation)
     }
 
