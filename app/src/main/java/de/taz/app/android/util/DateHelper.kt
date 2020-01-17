@@ -42,7 +42,7 @@ open class DateHelper private constructor(applicationContext: Context): ViewMode
 
     fun dateToLowerCaseString(date: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
-            SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY).format(
+            SimpleDateFormat("EEEE, d. MMMM yyyy", Locale.GERMANY).format(
                 issueDate
             ).toLowerCase(Locale.getDefault())
         }
