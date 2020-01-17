@@ -5,5 +5,4 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 
 class BookmarksDataController : BaseDataController() {
     val bookmarkedArticles = ArticleRepository.getInstance().getBookmarkedArticles()
-    val bookmarksList = ArticleRepository.getInstance().getBookmarkedArticlesList()
 }
