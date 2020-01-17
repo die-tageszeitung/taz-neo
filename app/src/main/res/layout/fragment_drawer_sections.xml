@@ -19,6 +19,11 @@
                 app:archive_item_text_orientation="view_start"
                 android:paddingBottom="@dimen/fragment_drawer_sections_moment_padding_bottom"
                 />
+        <TextView
+            android:id="@+id/fragment_drawer_sections_date"
+            style="@style/TextAppearance.Drawer.Sections.Date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragment_drawer_sections_list"
