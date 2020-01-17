@@ -60,7 +60,7 @@ class MomentView @JvmOverloads constructor(
         showProgressBar()
     }
 
-    override fun displayIssue(momentImageBitmap: Bitmap, date: String) {
+    override fun displayIssue(momentImageBitmap: Bitmap, date: String?) {
         hideProgressBar()
         showBitmap(momentImageBitmap)
         setDate(date)
@@ -78,8 +78,13 @@ class MomentView @JvmOverloads constructor(
         fragment_archive_moment_date.text = ""
     }
 
-    private fun setDate(date: String) {
-        fragment_archive_moment_date.text = dateHelper.stringToLocalizedString(date)
+    private fun setDate(date: String?) {
+        if (date !== null) {
+            fragment_archive_moment_date.text = dateHelper.stringToLocalizedString(date)
+        }
+        else {
+            fragment_archive_moment_date.visibility = View.GONE
+        }
     }
 
 

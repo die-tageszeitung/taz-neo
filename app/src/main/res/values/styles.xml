@@ -57,6 +57,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
+        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:lineSpacingExtra">7sp</item>
