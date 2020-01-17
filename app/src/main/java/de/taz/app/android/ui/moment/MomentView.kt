@@ -15,6 +15,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.DateHelper
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_archive_item.view.*
 
 
@@ -24,6 +25,8 @@ class MomentView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr), MomentViewContract.View {
     val presenter = MomentViewPresenter()
+
+    private val log by Log
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
@@ -97,7 +100,6 @@ class MomentView @JvmOverloads constructor(
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
         }
-        fragment_archive_moment_image.background = BitmapDrawable(resources, bitmap)
         hideProgressBar()
     }
 
@@ -109,10 +111,12 @@ class MomentView @JvmOverloads constructor(
         fragment_archive_moment_image_progressbar.visibility = View.GONE
     }
 
-    private fun setDimension(dimenstionString: String) {
+    private fun setDimension(dimensionString: String) {
+        log.debug("setting dimension to $dimensionString")
         fragment_archive_moment_image_wrapper.apply {
-            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimenstionString
+            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
             requestLayout()
+            forceLayout()
         }
 
     }
