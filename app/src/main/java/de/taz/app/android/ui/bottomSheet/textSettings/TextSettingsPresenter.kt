@@ -2,10 +2,9 @@ package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.content.Context
 import android.os.Bundle
-import de.taz.app.android.util.Log
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.base.BasePresenter
-import de.taz.app.android.ui.settings.SettingsOuterFragment
+import de.taz.app.android.ui.settings.SettingsFragment
 
 const val MIN_TEXT_SIZE = 0
 const val MAX_TEST_SIZE = 200
@@ -15,11 +14,9 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
 ), TextSettingsContract.Presenter {
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
-        val tazApiCssPreferences = getView()?.getMainView()?.getApplicationContext()?.getSharedPreferences(
-            PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
         getView()?.apply {
-            tazApiCssPreferences?.let {
+            getMainView()?.getApplicationContext()?.getSharedPreferences(
+                PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
                 viewModel?.setPreferences(it)
             }
 
@@ -42,7 +39,7 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
     }
 
     override fun onSettingsSelected() {
-        getView()?.getMainView()?.showMainFragment(SettingsOuterFragment())
+        getView()?.getMainView()?.showMainFragment(SettingsFragment())
     }
 
     override fun decreaseTextSize() {
