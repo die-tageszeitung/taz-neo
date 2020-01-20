@@ -3,15 +3,8 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.models.*
-import de.taz.app.android.api.variables.AuthenticationVariables
-import de.taz.app.android.api.variables.DownloadStartVariables
-import de.taz.app.android.api.variables.DownloadStopVariables
-import de.taz.app.android.api.variables.IssueVariables
-import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.api.variables.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
@@ -35,8 +28,6 @@ open class ApiService private constructor(applicationContext: Context) {
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var authHelper = AuthHelper.getInstance(applicationContext)
 
     /**
      * function to authenticate with the backend
@@ -197,14 +188,7 @@ open class ApiService private constructor(applicationContext: Context) {
     )
     suspend fun notifyServerOfDownloadStart(
         feedName: String,
-        issueDate: String,
-        deviceName: String = android.os.Build.MODEL,
-        deviceVersion: String = android.os.Build.VERSION.RELEASE,
-        appVersion: String = BuildConfig.VERSION_NAME,
-        isPush: Boolean = false, // TODO
-        installationId: String = authHelper.installationId,
-        deviceFormat: DeviceFormat = DeviceFormat.mobile,
-        deviceType: DeviceType = DeviceType.android
+        issueDate: String
     ): String? {
         return transformExceptions(
             {
@@ -212,14 +196,7 @@ open class ApiService private constructor(applicationContext: Context) {
                     QueryType.DownloadStart,
                     DownloadStartVariables(
                         feedName,
-                        issueDate,
-                        deviceName,
-                        deviceVersion,
-                        appVersion,
-                        isPush,
-                        installationId,
-                        deviceFormat,
-                        deviceType
+                        issueDate
                     )
                 )?.downloadStart?.let { id ->
                     log.debug("Notified server that download started. ID: $id")
@@ -245,6 +222,19 @@ open class ApiService private constructor(applicationContext: Context) {
                     DownloadStopVariables(id, time)
                 )?.downloadStop
             },
+            tag
+        )
+    }
+
+    @Throws(
+        ApiServiceException.NoInternetException::class
+    )
+    suspend fun sendNotificationInfo(): Boolean? {
+        val tag = "sendNotificationInfo"
+        log.debug(tag)
+
+        return transformExceptions(
+            { graphQlClient.query(QueryType.Notification, NotificationVariables())?.notification },
             tag
         )
     }

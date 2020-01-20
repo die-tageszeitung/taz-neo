@@ -1,0 +1,15 @@
+mutation notification(
+    $pushToken: String!,
+    $deviceMessageSound: String,
+    $textNotification: Boolean!,
+    $deviceType: DeviceType!,
+    $deviceFormat: DeviceFormat!
+) {
+    notification(
+        pushToken: $pushToken,
+        deviceMessageSound: $deviceMessageSound,
+        textNotification: $textNotification,
+        deviceType: $deviceType,
+        deviceFormat: $deviceFormat
+    )
+}
