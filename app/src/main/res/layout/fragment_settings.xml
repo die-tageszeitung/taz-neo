@@ -30,68 +30,88 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_wrapper"
+    <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="match_parent">
 
-        <TextView
-                android:id="@+id/fragment_settings_category_general"
-                style="@style/TextAppearance.Settings.Category"
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/web_view_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_category_general"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-                android:id="@+id/fragment_settings_general_keep_issues"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_general_keep_number_issues"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
+            <TextView
+                    android:id="@+id/fragment_settings_category_general"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_general"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-                android:id="@+id/fragment_settings_category_text"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_text"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_general_keep_issues" />
+            <TextView
+                    android:id="@+id/fragment_settings_general_keep_issues"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_general_keep_number_issues"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
 
-        <include
-                android:id="@+id/fragment_settings_text_size"
-                layout="@layout/settings_text_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
+            <TextView
+                    android:id="@+id/fragment_settings_category_text"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_text"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_settings_general_keep_issues" />
 
-        <include
-                android:id="@+id/fragment_settings_night_mode"
-                layout="@layout/settings_switch"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            <include
+                    android:id="@+id/fragment_settings_text_size"
+                    layout="@layout/settings_text_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
-
-        <TextView
-                android:id="@+id/fragment_settings_category_account"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_account"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_night_mode" />
-
-        <include layout="@layout/settings_manage_account"
-                android:id="@+id/fragment_settings_account_manage_account"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
+            <include
+                    android:id="@+id/fragment_settings_night_mode"
+                    layout="@layout/settings_switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                    android:id="@+id/fragment_settings_category_account"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_account"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_settings_night_mode" />
+
+            <include
+                    android:id="@+id/fragment_settings_account_manage_account"
+                    layout="@layout/settings_manage_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
+
+            <TextView
+                    android:id="@+id/fragment_settings_category_push_id"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_push"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_manage_account" />
+
+            <TextView
+                    android:id="@+id/fragment_settings_push_id"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_push_id" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
             android:layout_width="match_parent"

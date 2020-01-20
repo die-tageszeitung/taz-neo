@@ -2,27 +2,30 @@ package de.taz.app.android.api.variables
 
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
+import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.util.AuthHelper
 import java.util.*
 
 @JsonClass(generateAdapter = true)
 data class DownloadStartVariables(
-        val feedName: String,
-        val issueDate: String,
-        val deviceName: String = "TODO",
-        val deviceVersion: String = "TODO",
-        val appVersion: String = "TODO",
-        val isPush: Boolean = false, // TODO
-        val installationID: String = UUID.randomUUID().toString(), // TODO
-        val deviceFormat: DeviceFormat = DeviceFormat.mobile,
-        val deviceType: DeviceType = DeviceType.android
+    val feedName: String,
+    val issueDate: String,
+    val deviceName: String = android.os.Build.MODEL,
+    val deviceVersion: String = android.os.Build.VERSION.RELEASE,
+    val appVersion: String = BuildConfig.VERSION_NAME,
+    val isPush: Boolean = FirebaseHelper.getInstance().isPush,
+    val installationID: String = AuthHelper.getInstance().installationId,
+    val deviceFormat: DeviceFormat = DeviceFormat.mobile,
+    val deviceType: DeviceType = DeviceType.android
 ) : Variables {
 
-        override fun toJson(): String {
-                val moshi = Moshi.Builder().build()
-                val adapter = moshi.adapter(DownloadStartVariables::class.java)
+    override fun toJson(): String {
+        val moshi = Moshi.Builder().build()
+        val adapter = moshi.adapter(DownloadStartVariables::class.java)
 
-                return adapter.toJson(this)
-        }
+        return adapter.toJson(this)
+    }
 }

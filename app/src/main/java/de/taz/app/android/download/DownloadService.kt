@@ -103,11 +103,14 @@ object DownloadService {
      * @param cacheableDownload - object implementing [CacheableDownload] to download files of
      */
     fun scheduleDownload(appContext: Context, cacheableDownload: CacheableDownload) {
-        enqueueDownloads(
-            appContext,
-            createDownloadsForCacheableDownload(appContext, cacheableDownload),
-            cacheableDownload.getDownloadTag()
-        )
+        val downloads = createDownloadsForCacheableDownload(appContext, cacheableDownload)
+        if (downloads.isNotEmpty()) {
+            enqueueDownloads(
+                appContext,
+                downloads,
+                cacheableDownload.getDownloadTag()
+            )
+        }
     }
 
     /**

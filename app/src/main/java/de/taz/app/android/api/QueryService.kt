@@ -20,6 +20,7 @@ enum class QueryType {
     DownloadStop,
     FeedQuery,
     IssueByFeedAndDateQuery,
+    Notification,
     ResourceInfoQuery
 }
 
