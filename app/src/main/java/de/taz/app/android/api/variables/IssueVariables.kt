@@ -6,7 +6,7 @@ import com.squareup.moshi.Moshi
 @JsonClass(generateAdapter = true)
 data class IssueVariables(
     val feedName: String? = null,
-    val issueDate: String = "",
+    val issueDate: String? = null,
     val limit: Int = 1
 ): Variables {
 
