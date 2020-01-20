@@ -115,6 +115,22 @@ open class ApiService private constructor(applicationContext: Context) {
         }, tag)
     }
 
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun getLastIssues(limit: Int = 10): List<Issue> {
+        val tag = "getLastIssues"
+        log.debug("$tag limit: $limit")
+        return transformExceptions({
+            val issues = mutableListOf<Issue>()
+            graphQlClient.query(
+                QueryType.LastIssuesQuery,
+                IssueVariables(limit = limit)
+            )?.product?.feedList?.forEach { feed ->
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+            }
+            issues
+        }, tag) ?: emptyList()
+    }
+
     /**
      * function to get [Issue]s by date
      * @param issueDate - the date of the issue last issue

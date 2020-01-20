@@ -22,7 +22,7 @@ class HomePresenter(
         withContext(Dispatchers.IO) {
             try {
                 feedRepository.save(apiService.getFeeds())
-                issueRepository.saveIfDoNotExist(apiService.getIssuesByDate())
+                issueRepository.saveIfDoNotExist(apiService.getLastIssues())
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 getView()?.getMainView()?.showToast(R.string.toast_no_internet)
             }
