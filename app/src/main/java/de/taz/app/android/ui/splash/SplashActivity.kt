@@ -3,12 +3,12 @@ package de.taz.app.android.ui.splash
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
@@ -37,6 +37,8 @@ class SplashActivity : AppCompatActivity() {
         initResources()
 
         deletePublicIssuesIfLoggedIn()
+
+        ensurePushTokenSent()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
@@ -87,6 +89,8 @@ class SplashActivity : AppCompatActivity() {
 
             ApiService.createInstance(it)
             DownloadedIssueHelper.createInstance(it)
+
+            FirebaseHelper.createInstance(it)
         }
         log.debug("Singletons initialized")
     }
@@ -96,7 +100,7 @@ class SplashActivity : AppCompatActivity() {
         val feedRepository = FeedRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val feeds = apiService.getFeeds()
                 feedRepository.save(feeds)
@@ -113,7 +117,7 @@ class SplashActivity : AppCompatActivity() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val issues = apiService.getIssuesByDate(limit = 10)
                 issueRepository.saveIfDoNotExist(issues)
@@ -129,7 +133,7 @@ class SplashActivity : AppCompatActivity() {
      * download AppInfo and persist it
      */
     private fun initAppInfo() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
@@ -150,7 +154,7 @@ class SplashActivity : AppCompatActivity() {
         val fileHelper = FileHelper.getInstance(applicationContext)
         val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val fromServer = apiService.getResourceInfo()
                 val local = resourceInfoRepository.get()
@@ -199,6 +203,17 @@ class SplashActivity : AppCompatActivity() {
         if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
             log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
+        }
+    }
+
+    private fun ensurePushTokenSent() {
+        val firebaseHelper = FirebaseHelper.getInstance()
+        if (!firebaseHelper.hasTokenBeenSent) {
+            if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    ApiService.getInstance().sendNotificationInfo()
+                }
+            }
         }
     }
 

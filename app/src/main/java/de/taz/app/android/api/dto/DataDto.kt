@@ -7,5 +7,6 @@ data class DataDto (
     val product: ProductDto? = null,
     val authentificationToken: AuthTokenInfoDto? = null,
     val downloadStop: Boolean? = null,
-    val downloadStart: String? = null
+    val downloadStart: String? = null,
+    val notification: Boolean? = null
 )

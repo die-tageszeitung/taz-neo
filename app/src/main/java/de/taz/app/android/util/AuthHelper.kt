@@ -9,17 +9,18 @@ import de.taz.app.android.api.models.AuthTokenInfo
 
 const val PREFERENCES_AUTH = "auth"
 const val PREFERENCES_AUTH_TOKEN = "token"
-const val PREFERENCES_AUTH_STATUS= "status"
+const val PREFERENCES_AUTH_STATUS = "status"
 const val PREFERENCES_AUTH_INSTALLATION_ID = "installation_id"
 
 /**
  * Singleton handling authentication
  */
-class AuthHelper private constructor(applicationContext: Context): ViewModel() {
+class AuthHelper private constructor(applicationContext: Context) : ViewModel() {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
-    private val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+    private val preferences =
+        applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
 
     var tokenLiveData = SharedPreferenceStringLiveData(preferences, PREFERENCES_AUTH_TOKEN, "")
     val token
