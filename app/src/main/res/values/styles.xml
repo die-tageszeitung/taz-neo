@@ -142,12 +142,20 @@
     <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">19sp</item>
+        <item name="android:paddingEnd">@dimen/fragment_settings_padding_horizontal</item>
+        <item name="android:paddingStart">@dimen/fragment_settings_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_padding_vertical</item>
     </style>
 
     <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:paddingEnd">@dimen/fragment_settings_padding_horizontal</item>
+        <item name="android:paddingStart">@dimen/fragment_settings_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_padding_vertical</item>
     </style>
 
     <style name="TextAppearance.Settings.Section" parent="TextAppearance.AppCompat">

@@ -7,7 +7,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
-import de.taz.app.android.ui.settings.SettingsOuterFragment
+import de.taz.app.android.ui.settings.SettingsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -32,7 +32,7 @@ class HomePresenter(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_bookmark -> getView()?.getMainView()?.showMainFragment(BookmarksFragment())
-            R.id.bottom_navigation_action_settings -> getView()?.getMainView()?.showMainFragment(SettingsOuterFragment())
+            R.id.bottom_navigation_action_settings -> getView()?.getMainView()?.showMainFragment(SettingsFragment())
         }
     }
 }

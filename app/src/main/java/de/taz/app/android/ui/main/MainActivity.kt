@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -79,9 +78,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         lockEndNavigationView()
 
         tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        PreferenceManager.setDefaultValues(this, PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE, R.xml.fragment_settings, false)
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
-
     }
 
     override fun onResume() {
