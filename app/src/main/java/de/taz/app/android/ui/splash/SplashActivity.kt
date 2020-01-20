@@ -119,7 +119,7 @@ class SplashActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val issues = apiService.getIssuesByDate(limit = 10)
+                val issues = apiService.getLastIssues()
                 issueRepository.saveIfDoNotExist(issues)
                 log.debug("Initialized Issues")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
