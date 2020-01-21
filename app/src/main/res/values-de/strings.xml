@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">taz neo</string>
 
-    <string name="toast_no_internet">Keine Internetvergindung.</string>
+    <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="toast_login_failed">Anmeldung fehlgeschlagen.</string>
