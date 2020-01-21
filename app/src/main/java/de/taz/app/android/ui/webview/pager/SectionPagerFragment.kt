@@ -51,7 +51,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
 
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
-        webview_pager_viewpager.reduceDragSensitivity()
+        webview_pager_viewpager.reduceDragSensitivity(5)
 
         stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
             sectionAdapter = SectionPagerAdapter(this, it)
