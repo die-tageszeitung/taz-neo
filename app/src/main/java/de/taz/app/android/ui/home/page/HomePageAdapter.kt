@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -131,6 +132,20 @@ open class HomePageAdapter(
                         presenter.onItemSelected(it)
                     }
                 }
+            }
+
+            itemView.setOnLongClickListener {
+                log.debug("onLongClickListener triggered for view: $it!")
+                val text = "share moment"
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, text)
+                    type = "text/plain"
+                }
+
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                it.context.startActivity(shareIntent)
+                true
             }
         }
     }
