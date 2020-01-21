@@ -294,7 +294,6 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
                             } catch (e: NotFoundException) {
-                                Sentry.capture(e)
                                 log.warn("tried to delete non-existent file: $authorFileName")
                             }
                         }
@@ -331,7 +330,7 @@ open class ArticleRepository private constructor(applicationContext: Context) :
                     try {
                         appDatabase.articleDao().delete(articleStub)
                     } catch (e: Exception) {
-                        Sentry.capture(e)
+                        log.warn("article not deleted", e)
                     }
                 }
             }
