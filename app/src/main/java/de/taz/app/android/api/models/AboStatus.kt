@@ -1,11 +1,13 @@
 package de.taz.app.android.api.models
 
-enum class AboId2TazIdStatus {
+enum class AboStatus {
     valid,
     tazIdNotValid,
     aboIdNotValid,
     elapsed,
     invalidConnection,
     alreadyLinked,
-    wait
+    waitForEmail,
+    waitForProc,
+    noPollEntry
 }

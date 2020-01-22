@@ -1,6 +1,6 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.AboId2TazIdStatus
+import de.taz.app.android.api.models.AboStatus
 
 
-typealias AboId2tazIdStatusDto = AboId2TazIdStatus
+typealias AboId2tazIdStatusDto = AboStatus
