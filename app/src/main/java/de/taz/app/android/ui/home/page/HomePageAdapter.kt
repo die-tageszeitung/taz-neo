@@ -138,23 +138,24 @@ open class HomePageAdapter(
                 }
             }
 
-            itemView.setOnLongClickListener {
-                log.debug("onLongClickListener triggered for view: $it!")
+            itemView.setOnLongClickListener { view ->
+                log.debug("onLongClickListener triggered for view: $view!")
                 fragment.getLifecycleOwner().lifecycleScope.launch {
-                    val image = getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.get(0)
-                    val imageAsFile = fileHelper.getFile(image!!)
-                    val imageUriNew = getUriForFile(it.context, "de.taz.app.android.provider", imageAsFile)
+                    //TODO decide which image(size) to share
+                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.get(0)?.let{ image ->
+                        val imageAsFile = fileHelper.getFile(image)
+                        val imageUriNew = getUriForFile(view.context, "de.taz.app.android.provider", imageAsFile)
 
-                    //TODO image has to become an absolute path
-                    log.debug("imageUriNew: $imageUriNew")
-                    log.debug("imageAsFile: $imageAsFile")
-                    val sendIntent: Intent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                        type = "image/jpg"
+                        log.debug("imageUriNew: $imageUriNew")
+                        log.debug("imageAsFile: $imageAsFile")
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                            type = "image/jpg"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        view.context.startActivity(shareIntent)
                     }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    it.context.startActivity(shareIntent)
                 }
 
                 true
