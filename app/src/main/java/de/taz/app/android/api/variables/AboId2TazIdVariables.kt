@@ -2,6 +2,8 @@ package de.taz.app.android.api.variables
 
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.util.AuthHelper
 
 @JsonClass(generateAdapter = true)
 data class AboId2TazIdVariables(
@@ -9,10 +11,10 @@ data class AboId2TazIdVariables(
     val idPw: String,
     val aboId: Int,
     val aboPw: String,
-    val installationID: String,
-    val deviceId: String? = null,
     val surname: String? = null,
-    val firstname: String? = null
+    val firstname: String? = null,
+    val installationID: String = AuthHelper.getInstance().installationId,
+    val deviceId: String? = FirebaseHelper.getInstance().firebaseToken
 ) : Variables {
 
     override fun toJson(): String {
