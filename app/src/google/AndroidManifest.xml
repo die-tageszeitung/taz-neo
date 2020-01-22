@@ -26,6 +26,13 @@
         <screen android:screenSize="normal" android:screenDensity="xhdpi" />
         <screen android:screenSize="normal" android:screenDensity="xxhdpi" />
         <screen android:screenSize="normal" android:screenDensity="xxxhdpi" />
+        <!-- all large size screens (up to 7 inch) -->
+        <screen android:screenSize="large" android:screenDensity="ldpi" />
+        <screen android:screenSize="large" android:screenDensity="mdpi" />
+        <screen android:screenSize="large" android:screenDensity="hdpi" />
+        <screen android:screenSize="large" android:screenDensity="xhdpi" />
+        <screen android:screenSize="large" android:screenDensity="xxhdpi" />
+        <screen android:screenSize="large" android:screenDensity="xxxhdpi" />
         <!--NO TABLET SIZE SCREENS -->
 
     </compatible-screens>
