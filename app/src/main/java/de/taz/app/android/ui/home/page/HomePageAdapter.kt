@@ -12,9 +12,12 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
+import androidx.core.content.FileProvider.getUriForFile
+
 
 /**
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
@@ -26,6 +29,7 @@ open class HomePageAdapter(
     private val presenter: HomePageContract.Presenter
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
+    private val fileHelper = FileHelper.getInstance()
     private var allIssueStubList: List<IssueStub> = emptyList()
     protected var visibleIssueStubList: List<IssueStub> = emptyList()
 
@@ -136,15 +140,23 @@ open class HomePageAdapter(
 
             itemView.setOnLongClickListener {
                 log.debug("onLongClickListener triggered for view: $it!")
-                val text = "share moment"
-                val sendIntent: Intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, text)
-                    type = "text/plain"
+                fragment.getLifecycleOwner().lifecycleScope.launch {
+                    val image = getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.get(0)
+                    val imageAsFile = fileHelper.getFile(image!!)
+                    val imageUriNew = getUriForFile(it.context, "de.taz.app.android.provider", imageAsFile)
+
+                    //TODO image has to become an absolute path
+                    log.debug("imageUriNew: $imageUriNew")
+                    log.debug("imageAsFile: $imageAsFile")
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                        type = "image/jpg"
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    it.context.startActivity(shareIntent)
                 }
 
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                it.context.startActivity(shareIntent)
                 true
             }
         }
