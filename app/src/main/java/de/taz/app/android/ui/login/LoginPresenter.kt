@@ -11,6 +11,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.AuthHelper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -56,11 +57,15 @@ class LoginPresenter(
     }
 
     override fun login(username: String, password: String) {
-        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.Default) {
+        val lifecycleScope = getView()?.getLifecycleOwner()?.lifecycleScope
+        lifecycleScope?.launch(Dispatchers.Default) {
             try {
                 apiService.authenticate(username, password)?.let {
-                    authHelper.authStatusLiveData.postValue(it.authInfo.status)
-                    authHelper.tokenLiveData.postValue(it.token ?: "")
+                    CoroutineScope(Dispatchers.Main).launch {
+                        authHelper.authStatusLiveData.setValue(it.authInfo.status)
+                        authHelper.tokenLiveData.setValue(it.token ?: "")
+                        apiService.sendNotificationInfo()
+                    }
                 } ?: run {
                     getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
                 }
