@@ -13,7 +13,7 @@ data class AboId2TazIdVariables(
     val aboPw: String,
     val surname: String? = null,
     val firstname: String? = null,
-    val installationID: String = AuthHelper.getInstance().installationId,
+    val installationId: String = AuthHelper.getInstance().installationId,
     val deviceId: String? = FirebaseHelper.getInstance().firebaseToken
 ) : Variables {
 

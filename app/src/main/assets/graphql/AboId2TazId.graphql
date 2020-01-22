@@ -1,4 +1,4 @@
-query AboId2TazId(
+mutation AboId2TazId(
     $tazId: Int!,
     $idPw: String!,
     $aboId: Int!,
