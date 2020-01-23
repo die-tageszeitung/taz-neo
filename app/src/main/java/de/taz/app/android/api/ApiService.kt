@@ -245,12 +245,15 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun sendNotificationInfo(): Boolean? {
+    suspend fun sendNotificationInfo(oldToken: String? = null): Boolean? {
         val tag = "sendNotificationInfo"
         log.debug(tag)
 
         return transformExceptions(
-            { graphQlClient.query(QueryType.Notification, NotificationVariables())?.notification },
+            { graphQlClient.query(
+                QueryType.Notification,
+                NotificationVariables(oldToken = oldToken)
+            )?.notification },
             tag
         )
     }
