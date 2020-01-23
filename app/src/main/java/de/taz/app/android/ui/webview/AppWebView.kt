@@ -123,6 +123,28 @@ class AppWebView @JvmOverloads constructor(
 
     init {
         isNestedScrollingEnabled = true
+
+        // prevent horizontal scrolling
+        isHorizontalScrollBarEnabled = false
+        setOnTouchListener(object : OnTouchListener {
+            var m_downX = 0f
+            override fun onTouch(v: View?, event: MotionEvent): Boolean {
+                if (event.pointerCount > 1) { //Multi touch detected
+                    return true
+                }
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        // save the x
+                        m_downX = event.x
+                    }
+                    MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                        // set x so that it doesn't move
+                        event.setLocation(m_downX, event.y)
+                    }
+                }
+                return false
+            }
+        })
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
