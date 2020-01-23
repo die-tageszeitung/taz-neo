@@ -77,8 +77,11 @@ class AcceptHeaderInterceptor: Interceptor {
  * set authentication header if authenticated
  */
 class AuthenticationHeaderInterceptor: Interceptor {
+
+    private val authHelper = AuthHelper.getInstance()
+
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = AuthHelper.getInstance().token
+        val token = authHelper.token
         val request = if (token.isNotEmpty()) {
                 chain.request().newBuilder().addHeader(
                     TAZ_AUTH_HEADER,
