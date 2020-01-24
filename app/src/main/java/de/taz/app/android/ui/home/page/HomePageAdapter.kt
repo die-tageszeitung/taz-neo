@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -11,9 +12,12 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
+import androidx.core.content.FileProvider.getUriForFile
+
 
 /**
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
@@ -25,6 +29,7 @@ open class HomePageAdapter(
     private val presenter: HomePageContract.Presenter
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
+    private val fileHelper = FileHelper.getInstance()
     private var allIssueStubList: List<IssueStub> = emptyList()
     protected var visibleIssueStubList: List<IssueStub> = emptyList()
 
@@ -131,6 +136,28 @@ open class HomePageAdapter(
                         presenter.onItemSelected(it)
                     }
                 }
+            }
+
+            itemView.setOnLongClickListener { view ->
+                log.debug("onLongClickListener triggered for view: $view!")
+                fragment.getLifecycleOwner().lifecycleScope.launch {
+                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
+                        val imageAsFile = fileHelper.getFile(image)
+                        val imageUriNew = getUriForFile(view.context, "de.taz.app.android.provider", imageAsFile)
+
+                        log.debug("imageUriNew: $imageUriNew")
+                        log.debug("imageAsFile: $imageAsFile")
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                            type = "image/jpg"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        view.context.startActivity(shareIntent)
+                    }
+                }
+
+                true
             }
         }
     }
