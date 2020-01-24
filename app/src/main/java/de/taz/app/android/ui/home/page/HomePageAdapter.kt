@@ -141,8 +141,7 @@ open class HomePageAdapter(
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
                 fragment.getLifecycleOwner().lifecycleScope.launch {
-                    //TODO decide which image(size) to share
-                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.get(0)?.let{ image ->
+                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
                         val imageAsFile = fileHelper.getFile(image)
                         val imageUriNew = getUriForFile(view.context, "de.taz.app.android.provider", imageAsFile)
 
