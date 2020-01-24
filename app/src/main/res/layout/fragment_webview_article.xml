@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:orientation="vertical"
-                android:paddingTop="20dp"
+                android:paddingTop="@dimen/bottom_sheet_setting_padding_vertical"
                 app:behavior_hideable="true"
                 app:behavior_peekHeight="0dp"
                 app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
