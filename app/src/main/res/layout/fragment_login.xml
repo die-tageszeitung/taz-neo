@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
             android:labelFor="@+id/fragment_login_username"
-            android:text="@string/fragment_login_username_title"
+            android:text="@string/login_username_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_description" />
 
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:labelFor="@+id/fragment_login_password"
-            android:text="@string/fragment_login_password_title"
+            android:text="@string/login_password_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_username" />
 
@@ -71,7 +71,7 @@
             android:id="@+id/fragment_login_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/fragment_login_password_hint"
+            android:hint="@string/login_password_hint"
             android:inputType="textPassword"
             android:imeOptions="actionDone"
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_title" />
@@ -80,8 +80,8 @@
             android:id="@+id/fragment_login_login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_login_login_button_margin_top"
-            android:text="@string/fragment_login_login_button"
+            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:text="@string/login_button"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_login_password" />
 
