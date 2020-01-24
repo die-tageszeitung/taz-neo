@@ -17,7 +17,8 @@ class NotificationHelper private constructor(private val applicationContext: Con
         content: String,
         channelId: String,
         bigText: Boolean = false,
-        pendingIntent: PendingIntent? = null
+        pendingIntent: PendingIntent? = null,
+        notificationId: Int = 0
     ) {
 
         var builder = NotificationCompat.Builder(applicationContext, channelId)
@@ -38,8 +39,7 @@ class NotificationHelper private constructor(private val applicationContext: Con
             builder.setAutoCancel(true)
         }
 
-        // TODO ID?
-        notificationManagerCompat.notify(0, builder.build())
+        notificationManagerCompat.notify(notificationId, builder.build())
 
 
     }

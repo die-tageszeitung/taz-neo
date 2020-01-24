@@ -34,7 +34,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 "data payload",
                 remoteMessage.data.toString(),
                 CHANNEL_ID_DEBUG,
-                bigText = true
+                bigText = true,
+                notificationId = 1
             )
             log.debug("Message data payload: " + remoteMessage.data)
         }
