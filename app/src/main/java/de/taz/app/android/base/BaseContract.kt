@@ -15,8 +15,6 @@ interface BaseContract {
 
         fun hideBottomSheet() = Unit
 
-        fun isBottomSheetVisible(): Boolean = false
-
         fun showBottomSheet(fragment: Fragment) = Unit
 
     }

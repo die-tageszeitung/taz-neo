@@ -29,7 +29,7 @@ class HomePresenter(
         }
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_bookmark -> getView()?.getMainView()?.showMainFragment(BookmarksFragment())
             R.id.bottom_navigation_action_settings -> getView()?.getMainView()?.showMainFragment(SettingsFragment())

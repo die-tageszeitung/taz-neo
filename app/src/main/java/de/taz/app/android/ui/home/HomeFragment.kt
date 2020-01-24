@@ -61,8 +61,8 @@ class HomeFragment : BaseMainFragment<HomePresenter>(), HomeContract.View {
 
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
-        presenter.onBottomNavigationItemClicked(menuItem, activated)
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 
     override fun enableRefresh() {

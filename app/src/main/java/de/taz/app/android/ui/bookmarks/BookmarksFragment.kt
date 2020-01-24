@@ -57,7 +57,7 @@ class BookmarksFragment :
         recycleAdapter.setData(bookmarks)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 

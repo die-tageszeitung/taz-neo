@@ -129,7 +129,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 
