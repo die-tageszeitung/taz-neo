@@ -36,8 +36,17 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
         view.apply {
 
             val tokenText = FirebaseHelper.getInstance().firebaseToken ?: "No push ID"
-            findViewById<TextView>(R.id.fragment_settings_push_id).text = tokenText
-
+            findViewById<TextView>(R.id.fragment_settings_push_id).apply {
+                text = tokenText
+                setOnClickListener {
+                    NotificationHelper.getInstance().showNotification(
+                        "PushId",
+                        tokenText,
+                        CHANNEL_ID_DEBUG,
+                        bigText = true
+                    )
+                }
+            }
             findViewById<TextView>(R.id.fragment_settings_header_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
