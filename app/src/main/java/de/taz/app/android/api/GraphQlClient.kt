@@ -9,10 +9,8 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.awaitCallback
-import de.taz.app.android.util.okHttpClient
+import de.taz.app.android.util.*
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -27,6 +25,9 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val url: String = GRAPHQL_ENDPOINT,
     private val queryService: QueryService = QueryService.getInstance()
 ) {
+
+    private val log by Log
+
     private constructor(applicationContext: Context): this(
         queryService = QueryService.getInstance(applicationContext)
     )
@@ -57,7 +58,14 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 response.body?.string().toString()
             }
             withContext(Dispatchers.IO) {
-                jsonAdapter.fromJson(string)!!.data
+                log.debug(string)
+                val wrapper = jsonAdapter.fromJson(string)
+                if (wrapper?.data == null) {
+                    val errorString = wrapper?.errors.toString()
+                    log.error(errorString)
+                    Sentry.capture(errorString)
+                }
+                wrapper?.data
             }
         }
     }
