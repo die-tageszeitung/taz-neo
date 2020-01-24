@@ -29,9 +29,11 @@ class ArticleWebViewPresenter(
 
             R.id.bottom_navigation_action_share ->
                 if (webViewDisplayable is Shareable) {
-                    webViewDisplayable.getLink()?.let {
-                        getView()?.apply {
-                            shareText(it)
+                    webViewDisplayable.getShareable().let { shareable ->
+                        shareable.first?.let { link ->
+                            getView()?.apply {
+                                shareArticle(link, shareable.second)
+                            }
                         }
                     }
                 }
