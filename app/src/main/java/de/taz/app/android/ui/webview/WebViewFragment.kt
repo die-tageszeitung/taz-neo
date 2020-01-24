@@ -29,13 +29,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     private lateinit var tazApiCssPreferences : SharedPreferences
 
-    override val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onSlide(p0: View, p1: Float) {
-        }
-
-        override fun onStateChanged(bottomSheetView: View, state: Int) = Unit
-    }
-
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("WebViewFragment: shared pref changed: $key")
         presenter.injectCss(sharedPreferences)
@@ -79,8 +72,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         return activity as? MainActivity
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
-        presenter.onBottomNavigationItemClicked(menuItem, activated)
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 
     override fun shareText(text: String) {

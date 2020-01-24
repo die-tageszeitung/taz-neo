@@ -15,7 +15,7 @@ class ArticleWebViewPresenter(
     resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
 ) : WebViewPresenter<Article>(apiService, resourceInfoRepository) {
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         val webViewDisplayable = viewModel?.getWebViewDisplayable()
 
         when (menuItem.itemId) {
@@ -24,11 +24,7 @@ class ArticleWebViewPresenter(
 
             R.id.bottom_navigation_action_bookmark ->
                 getView()?.apply {
-                    if (isBottomSheetVisible()) {
-                        hideBottomSheet()
-                    } else {
-                        showBookmarkBottomSheet()
-                    }
+                    showBookmarkBottomSheet()
                 }
 
             R.id.bottom_navigation_action_share ->
@@ -41,11 +37,7 @@ class ArticleWebViewPresenter(
                 }
 
             R.id.bottom_navigation_action_size ->
-                if (activated) {
-                    getView()?.showFontSettingBottomSheet()
-                } else {
-                    getView()?.hideBottomSheet()
-                }
+                getView()?.showFontSettingBottomSheet()
         }
     }
 
@@ -62,11 +54,6 @@ class ArticleWebViewPresenter(
     }
 
     override fun onBackPressed(): Boolean {
-        val localView = getView()
-        if (localView?.isBottomSheetVisible() == true) {
-            localView.hideBottomSheet()
-            return true
-        }
         return false
     }
 

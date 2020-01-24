@@ -6,25 +6,17 @@ import de.taz.app.android.api.models.Section
 
 class SectionWebViewPresenter : WebViewPresenter<Section>() {
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
                 getView()?.getMainView()?.showHome()
 
             R.id.bottom_navigation_action_size ->
-                if (activated) {
-                    getView()?.showFontSettingBottomSheet()
-                } else {
-                    getView()?.hideBottomSheet()
-                }
+                getView()?.showFontSettingBottomSheet()
         }
     }
 
     override fun onBackPressed(): Boolean {
-        if (getView()?.isBottomSheetVisible() == true) {
-            getView()?.hideBottomSheet()
-            return true
-        }
         return false
     }
 }

@@ -8,7 +8,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
@@ -19,7 +18,6 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configBottomNavigation()
-        addBottomSheetCallbacks()
     }
 
     override fun onResume() {
@@ -79,7 +77,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     /**
      * override to react to an item being clicked
      */
-    open fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) = Unit
+    open fun onBottomNavigationItemClicked(menuItem: MenuItem) = Unit
 
     /**
      * setup BottomNavigationBar
@@ -163,39 +161,9 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
         if (menuItem.isCheckable) {
             deactivateItem(menuItem)
         } else {
-            onBottomNavigationItemClicked(menuItem, activated = true)
+            onBottomNavigationItemClicked(menuItem)
         }
     }
-
-    /**
-     * callbacks for bottomSheet
-     * to use this a class needs to have a View with id [R.id.bottom_sheet_behaviour]
-     * which needs to have
-     * app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-     */
-    internal open val bottomSheetCallback: BottomSheetBehavior.BottomSheetCallback? = null
-
-    private fun addBottomSheetCallbacks() {
-        bottomSheetCallback?.let {
-            view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
-                val bottomSheetBehavior = BottomSheetBehavior.from(it)
-                bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
-            }
-        }
-    }
-
-    /**
-     * check whether the bottomSheet is visible or not
-     * @return true if visible else false
-     */
-    override fun isBottomSheetVisible(): Boolean {
-        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
-            val bottomSheetBehavior = BottomSheetBehavior.from(it)
-            return bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED
-        }
-        return false
-    }
-
 
     /**
      * show bottomSheet
@@ -204,15 +172,4 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     override fun showBottomSheet(fragment: Fragment) {
         AddBottomSheetDialog(fragment).show(childFragmentManager, null)
     }
-
-    /**
-     * hide bottomSheet
-     */
-    override fun hideBottomSheet() {
-        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
-            val bottomSheetBehavior = BottomSheetBehavior.from(it)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-    }
-
 }

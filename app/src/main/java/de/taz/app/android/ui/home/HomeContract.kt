@@ -9,7 +9,7 @@ interface HomeContract {
     }
     interface Presenter {
         suspend fun onRefresh()
-        fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean)
+        fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
     interface DataController
 }
