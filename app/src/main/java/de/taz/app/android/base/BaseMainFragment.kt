@@ -11,6 +11,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
+import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 
 abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFragment<PRESENTER>(),
     BaseContract.View {
@@ -161,9 +162,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
     private fun toggleMenuItem(menuItem: MenuItem) {
         if (menuItem.isCheckable) {
             deactivateItem(menuItem)
-            onBottomNavigationItemClicked(menuItem, activated = false)
         } else {
-            activateItem(menuItem)
             onBottomNavigationItemClicked(menuItem, activated = true)
         }
     }
@@ -203,15 +202,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
     override fun showBottomSheet(fragment: Fragment) {
-        view?.findViewById<View>(R.id.bottom_sheet_behaviour)?.let {
-            val bottomSheetBehavior = BottomSheetBehavior.from(it)
-
-            childFragmentManager.beginTransaction().replace(
-                R.id.bottom_sheet_behaviour, fragment
-            ).commitNow()
-
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+        AddBottomSheetDialog(fragment).show(childFragmentManager, null)
     }
 
     /**
