@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/coordinator"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:statusBarBackground="@android:color/transparent"
-        tools:context="de.taz.app.android.ui.main.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    app:statusBarBackground="@android:color/transparent"
+    tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            app:elevation="0dp">
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:expandedTitleGravity="top"
-                app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:scrimAnimationDuration="0">
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:expandedTitleGravity="top"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:scrimAnimationDuration="0">
 
             <include layout="@layout/fragment_webview_header_article" />
 
@@ -29,88 +30,94 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_wrapper"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:id="@+id/web_view_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
 
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
 
-        <de.taz.app.android.ui.webview.AppWebView
-                android:id="@+id/web_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:layout_constraintTop_toTopOf="parent"
-                android:overScrollMode="never" />
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/web_view_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
 
-                android:background="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-
-                app:layout_constraintTop_toTopOf="parent">
-
-            <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-
-                    />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/web_view_wrapper"
+            android:layout_width="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_height="wrap_content">
+
+
+            <de.taz.app.android.ui.webview.AppWebView
+                android:id="@+id/web_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:visibility="gone"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical"
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                    android:id="@+id/bottom_sheet_behaviour"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingTop="20dp"
-                    android:orientation="vertical"
-                    app:behavior_hideable="true"
-                    app:behavior_peekHeight="0dp"
-                    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+                android:id="@+id/bottom_sheet_behaviour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingTop="20dp"
+                app:behavior_hideable="true"
+                app:behavior_peekHeight="0dp"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                 <androidx.fragment.app.FragmentContainerView
-                        android:id="@+id/bottom_sheet_fragment_placeholder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                    android:id="@+id/bottom_sheet_fragment_placeholder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/navigation_bottom_background">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/navigation_bottom_background">
 
             <com.google.android.material.bottomnavigation.BottomNavigationView
-                    android:id="@+id/navigation_bottom"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/nav_bottom_height"
-                    android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-                    app:labelVisibilityMode="unlabeled"
-                    app:menu="@menu/navigation_bottom_article" />
+                android:id="@+id/navigation_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/nav_bottom_height"
+                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                app:labelVisibilityMode="unlabeled"
+                app:menu="@menu/navigation_bottom_article" />
         </FrameLayout>
 
     </LinearLayout>
