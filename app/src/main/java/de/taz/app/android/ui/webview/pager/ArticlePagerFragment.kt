@@ -56,7 +56,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Ensure initial fragment states are copied to the model via the presenter
         initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
 
-        webview_pager_viewpager.reduceDragSensitivity(5)
+        webview_pager_viewpager.reduceDragSensitivity(2)
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 

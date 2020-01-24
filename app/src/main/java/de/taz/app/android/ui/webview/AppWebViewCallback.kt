@@ -6,9 +6,9 @@ import kotlinx.coroutines.Job
 
 interface AppWebViewCallback {
 
-    fun onScrollStarted()
+    fun onScrollStarted() = Unit
 
-    fun onScrollFinished()
+    fun onScrollFinished() = Unit
 
-    fun onDoubleTap(e: MotionEvent): Boolean
+    fun onDoubleTap(e: MotionEvent): Boolean = false
 }

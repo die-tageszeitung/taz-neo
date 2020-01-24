@@ -29,11 +29,9 @@ const val TAZ_API_JS = "ANDROIDAPI"
 abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private val apiService: ApiService = ApiService.getInstance(),
     private val resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
-) :
-    BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
+) : BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
         WebViewDataController<DISPLAYABLE>().javaClass
-    ),
-    WebViewContract.Presenter {
+    ), WebViewContract.Presenter {
 
     private val log by Log
 
@@ -164,16 +162,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
         log.debug("Injected css: $cssString")
         getView()?.getWebView()
             ?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
-    }
-
-    override fun onScrollStarted() {
-    }
-
-    override fun onScrollFinished() {
-    }
-
-    override fun onDoubleTap(e: MotionEvent): Boolean {
-        return false
     }
 
 }
