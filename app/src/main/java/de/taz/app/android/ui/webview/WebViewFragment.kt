@@ -1,12 +1,15 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -80,6 +83,27 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 
+    override fun share(text: String, image: FileEntry?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            shareArticle(text, image)
+        }
+        else {
+            shareArticle(text)
+        }
+    }
+
+    override fun shareArticle(text: String) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
+    @TargetApi(28)
     override fun shareArticle(text: String, image: FileEntry?) {
         view?.let { view ->
             var imageUri : Uri? = null

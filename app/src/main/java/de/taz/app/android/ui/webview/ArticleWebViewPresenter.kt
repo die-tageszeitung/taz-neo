@@ -32,7 +32,7 @@ class ArticleWebViewPresenter(
                     webViewDisplayable.getShareable().let { shareable ->
                         shareable.first?.let { link ->
                             getView()?.apply {
-                                shareArticle(link, shareable.second)
+                                share(link, shareable.second)
                             }
                         }
                     }
