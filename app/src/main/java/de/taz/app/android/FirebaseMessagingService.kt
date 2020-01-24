@@ -7,7 +7,6 @@ import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.splash.CHANNEL_ID_DEBUG
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NotificationHelper
-import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,12 +16,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private val log by Log
     private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var apiService: ApiService
-    private val notificationHelper = NotificationHelper.getInstance()
+    private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate() {
         super.onCreate()
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         apiService = ApiService.getInstance(applicationContext)
+        notificationHelper = NotificationHelper.getInstance(applicationContext)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
