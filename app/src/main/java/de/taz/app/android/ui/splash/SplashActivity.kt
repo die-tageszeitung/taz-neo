@@ -1,8 +1,14 @@
 package de.taz.app.android.ui.splash
 
+import android.annotation.TargetApi
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.AuthStatus
@@ -18,6 +24,8 @@ import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
 import java.util.*
 
+const val CHANNEL_ID_DEBUG = "DEBUG"
+const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 
 class SplashActivity : AppCompatActivity() {
 
@@ -40,11 +48,14 @@ class SplashActivity : AppCompatActivity() {
 
         ensurePushTokenSent()
 
+        generateNotificationChannels()
+
         startActivity(Intent(this, MainActivity::class.java))
     }
 
     private fun generateInstallationId() {
-        val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+        val preferences =
+            applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
 
         val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
         installationId?.let {
@@ -59,7 +70,8 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun setupSentry() {
-        val preferences = applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
+        val preferences =
+            applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
         val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
 
         Sentry.getContext().user = UserBuilder()
@@ -91,6 +103,7 @@ class SplashActivity : AppCompatActivity() {
             DownloadedIssueHelper.createInstance(it)
 
             FirebaseHelper.createInstance(it)
+            NotificationHelper.createInstance(it)
         }
         log.debug("Singletons initialized")
     }
@@ -163,16 +176,16 @@ class SplashActivity : AppCompatActivity() {
                     if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
                         resourceInfoRepository.save(fromServer)
 
-                    fromServer.resourceList.forEach { newFileEntry ->
-                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                            // only delete modified files
-                            if (oldFileEntry != newFileEntry) {
-                                oldFileEntry.deleteFile()
+                        fromServer.resourceList.forEach { newFileEntry ->
+                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                                // only delete modified files
+                                if (oldFileEntry != newFileEntry) {
+                                    oldFileEntry.deleteFile()
+                                }
                             }
                         }
-                    }
 
-                    local?.let { resourceInfoRepository.delete(local) }
+                        local?.let { resourceInfoRepository.delete(local) }
 
                         // ensure resources are downloaded
                         DownloadService.scheduleDownload(applicationContext, fromServer)
@@ -188,7 +201,7 @@ class SplashActivity : AppCompatActivity() {
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()
         val tazApiCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
-        if (!tazApiCssFile.exists()){
+        if (!tazApiCssFile.exists()) {
             tazApiCssFile.createNewFile()
             log.debug("Created tazApi.css")
         }
@@ -215,6 +228,42 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun generateNotificationChannels() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            generateNotificationChannel(
+                R.string.channel_debug,
+                R.string.channel_debug_description,
+                CHANNEL_ID_DEBUG,
+                NotificationManager.IMPORTANCE_LOW
+            )
+            generateNotificationChannel(
+                R.string.channel_new_version,
+                R.string.channel_new_version_description,
+                CHANNEL_ID_NEW_VERSION,
+                NotificationManager.IMPORTANCE_LOW
+            )
+        }
+
+    }
+
+    @TargetApi(26)
+    private fun generateNotificationChannel(
+        @StringRes channelName: Int, @StringRes channeldDescription: Int, channelId: String,
+        importance: Int
+    ) {
+        val name = getString(channelName)
+        val descriptionText = getString(channeldDescription)
+        val channel = NotificationChannel(CHANNEL_ID_DEBUG, name, importance).apply {
+            description = descriptionText
+        }
+        // Register the channel with the system
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
 }
