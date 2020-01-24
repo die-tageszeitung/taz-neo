@@ -93,12 +93,19 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
             }
             log.debug("image is: $image")
             log.debug("imageUri is: $imageUri")
+
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, text)
+
                 putExtra(Intent.EXTRA_STREAM, imageUri)
-                type = "*/*"
+                type = "image/jpg"
+
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                // add rich content for android 10+
+                putExtra(Intent.EXTRA_TITLE, text)
+                data = imageUri
             }
 
             val shareIntent = Intent.createChooser(sendIntent, null)
