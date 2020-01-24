@@ -11,6 +11,8 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.LoginFragment
+import de.taz.app.android.ui.splash.CHANNEL_ID_DEBUG
+import de.taz.app.android.util.NotificationHelper
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
@@ -34,8 +36,9 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
         view.apply {
 
             val tokenText = FirebaseHelper.getInstance().firebaseToken ?: "No push ID"
-            findViewById<TextView>(R.id.fragment_settings_push_id).text = tokenText
-
+            findViewById<TextView>(R.id.fragment_settings_push_id).apply {
+                text = tokenText
+            }
             findViewById<TextView>(R.id.fragment_settings_header_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
