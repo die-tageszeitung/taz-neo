@@ -17,7 +17,7 @@ object IssueTestUtil {
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     fun getIssue(fullFilePath: String = "testIssue"): Issue {
-        val issueDto: IssueDto = jsonAdapter.fromJson(readIssueFromAssets(fullFilePath))!!.data.product!!.feedList!!.first().issueList!!.first()
+        val issueDto: IssueDto = jsonAdapter.fromJson(readIssueFromAssets(fullFilePath))!!.data!!.product!!.feedList!!.first().issueList!!.first()
         return Issue("taz", issueDto)
     }
 
