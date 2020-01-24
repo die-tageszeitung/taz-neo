@@ -30,7 +30,12 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
-            notificationHelper.showNotification("data payload", remoteMessage.data.toString(), CHANNEL_ID_DEBUG, bigText = true)
+            notificationHelper.showNotification(
+                "data payload",
+                remoteMessage.data.toString(),
+                CHANNEL_ID_DEBUG,
+                bigText = true
+            )
             log.debug("Message data payload: " + remoteMessage.data)
         }
 
@@ -40,7 +45,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             notificationHelper.showNotification(
                 notification.title ?: "no title",
                 notification.body ?: "no body",
-                CHANNEL_ID_DEBUG
+                CHANNEL_ID_DEBUG,
+                bigText = true
             )
 
         }
