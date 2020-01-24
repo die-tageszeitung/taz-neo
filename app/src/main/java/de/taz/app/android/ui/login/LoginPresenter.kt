@@ -23,27 +23,36 @@ class LoginPresenter(
     LoginContract.Presenter {
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
+        var firstTime = true
         getView()?.apply {
             viewModel?.observeAuthStatus(getLifecycleOwner()) { authStatus ->
-                when (authStatus) {
-                    AuthStatus.valid -> {
-                        getMainView()?.apply {
-                            setDrawerIssue(null)
-                            showToast(R.string.toast_login_successfull)
-                            getMainView()?.showHome()
+                if (!firstTime) {
+                    when (authStatus) {
+                        AuthStatus.valid -> {
+                            getMainView()?.apply {
+                                setDrawerIssue(null)
+                                showToast(R.string.toast_login_successfull)
+                                getMainView()?.showHome()
+                            }
+                            getMainView()?.getLifecycleOwner()
+                                ?.lifecycleScope?.launch(Dispatchers.IO) {
+                                DownloadService.cancelAllDownloads()
+                                downloadLatestIssueMoments()
+                                deletePublicIssues()
+                            }
                         }
-                        getMainView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
-                            DownloadService.cancelAllDownloads()
-                            downloadLatestIssueMoments()
-                            deletePublicIssues()
+                        AuthStatus.notValid -> {
+                            getMainView()?.showToast(R.string.toast_login_failed)
+                        }
+                        AuthStatus.elapsed -> {
+                            getMainView()?.showToast(R.string.toast_login_elapsed)
+                        }
+                        AuthStatus.tazIdNotLinked -> {
+                            // TODO
                         }
                     }
-                    AuthStatus.notValid -> {
-                        getMainView()?.showToast(R.string.toast_login_failed)
-                    }
-                    AuthStatus.elapsed -> {
-                        getMainView()?.showToast(R.string.toast_login_elapsed)
-                    }
+                } else {
+                    firstTime = false
                 }
             }
             hideLoadingScreen()
