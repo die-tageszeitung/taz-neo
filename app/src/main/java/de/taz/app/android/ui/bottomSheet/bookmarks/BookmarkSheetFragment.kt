@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
@@ -30,6 +31,7 @@ class BookmarkSheetFragment(private val articleFileName: String) :
 
         fragment_bottom_sheet_bookmarks_add?.setOnClickListener {
             presenter.toggleBookmark()
+            (this.parentFragment as DialogFragment).dismiss()
         }
 
         fragment_bottom_sheet_bookmarks_my_bookmarks?.setOnClickListener {
@@ -38,12 +40,12 @@ class BookmarkSheetFragment(private val articleFileName: String) :
     }
 
     override fun setIsBookmarked(bookmarked: Boolean) {
-         fragment_bottom_sheet_bookmarks_add?.text = getText(
-             if (bookmarked)
-                 R.string.fragment_bottom_sheet_bookmarks_remove_bookmark
-             else
-                 R.string.fragment_bottom_sheet_bookmarks_add_bookmark
-         )
+        fragment_bottom_sheet_bookmarks_add?.text = getText(
+            if (bookmarked)
+                R.string.fragment_bottom_sheet_bookmarks_remove_bookmark
+            else
+                R.string.fragment_bottom_sheet_bookmarks_add_bookmark
+        )
     }
 
     override fun getArticleFileName(): String {
