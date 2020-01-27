@@ -30,13 +30,6 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
 
-    <string name="fragment_login_title">Login</string>
-    <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
-
-    <string name="login_username_hint">subscription ID</string>
-    <string name="login_password_hint">password</string>
-    <string name="login_button">Login</string>
-
     <string name="fragment_article_read_onreadon">Please log in to read on.</string>
     <string name="fragment_article_read_ontrial_subscription">Do you want to test the digital taz for 14 days?</string>
 
@@ -104,5 +97,28 @@
 
     <string name="notification_new_version_title">A new version is available</string>
     <string name="notification_new_version_body">Click here to download it</string>
+
+    <string name="fragment_login_title">Login</string>
+    <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
+
+    <string name="login_username_hint">subscription ID</string>
+    <string name="login_password_hint">password</string>
+    <string name="login_button">Login</string>
+
+    <string name="fragment_login_subscription_inactive_header">Your subscription is currently inactive (e.g. because it expired).</string>
+    <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
+    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_email_required_header">To use the new app you need to login with your email and a self-elected password.</string>
+    <string name="fragment_login_email_required_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
+    <string name="fragment_login_email_required_forgot_password">Did you forget your password?</string>
+    <string name="fragment_login_email_required_forgot_password_button">Click here.</string>
+    <string name="fragment_login_email_required_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
+    <string name="fragment_login_email_required_login">Login</string>
+
+    <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
+    <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
+    <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
+    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
 </resources>
