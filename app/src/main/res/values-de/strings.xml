@@ -81,8 +81,6 @@
     <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
     <string name="settings_category_push">PushID</string>
 
-    <string name="channel_debug">Debug</string>
-    <string name="channel_debug_description">Debug-Nachrichten, die kein User sehen sollte</string>
     <string name="channel_new_version">Neue Version</string>
     <string name="channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
 
