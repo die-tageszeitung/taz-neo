@@ -1,9 +1,9 @@
-query CheckAboId(
-    $aboId: Int!,
+query CheckSubscriptionId(
+    $subscriptionId: Int!,
     $password: String!
 )  {
-    checkAboId(
-        aboId: $aboId,
+    checkSubscriptionId(
+        subscriptionId: $subscriptionId,
         password: $password
     )
 }

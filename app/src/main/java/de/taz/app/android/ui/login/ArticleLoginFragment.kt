@@ -61,4 +61,19 @@ class ArticleLoginFragment :
     override fun hideLoadingScreen() {
     }
 
+    override fun showLoginWithEmail() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun showSubscriptionElapsed() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun showWrongPassword() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun showWrongUsername() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 }
