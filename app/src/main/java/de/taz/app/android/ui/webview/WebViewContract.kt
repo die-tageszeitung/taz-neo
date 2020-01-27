@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview
 
-import android.net.Uri
 import android.view.MenuItem
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.FileEntry
@@ -21,10 +20,6 @@ interface WebViewContract : BaseContract {
         fun hideLoadingScreen()
 
         fun share(text: String, image: FileEntry?)
-
-        fun shareArticle(text: String)
-
-        fun shareArticle(text: String, image: FileEntry?)
 
         fun showFontSettingBottomSheet()
 
