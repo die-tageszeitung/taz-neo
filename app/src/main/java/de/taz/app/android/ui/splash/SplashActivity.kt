@@ -257,7 +257,7 @@ class SplashActivity : AppCompatActivity() {
     ) {
         val name = getString(channelName)
         val descriptionText = getString(channeldDescription)
-        val channel = NotificationChannel(CHANNEL_ID_DEBUG, name, importance).apply {
+        val channel = NotificationChannel(channelId, name, importance).apply {
             description = descriptionText
         }
         // Register the channel with the system
