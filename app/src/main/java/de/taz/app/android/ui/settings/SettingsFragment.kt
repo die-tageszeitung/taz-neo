@@ -11,8 +11,6 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.LoginFragment
-import de.taz.app.android.ui.splash.CHANNEL_ID_DEBUG
-import de.taz.app.android.util.NotificationHelper
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
