@@ -10,6 +10,13 @@ interface LoginContract {
     interface View : BaseContract.View {
         fun showLoadingScreen()
         fun hideLoadingScreen()
+
+        fun showWrongUsername()
+        fun showWrongPassword()
+
+        fun showLoginWithEmail()
+
+        fun showSubscriptionElapsed()
     }
 
     interface Presenter : BaseContract.Presenter {

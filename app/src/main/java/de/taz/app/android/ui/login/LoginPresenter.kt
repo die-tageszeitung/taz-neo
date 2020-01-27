@@ -66,20 +66,75 @@ class LoginPresenter(
 
     override fun login(username: String, password: String) {
         val lifecycleScope = getView()?.getLifecycleOwner()?.lifecycleScope
-        lifecycleScope?.launch(Dispatchers.Default) {
-            try {
-                apiService.authenticate(username, password)?.let {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        authHelper.authStatus = it.authInfo.status
-                        authHelper.token = it.token ?: ""
-                        apiService.sendNotificationInfo()
+        try {
+            if (username.isBlank()) {
+                getView()?.showWrongUsername()
+            } else if (password.isEmpty()) {
+                getView()?.showWrongPassword()
+            } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                lifecycleScope?.launch(Dispatchers.Default) {
+                    apiService.authenticate(username, password)?.let {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            authHelper.authStatus = it.authInfo.status
+                            authHelper.token = it.token ?: ""
+                            apiService.sendNotificationInfo()
+                        }
+                    } ?: run {
+                        getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
                     }
-                } ?: run {
-                    getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
+            } else if (username.toIntOrNull() != null) {
+                lifecycleScope?.launch(Dispatchers.Default) {
+                    apiService.checkSubscriptionId(username.toInt(), password)?.let { authInfo ->
+                        when (authInfo.status) {
+                            AuthStatus.valid -> {
+                                // TODO =?
+
+                            }
+                            AuthStatus.notValid -> {
+                                // TODO show error?!
+                            }
+
+                            AuthStatus.elapsed -> {
+                                // TODO ? Show
+                                getView()?.showSubscriptionElapsed()
+                                /* Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).
+
+                                Bitte kontaktieren Sie unseren Service:
+
+                                DIGIABO@TAZ.DE
+
+                                */
+                             }
+
+                            AuthStatus.tazIdNotLinked -> {
+                                getView()?.showLoginWithEmail()
+
+                                // TODO
+                                /*
+                                    Um die neue App zu nutzen müssen sie sich zukünftig mit Ihrer E-Mail-Adresse und selbst gewähltem Passwort einloggen.
+
+                                    Email & PAsswrod-Form
+
+                                    Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Text zu kommentieren oder das Archiv zu nutzen) geben Sie hier bitte dies Daten an.
+
+                                    Haben Sie ihr Passwort vergessen?
+                                    HIER KLICKEN
+
+                                    Ich akzeptiere die AGB sowie die Hinweise zum Wiederruf und Datenschutz
+
+                                    ANMELDEN
+
+                                 */
+                            }
+                        }
+                    }
+                }
+            } else {
+                getView()?.showWrongUsername()
             }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            getView()?.getMainView()?.showToast(R.string.toast_no_internet)
         }
     }
 
