@@ -13,8 +13,6 @@ interface BaseContract {
 
         fun getMainView(): MainContract.View?
 
-        fun hideBottomSheet() = Unit
-
         fun showBottomSheet(fragment: Fragment) = Unit
 
     }
