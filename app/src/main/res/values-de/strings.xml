@@ -31,13 +31,6 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
 
-    <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
-
-    <string name="login_username_hint">Abo Nummer</string>
-    <string name="login_password_hint">Passwort</string>
-    <string name="login_button">Anmelden</string>
-
     <string name="fragment_article_read_onreadon">Loggen Sie sich ein, um weiterzulesen.</string>
     <string name="fragment_article_read_ontrial_subscription">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
 
@@ -105,5 +98,28 @@
 
     <string name="notification_new_version_title">Neue Version verfügbar</string>
     <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
+
+    <string name="fragment_login_title">Anmeldung</string>
+    <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
+
+    <string name="login_username_hint">Abo Nummer</string>
+    <string name="login_password_hint">Passwort</string>
+    <string name="login_button">Anmelden</string>
+
+    <string name="fragment_login_subscription_inactive_header">Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).</string>
+    <string name="fragment_login_subscription_inactive_body">Bitte kontaktieren Sie unseren Service:</string>
+    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_email_required_header">Um die neue App zu nutzen, müssen Sie sich zukünftig mit Ihrer E-Mail-Adresse und einem selbst gewähltem Passwort einloggen.</string>
+    <string name="fragment_login_email_required_existing_account">Sollten Sie bereits bei taz.de nut E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
+    <string name="fragment_login_email_required_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
+    <string name="fragment_login_email_required_forgot_password_button">Hier klicken</string>
+    <string name="fragment_login_email_required_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
+    <string name="fragment_login_email_required_login">Anmelden</string>
+
+    <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
+    <string name="fragment_login_email_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
+    <string name="fragment_login_email_already_taken_contact_support">Oder wenden Sie sich an unseren Service unter</string>
+    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
 </resources>
