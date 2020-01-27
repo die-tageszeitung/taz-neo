@@ -73,7 +73,7 @@
     <string name="settings_text_night_mode">Night mode</string>
     <string name="settings_text_epaper">Always read as ePaper</string>
     <string name="settings_text_tap_on_edge">Enable tap on the edge</string>
-    <string name="settings_account_abo_id">Abo ID</string>
+    <string name="settings_account_abo_id">Subscription ID</string>
     <string name="settings_account_password">Password</string>
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">Subscriber</string>

@@ -1,5 +1,0 @@
-query AboPoll(
-    $installationID: String!
-) {
-    aboId2tazIdPoll(installationId: $installationId)
-}
