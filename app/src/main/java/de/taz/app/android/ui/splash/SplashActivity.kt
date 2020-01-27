@@ -24,7 +24,6 @@ import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
 import java.util.*
 
-const val CHANNEL_ID_DEBUG = "DEBUG"
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 
 class SplashActivity : AppCompatActivity() {
@@ -234,12 +233,6 @@ class SplashActivity : AppCompatActivity() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            generateNotificationChannel(
-                R.string.channel_debug,
-                R.string.channel_debug_description,
-                CHANNEL_ID_DEBUG,
-                NotificationManager.IMPORTANCE_LOW
-            )
             generateNotificationChannel(
                 R.string.channel_new_version,
                 R.string.channel_new_version_description,

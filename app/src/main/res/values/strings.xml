@@ -80,8 +80,6 @@
 
     <string name="percentage">%d\%%</string>
 
-    <string name="channel_debug">Debug</string>
-    <string name="channel_debug_description">Debug messages that should never be shown to users</string>
     <string name="channel_new_version">New version</string>
     <string name="channel_new_version_description">Notification if a new version exists</string>
 
