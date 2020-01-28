@@ -125,4 +125,22 @@
     <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergesse? Geben Sie hier Ihre E-Mail-Adresse an und Sie erhalten eine E-Mail mit dem Link zur Änderung des Passworts.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
 
+    <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>
+    <string name="fragment_login_forgot_password_email_sent_back">Zurück zur Anmeldung/Registrierung</string>
+
+    <string name="fragment_login_forgot_password_subscription_sent_header">Wir haben Ihnen eine Mail mit den Zugangsdaten zum Digiabo geschickt. Sollten Sie sie nicht finden, schauen Sie bitte in Ihrem Spam-Ordner nach.</string>
+    <string name="fragment_login_forgot_password_subscription_sent_back">Zurück zur Anmeldung</string>
+
+    <string name="fragment_login_forgot_subscription_header">You forgot your subscription id and/or password? Search your email inbox for an email by digiabo@taz.de.</string>
+    <string name="fragment_login_forgot_subscription_found">Have you found your subscription credentials?</string>
+    <string name="fragment_login_forgot_subscription_found_button">Then click here</string>
+    <string name="fragment_login_forgot_subscription_request">Sollten Sie die Mail nicht mehr finden und Ihre Digiabo-Zugangsdaten nicht zur Hand haben, dann:</string>
+    <string name="fragment_login_forgot_subscription_request_button">Zugangsdaten anfordern</string>
+
+    <string name="fragment_login_success_login_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
+    <string name="fragment_login_success_login_back">Zurück zum Artikel</string>
+
+    <string name="fragment_registration_success_registration_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Sobald die Mail-Adresse bestätigt wurde, können sie die neue taz-App nutzen.</string>
+    <string name="fragment_registration_success_registration_back">Zurück zum Artikel</string>
+
 </resources>
