@@ -3,11 +3,16 @@ package de.taz.app.android.ui.splash
 import android.annotation.TargetApi
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
@@ -25,6 +30,7 @@ import kotlinx.coroutines.*
 import java.util.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
+const val NEW_VERSION_REQUEST_CODE = 0
 
 class SplashActivity : AppCompatActivity() {
 
@@ -33,21 +39,21 @@ class SplashActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        generateInstallationId()
         setupSentry()
+
+        generateInstallationId()
+        generateNotificationChannels()
 
         createSingletons()
 
         initLastIssues()
         initFeedInformation()
-        initAppInfo()
+        initAppInfoAndCheckAndroidVersion()
         initResources()
 
         deletePublicIssuesIfLoggedIn()
 
         ensurePushTokenSent()
-
-        generateNotificationChannels()
 
         startActivity(Intent(this, MainActivity::class.java))
     }
@@ -144,17 +150,41 @@ class SplashActivity : AppCompatActivity() {
     /**
      * download AppInfo and persist it
      */
-    private fun initAppInfo() {
+    private fun initAppInfoAndCheckAndroidVersion() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
                     log.warn("Initialized AppInfo")
+                    if (it.androidVersion > BuildConfig.VERSION_CODE) {
+                        NotificationHelper.getInstance().showNotification(
+                            R.string.notification_new_version_title,
+                            R.string.notification_new_version_body,
+                            CHANNEL_ID_NEW_VERSION,
+                            pendingIntent = PendingIntent.getActivity(
+                                applicationContext,
+                                NEW_VERSION_REQUEST_CODE,
+                                if (BuildConfig.DEBUG) downloadFromServerIntent() else showInStoreIntent(),
+                                FLAG_CANCEL_CURRENT
+                            )
+                        )
+                    }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 log.warn("Initializing AppInfo failed")
             }
         }
+    }
+
+    private fun showInStoreIntent(): Intent {
+        return Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("market://details?id=${applicationContext.packageName}")
+        )
+    }
+
+    private fun downloadFromServerIntent(): Intent {
+        return Intent(Intent(Intent.ACTION_VIEW)).setData(Uri.parse(DEBUG_VERSION_DOWNLOAD_ENDPOINT))
     }
 
     /**
@@ -237,7 +267,7 @@ class SplashActivity : AppCompatActivity() {
                 R.string.channel_new_version,
                 R.string.channel_new_version_description,
                 CHANNEL_ID_NEW_VERSION,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             )
         }
 
@@ -245,7 +275,9 @@ class SplashActivity : AppCompatActivity() {
 
     @TargetApi(26)
     private fun generateNotificationChannel(
-        @StringRes channelName: Int, @StringRes channeldDescription: Int, channelId: String,
+        @StringRes channelName: Int,
+        @StringRes channeldDescription: Int,
+        channelId: String,
         importance: Int
     ) {
         val name = getString(channelName)

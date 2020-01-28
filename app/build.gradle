@@ -158,6 +158,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
+    // room
+    androidTestImplementation 'android.arch.persistence.room:testing:1.1.1'
 
     // google Flavor
     googleImplementation 'com.google.firebase:firebase-messaging:20.1.0'
