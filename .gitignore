@@ -191,7 +191,6 @@ Session.vim
 tags
 
 # gradle stuff
-app/schemas
 app/lint
 
 .sentryclirc

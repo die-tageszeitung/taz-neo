@@ -84,4 +84,7 @@
     <string name="channel_new_version">Neue Version</string>
     <string name="channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
 
+    <string name="notification_new_version_title">Neue Version verfügbar</string>
+    <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
+
 </resources>

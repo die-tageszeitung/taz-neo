@@ -6,13 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.migrations.Migration1to2
 import de.taz.app.android.persistence.dao.*
 import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-private const val DATABASE_VERSION = 1
-private const val DATABASE_NAME = "db"
+const val DATABASE_VERSION = 2
+const val DATABASE_NAME = "db"
 
 @Database(
     entities = [
@@ -61,7 +62,9 @@ abstract class AppDatabase : RoomDatabase() {
             applicationContext,
             AppDatabase::class.java, DATABASE_NAME
         )
-            // TODO add migrations and TESTS for them
+            .addMigrations(
+                Migration1to2
+            )
             .fallbackToDestructiveMigration()
             .build()
     })
