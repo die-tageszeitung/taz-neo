@@ -15,56 +15,27 @@
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/feed_archive_pager"
-            android:nestedScrollingEnabled="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/fragment_archive_background"
+            android:nestedScrollingEnabled="true"
             android:orientation="vertical" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:background="@color/navigation_bottom_background"
             android:orientation="vertical"
             app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bottom"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="false">
+                android:layout_height="@dimen/nav_bottom_height"
+                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                app:labelVisibilityMode="unlabeled"
+                app:menu="@menu/navigation_bottom_home" />
 
-                <LinearLayout
-                    android:id="@+id/bottom_sheet_behaviour"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:orientation="vertical"
-                    app:behavior_hideable="true"
-                    app:behavior_peekHeight="0dp"
-                    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-                    <androidx.fragment.app.FragmentContainerView
-                        android:id="@+id/bottom_sheet_fragment_placeholder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/navigation_bottom_background">
-
-                <com.google.android.material.bottomnavigation.BottomNavigationView
-                    android:id="@+id/navigation_bottom"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/nav_bottom_height"
-                    android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-                    app:labelVisibilityMode="unlabeled"
-                    app:menu="@menu/navigation_bottom_home" />
-            </FrameLayout>
-
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout></androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
