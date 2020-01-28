@@ -8,6 +8,7 @@ import de.taz.app.android.firebase.FirebaseHelper
 
 @JsonClass(generateAdapter = true)
 data class NotificationVariables(
+    val oldToken: String? = null,
     val pushToken: String = FirebaseHelper.getInstance().firebaseToken ?: "",
     val deviceMessageSound: String? = null,
     val textNotification: Boolean = true,

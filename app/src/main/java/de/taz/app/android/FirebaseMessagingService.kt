@@ -41,9 +41,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         log.debug("new firebase messaging token")
+
+        val oldToken = firebaseHelper.firebaseToken
         firebaseHelper.firebaseToken = token
         CoroutineScope(Dispatchers.IO).launch {
-            firebaseHelper.hasTokenBeenSent = apiService.sendNotificationInfo() ?: false
+            firebaseHelper.hasTokenBeenSent = apiService.sendNotificationInfo(oldToken) ?: false
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }
