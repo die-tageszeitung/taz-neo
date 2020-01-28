@@ -2,6 +2,7 @@ package de.taz.app.android.util
 
 import android.app.PendingIntent
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import de.taz.app.android.R
@@ -13,24 +14,40 @@ class NotificationHelper private constructor(private val applicationContext: Con
     companion object : SingletonHolder<NotificationHelper, Context>(::NotificationHelper)
 
     fun showNotification(
+        @StringRes title: Int,
+        @StringRes body: Int,
+        channelId: String,
+        bigText: Boolean = false,
+        pendingIntent: PendingIntent? = null,
+        notificationId: Int = 0
+    ) {
+        showNotification(
+            applicationContext.getString(title),
+            applicationContext.getString(body),
+            channelId, bigText, pendingIntent, notificationId
+        )
+    }
+
+
+    fun showNotification(
         title: String,
-        content: String,
+        body: String,
         channelId: String,
         bigText: Boolean = false,
         pendingIntent: PendingIntent? = null,
         notificationId: Int = 0
     ) {
 
-        var builder = NotificationCompat.Builder(applicationContext, channelId)
+        val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText(content)
+            .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         if (bigText) {
             builder.setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText(content)
+                    .bigText(body)
             )
         }
 
@@ -40,8 +57,6 @@ class NotificationHelper private constructor(private val applicationContext: Con
         }
 
         notificationManagerCompat.notify(notificationId, builder.build())
-
-
     }
 
 }

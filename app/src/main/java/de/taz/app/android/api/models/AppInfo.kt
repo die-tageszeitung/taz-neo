@@ -10,12 +10,14 @@ import de.taz.app.android.api.dto.ProductDto
 data class AppInfo (
     @PrimaryKey val appName: AppName,
     val globalBaseUrl: String,
-    val appType: AppType
+    val appType: AppType,
+    val androidVersion: Int
 ) {
     constructor(productDto: ProductDto): this(
         productDto.appName!!,
         productDto.globalBaseUrl!!,
-        productDto.appType!!
+        productDto.appType!!,
+        productDto.androidVersion!!
     )
 
 }
