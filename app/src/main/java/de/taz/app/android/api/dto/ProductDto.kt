@@ -13,7 +13,8 @@ data class ProductDto (
     val appType: AppType? = null,
     val appName: AppName? = null,
     val globalBaseUrl: String? = null,
-    val feedList: List<FeedDto>? = null
+    val feedList: List<FeedDto>? = null,
+    val androidVersion: Int? = null
 )
 
 @JsonClass(generateAdapter = false)

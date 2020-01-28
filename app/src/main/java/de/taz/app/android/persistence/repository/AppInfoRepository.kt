@@ -26,7 +26,8 @@ class AppInfoRepository private constructor(applicationContext: Context) :
             AppInfo(
                 appInfoEntity.appName,
                 appInfoEntity.globalBaseUrl,
-                appInfoEntity.appType
+                appInfoEntity.appType,
+                appInfoEntity.androidVersion
             )
         }
     }

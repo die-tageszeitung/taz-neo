@@ -62,5 +62,5 @@ class AppInfoRepositoryTest {
 
 }
 
-val appInfoTazTest = AppInfo(AppName.taz, "http://example.com/1/", AppType.test)
-val appInfoTazProduction = AppInfo(AppName.taz, "http://example.com/2/", AppType.production)
+val appInfoTazTest = AppInfo(AppName.taz, "http://example.com/1/", AppType.test, 0)
+val appInfoTazProduction = AppInfo(AppName.taz, "http://example.com/2/", AppType.production, 1)

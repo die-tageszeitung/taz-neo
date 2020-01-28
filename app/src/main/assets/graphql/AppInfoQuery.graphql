@@ -3,5 +3,6 @@ query AppInfoQuery {
         appName
         appType
         globalBaseUrl
+        androidVersion
     }
 }
