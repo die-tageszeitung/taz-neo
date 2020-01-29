@@ -58,7 +58,7 @@ class LoginFragment :
         fragment_login_loading_screen.visibility = View.GONE
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
     }
 
