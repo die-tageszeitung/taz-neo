@@ -59,7 +59,7 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
 
     }
 
-    override fun share(text: String, image: FileEntry?) {
+    override fun share(url: String, title: String?, image: FileEntry?) {
 
     }
 
