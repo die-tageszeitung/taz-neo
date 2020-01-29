@@ -25,7 +25,7 @@
 
             <include
                 android:id="@+id/settings_header"
-                layout="@layout/fragment_header_settings" />
+                layout="@layout/fragment_header_default" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
