@@ -34,7 +34,7 @@ interface WebViewContract : BaseContract {
 
         fun onPageFinishedLoading()
 
-        fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean)
+        fun onBottomNavigationItemClicked(menuItem: MenuItem)
     }
 
     interface DataController<DISPLAYABLE : WebViewDisplayable> {

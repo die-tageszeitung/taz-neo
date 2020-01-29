@@ -74,7 +74,6 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
     }
 
     override fun onBackPressed(): Boolean {
-        return presenter.onBackPressed()
+        return false
     }
-
 }
