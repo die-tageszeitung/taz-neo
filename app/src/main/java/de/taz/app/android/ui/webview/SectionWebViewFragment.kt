@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
@@ -55,6 +56,10 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
                 }
             }
         }
+
+    }
+
+    override fun share(url: String, title: String?, image: FileEntry?) {
 
     }
 

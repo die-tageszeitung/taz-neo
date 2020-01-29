@@ -4,7 +4,6 @@ import android.view.MenuItem
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +15,7 @@ class ArticleWebViewPresenter(
 ) : WebViewPresenter<Article>(apiService, resourceInfoRepository) {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        val webViewDisplayable = viewModel?.getWebViewDisplayable()
+        val article = viewModel?.getWebViewDisplayable()
 
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
@@ -28,11 +27,9 @@ class ArticleWebViewPresenter(
                 }
 
             R.id.bottom_navigation_action_share ->
-                if (webViewDisplayable is Shareable) {
-                    webViewDisplayable.getLink()?.let {
-                        getView()?.apply {
-                            shareText(it)
-                        }
+                getView()?.apply {
+                    article?.onlineLink?.let {
+                        share(article.onlineLink, article.title, article.imageList.first())
                     }
                 }
 

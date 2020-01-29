@@ -1,21 +1,31 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.TargetApi
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
+    private val log by Log
     var article: Article? = null
 
+    private val fileHelper = FileHelper.getInstance()
     override val presenter = ArticleWebViewPresenter()
 
     companion object {
@@ -71,6 +81,66 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     override fun onBackPressed(): Boolean {
         return presenter.onBackPressed()
+    }
+
+    override fun share(url: String, title: String?, image: FileEntry?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            shareArticle(url, title, image)
+        }
+        else {
+            shareArticle(url, title)
+        }
+    }
+
+    private fun shareArticle(url: String, title: String?) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, url)
+            title?.let {
+                putExtra(Intent.EXTRA_SUBJECT, title)
+            }
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
+    @TargetApi(28)
+    private fun shareArticle(url: String, title: String?, image: FileEntry?) {
+        view?.let { view ->
+            var imageUri : Uri? = null
+            image?.let {
+                val imageAsFile = fileHelper.getFile(image)
+                imageUri = FileProvider.getUriForFile(
+                    view.context,
+                    "de.taz.app.android.provider",
+                    imageAsFile
+                )
+            }
+            log.debug("image is: $image")
+            log.debug("imageUri is: $imageUri")
+
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, url)
+
+                putExtra(Intent.EXTRA_STREAM, imageUri)
+                type = "image/jpg"
+
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                title?.let {
+                    putExtra(Intent.EXTRA_SUBJECT, title)
+                }
+                // add rich content for android 10+
+                putExtra(Intent.EXTRA_TITLE, title ?: url)
+                data = imageUri
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
+        }
     }
 
 }
