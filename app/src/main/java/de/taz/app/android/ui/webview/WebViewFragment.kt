@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
@@ -73,17 +72,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
-    }
-
-    override fun shareText(text: String) {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(shareIntent)
     }
 
     override fun showBookmarkBottomSheet() {
