@@ -37,7 +37,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
             findViewById<TextView>(R.id.fragment_settings_push_id).apply {
                 text = tokenText
             }
-            findViewById<TextView>(R.id.fragment_settings_header_title).text =
+            findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
                 )
