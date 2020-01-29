@@ -61,6 +61,10 @@ class ArticleLoginFragment :
     override fun hideLoadingScreen() {
     }
 
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        presenter.onBottomNavigationItemClicked(menuItem)
+    }
+
     override fun showLoginWithEmail() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

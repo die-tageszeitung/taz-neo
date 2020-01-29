@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.settings
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
@@ -10,6 +11,7 @@ import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.LoginFragment
 import java.util.*
 
@@ -57,7 +59,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
 
             findViewById<Button>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
-                    this@SettingsFragment.getMainView()?.showMainFragment(LoginFragment())
+                    startActivity(Intent(activity, LoginActivity::class.java))
                 }
 
             findViewById<View>(R.id.settings_text_decrease).setOnClickListener {

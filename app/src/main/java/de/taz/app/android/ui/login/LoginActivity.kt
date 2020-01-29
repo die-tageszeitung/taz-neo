@@ -1,17 +1,54 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 
-class LoginActivity: AppCompatActivity() {
+const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
+const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
 
-        setContentView(R.layout.fragment_login)
+class LoginActivity : AppCompatActivity() {
+
+    private var username: String? = null
+    private var password: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activity_login)
+
+        username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
+        password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
+
+        showFragment(LoginFragment())
+
+        username?.let { username ->
+            password?.let { password ->
+                login(username, password)
+                showLoadingScreen()
+            }
+        }
+
     }
 
+    private fun login(username: String, password: String) {
+        // TODO
+    }
+
+    private fun showLoadingScreen() {
+
+    }
+
+    private fun hideLoadingScreen() {
+
+    }
+
+    private fun showFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.activity_login_fragment_placeholder, fragment)
+            .commit()
+    }
 
 }
