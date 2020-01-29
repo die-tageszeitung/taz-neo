@@ -83,19 +83,22 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
         return presenter.onBackPressed()
     }
 
-    override fun share(text: String, image: FileEntry?) {
+    override fun share(url: String, title: String?, image: FileEntry?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            shareArticle(text, image)
+            shareArticle(url, title, image)
         }
         else {
-            shareArticle(text)
+            shareArticle(url, title)
         }
     }
 
-    private fun shareArticle(text: String) {
+    private fun shareArticle(url: String, title: String?) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TEXT, url)
+            title?.let {
+                putExtra(Intent.EXTRA_SUBJECT, title)
+            }
             type = "text/plain"
         }
 
@@ -104,7 +107,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     }
 
     @TargetApi(28)
-    private fun shareArticle(text: String, image: FileEntry?) {
+    private fun shareArticle(url: String, title: String?, image: FileEntry?) {
         view?.let { view ->
             var imageUri : Uri? = null
             image?.let {
@@ -120,15 +123,18 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, text)
+                putExtra(Intent.EXTRA_TEXT, url)
 
                 putExtra(Intent.EXTRA_STREAM, imageUri)
                 type = "image/jpg"
 
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
+                title?.let {
+                    putExtra(Intent.EXTRA_SUBJECT, title)
+                }
                 // add rich content for android 10+
-                putExtra(Intent.EXTRA_TITLE, text)
+                putExtra(Intent.EXTRA_TITLE, title ?: url)
                 data = imageUri
             }
 

@@ -1,12 +1,9 @@
 package de.taz.app.android.api.models
 
-import android.net.Uri
 import androidx.annotation.UiThread
-import androidx.core.net.toUri
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.interfaces.Shareable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.FileHelper
@@ -27,7 +24,7 @@ data class Article(
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0
-) : ArticleOperations, CacheableDownload, WebViewDisplayable, Shareable {
+) : ArticleOperations, CacheableDownload, WebViewDisplayable {
 
     constructor(
         issueFeedName: String,
@@ -68,15 +65,6 @@ data class Article(
 
     override fun next(): Article? {
         return nextArticle()
-    }
-
-    override fun getLink(): String? {
-        return onlineLink
-    }
-
-    override fun getShareable(): Pair<String?, FileEntry?> {
-        val image = if (imageList.isNotEmpty()) imageList[0] else null
-        return Pair(onlineLink, image)
     }
 
     fun isImprint(): Boolean {

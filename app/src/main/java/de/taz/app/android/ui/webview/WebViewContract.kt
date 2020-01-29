@@ -19,7 +19,7 @@ interface WebViewContract : BaseContract {
 
         fun hideLoadingScreen()
 
-        fun share(text: String, image: FileEntry?)
+        fun share(url: String, title: String? = null, image: FileEntry? = null)
 
         fun showFontSettingBottomSheet()
 
