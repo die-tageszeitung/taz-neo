@@ -68,9 +68,9 @@ class LoginPresenter(
         val lifecycleScope = getView()?.getLifecycleOwner()?.lifecycleScope
         try {
             if (username.isBlank()) {
-                getView()?.showWrongUsername()
+                getView()?.showUserNameError(R.string.login_username_error_empty)
             } else if (password.isEmpty()) {
-                getView()?.showWrongPassword()
+                getView()?.showPasswordError(R.string.login_password_error_empty)
             } else if (android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
                 lifecycleScope?.launch(Dispatchers.Default) {
                     apiService.authenticate(username, password)?.let {
@@ -131,7 +131,7 @@ class LoginPresenter(
                     }
                 }
             } else {
-                getView()?.showWrongUsername()
+                getView()?.showUserNameError(R.string.login_username_error_wrong_format)
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             getView()?.getMainView()?.showToast(R.string.toast_no_internet)

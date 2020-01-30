@@ -101,8 +101,15 @@
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
 
+    <string name="login_error_unknown_credentials">Login failed</string>
+
     <string name="login_username_hint">subscription ID</string>
+    <string name="login_username_error_empty">Can\'t be empty.</string>
+    <string name="login_username_error_wrong_format">Please use your tazId or subscription id.</string>
+
     <string name="login_password_hint">password</string>
+    <string name="login_password_error_empty">Can\'t be empty</string>
+
     <string name="login_button">Login</string>
 
     <string name="fragment_login_subscription_inactive_header">Your subscription is currently inactive (e.g. because it expired).</string>
