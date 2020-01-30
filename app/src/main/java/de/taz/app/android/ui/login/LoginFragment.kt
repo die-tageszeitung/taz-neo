@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -12,7 +13,23 @@ class LoginFragment :
     BaseMainFragment<LoginContract.Presenter>(),
     LoginContract.View {
 
+    companion object {
+        fun createLoginFragment(
+            @StringRes usernameErrorId: Int? = null,
+            @StringRes passwordErrorId: Int? = null
+        ): LoginFragment {
+            val fragment = LoginFragment()
+            fragment.usernameErrorId = usernameErrorId
+            fragment.passwordErrorId = passwordErrorId
+            return fragment
+        }
+    }
+
+
     override val presenter = LoginPresenter()
+
+    @StringRes private var usernameErrorId: Int? = null
+    @StringRes private var passwordErrorId: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,6 +43,15 @@ class LoginFragment :
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
+
+        usernameErrorId?.let {
+            showUserNameError(it)
+            usernameErrorId = null
+        }
+        passwordErrorId?.let {
+            showPasswordError(it)
+            passwordErrorId = null
+        }
 
         fragment_login_login_button.setOnClickListener {
             login()
@@ -71,11 +97,11 @@ class LoginFragment :
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun showWrongPassword() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun showPasswordError(passwordErrorId: Int) {
+        fragment_login_password.error = getString(passwordErrorId)
     }
 
-    override fun showWrongUsername() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun showUserNameError(@StringRes usernameErrorId: Int) {
+        fragment_login_username.error = getString(usernameErrorId)
     }
 }

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.view.MenuItem
+import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.AuthStatus
@@ -11,8 +12,8 @@ interface LoginContract {
         fun showLoadingScreen()
         fun hideLoadingScreen()
 
-        fun showWrongUsername()
-        fun showWrongPassword()
+        fun showUserNameError(@StringRes usernameErrorId: Int)
+        fun showPasswordError(@StringRes passwordErrorId: Int)
 
         fun showLoginWithEmail()
 

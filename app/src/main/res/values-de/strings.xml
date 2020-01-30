@@ -102,8 +102,15 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
 
+    <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
+    _
     <string name="login_username_hint">Abo Nummer</string>
+    <string name="login_username_error_empty">Darf nicht leer sein.</string>
+    <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre tazId oder AboId.</string>
+
     <string name="login_password_hint">Passwort</string>
+    <string name="login_password_error_empty">Darf nicht leer sein.</string>
+
     <string name="login_button">Anmelden</string>
 
     <string name="fragment_login_subscription_inactive_header">Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).</string>
