@@ -12,7 +12,6 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.LoginFragment
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {

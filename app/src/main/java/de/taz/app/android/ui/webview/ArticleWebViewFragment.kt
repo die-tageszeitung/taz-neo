@@ -19,7 +19,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.ui.login.ArticleLoginFragment
+import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {

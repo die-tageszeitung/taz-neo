@@ -1,27 +1,31 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.download.DownloadService
+import de.taz.app.android.monkey.getViewModel
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.util.ToastHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 
 
 class LoginActivity(
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : AppCompatActivity() {
+    private val toastHelper: ToastHelper = ToastHelper.getInstance(),
+    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+) : FragmentActivity() {
 
     private var username: String? = null
     private var password: String? = null
+
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,51 +35,48 @@ class LoginActivity(
         username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
-        showFragment(LoginFragment())
+        viewModel = getViewModel { LoginViewModel(username, password) }
 
-        username?.let { username ->
-            password?.let { password ->
-                login(username, password)
-                showLoadingScreen()
+        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
+            when (loginViewModelState) {
+                LoginViewModelState.INITIAL ->
+                    showLoginForm()
+                LoginViewModelState.CREDENTIALS_CHECKING,
+                LoginViewModelState.SUBSCRIPTION_CHECKING ->
+                    showLoadingScreen()
+                LoginViewModelState.CREDENTIALS_INVALID ->
+                    showCredentialsInvalid()
+                LoginViewModelState.CREDENTIALS_MISSING ->
+                    showMissingCredentials()
+                LoginViewModelState.SUBSCRIPTION_ELAPSED ->
+                    showSubscriptionElapsed()
+                LoginViewModelState.SUBSCRIPTION_INVALID ->
+                    showSubscriptionInvalid()
+                LoginViewModelState.SUBSCRIPTION_MISSING ->
+                    showSubscriptionMissing()
+                LoginViewModelState.DONE ->
+                    finish()
             }
-        }
+        })
 
+        viewModel.noInternet.observe(this, Observer {
+            if (it) {
+                toastHelper.showNoConnectionToast()
+            }
+        })
     }
 
-    private fun login(username: String, password: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            username.toIntOrNull()?.let {
-                val subscriptionStatus = apiService.checkSubscriptionId(it, password)?.status
-
-                when(subscriptionStatus) {
-                    AuthStatus.tazIdNotLinked -> showEmailNecessary()
-                    AuthStatus.elapsed -> showSubscriptionElapsed()
-                    AuthStatus.notValid -> showUnknownSubscriptionId()
-                    AuthStatus.valid -> done() // TODO loggedin?
-                    null -> toastHelper.showNoConnectionToast()
-                }
-
-            } ?: run {
-
-                val authTokenInfo = apiService.authenticate(username, password)
-
-                when (authTokenInfo?.authInfo?.status) {
-                    AuthStatus.valid -> done() // TODO
-                    AuthStatus.notValid -> showUnknownCredentials()
-                    AuthStatus.tazIdNotLinked -> showSubscriptionNeeded()
-                    AuthStatus.elapsed -> showSubscriptionElapsed()
-                    null -> toastHelper.showNoConnectionToast()
-                }
-
-            }
-        }
+    private fun showLoginForm() {
+        showFragment(
+            LoginFragment.create(
+                username = viewModel.getUsername(),
+                password = viewModel.getPassword()
+            )
+        )
     }
 
     private fun showLoadingScreen() {
-
-    }
-
-    private fun hideLoadingScreen() {
+        showFragment(LoadingScreenFragment())
 
     }
 
@@ -89,25 +90,45 @@ class LoginActivity(
         showFragment(SubscriptionInactiveFragment())
     }
 
-    private fun showUnknownCredentials() {
-
+    private fun showSubscriptionMissing() {
+        showFragment(SubscriptionMissingFragment())
     }
 
-    private fun showSubscriptionNeeded() {
-
+    private fun showMissingCredentials() {
+        showFragment(MissingCredentialsFragment())
     }
 
-    private fun showEmailNecessary() {
-        showFragment(EmailRequiredFragment())
+    private fun showCredentialsInvalid() {
+        showFragment(
+            LoginFragment.create(
+                username = viewModel.getUsername(),
+                password = viewModel.getPassword(),
+                usernameErrorId = R.string.login_error_unknown_credentials
+            )
+        )
     }
 
-    private fun showUnknownSubscriptionId() {
-        showFragment(LoginFragment())
-        toastHelper.makeToast(R.string.login_error_unknown_credentials)
+    private fun showSubscriptionInvalid() = showCredentialsInvalid()
+
+    private fun done() {}
+
+    @UiThread
+    private suspend fun downloadLatestIssueMoments() {
+        ApiService.getInstance().getIssuesByDate().forEach { issue ->
+            issueRepository.save(issue)
+            /*getView()?.getMainView()?.apply {
+                setDrawerIssue(issue)
+                getApplicationContext().let {
+                    DownloadService.download(it, issue.moment)
+                }
+            }
+             */
+        }
     }
 
-    private fun done() {
-
+    @UiThread
+    private fun deletePublicIssues() {
+        issueRepository.deletePublicIssues()
     }
 
 }

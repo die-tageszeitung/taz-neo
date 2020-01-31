@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.login
+package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
