@@ -199,3 +199,8 @@ sentry.properties
 # End of https://www.gitignore.io/api/vim,java,linux,kotlin,android,androidstudio
 #
 **/google-services.json
+
+# files that should not be in the repo
+bundle.tar
+.sentryclirc
+tazkeystore.jks
