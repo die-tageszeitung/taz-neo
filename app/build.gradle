@@ -10,6 +10,15 @@ if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().c
     apply plugin: 'com.google.gms.google-services'
 }
 
+def keyStoreAvailable = false
+
+file("../keystore.properties").with { propFile ->
+    if (propFile.canRead()) {
+        keyStoreAvailable = true
+        println("Using keystore.properties file to sign APK")
+    }
+}
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -64,13 +73,36 @@ android {
 
     }
 
+    signingConfigs {
+        if (keyStoreAvailable) {
+            keyStoreProperties {
+                file("../keystore.properties").with { propFile ->
+                    def properties = new Properties()
+                    properties.load(new FileInputStream(propFile))
+                    storeFile file('../' + properties['keystorePath'])
+                    storePassword properties['keystorePassword']
+                    keyAlias properties['keyAlias']
+                    keyPassword properties['keyPassword']
+                }
+            }
+        }
+    }
+
     buildTypes {
         debug {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+
             debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
