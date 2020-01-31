@@ -25,7 +25,7 @@ file("../keystore.properties").with { propFile ->
 }
 
 play {
-    track = 'ci-test'
+    track = 'internal'
     serviceAccountCredentials = file('../play-publish.json')
 }
 
