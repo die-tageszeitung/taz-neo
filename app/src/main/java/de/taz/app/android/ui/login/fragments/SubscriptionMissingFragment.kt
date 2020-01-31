@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.login
+package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 
-class SubscriptionEmailNecessaryFragment: Fragment() {
+class SubscriptionMissingFragment: Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
