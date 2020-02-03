@@ -11,12 +11,12 @@ cache:
   key: android-base
 
 stages:
-  - build
   - test
+  - build
   - publish
 
 lint:
-  stage: build
+  stage: test
   script:
     - ./gradlew --no-daemon -Pci --console=plain :app:lint -PbuildDir=lint
   only:
@@ -53,7 +53,7 @@ unitTests:
 integrationTests:
   stage: test
   script:
-    - sudo ./gradlew --no-daemon -Pci --console=plain :app:cAT
+    - sudo env "PATH=$PATH" ./gradlew --no-daemon -Pci --console=plain :app:cAT
   only:
     - merge_requests
   tags:
