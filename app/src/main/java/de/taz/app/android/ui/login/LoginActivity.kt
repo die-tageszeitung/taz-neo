@@ -7,11 +7,13 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.fragments.*
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
@@ -21,6 +23,8 @@ class LoginActivity(
     private val toastHelper: ToastHelper = ToastHelper.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance()
 ) : FragmentActivity() {
+
+    private val log by Log
 
     private var username: String? = null
     private var password: String? = null
@@ -37,6 +41,8 @@ class LoginActivity(
 
         viewModel = getViewModel { LoginViewModel(username, password) }
 
+        showLoginForm()
+
         viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL ->
@@ -44,18 +50,22 @@ class LoginActivity(
                 LoginViewModelState.CREDENTIALS_CHECKING,
                 LoginViewModelState.SUBSCRIPTION_CHECKING ->
                     showLoadingScreen()
-                LoginViewModelState.CREDENTIALS_INVALID ->
+                LoginViewModelState.CREDENTIALS_INVALID -> {
+                    resetPassword()
                     showCredentialsInvalid()
+                }
                 LoginViewModelState.CREDENTIALS_MISSING ->
                     showMissingCredentials()
                 LoginViewModelState.SUBSCRIPTION_ELAPSED ->
                     showSubscriptionElapsed()
-                LoginViewModelState.SUBSCRIPTION_INVALID ->
+                LoginViewModelState.SUBSCRIPTION_INVALID -> {
+                    resetPassword()
                     showSubscriptionInvalid()
+                }
                 LoginViewModelState.SUBSCRIPTION_MISSING ->
                     showSubscriptionMissing()
                 LoginViewModelState.DONE ->
-                    finish()
+                    done()
             }
         })
 
@@ -64,9 +74,11 @@ class LoginActivity(
                 toastHelper.showNoConnectionToast()
             }
         })
+
     }
 
     private fun showLoginForm() {
+        log.debug("showLoginForm")
         showFragment(
             LoginFragment.create(
                 username = viewModel.getUsername(),
@@ -76,29 +88,28 @@ class LoginActivity(
     }
 
     private fun showLoadingScreen() {
+        log.debug("showLoadingScreen")
         showFragment(LoadingScreenFragment())
 
     }
 
-    private fun showFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.activity_login_fragment_placeholder, fragment)
-            .commit()
-    }
-
     private fun showSubscriptionElapsed() {
+        log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
     }
 
     private fun showSubscriptionMissing() {
+        log.debug("showSubscriptionMissing")
         showFragment(SubscriptionMissingFragment())
     }
 
     private fun showMissingCredentials() {
+        log.debug("showMissingCredentials")
         showFragment(MissingCredentialsFragment())
     }
 
     private fun showCredentialsInvalid() {
+        log.debug("showCredentialsInvalid")
         showFragment(
             LoginFragment.create(
                 username = viewModel.getUsername(),
@@ -110,7 +121,15 @@ class LoginActivity(
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun done() {}
+    private fun done() {
+        log.debug("done")
+        showLoadingScreen()
+        runBlocking(Dispatchers.IO) {
+            downloadLatestIssueMoments()
+        }
+        deletePublicIssues()
+        finish()
+    }
 
     @UiThread
     private suspend fun downloadLatestIssueMoments() {
@@ -129,6 +148,17 @@ class LoginActivity(
     @UiThread
     private fun deletePublicIssues() {
         issueRepository.deletePublicIssues()
+    }
+
+    private fun showFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.activity_login_fragment_placeholder, fragment)
+            .commit()
+    }
+
+    private fun resetPassword() {
+        password = null
+        viewModel.resetPassword()
     }
 
 }
