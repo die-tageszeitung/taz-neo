@@ -18,7 +18,7 @@ stages:
 lint:
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:lint -PbuildDir=lint
+    - ./gradlew --no-daemon -Pci --console=plain :app:lintFdroidTazDebug -PbuildDir=lint
   only:
     - merge_requests
 
@@ -46,7 +46,7 @@ assembleRelease:
 unitTests:
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:testGoogleTazReleaseUnitTest
+    - ./gradlew --no-daemon -Pci --console=plain :app:testFdroidTazDebugUnitTest
   only:
     - merge_requests
 
