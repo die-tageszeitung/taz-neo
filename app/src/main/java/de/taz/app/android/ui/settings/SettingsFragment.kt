@@ -8,9 +8,15 @@ import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.LoginFragment
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.ToastHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
@@ -18,6 +24,9 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
     override val presenter = SettingsPresenter()
 
     private var storedIssueNumber: String? = null
+    private val log by Log
+
+    val apiService = ApiService.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +54,12 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
             findViewById<TextView>(R.id.fragment_settings_general_keep_issues).apply {
                 setOnClickListener {
                     showKeepIssuesDialog()
+                }
+            }
+
+            findViewById<TextView>(R.id.fragment_settings_support_report_bug).apply {
+                setOnClickListener {
+                    reportBug()
                 }
             }
 
@@ -84,6 +99,14 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
         }
 
         presenter.onViewCreated(savedInstanceState)
+    }
+
+    private fun reportBug() {
+        ToastHelper.getInstance().makeToast("report bug clicked")
+        CoroutineScope(Dispatchers.IO).launch {
+            apiService.sendErrorReport()
+            log.debug("Sending an error report")
+        }
     }
 
     private fun showKeepIssuesDialog() {

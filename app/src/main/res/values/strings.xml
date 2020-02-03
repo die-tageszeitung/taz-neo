@@ -78,7 +78,9 @@
     <string name="settings_increase_font_size">Increase font size</string>
     <string name="settings_general_keep_number_issues">Keep last %s issues</string>
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
-    <string name="settings_category_push">PushID</string>
+    <string name="settings_category_push">pushID</string>
+    <string name="settings_category_support">support</string>
+    <string name="settings_support_report_bug">Report a bug</string>
 
     <string name="percentage">%d\%%</string>
 
