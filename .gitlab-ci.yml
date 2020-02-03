@@ -46,14 +46,14 @@ assembleRelease:
 unitTests:
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:test
+    - ./gradlew --no-daemon -Pci --console=plain :app:testGoogleTazReleaseUnitTest
   only:
     - merge_requests
 
 integrationTests:
   stage: test
   script:
-    - sudo -E ./gradlew --no-daemon -Pci --console=plain :app:cAT
+    - sudo -E ./gradlew --no-daemon -Pci --console=plain :app:cGTDAT
   only:
     - merge_requests
   tags:
