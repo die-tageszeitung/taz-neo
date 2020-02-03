@@ -53,8 +53,7 @@ unitTests:
 integrationTests:
   stage: test
   script:
-    - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
-    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:cAT
+    - sudo ./gradlew --no-daemon -Pci --console=plain :app:cAT
   only:
     - merge_requests
   tags:
