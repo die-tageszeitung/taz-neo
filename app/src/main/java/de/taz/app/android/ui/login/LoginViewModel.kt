@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 class LoginViewModel(
     initialUsername: String? = null,
     initialPassword: String? = null,
-    private val apiService: ApiService = ApiService.getInstance()
+    private val apiService: ApiService = ApiService.getInstance(),
+    private val authHelper: AuthHelper = AuthHelper.getInstance()
 ) : ViewModel() {
 
     private var username: String? = null
@@ -22,17 +23,15 @@ class LoginViewModel(
     private var subscriptionPassword: String? = null
 
     val status by lazy {
-        MutableLiveData<LoginViewModelState>().also {
-            LoginViewModelState.INITIAL
-        }
+        MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
     }
 
     val noInternet by lazy {
-        MutableLiveData<Boolean>().also { false }
+        MutableLiveData<Boolean>(false)
     }
 
     private val authStatus by lazy {
-        AuthHelper.getInstance().authStatusLiveData
+        authHelper.authStatusLiveData
     }
 
     init {
@@ -60,8 +59,10 @@ class LoginViewModel(
                                 status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                             AuthStatus.elapsed ->
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                            AuthStatus.notValid ->
+                            AuthStatus.notValid -> {
+                                password = null
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                            }
                             AuthStatus.valid -> {
                                 authStatus.postValue(AuthStatus.valid)
                                 status.postValue(LoginViewModelState.DONE)
@@ -104,6 +105,11 @@ class LoginViewModel(
 
     fun getUsername(): String? {
         return username ?: subscriptionId?.toString()
+    }
+
+    fun resetPassword() {
+        password = null
+        subscriptionPassword = null
     }
 
     fun getPassword(): String? {
