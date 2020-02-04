@@ -43,6 +43,7 @@ assembleRelease:
 
 
 lint:
+  extends: .prepareEnv
   interruptible: true
   stage: test
   script:
