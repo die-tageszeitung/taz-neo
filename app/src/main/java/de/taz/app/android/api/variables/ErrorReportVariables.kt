@@ -10,12 +10,12 @@ import de.taz.app.android.util.AuthHelper
 
 @JsonClass(generateAdapter = true)
 data class ErrorReportVariables(
+    val eMail: String? = null,
     val message: String? = null,
     val lastAction: String? = null,
     val conditions: String? = null,
     val errorProtocol: String? = null,
     val errorCategory: String? = null,
-    val eMail: String? = null,
     val deviceName: String? = null,
     val deviceVersion: String? = null,
     val appVersion: String = BuildConfig.VERSION_NAME,
