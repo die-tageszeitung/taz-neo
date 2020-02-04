@@ -54,7 +54,7 @@ integrationTests:
   stage: test
   before_script:
     - mkdir -p ~/.android
-    - echo $ADB_PRIVKEY > ~/.android/adbkey
+    - echo $ADB_PRIVKEY_BASE64 | base64 -d > ~/.android/adbkey
     - echo $ADB_PUBKEY > ~/.android/adbkey.pub
   script:
     - sudo -E ./gradlew --no-daemon -Pci --console=plain :app:cGTDAT
