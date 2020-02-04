@@ -8,6 +8,7 @@ cache:
   paths:
     - .gradle/wrapper
     - .gradle/caches
+    - app/build
   key: android-base
 
 stages:
