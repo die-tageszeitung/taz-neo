@@ -1,67 +1,63 @@
 image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 
-before_script:
-  - export GRADLE_USER_HOME=`pwd`/.gradle
-  - sudo chown -R circleci:circleci .
-
-cache:
-  paths:
-    - .gradle/wrapper
-    - .gradle/caches
-    - app/build
-    - build
-  key: android-base
 
 stages:
   - test
   - build
   - publish
 
-.extractSecrets:
+.prepareEnv:
   stage: build
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+      - app/build
+      - build
+    key: android-base
   before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
     - echo $SECRET_BUNDLE_BASE64 | base64 -d > bundle.tar
     - sudo tar --same-owner -xf bundle.tar
-    - sudo chmod -R 777 .
+    - sudo chown -R circleci:circleci .
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
 
 .assemble:
-  extends: .extractSecrets
+  extends: .prepareEnv
   artifacts:
     paths:
       - app/build/outputs/
 
 assembleDebug:
-  interruptible: true
   extends: .assemble
+  interruptible: true
   script:
     - ./gradlew --no-daemon assembleGoogleTazDebug
 
 assembleRelease:
-  interruptible: true
   extends: .assemble
+  interruptible: true
   script:
     - ./gradlew --no-daemon assembleGoogleTazRelease
 
 
 lint:
   interruptible: true
-  extends: .extractSecrets
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:lint
+    - ./gradlew --no-daemon --console=plain :app:lint
 
 unitTests:
+  extends: .prepareEnv
   interruptible: true
-  extends: .extractSecrets
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:test
+    - ./gradlew --no-daemon --console=plain :app:test
 
 integrationTests:
+  extends: .prepareEnv
   interruptible: true
-  extends: .extractSecrets
   stage: test
   cache:
     paths:
@@ -76,11 +72,12 @@ integrationTests:
     - echo $ADB_PRIVKEY_BASE64 | base64 -d > ~/.android/adbkey
     - echo $ADB_PUBKEY > ~/.android/adbkey.pub
   script:
-    - sudo -E ./gradlew --no-daemon -Pci --console=plain :app:cGTDAT
+    - sudo -E ./gradlew --no-daemon --console=plain :app:cGTDAT
   tags:
     - real-android
 
 publishNextcloud:
+  cache: {}
   stage: publish
   script:
     - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/releases/${CI_COMMIT_TAG}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
@@ -90,6 +87,7 @@ publishNextcloud:
     - tags
 
 publishGooglePlay:
+  cache: {}
   stage: publish
   script:
     - ./gradlew publishGoogleTazRelease
