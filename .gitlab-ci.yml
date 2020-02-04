@@ -9,6 +9,7 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
     - app/build
+    - build
   key: android-base
 
 stages:
@@ -19,7 +20,7 @@ stages:
 lint:
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:lintFdroidTazDebug -PbuildDir=lint
+    - ./gradlew --no-daemon -Pci --console=plain :app:lint
   only:
     - merge_requests
 
@@ -47,7 +48,7 @@ assembleRelease:
 unitTests:
   stage: test
   script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:testFdroidTazDebugUnitTest
+    - ./gradlew --no-daemon -Pci --console=plain :app:test
   only:
     - merge_requests
 
