@@ -22,6 +22,7 @@ stages:
   before_script:
     - echo $SECRET_BUNDLE_BASE64 | base64 -d > bundle.tar
     - sudo tar --same-owner -xf bundle.tar
+    - sudo chmod -R 777 .
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
 
