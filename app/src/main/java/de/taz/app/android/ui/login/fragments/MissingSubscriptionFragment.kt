@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 
-class SubscriptionMissingFragment: Fragment() {
+class MissingSubscriptionFragment: Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -15,7 +15,7 @@ class SubscriptionMissingFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return LayoutInflater.from(activity)
-            .inflate(R.layout.fragment_login_email_required, container, false)
+            .inflate(R.layout.fragment_login_missing_subscription, container, false)
     }
 
 }

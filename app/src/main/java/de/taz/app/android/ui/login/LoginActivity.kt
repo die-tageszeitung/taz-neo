@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
+import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -64,6 +65,16 @@ class LoginActivity(
                 }
                 LoginViewModelState.SUBSCRIPTION_MISSING ->
                     showSubscriptionMissing()
+                LoginViewModelState.PASSWORD_MISSING ->
+                    showLoginForm(passwordErrorId = R.string.login_password_error_empty)
+                LoginViewModelState.REQUEST_TEST_SUBSCRIPTION -> {
+                    showLoginRequestTestSubscription()
+                }
+                LoginViewModelState.USERNAME_MISSING ->
+                    showLoginForm(usernameErrorId = R.string.login_username_error_empty)
+                LoginViewModelState.USE_CREDENTIALS ->
+                    // TODO show "please use tazId to login"
+                    showLoginForm()
                 LoginViewModelState.DONE ->
                     done()
             }
@@ -77,12 +88,17 @@ class LoginActivity(
 
     }
 
-    private fun showLoginForm() {
+    private fun showLoginForm(
+        @StringRes usernameErrorId: Int? = null,
+        @StringRes passwordErrorId: Int? = null
+    ) {
         log.debug("showLoginForm")
         showFragment(
             LoginFragment.create(
                 username = viewModel.getUsername(),
-                password = viewModel.getPassword()
+                password = viewModel.getPassword(),
+                usernameErrorId = usernameErrorId,
+                passwordErrorId = passwordErrorId
             )
         )
     }
@@ -90,7 +106,6 @@ class LoginActivity(
     private fun showLoadingScreen() {
         log.debug("showLoadingScreen")
         showFragment(LoadingScreenFragment())
-
     }
 
     private fun showSubscriptionElapsed() {
@@ -100,7 +115,7 @@ class LoginActivity(
 
     private fun showSubscriptionMissing() {
         log.debug("showSubscriptionMissing")
-        showFragment(SubscriptionMissingFragment())
+        showFragment(MissingSubscriptionFragment())
     }
 
     private fun showMissingCredentials() {
@@ -120,6 +135,13 @@ class LoginActivity(
     }
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
+
+    private fun showLoginRequestTestSubscription() {
+        log.debug("showLoginRequestTestSubscription")
+        showFragment(
+            RequestTestSubscriptionFragment()
+        )
+    }
 
     private fun done() {
         log.debug("done")
@@ -151,14 +173,28 @@ class LoginActivity(
     }
 
     private fun showFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.activity_login_fragment_placeholder, fragment)
-            .commit()
+        supportFragmentManager.beginTransaction().apply {
+
+            replace(R.id.activity_login_fragment_placeholder, fragment)
+
+            commit()
+        }
     }
 
     private fun resetPassword() {
         password = null
         viewModel.resetPassword()
+    }
+
+    private fun resetUsername() {
+        username = null
+        viewModel.resetUsername()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        resetPassword()
+        resetUsername()
     }
 
 }

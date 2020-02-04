@@ -104,11 +104,11 @@
     <string name="login_error_unknown_credentials">Login failed</string>
 
     <string name="login_username_hint">subscription ID</string>
-    <string name="login_username_error_empty">Can\'t be empty.</string>
+    <string name="login_username_error_empty">Username can\'t be empty.</string>
     <string name="login_username_error_wrong_format">Please use your tazId or subscription id.</string>
 
     <string name="login_password_hint">password</string>
-    <string name="login_password_error_empty">Can\'t be empty</string>
+    <string name="login_password_error_empty">Password can\'t be empty</string>
 
     <string name="login_button">Login</string>
 
@@ -116,12 +116,12 @@
     <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
     <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_email_required_header">To use the new app you need to login with your email and a self-elected password.</string>
-    <string name="fragment_login_email_required_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
-    <string name="fragment_login_email_required_forgot_password">Did you forget your password?</string>
-    <string name="fragment_login_email_required_forgot_password_button">Click here.</string>
-    <string name="fragment_login_email_required_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
-    <string name="fragment_login_email_required_login">Login</string>
+    <string name="fragment_login_missing_credentials_header">To use the new app you need to login with your email and a self-elected password.</string>
+    <string name="fragment_login_missing_credentials_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
+    <string name="fragment_login_missing_credentials_forgot_password">Did you forget your password?</string>
+    <string name="fragment_login_missing_credentials_forgot_password_button">Click here.</string>
+    <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
+    <string name="fragment_login_missing_credentials_login">Login</string>
 
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
@@ -148,5 +148,9 @@
 
     <string name="fragment_registration_success_registration_header">Thanks for your registration. We sent you an email. After verifying the email address by clicking the verification link you can use the app.</string>
     <string name="fragment_registration_success_registration_back">Back to the article</string>
+
+    <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
+    <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
+    <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string>
 
 </resources>

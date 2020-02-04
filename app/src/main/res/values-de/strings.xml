@@ -109,7 +109,7 @@
     <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre tazId oder AboId.</string>
 
     <string name="login_password_hint">Passwort</string>
-    <string name="login_password_error_empty">Darf nicht leer sein.</string>
+    <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
 
     <string name="login_button">Anmelden</string>
 
@@ -117,12 +117,12 @@
     <string name="fragment_login_subscription_inactive_body">Bitte kontaktieren Sie unseren Service:</string>
     <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_email_required_header">Um die neue App zu nutzen, müssen Sie sich zukünftig mit Ihrer E-Mail-Adresse und einem selbst gewähltem Passwort einloggen.</string>
-    <string name="fragment_login_email_required_existing_account">Sollten Sie bereits bei taz.de nut E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
-    <string name="fragment_login_email_required_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
-    <string name="fragment_login_email_required_forgot_password_button">Hier klicken</string>
-    <string name="fragment_login_email_required_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
-    <string name="fragment_login_email_required_login">Anmelden</string>
+    <string name="fragment_login_missing_credentials_header">Um die neue App zu nutzen, müssen Sie sich zukünftig mit Ihrer E-Mail-Adresse und einem selbst gewähltem Passwort einloggen.</string>
+    <string name="fragment_login_missing_credentials_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
+    <string name="fragment_login_missing_credentials_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
+    <string name="fragment_login_missing_credentials_forgot_password_button">Hier klicken</string>
+    <string name="fragment_login_missing_credentials_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
+    <string name="fragment_login_missing_credentials_login">Anmelden</string>
 
     <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_email_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
@@ -138,9 +138,9 @@
     <string name="fragment_login_forgot_password_subscription_sent_header">Wir haben Ihnen eine Mail mit den Zugangsdaten zum Digiabo geschickt. Sollten Sie sie nicht finden, schauen Sie bitte in Ihrem Spam-Ordner nach.</string>
     <string name="fragment_login_forgot_password_subscription_sent_back">Zurück zur Anmeldung</string>
 
-    <string name="fragment_login_forgot_subscription_header">You forgot your subscription id and/or password? Search your email inbox for an email by digiabo@taz.de.</string>
-    <string name="fragment_login_forgot_subscription_found">Have you found your subscription credentials?</string>
-    <string name="fragment_login_forgot_subscription_found_button">Then click here</string>
+    <string name="fragment_login_forgot_subscription_header">Sie haben Ihre Digiabo-ID und/oder Ihr Passwort vergessen? Schauen Sie in Ihrem Postfach nach: Sie sollten bei Abschluss Ihres Abos eine Mail von digiabo@taz.de bekommen haben.</string>
+    <string name="fragment_login_forgot_subscription_found">Haben Sie ihre Zugangsdaten gefunden?</string>
+    <string name="fragment_login_forgot_subscription_found_button">Dann klicken Sie hier</string>
     <string name="fragment_login_forgot_subscription_request">Sollten Sie die Mail nicht mehr finden und Ihre Digiabo-Zugangsdaten nicht zur Hand haben, dann:</string>
     <string name="fragment_login_forgot_subscription_request_button">Zugangsdaten anfordern</string>
 
@@ -149,5 +149,9 @@
 
     <string name="fragment_registration_success_registration_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Sobald die Mail-Adresse bestätigt wurde, können sie die neue taz-App nutzen.</string>
     <string name="fragment_registration_success_registration_back">Zurück zum Artikel</string>
+
+    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer tazId verknüpft.</string>
+    <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
+    <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
 
 </resources>

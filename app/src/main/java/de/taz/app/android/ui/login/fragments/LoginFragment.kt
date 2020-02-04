@@ -45,11 +45,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
 
         username?.let {
-            fragment_login_username.setText(it)
+            fragment_login_username_text.setText(it)
         }
 
         password?.let {
-            fragment_login_password.setText(it)
+            fragment_login_password_text.setText(it)
         }
 
         usernameErrorId?.let {
@@ -65,7 +65,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             login()
         }
 
-        fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+        fragment_login_password_text.setOnEditorActionListener(object : TextView.OnEditorActionListener {
             override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     login()
@@ -77,8 +77,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun login() {
-        username = fragment_login_username.text.toString()
-        password = fragment_login_password.text.toString()
+        username = fragment_login_username_text.text.toString()
+        password = fragment_login_password_text.text.toString()
         viewModel.value.login(username, password)
         hideKeyBoard()
     }
