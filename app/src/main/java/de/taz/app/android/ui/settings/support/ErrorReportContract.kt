@@ -6,6 +6,7 @@ import de.taz.app.android.base.BaseContract
 interface ErrorReportContract {
 
     interface View : BaseContract.View {
+        fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?)
     }
 
     interface DataController : BaseContract.DataController {
