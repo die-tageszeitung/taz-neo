@@ -47,7 +47,7 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
         }
     }
 
-    private fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
+    override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
         //this@ErrorReportFragment.getMainView()?.showMainFragment(LoginFragment())
         log.debug("OS version: ${System.getProperty("os.version")}")
         CoroutineScope(Dispatchers.IO).launch {

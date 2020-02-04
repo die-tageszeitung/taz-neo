@@ -16,7 +16,5 @@ class ErrorReportPresenter:
             log.debug("Show home clicked")
             getView()?.getMainView()?.showHome()
         }
-
     }
-
 }
