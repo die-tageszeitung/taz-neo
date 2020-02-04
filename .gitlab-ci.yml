@@ -58,6 +58,14 @@ unitTests:
 integrationTests:
   extends: .extractSecrets
   stage: test
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+      - app/build
+      - build
+    key: android-base
+    policy: pull
   before_script:
     - mkdir -p ~/.android
     - echo $ADB_PRIVKEY_BASE64 | base64 -d > ~/.android/adbkey
