@@ -33,29 +33,34 @@ stages:
       - app/build/outputs/
 
 assembleDebug:
+  interruptible: true
   extends: .assemble
   script:
     - ./gradlew --no-daemon assembleGoogleTazDebug
 
 assembleRelease:
+  interruptible: true
   extends: .assemble
   script:
     - ./gradlew --no-daemon assembleGoogleTazRelease
 
 
 lint:
+  interruptible: true
   extends: .extractSecrets
   stage: test
   script:
     - ./gradlew --no-daemon -Pci --console=plain :app:lint
 
 unitTests:
+  interruptible: true
   extends: .extractSecrets
   stage: test
   script:
     - ./gradlew --no-daemon -Pci --console=plain :app:test
 
 integrationTests:
+  interruptible: true
   extends: .extractSecrets
   stage: test
   cache:
