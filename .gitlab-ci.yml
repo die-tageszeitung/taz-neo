@@ -17,20 +17,16 @@ stages:
   - build
   - publish
 
-lint:
-  stage: test
-  script:
-    - ./gradlew --no-daemon -Pci --console=plain :app:lint
-  only:
-    - merge_requests
-
-.assemble:
+.extractSecrets:
   stage: build
   before_script:
     - echo $SECRET_BUNDLE_BASE64 | base64 -d > bundle.tar
-    - tar -xf bundle.tar
+    - sudo tar --same-owner -xf bundle.tar
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
+
+.assemble:
+  extends: .extractSecrets
   artifacts:
     paths:
       - app/build/outputs/
@@ -45,14 +41,21 @@ assembleRelease:
   script:
     - ./gradlew --no-daemon assembleGoogleTazRelease
 
+
+lint:
+  extends: .extractSecrets
+  stage: test
+  script:
+    - ./gradlew --no-daemon -Pci --console=plain :app:lint
+
 unitTests:
+  extends: .extractSecrets
   stage: test
   script:
     - ./gradlew --no-daemon -Pci --console=plain :app:test
-  only:
-    - merge_requests
 
 integrationTests:
+  extends: .extractSecrets
   stage: test
   before_script:
     - mkdir -p ~/.android
@@ -60,8 +63,6 @@ integrationTests:
     - echo $ADB_PUBKEY > ~/.android/adbkey.pub
   script:
     - sudo -E ./gradlew --no-daemon -Pci --console=plain :app:cGTDAT
-  only:
-    - merge_requests
   tags:
     - real-android
 
