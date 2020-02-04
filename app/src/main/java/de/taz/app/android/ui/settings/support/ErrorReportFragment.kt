@@ -2,6 +2,7 @@ package de.taz.app.android.ui.settings.support
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -45,6 +46,7 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
                     sendErrorReport(email, message, lastAction, conditions)
                 }
         }
+        presenter.onViewCreated(savedInstanceState)
     }
 
     override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
@@ -55,5 +57,9 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
             log.debug("Sending an error report")
         }
         ToastHelper.getInstance().makeToast("sending bug report")
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
+        presenter.onBottomNavigationItemClicked(menuItem)
     }
 }

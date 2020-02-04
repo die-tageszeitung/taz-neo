@@ -158,7 +158,7 @@ tools:context="de.taz.app.android.ui.main.MainActivity">
             android:layout_height="@dimen/nav_bottom_height"
             android:theme="@style/Widget.Design.BottomNavigationView.Dark"
             app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/navigation_bottom_bookmarks" />
+            app:menu="@menu/navigation_bottom_settings" />
 
 </FrameLayout>
 
