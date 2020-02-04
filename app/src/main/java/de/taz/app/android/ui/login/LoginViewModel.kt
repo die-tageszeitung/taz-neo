@@ -30,10 +30,6 @@ class LoginViewModel(
         MutableLiveData<Boolean>(false)
     }
 
-    private val authStatus by lazy {
-        authHelper.authStatusLiveData
-    }
-
     init {
         login(initialUsername, initialPassword)
     }
@@ -45,30 +41,32 @@ class LoginViewModel(
 
             subscriptionId?.let { subscriptionId ->
                 subscriptionPassword?.let { subscriptionPassword ->
+                    if (subscriptionPassword.isNotBlank()) {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_CHECKING)
 
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_CHECKING)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val subscriptionAuthInfo = apiService.checkSubscriptionId(
+                                subscriptionId,
+                                subscriptionPassword
+                            )
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val subscriptionAuthInfo = apiService.checkSubscriptionId(
-                            subscriptionId,
-                            subscriptionPassword
-                        )
-
-                        when (subscriptionAuthInfo?.status) {
-                            AuthStatus.tazIdNotLinked ->
-                                status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                            AuthStatus.elapsed ->
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                            AuthStatus.notValid -> {
-                                password = null
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                            when (subscriptionAuthInfo?.status) {
+                                AuthStatus.tazIdNotLinked ->
+                                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                                AuthStatus.elapsed ->
+                                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                                AuthStatus.notValid -> {
+                                    password = null
+                                    status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                                }
+                                AuthStatus.valid -> {
+                                    status.postValue(LoginViewModelState.USE_CREDENTIALS)
+                                }
+                                null -> noInternet.postValue(true)
                             }
-                            AuthStatus.valid -> {
-                                authStatus.postValue(AuthStatus.valid)
-                                status.postValue(LoginViewModelState.DONE)
-                            }
-                            null -> noInternet.postValue(true)
                         }
+                    } else {
+                        status.postValue(LoginViewModelState.PASSWORD_MISSING)
                     }
                 }
             }
@@ -79,24 +77,30 @@ class LoginViewModel(
             username?.let { username ->
                 password?.let { password ->
 
-                    status.postValue(LoginViewModelState.CREDENTIALS_CHECKING)
+                    if (username.isNotBlank() && password.isNotBlank()) {
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val authTokenInfo = apiService.authenticate(username, password)
+                        status.postValue(LoginViewModelState.CREDENTIALS_CHECKING)
 
-                        when (authTokenInfo?.authInfo?.status) {
-                            AuthStatus.valid -> {
-                                authStatus.postValue(AuthStatus.valid)
-                                status.postValue(LoginViewModelState.DONE)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val authTokenInfo = apiService.authenticate(username, password)
+
+                            when (authTokenInfo?.authInfo?.status) {
+                                AuthStatus.valid -> {
+                                    done(authTokenInfo.token!!)
+                                }
+                                AuthStatus.notValid ->
+                                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                                AuthStatus.tazIdNotLinked ->
+                                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                                AuthStatus.elapsed ->
+                                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                                null -> noInternet.postValue(true)
                             }
-                            AuthStatus.notValid ->
-                                status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
-                            AuthStatus.tazIdNotLinked ->
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                            AuthStatus.elapsed ->
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                            null -> noInternet.postValue(true)
                         }
+                    } else if(username.isBlank()) {
+                        status.postValue(LoginViewModelState.USERNAME_MISSING)
+                    } else {
+                        status.postValue(LoginViewModelState.PASSWORD_MISSING)
                     }
                 }
             }
@@ -112,8 +116,19 @@ class LoginViewModel(
         subscriptionPassword = null
     }
 
+    fun resetUsername() {
+        username = null
+        subscriptionId = null
+    }
+
     fun getPassword(): String? {
         return password ?: subscriptionPassword
+    }
+
+    private fun done(token: String) {
+        authHelper.authStatusLiveData.postValue(AuthStatus.valid)
+        authHelper.tokenLiveData.postValue(token)
+        status.postValue(LoginViewModelState.DONE)
     }
 
 }
@@ -127,5 +142,9 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
+    PASSWORD_MISSING,
+    USERNAME_MISSING,
+    USE_CREDENTIALS,
+    REQUEST_TEST_SUBSCRIPTION,
     DONE
 }

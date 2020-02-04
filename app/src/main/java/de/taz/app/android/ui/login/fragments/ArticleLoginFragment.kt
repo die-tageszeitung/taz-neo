@@ -23,7 +23,7 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
             login()
         }
 
-        fragment_article_read_on_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+        fragment_article_read_on_password_text.setOnEditorActionListener(object : TextView.OnEditorActionListener {
             override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     login()
@@ -36,8 +36,8 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
 
     private fun login() {
         startActivity(Intent(activity, LoginActivity::class.java).apply {
-            putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString())
-            putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
+            putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username_text.text.toString())
+            putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password_text.text.toString())
         })
         hideKeyBoard()
     }

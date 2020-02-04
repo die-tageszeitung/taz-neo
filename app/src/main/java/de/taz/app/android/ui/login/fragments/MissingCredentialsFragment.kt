@@ -15,7 +15,7 @@ class MissingCredentialsFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return LayoutInflater.from(activity)
-            .inflate(R.layout.fragment_login_email_required, container, false)
+            .inflate(R.layout.fragment_login_missing_credentials, container, false)
     }
 
 }
