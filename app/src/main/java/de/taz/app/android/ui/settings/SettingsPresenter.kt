@@ -3,16 +3,20 @@ package de.taz.app.android.ui.settings
 import android.os.Bundle
 import android.view.MenuItem
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
+import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.ToastHelper
 
 class SettingsPresenter :
     BasePresenter<SettingsFragment, SettingsDataController>(SettingsDataController::class.java),
     SettingsContract.Presenter {
 
     private val log by Log
+    val apiService = ApiService.getInstance()
 
     override fun attach(view: SettingsFragment) {
         super.attach(view)
@@ -82,5 +86,14 @@ class SettingsPresenter :
     override fun resetTextSize() {
         log.debug("resetTextSize")
         viewModel?.setTextSizePercent("100")
+    }
+
+    override fun reportBug() {
+        ToastHelper.getInstance().makeToast("report bug clicked")
+        // CoroutineScope(Dispatchers.IO).launch {
+        //     apiService.sendErrorReport()
+        //     log.debug("Sending an error report")
+        // }
+        getView()?.getMainView()?.showMainFragment(ErrorReportFragment())
     }
 }
