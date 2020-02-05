@@ -93,9 +93,9 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable>(val view: WebViewContract.View<
         }
     }
 
-    fun openExternally(url: String) {
-        view.getMainView()?.getApplicationContext()?.startActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(FLAG_ACTIVITY_NEW_TASK)
+    private fun openExternally(url: String) {
+        view.getWebView()?.context?.startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse(url))
         )
     }
 
