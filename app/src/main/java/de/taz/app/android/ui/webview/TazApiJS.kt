@@ -1,28 +1,33 @@
 package de.taz.app.android.ui.webview
 
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
-class TazApiJS<DISPLAYABLE: WebViewDisplayable> (val view: WebViewContract.View<DISPLAYABLE>) {
+class TazApiJS<DISPLAYABLE : WebViewDisplayable>(val view: WebViewContract.View<DISPLAYABLE>) {
 
     val context = view.getMainView()?.getApplicationContext()
 
     private val log by Log
 
     @JavascriptInterface
-    fun getConfiguration(name: String) : String {
+    fun getConfiguration(name: String): String {
         log.debug("getConfiguration $name")
-        val sharedPreferences = context?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
+        val sharedPreferences =
+            context?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
         return sharedPreferences?.getString(name, "") ?: ""
     }
 
@@ -30,8 +35,8 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> (val view: WebViewContract.View<
     fun setConfiguration(name: String, value: String) {
         log.debug("setConfiguration $name: $value")
         val sharedPref = context?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
-        sharedPref?.apply{
-            with (sharedPref.edit()) {
+        sharedPref?.apply {
+            with(sharedPref.edit()) {
                 putString(name, value)
                 commit()
             }
@@ -81,8 +86,17 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> (val view: WebViewContract.View<
             getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                 ArticleRepository.getInstance().get(url)?.let {
                     showInWebView(it)
-                } ?: view.loadUrl(url)
+                } ?: SectionRepository.getInstance().get(url)?.let {
+                    showInWebView(it)
+                } ?: openExternally(url)
             }
         }
     }
+
+    private fun openExternally(url: String) {
+        view.getWebView()?.context?.startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        )
+    }
+
 }
