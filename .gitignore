@@ -204,3 +204,4 @@ sentry.properties
 bundle.tar
 .sentryclirc
 tazkeystore.jks
+play-publish.json
