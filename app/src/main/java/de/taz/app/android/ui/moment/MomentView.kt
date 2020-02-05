@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
@@ -113,7 +112,7 @@ class MomentView @JvmOverloads constructor(
 
     private fun setDimension(dimensionString: String) {
         log.debug("setting dimension to $dimensionString")
-        fragment_archive_moment_image_wrapper.apply {
+        fragment_archive_item_centered.apply {
             (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
             requestLayout()
             forceLayout()
