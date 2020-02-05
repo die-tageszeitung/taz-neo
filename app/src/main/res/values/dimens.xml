@@ -56,7 +56,7 @@
     <dimen name="fragment_cover_flow_item_padding">38dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height">100dp</dimen>
     <dimen name="fragment_cover_flow_archive_indicator_wrapper_height">150dp</dimen>
-    
+
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
