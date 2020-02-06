@@ -345,16 +345,17 @@ open class ApiService private constructor(applicationContext: Context) {
             email: String?,
             message: String?,
             lastAction: String?,
-            conditions: String?
+            conditions: String?,
+            storageType: String?
         ): Boolean? {
         val tag = "sendErrorReport"
-        log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions")
+        log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
 
         return transformExceptions(
             {
                 graphQlClient.query(
                     QueryType.ErrorReport,
-                    ErrorReportVariables(email,  message, lastAction, conditions)
+                    ErrorReportVariables(email,  message, lastAction, conditions, storageType)
                 )?.errorReport
             },
             tag
