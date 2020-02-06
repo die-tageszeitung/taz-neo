@@ -7,16 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.ui.login.LoginFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), ErrorReportContract.View {
 
@@ -46,14 +45,18 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
                     sendErrorReport(email, message, lastAction, conditions)
                 }
         }
+
         presenter.onViewCreated(savedInstanceState)
     }
 
     override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
-        //this@ErrorReportFragment.getMainView()?.showMainFragment(LoginFragment())
-        log.debug("OS version: ${System.getProperty("os.version")}")
+
+        //TODO set rest of the fields expected by the graphql endpoint
+        val storageType = context?.filesDir?.absolutePath
+
+
         CoroutineScope(Dispatchers.IO).launch {
-            apiService.sendErrorReport(email, message, lastAction, conditions)
+            apiService.sendErrorReport(email, message, lastAction, conditions, storageType)
             log.debug("Sending an error report")
         }
         ToastHelper.getInstance().makeToast("sending bug report")
