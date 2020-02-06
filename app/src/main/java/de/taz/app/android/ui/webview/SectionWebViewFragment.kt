@@ -67,7 +67,7 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
         activity?.apply {
             runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {
-                    text = section.title
+                    text = section.getHeaderTitle()
                 }
                 dateHelper.dateToLowerCaseString(issueStub.date)?.let {
                     view?.findViewById<TextView>(R.id.issue_date)?.apply {
