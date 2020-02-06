@@ -118,7 +118,7 @@ class SplashActivity : AppCompatActivity() {
         val feedRepository = FeedRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        runBlocking(Dispatchers.IO) {
             try {
                 val feeds = apiService.getFeeds()
                 feedRepository.save(feeds)
@@ -135,7 +135,7 @@ class SplashActivity : AppCompatActivity() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        runBlocking(Dispatchers.IO) {
             try {
                 val issues = apiService.getLastIssues()
                 issueRepository.saveIfDoNotExist(issues)
@@ -151,7 +151,7 @@ class SplashActivity : AppCompatActivity() {
      * download AppInfo and persist it
      */
     private fun initAppInfoAndCheckAndroidVersion() {
-        CoroutineScope(Dispatchers.IO).launch {
+        runBlocking(Dispatchers.IO) {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
