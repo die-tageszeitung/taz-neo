@@ -10,6 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.ui.home.feedFilter.FeedFilterFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ class HomeFragment : BaseMainFragment<HomePresenter>(), HomeContract.View {
 
     override val presenter: HomePresenter =
         HomePresenter()
+    override val endNavigationFragment = FeedFilterFragment()
 
     override fun onCreateView(
         inflater: LayoutInflater,
