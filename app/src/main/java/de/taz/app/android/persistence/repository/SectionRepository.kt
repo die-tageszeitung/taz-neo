@@ -147,7 +147,8 @@ open class SectionRepository private constructor(applicationContext: Context) :
                 sectionStub.title,
                 sectionStub.type,
                 articles,
-                images
+                images,
+                sectionStub.extendedTitle
             )
         } ?: throw NotFoundException()
     }

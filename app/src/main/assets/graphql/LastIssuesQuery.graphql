@@ -76,6 +76,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         size
                     }
                     title
+                    extendedTitle
                     type
                     articleList {
                         articleHtml {

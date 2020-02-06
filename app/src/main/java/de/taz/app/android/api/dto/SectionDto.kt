@@ -8,7 +8,8 @@ data class SectionDto (
     val title: String,
     val type: SectionType,
     val articleList: List<ArticleDto>? = null,
-    val imageList: List<FileEntryDto>? = null
+    val imageList: List<FileEntryDto>? = null,
+    val extendedTitle: String? = null
 )
 
 @JsonClass(generateAdapter = false)

@@ -9,10 +9,11 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.migrations.Migration1to2
 import de.taz.app.android.persistence.dao.*
 import de.taz.app.android.persistence.join.*
+import de.taz.app.android.persistence.migrations.Migration2to3
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 2
+const val DATABASE_VERSION = 3
 const val DATABASE_NAME = "db"
 
 @Database(
@@ -63,7 +64,8 @@ abstract class AppDatabase : RoomDatabase() {
             AppDatabase::class.java, DATABASE_NAME
         )
             .addMigrations(
-                Migration1to2
+                Migration1to2,
+                Migration2to3
             )
             .fallbackToDestructiveMigration()
             .build()
