@@ -53,7 +53,7 @@
     <dimen name="fragment_archive_item_width">150dp</dimen>
     <dimen name="fragment_archive_item_padding">25dp</dimen>
 
-    <dimen name="fragment_cover_flow_item_padding">35dp</dimen>
+    <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">48dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_padding_top">12dp</dimen>

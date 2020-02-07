@@ -6,7 +6,7 @@ const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
 const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debug.apk"
 
 // UI
-const val DEFAULT_MOMENT_RATIO = "1.5:1"
+const val DEFAULT_MOMENT_RATIO = "W,1.5:1"
 
 
 // Preferences
