@@ -7,7 +7,7 @@ import de.taz.app.android.ui.home.page.HomePageAdapter
 class CoverflowAdapter(
     private val fragment: CoverflowContract.View,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: CoverflowContract.Presenter
+    presenter: CoverflowContract.Presenter
 ) : HomePageAdapter(fragment, itemLayoutRes, presenter) {
 
     override fun setIssueStubs(issues: List<IssueStub>) {
