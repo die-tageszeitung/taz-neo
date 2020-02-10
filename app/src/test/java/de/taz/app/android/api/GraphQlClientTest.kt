@@ -49,7 +49,7 @@ class GraphQlClientTest {
     @Test
     fun appInfoQuery() {
         doReturn(Query("\"query\":\"query { product { appType appName }}\""))
-            .`when`(queryServiceMock).get(QueryType.AppInfoQuery)
+            .`when`(queryServiceMock).get(QueryType.AppInfo)
 
         val mockResponse = MockResponse()
             .setHeader("Content-Type", "application/json")
@@ -57,7 +57,7 @@ class GraphQlClientTest {
         mockServer.enqueue(mockResponse)
 
         runBlocking {
-            val dataDto = graphQlClient.query(QueryType.AppInfoQuery)
+            val dataDto = graphQlClient.query(QueryType.AppInfo)
             assertTrue(dataDto?.authentificationToken == null)
             assertTrue(dataDto?.product!!.appName!! == AppName.taz)
             assertTrue(dataDto.product!!.appType!! == AppType.production)
