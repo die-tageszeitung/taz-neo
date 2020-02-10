@@ -14,7 +14,8 @@ data class Section(
     val title: String,
     val type: SectionType,
     val articleList: List<Article> = emptyList(),
-    val imageList: List<FileEntry> = emptyList()
+    val imageList: List<FileEntry> = emptyList(),
+    val extendedTitle: String? = null
 ) : SectionOperations, CacheableDownload, WebViewDisplayable {
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
         FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
@@ -22,7 +23,8 @@ data class Section(
         sectionDto.title,
         sectionDto.type,
         sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) } ?: listOf(),
-        sectionDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: listOf()
+        sectionDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: listOf(),
+        sectionDto.extendedTitle
     )
 
     override val sectionFileName: String
@@ -38,6 +40,10 @@ data class Section(
 
     override fun getFile(): File? {
         return FileHelper.getInstance().getFile(sectionHtml)
+    }
+
+    fun getHeaderTitle(): String {
+        return extendedTitle ?: title
     }
 
     override fun previous(): Section? {

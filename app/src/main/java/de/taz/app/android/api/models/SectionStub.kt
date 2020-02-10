@@ -10,13 +10,15 @@ data class SectionStub(
     @PrimaryKey override val sectionFileName: String,
     val issueDate: String,
     val title: String,
-    val type: SectionType
+    val type: SectionType,
+    val extendedTitle: String? = null
 ) : SectionOperations {
     constructor(section: Section) : this(
         section.sectionHtml.name,
         section.issueDate,
         section.title,
-        section.type
+        section.type,
+        section.extendedTitle
     )
 }
 
