@@ -13,27 +13,32 @@ import kotlin.reflect.KProperty
 open class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) = Log(requestBuilder.javaClass.name)
+        var trace = mutableListOf<String>()
     }
 
     open fun debug(message: String, throwable: Throwable? = null) {
         Log.d(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
+        addToTrace(message)
     }
 
 
     open fun error(message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
+        addToTrace(message)
     }
 
     open fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
+        addToTrace(message)
     }
 
     open fun warn(message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
+        addToTrace(message)
     }
 
     private fun setSentryBreadcrump(message: String, throwable: Throwable?) {
@@ -41,6 +46,20 @@ open class Log(private val tag: String) {
             BreadcrumbBuilder().setMessage("$tag: $message").build()
         )
         throwable?.let { Sentry.capture(throwable) }
+    }
+
+    /**
+        keep 50 lines of logs for attach to error reports
+     */
+    private fun addToTrace(message: String) {
+        val traceLine = "$tag: $message\n"
+        if (trace.size < 50) {
+          trace.add(traceLine)
+        }
+        else {
+            trace.removeAt(0)
+            trace.add(traceLine)
+        }
     }
 
 }

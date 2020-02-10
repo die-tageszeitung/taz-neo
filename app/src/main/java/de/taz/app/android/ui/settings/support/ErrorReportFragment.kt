@@ -46,17 +46,16 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
                 }
         }
 
+
         presenter.onViewCreated(savedInstanceState)
     }
 
     override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
-
-        //TODO set rest of the fields expected by the graphql endpoint
         val storageType = context?.filesDir?.absolutePath
-
+        val errorProtocol = Log.trace.toString()
 
         CoroutineScope(Dispatchers.IO).launch {
-            apiService.sendErrorReport(email, message, lastAction, conditions, storageType)
+            apiService.sendErrorReport(email, message, lastAction, conditions, storageType, errorProtocol)
             log.debug("Sending an error report")
         }
         ToastHelper.getInstance().makeToast("sending bug report")
