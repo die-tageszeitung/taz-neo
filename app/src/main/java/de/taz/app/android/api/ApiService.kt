@@ -30,22 +30,85 @@ open class ApiService private constructor(applicationContext: Context) {
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
 
     /**
+     * function to connect aboId to tazId
+     * @param tazId
+     * @param idPw - password for the tazId
+     * @param aboId - id of the abo
+     * @param aboPw - password for the aboId
+     * @param surname - surname of the user
+     * @param firstname - firstname of the user
+     * return [SubscriptionInfo] indicating whether the connection has been successful
+     */
+    suspend fun aboId2TazId(
+        tazId: Int,
+        idPw: String,
+        aboId: Int,
+        aboPw: String,
+        surname: String? = null,
+        firstname: String? = null
+    ): SubscriptionInfo? {
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.SubscriptionId2TazId,
+                SubscriptionId2TazIdVariables(
+                    tazId,
+                    idPw,
+                    aboId,
+                    aboPw,
+                    surname,
+                    firstname
+                )
+            )?.aboInfo
+        }, "aboId2TazId")
+    }
+
+    suspend fun aboPoll(): SubscriptionInfo? {
+        val tag = "aboPoll"
+        log.debug(tag)
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.SubscriptionId2TazId,
+                SubscriptionPollVariables()
+            )?.aboInfo
+        }, tag)
+    }
+
+    /**
      * function to authenticate with the backend
      * @param user - username or id of the user
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
+    open suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
         return transformExceptions({
             graphQlClient.query(
-                QueryType.AuthenticationQuery,
+                QueryType.Authentication,
                 AuthenticationVariables(user, password)
             )?.authentificationToken
         }, tag)
     }
+
+    /**
+     * function to verify if an aboId password combination is valid
+     * @param subscriptionId- the aboId of the user
+     * @param password - the password of the user
+     * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun checkSubscriptionId(subscriptionId: Int, password: String): AuthInfo? {
+        return transformExceptions({
+            val asdf = graphQlClient.query(
+                QueryType.CheckSubscriptionId,
+                CheckSubscriptionIdVariables(subscriptionId, password)
+            )
+               log.debug(asdf.toString())
+            asdf?.checkSubscriptionId
+        }, "checkSubscriptionId")
+    }
+
 
     /**
      * function to get the app info
@@ -58,7 +121,7 @@ open class ApiService private constructor(applicationContext: Context) {
         val tag = "getAppInfo"
         log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.AppInfoQuery)?.product?.let { AppInfo(it) } }, tag
+            { graphQlClient.query(QueryType.AppInfo)?.product?.let { AppInfo(it) } }, tag
         )
     }
 
@@ -73,7 +136,7 @@ open class ApiService private constructor(applicationContext: Context) {
         val tag = "getAuthInfo"
         log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.AuthInfoQuery)?.product?.authInfo }, tag
+            { graphQlClient.query(QueryType.AuthInfo)?.product?.authInfo }, tag
         )
     }
 
@@ -89,7 +152,7 @@ open class ApiService private constructor(applicationContext: Context) {
         val tag = "getFeeds"
         log.debug(tag)
         return transformExceptions({
-            graphQlClient.query(QueryType.FeedQuery)?.product?.feedList?.map {
+            graphQlClient.query(QueryType.Feed)?.product?.feedList?.map {
                 Feed(it)
             }
         }, tag) ?: emptyList()
@@ -122,7 +185,7 @@ open class ApiService private constructor(applicationContext: Context) {
         return transformExceptions({
             val issues = mutableListOf<Issue>()
             graphQlClient.query(
-                QueryType.LastIssuesQuery,
+                QueryType.LastIssues,
                 IssueVariables(limit = limit)
             )?.product?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
@@ -149,7 +212,7 @@ open class ApiService private constructor(applicationContext: Context) {
         return transformExceptions({
             val issues = mutableListOf<Issue>()
             graphQlClient.query(
-                QueryType.IssueByFeedAndDateQuery,
+                QueryType.IssueByFeedAndDate,
                 IssueVariables(issueDate = issueDate, limit = limit)
             )?.product?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
@@ -177,7 +240,7 @@ open class ApiService private constructor(applicationContext: Context) {
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
         return transformExceptions({
             graphQlClient.query(
-                QueryType.IssueByFeedAndDateQuery,
+                QueryType.IssueByFeedAndDate,
                 IssueVariables(feedName, issueDate, limit)
             )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
         }, tag) ?: emptyList()
@@ -194,7 +257,7 @@ open class ApiService private constructor(applicationContext: Context) {
         val tag = "getResourceInfo"
         log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.ResourceInfoQuery)?.product?.let { ResourceInfo(it) } },
+            { graphQlClient.query(QueryType.ResourceInfo)?.product?.let { ResourceInfo(it) } },
             tag
         )
     }
@@ -256,6 +319,25 @@ open class ApiService private constructor(applicationContext: Context) {
             )?.notification },
             tag
         )
+    }
+
+    @Throws(
+        ApiServiceException.NoInternetException::class
+    )
+    open suspend fun trialSubscription(
+        tazId: String,
+        idPw: String,
+        surname: String?,
+        firstName: String?
+    ): SubscriptionInfo? {
+        val tag = "trialSubscription"
+        log.debug("$tag tazId: $tazId")
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.TrialSubscription,
+                TrialSubscriptionVariables(tazId, idPw, surname, firstName)
+            )?.aboInfo
+        }, tag)
     }
 
     @Throws(
