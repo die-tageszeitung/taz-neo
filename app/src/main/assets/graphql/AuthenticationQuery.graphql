@@ -1,9 +1,0 @@
-query AuthenticationQuery($user: String!, $password: String!) {
-    authentificationToken(user: $user, password: $password) {
-        token
-        authInfo {
-            status
-            message
-        }
-    }
-}
