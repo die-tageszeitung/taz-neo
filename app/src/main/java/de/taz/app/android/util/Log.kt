@@ -32,7 +32,6 @@ open class Log(private val tag: String) {
     open fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
-        addToTrace(message)
     }
 
     open fun warn(message: String, throwable: Throwable? = null) {
