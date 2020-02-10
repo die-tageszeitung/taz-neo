@@ -7,10 +7,13 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, MainDataController>(
     MainDataController::class.java
 ) {
+
+    private val sectionDrawerFragmentReference = WeakReference(SectionDrawerFragment())
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.apply {
@@ -21,8 +24,17 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             }
             // only show archive if created in the beginning else show current fragment
             if (savedInstanceState == null) {
-                showDrawerFragment(SectionDrawerFragment())
+                sectionDrawerFragmentReference.get()?.let {
+                    showDrawerFragment(it)
+                }
             }
         }
     }
+
+    override fun setDrawerIssue() {
+        viewModel?.getIssueStub()?.let {
+            sectionDrawerFragmentReference.get()?.setIssueStub(it)
+        }
+    }
+
 }

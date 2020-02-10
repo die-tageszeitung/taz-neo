@@ -22,7 +22,6 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -64,7 +63,6 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                 attachToRecyclerView(fragment_cover_flow_grid)
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
-                snapToPadding = true
             }
 
             presenter.onViewCreated(savedInstanceState)
@@ -131,9 +129,10 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
-            val position = (
-                    recyclerView.layoutManager as LinearLayoutManager
-                    ).findFirstCompletelyVisibleItemPosition()
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            val position: Int = (
+                    layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()
+                    ) / 2
 
             (fragment_cover_flow_grid as? ViewGroup)?.apply {
                 children.forEach { child ->
@@ -144,7 +143,7 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
                 }
             }
 
-            if (position >= 0) {
+            if (position >= 0 && position != presenter.getCurrentPosition()) {
                 presenter.setCurrentPosition(position)
 
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
