@@ -36,12 +36,11 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
         presenter.attach(this)
 
         view.apply {
-            findViewById<Button>(R.id.fragment_error_report_send_button)
-                .setOnClickListener {
-                    val email = findViewById<EditText>(R.id.fragment_error_report_email).text.toString()
-                    val message = findViewById<EditText>(R.id.fragment_error_report_message).text.toString()
-                    val lastAction = findViewById<EditText>(R.id.fragment_error_report_last_action).text.toString()
-                    val conditions = findViewById<EditText>(R.id.fragment_error_report_conditions).text.toString()
+            fragment_error_report_send_button.setOnClickListener {
+                    val email = fragment_error_report_email.text.toString()
+                    val message = fragment_error_report_message.text.toString()
+                    val lastAction = fragment_error_report_last_action.text.toString()
+                    val conditions = fragment_error_report_conditions.text.toString()
                     sendErrorReport(email, message, lastAction, conditions)
                 }
         }
