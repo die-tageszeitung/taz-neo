@@ -1,0 +1,148 @@
+query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: Int!) {
+    product {
+        feedList(name: $feedName) {
+            name
+            cycle
+            momentRatio
+            issueCnt
+            issueMaxDate
+            issueMinDate
+            issueList(issueDate: $issueDate, limit: $limit) {
+                date
+                moment {
+                    imageList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                }
+                key
+                baseUrl
+                status
+                minResourceVersion
+                zipName
+                zipPdfName
+                imprint {
+                    articleHtml {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    title
+                    teaser
+                    onlineLink
+                    pageNameList
+                    audioFile {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    imageList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    authorList {
+                        name
+                        imageAuthor {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                    }
+                }
+                navButton {
+                    name
+                    alpha
+                }
+                fileList
+                fileListPdf
+                sectionList {
+                    sectionHtml {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    title
+                    extendedTitle
+                    type
+                    articleList {
+                        articleHtml {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        title
+                        teaser
+                        onlineLink
+                        pageNameList
+                        audioFile {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        imageList {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        authorList {
+                            name
+                            imageAuthor {
+                                name
+                                storageType
+                                moTime
+                                sha256
+                                size
+                            }
+                        }
+                    }
+                    imageList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                }
+                pageList {
+                    pagePdf {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    title
+                    pagina
+                    type
+                    frameList {
+                        x1
+                        y1
+                        x2
+                        y2
+                        link
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,5 @@
+query SubscriptionPoll(
+    $installationID: String!
+) {
+    subscriptionId2tazIdPoll(installationId: $installationId)
+}

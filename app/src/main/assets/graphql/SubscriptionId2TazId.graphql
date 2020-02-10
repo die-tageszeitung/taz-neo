@@ -1,0 +1,21 @@
+mutation SubscriptionId2TazId(
+    $tazId: Int!,
+    $idPw: String!,
+    $subscriptionId: Int!,
+    $subscriptionPw: String!,
+    $surname: String,
+    $firstname: String,
+    $installationID: String!,
+    $deviceId: String!
+) {
+    subscriptionId2tazId(
+        tazId: $tazId,
+        idPw: $idPw,
+        subscriptionId: $subscriptionId,
+        subscriptionPw: $subscriptionPw,
+        surname: $surname,
+        firstname: $firstname,
+        installationID: $installationID,
+        deviceId: $deviceId
+    )
+}
