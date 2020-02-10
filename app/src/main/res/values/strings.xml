@@ -153,4 +153,11 @@
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
     <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string>
 
+    <string name="fragment_login_request_test_subscription_header"></string>
+    <string name="fragment_login_request_test_subscription_existing_account"></string>
+    <string name="fragment_login_request_test_subscription_forgot_password"></string>
+    <string name="fragment_login_request_test_subscription_forgot_password_button"></string>
+    <string name="fragment_login_request_test_subscription_terms_and_conditions"></string>
+    <string name="fragment_login_request_test_subscription_login"></string>
+
 </resources>
