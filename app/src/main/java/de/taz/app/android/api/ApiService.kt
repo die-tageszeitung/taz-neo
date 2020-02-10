@@ -346,7 +346,8 @@ open class ApiService private constructor(applicationContext: Context) {
             message: String?,
             lastAction: String?,
             conditions: String?,
-            storageType: String?
+            storageType: String?,
+            errorProtocol: String?
         ): Boolean? {
         val tag = "sendErrorReport"
         log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
@@ -355,7 +356,7 @@ open class ApiService private constructor(applicationContext: Context) {
             {
                 graphQlClient.query(
                     QueryType.ErrorReport,
-                    ErrorReportVariables(email,  message, lastAction, conditions, storageType)
+                    ErrorReportVariables(email,  message, lastAction, conditions, storageType, errorProtocol)
                 )?.errorReport
             },
             tag
