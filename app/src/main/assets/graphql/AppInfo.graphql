@@ -1,0 +1,8 @@
+query AppInfoQuery {
+    product {
+        appName
+        appType
+        globalBaseUrl
+        androidVersion
+    }
+}

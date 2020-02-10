@@ -1,0 +1,17 @@
+mutation TrialSubscription(
+    $tazId: Int!,
+    $idPw: String!,
+    $surname: String,
+    $firstName: String,
+    $installationID: String!,
+    $deviceId: String!
+) {
+    trialSubscription(
+        tazId: $tazId,
+        idPw: $idPw,
+        surname: $surname,
+        firstName: $firstName,
+        installationID: $installationID,
+        deviceId: $deviceId
+    )
+}

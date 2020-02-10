@@ -1,0 +1,14 @@
+query ResourceInfoQuery {
+    product {
+        resourceVersion
+        resourceBaseUrl
+        resourceList {
+            name
+            storageType
+            moTime
+            sha256
+            size
+        }
+        resourceZip
+    }
+}
