@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
@@ -21,6 +22,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
+import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -66,6 +68,12 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
             }
 
             presenter.onViewCreated(savedInstanceState)
+        }
+
+        fragment_cover_flow_to_archive.setOnClickListener {
+            activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
+                currentItem += 1
+            }
         }
     }
 
