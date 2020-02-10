@@ -38,15 +38,22 @@ class SectionListAdapter(
     private val observer = MomentDownloadedObserver()
 
     fun setData(newIssueOperations: IssueOperations?) {
-        this.issueOperations = newIssueOperations
+        if (issueOperations?.tag != newIssueOperations?.tag) {
+            this.issueOperations = newIssueOperations
 
-        moment?.isDownloadedLiveData()?.removeObserver(observer)
+            moment?.isDownloadedLiveData()?.removeObserver(observer)
+            fragment.view?.findViewById<MomentView>(
+                R.id.fragment_drawer_sections_moment
+            )?.apply {
+                visibility = View.INVISIBLE
+            }
 
-        sectionList.clear()
-        moment = null
-        imprint = null
+            sectionList.clear()
+            moment = null
+            imprint = null
 
-        drawIssue()
+            drawIssue()
+        }
     }
 
     private fun drawIssue() {
@@ -62,7 +69,6 @@ class SectionListAdapter(
                 )
                 imprint = issueRepository.getImprint(issueStub)
             }
-            moment?.let ( ::downloadIssueMoment )
 
             withContext(Dispatchers.Main) {
                 imprint?.let(::showImprint)
@@ -74,16 +80,6 @@ class SectionListAdapter(
                     )
                 }
                 notifyDataSetChanged()
-            }
-        }
-    }
-
-    private fun downloadIssueMoment(moment: Moment) {
-        fragment.getMainView()?.apply {
-            lifecycleScope.launch(Dispatchers.IO) {
-                if (!moment.isDownloaded()) {
-                    moment.download(applicationContext)
-                }
             }
         }
     }
@@ -158,7 +154,10 @@ class SectionListAdapter(
                 BitmapFactory.decodeFile(file.absolutePath)?.let { bitmap ->
                     fragment.view?.findViewById<MomentView>(
                         R.id.fragment_drawer_sections_moment
-                    )?.displayIssue(bitmap, null)
+                    )?.apply {
+                        displayIssue(bitmap, null)
+                        visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -183,5 +182,6 @@ class SectionListAdapter(
             text = dateHelper.dateToLowerCaseString(issue.date)
         }
     }
+
     override fun getItemCount() = sectionList.size
 }

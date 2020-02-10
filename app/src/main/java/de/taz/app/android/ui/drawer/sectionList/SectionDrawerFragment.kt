@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainDataController
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
@@ -29,11 +32,6 @@ class SectionDrawerFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(requireActivity()).get(MainDataController::class.java)
-
-        viewModel.observeIssueStub(viewLifecycleOwner) { issueStub ->
-            recyclerAdapter.setData(issueStub)
-        }
 
         fragment_drawer_sections_moment.setOnClickListener {
             getMainView()?.showHome()
@@ -49,6 +47,10 @@ class SectionDrawerFragment : Fragment() {
 
     fun getMainView(): MainActivity? {
         return activity as? MainActivity
+    }
+
+    fun setIssueStub(issueOperations: IssueOperations) {
+       recyclerAdapter.setData(issueOperations)
     }
 
 }

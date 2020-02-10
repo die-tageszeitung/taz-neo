@@ -2,12 +2,17 @@ package de.taz.app.android.ui.home.page.coverflow
 
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -32,6 +37,7 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
         R.layout.fragment_cover_flow_item,
         presenter
     )
+    private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,15 +48,31 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        coverflow_pager.apply {
-            setPageTransformer(ZoomPageTransformer())
-            overScrollMode = View.OVER_SCROLL_NEVER
-            offscreenPageLimit = 3
-            adapter = coverFlowPagerAdapter
-            registerOnPageChangeCallback(CoverFlowOnPageChangeCallback())
-        }
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
+
+
+        fragment_cover_flow_grid.apply {
+            context?.let { context ->
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            }
+            adapter = coverFlowPagerAdapter
+            addOnScrollListener(CoverFlowOnPageChangeCallback())
+
+            snapHelper.apply {
+                attachToRecyclerView(fragment_cover_flow_grid)
+                maxFlingSizeFraction = 0.75f
+                snapLastItem = true
+            }
+
+            presenter.onViewCreated(savedInstanceState)
+        }
+
+        fragment_cover_flow_to_archive.setOnClickListener {
+            activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
+                currentItem += 1
+            }
+        }
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
@@ -89,33 +111,51 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     }
 
     override fun skipToEnd() {
-        coverflow_pager.adapter?.apply {
-            log.debug("skipping to item @ position ${itemCount-1}")
-            coverflow_pager.setCurrentItem(itemCount - 1, false)
+        fragment_cover_flow_grid.apply {
+            scrollToPosition(adapter?.itemCount?.minus(1) ?: 0)
+            smoothScrollBy(1, 0)
         }
     }
 
     override fun skipToPosition(position: Int) {
-        coverflow_pager.adapter?.apply {
-            log.debug("skipping to item @ position $position")
-            coverflow_pager.setCurrentItem(position, false)
+        fragment_cover_flow_grid.apply {
+            scrollToPosition(position)
+            smoothScrollBy(1, 0)
         }
     }
 
-    inner class CoverFlowOnPageChangeCallback : ViewPager2.OnPageChangeCallback() {
+    inner class CoverFlowOnPageChangeCallback : RecyclerView.OnScrollListener() {
 
-        override fun onPageSelected(position: Int) {
-            presenter.setCurrentPosition(position)
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
 
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            val position: Int = (
+                    layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()
+                    ) / 2
 
-                getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))
+            (fragment_cover_flow_grid as? ViewGroup)?.apply {
+                children.forEach { child ->
+                    val childPosition = (child.left + child.right) / 2f
+                    val center = width / 2
 
-                val visibleItemCount = 3
+                    ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
+                }
+            }
 
-                if (position < 2 * visibleItemCount) {
-                    coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
-                        presenter.getNextIssueMoments(requestDate)
+            if (position >= 0 && position != presenter.getCurrentPosition()) {
+                presenter.setCurrentPosition(position)
+
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+
+                    getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))
+
+                    val visibleItemCount = 3
+
+                    if (position < 2 * visibleItemCount) {
+                        coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
+                            presenter.getNextIssueMoments(requestDate)
+                        }
                     }
                 }
             }

@@ -15,6 +15,7 @@
     <dimen name="drawer_header_icon_padding">10dp</dimen>
     <dimen name="drawer_header_icon_line_margin">17dp</dimen>
 
+    <dimen name="fragment_drawer_moment_height">190dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
 
     <dimen name="drawer_logo_height">42dp</dimen>
@@ -53,7 +54,10 @@
     <dimen name="fragment_archive_item_width">150dp</dimen>
     <dimen name="fragment_archive_item_padding">25dp</dimen>
 
-    <dimen name="fragment_coverflow_item_padding">38dp</dimen>
+    <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
+    <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
+    <dimen name="fragment_cover_flow_empty_space_height_bottom">48dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_padding_top">12dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
