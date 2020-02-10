@@ -59,6 +59,8 @@
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
 
+    <string name="fragment_cover_flow_to_archive">To archive</string>
+
     <string name="settings_header">settings</string>
     <string name="settings_category_general">general</string>
     <string name="settings_category_text">text</string>

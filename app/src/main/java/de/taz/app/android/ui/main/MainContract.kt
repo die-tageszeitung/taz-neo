@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseContract
 
 interface MainContract : BaseContract {
@@ -40,7 +41,9 @@ interface MainContract : BaseContract {
 
     }
 
-    interface Presenter : BaseContract.Presenter
+    interface Presenter : BaseContract.Presenter {
+        fun setDrawerIssue()
+    }
 
     interface DataController {
         fun getIssueStub(): IssueOperations?
