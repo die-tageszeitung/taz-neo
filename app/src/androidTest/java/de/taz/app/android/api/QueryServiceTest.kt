@@ -28,8 +28,8 @@ class QueryServiceTest {
 
     @Test
     fun usesCache() {
-        queryService.get(QueryType.AppInfoQuery)
-        Assert.assertFalse(queryService.queryCache[QueryType.AppInfoQuery.name].isNullOrEmpty())
+        queryService.get(QueryType.AppInfo)
+        Assert.assertFalse(queryService.queryCache[QueryType.AppInfo.name].isNullOrEmpty())
     }
 
 
