@@ -77,6 +77,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         lockEndNavigationView()
 
+        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener{
+            var opened = false
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
+
+            override fun onDrawerOpened(drawerView: View) {
+                 opened = true
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                opened = false
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                if (!opened) {
+                    presenter.setDrawerIssue()
+                }
+            }
+        })
+
         tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
     }
 

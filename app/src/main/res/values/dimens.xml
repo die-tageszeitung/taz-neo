@@ -15,6 +15,7 @@
     <dimen name="drawer_header_icon_padding">10dp</dimen>
     <dimen name="drawer_header_icon_line_margin">17dp</dimen>
 
+    <dimen name="fragment_drawer_moment_height">190dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
 
     <dimen name="drawer_logo_height">42dp</dimen>
