@@ -1,5 +1,9 @@
 query SubscriptionPoll(
-    $installationID: String!
+    $installationId: String!
 ) {
-    subscriptionId2tazIdPoll(installationId: $installationId)
+    subscriptionPoll(installationId: $installationId) {
+        status
+        message
+        token
+    }
 }

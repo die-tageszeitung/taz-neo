@@ -1,21 +1,25 @@
 mutation SubscriptionId2TazId(
-    $tazId: Int!,
-    $idPw: String!,
+    $tazId:String!,
+    $idPassword: String!,
     $subscriptionId: Int!,
-    $subscriptionPw: String!,
+    $subscriptionPassword: String!,
     $surname: String,
     $firstname: String,
-    $installationID: String!,
-    $deviceId: String!
+    $installationId: String!,
+    $deviceType: DeviceType!
 ) {
     subscriptionId2tazId(
         tazId: $tazId,
-        idPw: $idPw,
+        idPw: $idPassword,
         subscriptionId: $subscriptionId,
-        subscriptionPw: $subscriptionPw,
+        subscriptionPw: $subscriptionPassword,
         surname: $surname,
-        firstname: $firstname,
-        installationID: $installationID,
-        deviceId: $deviceId
-    )
+        firstName: $firstname,
+        installationId: $installationId,
+        deviceType: $deviceType
+    ) {
+        status
+        message
+        token
+    }
 }

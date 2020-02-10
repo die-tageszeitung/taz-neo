@@ -30,20 +30,20 @@ open class ApiService private constructor(applicationContext: Context) {
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
 
     /**
-     * function to connect aboId to tazId
+     * function to connect subscriptionId to tazId
      * @param tazId
-     * @param idPw - password for the tazId
-     * @param aboId - id of the abo
-     * @param aboPw - password for the aboId
+     * @param idPassword - password for the tazId
+     * @param subscriptionId - id of the subscription
+     * @param subscriptionPassword - password for the subscriptionId
      * @param surname - surname of the user
      * @param firstname - firstname of the user
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
-    suspend fun aboId2TazId(
+    suspend fun subscriptionId2TazId(
         tazId: Int,
-        idPw: String,
-        aboId: Int,
-        aboPw: String,
+        idPassword: String,
+        subscriptionId: Int,
+        subscriptionPassword: String,
         surname: String? = null,
         firstname: String? = null
     ): SubscriptionInfo? {
@@ -52,24 +52,24 @@ open class ApiService private constructor(applicationContext: Context) {
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
                     tazId,
-                    idPw,
-                    aboId,
-                    aboPw,
+                    idPassword,
+                    subscriptionId,
+                    subscriptionPassword,
                     surname,
                     firstname
                 )
-            )?.aboInfo
-        }, "aboId2TazId")
+            )?.subscriptionPoll
+        }, "subscriptionId2TazId")
     }
 
-    suspend fun aboPoll(): SubscriptionInfo? {
-        val tag = "aboPoll"
+    suspend fun subscriptionPoll(): SubscriptionInfo? {
+        val tag = "subscriptionPoll"
         log.debug(tag)
         return transformExceptions({
             graphQlClient.query(
                 QueryType.SubscriptionId2TazId,
                 SubscriptionPollVariables()
-            )?.aboInfo
+            )?.subscriptionPoll
         }, tag)
     }
 
@@ -92,20 +92,18 @@ open class ApiService private constructor(applicationContext: Context) {
     }
 
     /**
-     * function to verify if an aboId password combination is valid
-     * @param subscriptionId- the aboId of the user
+     * function to verify if an subscriptionId password combination is valid
+     * @param subscriptionId- the id of the subscription of the user
      * @param password - the password of the user
      * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
      */
     @Throws(ApiServiceException.NoInternetException::class)
     suspend fun checkSubscriptionId(subscriptionId: Int, password: String): AuthInfo? {
         return transformExceptions({
-            val asdf = graphQlClient.query(
+            graphQlClient.query(
                 QueryType.CheckSubscriptionId,
                 CheckSubscriptionIdVariables(subscriptionId, password)
-            )
-               log.debug(asdf.toString())
-            asdf?.checkSubscriptionId
+            )?.checkSubscriptionId
         }, "checkSubscriptionId")
     }
 
@@ -336,7 +334,7 @@ open class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.TrialSubscription,
                 TrialSubscriptionVariables(tazId, idPw, surname, firstName)
-            )?.aboInfo
+            )?.subscriptionPoll
         }, tag)
     }
 

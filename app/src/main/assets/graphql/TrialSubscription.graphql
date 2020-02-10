@@ -1,17 +1,21 @@
 mutation TrialSubscription(
-    $tazId: Int!,
-    $idPw: String!,
+    $tazId: String!,
+    $idPassword: String!,
     $surname: String,
     $firstName: String,
-    $installationID: String!,
-    $deviceId: String!
+    $installationId: String!,
+    $deviceType: DeviceType
 ) {
     trialSubscription(
         tazId: $tazId,
-        idPw: $idPw,
+        idPw: $idPassword,
         surname: $surname,
         firstName: $firstName,
-        installationID: $installationID,
-        deviceId: $deviceId
-    )
+        installationId: $installationId,
+        deviceType: $deviceType
+    ) {
+        status
+        message
+        token
+    }
 }

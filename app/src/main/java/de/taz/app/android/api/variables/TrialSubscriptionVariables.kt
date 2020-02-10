@@ -9,7 +9,7 @@ import de.taz.app.android.util.AuthHelper
 @JsonClass(generateAdapter = true)
 data class TrialSubscriptionVariables(
     val tazId: String,
-    val idPw: String,
+    val idPassword: String,
     val surname: String?,
     val firstName: String?,
     val installationId: String = AuthHelper.getInstance().installationId,
