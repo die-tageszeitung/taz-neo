@@ -70,6 +70,10 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     }
 
+    fun getFilesDir(context: Context) : String {
+        return ContextCompat.getExternalFilesDirs(context, null).first().absolutePath
+    }
+
     /* Checks if external storage is available for read and write */
     private fun isExternalStorageWritable(): Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
