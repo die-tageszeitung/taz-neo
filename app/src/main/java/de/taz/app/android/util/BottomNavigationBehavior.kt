@@ -5,6 +5,8 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
+import kotlin.math.max
+import kotlin.math.min
 
 class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) :
     CoordinatorLayout.Behavior<V>(context, attrs) {
@@ -38,21 +40,8 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type)
 
         if (isInitialized) {
-            // when scrolling up:
-            if (dy <= 0) {
-                showBottomNavigationView(child)
-            } else {
-                hideBottomNavigationView(child)
-            }
+            child.translationY = max(0f, min(child.height.toFloat(), child.translationY + dy))
         }
-    }
-
-    private fun hideBottomNavigationView(view: View) {
-        view.animate().translationY(view.height.toFloat())
-    }
-
-    private fun showBottomNavigationView(view: View) {
-        view.animate().translationY(0f)
     }
 
     private fun initializeBottomNavigationView(view: View) {
