@@ -13,19 +13,20 @@ import java.io.IOException
  * The names need to match a file with `.graphql` extension in the assets
  */
 enum class QueryType {
-    SubscriptionId2TazId,
-    SubscriptionPoll,
     AppInfo,
     Authentication,
     AuthInfo,
     CheckSubscriptionId,
     DownloadStart,
     DownloadStop,
+    ErrorReport,
     Feed,
     IssueByFeedAndDate,
     LastIssues,
     Notification,
     ResourceInfo,
+    SubscriptionId2TazId,
+    SubscriptionPoll,
     TrialSubscription
 }
 

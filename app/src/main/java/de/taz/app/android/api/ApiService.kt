@@ -341,6 +341,31 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
+    suspend fun sendErrorReport(
+            email: String?,
+            message: String?,
+            lastAction: String?,
+            conditions: String?,
+            storageType: String?,
+            errorProtocol: String?
+        ): Boolean? {
+        val tag = "sendErrorReport"
+        log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
+
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.ErrorReport,
+                    ErrorReportVariables(email,  message, lastAction, conditions, storageType, errorProtocol)
+                )?.errorReport
+            },
+            tag
+        )
+    }
+
+    @Throws(
+        ApiServiceException.NoInternetException::class
+    )
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()

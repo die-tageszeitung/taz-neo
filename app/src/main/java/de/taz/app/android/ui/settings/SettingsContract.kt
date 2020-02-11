@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.settings
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.view.MenuItem
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.base.BaseContract
@@ -47,6 +46,8 @@ interface SettingsContract {
         fun setStoredIssueNumber(number: Int)
 
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
+
+        fun reportBug()
 
     }
 }
