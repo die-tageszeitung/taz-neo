@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.settings.support
 
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -9,6 +8,7 @@ import android.view.ViewGroup
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.fragment_error_report.*
@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), ErrorReportContract.View {
 
     override val presenter = ErrorReportPresenter()
+    private val fileHelper = FileHelper.getInstance()
     private val log by Log
     val apiService = ApiService.getInstance()
 
@@ -50,14 +51,16 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
     }
 
     override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
-        val storageType = context?.filesDir?.absolutePath
-        val errorProtocol = Log.trace.toString()
+        context?.let { context ->
+            val storageType = fileHelper.getFilesDir(context)
+            val errorProtocol = Log.trace.toString()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            apiService.sendErrorReport(email, message, lastAction, conditions, storageType, errorProtocol)
-            log.debug("Sending an error report")
+            CoroutineScope(Dispatchers.IO).launch {
+                apiService.sendErrorReport(email, message, lastAction, conditions, storageType, errorProtocol)
+                log.debug("Sending an error report")
+            }
+            ToastHelper.getInstance().makeToast("sending bug report")
         }
-        ToastHelper.getInstance().makeToast("sending bug report")
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem, activated: Boolean) {
