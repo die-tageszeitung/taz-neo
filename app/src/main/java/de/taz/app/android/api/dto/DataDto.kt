@@ -12,5 +12,6 @@ data class DataDto (
     val downloadStop: Boolean? = null,
     val downloadStart: String? = null,
     val notification: Boolean? = null,
-    val checkSubscriptionId: AuthInfo? = null
+    val checkSubscriptionId: AuthInfo? = null,
+    val errorReport: Boolean? = null
 )

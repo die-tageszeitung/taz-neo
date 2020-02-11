@@ -82,7 +82,20 @@
     <string name="settings_increase_font_size">Increase font size</string>
     <string name="settings_general_keep_number_issues">Keep last %s issues</string>
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
-    <string name="settings_category_push">PushID</string>
+    <string name="settings_category_push">pushID</string>
+    <string name="settings_category_support">support</string>
+    <string name="settings_support_report_bug">Report a bug</string>
+
+    <string name="fragment_error_report_title">Report a bug</string>
+    <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>
+    <string name="fragment_error_report_email_title">Your email address</string>
+    <string name="fragment_error_report_message_title">Your message</string>
+    <string name="fragment_error_report_message_hint">Describe here the problem you have encountered.</string>
+    <string name="fragment_error_report_last_action_title">Last action</string>
+    <string name="fragment_error_report_last_action_hint">What was the last thing you did when the problem occurred?</string>
+    <string name="fragment_error_report_conditions_title">Conditions</string>
+    <string name="fragment_error_report_conditions_hint">Describe here external conditions such as: was wifi on? firewall? were you using a proxy?</string>
+    <string name="fragment_error_report_send_button">Send</string>
 
     <string name="percentage">%d\%%</string>
 

@@ -109,6 +109,22 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_push_id" />
 
+            <TextView
+                android:id="@+id/fragment_settings_category_support"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_support"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_push_id" />
+
+            <TextView
+                android:id="@+id/fragment_settings_support_report_bug"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_support_report_bug"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
