@@ -1,0 +1,12 @@
+query CheckSubscriptionId(
+    $subscriptionId: Int!,
+    $password: String!
+)  {
+    checkSubscriptionId(
+        subscriptionId: $subscriptionId,
+        password: $password
+    ) {
+      status
+      message
+    }
+}
