@@ -33,9 +33,7 @@
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
 
-    <string name="login_username_title">Subscription ID</string>
     <string name="login_username_hint">subscription ID</string>
-    <string name="login_password_title">Password</string>
     <string name="login_password_hint">password</string>
     <string name="login_button">Login</string>
 
