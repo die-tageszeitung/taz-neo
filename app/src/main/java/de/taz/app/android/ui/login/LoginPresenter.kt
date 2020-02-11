@@ -23,10 +23,10 @@ class LoginPresenter(
     LoginContract.Presenter {
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
-        var firstTime = true
+        var isFirstTime = true
         getView()?.apply {
             viewModel?.observeAuthStatus(getLifecycleOwner()) { authStatus ->
-                if (!firstTime) {
+                if (!isFirstTime) {
                     when (authStatus) {
                         AuthStatus.valid -> {
                             getMainView()?.apply {
@@ -52,7 +52,7 @@ class LoginPresenter(
                         }
                     }
                 } else {
-                    firstTime = false
+                    isFirstTime = false
                 }
             }
             hideLoadingScreen()
