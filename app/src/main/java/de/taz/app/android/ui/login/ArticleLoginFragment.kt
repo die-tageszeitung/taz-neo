@@ -31,15 +31,20 @@ class ArticleLoginFragment :
             login()
         }
 
-        fragment_article_read_on_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
-            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    login()
-                    return true
+        fragment_article_read_on_password.setOnEditorActionListener(
+            object : TextView.OnEditorActionListener {
+                override fun onEditorAction(
+                    v: TextView?,
+                    actionId: Int,
+                    event: KeyEvent?
+                ): Boolean {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        login()
+                        return true
+                    }
+                    return false
                 }
-                return false
-            }
-        })
+            })
     }
 
     private fun login() {
