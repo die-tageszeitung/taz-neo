@@ -37,12 +37,12 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
 
         view.apply {
             fragment_error_report_send_button.setOnClickListener {
-                    val email = fragment_error_report_email.text.toString()
-                    val message = fragment_error_report_message.text.toString()
-                    val lastAction = fragment_error_report_last_action.text.toString()
-                    val conditions = fragment_error_report_conditions.text.toString()
-                    sendErrorReport(email, message, lastAction, conditions)
-                }
+                val email = fragment_error_report_email.text.toString()
+                val message = fragment_error_report_message.text.toString()
+                val lastAction = fragment_error_report_last_action.text.toString()
+                val conditions = fragment_error_report_conditions.text.toString()
+                sendErrorReport(email, message, lastAction, conditions)
+            }
         }
 
 
