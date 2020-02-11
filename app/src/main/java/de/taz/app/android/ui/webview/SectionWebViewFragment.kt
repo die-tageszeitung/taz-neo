@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -48,6 +49,8 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.findViewById<LinearLayout>(R.id.linear_layout_section_bottom_nav)
+            .visibility = View.INVISIBLE
 
         section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
