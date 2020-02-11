@@ -1,17 +1,17 @@
 package de.taz.app.android.ui.settings.support
 
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
