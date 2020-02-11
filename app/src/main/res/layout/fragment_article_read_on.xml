@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:paddingStart="@dimen/fragment_padding_horizontal"
     android:paddingEnd="@dimen/fragment_padding_horizontal"
+    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom"
     >
 
     <TextView

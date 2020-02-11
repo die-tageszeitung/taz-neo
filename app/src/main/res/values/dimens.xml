@@ -79,6 +79,8 @@
 
     <dimen name="fragment_drawer_sections_moment_padding_bottom">10dp</dimen>
 
+    <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
+
     <dimen name="icon_size">24dp</dimen>
     <dimen name="ic_circle_size">12dp</dimen>
 
