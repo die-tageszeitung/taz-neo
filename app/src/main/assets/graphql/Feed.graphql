@@ -1,0 +1,12 @@
+query FeedQuery($name: String) {
+    product {
+        feedList(name: $name) {
+            name
+            cycle
+            momentRatio
+            issueCnt
+            issueMaxDate
+            issueMinDate
+        }
+    }
+}
