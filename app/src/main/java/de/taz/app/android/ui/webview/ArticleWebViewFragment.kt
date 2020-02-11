@@ -14,10 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.ui.login.ArticleLoginFragment
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
@@ -81,6 +83,20 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     override fun onBackPressed(): Boolean {
         return presenter.onBackPressed()
+    }
+
+    override fun hideLoadingScreen() {
+        super.hideLoadingScreen()
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (article?.getIssueStub()?.status == IssueStatus.public) {
+                withContext(Dispatchers.Main) {
+                    childFragmentManager.beginTransaction().replace(
+                        R.id.fragment_article_bottom_fragment_placeholder,
+                        ArticleLoginFragment()
+                    ).commit()
+                }
+            }
+        }
     }
 
     override fun share(url: String, title: String?, image: FileEntry?) {

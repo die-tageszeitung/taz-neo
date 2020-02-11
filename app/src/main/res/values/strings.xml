@@ -32,11 +32,15 @@
 
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
-    <string name="fragment_login_username_title">Subscription ID</string>
-    <string name="fragment_login_username_hint">subscription ID</string>
-    <string name="fragment_login_password_title">Password</string>
-    <string name="fragment_login_password_hint">password</string>
-    <string name="fragment_login_login_button">Login</string>
+
+    <string name="login_username_hint">subscription ID</string>
+    <string name="login_password_hint">password</string>
+    <string name="login_button">Login</string>
+
+    <string name="fragment_article_read_onreadon">Please log in to read on.</string>
+    <string name="fragment_article_read_ontrial_subscription">Do you want to test the digital taz for 14 days?</string>
+
+    <string name="register_button">Register</string>
 
     <string name="archive">Archive</string>
     <string name="feeds">Feeds</string>
