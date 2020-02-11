@@ -34,9 +34,7 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
 
-    <string name="login_username_title">Abo Nummer</string>
     <string name="login_username_hint">Abo Nummer</string>
-    <string name="login_password_title">Passwort</string>
     <string name="login_password_hint">Passwort</string>
     <string name="login_button">Anmelden</string>
 
