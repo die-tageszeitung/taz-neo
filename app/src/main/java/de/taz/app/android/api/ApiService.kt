@@ -353,16 +353,16 @@ class ApiService private constructor(applicationContext: Context) {
     )
     suspend fun trialSubscription(
         tazId: String,
-        idPw: String,
-        surname: String?,
-        firstName: String?
+        idPassword: String,
+        surname: String? = null,
+        firstName: String? = null
     ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
         return transformExceptions({
             graphQlClient.query(
                 QueryType.TrialSubscription,
-                TrialSubscriptionVariables(tazId, idPw, surname, firstName)
+                TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
             )?.subscriptionPoll
         }, tag)
     }

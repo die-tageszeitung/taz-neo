@@ -163,4 +163,9 @@
     <string name="fragment_login_request_test_subscription_existing_account">If you already have an taz.de account (to comment on articles or use the archive) with email address and password please enter them here</string>>
     <string name="fragment_login_request_test_subscription_terms_and_conditions">I accept the terms and conditions, as well as the information on revocation and privacy.</string>
 
+    <string name="fragment_login_confirm_email_header">Thanks for your registration! We sent you an email. Please open it and confirm your address. As soon as it has been confirmed you will be able to use the new taz app.</string>
+    <string name="fragment_login_confirm_done">Back to the article</string>
+
+    <string name="fragment_login_registration_successfull_header">Thank you for your registration. Enjoy the new digital taz!</string>
+
 </resources>
