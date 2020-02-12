@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.util.AuthHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -97,7 +98,7 @@ class LoginViewModel(
                                 null -> noInternet.postValue(true)
                             }
                         }
-                    } else if(username.isBlank()) {
+                    } else if (username.isBlank()) {
                         status.postValue(LoginViewModelState.USERNAME_MISSING)
                     } else {
                         status.postValue(LoginViewModelState.PASSWORD_MISSING)
@@ -109,6 +110,31 @@ class LoginViewModel(
 
     fun register() {
         // TODO
+        username?.let { username ->
+            password?.let { password ->
+                    status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val subscriptionInfo = apiService.trialSubscription(username, password)
+
+                        when(subscriptionInfo?.status) {
+                            SubscriptionStatus.aboIdNotValid -> {}
+                            SubscriptionStatus.tazIdNotValid -> {}
+                            SubscriptionStatus.alreadyLinked -> {}
+                            SubscriptionStatus.elapsed -> {}
+                            SubscriptionStatus.invalidConnection -> {}
+                            SubscriptionStatus.noPollEntry -> {}
+                            SubscriptionStatus.valid -> {}
+                            SubscriptionStatus.waitForEmail -> {
+                                status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                            }
+                            SubscriptionStatus.waitForProc -> {}
+                            else -> {}
+                        }
+                    }
+
+            }
+        }
     }
 
     fun getUsername(): String? {
@@ -147,8 +173,9 @@ enum class LoginViewModelState {
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
     SUBSCRIPTION_REQUEST,
-    SUBSCRIPTION_REQUESTING,
     PASSWORD_MISSING,
+    REGISTRATION_CHECKING,
+    REGISTRATION_EMAIL,
     USERNAME_MISSING,
     USE_CREDENTIALS,
     DONE

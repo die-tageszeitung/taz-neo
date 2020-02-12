@@ -163,4 +163,9 @@
     <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen) geben Sie hier bitte diese Daten an.</string>
     <string name="fragment_login_request_test_subscription_terms_and_conditions">Ich akzeptiere die AGB sowie die Hinweise zum Widerruf und Datenschutz.</string>
 
+    <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
+    <string name="fragment_login_confirm_done">Zurück zum Artikel</string>
+
+    <string name="fragment_login_registration_successfull_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
+
 </resources>

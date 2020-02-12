@@ -72,7 +72,7 @@ class LoginActivity(
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
                 }
-                LoginViewModelState.SUBSCRIPTION_REQUESTING -> {
+                LoginViewModelState.REGISTRATION_CHECKING -> {
                     showLoadingScreen()
                 }
                 LoginViewModelState.USERNAME_MISSING ->
