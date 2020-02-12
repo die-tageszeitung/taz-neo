@@ -96,26 +96,32 @@ class DownloadWorker(
 
                         val file = fileHelper.getFile(fileEntry)
 
-                        val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
-                        @Suppress("NAME_SHADOWING")
-                        bytes?.let { bytes ->
-                            // ensure folders are created
-                            fileHelper.createFileDirs(fileEntry)
-                            file.writeBytes(bytes)
+                        if (response.code.toString().startsWith("2")) {
+                            val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
+                            @Suppress("NAME_SHADOWING")
+                            bytes?.let { bytes ->
+                                // ensure folders are created
+                                fileHelper.createFileDirs(fileEntry)
+                                file.writeBytes(bytes)
 
-                            // check sha256
-                            val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
-                                .fold("", { str, it -> str + "%02x".format(it) })
-                            if (sha256 == fromDB.file.sha256) {
-                                log.info("sha256 matched for file ${fromDB.file.name}")
-                            } else {
-                                log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                // check sha256
+                                val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
+                                    .fold("", { str, it -> str + "%02x".format(it) })
+                                if (sha256 == fromDB.file.sha256) {
+                                    log.info("sha256 matched for file ${fromDB.file.name}")
+                                } else {
+                                    log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                }
+                                downloadRepository.setStatus(fromDB, DownloadStatus.done)
+                                log.debug("finished download of ${fromDB.file.name}")
+                            } ?: run {
+                                log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                                downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             }
-                            downloadRepository.setStatus(fromDB, DownloadStatus.done)
-                            log.debug("finished download of ${fromDB.file.name}")
-                        } ?: run {
-                            log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                        } else {
+                            log.warn("Download was not successful")
                             downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                            Sentry.capture(response.message)
                         }
                     } catch (e: Exception) {
                         log.debug("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
@@ -177,7 +183,10 @@ class ScheduleIssueDownloadWorkManagerWorker(
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date)?.let { issue ->
+                        ApiService.getInstance(appContext).getIssueByFeedAndDate(
+                            feedName,
+                            date
+                        )?.let { issue ->
                             IssueRepository.getInstance(appContext).save(issue)
                             IssueRepository.getInstance(appContext).setDownloadDate(issue, Date())
                             DownloadService.scheduleDownload(appContext, issue)
