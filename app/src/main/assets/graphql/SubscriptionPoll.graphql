@@ -1,0 +1,9 @@
+query SubscriptionPoll(
+    $installationId: String!
+) {
+    subscriptionPoll(installationId: $installationId) {
+        status
+        message
+        token
+    }
+}

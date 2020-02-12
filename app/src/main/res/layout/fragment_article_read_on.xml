@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/fragment_padding_horizontal"
+    android:paddingEnd="@dimen/fragment_padding_horizontal"
+    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
+
+    <TextView
+        android:id="@+id/fragment_article_read_on_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fragment_article_read_ondescription_margin_top"
+        android:layout_marginBottom="@dimen/fragment_article_read_ondescription_margin_bottom"
+        android:text="@string/fragment_article_read_onreadon"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_article_read_on_username_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/fragment_article_read_on_description">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fragment_article_read_on_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_username_hint"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:nextFocusForward="@id/fragment_article_read_on_password_layout" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_article_read_on_password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_username_layout"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fragment_article_read_on_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_password_hint"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/fragment_article_read_on_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/login_button_margin_top"
+        android:text="@string/login_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_password_layout" />
+
+    <!-- Comment out until registration is possible
+        <TextView
+            android:id="@+id/fragment_article_read_on_trial_subscription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_article_read_ondescription_margin_top"
+            android:layout_marginBottom="@dimen/fragment_article_read_ondescription_margin_bottom"
+            android:text="@string/fragment_article_read_ontrial_subscription"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/fragment_article_read_on_login_button"/>
+
+        <Button
+            android:id="@+id/fragment_article_read_on_register_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:text="@string/register_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_trial_subscription" />
+    -->
+</androidx.constraintlayout.widget.ConstraintLayout>

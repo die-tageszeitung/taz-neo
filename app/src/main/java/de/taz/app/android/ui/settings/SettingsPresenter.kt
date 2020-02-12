@@ -6,6 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
+import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
 
 class SettingsPresenter :
@@ -82,5 +83,9 @@ class SettingsPresenter :
     override fun resetTextSize() {
         log.debug("resetTextSize")
         viewModel?.setTextSizePercent("100")
+    }
+
+    override fun reportBug() {
+        getView()?.getMainView()?.showMainFragment(ErrorReportFragment())
     }
 }

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    app:statusBarBackground="@android:color/transparent"
+    tools:context="de.taz.app.android.ui.main.MainActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/fragment_padding_horizontal"
+            android:paddingEnd="@dimen/fragment_padding_horizontal">
+
+            <include
+                android:id="@+id/fragment_error_report_header"
+                layout="@layout/fragment_header_default" />
+
+
+            <TextView
+                android:id="@+id/fragment_error_report_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_login_title_margin_top"
+                android:text="@string/fragment_error_report_title"
+                android:textAppearance="@style/TextAppearance.Fragment.Title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_header" />
+
+            <TextView
+                android:id="@+id/fragment_error_report_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_login_description_margin_top"
+                android:text="@string/fragment_error_report_description"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
+
+            <TextView
+                android:id="@+id/fragment_error_report_email_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
+                android:labelFor="@+id/fragment_error_report_email"
+                android:text="@string/fragment_error_report_email_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_description" />
+
+            <EditText
+                android:id="@+id/fragment_error_report_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:nextFocusForward="@id/fragment_error_report_message"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_email_title" />
+
+            <TextView
+                android:id="@+id/fragment_error_report_message_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/fragment_error_report_message"
+                android:text="@string/fragment_error_report_message_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_email" />
+
+            <EditText
+                android:id="@+id/fragment_error_report_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_error_report_message_hint"
+                android:imeOptions="actionNext"
+                android:inputType="textMultiLine"
+                android:nextFocusForward="@id/fragment_error_report_last_action"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_message_title" />
+
+            <TextView
+                android:id="@+id/fragment_error_report_last_action_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/fragment_error_report_last_action"
+                android:text="@string/fragment_error_report_last_action_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_message" />
+
+            <EditText
+                android:id="@+id/fragment_error_report_last_action"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_error_report_last_action_hint"
+                android:imeOptions="actionNext"
+                android:inputType="textMultiLine"
+                android:nextFocusForward="@id/fragment_error_report_conditions"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_last_action_title" />
+
+            <TextView
+                android:id="@+id/fragment_error_report_conditions_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/fragment_error_report_conditions"
+                android:text="@string/fragment_error_report_conditions_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action" />
+
+            <EditText
+                android:id="@+id/fragment_error_report_conditions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_error_report_conditions_hint"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions_title" />
+
+            <Button
+                android:id="@+id/fragment_error_report_send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_button_margin_top"
+                android:text="@string/fragment_error_report_send_button"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_login_loading_screen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:translationZ="2dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nav_bottom_height"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/navigation_bottom_settings" />
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
