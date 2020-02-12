@@ -83,4 +83,39 @@ class DownloadWorkerTest {
         }
     }
 
+    @Test
+    fun successfulDownloadOn200Response() {
+        val mockFileEntry = FileEntry("bla", StorageType.issue, 0, "", 0, "bla")
+        val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockFile = mock<File>()
+
+        val mockResponse = MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "text/plain")
+            .setBody("blabla")
+        mockServer.enqueue(mockResponse)
+
+        doReturn(mockFileEntry)
+            .`when`(fileEntryRepository).get("test")
+
+        doReturn(mockDownload)
+            .`when`(downloadRepository).get("test")
+
+        doReturn(mockFile)
+            .`when`(fileHelper).getFile(mockFileEntry)
+
+        doReturn(true)
+            .`when`(fileHelper).createFileDirs(mockFileEntry)
+
+        doNothing()
+            .`when`(mockFile).writeBytes(any())
+
+        runBlocking { downloadWorker.startDownload("test") }
+
+        inOrder(downloadRepository).apply {
+            verify(downloadRepository).setStatus(mockDownload, DownloadStatus.done)
+            verifyNoMoreInteractions()
+        }
+    }
+
 }
