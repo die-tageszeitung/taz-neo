@@ -22,7 +22,7 @@ open class FileHelper private constructor(private val applicationContext: Contex
         return getFile(fileEntry).createNewFile()
     }
 
-    fun createFileDirs(fileEntry: FileEntry): Boolean {
+    open fun createFileDirs(fileEntry: FileEntry): Boolean {
         return getDir(fileEntry).mkdirs()
     }
 
@@ -42,11 +42,11 @@ open class FileHelper private constructor(private val applicationContext: Contex
     }
 
     @UiThread
-    fun getFile(fileEntryName: String): File? {
+    open fun getFile(fileEntryName: String): File? {
         return fileEntryRepository.get(fileEntryName)?.let { getFile(it) }
     }
 
-    fun getFile(fileEntry: FileEntry): File {
+    open fun getFile(fileEntry: FileEntry): File {
         return getFileByPath(fileEntry.path)
     }
 
