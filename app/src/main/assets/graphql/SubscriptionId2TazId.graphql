@@ -1,0 +1,25 @@
+mutation SubscriptionId2TazId(
+    $tazId:String!,
+    $idPassword: String!,
+    $subscriptionId: Int!,
+    $subscriptionPassword: String!,
+    $surname: String,
+    $firstname: String,
+    $installationId: String!,
+    $deviceType: DeviceType!
+) {
+    subscriptionId2tazId(
+        tazId: $tazId,
+        idPw: $idPassword,
+        subscriptionId: $subscriptionId,
+        subscriptionPw: $subscriptionPassword,
+        surname: $surname,
+        firstName: $firstname,
+        installationId: $installationId,
+        deviceType: $deviceType
+    ) {
+        status
+        message
+        token
+    }
+}

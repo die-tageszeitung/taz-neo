@@ -13,7 +13,7 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
     MainDataController::class.java
 ) {
 
-    private val sectionDrawerFragmentReference = WeakReference(SectionDrawerFragment())
+    private var sectionDrawerFragmentReference: WeakReference<SectionDrawerFragment>? = null
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.apply {
@@ -24,7 +24,8 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             }
             // only show archive if created in the beginning else show current fragment
             if (savedInstanceState == null) {
-                sectionDrawerFragmentReference.get()?.let {
+                createSectionDrawerFragment()
+                sectionDrawerFragmentReference?.get()?.let {
                     showDrawerFragment(it)
                 }
             }
@@ -33,8 +34,16 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
 
     override fun setDrawerIssue() {
         viewModel?.getIssueStub()?.let {
-            sectionDrawerFragmentReference.get()?.setIssueStub(it)
+            sectionDrawerFragmentReference?.get()?.setIssueStub(it) ?: run {
+                createSectionDrawerFragment().setIssueStub(it)
+            }
         }
+    }
+
+    private fun createSectionDrawerFragment(): SectionDrawerFragment {
+        val sectionDrawerFragment = SectionDrawerFragment()
+        sectionDrawerFragmentReference = WeakReference(sectionDrawerFragment)
+        return sectionDrawerFragment
     }
 
 }

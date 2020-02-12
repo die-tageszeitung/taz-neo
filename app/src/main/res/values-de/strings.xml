@@ -33,11 +33,15 @@
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
-    <string name="fragment_login_username_title">Abo Nummer</string>
-    <string name="fragment_login_username_hint">Abo Nummer</string>
-    <string name="fragment_login_password_title">Passwort</string>
-    <string name="fragment_login_password_hint">Passwort</string>
-    <string name="fragment_login_login_button">Anmelden</string>
+
+    <string name="login_username_hint">Abo Nummer</string>
+    <string name="login_password_hint">Passwort</string>
+    <string name="login_button">Anmelden</string>
+
+    <string name="fragment_article_read_onreadon">Loggen Sie sich ein, um weiterzulesen.</string>
+    <string name="fragment_article_read_ontrial_subscription">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
+
+    <string name="register_button">Registrieren</string>
 
     <string name="archive">Archiv</string>
     <string name="feeds">Publikationen</string>
@@ -82,6 +86,19 @@
     <string name="settings_general_keep_number_issues">Die letzten %s Ausgaben speichern</string>
     <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
     <string name="settings_category_push">PushID</string>
+    <string name="settings_category_support">Support</string>
+    <string name="settings_support_report_bug">Bug melden</string>
+
+    <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
+    <string name="fragment_error_report_description">Benutzen Sie dieses Fromular um das fehlerhafte Verhalten zu beschreiben.</string>
+    <string name="fragment_error_report_email_title">Ihre Email-Adresse</string>
+    <string name="fragment_error_report_message_title">Ihre Nachricht</string>
+    <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
+    <string name="fragment_error_report_last_action_title">Letzte Interaktion</string>
+    <string name="fragment_error_report_last_action_hint">Was war das letzte was Sie getan haben, als das Problem aufgetreten ist?</string>
+    <string name="fragment_error_report_conditions_title">Zustand</string>
+    <string name="fragment_error_report_conditions_hint">Beschreiben Sie mögliche Außeneinflüsse hier: war WLAN an? ein Firewall? Benutzen Sie ein Proxy? Gabs gar kein Netz?</string>
+    <string name="fragment_error_report_send_button">Abschicken</string>
 
     <string name="channel_new_version">Neue Version</string>
     <string name="channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>

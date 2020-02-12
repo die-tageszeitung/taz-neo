@@ -48,6 +48,12 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
                 }
             }
 
+            findViewById<TextView>(R.id.fragment_settings_support_report_bug).apply {
+                setOnClickListener {
+                    presenter.reportBug()
+                }
+            }
+
 
             findViewById<Button>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {

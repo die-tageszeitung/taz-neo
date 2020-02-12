@@ -11,6 +11,7 @@ data class AuthInfo (
 @JsonClass(generateAdapter = false)
 enum class AuthStatus {
     valid,
+    tazIdNotLinked,
     notValid,
     elapsed
 }
