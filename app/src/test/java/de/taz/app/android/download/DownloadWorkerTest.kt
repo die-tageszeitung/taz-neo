@@ -10,8 +10,10 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.FileHelper
+import de.taz.app.android.util.okHttpClient
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -26,7 +28,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 import org.mockito.Mockito.inOrder
-
+import java.io.File
 
 
 @RunWith(PowerMockRunner::class)
@@ -35,7 +37,6 @@ import org.mockito.Mockito.inOrder
 class DownloadWorkerTest {
 
     private val mockServer = MockWebServer()
-    @Mock private lateinit var httpClient: OkHttpClient
     @Mock private lateinit var downloadRepository: DownloadRepository
     @Mock private lateinit var fileEntryRepository: FileEntryRepository
     @Mock private lateinit var fileHelper: FileHelper
@@ -46,15 +47,18 @@ class DownloadWorkerTest {
     @Before
     fun setUp() {
         PowerMockito.mockStatic(Log::class.java)
+        PowerMockito.mock(File::class.java)
         MockitoAnnotations.initMocks(this)
         downloadWorker = DownloadWorker(
-            httpClient,
+            OkHttpClient(),
             downloadRepository,
             fileEntryRepository,
             fileHelper,
             workManager
         )
+        mockServer.protocols = listOf(Protocol.HTTP_1_1, Protocol.HTTP_2)
         mockServer.start()
+        mockServer.url("bla")
     }
 
     @After
@@ -63,9 +67,10 @@ class DownloadWorkerTest {
     }
 
     @Test
-    fun abortDownloadOn400Response(){
+    fun abortDownloadOn400Response() {
         val mockFileEntry = FileEntry("bla", StorageType.issue, 0, "", 0, "bla")
-        val mockDownload = Download("bla", mockFileEntry, DownloadStatus.pending)
+        val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockFile = mock<File>()
         val mockResponse = MockResponse().setResponseCode(400)
         mockServer.enqueue(mockResponse)
 
@@ -74,6 +79,9 @@ class DownloadWorkerTest {
 
         doReturn(mockDownload)
             .`when`(downloadRepository).get("test")
+
+        doReturn(mockFile)
+            .`when`(fileHelper).getFile(mockFileEntry)
 
         runBlocking { downloadWorker.startDownload("test") }
 
