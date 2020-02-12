@@ -5,7 +5,7 @@ import androidx.annotation.UiThread
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
 
-class FileEntryRepository private constructor(
+open class FileEntryRepository private constructor(
     applicationContext: Context
 ) : RepositoryBase(applicationContext) {
 
@@ -30,7 +30,7 @@ class FileEntryRepository private constructor(
     }
 
     @UiThread
-    fun get(fileEntryName: String): FileEntry? {
+    open fun get(fileEntryName: String): FileEntry? {
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 

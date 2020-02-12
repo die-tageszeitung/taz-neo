@@ -12,7 +12,7 @@ import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
-class DownloadRepository private constructor(applicationContext: Context) :
+open class DownloadRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
@@ -90,7 +90,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    fun get(fileName: String): Download? {
+    open fun get(fileName: String): Download? {
         return try {
             getOrThrow(fileName)
         } catch (e: Exception) {
@@ -110,7 +110,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    fun setStatus(download: Download, downloadStatus: DownloadStatus) {
+    open fun setStatus(download: Download, downloadStatus: DownloadStatus) {
         appDatabase.runInTransaction {
             try {
                 update(getWithoutFileOrThrow(download.file.name).copy(status = downloadStatus))
