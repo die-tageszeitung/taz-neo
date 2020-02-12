@@ -11,7 +11,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
-class FileHelper private constructor(private val applicationContext: Context) {
+open class FileHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<FileHelper, Context>(::FileHelper)
 
