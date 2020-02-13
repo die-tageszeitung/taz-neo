@@ -100,7 +100,7 @@
     <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
 
     <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Melden Sie sich mit ihrer Abonummer und ihrme Passwort an.</string>
+    <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _

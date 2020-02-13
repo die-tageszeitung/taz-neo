@@ -83,9 +83,6 @@ class LoginActivity(
                 }
                 LoginViewModelState.USERNAME_MISSING ->
                     showLoginForm(usernameErrorId = R.string.login_username_error_empty)
-                LoginViewModelState.USE_CREDENTIALS ->
-                    // TODO show "please use tazId to login"
-                    showLoginForm()
                 LoginViewModelState.DONE ->
                     done()
             }
