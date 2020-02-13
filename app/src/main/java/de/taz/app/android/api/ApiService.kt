@@ -61,7 +61,7 @@ class ApiService private constructor(applicationContext: Context) {
                     surname,
                     firstname
                 )
-            )?.subscriptionPoll
+            )?.trialSubscription
         }, "subscriptionId2TazId")
     }
 
@@ -70,9 +70,9 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug(tag)
         return transformExceptions({
             graphQlClient.query(
-                QueryType.SubscriptionId2TazId,
+                QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
-            )?.subscriptionPoll
+            )?.trialSubscription
         }, tag)
     }
 
@@ -363,7 +363,7 @@ class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.TrialSubscription,
                 TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
-            )?.subscriptionPoll
+            )?.trialSubscription
         }, tag)
     }
 

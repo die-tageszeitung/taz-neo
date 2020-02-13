@@ -10,8 +10,8 @@ import de.taz.app.android.singletons.AuthHelper
 data class TrialSubscriptionVariables(
     val tazId: String,
     val idPassword: String,
-    val surname: String?,
-    val firstName: String?,
+    val surname: String? = null,
+    val firstName: String? = null,
     val installationId: String = AuthHelper.getInstance().installationId,
     val deviceId: String? = FirebaseHelper.getInstance().firebaseToken
 ) : Variables {
