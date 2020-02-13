@@ -98,16 +98,16 @@
                 android:textAlignment="center"
                 app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
-            <Button
-                android:id="@+id/fragment_login__register_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_button_margin_top"
-                android:text="@string/register_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_login_trial_subscription" />
+        <Button
+            android:id="@+id/fragment_login_register_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:text="@string/register_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_login_trial_subscription" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

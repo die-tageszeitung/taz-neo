@@ -6,6 +6,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,6 +17,8 @@ class LoginViewModel(
     private val apiService: ApiService = ApiService.getInstance(),
     private val authHelper: AuthHelper = AuthHelper.getInstance()
 ) : ViewModel() {
+
+    private val log by Log
 
     private var username: String? = null
     private var password: String? = null
@@ -53,6 +56,7 @@ class LoginViewModel(
 
                             when (subscriptionAuthInfo?.status) {
                                 AuthStatus.tazIdNotLinked ->
+                                    // should never happen - TODO?
                                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                                 AuthStatus.elapsed ->
                                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
@@ -60,9 +64,8 @@ class LoginViewModel(
                                     password = null
                                     status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
                                 }
-                                AuthStatus.valid -> {
-                                    status.postValue(LoginViewModelState.USE_CREDENTIALS)
-                                }
+                                AuthStatus.valid ->
+                                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                                 null -> noInternet.postValue(true)
                             }
                         }
@@ -142,7 +145,8 @@ class LoginViewModel(
                             // TODO wait a period of time
                             poll()
                         }
-                        else -> {
+                        null -> {
+                            noInternet.postValue(true)
                         }
                     }
                 }
@@ -177,6 +181,11 @@ class LoginViewModel(
                 }
             }
         }
+    }
+
+    fun forgotCredentialsPassword(email: String) {
+        log.debug("forgotCredentialsPassword $email")
+        // TODO!
     }
 
     fun getUsername(): String? {
@@ -219,6 +228,5 @@ enum class LoginViewModelState {
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
     USERNAME_MISSING,
-    USE_CREDENTIALS,
     DONE
 }

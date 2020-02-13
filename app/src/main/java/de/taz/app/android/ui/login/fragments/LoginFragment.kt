@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.StringRes
 import de.taz.app.android.R
+import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : BaseFragment(R.layout.fragment_login) {
@@ -58,6 +59,10 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
         fragment_login_login_button.setOnClickListener {
             login()
+        }
+
+        fragment_login_register_button.setOnClickListener {
+            lazyViewModel.value.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
 
         fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
