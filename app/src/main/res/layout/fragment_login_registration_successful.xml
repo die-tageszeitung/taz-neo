@@ -6,10 +6,10 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/fragment_login_registration_successfull_header"
+        android:id="@+id/fragment_login_registration_successful_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_registration_successfull_header"
+        android:text="@string/fragment_login_registration_successful_header"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="@string/fragment_login_confirm_done"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_registration_successfull_header"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_registration_successful_header"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         />

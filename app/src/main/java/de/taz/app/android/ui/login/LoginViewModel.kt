@@ -87,7 +87,8 @@ class LoginViewModel(
 
                             when (authTokenInfo?.authInfo?.status) {
                                 AuthStatus.valid -> {
-                                    done(authTokenInfo.token!!)
+                                    saveToken(authTokenInfo.token!!)
+                                    status.postValue(LoginViewModelState.DONE)
                                 }
                                 AuthStatus.notValid ->
                                     status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
@@ -112,27 +113,68 @@ class LoginViewModel(
         // TODO
         username?.let { username ->
             password?.let { password ->
-                    status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
+                status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val subscriptionInfo = apiService.trialSubscription(username, password)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val subscriptionInfo = apiService.trialSubscription(username, password)
 
-                        when(subscriptionInfo?.status) {
-                            SubscriptionStatus.aboIdNotValid -> {}
-                            SubscriptionStatus.tazIdNotValid -> {}
-                            SubscriptionStatus.alreadyLinked -> {}
-                            SubscriptionStatus.elapsed -> {}
-                            SubscriptionStatus.invalidConnection -> {}
-                            SubscriptionStatus.noPollEntry -> {}
-                            SubscriptionStatus.valid -> {}
-                            SubscriptionStatus.waitForEmail -> {
-                                status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                            }
-                            SubscriptionStatus.waitForProc -> {}
-                            else -> {}
+                    when (subscriptionInfo?.status) {
+                        SubscriptionStatus.aboIdNotValid -> {
+                        }
+                        SubscriptionStatus.tazIdNotValid -> {
+                        }
+                        SubscriptionStatus.alreadyLinked -> {
+                        }
+                        SubscriptionStatus.elapsed -> {
+                        }
+                        SubscriptionStatus.invalidConnection -> {
+                        }
+                        SubscriptionStatus.noPollEntry -> {
+                        }
+                        SubscriptionStatus.valid -> {
+                            saveToken(subscriptionInfo.token!!)
+                            status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                        }
+                        SubscriptionStatus.waitForEmail -> {
+                            status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                        }
+                        SubscriptionStatus.waitForProc -> {
+                            // TODO wait a period of time
+                            poll()
+                        }
+                        else -> {
                         }
                     }
+                }
 
+            }
+        }
+    }
+
+    private fun poll() {
+        status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val subscriptionPoll = apiService.subscriptionPoll()
+            when (subscriptionPoll?.status) {
+                SubscriptionStatus.valid -> {
+                }
+                SubscriptionStatus.tazIdNotValid -> {
+                }
+                SubscriptionStatus.aboIdNotValid -> {
+                }
+                SubscriptionStatus.elapsed -> {
+                }
+                SubscriptionStatus.invalidConnection -> {
+                }
+                SubscriptionStatus.alreadyLinked -> {
+                }
+                SubscriptionStatus.waitForEmail -> {
+                }
+                SubscriptionStatus.waitForProc -> {
+                }
+                SubscriptionStatus.noPollEntry -> {
+                }
             }
         }
     }
@@ -155,10 +197,9 @@ class LoginViewModel(
         return password ?: subscriptionPassword
     }
 
-    private fun done(token: String) {
+    private fun saveToken(token: String) {
         authHelper.authStatusLiveData.postValue(AuthStatus.valid)
         authHelper.tokenLiveData.postValue(token)
-        status.postValue(LoginViewModelState.DONE)
     }
 
 }
@@ -176,6 +217,7 @@ enum class LoginViewModelState {
     PASSWORD_MISSING,
     REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,
+    REGISTRATION_SUCCESSFUL,
     USERNAME_MISSING,
     USE_CREDENTIALS,
     DONE

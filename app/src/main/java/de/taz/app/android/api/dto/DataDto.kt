@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.SubscriptionInfo
 @JsonClass(generateAdapter = true)
 data class DataDto (
     val product: ProductDto? = null,
+    val trialSubscription: SubscriptionInfo? = null,
     val subscriptionPoll: SubscriptionInfo? = null,
     val authentificationToken: AuthTokenInfoDto? = null,
     val downloadStop: Boolean? = null,

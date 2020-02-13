@@ -6,7 +6,7 @@
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="toast_login_failed">Anmeldung fehlgeschlagen.</string>
-    <string name="toast_login_successfull">Erfolgreich angemeldet.</string>
+    <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
@@ -166,6 +166,6 @@
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
     <string name="fragment_login_confirm_done">Zurück zum Artikel</string>
 
-    <string name="fragment_login_registration_successfull_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
+    <string name="fragment_login_registration_successful_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
 
 </resources>

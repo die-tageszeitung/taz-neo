@@ -5,7 +5,7 @@
     <string name="toast_no_email_client">No configured e-mail client found.</string>
     <string name="toast_login_elapsed">Account no longer valid.</string>
     <string name="toast_login_failed">Login failed.</string>
-    <string name="toast_login_successfull">Login succeeded.</string>
+    <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_unknown_error">Unknown error occurred.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -166,6 +166,6 @@
     <string name="fragment_login_confirm_email_header">Thanks for your registration! We sent you an email. Please open it and confirm your address. As soon as it has been confirmed you will be able to use the new taz app.</string>
     <string name="fragment_login_confirm_done">Back to the article</string>
 
-    <string name="fragment_login_registration_successfull_header">Thank you for your registration. Enjoy the new digital taz!</string>
+    <string name="fragment_login_registration_successful_header">Thank you for your registration. Enjoy the new digital taz!</string>
 
 </resources>

@@ -75,6 +75,12 @@ class LoginActivity(
                 LoginViewModelState.REGISTRATION_CHECKING -> {
                     showLoadingScreen()
                 }
+                LoginViewModelState.REGISTRATION_EMAIL -> {
+                    showConfirmEmail()
+                }
+                LoginViewModelState.REGISTRATION_SUCCESSFUL -> {
+                    showRegistrationSuccesfull()
+                }
                 LoginViewModelState.USERNAME_MISSING ->
                     showLoginForm(usernameErrorId = R.string.login_username_error_empty)
                 LoginViewModelState.USE_CREDENTIALS ->
@@ -118,6 +124,11 @@ class LoginActivity(
         loading_screen.visibility = View.VISIBLE
     }
 
+    private fun showConfirmEmail() {
+        log.debug("showConfirmEmail")
+        showFragment(ConfirmEmailFragment())
+    }
+
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
@@ -151,7 +162,12 @@ class LoginActivity(
         showFragment(RequestTestSubscriptionFragment())
     }
 
-    private fun done() {
+    private fun showRegistrationSuccesfull() {
+        log.debug("showLoginRegistrationSuccessful")
+        showFragment(RegistrationSuccessfulFragment())
+    }
+
+    fun done() {
         log.debug("done")
         showLoadingScreen()
         runBlocking(Dispatchers.IO) {
