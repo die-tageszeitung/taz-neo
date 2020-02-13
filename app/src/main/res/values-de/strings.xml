@@ -168,4 +168,9 @@
 
     <string name="fragment_login_registration_successful_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
 
+    <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
+    <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
+    <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
+    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
+
 </resources>

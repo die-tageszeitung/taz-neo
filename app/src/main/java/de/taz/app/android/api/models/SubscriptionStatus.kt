@@ -7,7 +7,7 @@ enum class SubscriptionStatus {
     elapsed,
     invalidConnection,
     alreadyLinked,
-    waitForEmail,
+    waitForMail,
     waitForProc,
     noPollEntry
 }

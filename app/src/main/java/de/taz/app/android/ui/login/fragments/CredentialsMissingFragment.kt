@@ -5,7 +5,7 @@ import android.view.View
 import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
-class MissingCredentialsFragment : BaseFragment(R.layout.fragment_login_missing_credentials) {
+class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_credentials) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -18,7 +18,7 @@ class MissingCredentialsFragment : BaseFragment(R.layout.fragment_login_missing_
         }
 
         fragment_login_missing_credentials_forgot_password_button?.setOnClickListener {
-            lazyViewModel.value.forgotCredentialsPassword(
+            lazyViewModel.value.resetCredentialsPassword(
                 fragment_login_missing_credentials_email_text.text.toString()
             )
         }
