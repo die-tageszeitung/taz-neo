@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Section
@@ -14,7 +15,8 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
-open class SectionRepository private constructor(applicationContext: Context) :
+@Mockable
+class SectionRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<SectionRepository, Context>(::SectionRepository)

@@ -1,6 +1,7 @@
 package de.taz.app.android.util
 
 import android.util.Log
+import de.taz.app.android.annotation.Mockable
 import io.sentry.Sentry
 import io.sentry.event.BreadcrumbBuilder
 import kotlin.reflect.KProperty
@@ -10,31 +11,32 @@ import kotlin.reflect.KProperty
  * messages will be stored as breadcrumbs for sentry
  * if a throwable is given it is handed to sentry
  */
-open class Log(private val tag: String) {
+@Mockable
+class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) = Log(requestBuilder.javaClass.name)
         var trace = mutableListOf<String>()
     }
 
-    open fun debug(message: String, throwable: Throwable? = null) {
+    fun debug(message: String, throwable: Throwable? = null) {
         Log.d(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
         addToTrace(message)
     }
 
 
-    open fun error(message: String, throwable: Throwable? = null) {
+    fun error(message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
         addToTrace(message)
     }
 
-    open fun info(message: String, throwable: Throwable? = null) {
+    fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
     }
 
-    open fun warn(message: String, throwable: Throwable? = null) {
+    fun warn(message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
         addToTrace(message)
