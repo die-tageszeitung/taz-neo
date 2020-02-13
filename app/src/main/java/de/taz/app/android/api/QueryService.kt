@@ -25,6 +25,7 @@ enum class QueryType {
     IssueByFeedAndDate,
     LastIssues,
     Notification,
+    PasswordReset,
     ResourceInfo,
     SubscriptionId2TazId,
     SubscriptionPoll,

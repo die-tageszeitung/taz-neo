@@ -371,13 +371,13 @@ class ApiService private constructor(applicationContext: Context) {
         ApiServiceException.NoInternetException::class
     )
     suspend fun sendErrorReport(
-            email: String?,
-            message: String?,
-            lastAction: String?,
-            conditions: String?,
-            storageType: String?,
-            errorProtocol: String?
-        ): Boolean? {
+        email: String?,
+        message: String?,
+        lastAction: String?,
+        conditions: String?,
+        storageType: String?,
+        errorProtocol: String?
+    ): Boolean? {
         val tag = "sendErrorReport"
         log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
 
@@ -385,8 +385,42 @@ class ApiService private constructor(applicationContext: Context) {
             {
                 graphQlClient.query(
                     QueryType.ErrorReport,
-                    ErrorReportVariables(email,  message, lastAction, conditions, storageType, errorProtocol)
+                    ErrorReportVariables(
+                        email,
+                        message,
+                        lastAction,
+                        conditions,
+                        storageType,
+                        errorProtocol
+                    )
                 )?.errorReport
+            },
+            tag
+        )
+    }
+
+    /**
+     * function to request an email to reset the password
+     * @param email the email of the account
+     * @return [PasswordResetInfo] information if requesting has been successful
+     */
+    @Throws(
+        ApiServiceException.NoInternetException::class
+    )
+    suspend fun resetPassword(
+        email: String
+    ): PasswordResetInfo? {
+        val tag = "resetPassword"
+        log.debug("$tag email: $email")
+
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.ErrorReport,
+                    PasswordResetVariables(
+                        email
+                    )
+                )?.passwordReset
             },
             tag
         )
