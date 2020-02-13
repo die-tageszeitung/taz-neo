@@ -168,4 +168,8 @@
 
     <string name="fragment_login_registration_successful_header">Thank you for your registration. Enjoy the new digital taz!</string>
 
+    <string name="fragment_login_subscription_taken_header">Your subscription is already connected to another account.</string>
+    <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
+    <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
+    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
 </resources>

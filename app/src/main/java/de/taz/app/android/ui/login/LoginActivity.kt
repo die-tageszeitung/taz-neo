@@ -67,8 +67,14 @@ class LoginActivity(
                 }
                 LoginViewModelState.SUBSCRIPTION_MISSING ->
                     showSubscriptionMissing()
+                LoginViewModelState.SUBSCRIPTION_TAKEN ->
+                    showSubscriptionTaken()
                 LoginViewModelState.PASSWORD_MISSING ->
                     showLoginForm(passwordErrorId = R.string.login_password_error_empty)
+                LoginViewModelState.PASSWORD_REQUESTING ->
+                    showLoadingScreen()
+                LoginViewModelState.PASSWORD_REQUESTED ->
+                    showPasswordMailSent()
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
                 }
@@ -79,7 +85,7 @@ class LoginActivity(
                     showConfirmEmail()
                 }
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> {
-                    showRegistrationSuccesfull()
+                    showRegistrationSuccessful()
                 }
                 LoginViewModelState.USERNAME_MISSING ->
                     showLoginForm(usernameErrorId = R.string.login_username_error_empty)
@@ -133,12 +139,17 @@ class LoginActivity(
 
     private fun showSubscriptionMissing() {
         log.debug("showSubscriptionMissing")
-        showFragment(MissingSubscriptionFragment())
+        showFragment(SubscriptionMissingFragment())
+    }
+
+    private fun showSubscriptionTaken() {
+        log.debug("showSubscriptionTaken")
+        showFragment(SubscriptionTakenFragment())
     }
 
     private fun showMissingCredentials() {
         log.debug("showMissingCredentials")
-        showFragment(MissingCredentialsFragment())
+        showFragment(CredentialsMissingFragment())
     }
 
     private fun showCredentialsInvalid() {
@@ -159,9 +170,13 @@ class LoginActivity(
         showFragment(RequestTestSubscriptionFragment())
     }
 
-    private fun showRegistrationSuccesfull() {
+    private fun showRegistrationSuccessful() {
         log.debug("showLoginRegistrationSuccessful")
         showFragment(RegistrationSuccessfulFragment())
+    }
+
+    private fun showPasswordMailSent() {
+        // TODO
     }
 
     fun done() {

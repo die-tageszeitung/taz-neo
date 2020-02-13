@@ -1,0 +1,14 @@
+package de.taz.app.android.ui.login.fragments
+
+import android.os.Bundle
+import android.view.View
+import de.taz.app.android.R
+
+class SubscriptionTakenFragment: BaseFragment(R.layout.fragment_login_subscription_taken) {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+    }
+
+}

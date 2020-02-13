@@ -2,13 +2,18 @@ package de.taz.app.android.ui.login
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.ToastHelper
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -55,9 +60,11 @@ class LoginViewModel(
                             )
 
                             when (subscriptionAuthInfo?.status) {
-                                AuthStatus.tazIdNotLinked ->
-                                    // should never happen - TODO?
+                                AuthStatus.tazIdNotLinked -> {
+                                    // this should never happen
+                                    Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
                                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                                }
                                 AuthStatus.elapsed ->
                                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                                 AuthStatus.notValid -> {
@@ -113,7 +120,6 @@ class LoginViewModel(
     }
 
     fun register() {
-        // TODO
         username?.let { username ->
             password?.let { password ->
                 status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
@@ -123,26 +129,36 @@ class LoginViewModel(
 
                     when (subscriptionInfo?.status) {
                         SubscriptionStatus.aboIdNotValid -> {
+                            // should not happen
+                            Sentry.capture("trialSubscription returned aboIdNotValid")
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                         }
                         SubscriptionStatus.tazIdNotValid -> {
+                            // should not happen
+                            Sentry.capture("trialSubscription returned tazIdNotValid")
+                            status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                         }
                         SubscriptionStatus.alreadyLinked -> {
+                            // TODO check if can login then auto login? Or show screen?
+                            login(username, password)
                         }
                         SubscriptionStatus.elapsed -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                         }
                         SubscriptionStatus.invalidConnection -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                         }
                         SubscriptionStatus.noPollEntry -> {
+                            // TODO?
                         }
                         SubscriptionStatus.valid -> {
                             saveToken(subscriptionInfo.token!!)
                             status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                         }
-                        SubscriptionStatus.waitForEmail -> {
+                        SubscriptionStatus.waitForMail -> {
                             status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                         }
                         SubscriptionStatus.waitForProc -> {
-                            // TODO wait a period of time
                             poll()
                         }
                         null -> {
@@ -155,37 +171,69 @@ class LoginViewModel(
         }
     }
 
-    private fun poll() {
+    private fun poll(timeoutMillis: Long = 100) {
         status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val subscriptionPoll = apiService.subscriptionPoll()
-            when (subscriptionPoll?.status) {
+            delay(timeoutMillis)
+
+            val subscriptionInfo = apiService.subscriptionPoll()
+            log.debug("poll subscriptionPoll: $subscriptionInfo")
+
+            when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
+                    saveToken(subscriptionInfo.token!!)
+                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.tazIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned tazIdNotValid")
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                 }
                 SubscriptionStatus.aboIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned aboIdNotValid")
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
                 SubscriptionStatus.elapsed -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 SubscriptionStatus.invalidConnection -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                 }
                 SubscriptionStatus.alreadyLinked -> {
+                    // TODO check if can login then auto login? Or show screen?
+                    login(username, password)
                 }
-                SubscriptionStatus.waitForEmail -> {
+                SubscriptionStatus.waitForMail -> {
+                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.waitForProc -> {
+                    poll(timeoutMillis*2)
                 }
                 SubscriptionStatus.noPollEntry -> {
+                    // TODO?
                 }
             }
         }
     }
 
-    fun forgotCredentialsPassword(email: String) {
+    fun resetCredentialsPassword(email: String) {
         log.debug("forgotCredentialsPassword $email")
-        // TODO!
+
+        CoroutineScope(Dispatchers.IO).launch {
+            status.postValue(LoginViewModelState.PASSWORD_REQUESTING)
+            when (apiService.resetPassword(email)) {
+                PasswordResetInfo.ok ->
+                    status.postValue(LoginViewModelState.PASSWORD_REQUESTED)
+                PasswordResetInfo.error,
+                PasswordResetInfo.invalidMail, // should not happen?
+                PasswordResetInfo.mailError -> {
+                    ToastHelper.getInstance().makeToast(R.string.something_went_wrong_try_later)
+                    // TODO hide loadingscreen?
+                }
+            }
+        }
     }
 
     fun getUsername(): String? {
@@ -223,7 +271,10 @@ enum class LoginViewModelState {
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
     SUBSCRIPTION_REQUEST,
+    SUBSCRIPTION_TAKEN,
     PASSWORD_MISSING,
+    PASSWORD_REQUESTING,
+    PASSWORD_REQUESTED,
     REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/fragment_login_subscription_taken_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
+        android:text="@string/fragment_login_subscription_taken_header"/>
+
+    <Button
+        android:id="@+id/fragment_login_subscription_taken_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_login_subscription_taken_retry"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_taken_header"
+        />
+
+    <TextView
+        android:id="@+id/fragment_login_subscription_taken_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_login_subscription_taken_body"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_taken_header" />
+
+    <TextView
+        android:id="@+id/fragment_login_subscription_taken_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_login_subscription_taken_email"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_taken_body" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
