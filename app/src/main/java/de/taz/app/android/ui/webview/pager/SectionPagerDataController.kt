@@ -3,13 +3,15 @@ package de.taz.app.android.ui.webview.pager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-open class SectionPagerDataController: BaseDataController(), SectionPagerContract.DataController {
+@Mockable
+class SectionPagerDataController: BaseDataController(), SectionPagerContract.DataController {
     override var currentPosition: Int = 0
     private val sectionList = MutableLiveData<List<Section>>(emptyList())
 
