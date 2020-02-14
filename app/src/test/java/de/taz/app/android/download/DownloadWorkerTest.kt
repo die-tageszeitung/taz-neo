@@ -10,7 +10,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.FileHelper
-import de.taz.app.android.util.okHttpClient
+import junit.framework.TestCase.fail
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -83,11 +83,16 @@ class DownloadWorkerTest {
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
 
-        runBlocking { downloadWorker.startDownload("test") }
+        try {
+            runBlocking { downloadWorker.startDownload("test") }
 
-        inOrder(downloadRepository).apply {
-            verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
-            verifyNoMoreInteractions()
+            inOrder(downloadRepository).apply {
+                verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
+                verifyNoMoreInteractions()
+            }
+        }
+        catch (e: Exception) {
+            fail("Test should not have thrown an exception")
         }
     }
 
@@ -115,9 +120,6 @@ class DownloadWorkerTest {
         doReturn(true)
             .`when`(fileHelper).createFileDirs(mockFileEntry)
 
-        doNothing()
-            .`when`(mockFile).writeBytes(any())
-
         runBlocking { downloadWorker.startDownload("test") }
 
         inOrder(downloadRepository).apply {
@@ -125,5 +127,4 @@ class DownloadWorkerTest {
             verifyNoMoreInteractions()
         }
     }
-
 }

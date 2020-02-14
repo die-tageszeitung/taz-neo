@@ -50,6 +50,11 @@ open class FileHelper private constructor(private val applicationContext: Contex
         return getFileByPath(fileEntry.path)
     }
 
+    open fun writeFile(fileEntry: FileEntry, byteArray: ByteArray) {
+        val file = getFile(fileEntry)
+        file.writeBytes(byteArray)
+    }
+
     fun getFileByPath(filePath: String, internal: Boolean = false): File {
         // TODO read from settings where to save
         // TODO notification if external not writable?
