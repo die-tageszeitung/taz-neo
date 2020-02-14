@@ -21,6 +21,7 @@ data class ErrorReportVariables(
     val errorProtocol: String? = null,
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
+    val deviceOS: String? = if (android.os.Build.DISPLAY.contains("lineage")) "lineage" else "",
     val appVersion: String = BuildConfig.VERSION_NAME,
     val installationId: String = AuthHelper.getInstance().installationId,
     val storageAvailable: String? = "${StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
