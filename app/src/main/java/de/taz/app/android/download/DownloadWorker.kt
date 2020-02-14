@@ -94,15 +94,13 @@ class DownloadWorker(
                             )::enqueue
                         )
 
-                        val file = fileHelper.getFile(fileEntry)
-
                         if (response.code.toString().startsWith("2")) {
                             val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
                             @Suppress("NAME_SHADOWING")
                             bytes?.let { bytes ->
                                 // ensure folders are created
                                 fileHelper.createFileDirs(fileEntry)
-                                file.writeBytes(bytes)
+                                fileHelper.writeFile(fileEntry, bytes)
 
                                 // check sha256
                                 val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
@@ -144,7 +142,6 @@ class DownloadWorker(
             } ?: log.error("download for $fileName not found")
         }
     }
-
 }
 
 /**
