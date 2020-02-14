@@ -35,6 +35,14 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
+        log.debug("OS version: ${System.getProperty("os.version")}")
+        log.debug("android build version: ${android.os.Build.VERSION()}")
+        log.debug("android device: ${android.os.Build.DEVICE}")
+        log.debug("android build model: ${android.os.Build.MODEL}")
+        log.debug("android build product: ${android.os.Build.PRODUCT}")
+        log.debug("android build display: ${android.os.Build.DISPLAY}")
+        log.debug("android build manufacturer: ${android.os.Build.MANUFACTURER}")
+
 
         view.apply {
             fragment_error_report_send_button.setOnClickListener {
@@ -51,6 +59,12 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
     }
 
     override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
+        log.debug("OS version: ${System.getProperty("os.version")}")
+        log.debug("android build version: ${android.os.Build.VERSION()}")
+        log.debug("android device: ${android.os.Build.DEVICE}")
+        log.debug("android build model: ${android.os.Build.MODEL}")
+        log.debug("android build product: ${android.os.Build.PRODUCT}")
+
         context?.let { context ->
             val storageType = fileHelper.getFilesDir(context)
             val errorProtocol = Log.trace.toString()
