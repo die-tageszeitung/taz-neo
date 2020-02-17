@@ -107,11 +107,12 @@ class DownloadWorker(
                                     .fold("", { str, it -> str + "%02x".format(it) })
                                 if (sha256 == fromDB.file.sha256) {
                                     log.info("sha256 matched for file ${fromDB.file.name}")
+                                    downloadRepository.setStatus(fromDB, DownloadStatus.done)
+                                    log.debug("finished download of ${fromDB.file.name}")
                                 } else {
                                     log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                    downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                                 }
-                                downloadRepository.setStatus(fromDB, DownloadStatus.done)
-                                log.debug("finished download of ${fromDB.file.name}")
                             } ?: run {
                                 log.debug("aborted download of ${fromDB.file.name} - file is empty")
                                 downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
