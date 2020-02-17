@@ -43,7 +43,7 @@ class LoginViewModel(
         login(initialUsername, initialPassword)
     }
 
-    fun login(initialUsername: String?, initialPassword: String?) {
+    fun login(initialUsername: String? = null, initialPassword: String? = null) {
         initialUsername?.toIntOrNull()?.let {
             subscriptionId = it
             subscriptionPassword = initialPassword
@@ -82,8 +82,8 @@ class LoginViewModel(
                 }
             }
         } ?: run {
-            username = initialUsername
-            password = initialPassword
+            initialUsername?.let { username = it }
+            initialPassword?.let { password = it }
 
             username?.let { username ->
                 password?.let { password ->
@@ -171,6 +171,48 @@ class LoginViewModel(
         }
     }
 
+    fun connect(initialUsername: String? = null, initialPassword: String? = null) {
+        initialUsername?.let { username = it }
+        initialPassword?.let { password = it }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            // TODO nullcheck?
+            val subscriptionInfo = apiService.subscriptionId2TazId(username!!, password!!, subscriptionId!!, subscriptionPassword!!)
+
+            when(subscriptionInfo?.status) {
+                SubscriptionStatus.valid -> {
+                    saveToken(subscriptionInfo.token!!)
+                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                }
+                SubscriptionStatus.waitForProc -> {}
+                SubscriptionStatus.waitForMail -> {
+                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                }
+                SubscriptionStatus.tazIdNotValid -> {
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                }
+                SubscriptionStatus.invalidConnection -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                }
+
+                SubscriptionStatus.noPollEntry,
+                SubscriptionStatus.elapsed,
+                SubscriptionStatus.alreadyLinked,
+                SubscriptionStatus.aboIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("subscriptionId2TazId returned ${subscriptionInfo.status}")
+                    // TODO what to do?
+                }
+                null -> {
+                    noInternet.postValue(true)
+                }
+
+            }
+
+        }
+    }
+
+
     private fun poll(timeoutMillis: Long = 100) {
         status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
 
@@ -209,7 +251,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.waitForProc -> {
-                    poll(timeoutMillis*2)
+                    poll(timeoutMillis * 2)
                 }
                 SubscriptionStatus.noPollEntry -> {
                     // TODO?
@@ -221,16 +263,21 @@ class LoginViewModel(
     fun resetCredentialsPassword(email: String) {
         log.debug("forgotCredentialsPassword $email")
 
-        CoroutineScope(Dispatchers.IO).launch {
-            status.postValue(LoginViewModelState.PASSWORD_REQUESTING)
-            when (apiService.resetPassword(email)) {
-                PasswordResetInfo.ok ->
-                    status.postValue(LoginViewModelState.PASSWORD_REQUESTED)
-                PasswordResetInfo.error,
-                PasswordResetInfo.invalidMail, // should not happen?
-                PasswordResetInfo.mailError -> {
-                    ToastHelper.getInstance().makeToast(R.string.something_went_wrong_try_later)
-                    // TODO hide loadingscreen?
+        if (email.isEmpty()) {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+        } else {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                when (apiService.resetPassword(email)) {
+                    PasswordResetInfo.ok ->
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                    PasswordResetInfo.error,
+                    PasswordResetInfo.invalidMail, // should not happen?
+                    PasswordResetInfo.mailError -> {
+                        ToastHelper.getInstance().makeToast(R.string.something_went_wrong_try_later)
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                    }
                 }
             }
         }
@@ -273,8 +320,9 @@ enum class LoginViewModelState {
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_TAKEN,
     PASSWORD_MISSING,
-    PASSWORD_REQUESTING,
-    PASSWORD_REQUESTED,
+    PASSWORD_REQUEST,
+    PASSWORD_REQUEST_ONGOING,
+    PASSWORD_REQUEST_DONE,
     REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,

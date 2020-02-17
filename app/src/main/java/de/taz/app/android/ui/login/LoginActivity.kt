@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -44,8 +45,6 @@ class LoginActivity(
 
         viewModel = getViewModel { LoginViewModel(username, password) }
 
-        showLoginForm()
-
         viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL ->
@@ -71,9 +70,11 @@ class LoginActivity(
                     showSubscriptionTaken()
                 LoginViewModelState.PASSWORD_MISSING ->
                     showLoginForm(passwordErrorId = R.string.login_password_error_empty)
-                LoginViewModelState.PASSWORD_REQUESTING ->
+                LoginViewModelState.PASSWORD_REQUEST ->
+                    showPasswordRequest()
+                LoginViewModelState.PASSWORD_REQUEST_ONGOING ->
                     showLoadingScreen()
-                LoginViewModelState.PASSWORD_REQUESTED ->
+                LoginViewModelState.PASSWORD_REQUEST_DONE ->
                     showPasswordMailSent()
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
@@ -175,8 +176,14 @@ class LoginActivity(
         showFragment(RegistrationSuccessfulFragment())
     }
 
+    private fun showPasswordRequest() {
+        log.debug("showPasswordRequest")
+        showFragment(PasswordRequestFragment())
+    }
+
     private fun showPasswordMailSent() {
-        // TODO
+        log.debug("showPasswordRequest")
+        showFragment(PasswordEmailSentFragment())
     }
 
     fun done() {
@@ -209,10 +216,12 @@ class LoginActivity(
     }
 
     private fun showFragment(fragment: Fragment) {
+        val fragmentClassName = fragment::class.java.name
+
+        supportFragmentManager.popBackStackImmediate(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.beginTransaction().apply {
-
             replace(R.id.activity_login_fragment_placeholder, fragment)
-
+            addToBackStack(fragmentClassName)
             commit()
         }
         hideLoadingScreen()
@@ -232,6 +241,14 @@ class LoginActivity(
         super.onStop()
         resetPassword()
         resetUsername()
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount == 1) {
+            finish()
+        } else {
+            super.onBackPressed()
+        }
     }
 
 }

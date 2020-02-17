@@ -1,5 +1,5 @@
 mutation SubscriptionId2TazId(
-    $tazId:String!,
+    $tazId: String!,
     $idPassword: String!,
     $subscriptionId: Int!,
     $subscriptionPassword: String!,

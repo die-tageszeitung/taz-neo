@@ -7,7 +7,7 @@ import de.taz.app.android.singletons.AuthHelper
 
 @JsonClass(generateAdapter = true)
 data class SubscriptionId2TazIdVariables(
-    val tazId: Int,
+    val tazId: String,
     val idPassword: String,
     val subscriptionId: Int,
     val subscriptionPassword: String,
