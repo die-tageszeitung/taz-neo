@@ -102,11 +102,15 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>
 
+    <string name="login_first_name_hint">Vorname</string>
+    <string name="login_surname_hint">Nachname</string>
+
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
     <string name="login_subscription_hint">Abonummer</string>
 
     <string name="login_email_hint">E-Mail-Adresse</string>
+    <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
 
     <string name="login_username_hint">Nutzername</string>
     <string name="login_username_error_empty">Darf nicht leer sein.</string>
@@ -124,8 +128,8 @@
 
     <string name="fragment_login_missing_credentials_header">Um die neue App zu nutzen, müssen Sie sich zukünftig mit Ihrer E-Mail-Adresse und einem selbst gewähltem Passwort einloggen.</string>
     <string name="fragment_login_missing_credentials_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
-    <string name="fragment_login_missing_credentials_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
-    <string name="fragment_login_missing_credentials_forgot_password_button">Hier klicken</string>
+    <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
+    <string name="login_forgot_password_button">Hier klicken</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
     <string name="fragment_login_missing_credentials_login">Anmelden</string>
 

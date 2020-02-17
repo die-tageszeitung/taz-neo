@@ -43,7 +43,7 @@ class ApiService private constructor(applicationContext: Context) {
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
     suspend fun subscriptionId2TazId(
-        tazId: Int,
+        tazId: String,
         idPassword: String,
         subscriptionId: Int,
         subscriptionPassword: String,
@@ -416,7 +416,7 @@ class ApiService private constructor(applicationContext: Context) {
         return transformExceptions(
             {
                 graphQlClient.query(
-                    QueryType.ErrorReport,
+                    QueryType.PasswordReset,
                     PasswordResetVariables(
                         email
                     )

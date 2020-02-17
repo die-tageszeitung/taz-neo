@@ -48,13 +48,21 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
             fragment_login_password.setText(it)
         }
 
+        var showForgotPassword = false
         usernameErrorId?.let {
             showUserNameError(it)
             usernameErrorId = null
+            showForgotPassword = true
         }
         passwordErrorId?.let {
             showPasswordError(it)
             passwordErrorId = null
+            showForgotPassword = true
+        }
+
+        if (showForgotPassword && username?.contains("@") == true) {
+            fragment_login_forgot_password_text.visibility = View.VISIBLE
+            fragment_login_forgot_password_button.visibility = View.VISIBLE
         }
 
         fragment_login_login_button.setOnClickListener {
