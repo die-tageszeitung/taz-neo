@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import androidx.annotation.UiThread
 import androidx.core.content.ContextCompat
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.io.IOException
@@ -11,7 +12,8 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 
-open class FileHelper private constructor(private val applicationContext: Context) {
+@Mockable
+class FileHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<FileHelper, Context>(::FileHelper)
 
@@ -22,7 +24,7 @@ open class FileHelper private constructor(private val applicationContext: Contex
         return getFile(fileEntry).createNewFile()
     }
 
-    open fun createFileDirs(fileEntry: FileEntry): Boolean {
+    fun createFileDirs(fileEntry: FileEntry): Boolean {
         return getDir(fileEntry).mkdirs()
     }
 
@@ -42,15 +44,15 @@ open class FileHelper private constructor(private val applicationContext: Contex
     }
 
     @UiThread
-    open fun getFile(fileEntryName: String): File? {
+    fun getFile(fileEntryName: String): File? {
         return fileEntryRepository.get(fileEntryName)?.let { getFile(it) }
     }
 
-    open fun getFile(fileEntry: FileEntry): File {
+    fun getFile(fileEntry: FileEntry): File {
         return getFileByPath(fileEntry.path)
     }
 
-    open fun writeFile(fileEntry: FileEntry, byteArray: ByteArray) {
+    fun writeFile(fileEntry: FileEntry, byteArray: ByteArray) {
         val file = getFile(fileEntry)
         file.writeBytes(byteArray)
     }

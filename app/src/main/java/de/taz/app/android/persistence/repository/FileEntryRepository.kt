@@ -2,10 +2,12 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.annotation.UiThread
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
 
-open class FileEntryRepository private constructor(
+@Mockable
+class FileEntryRepository private constructor(
     applicationContext: Context
 ) : RepositoryBase(applicationContext) {
 
@@ -30,7 +32,7 @@ open class FileEntryRepository private constructor(
     }
 
     @UiThread
-    open fun get(fileEntryName: String): FileEntry? {
+    fun get(fileEntryName: String): FileEntry? {
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 
