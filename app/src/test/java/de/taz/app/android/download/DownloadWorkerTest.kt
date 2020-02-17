@@ -30,6 +30,8 @@ import org.powermock.modules.junit4.PowerMockRunner
 import org.mockito.Mockito.inOrder
 import java.io.File
 
+const val TEST_STRING = "bla"
+const val TEST_FILE_NAME = "bla"
 
 @RunWith(PowerMockRunner::class)
 @PowerMockIgnore("javax.net.ssl.*")
@@ -68,23 +70,23 @@ class DownloadWorkerTest {
 
     @Test
     fun abortDownloadOn400Response() {
-        val mockFileEntry = FileEntry("bla", StorageType.issue, 0, "", 0, "bla")
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
         val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
         val mockFile = mock<File>()
         val mockResponse = MockResponse().setResponseCode(400)
         mockServer.enqueue(mockResponse)
 
         doReturn(mockFileEntry)
-            .`when`(fileEntryRepository).get("test")
+            .`when`(fileEntryRepository).get(TEST_FILE_NAME)
 
         doReturn(mockDownload)
-            .`when`(downloadRepository).get("test")
+            .`when`(downloadRepository).get(TEST_FILE_NAME)
 
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
 
         try {
-            runBlocking { downloadWorker.startDownload("test") }
+            runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
 
             inOrder(downloadRepository).apply {
                 verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
@@ -105,14 +107,14 @@ class DownloadWorkerTest {
         val mockResponse = MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "text/plain")
-            .setBody("blabla")
+            .setBody(TEST_STRING)
         mockServer.enqueue(mockResponse)
 
         doReturn(mockFileEntry)
-            .`when`(fileEntryRepository).get("test")
+            .`when`(fileEntryRepository).get(TEST_FILE_NAME)
 
         doReturn(mockDownload)
-            .`when`(downloadRepository).get("test")
+            .`when`(downloadRepository).get(TEST_FILE_NAME)
 
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
@@ -120,7 +122,7 @@ class DownloadWorkerTest {
         doReturn(true)
             .`when`(fileHelper).createFileDirs(mockFileEntry)
 
-        runBlocking { downloadWorker.startDownload("test") }
+        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
 
         inOrder(downloadRepository).apply {
             verify(downloadRepository).setStatus(mockDownload, DownloadStatus.done)
