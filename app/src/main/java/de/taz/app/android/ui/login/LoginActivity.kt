@@ -26,22 +26,17 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 class LoginActivity(
     private val toastHelper: ToastHelper = ToastHelper.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance()
-) : FragmentActivity() {
+) : FragmentActivity(R.layout.activity_login) {
 
     private val log by Log
-
-    private var username: String? = null
-    private var password: String? = null
 
     private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_login)
-
-        username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
-        password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
+        val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
+        val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
         viewModel = getViewModel { LoginViewModel(username, password) }
 
@@ -49,11 +44,12 @@ class LoginActivity(
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL ->
                     showLoginForm()
+                LoginViewModelState.REGISTRATION_CHECKING,
                 LoginViewModelState.CREDENTIALS_CHECKING,
                 LoginViewModelState.SUBSCRIPTION_CHECKING ->
                     showLoadingScreen()
                 LoginViewModelState.CREDENTIALS_INVALID -> {
-                    resetPassword()
+                    viewModel.resetPassword()
                     showCredentialsInvalid()
                 }
                 LoginViewModelState.CREDENTIALS_MISSING ->
@@ -61,7 +57,7 @@ class LoginActivity(
                 LoginViewModelState.SUBSCRIPTION_ELAPSED ->
                     showSubscriptionElapsed()
                 LoginViewModelState.SUBSCRIPTION_INVALID -> {
-                    resetPassword()
+                    viewModel.resetPassword()
                     showSubscriptionInvalid()
                 }
                 LoginViewModelState.SUBSCRIPTION_MISSING ->
@@ -78,9 +74,6 @@ class LoginActivity(
                     showPasswordMailSent()
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
-                }
-                LoginViewModelState.REGISTRATION_CHECKING -> {
-                    showLoadingScreen()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
                     showConfirmEmail()
@@ -110,8 +103,6 @@ class LoginActivity(
         log.debug("showLoginForm")
         showFragment(
             LoginFragment.create(
-                username = viewModel.getUsername(),
-                password = viewModel.getPassword(),
                 usernameErrorId = usernameErrorId,
                 passwordErrorId = passwordErrorId
             )
@@ -157,8 +148,6 @@ class LoginActivity(
         log.debug("showCredentialsInvalid")
         showFragment(
             LoginFragment.create(
-                username = viewModel.getUsername(),
-                password = viewModel.getPassword(),
                 usernameErrorId = R.string.login_error_unknown_credentials
             )
         )
@@ -227,20 +216,10 @@ class LoginActivity(
         hideLoadingScreen()
     }
 
-    private fun resetPassword() {
-        password = null
-        viewModel.resetPassword()
-    }
-
-    private fun resetUsername() {
-        username = null
-        viewModel.resetUsername()
-    }
-
     override fun onStop() {
         super.onStop()
-        resetPassword()
-        resetUsername()
+        viewModel.resetPassword()
+        viewModel.resetUsername()
     }
 
     override fun onBackPressed() {

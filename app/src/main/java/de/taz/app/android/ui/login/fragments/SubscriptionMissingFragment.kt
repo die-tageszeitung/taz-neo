@@ -10,9 +10,17 @@ class SubscriptionMissingFragment: BaseFragment(R.layout.fragment_login_missing_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       fragment_login_missing_subscription_test_subscription.setOnClickListener {
-           lazyViewModel.value.register()
+       fragment_login_missing_subscription_connect_account.setOnClickListener {
+
+           viewModel.connect(
+              intialSubscriptionId = fragment_login_missing_subscription.text.toString().toIntOrNull(),
+              initialSubscriptionPassword = fragment_login_missing_subscription_password.text.toString()
+           )
        }
+
+        fragment_login_missing_subscription_test_subscription.setOnClickListener {
+            viewModel.register()
+        }
     }
 
 }

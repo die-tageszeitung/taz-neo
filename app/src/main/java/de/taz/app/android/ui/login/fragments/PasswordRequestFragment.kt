@@ -16,7 +16,7 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
                 fragment_login_forgot_password_email_layout.error =
                     getString(R.string.login_username_error_empty)
             } else {
-                lazyViewModel.value.resetCredentialsPassword(email)
+                viewModel.resetCredentialsPassword(email)
             }
         }
     }

@@ -10,22 +10,27 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.username?.let {
+           fragment_login_missing_credentials_email_text.setText(it)
+        }
+
+
         fragment_login_missing_credentials_login.setOnClickListener {
-            lazyViewModel.value.login(
+            viewModel.connect(
                 fragment_login_missing_credentials_email_text.text.toString(),
                 fragment_login_missing_credentials_password_text.text.toString()
             )
         }
 
         fragment_login_missing_credentials_forgot_password_button?.setOnClickListener {
-            lazyViewModel.value.resetCredentialsPassword(
+            viewModel.resetCredentialsPassword(
                 fragment_login_missing_credentials_email_text.text.toString()
             )
         }
 
         fragment_login_missing_credentials_forgot_password.setOnClickListener {
             val email = fragment_login_missing_credentials_email_text.toString()
-            lazyViewModel.value.resetCredentialsPassword(email)
+            viewModel.resetCredentialsPassword(email)
         }
     }
 

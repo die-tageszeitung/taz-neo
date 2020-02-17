@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.SubscriptionInfo
 data class DataDto (
     val product: ProductDto? = null,
     val trialSubscription: SubscriptionInfo? = null,
+    val subscriptionId2tazId: SubscriptionInfo? = null,
     val subscriptionPoll: SubscriptionInfo? = null,
     val authentificationToken: AuthTokenInfoDto? = null,
     val downloadStop: Boolean? = null,
