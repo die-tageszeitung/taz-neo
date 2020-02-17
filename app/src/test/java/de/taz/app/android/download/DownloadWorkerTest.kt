@@ -132,4 +132,37 @@ class DownloadWorkerTest {
             verifyNoMoreInteractions()
         }
     }
+
+    @Test
+    fun abortDownloadOnDivergingShaSums() {
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
+        val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockFile = mock<File>()
+
+        val mockResponse = MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "text/plain")
+            .setBody(TEST_STRING)
+        mockServer.enqueue(mockResponse)
+
+        doReturn(mockFileEntry)
+            .`when`(fileEntryRepository).get(TEST_FILE_NAME)
+
+        doReturn(mockDownload)
+            .`when`(downloadRepository).get(TEST_FILE_NAME)
+
+        doReturn(mockFile)
+            .`when`(fileHelper).getFile(mockFileEntry)
+
+        doReturn(true)
+            .`when`(fileHelper).createFileDirs(mockFileEntry)
+
+        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
+
+        inOrder(downloadRepository).apply {
+            verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
+            verifyNoMoreInteractions()
+        }
+    }
+
 }
