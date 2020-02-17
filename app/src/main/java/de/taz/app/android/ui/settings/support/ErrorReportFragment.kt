@@ -46,7 +46,6 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
             }
         }
 
-
         presenter.onViewCreated(savedInstanceState)
     }
 
