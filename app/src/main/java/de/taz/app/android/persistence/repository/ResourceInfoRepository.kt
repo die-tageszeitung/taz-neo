@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.annotation.UiThread
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.ResourceInfo
@@ -9,7 +10,8 @@ import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
 
-open class ResourceInfoRepository private constructor(applicationContext: Context) :
+@Mockable
+class ResourceInfoRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 

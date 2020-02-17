@@ -3,6 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.util.Log
@@ -18,7 +19,8 @@ import java.util.*
  * Service class to get Models from GraphQl
  * The DTO objects returned by [GraphQlClient] will be transformed to models here
  */
-open class ApiService private constructor(applicationContext: Context) {
+@Mockable
+class ApiService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
@@ -80,7 +82,7 @@ open class ApiService private constructor(applicationContext: Context) {
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    open suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
+    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
         return transformExceptions({
@@ -146,7 +148,7 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    open suspend fun getFeeds(): List<Feed> {
+    suspend fun getFeeds(): List<Feed> {
         val tag = "getFeeds"
         log.debug(tag)
         return transformExceptions({
@@ -201,7 +203,7 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    open suspend fun getIssuesByDate(
+    suspend fun getIssuesByDate(
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
@@ -229,7 +231,7 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    open suspend fun getIssuesByFeedAndDate(
+    suspend fun getIssuesByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 2
@@ -322,7 +324,7 @@ open class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    open suspend fun trialSubscription(
+    suspend fun trialSubscription(
         tazId: String,
         idPw: String,
         surname: String?,

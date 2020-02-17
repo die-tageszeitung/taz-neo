@@ -2,6 +2,7 @@ package de.taz.app.android.api
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
@@ -33,7 +34,8 @@ enum class QueryType {
 /**
  * service class to get the queries either from cache or by reading the assets file
  */
-open class QueryService private constructor(applicationContext: Context) {
+@Mockable
+class QueryService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<QueryService, Context>(::QueryService)
 
@@ -43,7 +45,7 @@ open class QueryService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val queryCache = mutableMapOf<String, String>()
 
-    open fun get(queryType: QueryType): Query? {
+    fun get(queryType: QueryType): Query? {
         val fileName = queryType.name
         return Query(try {
             queryCache[fileName] ?: let {
