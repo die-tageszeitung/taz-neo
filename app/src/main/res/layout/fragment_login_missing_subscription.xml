@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/login_subscription_hint"
             android:imeOptions="actionNext"
-            android:inputType="text"
+            android:inputType="numberDecimal"
             android:nextFocusForward="@id/fragment_login_missing_subscription_password" />
 
     </com.google.android.material.textfield.TextInputLayout>

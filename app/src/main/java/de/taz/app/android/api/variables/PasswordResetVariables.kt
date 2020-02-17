@@ -5,7 +5,7 @@ import com.squareup.moshi.Moshi
 
 @JsonClass(generateAdapter = true)
 data class PasswordResetVariables(
-    val eMail: String
+    val email: String
 ): Variables {
 
     override fun toJson(): String {

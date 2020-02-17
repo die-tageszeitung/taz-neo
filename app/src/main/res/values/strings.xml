@@ -119,6 +119,7 @@
 
     <string name="login_password_hint">password</string>
     <string name="login_password_error_empty">Password can\'t be empty</string>
+    <string name="login_password_confirmation_error_match">Passwords do not match</string>
 
     <string name="login_button">Login</string>
 

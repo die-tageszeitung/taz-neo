@@ -14,47 +14,48 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_request_test_subscription_email"
+        android:id="@+id/fragment_login_request_test_subscription_email_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_header">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fragment_login_request_test_subscription_email_text"
+            android:id="@+id/fragment_login_request_test_subscription_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_email_hint"
             android:imeOptions="actionNext"
             android:inputType="textEmailAddress"
-            android:nextFocusForward="@id/fragment_login_password" />
+            android:nextFocusForward="@id/fragment_login_request_test_subscription_password_layout" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_request_test_subscription_password"
+        android:id="@+id/fragment_login_request_test_subscription_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_email"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_email_layout"
         app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fragment_login_request_test_subscription_password_text"
+            android:id="@+id/fragment_login_request_test_subscription_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_password_hint"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword" />
+            android:imeOptions="actionNext"
+            android:inputType="textPassword"
+            android:nextFocusForward="@id/fragment_login_request_test_subscription_password_confirmation"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_request_test_subscription_password_confirmation"
+        android:id="@+id/fragment_login_request_test_subscription_password_confirmation_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_password"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_password_layout"
         app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fragment_login_request_test_subscription_password_confirmation_text"
+            android:id="@+id/fragment_login_request_test_subscription_password_confirmation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_password_confirmation_hint"
@@ -68,7 +69,7 @@
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_request_test_subscription_existing_account"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_password_confirmation" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_password_confirmation_layout" />
 
     <CheckedTextView
         android:id="@+id/fragment_login_request_test_subscription_terms_and_conditions"

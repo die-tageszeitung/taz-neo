@@ -25,8 +25,8 @@ class LoginViewModel(
 
     private val log by Log
 
-    private var username: String? = null
-    private var password: String? = null
+    var username: String? = null
+    var password: String? = null
 
     private var subscriptionId: Int? = null
     private var subscriptionPassword: String? = null
@@ -119,13 +119,17 @@ class LoginViewModel(
         }
     }
 
-    fun register() {
-        username?.let { username ->
-            password?.let { password ->
+    fun register(username: String? = null, password: String? = null) {
+
+        username?.let { this.username = it }
+        password?.let { this.password = it }
+
+        this.username?.let { username1 ->
+            this.password?.let { password1 ->
                 status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val subscriptionInfo = apiService.trialSubscription(username, password)
+                    val subscriptionInfo = apiService.trialSubscription(username1, password1)
 
                     when (subscriptionInfo?.status) {
                         SubscriptionStatus.aboIdNotValid -> {
@@ -134,13 +138,13 @@ class LoginViewModel(
                             status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                         }
                         SubscriptionStatus.tazIdNotValid -> {
-                            // should not happen
+                            // should not happen - TODO currently if user has not clicked mail link
                             Sentry.capture("trialSubscription returned tazIdNotValid")
                             status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                         }
                         SubscriptionStatus.alreadyLinked -> {
                             // TODO check if can login then auto login? Or show screen?
-                            login(username, password)
+                            login(username1, password1)
                         }
                         SubscriptionStatus.elapsed -> {
                             status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
@@ -171,12 +175,19 @@ class LoginViewModel(
         }
     }
 
-    fun connect(initialUsername: String? = null, initialPassword: String? = null) {
+    fun connect(
+        initialUsername: String? = null,
+        initialPassword: String? = null,
+        intialSubscriptionId: Int? = null,
+        initialSubscriptionPassword: String? = null
+    ){
         initialUsername?.let { username = it }
         initialPassword?.let { password = it }
+        intialSubscriptionId?.let { subscriptionId = it }
+        initialSubscriptionPassword?.let { subscriptionPassword = it }
 
         CoroutineScope(Dispatchers.IO).launch {
-            // TODO nullcheck?
+            // TODO nullcheck
             val subscriptionInfo = apiService.subscriptionId2TazId(username!!, password!!, subscriptionId!!, subscriptionPassword!!)
 
             when(subscriptionInfo?.status) {
@@ -189,6 +200,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.tazIdNotValid -> {
+                    // TODO what happens if waiting for email ?!
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                 }
                 SubscriptionStatus.invalidConnection -> {
@@ -283,10 +295,6 @@ class LoginViewModel(
         }
     }
 
-    fun getUsername(): String? {
-        return username ?: subscriptionId?.toString()
-    }
-
     fun resetPassword() {
         password = null
         subscriptionPassword = null
@@ -295,10 +303,6 @@ class LoginViewModel(
     fun resetUsername() {
         username = null
         subscriptionId = null
-    }
-
-    fun getPassword(): String? {
-        return password ?: subscriptionPassword
     }
 
     private fun saveToken(token: String) {

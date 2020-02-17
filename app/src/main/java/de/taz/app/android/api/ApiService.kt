@@ -61,7 +61,7 @@ class ApiService private constructor(applicationContext: Context) {
                     surname,
                     firstname
                 )
-            )?.trialSubscription
+            )?.subscriptionId2tazId
         }, "subscriptionId2TazId")
     }
 
