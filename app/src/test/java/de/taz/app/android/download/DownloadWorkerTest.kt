@@ -29,6 +29,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 import org.mockito.Mockito.inOrder
 import java.io.File
+import java.security.MessageDigest
 
 const val TEST_STRING = "bla"
 const val TEST_FILE_NAME = "bla"
@@ -99,10 +100,12 @@ class DownloadWorkerTest {
     }
 
     @Test
-    fun successfulDownloadOn200Response() {
-        val mockFileEntry = FileEntry("bla", StorageType.issue, 0, "", 0, "bla")
+    fun successDownloadOn200Response() {
+        val mockFile = File(TEST_FILE_NAME)
+        mockFile.writeText(TEST_STRING)
+        val mockFileSha = MessageDigest.getInstance("SHA-256").digest(mockFile.readBytes()).fold("", { str, it -> str + "%02x".format(it) })
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, mockFileSha, 0, "bla")
         val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
-        val mockFile = mock<File>()
 
         val mockResponse = MockResponse()
             .setResponseCode(200)
