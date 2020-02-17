@@ -1,10 +1,12 @@
 package de.taz.app.android.ui.main
 
 import androidx.lifecycle.*
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.base.BaseDataController
 
-open class MainDataController : BaseDataController(), MainContract.DataController {
+@Mockable
+class MainDataController : BaseDataController(), MainContract.DataController {
 
     private val selectedIssue = MutableLiveData<IssueOperations?>().apply {
         postValue(null)

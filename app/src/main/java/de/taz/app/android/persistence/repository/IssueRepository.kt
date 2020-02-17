@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
@@ -16,7 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-open class IssueRepository private constructor(applicationContext: Context) :
+@Mockable
+class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -26,7 +28,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
 
-    open fun save(issues: List<Issue>) {
+    fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
     }
 
@@ -96,7 +98,7 @@ open class IssueRepository private constructor(applicationContext: Context) :
         ) != null
     }
 
-    open fun saveIfDoNotExist(issues: List<Issue>) {
+    fun saveIfDoNotExist(issues: List<Issue>) {
         issues.forEach { saveIfDoesNotExist(it) }
     }
 

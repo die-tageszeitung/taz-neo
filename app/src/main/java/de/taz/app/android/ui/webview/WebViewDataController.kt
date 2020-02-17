@@ -4,13 +4,15 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseDataController
 
-open class WebViewDataController<DISPLAYABLE: WebViewDisplayable> : BaseDataController(), WebViewContract.DataController<DISPLAYABLE> {
+@Mockable
+class WebViewDataController<DISPLAYABLE: WebViewDisplayable> : BaseDataController(), WebViewContract.DataController<DISPLAYABLE> {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    open val webViewDisplayable = MutableLiveData<DISPLAYABLE?>().apply {
+    val webViewDisplayable = MutableLiveData<DISPLAYABLE?>().apply {
         postValue(null)
     }
 

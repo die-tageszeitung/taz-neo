@@ -214,3 +214,15 @@ dependencies {
     // google Flavor
     googleImplementation 'com.google.firebase:firebase-messaging:20.1.0'
 }
+
+// Open all classes and their methods annotated with @Mockable if this is a test build
+def isTestTask = gradle.startParameter.taskNames.any { name -> name.split(':').last().startsWith 'test' }
+def isAndroidStudioTestTask = gradle.startParameter.taskNames.any { name -> name.endsWith 'UnitTestSources' }
+if (isTestTask || isAndroidStudioTestTask) {
+    println "ATTENTION: Test build detected: kotlin classes annotated with @Mockable and its methods are opened"
+
+    apply plugin: 'kotlin-allopen'
+    allOpen {
+        annotation('de.taz.app.android.annotation.Mockable')
+    }
+}

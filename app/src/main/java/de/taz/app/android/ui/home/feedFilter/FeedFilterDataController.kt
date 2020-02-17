@@ -3,6 +3,7 @@ package de.taz.app.android.ui.home.feedFilter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.FeedRepository
@@ -10,7 +11,8 @@ import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.util.PreferencesHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
 
-open class FeedFilterDataController : BaseDataController(),
+@Mockable
+class FeedFilterDataController : BaseDataController(),
     FeedFilterContract.DataController {
 
     /**

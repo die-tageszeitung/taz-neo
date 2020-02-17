@@ -3,10 +3,12 @@ package de.taz.app.android.util
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.annotation.Mockable
 import java.text.SimpleDateFormat
 import java.util.*
 
-open class DateHelper private constructor(applicationContext: Context): ViewModel() {
+@Mockable
+class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     companion object : SingletonHolder<DateHelper, Context>(::DateHelper)
 
