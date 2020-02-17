@@ -6,13 +6,15 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
-open class DownloadRepository private constructor(applicationContext: Context) :
+@Mockable
+class DownloadRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
@@ -90,7 +92,7 @@ open class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    open fun get(fileName: String): Download? {
+    fun get(fileName: String): Download? {
         return try {
             getOrThrow(fileName)
         } catch (e: Exception) {
@@ -110,7 +112,7 @@ open class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    open fun setStatus(download: Download, downloadStatus: DownloadStatus) {
+    fun setStatus(download: Download, downloadStatus: DownloadStatus) {
         appDatabase.runInTransaction {
             try {
                 update(getWithoutFileOrThrow(download.file.name).copy(status = downloadStatus))
