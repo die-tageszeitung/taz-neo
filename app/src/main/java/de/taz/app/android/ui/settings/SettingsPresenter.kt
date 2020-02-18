@@ -2,15 +2,21 @@ package de.taz.app.android.ui.settings
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.lifecycle.Observer
 import de.taz.app.android.R
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.settings.support.ErrorReportFragment
+import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.fragment_settings.*
 
-class SettingsPresenter :
+class SettingsPresenter(
+    private val authHelper: AuthHelper = AuthHelper.getInstance()
+) :
     BasePresenter<SettingsFragment, SettingsDataController>(SettingsDataController::class.java),
     SettingsContract.Presenter {
 
@@ -38,6 +44,16 @@ class SettingsPresenter :
                     showStoredIssueNumber(storedIssueNumber)
                 }
             }
+            authHelper.authStatusLiveData.observe(getLifecycleOwner(), Observer { authStatus ->
+                if (authStatus == AuthStatus.valid) {
+                    showLogoutButton()
+                } else {
+                    showManageAccountButton()
+                }
+            })
+            authHelper.emailLiveData.observe(getLifecycleOwner(), Observer { email ->
+                fragment_settings_account_email.text = email
+            })
         }
     }
 
@@ -88,5 +104,10 @@ class SettingsPresenter :
 
     override fun reportBug() {
         getView()?.getMainView()?.showMainFragment(ErrorReportFragment())
+    }
+
+    override fun logout() {
+        authHelper.tokenLiveData.postValue("")
+        authHelper.authStatusLiveData.postValue(AuthStatus.notValid)
     }
 }

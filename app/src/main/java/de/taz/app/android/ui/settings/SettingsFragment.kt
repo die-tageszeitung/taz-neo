@@ -12,6 +12,7 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.LoginActivity
+import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
@@ -88,6 +89,10 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
                     }
                 }
             }
+
+            fragment_settings_account_logout.setOnClickListener {
+                presenter.logout()
+            }
         }
 
         presenter.onViewCreated(savedInstanceState)
@@ -138,6 +143,18 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
+    }
+
+    override fun showLogoutButton() {
+        fragment_settings_account_email.visibility = View.VISIBLE
+        fragment_settings_account_logout.visibility = View.VISIBLE
+        fragment_settings_account_manage_account.visibility = View.GONE
+    }
+
+    override fun showManageAccountButton() {
+        fragment_settings_account_email.visibility = View.GONE
+        fragment_settings_account_logout.visibility = View.GONE
+        fragment_settings_account_manage_account.visibility = View.VISIBLE
     }
 
 }
