@@ -106,7 +106,7 @@ class DownloadWorker(
                                 val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
                                     .fold("", { str, it -> str + "%02x".format(it) })
                                 if (sha256 == fromDB.file.sha256) {
-                                    log.info("sha256 matched for file ${fromDB.file.name}")
+                                    log.debug("sha256 matched for file ${fromDB.file.name}")
                                     downloadRepository.setStatus(fromDB, DownloadStatus.done)
                                     log.debug("finished download of ${fromDB.file.name}")
                                 } else {
