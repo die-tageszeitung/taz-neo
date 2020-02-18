@@ -111,7 +111,10 @@
     <string name="login_email_error_no_email">Must be an email address</string>
 
     <string name="login_first_name_hint">first name</string>
+    <string name="login_first_name_error_empty">Please enter your first name</string>
+
     <string name="login_surname_hint">surname</string>
+    <string name="login_surname_error_empty">Please enter your surname</string>
 
     <string name="login_username_hint">subscription ID</string>
 
