@@ -23,4 +23,15 @@ abstract class BaseFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
             }
         }
     }
+
+    protected fun writeEmail(to: String = SUBSCRIPTION_EMAIL_ADDRESS) {
+        val email = Intent(Intent.ACTION_SEND)
+        email.putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+        email.putExtra(Intent.EXTRA_SUBJECT, "") // TODO
+        email.putExtra(Intent.EXTRA_TEXT, "") // TODO
+        email.type = "message/rfc822"
+        startActivity(Intent.createChooser(email, null))
+    }
+
+
 }

@@ -22,6 +22,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_inactive_header" />
 
     <TextView
+        android:id="@+id/fragment_login_subscription_inactive_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_inactive_email"
