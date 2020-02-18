@@ -62,12 +62,15 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
         fragment_login_register_button.setOnClickListener {
             // TODO do not set status here?!
-            viewModel.username = fragment_login_username.text.toString()
+            val username = fragment_login_username.text.toString()
+            if (username.isNotEmpty() && username.toIntOrNull() == null) {
+                viewModel.username = username
+            }
             viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
 
         fragment_login_forgot_password_button.setOnClickListener {
-            viewModel.resetCredentialsPassword(fragment_login_username.text.toString())
+            viewModel.requestPasswordReset(fragment_login_username.text.toString())
         }
 
         fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {

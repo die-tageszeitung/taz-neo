@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_email_already_taken_contact_email"
         android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.Login.Links"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_email_already_taken_contact_support" />
