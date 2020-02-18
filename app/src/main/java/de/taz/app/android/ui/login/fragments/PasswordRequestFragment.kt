@@ -14,9 +14,14 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
             val email = fragment_login_forgot_password_email.text.toString()
             if (email.isEmpty()) {
                 fragment_login_forgot_password_email_layout.error =
-                    getString(R.string.login_username_error_empty)
+                    getString(R.string.login_email_error_empty)
             } else {
-                viewModel.requestPasswordReset(email)
+                if (email.toIntOrNull() != null || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    viewModel.requestPasswordReset(email)
+                } else {
+                    fragment_login_forgot_password_email_layout.error =
+                        getString(R.string.login_email_error_no_email)
+                }
             }
         }
     }

@@ -275,6 +275,8 @@ class LoginViewModel(
     fun requestPasswordReset(email: String) {
         log.debug("forgotCredentialsPassword $email")
 
+        // TODO CHECK IF SUBSCRIPTION ID THEN RESET SUBSCRIPTION ID
+
         if (email.isEmpty()) {
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
         } else {
