@@ -23,14 +23,14 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
         }
 
         fragment_login_missing_credentials_forgot_password_button?.setOnClickListener {
-            viewModel.resetCredentialsPassword(
+            viewModel.requestPasswordReset(
                 fragment_login_missing_credentials_email_text.text.toString()
             )
         }
 
         fragment_login_missing_credentials_forgot_password.setOnClickListener {
             val email = fragment_login_missing_credentials_email_text.toString()
-            viewModel.resetCredentialsPassword(email)
+            viewModel.requestPasswordReset(email)
         }
     }
 

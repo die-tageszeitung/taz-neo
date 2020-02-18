@@ -272,7 +272,7 @@ class LoginViewModel(
         }
     }
 
-    fun resetCredentialsPassword(email: String) {
+    fun requestPasswordReset(email: String) {
         log.debug("forgotCredentialsPassword $email")
 
         if (email.isEmpty()) {

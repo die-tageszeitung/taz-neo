@@ -7,15 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 
-class SubscriptionInactiveFragment : Fragment() {
+class SubscriptionInactiveFragment : BaseFragment(R.layout.fragment_login_subscription_inactive) {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return LayoutInflater.from(activity)
-            .inflate(R.layout.fragment_login_subscription_inactive, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
     }
 
 }
