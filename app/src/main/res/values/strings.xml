@@ -108,6 +108,7 @@
 
     <string name="login_email_hint">email</string>
     <string name="login_email_error_empty">Email can\'t be empty.</string>
+    <string name="login_email_error_no_email">Must be an email address</string>
 
     <string name="login_first_name_hint">first name</string>
     <string name="login_surname_hint">surname</string>

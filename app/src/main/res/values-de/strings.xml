@@ -112,6 +112,7 @@
 
     <string name="login_email_hint">E-Mail-Adresse</string>
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
+    <string name="login_email_error_no_email">Muss eine E-Mail-Adresse sein.</string>
 
     <string name="login_username_hint">Nutzername</string>
     <string name="login_username_error_empty">Darf nicht leer sein.</string>
