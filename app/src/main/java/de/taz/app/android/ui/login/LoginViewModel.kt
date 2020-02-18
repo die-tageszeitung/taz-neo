@@ -306,8 +306,9 @@ class LoginViewModel(
     }
 
     private fun saveToken(token: String) {
-        authHelper.authStatusLiveData.postValue(AuthStatus.valid)
         authHelper.tokenLiveData.postValue(token)
+        authHelper.authStatusLiveData.postValue(AuthStatus.valid)
+        authHelper.emailLiveData.postValue(username)
     }
 
 }

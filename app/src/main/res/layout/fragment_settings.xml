@@ -33,6 +33,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingStart="@dimen/fragment_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_padding_horizontal"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -87,14 +89,34 @@
                 android:text="@string/settings_category_account"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_night_mode" />
 
-            <include
+            <Button
                 android:id="@+id/fragment_settings_account_manage_account"
-                layout="@layout/settings_manage_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/lightGrey"
+                android:text="@string/settings_account_manage_account"
+                android:textAppearance="@style/Settings.ManageAccount.Button"
                 android:layout_marginStart="@dimen/fragment_padding_horizontal"
                 android:layout_marginEnd="@dimen/fragment_padding_horizontal"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_email"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
+
+            <Button
+                android:id="@+id/fragment_settings_account_logout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/lightGrey"
+                android:text="@string/settings_account_logout"
+                android:textAppearance="@style/Settings.ManageAccount.Button"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
             <TextView
                 android:id="@+id/fragment_settings_category_push_id"
@@ -102,7 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_category_push"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_manage_account" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
 
             <TextView
                 android:id="@+id/fragment_settings_push_id"
