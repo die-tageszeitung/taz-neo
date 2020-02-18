@@ -36,7 +36,8 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
                     }
                     return false
                 }
-            })
+            }
+        )
     }
 
     private fun login() {

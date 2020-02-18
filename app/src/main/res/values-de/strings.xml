@@ -104,7 +104,10 @@
     <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>
 
     <string name="login_first_name_hint">Vorname</string>
+    <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
+
     <string name="login_surname_hint">Nachname</string>
+    <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
