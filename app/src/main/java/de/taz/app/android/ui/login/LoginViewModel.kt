@@ -32,8 +32,10 @@ class LoginViewModel(
     var password: String? = null
         private set
 
-    private var subscriptionId: Int? = null
-    private var subscriptionPassword: String? = null
+    var subscriptionId: Int? = null
+        private set
+    var subscriptionPassword: String? = null
+        private set
 
     private val status by lazy {
         MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
@@ -57,8 +59,10 @@ class LoginViewModel(
         login(initialUsername, initialPassword)
     }
 
-    fun backToLogin() {
-        status.postValue(LoginViewModelState.INITIAL)
+    fun backToMissingSubscription() {
+        resetSubscriptionId()
+        resetSubscriptionPassword()
+        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null) {
@@ -89,7 +93,7 @@ class LoginViewModel(
                                     AuthStatus.elapsed ->
                                         status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                                     AuthStatus.notValid -> {
-                                        password = null
+                                        resetSubscriptionPassword()
                                         status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
                                     }
                                     AuthStatus.valid ->
@@ -125,8 +129,10 @@ class LoginViewModel(
                                         saveToken(authTokenInfo.token!!)
                                         status.postValue(LoginViewModelState.DONE)
                                     }
-                                    AuthStatus.notValid ->
+                                    AuthStatus.notValid -> {
+                                        resetCredentialsPassword()
                                         status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                                    }
                                     AuthStatus.tazIdNotLinked ->
                                         status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                                     AuthStatus.elapsed ->
@@ -155,7 +161,7 @@ class LoginViewModel(
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL)
+        register(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
     }
 
     fun getTrialSubscriptionForNewCredentials(username: String? = null, password: String? = null) {
@@ -180,7 +186,7 @@ class LoginViewModel(
                         val subscriptionInfo = apiService.trialSubscription(username1, password1)
 
                         when (subscriptionInfo?.status) {
-                            SubscriptionStatus.aboIdNotValid -> {
+                            SubscriptionStatus.subscriptionIdNotValid -> {
                                 // should not happen
                                 Sentry.capture("trialSubscription returned aboIdNotValid")
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
@@ -229,24 +235,23 @@ class LoginViewModel(
     }
 
     fun connect(
-        initialUsername: String? = null,
-        initialPassword: String? = null,
-        intialSubscriptionId: Int? = null,
-        initialSubscriptionPassword: String? = null
+        username: String? = null,
+        password: String? = null,
+        subscriptionId: Int? = null,
+        subscriptionPassword: String? = null
     ) {
-        initialUsername?.let { username = it }
-        initialPassword?.let { password = it }
-        intialSubscriptionId?.let { subscriptionId = it }
-        initialSubscriptionPassword?.let { subscriptionPassword = it }
+        username?.let { this.username = it }
+        password?.let { this.password = it }
+        subscriptionId?.let { this.subscriptionId = it }
+        subscriptionPassword?.let { this.subscriptionPassword = it }
 
         CoroutineScope(Dispatchers.IO).launch {
-            // TODO nullcheck
             try {
                 val subscriptionInfo = apiService.subscriptionId2TazId(
-                    username!!,
-                    password!!,
-                    subscriptionId!!,
-                    subscriptionPassword!!
+                    this@LoginViewModel.username!!,
+                    this@LoginViewModel.password!!,
+                    this@LoginViewModel.subscriptionId!!,
+                    this@LoginViewModel.subscriptionPassword!!
                 )
 
                 when (subscriptionInfo?.status) {
@@ -254,9 +259,11 @@ class LoginViewModel(
                         saveToken(subscriptionInfo.token!!)
                         status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                     }
+                    SubscriptionStatus.subscriptionIdNotValid -> {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
+                    }
                     SubscriptionStatus.invalidMail -> {
-                        // go back and show error
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL)
+                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
                     }
                     SubscriptionStatus.waitForProc -> {
                     }
@@ -264,17 +271,16 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                     }
                     SubscriptionStatus.tazIdNotValid -> {
-                        // TODO what happens if waiting for email ?!
                         status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                     }
                     SubscriptionStatus.invalidConnection -> {
                         status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                     }
-
+                    SubscriptionStatus.elapsed -> {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    }
                     SubscriptionStatus.noPollEntry,
-                    SubscriptionStatus.elapsed,
-                    SubscriptionStatus.alreadyLinked,
-                    SubscriptionStatus.aboIdNotValid -> {
+                    SubscriptionStatus.alreadyLinked -> {
                         // should not happen
                         Sentry.capture("subscriptionId2TazId returned ${subscriptionInfo.status}")
                         // TODO what to do?
@@ -311,7 +317,7 @@ class LoginViewModel(
                         Sentry.capture("trialSubscription returned tazIdNotValid")
                         status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                     }
-                    SubscriptionStatus.aboIdNotValid -> {
+                    SubscriptionStatus.subscriptionIdNotValid -> {
                         // should not happen
                         Sentry.capture("trialSubscription returned aboIdNotValid")
                         status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
@@ -325,6 +331,7 @@ class LoginViewModel(
                     SubscriptionStatus.invalidMail -> {
                         // should never happen
                         Sentry.capture("subscriptionPoll returned invalidMail")
+                        resetCredentialsPassword()
                         status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
                     }
                     SubscriptionStatus.alreadyLinked -> {
@@ -411,13 +418,15 @@ class LoginViewModel(
         }
     }
 
-    fun resetPassword() {
-        password = null
+    private fun resetSubscriptionPassword() {
         subscriptionPassword = null
     }
 
-    fun resetUsername() {
-        username = null
+    private fun resetCredentialsPassword() {
+        password = null
+    }
+
+    private fun resetSubscriptionId() {
         subscriptionId = null
     }
 
@@ -434,11 +443,12 @@ enum class LoginViewModelState {
     CREDENTIALS_CHECKING,
     CREDENTIALS_INVALID,
     CREDENTIALS_MISSING,
+    CREDENTIALS_MISSING_INVALID_EMAIL,
     SUBSCRIPTION_CHECKING,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
-    SUBSCRIPTION_MISSING_INVALID_EMAIL,
+    SUBSCRIPTION_MISSING_INVALID_ID,
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,

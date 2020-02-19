@@ -13,9 +13,7 @@ class SubscriptionTakenFragment: BaseFragment(R.layout.fragment_login_subscripti
 
         fragment_login_subscription_taken_retry.setOnClickListener {
             viewModel.apply {
-                resetPassword()
-                resetUsername()
-                backToLogin()
+                backToMissingSubscription()
             }
         }
 

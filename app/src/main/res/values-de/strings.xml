@@ -112,6 +112,8 @@
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
     <string name="login_subscription_hint">Abonummer</string>
+    <string name="login_subscription_error_invalid">Die Abonummer ist ungültig.</string>
+    <string name="login_subscription_error_empty">Bitte Abonummer angeben.</string>
 
     <string name="login_email_hint">E-Mail-Adresse</string>
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
