@@ -21,12 +21,11 @@
             android:layout_marginTop="@dimen/fragment_header_default_margin_top"
             android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
             android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
-            app:layout_constraintBaseline_toBaselineOf="@+id/section"
             app:layout_constraintRight_toLeftOf="@id/section" />
 
     <TextView
             android:id="@+id/section"
-            style="@style/TextAppearance.Header.Section"
+            style="@style/TextAppearance.Header.Article.Section"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
