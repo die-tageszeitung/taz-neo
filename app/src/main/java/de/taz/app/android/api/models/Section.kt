@@ -33,8 +33,6 @@ data class Section(
     override fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
         list.addAll(imageList)
-        articleList.forEach { article -> list.addAll(article.getAllFiles()) }
-        // images may be in section and article
         return list.distinct()
     }
 
