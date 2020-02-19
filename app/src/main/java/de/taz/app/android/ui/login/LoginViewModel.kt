@@ -129,7 +129,19 @@ class LoginViewModel(
         }
     }
 
-    fun register(username: String? = null, password: String? = null) {
+    fun getTrialSubscriptionForExistingCredentials() {
+        register(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL)
+    }
+
+    fun getTrialSubscriptionForNewCredentials(username: String? = null, password: String? = null) {
+        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL, username, password)
+    }
+
+    private fun register(
+        invalidMailState: LoginViewModelState,
+        username: String? = null,
+        password: String? = null
+    ) {
 
         username?.let { this.username = it }
         password?.let { this.password = it }
@@ -156,6 +168,9 @@ class LoginViewModel(
                             SubscriptionStatus.alreadyLinked -> {
                                 // TODO check if can login then auto login? Or show screen?
                                 login(username1, password1)
+                            }
+                            SubscriptionStatus.invalidMail -> {
+                                status.postValue(invalidMailState)
                             }
                             SubscriptionStatus.elapsed -> {
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
@@ -215,8 +230,8 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                     }
                     SubscriptionStatus.invalidMail -> {
-                        // TODO should not happen…
                         // go back and show error
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL)
                     }
                     SubscriptionStatus.waitForProc -> {
                     }
@@ -282,6 +297,11 @@ class LoginViewModel(
                     SubscriptionStatus.invalidConnection -> {
                         status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                     }
+                    SubscriptionStatus.invalidMail -> {
+                        // should never happen
+                        Sentry.capture("subscriptionPoll returned invalidMail")
+                        status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                    }
                     SubscriptionStatus.alreadyLinked -> {
                         // TODO check if can login then auto login? Or show screen?
                         login(username, password)
@@ -318,7 +338,7 @@ class LoginViewModel(
                         PasswordResetInfo.ok ->
                             status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                         PasswordResetInfo.error,
-                        PasswordResetInfo.invalidMail, // should not happen?
+                        PasswordResetInfo.invalidMail,
                         PasswordResetInfo.mailError -> {
                             ToastHelper.getInstance()
                                 .makeToast(R.string.something_went_wrong_try_later)
@@ -359,7 +379,9 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
+    SUBSCRIPTION_MISSING_INVALID_EMAIL,
     SUBSCRIPTION_REQUEST,
+    SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
