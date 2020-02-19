@@ -15,7 +15,7 @@ class SubscriptionTakenFragment: BaseFragment(R.layout.fragment_login_subscripti
             viewModel.apply {
                 resetPassword()
                 resetUsername()
-                status.postValue(LoginViewModelState.INITIAL)
+                backToLogin()
             }
         }
 

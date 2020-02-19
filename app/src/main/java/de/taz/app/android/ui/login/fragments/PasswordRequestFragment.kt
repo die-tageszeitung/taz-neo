@@ -11,15 +11,18 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
         super.onViewCreated(view, savedInstanceState)
 
         fragment_login_forgot_password_button.setOnClickListener {
-            val email = fragment_login_forgot_password_email.text.toString()
-            if (email.isEmpty()) {
-                fragment_login_forgot_password_email_layout.error =
-                    getString(R.string.login_email_error_empty)
+            val username = fragment_login_forgot_password_username.text.toString()
+            if (username.isEmpty()) {
+                fragment_login_forgot_password_username_layout.error =
+                    getString(R.string.login_username_error_empty)
             } else {
-                if (email.toIntOrNull() != null || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    viewModel.requestPasswordReset(email)
+
+                if (username.toIntOrNull() != null)
+                    viewModel.requestSubscriptionPassword(username.toInt())
+                else if( android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                    viewModel.requestCredentialsPasswordReset(username)
                 } else {
-                    fragment_login_forgot_password_email_layout.error =
+                    fragment_login_forgot_password_username_layout.error =
                         getString(R.string.login_email_error_no_email)
                 }
             }

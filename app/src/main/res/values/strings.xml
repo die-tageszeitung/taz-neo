@@ -144,7 +144,7 @@
     <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
     <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address and we will send you an email with a link to set a new one.</string>
+    <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
     <string name="fragment_login_forgot_password_send">Send and request link</string>
 
     <string name="fragment_login_forgot_password_email_sent_header">The email has been sent. Please check your inbox. If you can not find it please check the spam folder as well.</string>

@@ -7,7 +7,6 @@ import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.getViewModel
@@ -40,7 +39,7 @@ class LoginActivity(
 
         viewModel = getViewModel { LoginViewModel(username, password) }
 
-        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
+        viewModel.observeStatus(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL ->
                     showLoginForm()
@@ -87,9 +86,6 @@ class LoginActivity(
                 LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
                     showLoadingScreen()
                 }
-                LoginViewModelState.PASSWORD_REQUEST_DONE -> {
-                    showPasswordMailSent()
-                }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
                     showConfirmEmail()
                 }
@@ -103,14 +99,14 @@ class LoginActivity(
                     done()
                 }
             }
-        })
+        }
 
-        viewModel.noInternet.observe(this, Observer {
+        viewModel.observeNoInternet(this) {
             if (it) {
                 toastHelper.showNoConnectionToast()
                 hideLoadingScreen()
             }
-        })
+        }
 
     }
 

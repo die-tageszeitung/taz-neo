@@ -407,7 +407,7 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun resetPassword(
+    suspend fun requestCredentialsPasswordReset(
         email: String
     ): PasswordResetInfo? {
         val tag = "resetPassword"
