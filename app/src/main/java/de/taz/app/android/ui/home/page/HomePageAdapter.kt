@@ -78,9 +78,27 @@ open class HomePageAdapter(
 
     private fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
-        return allIssueStubList.filter {
+
+        // do not show public issues if logged in
+        val filteredIssueList = allIssueStubList.filter {
             it.feedName !in inactiveFeedNames && (!authenticated || it.status != IssueStatus.public)
         }
+
+        val mutableFilteredIssueList = filteredIssueList.toMutableList()
+        // only show regular issue if 2 exist
+        // i.e. when user is not logged in anymore but has issues from before
+        filteredIssueList.forEach { item ->
+            val issuesAtSameDate = filteredIssueList.filter {
+                item.date == it.date && item.feedName == it.feedName
+            }
+            if (issuesAtSameDate.size > 1) {
+                mutableFilteredIssueList.removeAll(
+                    issuesAtSameDate.filter { it.status != IssueStatus.regular }
+                )
+            }
+        }
+
+        return mutableFilteredIssueList
     }
 
     private fun filterAndSetIssues() {

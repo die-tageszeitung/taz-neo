@@ -6,6 +6,7 @@ enum class SubscriptionStatus {
     aboIdNotValid,
     elapsed,
     invalidConnection,
+    invalidMail,
     alreadyLinked,
     waitForMail,
     waitForProc,
