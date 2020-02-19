@@ -31,7 +31,22 @@ import java.util.*
 /**
  * Helper Object used by [WorkManagerDownloadWorker] and [DownloadService] to download
  */
-class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
+
+class DownloadWorker(
+    private val httpClient: OkHttpClient,
+    private val downloadRepository: DownloadRepository,
+    private val fileEntryRepository: FileEntryRepository,
+    private val fileHelper: FileHelper,
+    private val workManager: WorkManager
+) {
+
+    constructor(appContext: Context) : this(
+        okHttpClient,
+        DownloadRepository.getInstance(appContext),
+        FileEntryRepository.getInstance(appContext),
+        FileHelper.createInstance(appContext),
+        WorkManager.getInstance(appContext)
+    )
 
     private val log by Log
 
@@ -42,19 +57,18 @@ class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
      * @param downloads - [Download]s to download
      */
     suspend fun startDownloads(
-        appContext: Context,
         fileEntries: List<FileEntry>? = null,
         fileNames: List<String>? = null,
         downloads: List<Download>? = null
     ) {
         fileNames?.forEach {
-            startDownload(appContext, it)
+            startDownload(it)
         }
         downloads?.forEach {
-            startDownload(appContext, it.file.name)
+            startDownload(it.file.name)
         }
         fileEntries?.forEach {
-            startDownload(appContext, it.name)
+            startDownload(it.name)
         }
     }
 
@@ -63,10 +77,7 @@ class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
      * @param fileName - [FileEntry.name] of [FileEntry] to download
      */
     @UiThread
-    suspend fun startDownload(appContext: Context, fileName: String) {
-        val downloadRepository = DownloadRepository.getInstance(appContext)
-        val fileEntryRepository = FileEntryRepository.getInstance(appContext)
-        val fileHelper = FileHelper.createInstance(appContext)
+    suspend fun startDownload(fileName: String) {
 
         fileEntryRepository.get(fileName)?.let { fileEntry ->
             downloadRepository.get(fileName)?.let { fromDB ->
@@ -83,28 +94,33 @@ class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
                             )::enqueue
                         )
 
-                        val file = fileHelper.getFile(fileEntry)
+                        if (response.code.toString().startsWith("2")) {
+                            val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
+                            @Suppress("NAME_SHADOWING")
+                            bytes?.let { bytes ->
+                                // ensure folders are created
+                                fileHelper.createFileDirs(fileEntry)
+                                fileHelper.writeFile(fileEntry, bytes)
 
-                        val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
-                        @Suppress("NAME_SHADOWING")
-                        bytes?.let { bytes ->
-                            // ensure folders are created
-                            fileHelper.createFileDirs(fileEntry)
-                            file.writeBytes(bytes)
-
-                            // check sha256
-                            val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
-                                .fold("", { str, it -> str + "%02x".format(it) })
-                            if (sha256 == fromDB.file.sha256) {
-                                log.info("sha256 matched for file ${fromDB.file.name}")
-                            } else {
-                                log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                // check sha256
+                                val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
+                                    .fold("", { str, it -> str + "%02x".format(it) })
+                                if (sha256 == fromDB.file.sha256) {
+                                    log.debug("sha256 matched for file ${fromDB.file.name}")
+                                    downloadRepository.setStatus(fromDB, DownloadStatus.done)
+                                    log.debug("finished download of ${fromDB.file.name}")
+                                } else {
+                                    log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                    downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                                }
+                            } ?: run {
+                                log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                                downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             }
-                            downloadRepository.setStatus(fromDB, DownloadStatus.done)
-                            log.debug("finished download of ${fromDB.file.name}")
-                        } ?: run {
-                            log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                        } else {
+                            log.warn("Download was not successful")
                             downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                            Sentry.capture(response.message)
                         }
                     } catch (e: Exception) {
                         log.debug("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
@@ -118,7 +134,7 @@ class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
                 // cancel workmanager request if downloaded successfully
                 if (fromDB.status == DownloadStatus.done) {
                     fromDB.workerManagerId?.let {
-                        WorkManager.getInstance(appContext).cancelWorkById(it)
+                        workManager.cancelWorkById(it)
                         log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
                     }
                     fromDB.workerManagerId = null
@@ -127,7 +143,6 @@ class DownloadWorker(private val httpClient: OkHttpClient = okHttpClient) {
             } ?: log.error("download for $fileName not found")
         }
     }
-
 }
 
 /**
@@ -144,7 +159,7 @@ class WorkManagerDownloadWorker(
         inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
             async {
                 try {
-                    DownloadWorker().startDownload(appContext, fileName)
+                    DownloadWorker(appContext).startDownload(fileName)
                     log.debug("download of $fileName succeeded")
                     Result.success()
                 } catch (ioe: IOException) {
@@ -166,7 +181,10 @@ class ScheduleIssueDownloadWorkManagerWorker(
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService.getInstance(appContext).getIssueByFeedAndDate(feedName, date)?.let { issue ->
+                        ApiService.getInstance(appContext).getIssueByFeedAndDate(
+                            feedName,
+                            date
+                        )?.let { issue ->
                             IssueRepository.getInstance(appContext).save(issue)
                             IssueRepository.getInstance(appContext).setDownloadDate(issue, Date())
                             DownloadService.scheduleDownload(appContext, issue)

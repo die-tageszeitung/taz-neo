@@ -62,8 +62,7 @@ object DownloadService {
 
                 createDownloadsForCacheableDownload(appContext, cacheableDownload)
 
-                DownloadWorker().startDownloads(
-                    appContext,
+                DownloadWorker(appContext).startDownloads(
                     cacheableDownload.getAllFiles()
                 )
             }
