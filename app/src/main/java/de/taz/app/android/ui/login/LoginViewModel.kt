@@ -54,26 +54,32 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.SUBSCRIPTION_CHECKING)
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            val subscriptionAuthInfo = apiService.checkSubscriptionId(
-                                subscriptionId,
-                                subscriptionPassword
-                            )
 
-                            when (subscriptionAuthInfo?.status) {
-                                AuthStatus.tazIdNotLinked -> {
-                                    // this should never happen
-                                    Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
-                                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                            try {
+
+                                val subscriptionAuthInfo = apiService.checkSubscriptionId(
+                                    subscriptionId,
+                                    subscriptionPassword
+                                )
+
+                                when (subscriptionAuthInfo?.status) {
+                                    AuthStatus.tazIdNotLinked -> {
+                                        // this should never happen
+                                        Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
+                                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                                    }
+                                    AuthStatus.elapsed ->
+                                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                                    AuthStatus.notValid -> {
+                                        password = null
+                                        status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                                    }
+                                    AuthStatus.valid ->
+                                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                                    null -> noInternet.postValue(true)
                                 }
-                                AuthStatus.elapsed ->
-                                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                                AuthStatus.notValid -> {
-                                    password = null
-                                    status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
-                                }
-                                AuthStatus.valid ->
-                                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                                null -> noInternet.postValue(true)
+                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                noInternet.postValue(true)
                             }
                         }
                     } else {
@@ -93,20 +99,24 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.CREDENTIALS_CHECKING)
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            val authTokenInfo = apiService.authenticate(username, password)
+                            try {
+                                val authTokenInfo = apiService.authenticate(username, password)
 
-                            when (authTokenInfo?.authInfo?.status) {
-                                AuthStatus.valid -> {
-                                    saveToken(authTokenInfo.token!!)
-                                    status.postValue(LoginViewModelState.DONE)
+                                when (authTokenInfo?.authInfo?.status) {
+                                    AuthStatus.valid -> {
+                                        saveToken(authTokenInfo.token!!)
+                                        status.postValue(LoginViewModelState.DONE)
+                                    }
+                                    AuthStatus.notValid ->
+                                        status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                                    AuthStatus.tazIdNotLinked ->
+                                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                                    AuthStatus.elapsed ->
+                                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                                    null -> noInternet.postValue(true)
                                 }
-                                AuthStatus.notValid ->
-                                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
-                                AuthStatus.tazIdNotLinked ->
-                                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                                AuthStatus.elapsed ->
-                                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                                null -> noInternet.postValue(true)
+                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                noInternet.postValue(true)
                             }
                         }
                     } else if (username.isBlank()) {
@@ -129,48 +139,51 @@ class LoginViewModel(
                 status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val subscriptionInfo = apiService.trialSubscription(username1, password1)
+                    try {
+                        val subscriptionInfo = apiService.trialSubscription(username1, password1)
 
-                    when (subscriptionInfo?.status) {
-                        SubscriptionStatus.aboIdNotValid -> {
-                            // should not happen
-                            Sentry.capture("trialSubscription returned aboIdNotValid")
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                        when (subscriptionInfo?.status) {
+                            SubscriptionStatus.aboIdNotValid -> {
+                                // should not happen
+                                Sentry.capture("trialSubscription returned aboIdNotValid")
+                                status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                            }
+                            SubscriptionStatus.tazIdNotValid -> {
+                                // should not happen - TODO currently if user has not clicked mail link
+                                Sentry.capture("trialSubscription returned tazIdNotValid")
+                                status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                            }
+                            SubscriptionStatus.alreadyLinked -> {
+                                // TODO check if can login then auto login? Or show screen?
+                                login(username1, password1)
+                            }
+                            SubscriptionStatus.elapsed -> {
+                                status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                            }
+                            SubscriptionStatus.invalidConnection -> {
+                                status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                            }
+                            SubscriptionStatus.noPollEntry -> {
+                                // TODO?
+                            }
+                            SubscriptionStatus.valid -> {
+                                saveToken(subscriptionInfo.token!!)
+                                status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                            }
+                            SubscriptionStatus.waitForMail -> {
+                                status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                            }
+                            SubscriptionStatus.waitForProc -> {
+                                poll()
+                            }
+                            null -> {
+                                noInternet.postValue(true)
+                            }
                         }
-                        SubscriptionStatus.tazIdNotValid -> {
-                            // should not happen - TODO currently if user has not clicked mail link
-                            Sentry.capture("trialSubscription returned tazIdNotValid")
-                            status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                        }
-                        SubscriptionStatus.alreadyLinked -> {
-                            // TODO check if can login then auto login? Or show screen?
-                            login(username1, password1)
-                        }
-                        SubscriptionStatus.elapsed -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                        }
-                        SubscriptionStatus.invalidConnection -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                        }
-                        SubscriptionStatus.noPollEntry -> {
-                            // TODO?
-                        }
-                        SubscriptionStatus.valid -> {
-                            saveToken(subscriptionInfo.token!!)
-                            status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
-                        }
-                        SubscriptionStatus.waitForMail -> {
-                            status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                        }
-                        SubscriptionStatus.waitForProc -> {
-                            poll()
-                        }
-                        null -> {
-                            noInternet.postValue(true)
-                        }
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        noInternet.postValue(true)
                     }
                 }
-
             }
         }
     }
@@ -180,7 +193,7 @@ class LoginViewModel(
         initialPassword: String? = null,
         intialSubscriptionId: Int? = null,
         initialSubscriptionPassword: String? = null
-    ){
+    ) {
         initialUsername?.let { username = it }
         initialPassword?.let { password = it }
         intialSubscriptionId?.let { subscriptionId = it }
@@ -188,39 +201,52 @@ class LoginViewModel(
 
         CoroutineScope(Dispatchers.IO).launch {
             // TODO nullcheck
-            val subscriptionInfo = apiService.subscriptionId2TazId(username!!, password!!, subscriptionId!!, subscriptionPassword!!)
+            try {
+                val subscriptionInfo = apiService.subscriptionId2TazId(
+                    username!!,
+                    password!!,
+                    subscriptionId!!,
+                    subscriptionPassword!!
+                )
 
-            when(subscriptionInfo?.status) {
-                SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
-                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
-                }
-                SubscriptionStatus.waitForProc -> {}
-                SubscriptionStatus.waitForMail -> {
-                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                }
-                SubscriptionStatus.tazIdNotValid -> {
-                    // TODO what happens if waiting for email ?!
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                }
-                SubscriptionStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                }
+                when (subscriptionInfo?.status) {
+                    SubscriptionStatus.valid -> {
+                        saveToken(subscriptionInfo.token!!)
+                        status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    }
+                    SubscriptionStatus.invalidMail -> {
+                        // TODO should not happen…
+                        // go back and show error
+                    }
+                    SubscriptionStatus.waitForProc -> {
+                    }
+                    SubscriptionStatus.waitForMail -> {
+                        status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                    }
+                    SubscriptionStatus.tazIdNotValid -> {
+                        // TODO what happens if waiting for email ?!
+                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    }
+                    SubscriptionStatus.invalidConnection -> {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                    }
 
-                SubscriptionStatus.noPollEntry,
-                SubscriptionStatus.elapsed,
-                SubscriptionStatus.alreadyLinked,
-                SubscriptionStatus.aboIdNotValid -> {
-                    // should not happen
-                    Sentry.capture("subscriptionId2TazId returned ${subscriptionInfo.status}")
-                    // TODO what to do?
-                }
-                null -> {
-                    noInternet.postValue(true)
-                }
+                    SubscriptionStatus.noPollEntry,
+                    SubscriptionStatus.elapsed,
+                    SubscriptionStatus.alreadyLinked,
+                    SubscriptionStatus.aboIdNotValid -> {
+                        // should not happen
+                        Sentry.capture("subscriptionId2TazId returned ${subscriptionInfo.status}")
+                        // TODO what to do?
+                    }
+                    null -> {
+                        noInternet.postValue(true)
+                    }
 
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                noInternet.postValue(true)
             }
-
         }
     }
 
@@ -231,43 +257,47 @@ class LoginViewModel(
         CoroutineScope(Dispatchers.IO).launch {
             delay(timeoutMillis)
 
-            val subscriptionInfo = apiService.subscriptionPoll()
-            log.debug("poll subscriptionPoll: $subscriptionInfo")
+            try {
+                val subscriptionInfo = apiService.subscriptionPoll()
+                log.debug("poll subscriptionPoll: $subscriptionInfo")
 
-            when (subscriptionInfo?.status) {
-                SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
-                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                when (subscriptionInfo?.status) {
+                    SubscriptionStatus.valid -> {
+                        saveToken(subscriptionInfo.token!!)
+                        status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    }
+                    SubscriptionStatus.tazIdNotValid -> {
+                        // should not happen
+                        Sentry.capture("trialSubscription returned tazIdNotValid")
+                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    }
+                    SubscriptionStatus.aboIdNotValid -> {
+                        // should not happen
+                        Sentry.capture("trialSubscription returned aboIdNotValid")
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                    }
+                    SubscriptionStatus.elapsed -> {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    }
+                    SubscriptionStatus.invalidConnection -> {
+                        status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                    }
+                    SubscriptionStatus.alreadyLinked -> {
+                        // TODO check if can login then auto login? Or show screen?
+                        login(username, password)
+                    }
+                    SubscriptionStatus.waitForMail -> {
+                        status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                    }
+                    SubscriptionStatus.waitForProc -> {
+                        poll(timeoutMillis * 2)
+                    }
+                    SubscriptionStatus.noPollEntry -> {
+                        // TODO?
+                    }
                 }
-                SubscriptionStatus.tazIdNotValid -> {
-                    // should not happen
-                    Sentry.capture("trialSubscription returned tazIdNotValid")
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                }
-                SubscriptionStatus.aboIdNotValid -> {
-                    // should not happen
-                    Sentry.capture("trialSubscription returned aboIdNotValid")
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                }
-                SubscriptionStatus.elapsed -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                }
-                SubscriptionStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                }
-                SubscriptionStatus.alreadyLinked -> {
-                    // TODO check if can login then auto login? Or show screen?
-                    login(username, password)
-                }
-                SubscriptionStatus.waitForMail -> {
-                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                }
-                SubscriptionStatus.waitForProc -> {
-                    poll(timeoutMillis * 2)
-                }
-                SubscriptionStatus.noPollEntry -> {
-                    // TODO?
-                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                noInternet.postValue(true)
             }
         }
     }
@@ -283,15 +313,20 @@ class LoginViewModel(
             status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
 
             CoroutineScope(Dispatchers.IO).launch {
-                when (apiService.resetPassword(email)) {
-                    PasswordResetInfo.ok ->
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
-                    PasswordResetInfo.error,
-                    PasswordResetInfo.invalidMail, // should not happen?
-                    PasswordResetInfo.mailError -> {
-                        ToastHelper.getInstance().makeToast(R.string.something_went_wrong_try_later)
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                try {
+                    when (apiService.resetPassword(email)) {
+                        PasswordResetInfo.ok ->
+                            status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                        PasswordResetInfo.error,
+                        PasswordResetInfo.invalidMail, // should not happen?
+                        PasswordResetInfo.mailError -> {
+                            ToastHelper.getInstance()
+                                .makeToast(R.string.something_went_wrong_try_later)
+                            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                        }
                     }
+                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                    noInternet.postValue(true)
                 }
             }
         }

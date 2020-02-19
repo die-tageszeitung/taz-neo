@@ -91,6 +91,7 @@ class LoginActivity(
         viewModel.noInternet.observe(this, Observer {
             if (it) {
                 toastHelper.showNoConnectionToast()
+                hideLoadingScreen()
             }
         })
 
@@ -223,10 +224,14 @@ class LoginActivity(
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 1) {
-            finish()
+        if (loading_screen.visibility == View.VISIBLE) {
+            hideLoadingScreen()
         } else {
-            super.onBackPressed()
+            if (supportFragmentManager.backStackEntryCount == 1) {
+                finish()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
