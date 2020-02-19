@@ -385,8 +385,7 @@ class LoginViewModel(
          */
 
         // TODO remove and use above
-        status.postValue(statusBeforePasswordRequest)
-        statusBeforePasswordRequest = null
+        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
     }
 
     fun requestCredentialsPasswordReset(email: String) {
@@ -400,8 +399,7 @@ class LoginViewModel(
                 try {
                     when (apiService.requestCredentialsPasswordReset(email)) {
                         PasswordResetInfo.ok -> {
-                            status.postValue(statusBeforePasswordRequest)
-                            statusBeforePasswordRequest = null
+                            status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                         }
                         PasswordResetInfo.error,
                         PasswordResetInfo.invalidMail,
@@ -416,6 +414,11 @@ class LoginViewModel(
                 }
             }
         }
+    }
+
+    fun backAfterEmailSent() {
+        status.postValue(statusBeforePasswordRequest)
+        statusBeforePasswordRequest = null
     }
 
     private fun resetSubscriptionPassword() {
@@ -454,6 +457,7 @@ enum class LoginViewModelState {
     SUBSCRIPTION_TAKEN,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
+    PASSWORD_REQUEST_DONE,
     PASSWORD_REQUEST_ONGOING,
     REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,

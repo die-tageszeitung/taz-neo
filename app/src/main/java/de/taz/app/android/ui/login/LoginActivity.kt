@@ -84,6 +84,9 @@ class LoginActivity(
                 LoginViewModelState.PASSWORD_REQUEST -> {
                     showPasswordRequest()
                 }
+                LoginViewModelState.PASSWORD_REQUEST_DONE -> {
+                    showPasswordMailSent()
+                }
                 LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
                     showLoadingScreen()
                 }
