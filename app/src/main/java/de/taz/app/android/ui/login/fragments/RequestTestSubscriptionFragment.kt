@@ -5,7 +5,19 @@ import android.view.View
 import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_login_request_test_subscription.*
 
-class RequestTestSubscriptionFragment: BaseFragment(R.layout.fragment_login_request_test_subscription) {
+class RequestTestSubscriptionFragment :
+    BaseFragment(R.layout.fragment_login_request_test_subscription) {
+
+    private var invalidMail: Boolean = false
+
+    companion object {
+        fun create(invalidMail: Boolean): RequestTestSubscriptionFragment {
+            val fragment = RequestTestSubscriptionFragment()
+            fragment.invalidMail = invalidMail
+            return fragment
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -15,15 +27,23 @@ class RequestTestSubscriptionFragment: BaseFragment(R.layout.fragment_login_requ
         }
 
         viewModel.password?.let {
-           fragment_login_request_test_subscription_password.setText(it)
+            fragment_login_request_test_subscription_password.setText(it)
         }
 
         fragment_login_request_test_subscription_login.setOnClickListener {
             val password = fragment_login_request_test_subscription_password.text.toString()
-            val passwordConfirmation = fragment_login_request_test_subscription_password_confirmation.text.toString()
-            val username = fragment_login_request_test_subscription_email.text.toString()
+            val passwordConfirmation =
+                fragment_login_request_test_subscription_password_confirmation.text.toString()
+            val email = fragment_login_request_test_subscription_email.text.toString()
 
-            if (username.isNotEmpty()) {
+            if (email.isNotEmpty()) {
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    fragment_login_request_test_subscription_email.error = getString(
+                        R.string.login_email_error_no_email
+                    )
+                    return@setOnClickListener
+                }
+
                 if (password.isNotEmpty()) {
                     if (password != passwordConfirmation) {
                         fragment_login_request_test_subscription_password_confirmation.error =
@@ -31,7 +51,7 @@ class RequestTestSubscriptionFragment: BaseFragment(R.layout.fragment_login_requ
                                 R.string.login_password_confirmation_error_match
                             )
                     } else {
-                        viewModel.register(username, password)
+                        viewModel.getTrialSubscriptionForNewCredentials(email, password)
                     }
                 } else {
                     fragment_login_request_test_subscription_password.error = getString(

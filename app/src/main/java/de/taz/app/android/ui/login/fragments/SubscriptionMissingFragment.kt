@@ -11,7 +11,6 @@ class SubscriptionMissingFragment: BaseFragment(R.layout.fragment_login_missing_
         super.onViewCreated(view, savedInstanceState)
 
        fragment_login_missing_subscription_connect_account.setOnClickListener {
-
            viewModel.connect(
               intialSubscriptionId = fragment_login_missing_subscription.text.toString().toIntOrNull(),
               initialSubscriptionPassword = fragment_login_missing_subscription_password.text.toString()
@@ -19,7 +18,7 @@ class SubscriptionMissingFragment: BaseFragment(R.layout.fragment_login_missing_
        }
 
         fragment_login_missing_subscription_test_subscription.setOnClickListener {
-            viewModel.register()
+            viewModel.getTrialSubscriptionForExistingCredentials()
         }
     }
 

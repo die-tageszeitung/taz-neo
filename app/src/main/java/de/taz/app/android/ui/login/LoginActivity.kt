@@ -46,34 +46,49 @@ class LoginActivity(
                     showLoginForm()
                 LoginViewModelState.REGISTRATION_CHECKING,
                 LoginViewModelState.CREDENTIALS_CHECKING,
-                LoginViewModelState.SUBSCRIPTION_CHECKING ->
+                LoginViewModelState.SUBSCRIPTION_CHECKING -> {
                     showLoadingScreen()
+                }
                 LoginViewModelState.CREDENTIALS_INVALID -> {
                     viewModel.resetPassword()
                     showCredentialsInvalid()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING ->
+                LoginViewModelState.CREDENTIALS_MISSING -> {
                     showMissingCredentials()
-                LoginViewModelState.SUBSCRIPTION_ELAPSED ->
+                }
+                LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL -> {
+                    showMissingCredentials(invalidMail = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
+                }
                 LoginViewModelState.SUBSCRIPTION_INVALID -> {
                     viewModel.resetPassword()
                     showSubscriptionInvalid()
                 }
-                LoginViewModelState.SUBSCRIPTION_MISSING ->
+                LoginViewModelState.SUBSCRIPTION_MISSING -> {
                     showSubscriptionMissing()
-                LoginViewModelState.SUBSCRIPTION_TAKEN ->
-                    showSubscriptionTaken()
-                LoginViewModelState.PASSWORD_MISSING ->
-                    showLoginForm(passwordErrorId = R.string.login_password_error_empty)
-                LoginViewModelState.PASSWORD_REQUEST ->
-                    showPasswordRequest()
-                LoginViewModelState.PASSWORD_REQUEST_ONGOING ->
-                    showLoadingScreen()
-                LoginViewModelState.PASSWORD_REQUEST_DONE ->
-                    showPasswordMailSent()
+                }
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
+                }
+                LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL -> {
+                    showLoginRequestTestSubscription(invalidMail = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_TAKEN -> {
+                    showSubscriptionTaken()
+                }
+                LoginViewModelState.PASSWORD_MISSING -> {
+                    showLoginForm(passwordErrorId = R.string.login_password_error_empty)
+                }
+                LoginViewModelState.PASSWORD_REQUEST -> {
+                    showPasswordRequest()
+                }
+                LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
+                    showLoadingScreen()
+                }
+                LoginViewModelState.PASSWORD_REQUEST_DONE -> {
+                    showPasswordMailSent()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
                     showConfirmEmail()
@@ -81,10 +96,12 @@ class LoginActivity(
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> {
                     showRegistrationSuccessful()
                 }
-                LoginViewModelState.USERNAME_MISSING ->
+                LoginViewModelState.USERNAME_MISSING -> {
                     showLoginForm(usernameErrorId = R.string.login_username_error_empty)
-                LoginViewModelState.DONE ->
+                }
+                LoginViewModelState.DONE -> {
                     done()
+                }
             }
         })
 
@@ -140,9 +157,9 @@ class LoginActivity(
         showFragment(SubscriptionTakenFragment())
     }
 
-    private fun showMissingCredentials() {
+    private fun showMissingCredentials(invalidMail: Boolean = false) {
         log.debug("showMissingCredentials")
-        showFragment(CredentialsMissingFragment())
+        showFragment(CredentialsMissingFragment.create(invalidMail))
     }
 
     private fun showCredentialsInvalid() {
@@ -156,9 +173,9 @@ class LoginActivity(
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun showLoginRequestTestSubscription() {
+    private fun showLoginRequestTestSubscription(invalidMail: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
-        showFragment(RequestTestSubscriptionFragment())
+        showFragment(RequestTestSubscriptionFragment.create(invalidMail))
     }
 
     private fun showRegistrationSuccessful() {

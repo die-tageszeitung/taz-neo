@@ -10,13 +10,28 @@ import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
 class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_credentials) {
 
+    private var invalidMail: Boolean = true
+
+    companion object {
+        fun create(invalidMail: Boolean) : CredentialsMissingFragment {
+            val fragment = CredentialsMissingFragment()
+            fragment.invalidMail = invalidMail
+            return fragment
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.username?.let {
-            fragment_login_missing_credentials_email_text.setText(it)
+            fragment_login_missing_credentials_email.setText(it)
         }
 
+        if (invalidMail) {
+            fragment_login_missing_credentials_email.error = getString(
+                R.string.login_email_error_no_email
+            )
+        }
 
         fragment_login_missing_credentials_login.setOnClickListener {
             connect()
@@ -24,12 +39,12 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
 
         fragment_login_missing_credentials_forgot_password_button?.setOnClickListener {
             viewModel.requestPasswordReset(
-                fragment_login_missing_credentials_email_text.text.toString()
+                fragment_login_missing_credentials_email.text.toString()
             )
         }
 
         fragment_login_missing_credentials_forgot_password.setOnClickListener {
-            val email = fragment_login_missing_credentials_email_text.toString()
+            val email = fragment_login_missing_credentials_email.toString()
             viewModel.requestPasswordReset(email)
         }
 
@@ -52,7 +67,7 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     }
 
     private fun connect() {
-        val email = fragment_login_missing_credentials_email_text.text.toString()
+        val email = fragment_login_missing_credentials_email.text.toString()
         val password = fragment_login_missing_credentials_password.text.toString()
 
         val passwordConfirm =
@@ -81,15 +96,21 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
             }
         }
 
-        val isEmailEmpty = email.isEmpty()
-        val isPasswordEmpty = password.isEmpty()
-
-        if (isEmailEmpty || isPasswordEmpty) {
-            if (isEmailEmpty) {
-                fragment_login_missing_credentials_email_text.error = getString(
-                    R.string.login_email_error_empty
+        if (email.isEmpty()) {
+            fragment_login_missing_credentials_email.error = getString(
+                R.string.login_email_error_empty
+            )
+            return
+        } else {
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                fragment_login_missing_credentials_email.error = getString(
+                    R.string.login_email_error_no_email
                 )
+                return
             }
+        }
+
+        if (password.isEmpty()) {
             if (password.isEmpty()) {
                 fragment_login_missing_credentials_password.error = getString(
                     R.string.login_password_error_empty
