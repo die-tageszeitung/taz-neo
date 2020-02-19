@@ -49,24 +49,25 @@ class LoginActivity(
                     showLoadingScreen()
                 }
                 LoginViewModelState.CREDENTIALS_INVALID -> {
-                    viewModel.resetPassword()
                     showCredentialsInvalid()
                 }
                 LoginViewModelState.CREDENTIALS_MISSING -> {
                     showMissingCredentials()
                 }
-                LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_EMAIL -> {
+                LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL -> {
                     showMissingCredentials(invalidMail = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
                 }
                 LoginViewModelState.SUBSCRIPTION_INVALID -> {
-                    viewModel.resetPassword()
                     showSubscriptionInvalid()
                 }
                 LoginViewModelState.SUBSCRIPTION_MISSING -> {
                     showSubscriptionMissing()
+                }
+                LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID -> {
+                    showSubscriptionMissing(invalidId = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
@@ -143,9 +144,9 @@ class LoginActivity(
         showFragment(SubscriptionInactiveFragment())
     }
 
-    private fun showSubscriptionMissing() {
+    private fun showSubscriptionMissing(invalidId: Boolean = false) {
         log.debug("showSubscriptionMissing")
-        showFragment(SubscriptionMissingFragment())
+        showFragment(SubscriptionMissingFragment.create(invalidId))
     }
 
     private fun showSubscriptionTaken() {
@@ -228,12 +229,6 @@ class LoginActivity(
             commit()
         }
         hideLoadingScreen()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.resetPassword()
-        viewModel.resetUsername()
     }
 
     override fun onBackPressed() {

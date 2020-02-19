@@ -105,6 +105,8 @@
     <string name="login_error_unknown_credentials">Login failed</string>
 
     <string name="login_subscription_hint">subscription</string>
+    <string name="login_subscription_error_invalid">Subscription ID is not valid.</string>
+    <string name="login_subscription_error_empty">Subscription ID needs to be provided.</string>
 
     <string name="login_email_hint">email</string>
     <string name="login_email_error_empty">Email can\'t be empty.</string>
