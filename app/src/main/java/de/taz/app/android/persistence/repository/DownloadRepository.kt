@@ -6,12 +6,14 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
 
+@Mockable
 class DownloadRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
