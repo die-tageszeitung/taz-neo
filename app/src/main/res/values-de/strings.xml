@@ -144,7 +144,7 @@
     <string name="fragment_login_email_already_taken_contact_support">Oder wenden Sie sich an unseren Service unter</string>
     <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergesse? Geben Sie hier Ihre E-Mail-Adresse an und Sie erhalten eine E-Mail mit dem Link zur Änderung des Passworts.</string>
+    <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse oder Abonummer an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
 
     <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>

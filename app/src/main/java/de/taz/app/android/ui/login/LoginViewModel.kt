@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.login
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -26,21 +28,37 @@ class LoginViewModel(
     private val log by Log
 
     var username: String? = null
+        private set
     var password: String? = null
+        private set
 
     private var subscriptionId: Int? = null
     private var subscriptionPassword: String? = null
 
-    val status by lazy {
+    private val status by lazy {
         MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
     }
 
-    val noInternet by lazy {
+    fun observeStatus(lifecycleOwner: LifecycleOwner, observationCallback: (LoginViewModelState) -> Unit) {
+        status.observe(lifecycleOwner, Observer(observationCallback))
+    }
+
+    private var statusBeforePasswordRequest: LoginViewModelState? = null
+
+    private val noInternet by lazy {
         MutableLiveData<Boolean>(false)
+    }
+
+    fun observeNoInternet(lifecycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit) {
+        noInternet.observe(lifecycleOwner, Observer(observationCallback))
     }
 
     init {
         login(initialUsername, initialPassword)
+    }
+
+    fun backToLogin() {
+        status.postValue(LoginViewModelState.INITIAL)
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null) {
@@ -126,6 +144,13 @@ class LoginViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun requestSubscription(username: String?) {
+        if (!username.isNullOrEmpty() && username.toIntOrNull() == null) {
+            this.username = username
+            status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
     }
 
@@ -322,11 +347,43 @@ class LoginViewModel(
         }
     }
 
-    fun requestPasswordReset(email: String) {
+    fun requestPasswordReset() {
+        statusBeforePasswordRequest = status.value
+        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+
+    fun requestSubscriptionPassword(subscriptionId: Int) {
+        log.debug("forgotCredentialsPassword $subscriptionId")
+        status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
+
+        /* TODO ONCE IMPLEMENTED ON SERVER
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                when (apiService.requestSubscriptionPassword(subscriptionId)) {
+                    PasswordResetInfo.ok ->
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                    PasswordResetInfo.error,
+                    PasswordResetInfo.invalidMail,
+                    PasswordResetInfo.mailError -> {
+                        ToastHelper.getInstance()
+                            .makeToast(R.string.something_went_wrong_try_later)
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                    }
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                noInternet.postValue(true)
+            }
+        }
+         */
+
+        // TODO remove and use above
+        status.postValue(statusBeforePasswordRequest)
+        statusBeforePasswordRequest = null
+    }
+
+    fun requestCredentialsPasswordReset(email: String) {
         log.debug("forgotCredentialsPassword $email")
-
-        // TODO CHECK IF SUBSCRIPTION ID THEN RESET SUBSCRIPTION ID
-
         if (email.isEmpty()) {
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
         } else {
@@ -334,9 +391,11 @@ class LoginViewModel(
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    when (apiService.resetPassword(email)) {
-                        PasswordResetInfo.ok ->
-                            status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                    when (apiService.requestCredentialsPasswordReset(email)) {
+                        PasswordResetInfo.ok -> {
+                            status.postValue(statusBeforePasswordRequest)
+                            statusBeforePasswordRequest = null
+                        }
                         PasswordResetInfo.error,
                         PasswordResetInfo.invalidMail,
                         PasswordResetInfo.mailError -> {
@@ -386,7 +445,6 @@ enum class LoginViewModelState {
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_ONGOING,
-    PASSWORD_REQUEST_DONE,
     REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
