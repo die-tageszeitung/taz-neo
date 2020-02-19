@@ -12,7 +12,7 @@ class PasswordEmailSentFragment: BaseFragment(R.layout.fragment_login_forgot_pas
         super.onViewCreated(view, savedInstanceState)
 
         fragment_login_forgot_password_email_sent_back.setOnClickListener {
-            // TODO lazyViewModel.value.backFromPasswordSent()
+            viewModel.backAfterEmailSent()
         }
     }
 
