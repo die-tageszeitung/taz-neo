@@ -25,7 +25,7 @@
 
     <TextView
             android:id="@+id/section"
-            style="@style/TextAppearance.Header.Article.Num"
+            style="@style/TextAppearance.Header.Article.Section"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
