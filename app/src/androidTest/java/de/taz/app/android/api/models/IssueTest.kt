@@ -13,7 +13,7 @@ class IssueTest {
     fun getAllFiles() {
         val fileList = issue.getAllFiles()
 
-        issue.moment.imageList.forEach { fileEntry ->
+        issue.moment.getMomentImage().let{ fileEntry ->
             assertTrue(fileList.filter { it == fileEntry }.size == 1)
         }
     }
