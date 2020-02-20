@@ -2,11 +2,9 @@ package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
 import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.widget.TextView
 import androidx.annotation.StringRes
 import de.taz.app.android.R
-import de.taz.app.android.ui.login.LoginViewModelState
+import de.taz.app.android.listener.OnEditorActionDoneListener
 import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : BaseFragment(R.layout.fragment_login) {
@@ -60,15 +58,10 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
             viewModel.requestPasswordReset()
         }
 
-        fragment_login_password.setOnEditorActionListener(object : TextView.OnEditorActionListener {
-            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    login()
-                    return true
-                }
-                return false
-            }
-        })
+        fragment_login_password.setOnEditorActionListener(
+            OnEditorActionDoneListener(::login)
+        )
+
     }
 
     private fun login() {

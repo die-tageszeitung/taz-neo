@@ -156,8 +156,8 @@ class LoginViewModel(
     fun requestSubscription(username: String?) {
         if (!username.isNullOrEmpty() && username.toIntOrNull() == null) {
             this.username = username
-            status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
+        status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
@@ -197,8 +197,7 @@ class LoginViewModel(
                                 status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
                             }
                             SubscriptionStatus.alreadyLinked -> {
-                                // TODO check if can login then auto login? Or show screen?
-                                login(username1, password1)
+                                status.postValue(LoginViewModelState.CREDENTIALS_EMAIL_LINKED)
                             }
                             SubscriptionStatus.invalidMail -> {
                                 status.postValue(invalidMailState)
@@ -421,6 +420,13 @@ class LoginViewModel(
         statusBeforePasswordRequest = null
     }
 
+    fun backToLogin() {
+        resetSubscriptionPassword()
+        resetCredentialsPassword()
+        resetSubscriptionId()
+        status.postValue(LoginViewModelState.INITIAL)
+    }
+
     private fun resetSubscriptionPassword() {
         subscriptionPassword = null
     }
@@ -444,6 +450,7 @@ class LoginViewModel(
 enum class LoginViewModelState {
     INITIAL,
     CREDENTIALS_CHECKING,
+    CREDENTIALS_EMAIL_LINKED,
     CREDENTIALS_INVALID,
     CREDENTIALS_MISSING,
     CREDENTIALS_MISSING_INVALID_EMAIL,

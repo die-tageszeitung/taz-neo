@@ -152,15 +152,6 @@
     <string name="fragment_login_forgot_password_email_sent_header">The email has been sent. Please check your inbox. If you can not find it please check the spam folder as well.</string>
     <string name="fragment_login_forgot_password_email_sent_back">Back to login/registration</string>
 
-    <string name="fragment_login_forgot_password_subscription_sent_header">We sent you the email with your subscription details. If you can not find it please check the spam folder as well.</string>
-    <string name="fragment_login_forgot_password_subscription_sent_back">Back to Login</string>
-
-    <string name="fragment_login_forgot_subscription_header">You forgot your subscription id and/or password? Search your email inbox for an email by digiabo@taz.de.</string>
-    <string name="fragment_login_forgot_subscription_found">Have you found your subscription credentials?</string>
-    <string name="fragment_login_forgot_subscription_found_button">Then click here</string>
-    <string name="fragment_login_forgot_subscription_request">If you can not find the email or you don\'t have the credentials at hand</string>
-    <string name="fragment_login_forgot_subscription_request_button">Request credentials</string>
-
     <string name="fragment_login_success_login_header">Login successful. </string>
     <string name="fragment_login_success_login_back">Back to the article</string>
 
