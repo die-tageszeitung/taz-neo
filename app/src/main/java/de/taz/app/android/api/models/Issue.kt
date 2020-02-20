@@ -49,11 +49,16 @@ data class Issue(
     )
 
     override fun getAllFiles(): List<FileEntry> {
-        val files = mutableListOf(moment.imageList)
+        val files = mutableListOf(moment.getAllFiles())
         imprint?.let {
             files.add(imprint.getAllFiles())
         }
-        files.addAll(sectionList.map { it.getAllFiles() })
+        sectionList.forEach { section ->
+            files.add(section.getAllFiles())
+            getArticleList().forEach { article ->
+                files.add(article.getAllFiles())
+            }
+        }
         return files.flatten().distinct()
     }
 
