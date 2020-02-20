@@ -184,6 +184,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">19sp</item>
         <item name="android:backgroundTint">@color/lightGrey</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
