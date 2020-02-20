@@ -9,11 +9,12 @@ data class Moment(
     val imageList: List<FileEntry> = emptyList()
 ): CacheableDownload {
     constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto): this(
-        momentDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList()
+        momentDto.imageList
+            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
     override fun getAllFiles(): List<FileEntry> {
-        return imageList
+        return imageList?.filter { it.name.contains(".normal.") }
     }
 
     fun getIssueStub(): IssueStub {
@@ -24,4 +25,7 @@ data class Moment(
         return getIssueStub()
     }
 
+    fun getMomentImage(): FileEntry {
+        return imageList.first { it.name.contains(".normal.") }
+    }
 }
