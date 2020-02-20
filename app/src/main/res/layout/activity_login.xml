@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:statusBarBackground="@android:color/transparent"
-    tools:context="de.taz.app.android.ui.main.MainActivity">
+    tools:context="de.taz.app.android.ui.login.LoginActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -19,33 +19,54 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingStart="@dimen/fragment_padding_horizontal"
-            android:paddingEnd="@dimen/fragment_padding_horizontal"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintTop_toBottomOf="@id/activity_login_header"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/activity_login_header">
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/activity_login_fragment_placeholder"
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/fragment_login_title_margin_top" />
+                android:layout_height="match_parent"
+                android:paddingStart="@dimen/fragment_padding_horizontal"
+                android:paddingEnd="@dimen/fragment_padding_horizontal"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/activity_login_header">
 
-        </androidx.core.widget.NestedScrollView>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-        <include layout="@layout/include_loading_screen" />
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/activity_login_fragment_placeholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/fragment_login_title_margin_top"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        app:layout_constraintTop_toTopOf="parent"/>
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/nav_bottom_height"
+                        app:layout_constraintTop_toBottomOf="@id/activity_login_fragment_placeholder" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <include layout="@layout/include_loading_screen" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/navigation_bottom_background"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation_bottom"
@@ -55,6 +76,6 @@
             app:labelVisibilityMode="unlabeled"
             app:menu="@menu/navigation_bottom_settings" />
 
-    </FrameLayout>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
