@@ -17,8 +17,6 @@ import java.io.IOException
 
 class SectionTest {
 
-    private val log by Log
-
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
@@ -55,18 +53,10 @@ class SectionTest {
         val fileList = section.getAllFiles()
 
         assertTrue(fileList.filter { it == section.sectionHtml }.size == 1)
+        assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
 
         section.imageList.forEach { fileEntry ->
             assertTrue(fileList.filter { it == fileEntry }.size == 1)
         }
-
-        section.articleList.forEach {article ->
-            assertTrue(fileList.filter { article.articleHtml == it }.size == 1)
-
-            article.imageList.forEach { fileEntry ->
-                assertTrue(fileList.filter { it == fileEntry }.size == 1)
-            }
-        }
-
     }
 }
