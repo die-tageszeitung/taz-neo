@@ -48,7 +48,7 @@ class LoginActivity(
                 LoginViewModelState.SUBSCRIPTION_CHECKING -> {
                     showLoadingScreen()
                 }
-                LoginViewModelState.CREDENTIALS_EMAIL_LINKED -> {
+                LoginViewModelState.EMAIL_ALREADY_LINKED -> {
                     showEmailAlreadyLinked()
                 }
                 LoginViewModelState.CREDENTIALS_INVALID -> {
@@ -92,6 +92,10 @@ class LoginActivity(
                 }
                 LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
                     showLoadingScreen()
+                }
+                LoginViewModelState.POLLING_FAILED -> {
+                    toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                    showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
                     showConfirmEmail()

@@ -41,7 +41,10 @@ class LoginViewModel(
         MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
     }
 
-    fun observeStatus(lifecycleOwner: LifecycleOwner, observationCallback: (LoginViewModelState) -> Unit) {
+    fun observeStatus(
+        lifecycleOwner: LifecycleOwner,
+        observationCallback: (LoginViewModelState) -> Unit
+    ) {
         status.observe(lifecycleOwner, Observer(observationCallback))
     }
 
@@ -78,7 +81,6 @@ class LoginViewModel(
                         CoroutineScope(Dispatchers.IO).launch {
 
                             try {
-
                                 val subscriptionAuthInfo = apiService.checkSubscriptionId(
                                     subscriptionId,
                                     subscriptionPassword
@@ -192,12 +194,12 @@ class LoginViewModel(
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                             }
                             SubscriptionStatus.tazIdNotValid -> {
-                                // should not happen - TODO currently if user has not clicked mail link
+                                // should not happen
                                 Sentry.capture("trialSubscription returned tazIdNotValid")
-                                status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                                status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
                             }
                             SubscriptionStatus.alreadyLinked -> {
-                                status.postValue(LoginViewModelState.CREDENTIALS_EMAIL_LINKED)
+                                status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                             }
                             SubscriptionStatus.invalidMail -> {
                                 status.postValue(invalidMailState)
@@ -209,7 +211,10 @@ class LoginViewModel(
                                 status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                             }
                             SubscriptionStatus.noPollEntry -> {
-                                // TODO?
+                                Sentry.capture("trialSubscription returned noPollEntry")
+                                resetCredentialsPassword()
+                                resetSubscriptionPassword()
+                                status.postValue(LoginViewModelState.POLLING_FAILED)
                             }
                             SubscriptionStatus.valid -> {
                                 saveToken(subscriptionInfo.token!!)
@@ -265,6 +270,7 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
                     }
                     SubscriptionStatus.waitForProc -> {
+                        poll()
                     }
                     SubscriptionStatus.waitForMail -> {
                         status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
@@ -278,11 +284,16 @@ class LoginViewModel(
                     SubscriptionStatus.elapsed -> {
                         status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                     }
-                    SubscriptionStatus.noPollEntry,
+                    SubscriptionStatus.noPollEntry -> {
+                        Sentry.capture("subscriptionId2TazId returned noPollEntry")
+                        resetCredentialsPassword()
+                        resetSubscriptionPassword()
+                        status.postValue(LoginViewModelState.POLLING_FAILED)
+                    }
                     SubscriptionStatus.alreadyLinked -> {
                         // should not happen
-                        Sentry.capture("subscriptionId2TazId returned ${subscriptionInfo.status}")
-                        // TODO what to do?
+                        Sentry.capture("subscriptionId2TazId returned alreadyLinked")
+                        status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                     }
                     null -> {
                         noInternet.postValue(true)
@@ -334,8 +345,7 @@ class LoginViewModel(
                         status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
                     }
                     SubscriptionStatus.alreadyLinked -> {
-                        // TODO check if can login then auto login? Or show screen?
-                        login(username, password)
+                        status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                     }
                     SubscriptionStatus.waitForMail -> {
                         status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
@@ -344,7 +354,9 @@ class LoginViewModel(
                         poll(timeoutMillis * 2)
                     }
                     SubscriptionStatus.noPollEntry -> {
-                        // TODO?
+                        resetCredentialsPassword()
+                        resetSubscriptionPassword()
+                        status.postValue(LoginViewModelState.POLLING_FAILED)
                     }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
@@ -450,10 +462,18 @@ class LoginViewModel(
 enum class LoginViewModelState {
     INITIAL,
     CREDENTIALS_CHECKING,
-    CREDENTIALS_EMAIL_LINKED,
     CREDENTIALS_INVALID,
     CREDENTIALS_MISSING,
     CREDENTIALS_MISSING_INVALID_EMAIL,
+    EMAIL_ALREADY_LINKED,
+    PASSWORD_MISSING,
+    PASSWORD_REQUEST,
+    PASSWORD_REQUEST_DONE,
+    PASSWORD_REQUEST_ONGOING,
+    POLLING_FAILED,
+    REGISTRATION_CHECKING,
+    REGISTRATION_EMAIL,
+    REGISTRATION_SUCCESSFUL,
     SUBSCRIPTION_CHECKING,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
@@ -462,13 +482,6 @@ enum class LoginViewModelState {
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,
-    PASSWORD_MISSING,
-    PASSWORD_REQUEST,
-    PASSWORD_REQUEST_DONE,
-    PASSWORD_REQUEST_ONGOING,
-    REGISTRATION_CHECKING,
-    REGISTRATION_EMAIL,
-    REGISTRATION_SUCCESSFUL,
     USERNAME_MISSING,
     DONE
 }
