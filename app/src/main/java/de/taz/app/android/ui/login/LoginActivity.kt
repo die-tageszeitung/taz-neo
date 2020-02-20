@@ -48,6 +48,9 @@ class LoginActivity(
                 LoginViewModelState.SUBSCRIPTION_CHECKING -> {
                     showLoadingScreen()
                 }
+                LoginViewModelState.CREDENTIALS_EMAIL_LINKED -> {
+                    showEmailAlreadyLinked()
+                }
                 LoginViewModelState.CREDENTIALS_INVALID -> {
                     showCredentialsInvalid()
                 }
@@ -140,6 +143,11 @@ class LoginActivity(
     private fun showConfirmEmail() {
         log.debug("showConfirmEmail")
         showFragment(ConfirmEmailFragment())
+    }
+
+    private fun showEmailAlreadyLinked() {
+        log.debug("showEmailLinked")
+        showFragment(EmailAlreadyLinkedFragment())
     }
 
     private fun showSubscriptionElapsed() {

@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_email_already_taken_insert_new" />
 
 
-    <Button
+    <TextView
         android:id="@+id/fragment_login_email_already_taken_contact_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

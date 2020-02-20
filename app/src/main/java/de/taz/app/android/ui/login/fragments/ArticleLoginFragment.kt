@@ -4,11 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
+import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.ui.login.LOGIN_EXTRA_PASSWORD
 import de.taz.app.android.ui.login.LOGIN_EXTRA_USERNAME
 import de.taz.app.android.ui.login.LoginActivity
@@ -24,19 +23,7 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
         }
 
         fragment_article_read_on_password.setOnEditorActionListener(
-            object : TextView.OnEditorActionListener {
-                override fun onEditorAction(
-                    v: TextView?,
-                    actionId: Int,
-                    event: KeyEvent?
-                ): Boolean {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        login()
-                        return true
-                    }
-                    return false
-                }
-            }
+            OnEditorActionDoneListener(::login)
         )
     }
 
