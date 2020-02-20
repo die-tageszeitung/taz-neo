@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.login
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
@@ -12,15 +14,18 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.fragments.*
+import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
+const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
-
+const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 class LoginActivity(
     private val toastHelper: ToastHelper = ToastHelper.getInstance(),
@@ -31,8 +36,29 @@ class LoginActivity(
 
     private lateinit var viewModel: LoginViewModel
 
+    private var article: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
+
+        navigation_bottom.apply {
+            itemIconTintList = null
+
+            // hack to not auto select first item
+            menu.getItem(0).isCheckable = false
+
+            setOnNavigationItemSelectedListener {
+                this@LoginActivity.apply {
+                    val data = Intent()
+                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+                    setResult(Activity.RESULT_CANCELED, data)
+                    finish()
+                }
+                true
+            }
+        }
 
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
@@ -210,6 +236,15 @@ class LoginActivity(
             downloadLatestIssueMoments()
         }
         deletePublicIssues()
+
+        val data = Intent()
+        article?.let {
+            data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
+            data.putExtra(MAIN_EXTRA_ARTICLE, article)
+        } ?: run {
+            data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+            setResult(Activity.RESULT_OK, data)
+        }
         finish()
     }
 
@@ -249,11 +284,13 @@ class LoginActivity(
             hideLoadingScreen()
         } else {
             if (supportFragmentManager.backStackEntryCount == 1) {
+                setResult(Activity.RESULT_CANCELED)
                 finish()
             } else {
                 super.onBackPressed()
             }
         }
     }
+
 
 }

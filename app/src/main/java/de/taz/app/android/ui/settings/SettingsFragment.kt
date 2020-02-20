@@ -11,6 +11,7 @@ import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
@@ -59,7 +60,10 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
 
             findViewById<Button>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
-                    startActivity(Intent(activity, LoginActivity::class.java))
+                    activity?.startActivityForResult(
+                        Intent(activity, LoginActivity::class.java),
+                        ACTIVITY_LOGIN_REQUEST_CODE
+                    )
                 }
 
             findViewById<View>(R.id.settings_text_decrease).setOnClickListener {

@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LOGIN_EXTRA_PASSWORD
 import de.taz.app.android.ui.login.LOGIN_EXTRA_USERNAME
 import de.taz.app.android.ui.login.LoginActivity
@@ -28,10 +29,10 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
     }
 
     private fun login() {
-        startActivity(Intent(activity, LoginActivity::class.java).apply {
+        activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
             putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString())
             putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
-        })
+        }, ACTIVITY_LOGIN_REQUEST_CODE)
         hideKeyBoard()
     }
 
