@@ -43,9 +43,7 @@ class LoginActivity(
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL ->
                     showLoginForm()
-                LoginViewModelState.REGISTRATION_CHECKING,
-                LoginViewModelState.CREDENTIALS_CHECKING,
-                LoginViewModelState.SUBSCRIPTION_CHECKING -> {
+                LoginViewModelState.LOADING -> {
                     showLoadingScreen()
                 }
                 LoginViewModelState.EMAIL_ALREADY_LINKED -> {

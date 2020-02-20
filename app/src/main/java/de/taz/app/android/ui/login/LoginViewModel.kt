@@ -70,13 +70,13 @@ class LoginViewModel(
 
     fun login(initialUsername: String? = null, initialPassword: String? = null) {
         initialUsername?.toIntOrNull()?.let {
+            status.postValue(LoginViewModelState.LOADING)
             subscriptionId = it
             subscriptionPassword = initialPassword
 
             subscriptionId?.let { subscriptionId ->
                 subscriptionPassword?.let { subscriptionPassword ->
                     if (subscriptionPassword.isNotBlank()) {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_CHECKING)
 
                         CoroutineScope(Dispatchers.IO).launch {
 
@@ -118,9 +118,9 @@ class LoginViewModel(
             username?.let { username ->
                 password?.let { password ->
 
-                    if (username.isNotBlank() && password.isNotBlank()) {
+                    status.postValue(LoginViewModelState.LOADING)
 
-                        status.postValue(LoginViewModelState.CREDENTIALS_CHECKING)
+                    if (username.isNotBlank() && password.isNotBlank()) {
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
@@ -175,13 +175,13 @@ class LoginViewModel(
         username: String? = null,
         password: String? = null
     ) {
-
         username?.let { this.username = it }
         password?.let { this.password = it }
 
         this.username?.let { username1 ->
             this.password?.let { password1 ->
-                status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
+
+                status.postValue(LoginViewModelState.LOADING)
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
@@ -244,6 +244,8 @@ class LoginViewModel(
         subscriptionId: Int? = null,
         subscriptionPassword: String? = null
     ) {
+        status.postValue(LoginViewModelState.LOADING)
+
         username?.let { this.username = it }
         password?.let { this.password = it }
         subscriptionId?.let { this.subscriptionId = it }
@@ -308,7 +310,7 @@ class LoginViewModel(
 
 
     private fun poll(timeoutMillis: Long = 100) {
-        status.postValue(LoginViewModelState.REGISTRATION_CHECKING)
+        status.postValue(LoginViewModelState.LOADING)
 
         CoroutineScope(Dispatchers.IO).launch {
             delay(timeoutMillis)
@@ -428,11 +430,13 @@ class LoginViewModel(
     }
 
     fun backAfterEmailSent() {
-        status.postValue(statusBeforePasswordRequest)
+        status.postValue(LoginViewModelState.LOADING)
         statusBeforePasswordRequest = null
+        status.postValue(statusBeforePasswordRequest)
     }
 
     fun backToLogin() {
+        status.postValue(LoginViewModelState.LOADING)
         resetSubscriptionPassword()
         resetCredentialsPassword()
         resetSubscriptionId()
@@ -461,20 +465,18 @@ class LoginViewModel(
 
 enum class LoginViewModelState {
     INITIAL,
-    CREDENTIALS_CHECKING,
     CREDENTIALS_INVALID,
     CREDENTIALS_MISSING,
     CREDENTIALS_MISSING_INVALID_EMAIL,
     EMAIL_ALREADY_LINKED,
+    LOADING,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
     PASSWORD_REQUEST_ONGOING,
     POLLING_FAILED,
-    REGISTRATION_CHECKING,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
-    SUBSCRIPTION_CHECKING,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
