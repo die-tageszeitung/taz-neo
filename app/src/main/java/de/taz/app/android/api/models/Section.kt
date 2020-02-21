@@ -5,7 +5,7 @@ import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import java.io.File
 
 data class Section(

@@ -7,9 +7,10 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
-import de.taz.app.android.util.PreferencesHelper
+import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
+import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
+import de.taz.app.android.util.observe
 
 @Mockable
 class FeedFilterDataController : BaseDataController(),
@@ -25,18 +26,16 @@ class FeedFilterDataController : BaseDataController(),
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (List<Feed>?) -> Unit
     ) {
-        feedsLiveData.observe(
-            lifeCycleOwner,
-            Observer { feeds -> observationCallback.invoke(feeds) }
-        )
+        observe(feedsLiveData, lifeCycleOwner) { feeds -> observationCallback.invoke(feeds) }
     }
 
     /**
      * Set of [String] corresponding to the deactivated [Feed]'s [Feed.name]
      */
-    private val inactiveFeedNameLiveData = SharedPreferenceStringSetLiveData(
-        PreferencesHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
-    )
+    private val inactiveFeedNameLiveData =
+        SharedPreferenceStringSetLiveData(
+            FeedHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
+        )
 
     override fun getInactiveFeedNames(): Set<String> {
         return inactiveFeedNameLiveData.value ?: emptySet()
@@ -46,10 +45,11 @@ class FeedFilterDataController : BaseDataController(),
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Set<String>) -> Unit
     ) {
-        inactiveFeedNameLiveData.observe(
-            lifeCycleOwner,
-            Observer { feeds -> observationCallback.invoke(feeds) }
-        )
+        observe(inactiveFeedNameLiveData, lifeCycleOwner) { feeds ->
+            observationCallback.invoke(
+                feeds
+            )
+        }
     }
 
 }

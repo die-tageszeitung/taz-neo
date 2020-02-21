@@ -1,12 +1,13 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import de.taz.app.android.PREFERENCES_GENERAL
+import de.taz.app.android.util.SharedPreferenceStringLiveData
+import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val KEEP_ISSUES_DOWNLOADED_DEFAULT = 20
 
@@ -20,9 +21,10 @@ class DownloadedIssueHelper private constructor(applicationContext: Context){
         PREFERENCES_GENERAL, Context.MODE_PRIVATE
     )
 
-    private val storedIssueNumberLiveData = SharedPreferenceStringLiveData(
-        generalSettings, "general_keep_number_issues", KEEP_ISSUES_DOWNLOADED_DEFAULT.toString()
-    )
+    private val storedIssueNumberLiveData =
+        SharedPreferenceStringLiveData(
+            generalSettings, "general_keep_number_issues", KEEP_ISSUES_DOWNLOADED_DEFAULT.toString()
+        )
     private val downloadIssueNumberLiveData = issueRepository.getAllDownloadedStubsLiveData()
 
     init {

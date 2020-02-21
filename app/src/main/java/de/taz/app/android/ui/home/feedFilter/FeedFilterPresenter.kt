@@ -3,10 +3,10 @@ package de.taz.app.android.ui.home.feedFilter
 import android.os.Bundle
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BasePresenter
-import de.taz.app.android.util.PreferencesHelper
+import de.taz.app.android.singletons.FeedHelper
 
 class FeedFilterPresenter(
-    private val preferencesHelper: PreferencesHelper = PreferencesHelper.getInstance()
+    private val feedHelper: FeedHelper = FeedHelper.getInstance()
 ) :
     BasePresenter<FeedFilterContract.View, FeedFilterDataController>(
         FeedFilterDataController::class.java
@@ -31,9 +31,9 @@ class FeedFilterPresenter(
     override fun onFeedClicked(feed: Feed) {
         val inactiveFeedNames = viewModel?.getInactiveFeedNames() ?: emptySet()
         if (feed.name !in inactiveFeedNames) {
-            preferencesHelper.deactivateFeed(feed)
+            feedHelper.deactivateFeed(feed)
         } else {
-            preferencesHelper.activateFeed(feed)
+            feedHelper.activateFeed(feed)
         }
     }
 

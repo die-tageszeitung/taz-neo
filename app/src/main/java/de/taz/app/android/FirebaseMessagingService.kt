@@ -5,7 +5,7 @@ import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.NotificationHelper
+import de.taz.app.android.singletons.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

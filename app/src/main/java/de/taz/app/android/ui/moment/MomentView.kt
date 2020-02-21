@@ -13,7 +13,7 @@ import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.ui.main.MainContract
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_archive_item.view.*
 

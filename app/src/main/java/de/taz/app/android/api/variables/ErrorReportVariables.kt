@@ -9,7 +9,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.singletons.AuthHelper
 
 @JsonClass(generateAdapter = true)
 data class ErrorReportVariables(

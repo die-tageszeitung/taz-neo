@@ -10,7 +10,7 @@ import de.taz.app.android.base.BaseContract
 
 interface HomePageContract {
 
-    interface View: BaseContract.View {
+    interface View : BaseContract.View {
 
         fun getContext(): Context?
 
@@ -24,7 +24,7 @@ interface HomePageContract {
 
     }
 
-    interface Presenter: BaseContract.Presenter {
+    interface Presenter : BaseContract.Presenter {
 
         fun getView(): View?
 
@@ -42,18 +42,29 @@ interface HomePageContract {
 
         fun getIssueStubs(): List<IssueStub>?
 
-        fun observeAuthStatus(lifeCycleOwner: LifecycleOwner, observer: Observer<AuthStatus>)
-        fun observeAuthStatus(lifeCycleOwner: LifecycleOwner, observationCallback: (AuthStatus) -> (Unit))
+        fun observeAuthStatus(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (AuthStatus) -> (Unit)
+        )
 
         fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
 
-        fun observeInactiveFeedNames(lifeCycleOwner: LifecycleOwner, observationCallback: (Set<String>) -> (Unit))
+        fun observeInactiveFeedNames(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (Set<String>) -> (Unit)
+        )
 
-        fun observeFeeds(lifeCycleOwner: LifecycleOwner, observationCallback: (List<Feed>?) -> (Unit))
+        fun observeFeeds(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (List<Feed>) -> (Unit)
+        )
 
         fun setCurrentPosition(position: Int)
         fun getCurrentPosition(): Int?
-        fun observeCurrentPosition(lifeCycleOwner: LifecycleOwner, observationCallback: (Int?) -> Unit)
-   }
+        fun observeCurrentPosition(
+            lifeCycleOwner: LifecycleOwner,
+            observationCallback: (Int?) -> Unit
+        )
+    }
 
 }

@@ -17,11 +17,11 @@ interface SettingsContract {
 
     interface DataController : BaseContract.DataController {
 
-        fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit)
+        fun observeNightMode(lifecycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit)
 
-        fun observeStoredIssueNumber(lifecycleOwner: LifecycleOwner, block: (String) -> Unit)
+        fun observeStoredIssueNumber(lifecycleOwner: LifecycleOwner, observationCallback: (String) -> Unit)
 
-        fun observeTextSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit)
+        fun observeTextSize(lifecycleOwner: LifecycleOwner, observationCallback: (String) -> Unit)
 
         fun setStoredIssueNumber(number: Int)
 

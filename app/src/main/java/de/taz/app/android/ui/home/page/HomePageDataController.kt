@@ -7,10 +7,11 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.AuthHelper
-import de.taz.app.android.util.PREFERENCES_FEEDS_INACTIVE
-import de.taz.app.android.util.PreferencesHelper
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
+import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
+import de.taz.app.android.util.observe
 
 open class HomePageDataController : BaseDataController(), HomePageContract.DataController {
 
@@ -34,21 +35,15 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     /**
      * authentication status
      */
-    private val authStatus = AuthHelper.getInstance().authStatusLiveData
-
-    override fun observeAuthStatus(
-        lifeCycleOwner: LifecycleOwner,
-        observer: Observer<AuthStatus>
-    ) {
-        authStatus.observe(lifeCycleOwner, observer)
-    }
+    private val authStatus = AuthHelper.getInstance()
 
     override fun observeAuthStatus(
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (AuthStatus) -> Unit
     ) {
-        authStatus.observe(lifeCycleOwner, Observer(observationCallback))
+        authStatus.observeAuthStatus(lifeCycleOwner, observationCallback)
     }
+
     /**
      * feeds to be used in filtering and endNavigationView
      */
@@ -57,29 +52,24 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
 
     override fun observeFeeds(
         lifeCycleOwner: LifecycleOwner,
-        observationCallback: (List<Feed>?) -> Unit
+        observationCallback: (List<Feed>) -> Unit
     ) {
-        feedsLiveData.observe(
-            lifeCycleOwner,
-            Observer(observationCallback)
-        )
+        observe(feedsLiveData, lifeCycleOwner, observationCallback)
     }
 
     /**
      * Set of [String] corresponding to the deactivated [Feed]'s [Feed.name]
      */
-    private val inactiveFeedNameLiveData = SharedPreferenceStringSetLiveData(
-        PreferencesHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
-    )
+    private val inactiveFeedNameLiveData =
+        SharedPreferenceStringSetLiveData(
+            FeedHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
+        )
 
     override fun observeInactiveFeedNames(
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Set<String>) -> Unit
     ) {
-        inactiveFeedNameLiveData.observe(
-            lifeCycleOwner,
-            Observer(observationCallback)
-        )
+        observe(inactiveFeedNameLiveData, lifeCycleOwner, observationCallback)
     }
 
     /**
@@ -96,8 +86,11 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         return currentPosition.value
     }
 
-    override fun observeCurrentPosition(lifeCycleOwner: LifecycleOwner, observationCallback: (Int?) -> Unit) {
-        currentPosition.observe(lifeCycleOwner, Observer(observationCallback))
+    override fun observeCurrentPosition(
+        lifeCycleOwner: LifecycleOwner,
+        observationCallback: (Int?) -> Unit
+    ) {
+        observe(currentPosition, lifeCycleOwner, observationCallback)
     }
 
 }

@@ -9,7 +9,7 @@ import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
