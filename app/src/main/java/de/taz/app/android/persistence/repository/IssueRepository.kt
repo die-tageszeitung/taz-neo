@@ -158,7 +158,7 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     @UiThread
     fun getIssueStubForMoment(moment: Moment): IssueStub {
-        return appDatabase.issueMomentJoinDao().getIssueStub(moment.imageList.first().name)
+        return appDatabase.issueMomentJoinDao().getIssueStub(moment.getMomentImage().name)
     }
 
     @UiThread
