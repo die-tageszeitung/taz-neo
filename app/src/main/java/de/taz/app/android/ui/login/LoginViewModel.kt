@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SubscriptionPollHelper
 import de.taz.app.android.util.ToastHelper
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +23,8 @@ class LoginViewModel(
     initialUsername: String? = null,
     initialPassword: String? = null,
     private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance()
+    private val authHelper: AuthHelper = AuthHelper.getInstance(),
+    private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance()
 ) : ViewModel() {
 
     private val log by Log
@@ -60,6 +62,13 @@ class LoginViewModel(
 
     init {
         login(initialUsername, initialPassword)
+    }
+
+    fun startPolling() {
+        authHelper.emailLiveData.postValue(username)
+        authHelper.pollingLiveData.postValue(true)
+        subscriptionPollHelper.poll()
+        status.postValue(LoginViewModelState.DONE)
     }
 
     fun backToMissingSubscription() {
@@ -202,6 +211,7 @@ class LoginViewModel(
                                 status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                             }
                             SubscriptionStatus.invalidMail -> {
+                                // TODO this is triggeredn when wait for mail…
                                 status.postValue(invalidMailState)
                             }
                             SubscriptionStatus.elapsed -> {

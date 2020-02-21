@@ -11,7 +11,7 @@ class ConfirmEmailFragment: BaseFragment(R.layout.fragment_login_confirm_email) 
         super.onViewCreated(view, savedInstanceState)
 
         fragment_login_confirm_done.setOnClickListener {
-            activity?.finish()
+            viewModel.startPolling()
         }
     }
 
