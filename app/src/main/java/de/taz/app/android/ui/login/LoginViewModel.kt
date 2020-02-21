@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel(
     initialUsername: String? = null,
     initialPassword: String? = null,
+    register: Boolean = false,
     private val apiService: ApiService = ApiService.getInstance(),
     private val authHelper: AuthHelper = AuthHelper.getInstance()
 ) : ViewModel() {
@@ -60,7 +61,12 @@ class LoginViewModel(
     }
 
     init {
-        login(initialUsername, initialPassword)
+        if (!register) {
+            login(initialUsername, initialPassword)
+        } else {
+            initialUsername?.let { username = it }
+            initialPassword?.let { password = it }
+        }
     }
 
     fun startPolling() {
@@ -162,7 +168,7 @@ class LoginViewModel(
         }
     }
 
-    fun requestSubscription(username: String?) {
+    fun requestSubscription(username: String? = null) {
         if (!username.isNullOrEmpty() && username.toIntOrNull() == null) {
             this.username = username
         }
