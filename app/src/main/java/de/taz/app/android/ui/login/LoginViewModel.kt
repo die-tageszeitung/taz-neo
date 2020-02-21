@@ -23,8 +23,7 @@ class LoginViewModel(
     initialUsername: String? = null,
     initialPassword: String? = null,
     private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance(),
-    private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance()
+    private val authHelper: AuthHelper = AuthHelper.getInstance()
 ) : ViewModel() {
 
     private val log by Log
@@ -67,7 +66,6 @@ class LoginViewModel(
     fun startPolling() {
         authHelper.emailLiveData.postValue(username)
         authHelper.pollingLiveData.postValue(true)
-        subscriptionPollHelper.poll()
         status.postValue(LoginViewModelState.DONE)
     }
 

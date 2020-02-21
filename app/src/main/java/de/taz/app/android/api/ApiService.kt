@@ -72,7 +72,7 @@ class ApiService private constructor(applicationContext: Context) {
             graphQlClient.query(
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
-            )?.trialSubscription
+            )?.subscriptionPoll
         }, tag)
     }
 
