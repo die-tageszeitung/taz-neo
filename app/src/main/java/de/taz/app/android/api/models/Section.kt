@@ -32,7 +32,7 @@ data class Section(
 
     override fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
-        list.addAll(imageList)
+        list.addAll(imageList.filter { it.name.contains(".norm.") })
         return list.distinct()
     }
 
