@@ -8,7 +8,7 @@ import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before

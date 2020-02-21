@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import kotlinx.serialization.Serializable
 
 const val GLOBAL_FOLDER = "global"

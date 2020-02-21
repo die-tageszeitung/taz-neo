@@ -1,9 +1,10 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.util.SingletonHolder
 import java.text.SimpleDateFormat
 import java.util.*
 

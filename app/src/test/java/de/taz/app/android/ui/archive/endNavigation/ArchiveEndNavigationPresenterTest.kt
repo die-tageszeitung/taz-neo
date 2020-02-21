@@ -9,7 +9,7 @@ import de.taz.app.android.ui.home.feedFilter.FeedFilterContract
 import de.taz.app.android.ui.home.feedFilter.FeedFilterDataController
 import de.taz.app.android.ui.home.feedFilter.FeedFilterPresenter
 import de.taz.app.android.ui.main.MainContract
-import de.taz.app.android.util.PreferencesHelper
+import de.taz.app.android.singletons.FeedHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.setMain
@@ -39,7 +39,7 @@ class ArchiveEndNavigationPresenterTest {
     @Mock
     lateinit var viewModel: FeedFilterDataController
     @Mock
-    lateinit var preferencesHelper: PreferencesHelper
+    lateinit var feedHelper: FeedHelper
 
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,7 +55,7 @@ class ArchiveEndNavigationPresenterTest {
 
         presenter =
             FeedFilterPresenter(
-                preferencesHelper
+                feedHelper
             )
         presenter.attach(contractView)
         presenter.viewModel = viewModel
@@ -80,13 +80,13 @@ class ArchiveEndNavigationPresenterTest {
     @Test
     fun onActiveFeedClicked() {
         presenter.onFeedClicked(testFeed)
-        Mockito.verify(preferencesHelper).deactivateFeed(testFeed)
+        Mockito.verify(feedHelper).deactivateFeed(testFeed)
     }
 
     @Test
     fun ondeactivatedFeedClicked() {
         doReturn(setOf(testFeed.name)).`when`(viewModel).getInactiveFeedNames()
         presenter.onFeedClicked(testFeed)
-        Mockito.verify(preferencesHelper).activateFeed(testFeed)
+        Mockito.verify(feedHelper).activateFeed(testFeed)
     }
 }

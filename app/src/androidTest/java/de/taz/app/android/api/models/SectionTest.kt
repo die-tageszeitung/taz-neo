@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import de.taz.app.android.util.Log
 import org.junit.Assert.*
 import java.io.IOException
 

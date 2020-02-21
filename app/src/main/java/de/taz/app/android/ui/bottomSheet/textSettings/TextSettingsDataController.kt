@@ -33,8 +33,18 @@ class TextSettingsDataController: BaseDataController(), TextSettingsContract.Dat
     }
 
     override fun setPreferences(preferences: SharedPreferences) {
-        textSizeLiveData = SharedPreferenceStringLiveData(preferences, "text_font_size", "100")
-        nightModeLiveData = SharedPreferenceBooleanLiveData(preferences, "text_night_mode", false)
+        textSizeLiveData =
+            SharedPreferenceStringLiveData(
+                preferences,
+                "text_font_size",
+                "100"
+            )
+        nightModeLiveData =
+            SharedPreferenceBooleanLiveData(
+                preferences,
+                "text_night_mode",
+                false
+            )
 
     }
 }

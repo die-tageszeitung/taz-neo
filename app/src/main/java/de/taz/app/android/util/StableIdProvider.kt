@@ -6,7 +6,8 @@ interface StableIdProvider {
     fun getId(key: String): Long
 }
 
-class StableIdViewModel: ViewModel(), StableIdProvider {
+class StableIdViewModel: ViewModel(),
+    StableIdProvider {
     private val keyList = mutableListOf<String>()
 
     override fun getId(key: String): Long {

@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.MotionEvent
 import android.webkit.WebChromeClient
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.TazApiCssHelper
+import de.taz.app.android.singletons.TazApiCssHelper
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 

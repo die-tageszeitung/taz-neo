@@ -6,7 +6,7 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import java.io.File
 
 data class Article(

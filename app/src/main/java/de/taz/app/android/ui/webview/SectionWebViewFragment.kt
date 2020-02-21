@@ -11,7 +11,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

@@ -1,9 +1,10 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import android.os.Handler
 import android.widget.Toast
 import de.taz.app.android.R
+import de.taz.app.android.util.SingletonHolder
 import java.util.*
 
 /**

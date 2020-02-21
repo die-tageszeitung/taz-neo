@@ -9,8 +9,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.util.DateHelper
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 
 class BookmarksViewHolder(
     private val bookmarksPresenter: BookmarksContract.Presenter,

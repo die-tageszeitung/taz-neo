@@ -1,4 +1,4 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import android.os.Environment
@@ -6,6 +6,7 @@ import androidx.annotation.UiThread
 import androidx.core.content.ContextCompat
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.io.IOException
 import java.io.BufferedReader

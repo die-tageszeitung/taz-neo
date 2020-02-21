@@ -20,10 +20,11 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.*
+import de.taz.app.android.singletons.*
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
@@ -100,7 +101,7 @@ class SplashActivity : AppCompatActivity() {
             AuthHelper.createInstance(it)
             DateHelper.createInstance(it)
             FileHelper.createInstance(it)
-            PreferencesHelper.createInstance(it)
+            FeedHelper.createInstance(it)
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
@@ -242,7 +243,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
-        if (AuthHelper.getInstance().authStatusLiveData.value == AuthStatus.valid) {
+        if (AuthHelper.getInstance().authStatus == AuthStatus.valid) {
             log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
         }

@@ -3,7 +3,7 @@ package de.taz.app.android.api.variables
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.singletons.AuthHelper
 
 @JsonClass(generateAdapter = true)
 data class SubscriptionId2TazIdVariables(
