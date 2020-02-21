@@ -17,7 +17,9 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
+import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SubscriptionPollHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -31,9 +33,10 @@ const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 class LoginActivity(
     private val apiService: ApiService = ApiService.getInstance(),
+    private val authHelper: AuthHelper = AuthHelper.getInstance(),
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
+    private val toastHelper: ToastHelper = ToastHelper.getInstance()
 ) : FragmentActivity(R.layout.activity_login) {
 
     private val log by Log
@@ -236,17 +239,20 @@ class LoginActivity(
     fun done() {
         log.debug("done")
         showLoadingScreen()
-        runBlocking(Dispatchers.IO) {
-            downloadLatestIssueMoments()
-        }
-        deletePublicIssues()
 
         val data = Intent()
-        article?.let {
-            data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
-            data.putExtra(MAIN_EXTRA_ARTICLE, article)
-        } ?: run {
-            data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+        if (authHelper.isLoggedIn()) {
+            runBlocking(Dispatchers.IO) {
+                downloadLatestIssueMoments()
+            }
+            deletePublicIssues()
+
+            article?.let {
+                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
+                data.putExtra(MAIN_EXTRA_ARTICLE, article)
+            } ?: run {
+                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+            }
         }
         setResult(Activity.RESULT_OK, data)
         finish()

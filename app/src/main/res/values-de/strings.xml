@@ -6,6 +6,7 @@
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="toast_login_failed">Anmeldung fehlgeschlagen.</string>
+    <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
 
