@@ -148,7 +148,7 @@ class SectionListAdapter(
     }
 
     private fun setMomentImage() {
-        moment?.imageList?.lastOrNull()?.let {
+        moment?.getMomentImage()?.let {
             val file = fileHelper.getFile(it)
             if (file.exists()) {
                 BitmapFactory.decodeFile(file.absolutePath)?.let { bitmap ->
