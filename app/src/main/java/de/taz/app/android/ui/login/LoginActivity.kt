@@ -9,9 +9,11 @@ import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.getViewModel
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
@@ -28,6 +30,8 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 class LoginActivity(
+    private val apiService: ApiService = ApiService.getInstance(),
+    private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
     private val toastHelper: ToastHelper = ToastHelper.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance()
 ) : FragmentActivity(R.layout.activity_login) {
@@ -41,7 +45,7 @@ class LoginActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
+        article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)?.replace("public.", "")
 
         navigation_bottom.apply {
             itemIconTintList = null
@@ -243,22 +247,23 @@ class LoginActivity(
             data.putExtra(MAIN_EXTRA_ARTICLE, article)
         } ?: run {
             data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
-            setResult(Activity.RESULT_OK, data)
         }
+        setResult(Activity.RESULT_OK, data)
         finish()
     }
 
     @UiThread
     private suspend fun downloadLatestIssueMoments() {
-        ApiService.getInstance().getIssuesByDate().forEach { issue ->
-            issueRepository.save(issue)
-            /*getView()?.getMainView()?.apply {
-                setDrawerIssue(issue)
-                getApplicationContext().let {
-                    DownloadService.download(it, issue.moment)
-                }
+        val lastIssues = apiService.getLastIssues()
+        lastIssues.forEach { issueRepository.save(it) }
+
+        article?.let { article ->
+            var lastDate = lastIssues.last().date
+            while (articleRepository.get(article) == null) {
+                val issues = apiService.getIssuesByDate(lastDate)
+                issues.forEach { issueRepository.save(it) }
+                lastDate = issues.last().date
             }
-             */
         }
     }
 
@@ -276,7 +281,9 @@ class LoginActivity(
             addToBackStack(fragmentClassName)
             commit()
         }
-        hideLoadingScreen()
+        fragment.lifecycleScope.launchWhenResumed {
+            hideLoadingScreen()
+        }
     }
 
     override fun onBackPressed() {

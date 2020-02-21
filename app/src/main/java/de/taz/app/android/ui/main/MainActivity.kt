@@ -28,6 +28,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -39,9 +40,9 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -57,6 +58,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val presenter = MainPresenter()
 
     private lateinit var tazApiCssPreferences: SharedPreferences
+
+    private val articleRepository = ArticleRepository.getInstance()
 
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
@@ -153,9 +156,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun showArticle(
         article: Article,
-        enterAnimation: Int,
-        exitAnimation: Int,
-        bookmarksArticle: Boolean
+        enterAnimation: Int = 0,
+        exitAnimation: Int = 0,
+        bookmarksArticle: Boolean = false
     ) {
         val fragment = ArticlePagerFragment.createInstance(article, bookmarksArticle)
         showMainFragment(fragment, enterAnimation, exitAnimation)
@@ -278,8 +281,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             data?.let {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
-                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let {
-                            // TODO show article
+                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                articleRepository.get(articleName)?.let { article ->
+                                    showArticle(article)
+                                }
+                            }
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {

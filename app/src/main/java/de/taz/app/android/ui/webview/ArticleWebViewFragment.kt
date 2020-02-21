@@ -88,12 +88,14 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     override fun hideLoadingScreen() {
         super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
-            if (article?.getIssueStub()?.status == IssueStatus.public) {
-                withContext(Dispatchers.Main) {
-                    childFragmentManager.beginTransaction().replace(
-                        R.id.fragment_article_bottom_fragment_placeholder,
-                        ArticleLoginFragment()
-                    ).commit()
+            article?.let { article ->
+                if (article.getIssueStub()?.status == IssueStatus.public) {
+                    withContext(Dispatchers.Main) {
+                        childFragmentManager.beginTransaction().replace(
+                            R.id.fragment_article_bottom_fragment_placeholder,
+                            ArticleLoginFragment.create(article.articleFileName)
+                        ).commit()
+                    }
                 }
             }
         }
