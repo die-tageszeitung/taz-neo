@@ -47,8 +47,6 @@ class SplashActivity : AppCompatActivity() {
 
         createSingletons()
 
-        startPolling()
-
         initLastIssues()
         initFeedInformation()
         initAppInfoAndCheckAndroidVersion()
@@ -117,12 +115,6 @@ class SplashActivity : AppCompatActivity() {
         }
         log.debug("Singletons initialized")
     }
-
-    private fun startPolling() {
-        val subscriptionPollHelper = SubscriptionPollHelper.getInstance(applicationContext)
-        subscriptionPollHelper.poll()
-    }
-
 
     private fun initFeedInformation() {
         val apiService = ApiService.getInstance(applicationContext)
