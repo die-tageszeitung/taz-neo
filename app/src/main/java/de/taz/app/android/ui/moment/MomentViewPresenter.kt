@@ -71,7 +71,7 @@ class MomentViewPresenter(
 
     private fun generateBitmapForMoment(moment: Moment): Bitmap? {
         // get biggest image -> TODO save image resolution?
-        moment.imageList.lastOrNull()?.let {
+        moment.getMomentImage().let {
             val file = FileHelper.getInstance().getFile(it)
             if (file.exists()) {
                 return BitmapFactory.decodeFile(file.absolutePath)
