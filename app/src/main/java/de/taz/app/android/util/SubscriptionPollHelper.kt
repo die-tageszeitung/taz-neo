@@ -33,7 +33,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
         }
     }
 
-    fun poll(timeoutMillis: Long = 100) {
+    private fun poll(timeoutMillis: Long = 100) {
         CoroutineScope(Dispatchers.IO).launch {
             delay(timeoutMillis)
 
@@ -43,6 +43,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
 
                 when (subscriptionInfo?.status) {
                     SubscriptionStatus.valid -> {
+                        authHelper.pollingLiveData.postValue(false)
                         authHelper.tokenLiveData.postValue(subscriptionInfo.token!!)
                         authHelper.authStatusLiveData.postValue(AuthStatus.valid)
                         toastHelper.makeToast(R.string.toast_login_successful)
