@@ -34,12 +34,26 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
         fragment_article_read_on_password.setOnEditorActionListener(
             OnEditorActionDoneListener(::login)
         )
+
+        fragment_article_read_on_register_button.setOnClickListener {
+            register()
+        }
     }
 
     private fun login() {
         activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
             putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString())
             putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
+            putExtra(LOGIN_EXTRA_ARTICLE, articleFileName)
+        }, ACTIVITY_LOGIN_REQUEST_CODE)
+        hideKeyBoard()
+    }
+
+    private fun register() {
+        activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
+            putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString())
+            putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
+            putExtra(LOGIN_EXTRA_REGISTER, true)
             putExtra(LOGIN_EXTRA_ARTICLE, articleFileName)
         }, ACTIVITY_LOGIN_REQUEST_CODE)
         hideKeyBoard()

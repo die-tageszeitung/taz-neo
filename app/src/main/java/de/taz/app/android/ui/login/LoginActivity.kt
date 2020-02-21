@@ -19,7 +19,6 @@ import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SubscriptionPollHelper
 import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -29,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
+const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 class LoginActivity(
@@ -67,15 +67,22 @@ class LoginActivity(
             }
         }
 
+        val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
-        viewModel = getViewModel { LoginViewModel(username, password) }
+        viewModel = getViewModel { LoginViewModel(username, password, register) }
+
 
         viewModel.observeStatus(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
-                LoginViewModelState.INITIAL ->
-                    showLoginForm()
+                LoginViewModelState.INITIAL -> {
+                    if (register) {
+                        showLoginRequestTestSubscription()
+                    } else {
+                        showLoginForm()
+                    }
+                }
                 LoginViewModelState.LOADING -> {
                     showLoadingScreen()
                 }
@@ -304,6 +311,5 @@ class LoginActivity(
             }
         }
     }
-
 
 }
