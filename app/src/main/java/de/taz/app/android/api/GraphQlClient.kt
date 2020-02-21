@@ -90,13 +90,14 @@ class AuthenticationHeaderInterceptor: Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = authHelper.token
-        val request = if (token.isNotEmpty()) {
+        val originalRequest = chain.request()
+        val request = if (originalRequest.url.toString() == GRAPHQL_ENDPOINT && token.isNotEmpty()) {
                 chain.request().newBuilder().addHeader(
                     TAZ_AUTH_HEADER,
                     token
                 ).build()
         } else {
-            chain.request()
+            originalRequest
         }
 
         return chain.proceed(request)
