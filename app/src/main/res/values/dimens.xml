@@ -79,6 +79,8 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
 
     <dimen name="fragment_bookmarks_thumbnail_size">65dp</dimen>
+    <dimen name="fragment_bookmarks_share_icon_vertical_margin">18dp</dimen>
+
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">10dp</dimen>
 
