@@ -9,10 +9,9 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionStatus
-import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SubscriptionPollHelper
-import de.taz.app.android.util.ToastHelper
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +23,8 @@ class LoginViewModel(
     initialPassword: String? = null,
     register: Boolean = false,
     private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance()
+    private val authHelper: AuthHelper = AuthHelper.getInstance(),
+    private val toastHelper: ToastHelper = ToastHelper.getInstance()
 ) : ViewModel() {
 
     private val log by Log
@@ -70,8 +70,8 @@ class LoginViewModel(
     }
 
     fun startPolling() {
-        authHelper.emailLiveData.postValue(username)
-        authHelper.pollingLiveData.postValue(true)
+        authHelper.email = username
+        authHelper.isPolling = true
         status.postValue(LoginViewModelState.DONE)
     }
 
@@ -431,8 +431,7 @@ class LoginViewModel(
                         PasswordResetInfo.error,
                         PasswordResetInfo.invalidMail,
                         PasswordResetInfo.mailError -> {
-                            ToastHelper.getInstance()
-                                .makeToast(R.string.something_went_wrong_try_later)
+                            toastHelper.makeToast(R.string.something_went_wrong_try_later)
                             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                         }
                     }
@@ -470,9 +469,9 @@ class LoginViewModel(
     }
 
     private fun saveToken(token: String) {
-        authHelper.tokenLiveData.postValue(token)
-        authHelper.authStatusLiveData.postValue(AuthStatus.valid)
-        authHelper.emailLiveData.postValue(username)
+        authHelper.token = token
+        authHelper.authStatus = AuthStatus.valid
+        authHelper.email = username
     }
 
 }

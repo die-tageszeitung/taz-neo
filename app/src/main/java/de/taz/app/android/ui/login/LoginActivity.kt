@@ -15,11 +15,11 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
-import de.taz.app.android.util.AuthHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.ToastHelper
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
