@@ -48,7 +48,7 @@ class AppWebView @JvmOverloads constructor(
     }
 
     override fun loadUrl(url: String) {
-        log.info("url: $url")
+        log.debug("loading url: $url")
         val decodedUrl = URLDecoder.decode(url, "UTF-8")
         if (decodedUrl.startsWith(MAILTO_PREFIX)) {
             sendMail(decodedUrl)
@@ -77,10 +77,9 @@ class AppWebView @JvmOverloads constructor(
         encoding: String?,
         failUrl: String?
     ) {
-        log.info(
-            "baseUrl: $baseUrl, mimeType: $mimeType, encoding: $encoding, failUrl: $failUrl"
+        log.debug(
+            "loadDataWithBaseURL: baseUrl: $baseUrl, mimeType: $mimeType, encoding: $encoding, failUrl: $failUrl\n data: $data"
         )
-        log.debug("data: $data")
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl)
     }
 
