@@ -2,7 +2,6 @@ package de.taz.app.android.ui.webview
 
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.lifecycle.lifecycleScope

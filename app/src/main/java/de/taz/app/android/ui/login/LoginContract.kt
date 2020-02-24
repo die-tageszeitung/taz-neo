@@ -2,6 +2,7 @@ package de.taz.app.android.ui.login
 
 import android.view.MenuItem
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseContract
 
@@ -18,6 +19,9 @@ interface LoginContract {
     }
 
     interface DataController : BaseContract.DataController {
-        fun observeAuthStatus(lifecycleOwner: LifecycleOwner, observationCallback: (AuthStatus?) -> Unit)
+        fun observeAuthStatus(
+            lifecycleOwner: LifecycleOwner,
+            observationCallback: (AuthStatus) -> Unit
+        ): Observer<AuthStatus>
     }
 }

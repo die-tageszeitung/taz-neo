@@ -17,9 +17,10 @@ class FirebaseHelper private constructor(applicationContext: Context) : Firebase
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_FCM, Context.MODE_PRIVATE)
 
-    private val firebaseTokenLiveData = SharedPreferenceStringLiveData(
-        preferences, PREFERENCES_FCM_TOKEN, ""
-    )
+    private val firebaseTokenLiveData =
+        SharedPreferenceStringLiveData(
+            preferences, PREFERENCES_FCM_TOKEN, ""
+        )
     override var firebaseToken: String?
         get() = firebaseTokenLiveData.value
         set(value) = firebaseTokenLiveData.postValue(value)
@@ -27,9 +28,10 @@ class FirebaseHelper private constructor(applicationContext: Context) : Firebase
     override val isPush: Boolean
         get() = firebaseToken?.isNotEmpty() ?: false
 
-    private val firebaseTokenHasBeenSentLiveData = SharedPreferenceBooleanLiveData(
-        preferences, PREFERENCES_FCM_TOKEN_SENT, false
-    )
+    private val firebaseTokenHasBeenSentLiveData =
+        SharedPreferenceBooleanLiveData(
+            preferences, PREFERENCES_FCM_TOKEN_SENT, false
+        )
     override var hasTokenBeenSent: Boolean
         get() = firebaseTokenHasBeenSentLiveData.value ?: false
         set(value) {

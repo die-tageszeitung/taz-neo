@@ -32,10 +32,10 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.TazApiCssHelper
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.singletons.TazApiCssHelper
+import de.taz.app.android.singletons.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

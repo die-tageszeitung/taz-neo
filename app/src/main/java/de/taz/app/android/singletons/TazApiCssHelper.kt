@@ -1,4 +1,4 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.SharedPreferences
 import de.taz.app.android.api.models.RESOURCE_FOLDER

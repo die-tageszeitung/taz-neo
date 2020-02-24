@@ -13,8 +13,8 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.moment.MomentView
-import de.taz.app.android.util.DateHelper
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 import kotlinx.coroutines.*
 import java.util.*
 

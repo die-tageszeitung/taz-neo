@@ -3,7 +3,7 @@ package de.taz.app.android.ui.home.page.archive
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.home.page.HomePagePresenter
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.singletons.DateHelper
 
 class ArchivePresenter(
     apiService: ApiService = ApiService.getInstance(),

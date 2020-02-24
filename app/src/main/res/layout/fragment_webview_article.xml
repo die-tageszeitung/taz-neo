@@ -89,7 +89,7 @@
         android:background="@color/navigation_bottom_background"
         android:orientation="vertical"
         android:visibility="invisible"
-        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
+        app:layout_behavior="de.taz.app.android.singletons.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation_bottom"

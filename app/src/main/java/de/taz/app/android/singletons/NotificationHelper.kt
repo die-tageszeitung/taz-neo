@@ -1,4 +1,4 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.app.PendingIntent
 import android.content.Context
@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import de.taz.app.android.R
+import de.taz.app.android.util.SingletonHolder
 
 class NotificationHelper private constructor(private val applicationContext: Context) {
 

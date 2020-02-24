@@ -14,7 +14,8 @@ import kotlin.reflect.KProperty
 @Mockable
 class Log(private val tag: String) {
     companion object {
-        operator fun getValue(requestBuilder: Any, property: KProperty<*>) = Log(requestBuilder.javaClass.name)
+        operator fun getValue(requestBuilder: Any, property: KProperty<*>) =
+            Log(requestBuilder.javaClass.name)
         var trace = mutableListOf<String>()
     }
 
