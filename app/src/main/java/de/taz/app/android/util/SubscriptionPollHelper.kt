@@ -1,12 +1,14 @@
 package de.taz.app.android.util
 
 import android.content.Context
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,9 +26,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(
-            authHelper.pollingLiveData
-        ).observeForever { isPolling ->
+        authHelper.observeIsPolling(ProcessLifecycleOwner.get()) { isPolling ->
             if (isPolling) {
                 poll()
             }
@@ -43,9 +43,9 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
 
                 when (subscriptionInfo?.status) {
                     SubscriptionStatus.valid -> {
-                        authHelper.pollingLiveData.postValue(false)
-                        authHelper.tokenLiveData.postValue(subscriptionInfo.token!!)
-                        authHelper.authStatusLiveData.postValue(AuthStatus.valid)
+                        authHelper.isPolling = false
+                        authHelper.token = subscriptionInfo.token!!
+                        authHelper.authStatus = AuthStatus.valid
                         toastHelper.makeToast(R.string.toast_login_successful)
                     }
                     SubscriptionStatus.tazIdNotValid,
