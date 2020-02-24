@@ -12,8 +12,7 @@ import de.taz.app.android.ui.home.page.archive.ArchiveContract
 import de.taz.app.android.ui.home.page.archive.ArchiveDataController
 import de.taz.app.android.ui.home.page.archive.ArchivePresenter
 import de.taz.app.android.ui.main.MainContract
-import de.taz.app.android.util.DateHelper
-import de.taz.app.android.util.Log
+import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking

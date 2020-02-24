@@ -1,18 +1,18 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.util.SingletonHolder
 
 const val PREFERENCES_FEEDS_FILE = "preferences_feeds"
 const val PREFERENCES_FEEDS_INACTIVE = "inactiveFeeds"
 
 @Mockable
-class PreferencesHelper private constructor(applicationContext: Context) {
+class FeedHelper private constructor(applicationContext: Context) {
 
-    companion object : SingletonHolder<PreferencesHelper, Context>(::PreferencesHelper)
+    companion object : SingletonHolder<FeedHelper, Context>(::FeedHelper)
 
     val feedPreferences: SharedPreferences =
         applicationContext.getSharedPreferences(PREFERENCES_FEEDS_FILE, Context.MODE_PRIVATE)

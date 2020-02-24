@@ -3,7 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry

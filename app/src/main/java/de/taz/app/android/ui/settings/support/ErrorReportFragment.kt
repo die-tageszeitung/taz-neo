@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.singletons.ToastHelper
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

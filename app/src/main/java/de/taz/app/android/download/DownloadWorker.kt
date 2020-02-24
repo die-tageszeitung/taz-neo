@@ -12,7 +12,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.util.okHttpClient

@@ -8,9 +8,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.util.FileHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.R
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi

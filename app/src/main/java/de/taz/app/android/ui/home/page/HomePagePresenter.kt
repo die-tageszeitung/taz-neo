@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.DateHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
-abstract class HomePagePresenter<VIEW: HomePageContract.View>(
+abstract class HomePagePresenter<VIEW : HomePageContract.View>(
     private val apiService: ApiService = ApiService.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
     private val dateHelper: DateHelper = DateHelper.getInstance()
@@ -38,8 +38,9 @@ abstract class HomePagePresenter<VIEW: HomePageContract.View>(
                             this@HomePagePresenter
                         )
                     )
+
                     observeFeeds(it) { feeds ->
-                        view.setFeeds(feeds ?: emptyList())
+                        view.setFeeds(feeds)
                     }
                     observeInactiveFeedNames(it) { feedNames ->
                         view.setInactiveFeedNames(feedNames)

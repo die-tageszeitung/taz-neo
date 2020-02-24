@@ -6,6 +6,7 @@ import de.taz.app.android.api.models.ArticleType
 import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarksDataController
+import de.taz.app.android.util.observe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,7 +62,7 @@ class ArticlePagerDataController : BaseDataController(),
     }
 
     override fun observeCurrentPosition(viewLifecycleOwner: LifecycleOwner, block: (Int) -> Unit) {
-        currentPosition.observe(viewLifecycleOwner, Observer(block))
+        observe(currentPosition, viewLifecycleOwner, block)
     }
 
     private fun initializePosition(position: Int) {

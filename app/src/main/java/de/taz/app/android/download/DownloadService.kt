@@ -13,7 +13,7 @@ import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.util.ToastHelper
+import de.taz.app.android.singletons.ToastHelper
 import kotlinx.coroutines.*
 import java.util.*
 

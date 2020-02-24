@@ -10,7 +10,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.AuthHelper
+import de.taz.app.android.singletons.AuthHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,8 +71,8 @@ class LoginPresenter(
             try {
                 apiService.authenticate(username, password)?.let {
                     CoroutineScope(Dispatchers.Main).launch {
-                        authHelper.authStatusLiveData.setValue(it.authInfo.status)
-                        authHelper.tokenLiveData.setValue(it.token ?: "")
+                        authHelper.authStatus = it.authInfo.status
+                        authHelper.token = it.token ?: ""
                         apiService.sendNotificationInfo()
                     }
                 } ?: run {

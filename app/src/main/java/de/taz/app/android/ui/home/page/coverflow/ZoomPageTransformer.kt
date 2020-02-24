@@ -1,8 +1,6 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.util.Log
 import kotlin.math.abs
 import kotlin.math.max
