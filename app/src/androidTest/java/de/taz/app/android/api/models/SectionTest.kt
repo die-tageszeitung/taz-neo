@@ -55,8 +55,10 @@ class SectionTest {
         assertTrue(fileList.filter { it == section.sectionHtml }.size == 1)
         assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
 
-        section.imageList.forEach { fileEntry ->
-            assertTrue(fileList.filter { it == fileEntry }.size == 1)
-        }
+        section.imageList
+            .filter { it.name.contains(".norm.") }
+            .forEach { fileEntry ->
+                assertTrue(fileList.filter { it == fileEntry }.size == 1)
+            }
     }
 }

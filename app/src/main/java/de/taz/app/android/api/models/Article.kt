@@ -51,7 +51,7 @@ data class Article(
     override fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList)
+        list.addAll(imageList.filter { it.name.contains(".norm.") })
         return list
     }
 
