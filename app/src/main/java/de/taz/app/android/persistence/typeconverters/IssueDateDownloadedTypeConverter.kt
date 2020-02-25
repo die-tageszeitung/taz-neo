@@ -10,8 +10,7 @@ import java.util.*
 
 
 class IssueDateDownloadTypeConverter {
-    private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-    private val FORMAT_STRING = "HH:mm:ss.SSSZ"
+    private val FORMAT_STRING = "yyyy-MM-dd HH:mm:ss"
     private val log by Log
 
     @TypeConverter
@@ -34,7 +33,7 @@ class IssueDateDownloadTypeConverter {
         return try {
             simpleDateFormat.parse(value)
         } catch (e: ParseException) {
-            log.error("SHIT HAPPENED: ${e.message}")
+            log.error("Problems parsing date as $FORMAT_STRING. ${e.message}")
             Sentry.capture(e)
             return null
         }
