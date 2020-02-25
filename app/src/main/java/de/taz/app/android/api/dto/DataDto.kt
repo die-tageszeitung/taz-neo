@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.models.AuthInfo
 import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionInfo
+import de.taz.app.android.api.models.SubscriptionResetInfo
 
 @JsonClass(generateAdapter = true)
 data class DataDto (
@@ -17,5 +18,6 @@ data class DataDto (
     val notification: Boolean? = null,
     val checkSubscriptionId: AuthInfo? = null,
     val errorReport: Boolean? = null,
-    val passwordReset: PasswordResetInfo? = null
+    val passwordReset: PasswordResetInfo? = null,
+    val subscriptionReset: SubscriptionResetInfo? = null
 )

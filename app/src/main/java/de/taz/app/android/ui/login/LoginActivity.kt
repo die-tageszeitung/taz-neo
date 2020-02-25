@@ -131,6 +131,12 @@ class LoginActivity(
                 LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
                     showLoadingScreen()
                 }
+                LoginViewModelState.PASSWORD_REQUEST_NO_MAIL -> {
+                    showPasswordRequestNoMail()
+                }
+                LoginViewModelState.PASSWORD_REQUEST_INVALID_ID -> {
+                    showPasswordRequest(invalidId = true)
+                }
                 LoginViewModelState.POLLING_FAILED -> {
                     toastHelper.makeToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
@@ -233,14 +239,19 @@ class LoginActivity(
         showFragment(RegistrationSuccessfulFragment())
     }
 
-    private fun showPasswordRequest() {
+    private fun showPasswordRequest(invalidId: Boolean = false) {
         log.debug("showPasswordRequest")
-        showFragment(PasswordRequestFragment())
+        showFragment(PasswordRequestFragment.create(invalidId=invalidId))
     }
 
     private fun showPasswordMailSent() {
         log.debug("showPasswordRequest")
         showFragment(PasswordEmailSentFragment())
+    }
+
+    private fun showPasswordRequestNoMail() {
+        log.debug("showPasswordRequestNoMail")
+        showFragment(PasswordRequestNoMailFragment())
     }
 
     fun done() {

@@ -29,6 +29,7 @@ enum class QueryType {
     ResourceInfo,
     SubscriptionId2TazId,
     SubscriptionPoll,
+    SubscriptionReset,
     TrialSubscription
 }
 

@@ -8,6 +8,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PasswordResetInfo
+import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -391,28 +392,29 @@ class LoginViewModel(
         log.debug("forgotCredentialsPassword $subscriptionId")
         status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
 
-        /* TODO ONCE IMPLEMENTED ON SERVER
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                when (apiService.requestSubscriptionPassword(subscriptionId)) {
-                    PasswordResetInfo.ok ->
+                val subscriptionResetInfo = apiService.requestSubscriptionPassword(subscriptionId)
+                when (subscriptionResetInfo?.status) {
+                    SubscriptionResetStatus.ok ->
                         status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
-                    PasswordResetInfo.error,
-                    PasswordResetInfo.invalidMail,
-                    PasswordResetInfo.mailError -> {
-                        ToastHelper.getInstance()
-                            .makeToast(R.string.something_went_wrong_try_later)
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                    SubscriptionResetStatus.invalidConnection -> {
+                        username = subscriptionResetInfo.mail
+                        status.postValue(LoginViewModelState.INITIAL)
+                        toastHelper.makeToast(R.string.toast_login_with_email)
+                    }
+                    SubscriptionResetStatus.invalidSubscriptionId -> {
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
+                    }
+                    SubscriptionResetStatus.noMail-> {
+                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
                     }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 noInternet.postValue(true)
             }
         }
-         */
 
-        // TODO remove and use above
-        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
     }
 
     fun requestCredentialsPasswordReset(email: String) {
@@ -487,6 +489,8 @@ enum class LoginViewModelState {
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
     PASSWORD_REQUEST_ONGOING,
+    PASSWORD_REQUEST_NO_MAIL,
+    PASSWORD_REQUEST_INVALID_ID,
     POLLING_FAILED,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,

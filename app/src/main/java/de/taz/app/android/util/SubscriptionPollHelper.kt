@@ -45,9 +45,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         authHelper.isPolling = false
                         authHelper.token = subscriptionInfo.token!!
                         authHelper.authStatus = AuthStatus.valid
-                        authHelper.observeAuthStatusOnce(ProcessLifecycleOwner.get()) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                issueRepository.save(apiService.getLastIssues())
+                        CoroutineScope(Dispatchers.Main).launch {
+                            authHelper.observeAuthStatusOnce(ProcessLifecycleOwner.get()) {
+                                launch(Dispatchers.IO) {
+                                    issueRepository.save(apiService.getLastIssues())
+                                }
                             }
                         }
                         toastHelper.makeToast(R.string.toast_login_successful)

@@ -4,10 +4,13 @@
 
     <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
+
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="toast_login_failed">Anmeldung fehlgeschlagen.</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
+    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer tazId ein.</string>
+
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
@@ -149,6 +152,7 @@
 
     <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse oder Abonummer an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
+    <string name="login_forgot_password_error_invalid_id">Ungültige Abonummer</string>
 
     <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>
     <string name="fragment_login_forgot_password_email_sent_back">Zurück zur Anmeldung/Registrierung</string>
@@ -173,5 +177,8 @@
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
     <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
     <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_forgot_password_no_mail_body">TODO</string>
+    <string name="fragment_login_forgot_password_no_mail_email">TODO</string>
 
 </resources>
