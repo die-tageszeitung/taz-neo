@@ -426,6 +426,32 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    /**
+     * function to request an email with the subscription password
+     * @param subscriptionId the if of the subscription
+     * @return
+     */
+    @Throws(
+        ApiServiceException.NoInternetException::class
+    )
+    suspend fun requestSubscriptionPassword(
+        subscriptionId: Int
+    ) : SubscriptionResetInfo? {
+        val tag = "resetPassword"
+        log.debug("$tag email: $subscriptionId")
+
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.SubscriptionReset,
+                    SubscriptionResetVariables(
+                        subscriptionId
+                    )
+                )?.subscriptionReset
+            },
+            tag
+        )
+    }
     @Throws(
         ApiServiceException.NoInternetException::class
     )

@@ -8,8 +8,24 @@ import kotlinx.android.synthetic.main.fragment_login_forgot_password.*
 
 class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_password) {
 
+    private var invalidId: Boolean = false
+
+    companion object{
+        fun create(invalidId: Boolean = false): PasswordRequestFragment {
+            val fragment = PasswordRequestFragment()
+            fragment.invalidId = invalidId
+            return fragment
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if(invalidId) {
+            fragment_login_forgot_password_username.error = getString(
+                R.string.login_forgot_password_error_invalid_id
+            )
+        }
 
         fragment_login_forgot_password_button.setOnClickListener {
             requestPasswordReset()

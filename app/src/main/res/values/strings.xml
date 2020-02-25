@@ -3,10 +3,13 @@
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
+
     <string name="toast_login_elapsed">Account no longer valid.</string>
     <string name="toast_login_failed">Login failed.</string>
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
+    <string name="toast_login_with_email">Please login with your email-adress.</string>
+
     <string name="toast_unknown_error">Unknown error occurred.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -149,15 +152,13 @@
 
     <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
     <string name="fragment_login_forgot_password_send">Send and request link</string>
+    <string name="login_forgot_password_error_invalid_id">Invalid subscription ID</string>
 
     <string name="fragment_login_forgot_password_email_sent_header">The email has been sent. Please check your inbox. If you can not find it please check the spam folder as well.</string>
     <string name="fragment_login_forgot_password_email_sent_back">Back to login/registration</string>
 
     <string name="fragment_login_success_login_header">Login successful. </string>
     <string name="fragment_login_success_login_back">Back to the article</string>
-
-    <string name="fragment_registration_success_registration_header">Thanks for your registration. We sent you an email. After verifying the email address by clicking the verification link you can use the app.</string>
-    <string name="fragment_registration_success_registration_back">Back to the article</string>
 
     <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
@@ -176,4 +177,8 @@
     <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
     <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
     <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_forgot_password_no_mail_body">TODO</string>
+    <string name="fragment_login_forgot_password_no_mail_email">TODO</string>
+
 </resources>
