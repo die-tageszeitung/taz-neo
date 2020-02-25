@@ -85,13 +85,13 @@ class MomentView @JvmOverloads constructor(
             fragment_archive_moment_date.text = dateHelper.stringToLocalizedString(date)
         }
         else {
-            fragment_archive_moment_date.visibility = View.GONE
+            fragment_archive_moment_date.visibility = View.INVISIBLE
         }
     }
 
 
     private fun hideBitmap() {
-        fragment_archive_moment_image.visibility = View.GONE
+        fragment_archive_moment_image.visibility = View.INVISIBLE
     }
 
     private fun showBitmap(bitmap: Bitmap) {
