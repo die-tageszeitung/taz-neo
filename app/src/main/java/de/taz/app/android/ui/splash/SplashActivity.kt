@@ -157,7 +157,7 @@ class SplashActivity : AppCompatActivity() {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
                     log.warn("Initialized AppInfo")
-                    if (it.androidVersion > BuildConfig.VERSION_CODE) {
+                    if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                         NotificationHelper.getInstance().showNotification(
                             R.string.notification_new_version_title,
                             R.string.notification_new_version_body,
@@ -165,7 +165,7 @@ class SplashActivity : AppCompatActivity() {
                             pendingIntent = PendingIntent.getActivity(
                                 applicationContext,
                                 NEW_VERSION_REQUEST_CODE,
-                                if (BuildConfig.DEBUG) downloadFromServerIntent() else showInStoreIntent(),
+                                downloadFromServerIntent(),
                                 FLAG_CANCEL_CURRENT
                             )
                         )
