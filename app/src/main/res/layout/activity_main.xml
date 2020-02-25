@@ -43,23 +43,21 @@
             android:layout_gravity="start"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:paddingTop="@dimen/drawer_margin_top"
-            android:paddingBottom="@dimen/drawer_margin_bottom"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-                android:id="@+id/drawer_logo"
-                android:layout_width="@dimen/drawer_logo_width"
-                android:layout_height="@dimen/drawer_logo_height"
-                android:background="@color/tazRed"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_open"
-                android:elevation="10dp"
-                android:focusable="true"
-                android:translationX="275dp"
-                android:translationY="-10dp"
-                app:srcCompat="@drawable/ic_logo" />
+            android:id="@+id/drawer_logo"
+            android:layout_width="@dimen/drawer_logo_width"
+            android:layout_height="@dimen/drawer_logo_height"
+            android:background="@color/tazRed"
+            android:clickable="true"
+            android:contentDescription="@string/navigation_drawer_open"
+            android:elevation="10dp"
+            android:focusable="true"
+            android:translationX="275dp"
+            android:translationY="40dp"
+            app:srcCompat="@drawable/ic_logo" />
 
         <LinearLayout
                 android:id="@+id/nav_bar"
@@ -70,9 +68,7 @@
             <FrameLayout
                     android:id="@+id/drawer_menu_fragment_placeholder"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/drawer_margin_horizontal"
-                    android:paddingEnd="@dimen/drawer_margin_horizontal" />
+                    android:layout_height="wrap_content" />
         </LinearLayout>
 
     </de.taz.app.android.ui.drawer.NavigationView>

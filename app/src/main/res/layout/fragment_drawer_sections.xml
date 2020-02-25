@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/drawer_margin_top"
+        android:paddingStart="@dimen/drawer_margin_horizontal"
+        android:paddingEnd="@dimen/drawer_margin_horizontal" >
 
         <de.taz.app.android.ui.moment.MomentView
-                android:id="@+id/fragment_drawer_sections_moment"
-                android:layout_width="@dimen/fragment_drawer_moment_width"
-                android:layout_height="@dimen/fragment_drawer_moment_height"
-                android:paddingBottom="@dimen/fragment_drawer_sections_moment_padding_bottom"
-                />
+            android:id="@+id/fragment_drawer_sections_moment"
+            android:layout_width="@dimen/fragment_drawer_moment_width"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:elevation="5dp"
+            android:paddingBottom="@dimen/fragment_drawer_sections_moment_padding_bottom" />
 
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
             style="@style/TextAppearance.Drawer.Sections.Date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/fragment_drawer_sections_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+            android:id="@+id/fragment_drawer_sections_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
 
         <TextView
-                android:id="@+id/fragment_drawer_sections_imprint"
-                style="@style/TextAppearance.Drawer.Sections.Imprint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/imprint"
-                android:visibility="gone" />
+            android:id="@+id/fragment_drawer_sections_imprint"
+            style="@style/TextAppearance.Drawer.Sections.Imprint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/imprint"
+            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -85,7 +85,7 @@ class MomentView @JvmOverloads constructor(
             fragment_archive_moment_date.text = dateHelper.stringToLocalizedString(date)
         }
         else {
-            fragment_archive_moment_date.visibility = View.INVISIBLE
+            fragment_archive_moment_date.visibility = View.GONE
         }
     }
 
