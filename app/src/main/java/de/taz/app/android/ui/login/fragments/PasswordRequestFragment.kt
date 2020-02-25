@@ -28,9 +28,11 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
                 getString(R.string.login_username_error_empty)
         } else {
 
-            if (username.toIntOrNull() != null)
+            if (username.toIntOrNull() != null) {
+                hideKeyBoard()
                 viewModel.requestSubscriptionPassword(username.toInt())
-            else if( android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+            } else if( android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                hideKeyBoard()
                 viewModel.requestCredentialsPasswordReset(username)
             } else {
                 fragment_login_forgot_password_username_layout.error =

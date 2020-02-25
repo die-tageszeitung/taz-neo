@@ -94,6 +94,7 @@ class RequestTestSubscriptionFragment :
             return
         }
 
+        hideKeyBoard()
         viewModel.getTrialSubscriptionForNewCredentials(email, password)
     }
 

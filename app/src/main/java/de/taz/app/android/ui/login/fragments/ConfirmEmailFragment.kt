@@ -10,6 +10,8 @@ class ConfirmEmailFragment: BaseFragment(R.layout.fragment_login_confirm_email) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        hideKeyBoard()
+
         fragment_login_confirm_done.setOnClickListener {
             viewModel.startPolling()
         }
