@@ -11,6 +11,7 @@
     <dimen name="drawer_margin_top">30dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
+    <dimen name="drawer_date_margin_bottom">40dp</dimen>
 
     <dimen name="drawer_header_icon_padding">10dp</dimen>
     <dimen name="drawer_header_icon_line_margin">17dp</dimen>
