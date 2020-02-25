@@ -8,7 +8,7 @@
 
     <dimen name="nav_bottom_height">50dp</dimen>
 
-    <dimen name="drawer_margin_top">50dp</dimen>
+    <dimen name="drawer_margin_top">30dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
 
