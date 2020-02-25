@@ -9,16 +9,19 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import android.util.Base64
 import androidx.annotation.UiThread
 import androidx.lifecycle.MediatorLiveData
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -29,8 +32,8 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private val apiService: ApiService = ApiService.getInstance(),
     private val resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
 ) : BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
-        WebViewDataController<DISPLAYABLE>().javaClass
-    ), WebViewContract.Presenter {
+    WebViewDataController<DISPLAYABLE>().javaClass
+), WebViewContract.Presenter {
 
     private val log by Log
 
@@ -78,48 +81,74 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
         val isDisplayableLiveData = MediatorLiveData<Boolean>()
 
-        val resourceInfo = resourceInfoRepository.get() ?: run {
-            try {
-                apiService.getResourceInfo()?.let {
-                    resourceInfoRepository.save(it)
-                    it
-                } ?: run {
-                    getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
-                    null
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                getView()?.getMainView()?.showToast(R.string.toast_no_internet)
-                null
-            }
+        val isResourceInfoUpToDate = isResourceInfoUpToDate()
+
+        val resourceInfo = if (isResourceInfoUpToDate) {
+            resourceInfoRepository.get()
+        } else {
+            tryGetResourceInfo()
         }
 
         resourceInfo?.let {
+            getView()?.let { view ->
+                view.getMainView()?.getApplicationContext()?.let {
 
-            getView()?.getMainView()?.getApplicationContext()?.let {
-                DownloadService.download(it, displayable)
-                DownloadService.download(it, resourceInfo)
-            }
+                    val isDownloadingLiveData = displayable.isDownloadedOrDownloadingLiveData()
+                    val isDownloadedLiveData = displayable.isDownloadedLiveData()
+                    withContext(Dispatchers.Main) {
+                        isDownloadingLiveData.observe(
+                            view.getLifecycleOwner(),
+                            Observer { isDownloadedOrDownloading ->
+                                if (!isDownloadedOrDownloading) {
+                                    runBlocking(Dispatchers.IO) {
+                                        DownloadService.download(it, displayable)
+                                    }
+                                }
+                            }
+                        )
+                        isDownloadedLiveData.observe(
+                            view.getLifecycleOwner(),
+                            Observer { isDownloaded ->
+                                if (isDownloaded) {
+                                    isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
+                                    runBlocking(Dispatchers.IO) {
+                                        isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+                                    }
+                                }
+                            }
+                        )
 
-            // displayable needs to be downloaded
-            isDisplayableLiveData.addSource(displayable.isDownloadedLiveData()) { isDownloaded ->
-                if (isDownloaded) {
-                    isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
-                    runBlocking(Dispatchers.IO) {
-                        isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+                        val resourceInfoIsDownloadingLiveData =
+                            resourceInfo.isDownloadedOrDownloadingLiveData()
+                        val resourceInfoIsDownloadedLiveData =
+                            resourceInfo.isDownloadedLiveData()
+
+                        withContext(Dispatchers.Main) {
+                            if (!isResourceInfoUpToDate) {
+                                resourceInfoIsDownloadingLiveData.observe(
+                                    view.getLifecycleOwner(),
+                                    Observer { isDownloadedOrDownloading ->
+                                        if (!isDownloadedOrDownloading) {
+                                            DownloadService.download(it, resourceInfo)
+                                        }
+                                    }
+                                )
+                            }
+                            resourceInfoIsDownloadedLiveData.observe(
+                                view.getLifecycleOwner(),
+                                Observer { isDownloaded ->
+                                    if (isDownloaded) {
+                                        isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
+                                        runBlocking(Dispatchers.IO) {
+                                            isDisplayableLiveData.postValue(displayable.isDownloaded())
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
-
-            // resources need to be downloaded
-            isDisplayableLiveData.addSource(resourceInfo.isDownloadedLiveData()) { isDownloaded ->
-                if (isDownloaded) {
-                    isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
-                    runBlocking(Dispatchers.IO) {
-                        isDisplayableLiveData.postValue(displayable.isDownloaded())
-                    }
-                }
-            }
-
             getView()?.apply {
                 withContext(Dispatchers.Main) {
                     isDisplayableLiveData.observe(
@@ -161,6 +190,44 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
         log.debug("Injected css: $cssString")
         getView()?.getWebView()
             ?.evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
+    }
+
+    /**
+     * Try to get the resourceInfo from apiService.
+     * @return ResourceInfo or null
+     */
+    private suspend fun tryGetResourceInfo(): ResourceInfo? {
+        return try {
+            apiService.getResourceInfo()?.let {
+                resourceInfoRepository.save(it)
+                it
+            } ?: run {
+                getView()?.getMainView()?.showToast(R.string.something_went_wrong_try_later)
+                null
+            }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            getView()?.getMainView()?.showToast(R.string.toast_no_internet)
+            null
+        }
+    }
+
+    /**
+     * Check if minimal resource version of the issue is <= the current resource version.
+     * @return Boolean if resource info is up to date or not
+     */
+    private fun isResourceInfoUpToDate(): Boolean {
+        val issueOperations = getView()?.getWebViewDisplayable()?.getIssueOperations()
+
+        val issue = IssueRepository.getInstance().getIssueByFeedAndDate(
+            issueOperations?.feedName ?: "",
+            issueOperations?.date ?: "",
+            issueOperations?.status ?: IssueStatus.public
+        )
+
+        val minResourceVersion = issue?.minResourceVersion ?: 0
+        val currentResourceVersion = resourceInfoRepository.get()?.resourceVersion ?: 0
+
+        return minResourceVersion <= currentResourceVersion
     }
 
 }
