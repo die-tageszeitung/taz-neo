@@ -72,6 +72,12 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
     ): Observer<AuthStatus> {
         return observe(authStatusLiveData, lifecycleOwner, observationCallback)
     }
+    fun observeAuthStatusOnce(
+        lifecycleOwner: LifecycleOwner,
+        observationCallback: (AuthStatus) -> Unit
+    ): Observer<AuthStatus> {
+        return observeOnce(authStatusLiveData, lifecycleOwner, observationCallback)
+    }
 
     private val emailLiveData = SharedPreferenceStringLiveData(
         preferences, PREFERENCES_AUTH_EMAIL, ""

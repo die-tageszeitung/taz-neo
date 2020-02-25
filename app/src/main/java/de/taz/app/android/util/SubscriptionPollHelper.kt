@@ -45,8 +45,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         authHelper.isPolling = false
                         authHelper.token = subscriptionInfo.token!!
                         authHelper.authStatus = AuthStatus.valid
-                        // TODO do this when authstatus has changed…
-                        issueRepository.save(apiService.getLastIssues())
+                        authHelper.observeAuthStatusOnce(ProcessLifecycleOwner.get()) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                issueRepository.save(apiService.getLastIssues())
+                            }
+                        }
                         toastHelper.makeToast(R.string.toast_login_successful)
                     }
                     SubscriptionStatus.tazIdNotValid,
