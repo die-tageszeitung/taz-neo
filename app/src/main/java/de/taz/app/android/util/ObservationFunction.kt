@@ -14,3 +14,18 @@ fun <T> observe(
     Transformations.distinctUntilChanged(liveData).observe(lifecycleOwner, observer)
     return observer
 }
+
+fun <T> observeOnce(
+    liveData: LiveData<T>,
+    lifecycleOwner: LifecycleOwner,
+    observationCallback: (T) -> Unit
+): Observer<T> {
+    val observer = object : Observer<T> {
+        override fun onChanged(t: T) {
+            observationCallback(t)
+            liveData.removeObserver(this)
+        }
+    }
+    Transformations.distinctUntilChanged(liveData).observe(lifecycleOwner, observer)
+    return observer
+}
