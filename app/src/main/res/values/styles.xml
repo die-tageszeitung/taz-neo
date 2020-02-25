@@ -104,7 +104,7 @@
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/lightGrey</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">15sp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
