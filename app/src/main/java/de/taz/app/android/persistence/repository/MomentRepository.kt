@@ -73,7 +73,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 fileEntryRepository.delete(moment.imageList)
                 log.debug("deleted FileEntry of image ${moment.imageList}")
             } catch (e: SQLiteConstraintException) {
-                log.error("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
+                log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
                 // do not delete is used by another issue
             }
         }

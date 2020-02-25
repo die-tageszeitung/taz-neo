@@ -123,7 +123,7 @@ class DownloadWorker(
                             Sentry.capture(response.message)
                         }
                     } catch (e: Exception) {
-                        log.debug("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
+                        log.warn("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                         Sentry.capture(e)
                     }
