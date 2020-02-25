@@ -46,8 +46,10 @@ object DownloadService {
         val start: Long = System.currentTimeMillis()
         val issue = if (cacheableDownload is Issue) cacheableDownload else null
 
-        if (!cacheableDownload.isDownloadedOrDownloading()) {
-            issue?.let{
+        if (!cacheableDownload.isDownloadedOrDownloading()
+            && appInfoRepository.get() != null
+        ) {
+            issue?.let {
                 issueRepository.setDownloadDate(issue, Date())
             }
 
