@@ -10,6 +10,8 @@ class RegistrationSuccessfulFragment: BaseFragment(R.layout.fragment_login_regis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        hideKeyBoard()
+
         fragment_login_confirm_done.setOnClickListener {
             activity?.finish()
         }

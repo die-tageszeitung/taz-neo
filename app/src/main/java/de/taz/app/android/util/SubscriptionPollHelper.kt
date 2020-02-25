@@ -7,13 +7,11 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
 
@@ -24,6 +22,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val apiService = ApiService.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     init {
         authHelper.observeIsPolling(ProcessLifecycleOwner.get()) { isPolling ->
@@ -46,6 +45,8 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         authHelper.isPolling = false
                         authHelper.token = subscriptionInfo.token!!
                         authHelper.authStatus = AuthStatus.valid
+                        // TODO do this when authstatus has changed…
+                        issueRepository.save(apiService.getLastIssues())
                         toastHelper.makeToast(R.string.toast_login_successful)
                     }
                     SubscriptionStatus.tazIdNotValid,

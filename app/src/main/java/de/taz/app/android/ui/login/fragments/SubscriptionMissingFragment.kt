@@ -70,6 +70,7 @@ class SubscriptionMissingFragment : BaseFragment(R.layout.fragment_login_missing
             return
         }
 
+        hideKeyBoard()
         viewModel.connect(
             subscriptionId = subscriptionId.toIntOrNull(),
             subscriptionPassword = subscriptionPassword

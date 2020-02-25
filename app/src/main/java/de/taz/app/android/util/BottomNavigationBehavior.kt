@@ -1,4 +1,4 @@
-package de.taz.app.android.singletons
+package de.taz.app.android.util
 
 import android.animation.ValueAnimator
 import android.content.Context
