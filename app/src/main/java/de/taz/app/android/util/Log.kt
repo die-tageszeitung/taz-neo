@@ -35,6 +35,7 @@ class Log(private val tag: String) {
     fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
         setSentryBreadcrump(message, throwable)
+        addToTrace(message)
     }
 
     fun warn(message: String, throwable: Throwable? = null) {
@@ -51,10 +52,12 @@ class Log(private val tag: String) {
     }
 
     /**
-        keep 50 lines of logs for attach to error reports
+        keep 50 lines of logs for attach to error reports;
+        if a log line is longer than 200 chars, truncate it
      */
     private fun addToTrace(message: String) {
-        val traceLine = "$tag: $message\n"
+        var truncateMessage = if (message.length > 200) message.substring(0,200) else message
+        val traceLine = "$tag: $truncateMessage\n"
         if (trace.size < 50) {
           trace.add(traceLine)
         }

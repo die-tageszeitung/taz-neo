@@ -143,7 +143,7 @@ class SplashActivity : AppCompatActivity() {
                 log.debug("Initialized Issues")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
-                log.debug("Initializing Issues failed")
+                log.warn("Initializing Issues failed")
             }
         }
     }
@@ -156,7 +156,7 @@ class SplashActivity : AppCompatActivity() {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
-                    log.warn("Initialized AppInfo")
+                    log.info("Initialized AppInfo")
                     if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                         NotificationHelper.getInstance().showNotification(
                             R.string.notification_new_version_title,
