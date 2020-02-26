@@ -446,8 +446,8 @@ class LoginViewModel(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
-        statusBeforePasswordRequest = null
         status.postValue(statusBeforePasswordRequest)
+        statusBeforePasswordRequest = null
     }
 
     fun backToLogin() {
