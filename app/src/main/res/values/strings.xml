@@ -97,7 +97,7 @@
     <string name="fragment_error_report_conditions_hint">Describe here external conditions such as: was wifi on? firewall? were you using a proxy?</string>
     <string name="fragment_error_report_send_button">Send</string>
 
-    <string name="percentage">%d\%%</string>
+    <string name="percentage">%d%%</string>
 
     <string name="channel_new_version">New version</string>
     <string name="channel_new_version_description">Notification if a new version exists</string>
