@@ -77,7 +77,7 @@
 
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
 
-    <dimen name="fragment_drawer_sections_moment_padding_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_sections_moment_margin_bottom">10dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
 
