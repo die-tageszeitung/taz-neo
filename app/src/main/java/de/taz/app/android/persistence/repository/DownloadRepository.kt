@@ -63,8 +63,18 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
+    fun getWithoutFileLiveData(fileName: String): LiveData<DownloadStub?> {
+        return appDatabase.downloadDao().getLiveData(fileName)
+    }
+
+    @UiThread
     fun getWithoutFile(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
+    }
+
+    @UiThread
+    fun getWithoutFileLiveData(fileNames: List<String>): List<LiveData<DownloadStub?>> {
+        return fileNames.map { appDatabase.downloadDao().getLiveData(it) }
     }
 
     @UiThread
@@ -76,13 +86,13 @@ class DownloadRepository private constructor(applicationContext: Context) :
     @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Download {
-            val downloadStub = getWithoutFileOrThrow(fileName)
-            val file = fileEntryRepository.getOrThrow(fileName)
+        val downloadStub = getWithoutFileOrThrow(fileName)
+        val file = fileEntryRepository.getOrThrow(fileName)
 
-            return Download(
-                downloadStub,
-                file
-            )
+        return Download(
+            downloadStub,
+            file
+        )
     }
 
     @UiThread
@@ -155,20 +165,16 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     @UiThread
-    fun getLiveData(fileName: String): LiveData<Boolean> {
-        return Transformations.map(appDatabase.downloadDao().getLiveData(fileName)) { input ->
-            input?.status == DownloadStatus.done
-        }
-    }
-
-    @UiThread
     fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
         val mediatorLiveData = MediatorLiveData<Boolean>()
         mediatorLiveData.postValue(false)
 
         var trueCountdown = fileNames.size
         fileNames.forEach { fileName ->
-            val source = getLiveData(fileName)
+            val source =
+                Transformations.map(appDatabase.downloadDao().getLiveData(fileName)) { input ->
+                    input?.status == DownloadStatus.done
+                }
             mediatorLiveData.addSource(source) { value ->
                 if (value) {
                     trueCountdown--
@@ -183,4 +189,22 @@ class DownloadRepository private constructor(applicationContext: Context) :
 
         return mediatorLiveData
     }
+
+    @UiThread
+    fun isDownloadingOrDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
+        val downloadLiveDataList = getWithoutFileLiveData(fileNames)
+
+        val mediatorLiveData = MediatorLiveData<Boolean>()
+        downloadLiveDataList.forEach {
+            mediatorLiveData.addSource(Transformations.distinctUntilChanged(it)) {
+                mediatorLiveData.postValue(
+                    downloadLiveDataList.fold(true) { acc: Boolean, liveData: LiveData<DownloadStub?> ->
+                        acc && liveData.value != null
+                    }
+                )
+            }
+        }
+        return mediatorLiveData
+    }
+
 }
