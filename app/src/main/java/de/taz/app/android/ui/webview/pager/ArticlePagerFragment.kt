@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -60,7 +60,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 
-        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+        stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
             articlePagerAdapter = ArticlePagerAdapter(this, it)
         }
 

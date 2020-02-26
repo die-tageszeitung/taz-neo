@@ -14,7 +14,7 @@ data class Moment(
     )
 
     override fun getAllFiles(): List<FileEntry> {
-        return imageList?.filter { it.name.contains(".normal.") }
+        return imageList.filter { it.name.contains(".normal.") }
     }
 
     fun getIssueStub(): IssueStub {
