@@ -73,6 +73,7 @@ class LoginActivity(
 
         viewModel = getViewModel { LoginViewModel(username, password, register) }
 
+        viewModel.backToArticle = article != null
 
         viewModel.observeStatus(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
@@ -241,7 +242,7 @@ class LoginActivity(
 
     private fun showPasswordRequest(invalidId: Boolean = false) {
         log.debug("showPasswordRequest")
-        showFragment(PasswordRequestFragment.create(invalidId=invalidId))
+        showFragment(PasswordRequestFragment.create(invalidId = invalidId))
     }
 
     private fun showPasswordMailSent() {
