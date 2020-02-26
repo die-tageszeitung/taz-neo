@@ -40,6 +40,8 @@ class LoginViewModel(
     var subscriptionPassword: String? = null
         private set
 
+    var backToArticle: Boolean = true
+
     private val status by lazy {
         MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
     }

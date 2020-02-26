@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="@string/fragment_login_confirm_done"
+        android:text="@string/fragment_login_success_login_back_article"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_confirm_email_header"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

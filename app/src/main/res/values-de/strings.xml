@@ -158,7 +158,8 @@
     <string name="fragment_login_forgot_password_email_sent_back">Zurück zur Anmeldung/Registrierung</string>
 
     <string name="fragment_login_success_login_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
-    <string name="fragment_login_success_login_back">Zurück zum Artikel</string>
+    <string name="fragment_login_success_login_back_article">Zurück zum Artikel</string>
+    <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
 
     <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer tazId verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
@@ -169,7 +170,6 @@
     <string name="fragment_login_request_test_subscription_terms_and_conditions">Ich akzeptiere die AGB sowie die Hinweise zum Widerruf und Datenschutz.</string>
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
-    <string name="fragment_login_confirm_done">Zurück zum Artikel</string>
 
     <string name="fragment_login_registration_successful_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
 
