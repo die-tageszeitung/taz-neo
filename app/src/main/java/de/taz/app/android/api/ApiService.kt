@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
@@ -262,6 +263,12 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    /**
+     * function to inform server of started download
+     * @param feedName name of the feed the download is started for
+     * @param issueDate the date of the issue that is being downloaded
+     * @return [String] the id of the download
+     */
     @Throws(
         ApiServiceException.NoInternetException::class
     )
@@ -286,6 +293,11 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    /**
+     * function to inform server of finished download
+     * @param id the id of the download received via [notifyServerOfDownloadStart]
+     * @param time time in seconds needed for the download
+     */
     @Throws(ApiServiceException.NoInternetException::class)
     suspend fun notifyServerOfDownloadStop(
         id: String,
@@ -305,6 +317,10 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    /**
+     * function to inform server the notification token
+     * @param oldToken the old token of the string if any - will be removed on the server
+     */
     @Throws(
         ApiServiceException.NoInternetException::class
     )
@@ -312,15 +328,26 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "sendNotificationInfo"
         log.debug(tag)
 
-        return transformExceptions(
-            { graphQlClient.query(
-                QueryType.Notification,
-                NotificationVariables(oldToken = oldToken)
-            )?.notification },
-            tag
-        )
+        return FirebaseHelper.getInstance().firebaseToken?.let { notificationToken ->
+            transformExceptions(
+                {
+                    graphQlClient.query(
+                        QueryType.Notification,
+                        NotificationVariables(notificationToken, oldToken = oldToken)
+                    )?.notification
+                },
+                tag
+            )
+        }
     }
 
+    /**
+     * function to request a trial subscription
+     * @param tazId the username
+     * @param idPassword the password for the username
+     * @param surname surname of the requesting person
+     * @param firstName firstName of the requesting person
+     */
     @Throws(
         ApiServiceException.NoInternetException::class
     )
