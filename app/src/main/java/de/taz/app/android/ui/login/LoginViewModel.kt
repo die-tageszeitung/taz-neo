@@ -166,6 +166,11 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                AuthStatus.alreadyLinked -> {
+                    // this should never happen
+                    Sentry.capture("authenticate returned alreadyLinked")
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                }
                 null -> noInternet.postValue(true)
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
