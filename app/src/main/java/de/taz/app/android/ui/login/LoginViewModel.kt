@@ -1,8 +1,8 @@
 package de.taz.app.android.ui.login
 
+import androidx.annotation.UiThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -13,6 +13,8 @@ import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.util.observe
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,7 @@ class LoginViewModel(
 ) : ViewModel() {
 
     private val log by Log
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     var username: String? = null
         private set
@@ -50,7 +53,7 @@ class LoginViewModel(
         lifecycleOwner: LifecycleOwner,
         observationCallback: (LoginViewModelState) -> Unit
     ) {
-        status.observe(lifecycleOwner, Observer(observationCallback))
+        observe(status, lifecycleOwner, observationCallback)
     }
 
     private var statusBeforePasswordRequest: LoginViewModelState? = null
@@ -60,7 +63,7 @@ class LoginViewModel(
     }
 
     fun observeNoInternet(lifecycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit) {
-        noInternet.observe(lifecycleOwner, Observer(observationCallback))
+        observe(noInternet, lifecycleOwner, observationCallback)
     }
 
     init {
@@ -90,84 +93,89 @@ class LoginViewModel(
             subscriptionId = it
             subscriptionPassword = initialPassword
 
-            subscriptionId?.let { subscriptionId ->
-                subscriptionPassword?.let { subscriptionPassword ->
-                    if (subscriptionPassword.isNotBlank()) {
-
-                        CoroutineScope(Dispatchers.IO).launch {
-
-                            try {
-                                val subscriptionAuthInfo = apiService.checkSubscriptionId(
-                                    subscriptionId,
-                                    subscriptionPassword
-                                )
-
-                                when (subscriptionAuthInfo?.status) {
-                                    AuthStatus.tazIdNotLinked -> {
-                                        // this should never happen
-                                        Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
-                                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                                    }
-                                    AuthStatus.elapsed ->
-                                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                                    AuthStatus.notValid -> {
-                                        resetSubscriptionPassword()
-                                        status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
-                                    }
-                                    AuthStatus.valid ->
-                                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                                    null -> noInternet.postValue(true)
-                                }
-                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                noInternet.postValue(true)
-                            }
-                        }
-                    } else {
-                        status.postValue(LoginViewModelState.PASSWORD_MISSING)
+            runIfNotNull(
+                subscriptionId,
+                subscriptionPassword
+            ) { subscriptionId, subscriptionPassword ->
+                if (subscriptionPassword.isNotBlank()) {
+                    ioScope.launch {
+                        handleSubscriptionIdLogin(subscriptionId, subscriptionPassword)
                     }
+                } else {
+                    status.postValue(LoginViewModelState.PASSWORD_MISSING)
                 }
             }
         } ?: run {
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
-            username?.let { username ->
-                password?.let { password ->
+            runIfNotNull(username, password) { username, password ->
+                status.postValue(LoginViewModelState.LOADING)
 
-                    status.postValue(LoginViewModelState.LOADING)
-
-                    if (username.isNotBlank() && password.isNotBlank()) {
-
-                        CoroutineScope(Dispatchers.IO).launch {
-                            try {
-                                val authTokenInfo = apiService.authenticate(username, password)
-
-                                when (authTokenInfo?.authInfo?.status) {
-                                    AuthStatus.valid -> {
-                                        saveToken(authTokenInfo.token!!)
-                                        status.postValue(LoginViewModelState.DONE)
-                                    }
-                                    AuthStatus.notValid -> {
-                                        resetCredentialsPassword()
-                                        status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
-                                    }
-                                    AuthStatus.tazIdNotLinked ->
-                                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                                    AuthStatus.elapsed ->
-                                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                                    null -> noInternet.postValue(true)
-                                }
-                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                noInternet.postValue(true)
-                            }
-                        }
-                    } else if (username.isBlank()) {
-                        status.postValue(LoginViewModelState.USERNAME_MISSING)
-                    } else {
-                        status.postValue(LoginViewModelState.PASSWORD_MISSING)
-                    }
+                if (username.isBlank()) {
+                    status.postValue(LoginViewModelState.USERNAME_MISSING)
+                } else if (password.isBlank()) {
+                    status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                } else {
+                    ioScope.launch { handleCredentialsLogin(username, password) }
                 }
             }
+        }
+    }
+
+    @UiThread
+    private suspend fun handleSubscriptionIdLogin(
+        subscriptionId: Int,
+        subscriptionPassword: String
+    ) {
+        try {
+            val subscriptionAuthInfo = apiService.checkSubscriptionId(
+                subscriptionId,
+                subscriptionPassword
+            )
+
+            when (subscriptionAuthInfo?.status) {
+                AuthStatus.tazIdNotLinked -> {
+                    // this should never happen
+                    Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                }
+                AuthStatus.elapsed ->
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                AuthStatus.notValid -> {
+                    resetSubscriptionPassword()
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                }
+                AuthStatus.valid ->
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                null -> noInternet.postValue(true)
+            }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
+        }
+    }
+
+    private suspend fun handleCredentialsLogin(username: String, password: String) {
+        try {
+            val authTokenInfo = apiService.authenticate(username, password)
+
+            when (authTokenInfo?.authInfo?.status) {
+                AuthStatus.valid -> {
+                    saveToken(authTokenInfo.token!!)
+                    status.postValue(LoginViewModelState.DONE)
+                }
+                AuthStatus.notValid -> {
+                    resetCredentialsPassword()
+                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                }
+                AuthStatus.tazIdNotLinked ->
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                AuthStatus.elapsed ->
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                null -> noInternet.postValue(true)
+            }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
         }
     }
 
@@ -194,66 +202,69 @@ class LoginViewModel(
         username?.let { this.username = it }
         password?.let { this.password = it }
 
-        this.username?.let { username1 ->
-            this.password?.let { password1 ->
-
-                status.postValue(LoginViewModelState.LOADING)
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        val subscriptionInfo = apiService.trialSubscription(username1, password1)
-
-                        when (subscriptionInfo?.status) {
-                            SubscriptionStatus.subscriptionIdNotValid -> {
-                                // should not happen
-                                Sentry.capture("trialSubscription returned aboIdNotValid")
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                            }
-                            SubscriptionStatus.tazIdNotValid -> {
-                                // should not happen
-                                Sentry.capture("trialSubscription returned tazIdNotValid")
-                                status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
-                            }
-                            SubscriptionStatus.alreadyLinked -> {
-                                status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
-                            }
-                            SubscriptionStatus.invalidMail -> {
-                                // TODO this is triggeredn when wait for mail…
-                                status.postValue(invalidMailState)
-                            }
-                            SubscriptionStatus.elapsed -> {
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                            }
-                            SubscriptionStatus.invalidConnection -> {
-                                status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                            }
-                            SubscriptionStatus.noPollEntry -> {
-                                Sentry.capture("trialSubscription returned noPollEntry")
-                                resetCredentialsPassword()
-                                resetSubscriptionPassword()
-                                status.postValue(LoginViewModelState.POLLING_FAILED)
-                            }
-                            SubscriptionStatus.valid -> {
-                                saveToken(subscriptionInfo.token!!)
-                                status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
-                            }
-                            SubscriptionStatus.waitForMail -> {
-                                status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                            }
-                            SubscriptionStatus.waitForProc -> {
-                                poll()
-                            }
-                            null -> {
-                                noInternet.postValue(true)
-                            }
-                        }
-                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        noInternet.postValue(true)
-                    }
-                }
-            }
+        runIfNotNull(this.username, this.password) { username1, password1 ->
+            status.postValue(LoginViewModelState.LOADING)
+            ioScope.launch { handleRegistration(username1, password1, invalidMailState) }
         }
     }
+
+    private suspend fun handleRegistration(
+        username: String,
+        password: String,
+        invalidMailState: LoginViewModelState
+    ) {
+        try {
+            val subscriptionInfo = apiService.trialSubscription(username, password)
+
+            when (subscriptionInfo?.status) {
+                SubscriptionStatus.subscriptionIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned aboIdNotValid")
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                }
+                SubscriptionStatus.tazIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned tazIdNotValid")
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
+                }
+                SubscriptionStatus.alreadyLinked -> {
+                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                }
+                SubscriptionStatus.invalidMail -> {
+                    // TODO this is triggeredn when wait for mail…
+                    status.postValue(invalidMailState)
+                }
+                SubscriptionStatus.elapsed -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
+                SubscriptionStatus.invalidConnection -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                }
+                SubscriptionStatus.noPollEntry -> {
+                    Sentry.capture("trialSubscription returned noPollEntry")
+                    resetCredentialsPassword()
+                    resetSubscriptionPassword()
+                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                }
+                SubscriptionStatus.valid -> {
+                    saveToken(subscriptionInfo.token!!)
+                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                }
+                SubscriptionStatus.waitForMail -> {
+                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                }
+                SubscriptionStatus.waitForProc -> {
+                    poll()
+                }
+                null -> {
+                    noInternet.postValue(true)
+                }
+            }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
+        }
+    }
+
 
     fun connect(
         username: String? = null,
@@ -268,60 +279,63 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val subscriptionInfo = apiService.subscriptionId2TazId(
-                    this@LoginViewModel.username!!,
-                    this@LoginViewModel.password!!,
-                    this@LoginViewModel.subscriptionId!!,
-                    this@LoginViewModel.subscriptionPassword!!
-                )
+        ioScope.launch { handleConnect() }
+    }
 
-                when (subscriptionInfo?.status) {
-                    SubscriptionStatus.valid -> {
-                        saveToken(subscriptionInfo.token!!)
-                        status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
-                    }
-                    SubscriptionStatus.subscriptionIdNotValid -> {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
-                    }
-                    SubscriptionStatus.invalidMail -> {
-                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
-                    }
-                    SubscriptionStatus.waitForProc -> {
-                        poll()
-                    }
-                    SubscriptionStatus.waitForMail -> {
-                        status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                    }
-                    SubscriptionStatus.tazIdNotValid -> {
-                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                    }
-                    SubscriptionStatus.invalidConnection -> {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                    }
-                    SubscriptionStatus.elapsed -> {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                    }
-                    SubscriptionStatus.noPollEntry -> {
-                        Sentry.capture("subscriptionId2TazId returned noPollEntry")
-                        resetCredentialsPassword()
-                        resetSubscriptionPassword()
-                        status.postValue(LoginViewModelState.POLLING_FAILED)
-                    }
-                    SubscriptionStatus.alreadyLinked -> {
-                        // should not happen
-                        Sentry.capture("subscriptionId2TazId returned alreadyLinked")
-                        status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
-                    }
-                    null -> {
-                        noInternet.postValue(true)
-                    }
+    @UiThread
+    private suspend fun handleConnect() {
+        try {
+            val subscriptionInfo = apiService.subscriptionId2TazId(
+                this@LoginViewModel.username!!,
+                this@LoginViewModel.password!!,
+                this@LoginViewModel.subscriptionId!!,
+                this@LoginViewModel.subscriptionPassword!!
+            )
 
+            when (subscriptionInfo?.status) {
+                SubscriptionStatus.valid -> {
+                    saveToken(subscriptionInfo.token!!)
+                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                noInternet.postValue(true)
+                SubscriptionStatus.subscriptionIdNotValid -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
+                }
+                SubscriptionStatus.invalidMail -> {
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
+                }
+                SubscriptionStatus.waitForProc -> {
+                    poll()
+                }
+                SubscriptionStatus.waitForMail -> {
+                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                }
+                SubscriptionStatus.tazIdNotValid -> {
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                }
+                SubscriptionStatus.invalidConnection -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                }
+                SubscriptionStatus.elapsed -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
+                SubscriptionStatus.noPollEntry -> {
+                    Sentry.capture("subscriptionId2TazId returned noPollEntry")
+                    resetCredentialsPassword()
+                    resetSubscriptionPassword()
+                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                }
+                SubscriptionStatus.alreadyLinked -> {
+                    // should not happen
+                    Sentry.capture("subscriptionId2TazId returned alreadyLinked")
+                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                }
+                null -> {
+                    noInternet.postValue(true)
+                }
+
             }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
         }
     }
 
@@ -329,58 +343,62 @@ class LoginViewModel(
     private fun poll(timeoutMillis: Long = 100) {
         status.postValue(LoginViewModelState.LOADING)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        ioScope.launch {
             delay(timeoutMillis)
+            handlePoll(timeoutMillis * 2)
+        }
+    }
 
-            try {
-                val subscriptionInfo = apiService.subscriptionPoll()
-                log.debug("poll subscriptionPoll: $subscriptionInfo")
+    @UiThread
+    private suspend fun handlePoll(timeoutMillis: Long) {
+        try {
+            val subscriptionInfo = apiService.subscriptionPoll()
+            log.debug("poll subscriptionPoll: $subscriptionInfo")
 
-                when (subscriptionInfo?.status) {
-                    SubscriptionStatus.valid -> {
-                        saveToken(subscriptionInfo.token!!)
-                        status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
-                    }
-                    SubscriptionStatus.tazIdNotValid -> {
-                        // should not happen
-                        Sentry.capture("trialSubscription returned tazIdNotValid")
-                        status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                    }
-                    SubscriptionStatus.subscriptionIdNotValid -> {
-                        // should not happen
-                        Sentry.capture("trialSubscription returned aboIdNotValid")
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                    }
-                    SubscriptionStatus.elapsed -> {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                    }
-                    SubscriptionStatus.invalidConnection -> {
-                        status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
-                    }
-                    SubscriptionStatus.invalidMail -> {
-                        // should never happen
-                        Sentry.capture("subscriptionPoll returned invalidMail")
-                        resetCredentialsPassword()
-                        status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
-                    }
-                    SubscriptionStatus.alreadyLinked -> {
-                        status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
-                    }
-                    SubscriptionStatus.waitForMail -> {
-                        status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                    }
-                    SubscriptionStatus.waitForProc -> {
-                        poll(timeoutMillis * 2)
-                    }
-                    SubscriptionStatus.noPollEntry -> {
-                        resetCredentialsPassword()
-                        resetSubscriptionPassword()
-                        status.postValue(LoginViewModelState.POLLING_FAILED)
-                    }
+            when (subscriptionInfo?.status) {
+                SubscriptionStatus.valid -> {
+                    saveToken(subscriptionInfo.token!!)
+                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                noInternet.postValue(true)
+                SubscriptionStatus.tazIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned tazIdNotValid")
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                }
+                SubscriptionStatus.subscriptionIdNotValid -> {
+                    // should not happen
+                    Sentry.capture("trialSubscription returned aboIdNotValid")
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                }
+                SubscriptionStatus.elapsed -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
+                SubscriptionStatus.invalidConnection -> {
+                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                }
+                SubscriptionStatus.invalidMail -> {
+                    // should never happen
+                    Sentry.capture("subscriptionPoll returned invalidMail")
+                    resetCredentialsPassword()
+                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                }
+                SubscriptionStatus.alreadyLinked -> {
+                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                }
+                SubscriptionStatus.waitForMail -> {
+                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                }
+                SubscriptionStatus.waitForProc -> {
+                    poll(timeoutMillis)
+                }
+                SubscriptionStatus.noPollEntry -> {
+                    resetCredentialsPassword()
+                    resetSubscriptionPassword()
+                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                }
             }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
         }
     }
 
@@ -393,30 +411,31 @@ class LoginViewModel(
     fun requestSubscriptionPassword(subscriptionId: Int) {
         log.debug("forgotCredentialsPassword $subscriptionId")
         status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
+        ioScope.launch { handleSubscriptionPassword(subscriptionId) }
+    }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val subscriptionResetInfo = apiService.requestSubscriptionPassword(subscriptionId)
-                when (subscriptionResetInfo?.status) {
-                    SubscriptionResetStatus.ok ->
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
-                    SubscriptionResetStatus.invalidConnection -> {
-                        username = subscriptionResetInfo.mail
-                        status.postValue(LoginViewModelState.INITIAL)
-                        toastHelper.makeToast(R.string.toast_login_with_email)
-                    }
-                    SubscriptionResetStatus.invalidSubscriptionId -> {
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
-                    }
-                    SubscriptionResetStatus.noMail-> {
-                        status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
-                    }
+    @UiThread
+    private suspend fun handleSubscriptionPassword(subscriptionId: Int) {
+        try {
+            val subscriptionResetInfo = apiService.requestSubscriptionPassword(subscriptionId)
+            when (subscriptionResetInfo?.status) {
+                SubscriptionResetStatus.ok ->
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                SubscriptionResetStatus.invalidConnection -> {
+                    username = subscriptionResetInfo.mail
+                    status.postValue(LoginViewModelState.INITIAL)
+                    toastHelper.makeToast(R.string.toast_login_with_email)
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                noInternet.postValue(true)
+                SubscriptionResetStatus.invalidSubscriptionId -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
+                }
+                SubscriptionResetStatus.noMail -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
+                }
             }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
         }
-
     }
 
     fun requestCredentialsPasswordReset(email: String) {
@@ -425,24 +444,27 @@ class LoginViewModel(
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
         } else {
             status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
+            ioScope.launch { handlePasswordReset(email) }
+        }
+    }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    when (apiService.requestCredentialsPasswordReset(email)) {
-                        PasswordResetInfo.ok -> {
-                            status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
-                        }
-                        PasswordResetInfo.error,
-                        PasswordResetInfo.invalidMail,
-                        PasswordResetInfo.mailError -> {
-                            toastHelper.makeToast(R.string.something_went_wrong_try_later)
-                            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
-                        }
-                    }
-                } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                    noInternet.postValue(true)
+    @UiThread
+    private suspend fun handlePasswordReset(email: String) {
+        try {
+            when (apiService.requestCredentialsPasswordReset(email)) {
+                PasswordResetInfo.ok -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                }
+                null,
+                PasswordResetInfo.error,
+                PasswordResetInfo.invalidMail,
+                PasswordResetInfo.mailError -> {
+                    toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
             }
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            noInternet.postValue(true)
         }
     }
 
