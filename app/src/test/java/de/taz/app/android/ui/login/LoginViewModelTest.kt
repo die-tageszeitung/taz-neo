@@ -31,8 +31,8 @@ class LoginViewModelTest {
     private val username = "username"
     private val password = "password"
 
-    val message = "message"
-    val token = "token"
+    private val message = "message"
+    private val token = "token"
 
     private val subscriptionId = 161
     private val subscriptionPassword = "afa"
@@ -50,6 +50,7 @@ class LoginViewModelTest {
     private val idNotLinkedAuthTokenInfo = AuthTokenInfo(token, idNotLinkedAuthInfo)
 
     private val alreadyLinkedAuthInfo = AuthInfo(AuthStatus.alreadyLinked, message)
+    private val alreadyLinkedAuthTokenInfo = AuthTokenInfo(token, alreadyLinkedAuthInfo)
 
     @Mock
     lateinit var apiService: ApiService
@@ -89,11 +90,8 @@ class LoginViewModelTest {
     @Test
     fun getNoInternet() {
         assertTrue(loginViewModel.noInternet.value == false)
-
         loginViewModel.noInternet.value = true
-
         assertTrue(loginViewModel.noInternet.value == true)
-
     }
 
     @Test
@@ -135,37 +133,34 @@ class LoginViewModelTest {
     @Test
     fun loginCredentialsSuccessful() = runBlocking {
         doReturn(validAuthTokenInfo).`when`(apiService).authenticate(username, password)
-
         loginViewModel.login(username, password)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.DONE)
     }
 
     @Test
     fun loginCredentialsElapsed() = runBlocking {
         doReturn(elapsedAuthTokenInfo).`when`(apiService).authenticate(username, password)
-
         loginViewModel.login(username, password)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
 
     @Test
     fun loginCredentialsNotValid() = runBlocking {
         doReturn(invalidAuthTokenInfo).`when`(apiService).authenticate(username, password)
-
         loginViewModel.login(username, password)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_INVALID)
     }
 
     @Test
     fun loginCredentialsNoSubscriptionId() = runBlocking {
         doReturn(idNotLinkedAuthTokenInfo).`when`(apiService).authenticate(username, password)
-
         loginViewModel.login(username, password)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_MISSING)
+    }
+
+    @Test
+    fun loginCredentialsAlreadyLinked() = runBlocking {
+        // Do not test as this should not happen and therefore there exists no defined way to proceed
     }
 
     @Test
@@ -174,9 +169,7 @@ class LoginViewModelTest {
             subscriptionId,
             subscriptionPassword
         )
-
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING)
     }
 
@@ -186,9 +179,7 @@ class LoginViewModelTest {
             subscriptionId,
             subscriptionPassword
         )
-
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
 
@@ -198,15 +189,13 @@ class LoginViewModelTest {
             subscriptionId,
             subscriptionPassword
         )
-
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
-
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_INVALID)
     }
 
     @Test
     fun loginSubscriptionNotLinked() = runBlocking {
-       // Do not test as this should not happen and therefore there exists no defined way to proceed
+        // Do not test as this should not happen and therefore there exists no defined way to proceed
     }
 
     @Test
@@ -215,9 +204,7 @@ class LoginViewModelTest {
             subscriptionId,
             subscriptionPassword
         )
-
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
-
         assertTrue(loginViewModel.username == message)
         assertTrue(loginViewModel.status.value == LoginViewModelState.INITIAL)
     }
