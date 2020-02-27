@@ -58,7 +58,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:textSize" tools:ignore="SpUsage">15dp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
@@ -72,7 +72,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Imprint" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/drawer_sections_imprint</item>
+        <item name="android:textColor">@color/textColorAccent</item>
     </style>
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
@@ -97,14 +97,14 @@
     </style>
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/darkGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">15sp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
@@ -134,7 +134,7 @@
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
         <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
         <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
     </style>
@@ -179,7 +179,7 @@
     <style name="Settings.ManageAccount.Button" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">19sp</item>
-        <item name="android:backgroundTint">@color/lightGrey</item>
+        <item name="android:backgroundTint">@color/textColorAccent</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
