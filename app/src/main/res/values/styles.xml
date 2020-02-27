@@ -204,12 +204,16 @@
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textAlignment">center</item>
         <item name="android:lineSpacingExtra">7dp</item>
         <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+        <item name="android:layout_marginLeft">@dimen/fragment_login_text_margin_horizontal</item>
+        <item name="android:layout_marginRight">@dimen/fragment_login_text_margin_horizontal</item>
     </style>
 
     <style name="TextAppearance.Login.Text" parent="TextAppearance.AppCompat">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="Button.Login" parent="Widget.AppCompat.Button">
