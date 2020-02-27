@@ -15,7 +15,6 @@
     <color name="colorAccent">@color/tazRed</color>
 
     <color name="backgroundColor">@color/white</color>
-    <color name="backgroundColorAccent">@color/white</color>
     <color name="textColor">@color/black</color>
     <color name="textColorAccent">@color/darkGrey</color>
 
