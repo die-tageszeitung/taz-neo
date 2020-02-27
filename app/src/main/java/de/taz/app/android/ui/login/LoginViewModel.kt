@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.login
 
 import androidx.annotation.UiThread
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
@@ -14,12 +13,8 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import de.taz.app.android.util.observe
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class LoginViewModel(
     initialUsername: String? = null,
@@ -45,29 +40,18 @@ class LoginViewModel(
 
     var backToArticle: Boolean = true
 
-    private val status by lazy {
+    val status by lazy {
         MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
-    }
-
-    fun observeStatus(
-        lifecycleOwner: LifecycleOwner,
-        observationCallback: (LoginViewModelState) -> Unit
-    ) {
-        observe(status, lifecycleOwner, observationCallback)
     }
 
     private var statusBeforePasswordRequest: LoginViewModelState? = null
 
-    private val noInternet by lazy {
+    val noInternet by lazy {
         MutableLiveData<Boolean>(false)
     }
 
-    fun observeNoInternet(lifecycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit) {
-        observe(noInternet, lifecycleOwner, observationCallback)
-    }
-
     init {
-        if (!register) {
+        if (!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
             login(initialUsername, initialPassword)
         } else {
             initialUsername?.let { username = it }
@@ -87,9 +71,8 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
     }
 
-    fun login(initialUsername: String? = null, initialPassword: String? = null) {
-        initialUsername?.toIntOrNull()?.let {
-            status.postValue(LoginViewModelState.LOADING)
+    fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
+        return initialUsername?.toIntOrNull()?.let {
             subscriptionId = it
             subscriptionPassword = initialPassword
 
@@ -97,33 +80,37 @@ class LoginViewModel(
                 subscriptionId,
                 subscriptionPassword
             ) { subscriptionId, subscriptionPassword ->
+                status.postValue(LoginViewModelState.LOADING)
                 if (subscriptionPassword.isNotBlank()) {
                     ioScope.launch {
                         handleSubscriptionIdLogin(subscriptionId, subscriptionPassword)
                     }
                 } else {
                     status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                    null
                 }
             }
         } ?: run {
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
-            runIfNotNull(username, password) { username, password ->
-                status.postValue(LoginViewModelState.LOADING)
+            status.postValue(LoginViewModelState.LOADING)
 
-                if (username.isBlank()) {
-                    status.postValue(LoginViewModelState.USERNAME_MISSING)
-                } else if (password.isBlank()) {
-                    status.postValue(LoginViewModelState.PASSWORD_MISSING)
-                } else {
-                    ioScope.launch { handleCredentialsLogin(username, password) }
-                }
+            val tmpUsername = username
+            val tmpPassword = password
+
+            if (tmpUsername.isNullOrBlank()) {
+                status.postValue(LoginViewModelState.USERNAME_MISSING)
+                null
+            } else if (tmpPassword.isNullOrBlank()) {
+                status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                null
+            } else {
+                ioScope.launch { handleCredentialsLogin(tmpUsername, tmpPassword) }
             }
         }
     }
 
-    @UiThread
     private suspend fun handleSubscriptionIdLogin(
         subscriptionId: Int,
         subscriptionPassword: String
@@ -135,6 +122,11 @@ class LoginViewModel(
             )
 
             when (subscriptionAuthInfo?.status) {
+                AuthStatus.alreadyLinked -> {
+                    username = subscriptionAuthInfo.message
+                    status.postValue(LoginViewModelState.INITIAL)
+                    toastHelper.makeToast(R.string.toast_login_with_email)
+                }
                 AuthStatus.tazIdNotLinked -> {
                     // this should never happen
                     Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
@@ -142,6 +134,7 @@ class LoginViewModel(
                 }
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+
                 AuthStatus.notValid -> {
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
@@ -155,6 +148,7 @@ class LoginViewModel(
         }
     }
 
+    @UiThread
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
             val authTokenInfo = apiService.authenticate(username, password)
@@ -198,11 +192,11 @@ class LoginViewModel(
         invalidMailState: LoginViewModelState,
         username: String? = null,
         password: String? = null
-    ) {
+    ): Job? {
         username?.let { this.username = it }
         password?.let { this.password = it }
 
-        runIfNotNull(this.username, this.password) { username1, password1 ->
+        return runIfNotNull(this.username, this.password) { username1, password1 ->
             status.postValue(LoginViewModelState.LOADING)
             ioScope.launch { handleRegistration(username1, password1, invalidMailState) }
         }
@@ -231,7 +225,6 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                 }
                 SubscriptionStatus.invalidMail -> {
-                    // TODO this is triggeredn when wait for mail…
                     status.postValue(invalidMailState)
                 }
                 SubscriptionStatus.elapsed -> {
@@ -271,7 +264,7 @@ class LoginViewModel(
         password: String? = null,
         subscriptionId: Int? = null,
         subscriptionPassword: String? = null
-    ) {
+    ): Job {
         status.postValue(LoginViewModelState.LOADING)
 
         username?.let { this.username = it }
@@ -279,10 +272,9 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        ioScope.launch { handleConnect() }
+        return ioScope.launch { handleConnect() }
     }
 
-    @UiThread
     private suspend fun handleConnect() {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(

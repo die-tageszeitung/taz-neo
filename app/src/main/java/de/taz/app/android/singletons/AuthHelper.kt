@@ -1,9 +1,12 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.util.*
 
@@ -17,6 +20,7 @@ const val PREFERENCES_AUTH_TOKEN = "token"
 /**
  * Singleton handling authentication
  */
+@Mockable
 class AuthHelper private constructor(applicationContext: Context) : ViewModel() {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
@@ -24,7 +28,7 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
 
-    private var tokenLiveData =
+    var tokenLiveData =
         SharedPreferenceStringLiveData(
             preferences,
             PREFERENCES_AUTH_TOKEN,
@@ -34,24 +38,14 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
         get() = tokenLiveData.value ?: ""
         set(value) = tokenLiveData.postValue(value)
 
-    /**
-     * function to observe Authentication Token
-     * @return the generated Observer so it can be removed
-     */
-    fun observeToken(
-        lifecycleOwner: LifecycleOwner,
-        observationCallback: (String) -> Unit
-    ): Observer<String> {
-        return observe(tokenLiveData, lifecycleOwner, observationCallback)
-    }
-
     val installationId
         get() = SharedPreferenceStringLiveData(
             preferences, PREFERENCES_AUTH_INSTALLATION_ID, ""
         ).value ?: ""
 
 
-    private val authStatusLiveData =
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var authStatusLiveData: MutableLiveData<AuthStatus> =
         SharedPreferencesAuthStatusLiveData(
             preferences, PREFERENCES_AUTH_STATUS, AuthStatus.notValid
         )

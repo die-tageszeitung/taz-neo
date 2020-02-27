@@ -12,6 +12,7 @@ data class AuthInfo (
 enum class AuthStatus {
     valid,
     tazIdNotLinked,
+    alreadyLinked,
     notValid,
     elapsed
 }
