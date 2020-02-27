@@ -8,7 +8,7 @@
 
     <dimen name="nav_bottom_height">50dp</dimen>
 
-    <dimen name="drawer_margin_top">50dp</dimen>
+    <dimen name="drawer_margin_top">30dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
 
@@ -54,11 +54,11 @@
     <dimen name="fragment_archive_header_height">150dp</dimen>
     <dimen name="fragment_archive_header_padding">21dp</dimen>
     <dimen name="fragment_archive_header_icon_margin_top">55dp</dimen>
-    <dimen name="fragment_archive_moment_date_padding">5dp</dimen>
+    <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>
     <dimen name="fragment_archive_item_width">150dp</dimen>
-    <dimen name="fragment_archive_item_padding">25dp</dimen>
+    <dimen name="fragment_archive_item_padding">0dp</dimen>
 
-    <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
+    <dimen name="fragment_cover_flow_grid_padding">50dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">48dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_padding_top">12dp</dimen>
@@ -77,7 +77,7 @@
 
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
 
-    <dimen name="fragment_drawer_sections_moment_padding_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_sections_moment_margin_bottom">10dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
 

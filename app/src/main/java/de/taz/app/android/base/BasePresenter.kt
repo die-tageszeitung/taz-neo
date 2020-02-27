@@ -3,7 +3,7 @@ package de.taz.app.android.base
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import java.lang.ref.WeakReference
 
 abstract class BasePresenter<VIEW : BaseContract.View, VIEW_MODEL : BaseDataController>(
@@ -17,8 +17,8 @@ abstract class BasePresenter<VIEW : BaseContract.View, VIEW_MODEL : BaseDataCont
         this.view = WeakReference(view)
 
         viewModel = when (view) {
-            is FragmentActivity -> ViewModelProviders.of(view).get(viewModelClass)
-            is Fragment -> ViewModelProviders.of(view).get(viewModelClass)
+            is FragmentActivity -> ViewModelProvider(view).get(viewModelClass)
+            is Fragment -> ViewModelProvider(view).get(viewModelClass)
             else -> null
         }
     }
