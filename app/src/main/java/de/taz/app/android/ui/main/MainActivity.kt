@@ -14,6 +14,7 @@ import android.webkit.WebView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -67,6 +68,18 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
             cssFile.writeText(cssString)
         }
+
+    private fun setTheme(sharedPreferences: SharedPreferences) {
+        log.debug("setTheme to ")
+        if (sharedPreferences.getBoolean("text_night_mode", true)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            log.debug("NIGHT")
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            log.debug("DAY")
+        }
+        recreate()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
