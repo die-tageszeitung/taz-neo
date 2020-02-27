@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import androidx.core.content.FileProvider.getUriForFile
+import de.taz.app.android.R
 
 
 /**
@@ -110,7 +112,7 @@ open class HomePageAdapter(
         return ViewHolder(
             LayoutInflater.from(fragment.getContext()).inflate(
                 itemLayoutRes, parent, false
-            ) as MomentView
+            ) as ConstraintLayout
         )
     }
 
@@ -118,8 +120,8 @@ open class HomePageAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->
             fragment.getLifecycleOwner().lifecycleScope.launch {
-                viewHolder.itemView as MomentView
-                viewHolder.itemView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
+                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
+                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
             }
         }
     }
@@ -127,7 +129,7 @@ open class HomePageAdapter(
     /**
      * ViewHolder for this Adapter
      */
-    inner class ViewHolder constructor(itemView: MomentView) :
+    inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {

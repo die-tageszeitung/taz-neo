@@ -91,7 +91,7 @@ class MomentView @JvmOverloads constructor(
 
 
     private fun hideBitmap() {
-        fragment_archive_moment_image.visibility = View.GONE
+        fragment_archive_moment_image.visibility = View.INVISIBLE
     }
 
     private fun showBitmap(bitmap: Bitmap) {

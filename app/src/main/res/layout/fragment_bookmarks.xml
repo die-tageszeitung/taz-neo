@@ -42,8 +42,7 @@
         android:id="@+id/drawer_menu_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

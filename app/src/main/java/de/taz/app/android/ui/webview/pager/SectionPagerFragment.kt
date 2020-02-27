@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -53,7 +53,7 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
         presenter.onViewCreated(savedInstanceState)
         webview_pager_viewpager.reduceDragSensitivity(2)
 
-        stableIdProvider = ViewModelProviders.of(this).get(StableIdViewModel::class.java).also {
+        stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
             sectionAdapter = SectionPagerAdapter(this, it)
         }
 
