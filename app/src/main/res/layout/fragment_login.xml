@@ -17,7 +17,7 @@
         android:id="@+id/fragment_login_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_description_margin_top"
+        style="@style/TextAppearance.Login.Text"
         android:text="@string/fragment_login_description"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_title" />
 
@@ -58,8 +58,8 @@
         android:id="@+id/fragment_login_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
         android:text="@string/login_button"
+        style="@style/Button.Login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,8 +69,7 @@
         android:id="@+id/fragment_login_trial_subscription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_description_margin_top"
-        android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
+        style="@style/TextAppearance.Login.Text"
         android:text="@string/trial_subscription_title"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
@@ -79,8 +78,8 @@
         android:id="@+id/fragment_login_register_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
         android:text="@string/register_button"
+        style="@style/Button.Login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,6 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password"
+        style="@style/TextAppearance.Login.Text"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_register_button" />
 
@@ -99,6 +99,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password_button"
+        style="@style/Button.Login"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_forgot_password_text" />

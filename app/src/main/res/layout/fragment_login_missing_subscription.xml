@@ -60,7 +60,7 @@
         android:id="@+id/fragment_login_trial_subscription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_description_margin_top"
+        android:layout_marginTop="@dimen/fragment_login_text_margin_top"
         android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
         android:text="@string/trial_subscription_title"
         android:textAlignment="center"
