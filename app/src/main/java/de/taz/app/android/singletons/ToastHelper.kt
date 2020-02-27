@@ -4,12 +4,14 @@ import android.content.Context
 import android.os.Handler
 import android.widget.Toast
 import de.taz.app.android.R
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 
 /**
  * Singleton to create Toasts
  */
+@Mockable
 class ToastHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)

@@ -53,18 +53,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val log by Log
 
-    private val fileHelper = FileHelper.getInstance()
-
     private val presenter = MainPresenter()
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private val articleRepository = ArticleRepository.getInstance()
-
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("Shared pref changed: $key")
-            val cssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
+            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
+                "$RESOURCE_FOLDER/tazApi.css"
+            )
             val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
             cssFile.writeText(cssString)
@@ -283,7 +281,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                articleRepository.get(articleName)?.let { article ->
+                                ArticleRepository.getInstance(
+                                    applicationContext
+                                ).get(articleName)?.let { article ->
                                     showArticle(article)
                                 }
                             }

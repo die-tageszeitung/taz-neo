@@ -20,6 +20,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.observe
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -75,7 +76,7 @@ class LoginActivity(
 
         viewModel.backToArticle = article != null
 
-        viewModel.observeStatus(this) { loginViewModelState: LoginViewModelState? ->
+        observe(viewModel.status, this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
@@ -157,7 +158,7 @@ class LoginActivity(
             }
         }
 
-        viewModel.observeNoInternet(this) {
+        observe(viewModel.noInternet, this) {
             if (it) {
                 toastHelper.showNoConnectionToast()
                 hideLoadingScreen()
