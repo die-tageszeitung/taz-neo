@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/fragment_login_subscription_taken_header"
+        style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_taken_header"
@@ -15,6 +16,7 @@
 
     <Button
         android:id="@+id/fragment_login_subscription_taken_retry"
+        style="@style/Button.Login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_taken_retry"
@@ -24,6 +26,7 @@
 
     <TextView
         android:id="@+id/fragment_login_subscription_taken_body"
+        style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_taken_body"
@@ -32,11 +35,11 @@
 
     <TextView
         android:id="@+id/fragment_login_subscription_taken_email"
+        style="@style/TextAppearance.Login.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_taken_email"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.Login.Links"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_taken_body" />
 
 

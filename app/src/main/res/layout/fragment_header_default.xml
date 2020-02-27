@@ -18,8 +18,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/dotted_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:rotation="180"
         app:layout_constraintTop_toBottomOf="@id/fragment_header_default_title"
         app:srcCompat="@drawable/ic_dotted_line"
         tools:ignore="ContentDescription" />

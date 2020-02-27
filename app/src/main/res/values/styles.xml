@@ -201,9 +201,19 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="TextAppearance.Login.Links" parent="TextAppearance.Fragment.Title">
+    <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:lineSpacingExtra">7dp</item>
+        <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
     </style>
+
+    <style name="TextAppearance.Login.Text" parent="TextAppearance.AppCompat">
+        <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+    </style>
+
+    <style name="Button.Login" parent="Widget.AppCompat.Button">
+        <item name="android:layout_marginTop">@dimen/login_button_margin_top</item>
+    </style>
+
 </resources>

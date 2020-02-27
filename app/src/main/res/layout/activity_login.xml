@@ -8,56 +8,58 @@
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.login.LoginActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
 
-        <include
-            android:id="@+id/activity_login_header"
-            layout="@layout/fragment_header_default"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:expandedTitleGravity="top"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:scrimAnimationDuration="0">
+
+            <include
+                android:id="@+id/activity_login_header"
+                layout="@layout/fragment_header_default"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/fragment_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_padding_horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/activity_login_header">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/activity_login_header">
+            android:layout_height="wrap_content">
 
-            <androidx.core.widget.NestedScrollView
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/activity_login_fragment_placeholder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingStart="@dimen/fragment_padding_horizontal"
-                android:paddingEnd="@dimen/fragment_padding_horizontal"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/fragment_login_title_margin_top"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/activity_login_header">
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.fragment.app.FragmentContainerView
-                        android:id="@+id/activity_login_fragment_placeholder"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="@dimen/fragment_login_title_margin_top"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                        app:layout_constraintTop_toTopOf="parent"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/nav_bottom_height"
-                        app:layout_constraintTop_toBottomOf="@id/activity_login_fragment_placeholder" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.core.widget.NestedScrollView>
-
-            <include layout="@layout/include_loading_screen" />
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/nav_bottom_height"
+                app:layout_constraintTop_toBottomOf="@id/activity_login_fragment_placeholder" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include layout="@layout/include_loading_screen" />
 
     <LinearLayout
         android:layout_width="match_parent"
