@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
@@ -15,6 +16,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import java.lang.Exception
 
 class LoginViewModel(
     initialUsername: String? = null,
@@ -148,7 +150,6 @@ class LoginViewModel(
         }
     }
 
-    @UiThread
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
             val authTokenInfo = apiService.authenticate(username, password)
@@ -193,7 +194,8 @@ class LoginViewModel(
         register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL, username, password)
     }
 
-    private fun register(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun register(
         invalidMailState: LoginViewModelState,
         username: String? = null,
         password: String? = null
@@ -218,7 +220,7 @@ class LoginViewModel(
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     // should not happen
-                    Sentry.capture("trialSubscription returned aboIdNotValid")
+                    Sentry.capture("trialSubscription returned subscriptionIdNotValid")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
                 SubscriptionStatus.tazIdNotValid -> {
