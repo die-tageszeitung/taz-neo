@@ -2,21 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 <!--     <item android:id="@+id/bottom_navigation_action_pdf"
              android:title="@string/bottom_navigation_action_pdf"
-             android:icon="@drawable/ic_pdf" /> -->
+             android:icon="@drawable/ic_zeitungsansicht" /> -->
      <!--<item android:id="@+id/bottom_navigation_action_share"
           android:title="@string/bottom_navigation_action_share"
           android:icon="@drawable/ic_share" />-->
      <item android:id="@+id/bottom_navigation_action_bookmark"
           android:title="@string/bottom_navigation_action_bookmark"
-          android:icon="@drawable/ic_bookmark" />
+          android:icon="@drawable/ic_lesezeichen" />
      <!--<item android:id="@+id/bottom_navigation_action_help"
              android:title="@string/bottom_navigation_action_help"
-             android:icon="@drawable/ic_help" />-->
+             android:icon="@drawable/ic_hilfe" />-->
      <!--<item
              android:id="@+id/bottom_navigation_action_search"
-             android:icon="@drawable/ic_search"
+             android:icon="@drawable/ic_suche"
              android:title="@string/bottom_navigation_action_search" />-->
      <item android:id="@+id/bottom_navigation_action_settings"
            android:title="@string/settings"
-           android:icon="@drawable/ic_settings" />
+           android:icon="@drawable/ic_einstellungen" />
 </menu>
