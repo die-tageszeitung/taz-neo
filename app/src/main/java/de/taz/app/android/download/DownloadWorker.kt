@@ -1,7 +1,6 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import androidx.annotation.UiThread
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -76,7 +75,6 @@ class DownloadWorker(
      * start download
      * @param fileName - [FileEntry.name] of [FileEntry] to download
      */
-    @UiThread
     suspend fun startDownload(fileName: String) {
 
         fileEntryRepository.get(fileName)?.let { fileEntry ->

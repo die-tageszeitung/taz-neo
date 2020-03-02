@@ -10,7 +10,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import android.util.Base64
-import androidx.annotation.UiThread
 import androidx.lifecycle.MediatorLiveData
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -77,7 +76,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
         }
     }
 
-    @UiThread
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
         val isDisplayableLiveData = MediatorLiveData<Boolean>()
 
