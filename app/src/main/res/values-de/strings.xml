@@ -180,7 +180,7 @@
     <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
     <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_forgot_password_no_mail_body">TODO</string>
-    <string name="fragment_login_forgot_password_no_mail_email">TODO</string>
+    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden. Bitte wenden Sie sich an den Support:</string>
+    <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
 
 </resources>
