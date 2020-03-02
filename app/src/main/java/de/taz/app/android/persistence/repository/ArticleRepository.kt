@@ -95,8 +95,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getLiveData(articleName: String): LiveData<Article?> {
-        return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
-            input?.let { articleStubToArticle(input) }
+       return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
+            runBlocking(Dispatchers.IO) {
+                input?.let { articleStubToArticle(input) }
+            }
         }
     }
 
