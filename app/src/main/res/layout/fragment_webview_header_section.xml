@@ -5,7 +5,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fragment_header_default_margin_end"
+        android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+        android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
         android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
         app:layout_constraintTop_toTopOf="parent">
 

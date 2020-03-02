@@ -6,11 +6,12 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
 
-    <dimen name="nav_bottom_height">50dp</dimen>
+    <dimen name="nav_bottom_height">60dp</dimen>
 
     <dimen name="drawer_margin_top">30dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
+    <dimen name="drawer_date_margin_bottom">40dp</dimen>
 
     <dimen name="drawer_header_icon_padding">10dp</dimen>
     <dimen name="drawer_header_icon_line_margin">17dp</dimen>
@@ -18,11 +19,11 @@
     <dimen name="fragment_drawer_moment_height">190dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
 
-    <dimen name="drawer_logo_height">42dp</dimen>
-    <dimen name="drawer_logo_width">91dp</dimen>
+    <dimen name="drawer_logo_height">44dp</dimen>
+    <dimen name="drawer_logo_width">95dp</dimen>
     <dimen name="drawer_logo_margin_top">49dp</dimen>
 
-    <dimen name="fragment_padding_horizontal">20dp</dimen>
+    <dimen name="fragment_padding_horizontal">18dp</dimen>
 
     <dimen name="fragment_login_title_margin_top">45dp</dimen>
     <dimen name="fragment_login_padding_horizontal">7dp</dimen>
@@ -35,20 +36,25 @@
     <dimen name="fragment_article_read_ondescription_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_title_margin_top">10dp</dimen>
-    <dimen name="fragment_settings_padding_horizontal">16dp</dimen>
-    <dimen name="fragment_settings_padding_vertical">16dp</dimen>
-    <dimen name="fragment_settings_edit_text_margin_end">16dp</dimen>
+    <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
+    <dimen name="fragment_settings_padding_vertical">8dp</dimen>
+    <dimen name="fragment_settings_padding_top">1dp</dimen>
+    <dimen name="fragment_settings_padding_bottom">16dp</dimen>
+    <dimen name="fragment_settings_category_padding_top">38dp</dimen>
+    <dimen name="fragment_settings_category_padding_bottom">16dp</dimen>
     <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
     <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
 
     <dimen name="fragment_header_default_margin_top">40dp</dimen>
-    <dimen name="fragment_header_default_margin_end">20dp</dimen>
+    <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
+    <dimen name="fragment_header_default_margin_bottom">20dp</dimen>
     <dimen name="fragment_header_article_margin_top">14dp</dimen>
     <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
-    <dimen name="fragment_header_article_margin_horizontal">20dp</dimen>
+    <dimen name="fragment_header_article_margin_horizontal">18dp</dimen>
     <dimen name="fragment_header_date_margin_bottom">50dp</dimen>
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
+    <dimen name="fragment_header_settings_margin_bottom">38dp</dimen>
 
     <dimen name="fragment_Archive_padding_top">72dp</dimen>
     <dimen name="fragment_archive_header_height">150dp</dimen>
@@ -75,7 +81,10 @@
 
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
 
-    <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
+    <dimen name="fragment_bookmarks_thumbnail_size">65dp</dimen>
+    <dimen name="fragment_bookmarks_share_icon_vertical_margin">18dp</dimen>
+    <dimen name="fragment_bookmarks_share_icon_size">23dp</dimen>
+    <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">10dp</dimen>
 

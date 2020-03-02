@@ -25,6 +25,7 @@
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
             style="@style/TextAppearance.Drawer.Sections.Date"
+            android:layout_marginBottom="@dimen/drawer_margin_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

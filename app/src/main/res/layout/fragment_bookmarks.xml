@@ -25,7 +25,7 @@
             app:scrimAnimationDuration="0">
 
             <include
-                layout="@layout/fragment_header_default"
+                layout="@layout/fragment_header_bookmarks"
                 android:id="@+id/bookmarks_header" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
