@@ -301,7 +301,9 @@ class LoginViewModel(
         return ioScope.launch { handleConnect(previousState) }
     }
 
-    private suspend fun handleConnect(previousState: LoginViewModelState?) {
+    private suspend fun handleConnect(
+        previousState: LoginViewModelState?
+    ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
                 this@LoginViewModel.username!!,
