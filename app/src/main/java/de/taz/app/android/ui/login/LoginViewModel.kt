@@ -175,7 +175,7 @@ class LoginViewModel(
                     Sentry.capture("authenticate returned alreadyLinked")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
-                null ->  {
+                null -> {
                     status.postValue(LoginViewModelState.INITIAL)
                     noInternet.postValue(true)
                 }
@@ -213,7 +213,14 @@ class LoginViewModel(
         return runIfNotNull(this.username, this.password) { username1, password1 ->
             val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
-            ioScope.launch { handleRegistration(username1, password1, invalidMailState, previousState) }
+            ioScope.launch {
+                handleRegistration(
+                    username1,
+                    password1,
+                    invalidMailState,
+                    previousState
+                )
+            }
         }
     }
 
@@ -353,16 +360,22 @@ class LoginViewModel(
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun poll(timeoutMillis: Long = 100): Job {
+    fun poll(
+        timeoutMillis: Long = 100,
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
+    ): Job {
         status.postValue(LoginViewModelState.LOADING)
 
         return ioScope.launch {
             delay(timeoutMillis)
-            handlePoll(timeoutMillis * 2)
+            handlePoll(timeoutMillis * 2, runBlocking)
         }
     }
 
-    private suspend fun handlePoll(timeoutMillis: Long) {
+    private suspend fun handlePoll(
+        timeoutMillis: Long,
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
+    ) {
         try {
             val subscriptionInfo = apiService.subscriptionPoll()
             log.debug("poll subscriptionPoll: $subscriptionInfo")
@@ -400,8 +413,13 @@ class LoginViewModel(
                 SubscriptionStatus.waitForMail -> {
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
+                null,
                 SubscriptionStatus.waitForProc -> {
-                    poll(timeoutMillis)
+                    if (runBlocking) {
+                        poll(timeoutMillis, runBlocking).join()
+                    } else {
+                        poll(timeoutMillis)
+                    }
                 }
                 SubscriptionStatus.noPollEntry -> {
                     resetCredentialsPassword()
@@ -411,6 +429,12 @@ class LoginViewModel(
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             noInternet.postValue(true)
+            if (runBlocking) {
+                poll(timeoutMillis, runBlocking).join()
+            } else {
+                poll(timeoutMillis)
+            }
+
         }
     }
 
@@ -419,14 +443,12 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.PASSWORD_REQUEST)
     }
 
-
     fun requestSubscriptionPassword(subscriptionId: Int): Job {
         log.debug("forgotCredentialsPassword $subscriptionId")
         status.postValue(LoginViewModelState.LOADING)
         return ioScope.launch { handleSubscriptionPassword(subscriptionId) }
     }
 
-    @UiThread
     private suspend fun handleSubscriptionPassword(subscriptionId: Int) {
         try {
             val subscriptionResetInfo = apiService.requestSubscriptionPassword(subscriptionId)
@@ -444,8 +466,12 @@ class LoginViewModel(
                 SubscriptionResetStatus.noMail -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
                 }
+                null -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
             noInternet.postValue(true)
         }
     }
@@ -478,6 +504,7 @@ class LoginViewModel(
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             noInternet.postValue(true)
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
         }
     }
 

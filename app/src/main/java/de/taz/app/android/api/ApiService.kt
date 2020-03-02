@@ -42,6 +42,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param firstname - firstname of the user
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun subscriptionId2TazId(
         tazId: String,
         idPassword: String,
@@ -65,6 +66,7 @@ class ApiService private constructor(applicationContext: Context) {
         }, "subscriptionId2TazId")
     }
 
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun subscriptionPoll(): SubscriptionInfo? {
         val tag = "subscriptionPoll"
         log.debug(tag)
@@ -130,9 +132,7 @@ class ApiService private constructor(applicationContext: Context) {
      * function to get current authentication information
      * @return [AuthInfo] indicating if authenticated and if not why not
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun getAuthInfo(): AuthInfo? {
         val tag = "getAuthInfo"
         log.debug(tag)
@@ -146,9 +146,7 @@ class ApiService private constructor(applicationContext: Context) {
      * function to get available feeds
      * @return List of [Feed]s
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun getFeeds(): List<Feed> {
         val tag = "getFeeds"
         log.debug(tag)
@@ -165,9 +163,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param issueDate - the date of the issue
      * @return [Issue] of the feed at given date
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun getIssueByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
@@ -436,7 +432,7 @@ class ApiService private constructor(applicationContext: Context) {
     )
     suspend fun requestSubscriptionPassword(
         subscriptionId: Int
-    ) : SubscriptionResetInfo? {
+    ): SubscriptionResetInfo? {
         val tag = "resetPassword"
         log.debug("$tag email: $subscriptionId")
 
@@ -452,9 +448,8 @@ class ApiService private constructor(applicationContext: Context) {
             tag
         )
     }
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
+
+    @Throws(ApiServiceException.NoInternetException::class)
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()

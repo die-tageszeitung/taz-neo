@@ -2,9 +2,7 @@ package de.taz.app.android.ui.login
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.AuthHelper
@@ -17,6 +15,7 @@ import org.junit.Before
 import org.junit.Test
 
 import org.junit.Rule
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
@@ -63,6 +62,11 @@ class LoginViewModelTest {
     private val tazIdNotValidSubscriptionInfo = SubscriptionInfo(SubscriptionStatus.tazIdNotValid)
     private val waitForMailSubscriptionInfo = SubscriptionInfo(SubscriptionStatus.waitForMail)
     private val waitForProcSubscriptionInfo = SubscriptionInfo(SubscriptionStatus.waitForProc)
+
+    private val subscriptionResetInfoOk = SubscriptionResetInfo(SubscriptionResetStatus.ok)
+    private val subscriptionResetInfoInvalidId = SubscriptionResetInfo(SubscriptionResetStatus.invalidSubscriptionId)
+    private val subscriptionResetInfoNoMail = SubscriptionResetInfo(SubscriptionResetStatus.noMail)
+    private val subscriptionResetInfoInvalidConnection = SubscriptionResetInfo(SubscriptionResetStatus.invalidConnection, email)
 
     @Mock
     lateinit var apiService: ApiService
@@ -128,6 +132,12 @@ class LoginViewModelTest {
     fun loginCredentialsWithoutPassword() = runBlocking {
         loginViewModel.login(username, null)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_MISSING)
+    }
+
+    @Test
+    fun loginWithEmtpyUsernameAndPassword() = runBlocking {
+        loginViewModel.login(null, null)?.join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.USERNAME_MISSING)
     }
 
     @Test
@@ -323,6 +333,16 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun registerNoInternet() = runBlocking {
+        val status = loginViewModel.status.value
+        doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService)
+            .trialSubscription(username, password)
+        loginViewModel.register(viewModelState,username, password)?.join()
+        assertTrue(loginViewModel.status.value == status)
+        assertTrue(loginViewModel.noInternet.value == true)
+    }
+
+    @Test
     fun pollInvalidMail() = runBlocking {
         // Do not test as this should not happen and therefore there exists no defined way to proceed
     }
@@ -355,10 +375,29 @@ class LoginViewModelTest {
     fun pollWaitForProc() = runBlocking {
         doReturn(waitForProcSubscriptionInfo).doReturn(waitForProcSubscriptionInfo)
             .doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0).join()
+        loginViewModel.poll(0, runBlocking = true).join()
 
         verify(apiService, times(3)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
+    }
+
+    @Test
+    fun pollNull() = runBlocking {
+        doReturn(null).doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
+        loginViewModel.poll(0, runBlocking = true).join()
+        verify(apiService, times(2)).subscriptionPoll()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
+    }
+
+    @Test
+    fun pollNoInternet() = runBlocking {
+        doThrow(ApiService.ApiServiceException.NoInternetException()).doReturn(
+            waitForMailSubscriptionInfo
+        ).`when`(apiService).subscriptionPoll()
+        loginViewModel.poll(0, runBlocking = true).join()
+        verify(apiService, times(2)).subscriptionPoll()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
+        assertTrue(loginViewModel.noInternet.value == true)
     }
 
     @Test
@@ -404,8 +443,97 @@ class LoginViewModelTest {
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 
+    @Test
+    fun requestSubscriptionPasswordOk() = runBlocking {
+        doReturn(subscriptionResetInfoOk).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST_DONE)
+    }
+
+    @Test
+    fun requestSubscriptionPasswordInvalidId() = runBlocking {
+        doReturn(subscriptionResetInfoInvalidId).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
+    }
+
+    @Test
+    fun requestSubscriptionPasswordNoMail() = runBlocking {
+        doReturn(subscriptionResetInfoNoMail).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
+    }
+
+    @Test
+    fun requestSubscriptionPasswordInvalidConnection() = runBlocking {
+        doReturn(subscriptionResetInfoInvalidConnection).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.INITIAL)
+        assertTrue(loginViewModel.username == email)
+    }
+
+    @Test
+    fun requestSubscriptionPasswordNull() = runBlocking {
+        doReturn(null).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+    @Test
+    fun requestSubscriptionPasswordNoInternet() = runBlocking {
+        doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService).requestSubscriptionPassword(subscriptionId)
+        loginViewModel.requestSubscriptionPassword(subscriptionId).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+        assertTrue(loginViewModel.noInternet.value == true)
+    }
+
+    @Test
+    fun requestCredentialsPasswordOk() = runBlocking {
+        doReturn(PasswordResetInfo.ok).`when`(apiService).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)?.join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST_DONE)
+    }
+
+    @Test
+    fun requestCredentialsPasswordMailError() = runBlocking {
+        doReturn(PasswordResetInfo.mailError).`when`(apiService).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)?.join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+    @Test
+    fun requestCredentialsPasswordInvalidMail() = runBlocking {
+        doReturn(PasswordResetInfo.invalidMail).`when`(apiService).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)?.join()
+        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+    @Test
+    fun requestCredentialsPasswordError() = runBlocking {
+        doReturn(PasswordResetInfo.error).`when`(apiService).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)?.join()
+        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+    @Test
+    fun requestCredentialsPasswordNull() = runBlocking {
+        doReturn(null).`when`(apiService).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)?.join()
+        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+    }
+
+    @Test
+    fun requestCredentialsPasswordNoInternet() = runBlocking {
+        doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(
+            apiService
+        ).requestCredentialsPasswordReset(email)
+        loginViewModel.requestCredentialsPasswordReset(email)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
+        assertTrue(loginViewModel.noInternet.value == true)
+    }
 
     // connect
-    // subscriptionPassword
-    //
 }
