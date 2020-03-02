@@ -93,9 +93,10 @@ publishNextcloud:
 
 publishGooglePlay:
   cache: {}
+  extends: .prepareEnv
   stage: publish
   script:
-    - ./gradlew publishGoogleTazRelease
+    - ./gradlew publishGoogleTazReleaseBundle
   only:
     - tags
   when: manual
