@@ -8,7 +8,8 @@
         android:layout_width="match_parent"
         android:layout_marginTop="@dimen/fragment_header_article_margin_top"
         android:paddingBottom="@dimen/fragment_header_article_margin_bottom"
-        android:layout_marginEnd="@dimen/fragment_header_default_margin_end"
+        android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+        android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
         app:layout_constraintTop_toTopOf="parent">
 
     <TextView
