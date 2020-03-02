@@ -170,6 +170,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFr
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
     override fun showBottomSheet(fragment: Fragment) {
-        AddBottomSheetDialog(fragment).show(childFragmentManager, null)
+        val addBottomSheet = AddBottomSheetDialog.newInstance(fragment)
+        addBottomSheet.show(childFragmentManager, null)
     }
 }
