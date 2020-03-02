@@ -31,8 +31,8 @@
     <string name="fragment_header_article">%1$d/%2$d</string>
 
     <string name="fragment_article_read_onreadon">Please log in to read on.</string>
-    <string name="fragment_article_read_ontrial_subscription">Do you want to test the digital taz for 14 days?</string>
 
+    <string name="trial_subscription_title">Do you want to test the digital taz for 14 days?</string>
     <string name="register_button">Register</string>
 
     <string name="archive">Archive</string>
@@ -103,7 +103,13 @@
 
     <string name="login_error_unknown_credentials">Login failed</string>
 
+    <string name="login_subscription_hint">subscription</string>
+
+    <string name="login_email_hint">email</string>
+
     <string name="login_username_hint">subscription ID</string>
+
+    <string name="login_password_confirmation_hint">confirm password</string>
     <string name="login_username_error_empty">Username can\'t be empty.</string>
     <string name="login_username_error_wrong_format">Please use your tazId or subscription id.</string>
 
@@ -153,11 +159,8 @@
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
     <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string>
 
-    <string name="fragment_login_request_test_subscription_header"></string>
-    <string name="fragment_login_request_test_subscription_existing_account"></string>
-    <string name="fragment_login_request_test_subscription_forgot_password"></string>
-    <string name="fragment_login_request_test_subscription_forgot_password_button"></string>
-    <string name="fragment_login_request_test_subscription_terms_and_conditions"></string>
-    <string name="fragment_login_request_test_subscription_login"></string>
+    <string name="fragment_login_request_test_subscription_header">You can try the digital taz for 14 days:</string>
+    <string name="fragment_login_request_test_subscription_existing_account">If you already have an taz.de account (to comment on articles or use the archive) with email address and password please enter them here</string>>
+    <string name="fragment_login_request_test_subscription_terms_and_conditions">I accept the terms and conditions, as well as the information on revocation and privacy.</string>
 
 </resources>

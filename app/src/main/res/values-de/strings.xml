@@ -32,8 +32,8 @@
     <string name="fragment_header_article">%1$d/%2$d</string>
 
     <string name="fragment_article_read_onreadon">Loggen Sie sich ein, um weiterzulesen.</string>
-    <string name="fragment_article_read_ontrial_subscription">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
 
+    <string name="trial_subscription_title">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
     <string name="register_button">Registrieren</string>
 
     <string name="archive">Archiv</string>
@@ -104,11 +104,16 @@
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
-    <string name="login_username_hint">Abo Nummer</string>
+    <string name="login_subscription_hint">Abonummer</string>
+
+    <string name="login_email_hint">E-Mail-Adresse</string>
+
+    <string name="login_username_hint">Nutzername</string>
     <string name="login_username_error_empty">Darf nicht leer sein.</string>
     <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre tazId oder AboId.</string>
 
     <string name="login_password_hint">Passwort</string>
+    <string name="login_password_confirmation_hint">Passwort bestätigen</string>
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
 
     <string name="login_button">Anmelden</string>
@@ -154,11 +159,8 @@
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
 
-    <string name="fragment_login_request_test_subscription_header"></string>
-    <string name="fragment_login_request_test_subscription_existing_account"></string>
-    <string name="fragment_login_request_test_subscription_forgot_password"></string>
-    <string name="fragment_login_request_test_subscription_forgot_password_button"></string>
-    <string name="fragment_login_request_test_subscription_terms_and_conditions"></string>
-    <string name="fragment_login_request_test_subscription_login"></string>
+    <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
+    <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen) geben Sie hier bitte diese Daten an.</string>
+    <string name="fragment_login_request_test_subscription_terms_and_conditions">Ich akzeptiere die AGB sowie die Hinweise zum Widerruf und Datenschutz.</string>
 
 </resources>

@@ -1,21 +1,20 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import de.taz.app.android.R
+import de.taz.app.android.ui.login.LoginViewModelState
+import kotlinx.android.synthetic.main.fragment_login_missing_subscription.*
 
-class MissingSubscriptionFragment: Fragment() {
+class MissingSubscriptionFragment: BaseFragment(R.layout.fragment_login_missing_subscription) {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return LayoutInflater.from(activity)
-            .inflate(R.layout.fragment_login_missing_subscription, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+       fragment_login_missing_subscription_test_subscription.setOnClickListener {
+           lazyViewModel.value.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUESTING)
+           lazyViewModel.value.register()
+       }
     }
 
 }

@@ -19,12 +19,12 @@
             layout="@layout/fragment_header_default" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_header"
-                android:paddingStart="@dimen/fragment_padding_horizontal"
-                android:paddingEnd="@dimen/fragment_padding_horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/fragment_padding_horizontal"
+            android:paddingEnd="@dimen/fragment_padding_horizontal"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_header">
 
             <TextView
                 android:id="@+id/fragment_login_title"
@@ -56,8 +56,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/login_username_hint"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:nextFocusForward="@id/fragment_login_password_layout" />
+                    android:inputType="textEmailAddress"
+                    android:nextFocusForward="@id/fragment_login_password" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,26 +83,31 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_button_margin_top"
                 android:text="@string/login_button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_layout" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_login_loading_screen"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/fragment_login_trial_subscription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_login_description_margin_top"
+                android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
+                android:text="@string/trial_subscription_title"
+                android:textAlignment="center"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
-            <ProgressBar
+            <Button
+                android:id="@+id/fragment_login__register_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="@dimen/login_button_margin_top"
+                android:text="@string/register_button"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_login_trial_subscription" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
