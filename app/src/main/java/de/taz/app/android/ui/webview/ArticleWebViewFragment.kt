@@ -126,11 +126,12 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     private fun shareArticle(url: String, title: String?, image: FileEntry?) {
         view?.let { view ->
             var imageUri : Uri? = null
+            val applicationId = view.context.packageName
             image?.let {
                 val imageAsFile = fileHelper.getFile(image)
                 imageUri = FileProvider.getUriForFile(
                     view.context,
-                    "de.taz.app.android.provider",
+                    "${applicationId}.contentProvider",
                     imageAsFile
                 )
             }
