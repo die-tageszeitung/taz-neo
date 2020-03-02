@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
@@ -31,6 +33,9 @@ class ApiService private constructor(applicationContext: Context) {
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
+
 
     /**
      * function to connect subscriptionId to tazId
@@ -124,23 +129,13 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getAppInfo"
         log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.AppInfo)?.product?.let { AppInfo(it) } }, tag
+            {
+                updateAuthStatus(
+                    graphQlClient.query(QueryType.AppInfo)?.product
+                )?.let { AppInfo(it) }
+            }, tag
         )
     }
-
-    /**
-     * function to get current authentication information
-     * @return [AuthInfo] indicating if authenticated and if not why not
-     */
-    @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun getAuthInfo(): AuthInfo? {
-        val tag = "getAuthInfo"
-        log.debug(tag)
-        return transformExceptions(
-            { graphQlClient.query(QueryType.AuthInfo)?.product?.authInfo }, tag
-        )
-    }
-
 
     /**
      * function to get available feeds
@@ -151,7 +146,7 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getFeeds"
         log.debug(tag)
         return transformExceptions({
-            graphQlClient.query(QueryType.Feed)?.product?.feedList?.map {
+            updateAuthStatus(graphQlClient.query(QueryType.Feed)?.product)?.feedList?.map {
                 Feed(it)
             }
         }, tag) ?: emptyList()
@@ -181,10 +176,12 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug("$tag limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()
-            graphQlClient.query(
-                QueryType.LastIssues,
-                IssueVariables(limit = limit)
-            )?.product?.feedList?.forEach { feed ->
+            updateAuthStatus(
+                graphQlClient.query(
+                    QueryType.LastIssues,
+                    IssueVariables(limit = limit)
+                )?.product
+            )?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues
@@ -208,10 +205,12 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug("$tag issueDate: $issueDate limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()
-            graphQlClient.query(
-                QueryType.IssueByFeedAndDate,
-                IssueVariables(issueDate = issueDate, limit = limit)
-            )?.product?.feedList?.forEach { feed ->
+            updateAuthStatus(
+                graphQlClient.query(
+                    QueryType.IssueByFeedAndDate,
+                    IssueVariables(issueDate = issueDate, limit = limit)
+                )?.product
+            )?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues
@@ -236,10 +235,12 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getIssuesByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
         return transformExceptions({
-            graphQlClient.query(
-                QueryType.IssueByFeedAndDate,
-                IssueVariables(feedName, issueDate, limit)
-            )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+            updateAuthStatus(
+                graphQlClient.query(
+                    QueryType.IssueByFeedAndDate,
+                    IssueVariables(feedName, issueDate, limit)
+                )?.product
+            )?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
         }, tag) ?: emptyList()
     }
 
@@ -254,7 +255,13 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getResourceInfo"
         log.debug(tag)
         return transformExceptions(
-            { graphQlClient.query(QueryType.ResourceInfo)?.product?.let { ResourceInfo(it) } },
+            {
+                updateAuthStatus(graphQlClient.query(QueryType.ResourceInfo)?.product)?.let {
+                    ResourceInfo(
+                        it
+                    )
+                }
+            },
             tag
         )
     }
@@ -427,6 +434,16 @@ class ApiService private constructor(applicationContext: Context) {
      * @param subscriptionId the if of the subscription
      * @return
      */
+    /**
+     * if product returns authStatus update it in the authHelper
+     */
+    private fun updateAuthStatus(product: ProductDto?): ProductDto? {
+        product?.authInfo?.let {
+            authHelper.authStatus = it.status
+        }
+        return product
+    }
+
     @Throws(
         ApiServiceException.NoInternetException::class
     )

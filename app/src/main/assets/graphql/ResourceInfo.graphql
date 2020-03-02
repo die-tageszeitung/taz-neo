@@ -1,5 +1,9 @@
 query ResourceInfoQuery {
     product {
+        authInfo {
+            status
+            message
+        }
         resourceVersion
         resourceBaseUrl
         resourceList {

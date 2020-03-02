@@ -4,5 +4,9 @@ query AppInfoQuery {
         appType
         globalBaseUrl
         androidVersion
+        authInfo {
+            status
+            message
+        }
     }
 }

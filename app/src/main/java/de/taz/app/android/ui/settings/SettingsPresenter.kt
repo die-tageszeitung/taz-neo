@@ -11,6 +11,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.monkey.observeDistinct
 import kotlinx.android.synthetic.main.fragment_settings.*
 
 class SettingsPresenter(
@@ -44,7 +45,7 @@ class SettingsPresenter(
                 }
             }
 
-            authHelper.observeAuthStatus(getLifecycleOwner()) { authStatus ->
+            authHelper.authStatusLiveData.observeDistinct(getLifecycleOwner()) { authStatus ->
                 if (authStatus == AuthStatus.valid) {
                     showLogoutButton()
                 } else {
@@ -52,7 +53,7 @@ class SettingsPresenter(
                 }
             }
 
-            authHelper.observeEmail(getLifecycleOwner()) { email ->
+            authHelper.emailLiveData.observeDistinct(getLifecycleOwner()) { email ->
                 fragment_settings_account_email.text = email
             }
         }
