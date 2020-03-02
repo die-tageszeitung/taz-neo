@@ -130,9 +130,6 @@ class LoginActivity(
                 LoginViewModelState.PASSWORD_REQUEST_DONE -> {
                     showPasswordMailSent()
                 }
-                LoginViewModelState.PASSWORD_REQUEST_ONGOING -> {
-                    showLoadingScreen()
-                }
                 LoginViewModelState.PASSWORD_REQUEST_NO_MAIL -> {
                     showPasswordRequestNoMail()
                 }
@@ -161,7 +158,6 @@ class LoginActivity(
         observe(viewModel.noInternet, this) {
             if (it) {
                 toastHelper.showNoConnectionToast()
-                hideLoadingScreen()
             }
         }
 

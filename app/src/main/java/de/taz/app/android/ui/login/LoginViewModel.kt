@@ -16,7 +16,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 class LoginViewModel(
     initialUsername: String? = null,
@@ -143,9 +142,13 @@ class LoginViewModel(
                 }
                 AuthStatus.valid ->
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
-                null -> noInternet.postValue(true)
+                null -> {
+                    status.postValue(LoginViewModelState.INITIAL)
+                    noInternet.postValue(true)
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(LoginViewModelState.INITIAL)
             noInternet.postValue(true)
         }
     }
@@ -172,9 +175,13 @@ class LoginViewModel(
                     Sentry.capture("authenticate returned alreadyLinked")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
-                null -> noInternet.postValue(true)
+                null ->  {
+                    status.postValue(LoginViewModelState.INITIAL)
+                    noInternet.postValue(true)
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(LoginViewModelState.INITIAL)
             noInternet.postValue(true)
         }
     }
@@ -204,15 +211,17 @@ class LoginViewModel(
         password?.let { this.password = it }
 
         return runIfNotNull(this.username, this.password) { username1, password1 ->
+            val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
-            ioScope.launch { handleRegistration(username1, password1, invalidMailState) }
+            ioScope.launch { handleRegistration(username1, password1, invalidMailState, previousState) }
         }
     }
 
     private suspend fun handleRegistration(
         username: String,
         password: String,
-        invalidMailState: LoginViewModelState
+        invalidMailState: LoginViewModelState,
+        previousState: LoginViewModelState?
     ) {
         try {
             val subscriptionInfo = apiService.trialSubscription(username, password)
@@ -257,10 +266,12 @@ class LoginViewModel(
                     poll()
                 }
                 null -> {
+                    status.postValue(previousState)
                     noInternet.postValue(true)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(previousState)
             noInternet.postValue(true)
         }
     }
@@ -272,6 +283,7 @@ class LoginViewModel(
         subscriptionId: Int? = null,
         subscriptionPassword: String? = null
     ): Job {
+        val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
 
         username?.let { this.username = it }
@@ -279,10 +291,10 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        return ioScope.launch { handleConnect() }
+        return ioScope.launch { handleConnect(previousState) }
     }
 
-    private suspend fun handleConnect() {
+    private suspend fun handleConnect(previousState: LoginViewModelState?) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
                 this@LoginViewModel.username!!,
@@ -329,26 +341,27 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                 }
                 null -> {
+                    status.postValue(previousState)
                     noInternet.postValue(true)
                 }
 
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(previousState)
             noInternet.postValue(true)
         }
     }
 
-
-    private fun poll(timeoutMillis: Long = 100) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun poll(timeoutMillis: Long = 100): Job {
         status.postValue(LoginViewModelState.LOADING)
 
-        ioScope.launch {
+        return ioScope.launch {
             delay(timeoutMillis)
             handlePoll(timeoutMillis * 2)
         }
     }
 
-    @UiThread
     private suspend fun handlePoll(timeoutMillis: Long) {
         try {
             val subscriptionInfo = apiService.subscriptionPoll()
@@ -407,10 +420,10 @@ class LoginViewModel(
     }
 
 
-    fun requestSubscriptionPassword(subscriptionId: Int) {
+    fun requestSubscriptionPassword(subscriptionId: Int): Job {
         log.debug("forgotCredentialsPassword $subscriptionId")
-        status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
-        ioScope.launch { handleSubscriptionPassword(subscriptionId) }
+        status.postValue(LoginViewModelState.LOADING)
+        return ioScope.launch { handleSubscriptionPassword(subscriptionId) }
     }
 
     @UiThread
@@ -437,12 +450,13 @@ class LoginViewModel(
         }
     }
 
-    fun requestCredentialsPasswordReset(email: String) {
+    fun requestCredentialsPasswordReset(email: String): Job? {
         log.debug("forgotCredentialsPassword $email")
-        if (email.isEmpty()) {
+        return if (email.isEmpty()) {
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+            null
         } else {
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST_ONGOING)
+            status.postValue(LoginViewModelState.LOADING)
             ioScope.launch { handlePasswordReset(email) }
         }
     }
@@ -507,11 +521,10 @@ enum class LoginViewModelState {
     CREDENTIALS_MISSING,
     CREDENTIALS_MISSING_INVALID_EMAIL,
     EMAIL_ALREADY_LINKED,
-    LOADING,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
-    PASSWORD_REQUEST_ONGOING,
+    LOADING,
     PASSWORD_REQUEST_NO_MAIL,
     PASSWORD_REQUEST_INVALID_ID,
     POLLING_FAILED,
