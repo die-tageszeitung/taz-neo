@@ -12,6 +12,8 @@
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer tazId ein.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
+    <string name="toast_logout_elapsed">Ihr Abo ist abelaufen.</string>
+    <string name="toast_logout_invalid">Ihr Abo ist nicht mehr gültig.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
     <string name="navigation_drawer_close">Seitenleiste schließen</string>

@@ -247,11 +247,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showToast(stringId: Int) {
-        ToastHelper.getInstance(applicationContext).makeToast(stringId)
+        ToastHelper.getInstance(applicationContext).showToast(stringId)
     }
 
     override fun showToast(string: String) {
-        ToastHelper.getInstance(applicationContext).makeToast(string)
+        ToastHelper.getInstance(applicationContext).showToast(string)
     }
 
     override fun getLifecycleOwner(): LifecycleOwner = this

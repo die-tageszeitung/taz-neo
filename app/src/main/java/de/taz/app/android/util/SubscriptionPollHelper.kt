@@ -7,6 +7,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -25,7 +27,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     init {
-        authHelper.observeIsPolling(ProcessLifecycleOwner.get()) { isPolling ->
+        authHelper.isPollingLiveData.observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
             if (isPolling) {
                 poll()
             }
@@ -46,13 +48,13 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         authHelper.token = subscriptionInfo.token!!
                         authHelper.authStatus = AuthStatus.valid
                         CoroutineScope(Dispatchers.Main).launch {
-                            authHelper.observeAuthStatusOnce(ProcessLifecycleOwner.get()) {
+                            authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
                                     issueRepository.save(apiService.getLastIssues())
                                 }
                             }
                         }
-                        toastHelper.makeToast(R.string.toast_login_successful)
+                        toastHelper.showToast(R.string.toast_login_successful)
                     }
                     SubscriptionStatus.tazIdNotValid,
                     SubscriptionStatus.subscriptionIdNotValid,
@@ -63,7 +65,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         // should never happen
                         Sentry.capture("subscriptionPoll returned ${subscriptionInfo.status}")
                         // stop polling and tell user to try again
-                        toastHelper.makeToast(R.string.toast_login_failed_retry)
+                        toastHelper.showToast(R.string.toast_login_failed_retry)
                     }
                     SubscriptionStatus.waitForMail -> {
                         // still waiting poll again
@@ -75,7 +77,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     SubscriptionStatus.noPollEntry -> {
                         // user waited to long
-                        toastHelper.makeToast(R.string.toast_login_failed_retry)
+                        toastHelper.showToast(R.string.toast_login_failed_retry)
                     }
                     null -> {
                         // continue and wait for correct response

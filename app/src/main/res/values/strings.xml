@@ -11,6 +11,8 @@
     <string name="toast_login_with_email">Please login with your email-adress.</string>
 
     <string name="toast_unknown_error">Unknown error occurred.</string>
+    <string name="toast_logout_elapsed">Your subscription has expired.</string>
+    <string name="toast_logout_invalid">Your subscription is no longer valid.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

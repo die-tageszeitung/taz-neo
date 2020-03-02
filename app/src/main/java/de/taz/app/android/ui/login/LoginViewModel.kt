@@ -126,7 +126,7 @@ class LoginViewModel(
                 AuthStatus.alreadyLinked -> {
                     username = subscriptionAuthInfo.message
                     status.postValue(LoginViewModelState.INITIAL)
-                    toastHelper.makeToast(R.string.toast_login_with_email)
+                    toastHelper.showToast(R.string.toast_login_with_email)
                 }
                 AuthStatus.tazIdNotLinked -> {
                     // this should never happen
@@ -460,7 +460,7 @@ class LoginViewModel(
                 SubscriptionResetStatus.invalidConnection -> {
                     username = subscriptionResetInfo.mail
                     status.postValue(LoginViewModelState.INITIAL)
-                    toastHelper.makeToast(R.string.toast_login_with_email)
+                    toastHelper.showToast(R.string.toast_login_with_email)
                 }
                 SubscriptionResetStatus.invalidSubscriptionId -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
@@ -500,7 +500,7 @@ class LoginViewModel(
                 PasswordResetInfo.error,
                 PasswordResetInfo.invalidMail,
                 PasswordResetInfo.mailError -> {
-                    toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                    toastHelper.showToast(R.string.something_went_wrong_try_later)
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
             }

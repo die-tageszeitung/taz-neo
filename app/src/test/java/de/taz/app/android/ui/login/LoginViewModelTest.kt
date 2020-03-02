@@ -513,7 +513,7 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.invalidMail).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 
@@ -521,7 +521,7 @@ class LoginViewModelTest {
     fun requestCredentialsPasswordError() = runBlocking {
         doReturn(PasswordResetInfo.error).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 
@@ -529,7 +529,7 @@ class LoginViewModelTest {
     fun requestCredentialsPasswordNull() = runBlocking {
         doReturn(null).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).makeToast(anyInt(), anyBoolean())
+        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 

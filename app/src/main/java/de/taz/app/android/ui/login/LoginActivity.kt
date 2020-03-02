@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -20,7 +21,6 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.observe
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +76,7 @@ class LoginActivity(
 
         viewModel.backToArticle = article != null
 
-        observe(viewModel.status, this) { loginViewModelState: LoginViewModelState? ->
+        viewModel.status.observeDistinct(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
@@ -137,7 +137,7 @@ class LoginActivity(
                     showPasswordRequest(invalidId = true)
                 }
                 LoginViewModelState.POLLING_FAILED -> {
-                    toastHelper.makeToast(R.string.something_went_wrong_try_later)
+                    toastHelper.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
@@ -155,7 +155,7 @@ class LoginActivity(
             }
         }
 
-        observe(viewModel.noInternet, this) {
+        viewModel.noInternet.observeDistinct(this) {
             if (it) {
                 toastHelper.showNoConnectionToast()
             }
