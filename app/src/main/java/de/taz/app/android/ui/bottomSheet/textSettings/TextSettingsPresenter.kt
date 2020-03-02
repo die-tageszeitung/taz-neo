@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.base.BasePresenter
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
 import de.taz.app.android.ui.settings.SettingsFragment
 
 const val MIN_TEXT_SIZE = 0
@@ -53,7 +54,7 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
 
     override fun resetTextSize() {
         viewModel?.apply {
-            setTextSizePercent("100")
+            setTextSizePercent(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
         }
     }
 
