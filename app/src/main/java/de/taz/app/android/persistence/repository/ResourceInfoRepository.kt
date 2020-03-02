@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.annotation.UiThread
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -17,7 +16,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @UiThread
     fun save(resourceInfo: ResourceInfo) {
         appDatabase.runInTransaction {
             appDatabase.resourceInfoDao().insertOrReplace(
@@ -40,7 +38,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @UiThread
     @Throws(NotFoundException::class)
     fun getWithoutFilesOrThrow(): ResourceInfoStub {
         getWithoutFiles()?.let {
@@ -49,12 +46,10 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         throw NotFoundException()
     }
 
-    @UiThread
     fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
     }
 
-    @UiThread
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
         val resourceInfoStub = appDatabase.resourceInfoDao().get()
@@ -65,11 +60,19 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
             resourceInfoStub.resourceVersion,
             resourceInfoStub.resourceBaseUrl,
             resourceInfoStub.resourceZip,
-            resourceList.map { FileEntry(it.name, it.storageType, it.moTime, it.sha256, it.size, RESOURCE_FOLDER ) }
+            resourceList.map {
+                FileEntry(
+                    it.name,
+                    it.storageType,
+                    it.moTime,
+                    it.sha256,
+                    it.size,
+                    RESOURCE_FOLDER
+                )
+            }
         )
     }
 
-    @UiThread
     fun get(): ResourceInfo? {
         return try {
             getOrThrow()
@@ -78,7 +81,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @UiThread
     fun delete(resourceInfo: ResourceInfo) {
         appDatabase.runInTransaction {
             appDatabase.resourceInfoFileEntryJoinDao().delete(
