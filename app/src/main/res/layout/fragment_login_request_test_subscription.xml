@@ -23,8 +23,9 @@
             android:id="@+id/fragment_login_request_test_subscription_email_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/login_email_hint"
             android:imeOptions="actionNext"
-            android:inputType="text"
+            android:inputType="textEmailAddress"
             android:nextFocusForward="@id/fragment_login_password" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -56,7 +57,7 @@
             android:id="@+id/fragment_login_request_test_subscription_password_confirmation_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/login_password_hint"
+            android:hint="@string/login_password_confirmation_hint"
             android:imeOptions="actionDone"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -69,37 +70,19 @@
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_password_confirmation" />
 
-    <TextView
-        android:id="@+id/fragment_login_request_test_subscription_forgot_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_request_test_subscription_forgot_password"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_existing_account" />
-
-    <Button
-        android:id="@+id/fragment_login_request_test_subscription_forgot_password_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_request_test_subscription_forgot_password_button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_forgot_password" />
-
-    <TextView
+    <CheckedTextView
         android:id="@+id/fragment_login_request_test_subscription_terms_and_conditions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_request_test_subscription_terms_and_conditions"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_forgot_password_button" />
-
+        android:text="@string/fragment_login_request_test_subscription_terms_and_conditions"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_request_test_subscription_existing_account" />
 
     <Button
         android:id="@+id/fragment_login_request_test_subscription_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_request_test_subscription_login"
+        android:text="@string/register_button"
         android:textAlignment="center"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

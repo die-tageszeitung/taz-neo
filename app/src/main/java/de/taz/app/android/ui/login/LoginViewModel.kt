@@ -107,6 +107,10 @@ class LoginViewModel(
         }
     }
 
+    fun register() {
+        // TODO
+    }
+
     fun getUsername(): String? {
         return username ?: subscriptionId?.toString()
     }
@@ -142,9 +146,10 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
+    SUBSCRIPTION_REQUEST,
+    SUBSCRIPTION_REQUESTING,
     PASSWORD_MISSING,
     USERNAME_MISSING,
     USE_CREDENTIALS,
-    REQUEST_TEST_SUBSCRIPTION,
     DONE
 }

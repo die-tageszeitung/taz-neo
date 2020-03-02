@@ -7,18 +7,13 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import de.taz.app.android.R
-import de.taz.app.android.ui.login.LoginViewModel
 import kotlinx.android.synthetic.main.fragment_login.*
 
-class LoginFragment : Fragment(R.layout.fragment_login) {
+class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
     private var username: String? = null
     private var password: String? = null
-
-    private val viewModel = activityViewModels<LoginViewModel>()
 
     @StringRes
     private var usernameErrorId: Int? = null
@@ -79,7 +74,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun login() {
         username = fragment_login_username.text.toString()
         password = fragment_login_password.text.toString()
-        viewModel.value.login(username, password)
+        lazyViewModel.value.login(username, password)
         hideKeyBoard()
     }
 

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.ToastHelper
+import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -67,8 +69,11 @@ class LoginActivity(
                     showSubscriptionMissing()
                 LoginViewModelState.PASSWORD_MISSING ->
                     showLoginForm(passwordErrorId = R.string.login_password_error_empty)
-                LoginViewModelState.REQUEST_TEST_SUBSCRIPTION -> {
+                LoginViewModelState.SUBSCRIPTION_REQUEST -> {
                     showLoginRequestTestSubscription()
+                }
+                LoginViewModelState.SUBSCRIPTION_REQUESTING -> {
+                    showLoadingScreen()
                 }
                 LoginViewModelState.USERNAME_MISSING ->
                     showLoginForm(usernameErrorId = R.string.login_username_error_empty)
@@ -103,9 +108,14 @@ class LoginActivity(
         )
     }
 
+    private fun hideLoadingScreen() {
+        log.debug("hideLoadingScreen")
+        loading_screen.visibility = View.GONE
+    }
+
     private fun showLoadingScreen() {
         log.debug("showLoadingScreen")
-        showFragment(LoadingScreenFragment())
+        loading_screen.visibility = View.VISIBLE
     }
 
     private fun showSubscriptionElapsed() {
@@ -138,9 +148,7 @@ class LoginActivity(
 
     private fun showLoginRequestTestSubscription() {
         log.debug("showLoginRequestTestSubscription")
-        showFragment(
-            RequestTestSubscriptionFragment()
-        )
+        showFragment(RequestTestSubscriptionFragment())
     }
 
     private fun done() {
@@ -179,6 +187,7 @@ class LoginActivity(
 
             commit()
         }
+        hideLoadingScreen()
     }
 
     private fun resetPassword() {
