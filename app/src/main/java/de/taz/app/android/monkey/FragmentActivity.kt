@@ -10,7 +10,6 @@ inline fun <reified T : ViewModel> FragmentActivity.getViewModel(noinline creato
     return if (creator == null) {
         ViewModelProvider(this).get(T::class.java)
     } else {
-        val get = ViewModelProvider(this, BaseViewModelFactory(creator)).get(T::class.java)
-        get
+        ViewModelProvider(this, BaseViewModelFactory(creator)).get(T::class.java)
     }
 }
