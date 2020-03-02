@@ -145,7 +145,8 @@ open class HomePageAdapter(
                 fragment.getLifecycleOwner().lifecycleScope.launch {
                     getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
                         val imageAsFile = fileHelper.getFile(image)
-                        val imageUriNew = getUriForFile(view.context, "de.taz.app.android.provider", imageAsFile)
+                        val applicationId = view.context.packageName
+                        val imageUriNew = getUriForFile(view.context, "${applicationId}.contentProvider", imageAsFile)
 
                         log.debug("imageUriNew: $imageUriNew")
                         log.debug("imageAsFile: $imageAsFile")
