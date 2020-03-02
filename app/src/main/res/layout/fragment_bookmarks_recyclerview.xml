@@ -69,6 +69,7 @@
         android:contentDescription="@string/fragment_bookmarks_delete"
         android:layout_marginTop="@dimen/fragment_bookmarks_share_icon_vertical_margin"
         android:layout_marginBottom="@dimen/fragment_bookmarks_share_icon_vertical_margin"
+        android:tint="@color/lightGrey"
         app:srcCompat="@drawable/ic_loeschen" />
 
     <View
