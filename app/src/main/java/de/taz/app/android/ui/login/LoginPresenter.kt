@@ -2,7 +2,6 @@ package de.taz.app.android.ui.login
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.annotation.UiThread
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -84,7 +83,6 @@ class LoginPresenter(
         }
     }
 
-    @UiThread
     private suspend fun downloadLatestIssueMoments() {
         ApiService.getInstance().getIssuesByDate().forEach { issue ->
             issueRepository.save(issue)
@@ -97,7 +95,6 @@ class LoginPresenter(
         }
     }
 
-    @UiThread
     private fun deletePublicIssues() {
         issueRepository.deletePublicIssues()
     }
