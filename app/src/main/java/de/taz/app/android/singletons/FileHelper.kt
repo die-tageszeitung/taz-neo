@@ -2,7 +2,6 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import android.os.Environment
-import androidx.annotation.UiThread
 import androidx.core.content.ContextCompat
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
@@ -29,7 +28,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return getDir(fileEntry).mkdirs()
     }
 
-    @UiThread
     fun deleteFile(fileName: String): Boolean {
         return fileEntryRepository.get(fileName)?.let { fileEntry ->
             deleteFile(fileEntry)
@@ -44,7 +42,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return getFileByPath(fileEntry.folder)
     }
 
-    @UiThread
     fun getFile(fileEntryName: String): File? {
         return fileEntryRepository.get(fileEntryName)?.let { getFile(it) }
     }
@@ -64,21 +61,24 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return if (internal || !isExternalStorageWritable())
             File(applicationContext.filesDir, filePath)
         else {
-            return File(ContextCompat.getExternalFilesDirs(applicationContext, null).first(), filePath)
+            return File(
+                ContextCompat.getExternalFilesDirs(applicationContext, null).first(),
+                filePath
+            )
         }
     }
 
-    fun getFileDirectoryUrl(context: Context, internal: Boolean = false) : String {
+    fun getFileDirectoryUrl(context: Context, internal: Boolean = false): String {
         context.applicationContext.let {
             return if (internal)
                 "file://${it.filesDir.absolutePath}"
             else
-                "file://${ContextCompat.getExternalFilesDirs(it,null).first().absolutePath}"
+                "file://${ContextCompat.getExternalFilesDirs(it, null).first().absolutePath}"
         }
 
     }
 
-    fun getFilesDir(context: Context) : String {
+    fun getFilesDir(context: Context): String {
         return ContextCompat.getExternalFilesDirs(context, null).first().absolutePath
     }
 
@@ -87,7 +87,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
-    @UiThread
     @Throws(IOException::class)
     fun readFileFromAssets(path: String): String {
         var bufferedReader: BufferedReader? = null
