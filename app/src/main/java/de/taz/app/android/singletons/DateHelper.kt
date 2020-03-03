@@ -1,7 +1,7 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
-import android.text.format.DateFormat
+import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
@@ -15,7 +15,7 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
-    private val localDateFormat = DateFormat.getMediumDateFormat(applicationContext)
+    private val deviceLocale = ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
 
     fun dateToString(date: Date) : String {
         return dateHelper.format(date)
@@ -40,7 +40,12 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
     }
 
     fun stringToLocalizedString(dateString: String): String? {
-        return stringToDate(dateString)?.let { localDateFormat.format(it) }
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
+        }
+
     }
 
     fun dateToLowerCaseString(date: String): String? {
