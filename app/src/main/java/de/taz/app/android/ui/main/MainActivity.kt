@@ -66,7 +66,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             )
             val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
-            cssFile.writeText(cssString)
+             cssFile.writeText(cssString)
+
+            if (key == "text_night_mode"){
+                setTheme(sharedPreferences)
+            }
         }
 
     private fun setTheme(sharedPreferences: SharedPreferences) {
