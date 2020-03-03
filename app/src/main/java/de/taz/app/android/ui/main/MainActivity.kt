@@ -76,14 +76,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
     private fun setTheme(sharedPreferences: SharedPreferences) {
-        log.debug("setTheme to ")
-
         if (sharedPreferences.getBoolean("text_night_mode", true)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            log.debug("NIGHT")
+            log.debug("setTheme to NIGHT")
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            log.debug("DAY")
+            log.debug("setTheme to DAY")
         }
         recreate()
     }
