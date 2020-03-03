@@ -24,6 +24,8 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun setTheme(sharedPreferences: SharedPreferences) {
         log.debug("setTheme to ")
+
         if (sharedPreferences.getBoolean("text_night_mode", true)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("NIGHT")
