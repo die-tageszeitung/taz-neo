@@ -5,10 +5,10 @@
              android:icon="@drawable/ic_share" />
      <item android:id="@+id/bottom_navigation_action_bookmark"
           android:title="@string/bottom_navigation_action_bookmark"
-          android:icon="@drawable/ic_lesezeichen" />
+          android:icon="@drawable/ic_bookmark" />
      <item android:id="@+id/bottom_navigation_action_size"
            android:title="@string/bottom_navigation_action_size"
-           android:icon="@drawable/ic_schriftgroesse" />
+           android:icon="@drawable/ic_text_size" />
 <!--     <item android:id="@+id/bottom_navigation_action_mp3"
              android:title="@string/bottom_navigation_action_mp3"
              android:icon="@drawable/ic_text_size" /> -->
