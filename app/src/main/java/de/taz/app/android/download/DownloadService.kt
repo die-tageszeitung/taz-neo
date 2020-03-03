@@ -92,7 +92,7 @@ object DownloadService {
                     }
                 } else {
                     if (cause is ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(appContext).makeToast(R.string.toast_no_internet)
+                        ToastHelper.getInstance(appContext).showToast(R.string.toast_no_internet)
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.settings
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
@@ -10,7 +11,9 @@ import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.ui.login.LoginFragment
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LoginActivity
+import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
 class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
@@ -57,7 +60,10 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
 
             findViewById<Button>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
-                    this@SettingsFragment.getMainView()?.showMainFragment(LoginFragment())
+                    activity?.startActivityForResult(
+                        Intent(activity, LoginActivity::class.java),
+                        ACTIVITY_LOGIN_REQUEST_CODE
+                    )
                 }
 
             findViewById<View>(R.id.settings_text_decrease).setOnClickListener {
@@ -86,6 +92,10 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
                         presenter.disableNightMode()
                     }
                 }
+            }
+
+            fragment_settings_account_logout.setOnClickListener {
+                presenter.logout()
             }
         }
 
@@ -137,6 +147,18 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), Setting
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         presenter.onBottomNavigationItemClicked(menuItem)
+    }
+
+    override fun showLogoutButton() {
+        fragment_settings_account_email.visibility = View.VISIBLE
+        fragment_settings_account_logout.visibility = View.VISIBLE
+        fragment_settings_account_manage_account.visibility = View.GONE
+    }
+
+    override fun showManageAccountButton() {
+        fragment_settings_account_email.visibility = View.GONE
+        fragment_settings_account_logout.visibility = View.GONE
+        fragment_settings_account_manage_account.visibility = View.VISIBLE
     }
 
 }

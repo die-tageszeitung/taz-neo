@@ -11,7 +11,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
-import de.taz.app.android.util.observe
+import de.taz.app.android.monkey.observeDistinct
 
 open class HomePageDataController : BaseDataController(), HomePageContract.DataController {
 
@@ -41,7 +41,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (AuthStatus) -> Unit
     ) {
-        authStatus.observeAuthStatus(lifeCycleOwner, observationCallback)
+        authStatus.authStatusLiveData.observeDistinct(lifeCycleOwner, observationCallback)
     }
 
     /**
@@ -54,7 +54,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (List<Feed>) -> Unit
     ) {
-        observe(feedsLiveData, lifeCycleOwner, observationCallback)
+        feedsLiveData.observeDistinct(lifeCycleOwner, observationCallback)
     }
 
     /**
@@ -69,7 +69,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Set<String>) -> Unit
     ) {
-        observe(inactiveFeedNameLiveData, lifeCycleOwner, observationCallback)
+        inactiveFeedNameLiveData.observeDistinct(lifeCycleOwner, observationCallback)
     }
 
     /**
@@ -90,7 +90,7 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Int?) -> Unit
     ) {
-        observe(currentPosition, lifeCycleOwner, observationCallback)
+        currentPosition.observeDistinct(lifeCycleOwner, observationCallback)
     }
 
 }

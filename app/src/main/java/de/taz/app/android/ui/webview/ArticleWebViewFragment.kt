@@ -19,7 +19,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.ui.login.ArticleLoginFragment
+import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
@@ -88,12 +88,14 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     override fun hideLoadingScreen() {
         super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
-            if (article?.getIssueStub()?.status == IssueStatus.public) {
-                withContext(Dispatchers.Main) {
-                    childFragmentManager.beginTransaction().replace(
-                        R.id.fragment_article_bottom_fragment_placeholder,
-                        ArticleLoginFragment()
-                    ).commit()
+            article?.let { article ->
+                if (article.getIssueStub()?.status == IssueStatus.public) {
+                    withContext(Dispatchers.Main) {
+                        childFragmentManager.beginTransaction().replace(
+                            R.id.fragment_article_bottom_fragment_placeholder,
+                            ArticleLoginFragment.create(article.articleFileName)
+                        ).commit()
+                    }
                 }
             }
         }

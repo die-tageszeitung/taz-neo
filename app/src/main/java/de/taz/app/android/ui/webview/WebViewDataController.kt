@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseDataController
-import de.taz.app.android.util.observe
+import de.taz.app.android.monkey.observeDistinct
 
 @Mockable
 class WebViewDataController<DISPLAYABLE : WebViewDisplayable> : BaseDataController(),
@@ -21,7 +21,7 @@ class WebViewDataController<DISPLAYABLE : WebViewDisplayable> : BaseDataControll
         lifecycleOwner: LifecycleOwner,
         observationCallback: (DISPLAYABLE?) -> Unit
     ) {
-        observe(webViewDisplayable, lifecycleOwner, observationCallback)
+        webViewDisplayable.observeDistinct(lifecycleOwner, observationCallback)
     }
 
     override fun getWebViewDisplayable(): DISPLAYABLE? {

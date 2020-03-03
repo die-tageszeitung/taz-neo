@@ -2,7 +2,6 @@ package de.taz.app.android.ui.home.feedFilter
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseDataController
@@ -10,7 +9,7 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
-import de.taz.app.android.util.observe
+import de.taz.app.android.monkey.observeDistinct
 
 @Mockable
 class FeedFilterDataController : BaseDataController(),
@@ -26,7 +25,7 @@ class FeedFilterDataController : BaseDataController(),
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (List<Feed>?) -> Unit
     ) {
-        observe(feedsLiveData, lifeCycleOwner) { feeds -> observationCallback.invoke(feeds) }
+        feedsLiveData.observeDistinct(lifeCycleOwner) { feeds -> observationCallback.invoke(feeds) }
     }
 
     /**
@@ -45,7 +44,7 @@ class FeedFilterDataController : BaseDataController(),
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (Set<String>) -> Unit
     ) {
-        observe(inactiveFeedNameLiveData, lifeCycleOwner) { feeds ->
+        inactiveFeedNameLiveData.observeDistinct(lifeCycleOwner) { feeds ->
             observationCallback.invoke(
                 feeds
             )

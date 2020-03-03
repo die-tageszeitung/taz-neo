@@ -8,7 +8,10 @@ const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debu
 // UI
 const val DEFAULT_MOMENT_RATIO = "W,1.5:1"
 
+const val SUBSCRIPTION_EMAIL_ADDRESS = "digiabo@taz.de"
 
 // Preferences
-const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
+
 const val PREFERENCES_GENERAL = "preferences_general"
+
+const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"

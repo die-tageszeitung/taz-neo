@@ -37,7 +37,6 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private val log by Log
 
     override fun attach(view: WebViewContract.View<DISPLAYABLE>) {
-
         super.attach(view)
         view.getWebViewDisplayable()?.let {
             viewModel?.setWebViewDisplayable(it)
