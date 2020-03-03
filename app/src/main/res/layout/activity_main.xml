@@ -57,7 +57,7 @@
             android:focusable="true"
             android:translationX="275dp"
             android:translationY="40dp"
-            app:srcCompat="@drawable/ic_logo" />
+            app:srcCompat="@drawable/ic_taz_week_logo" />
 
         <LinearLayout
             android:id="@+id/nav_bar"
