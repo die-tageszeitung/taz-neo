@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.login
 
-import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -489,7 +488,6 @@ class LoginViewModel(
         }
     }
 
-    @UiThread
     private suspend fun handlePasswordReset(email: String) {
         try {
             when (apiService.requestCredentialsPasswordReset(email)) {
