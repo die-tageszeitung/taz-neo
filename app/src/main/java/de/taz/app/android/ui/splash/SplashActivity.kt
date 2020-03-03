@@ -16,7 +16,6 @@ import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
@@ -25,6 +24,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
+import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
@@ -107,6 +107,8 @@ class SplashActivity : AppCompatActivity() {
 
             ApiService.createInstance(it)
             DownloadedIssueHelper.createInstance(it)
+
+            SubscriptionPollHelper.createInstance(it)
 
             FirebaseHelper.createInstance(it)
             NotificationHelper.createInstance(it)
@@ -243,7 +245,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
-        if (AuthHelper.getInstance().authStatus == AuthStatus.valid) {
+        if (AuthHelper.getInstance().isLoggedIn()) {
             log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
         }

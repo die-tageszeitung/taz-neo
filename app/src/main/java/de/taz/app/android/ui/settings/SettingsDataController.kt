@@ -8,7 +8,7 @@ import de.taz.app.android.base.BaseDataController
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
-import de.taz.app.android.util.observe
+import de.taz.app.android.monkey.observeDistinct
 
 class SettingsDataController : BaseDataController(), SettingsContract.DataController {
 
@@ -20,21 +20,21 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
         lifecycleOwner: LifecycleOwner,
         observationCallback: (Boolean) -> Unit
     ) {
-        observe(nightModeLiveData, lifecycleOwner, observationCallback)
+        nightModeLiveData.observeDistinct(lifecycleOwner, observationCallback)
     }
 
     override fun observeTextSize(
         lifecycleOwner: LifecycleOwner,
         observationCallback: (String) -> Unit
     ) {
-        observe(textSizeLiveData, lifecycleOwner, observationCallback)
+        textSizeLiveData.observeDistinct(lifecycleOwner, observationCallback)
     }
 
     override fun observeStoredIssueNumber(
         lifecycleOwner: LifecycleOwner,
         observationCallback: (String) -> Unit
     ) {
-        observe(storedIssueNumberLiveData, lifecycleOwner, observationCallback)
+        storedIssueNumberLiveData.observeDistinct(lifecycleOwner, observationCallback)
     }
 
     override fun setStoredIssueNumber(number: Int) {

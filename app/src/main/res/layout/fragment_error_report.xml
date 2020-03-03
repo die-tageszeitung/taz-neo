@@ -30,7 +30,7 @@
                 app:layout_constraintTop_toBottomOf="@id/fragment_error_report_header"
                 android:paddingStart="@dimen/fragment_padding_horizontal"
                 android:paddingEnd="@dimen/fragment_padding_horizontal">
-            
+
                 <TextView
                     android:id="@+id/fragment_error_report_title"
                     android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
                     android:id="@+id/fragment_error_report_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_login_description_margin_top"
+                    android:layout_marginTop="@dimen/fragment_login_text_margin_top"
                     android:text="@string/fragment_error_report_description"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
 
@@ -134,26 +134,8 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_login_loading_screen"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/white"
-                android:translationZ="2dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <include layout="@layout/include_loading_screen" />
 
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

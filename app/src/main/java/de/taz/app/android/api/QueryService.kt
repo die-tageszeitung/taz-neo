@@ -16,7 +16,6 @@ import java.io.IOException
 enum class QueryType {
     AppInfo,
     Authentication,
-    AuthInfo,
     CheckSubscriptionId,
     DownloadStart,
     DownloadStop,
@@ -25,9 +24,11 @@ enum class QueryType {
     IssueByFeedAndDate,
     LastIssues,
     Notification,
+    PasswordReset,
     ResourceInfo,
     SubscriptionId2TazId,
     SubscriptionPoll,
+    SubscriptionReset,
     TrialSubscription
 }
 

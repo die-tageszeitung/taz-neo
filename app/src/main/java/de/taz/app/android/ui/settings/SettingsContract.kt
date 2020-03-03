@@ -13,6 +13,10 @@ interface SettingsContract {
         fun showNightMode(nightMode: Boolean)
 
         fun showTextSize(textSize: Int)
+
+        fun showLogoutButton()
+
+        fun showManageAccountButton()
     }
 
     interface DataController : BaseContract.DataController {
@@ -49,5 +53,6 @@ interface SettingsContract {
 
         fun reportBug()
 
+        fun logout()
     }
 }

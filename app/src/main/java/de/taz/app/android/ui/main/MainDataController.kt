@@ -4,7 +4,7 @@ import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.base.BaseDataController
-import de.taz.app.android.util.observe
+import de.taz.app.android.monkey.observeDistinct
 
 @Mockable
 class MainDataController : BaseDataController(), MainContract.DataController {
@@ -17,7 +17,7 @@ class MainDataController : BaseDataController(), MainContract.DataController {
         lifeCycleOwner: LifecycleOwner,
         observationCallback: (IssueOperations?) -> (Unit)
     ) {
-        observe(selectedIssue, lifeCycleOwner) { issueStub ->
+        selectedIssue.observeDistinct(lifeCycleOwner) { issueStub ->
             observationCallback.invoke(issueStub)
         }
     }

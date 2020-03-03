@@ -58,7 +58,7 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
                 apiService.sendErrorReport(email, message, lastAction, conditions, storageType, errorProtocol)
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance().makeToast("sending bug report")
+            ToastHelper.getInstance().showToast("sending bug report")
         }
     }
 
