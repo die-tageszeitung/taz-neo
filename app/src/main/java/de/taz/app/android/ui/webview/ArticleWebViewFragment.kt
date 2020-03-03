@@ -64,8 +64,6 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO needs to be livedata
-        //if (article?.bookmarked == true) {
         articleLiveData?.let {
             observer = it.observeDistinct( this) { articleLiveData ->
                 if (articleLiveData?.bookmarked == true) {
