@@ -33,8 +33,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/fragment_padding_horizontal"
-        android:paddingEnd="@dimen/fragment_padding_horizontal"
+        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -96,8 +96,6 @@
                 android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_account_manage_account"
                 android:textAppearance="@style/Settings.ManageAccount.Button"
-                android:layout_marginStart="@dimen/fragment_padding_horizontal"
-                android:layout_marginEnd="@dimen/fragment_padding_horizontal"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
 
             <TextView
