@@ -127,6 +127,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        if (tazApiCssPreferences.getBoolean("text_night_mode", true)){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
     }
 
     override fun onResume() {
