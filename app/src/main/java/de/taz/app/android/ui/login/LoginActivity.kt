@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.annotation.UiThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -274,7 +273,6 @@ class LoginActivity(
         finish()
     }
 
-    @UiThread
     private suspend fun downloadLatestIssueMoments() {
         val lastIssues = apiService.getLastIssues()
         lastIssues.forEach { issueRepository.save(it) }
@@ -289,7 +287,6 @@ class LoginActivity(
         }
     }
 
-    @UiThread
     private fun deletePublicIssues() {
         issueRepository.deletePublicIssues()
     }
