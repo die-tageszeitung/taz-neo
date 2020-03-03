@@ -70,7 +70,7 @@
         android:layout_marginTop="@dimen/fragment_bookmarks_share_icon_vertical_margin"
         android:layout_marginBottom="@dimen/fragment_bookmarks_share_icon_vertical_margin"
         android:tint="@color/lightGrey"
-        app:srcCompat="@drawable/ic_loeschen" />
+        app:srcCompat="@drawable/ic_delete" />
 
     <View
         android:layout_width="match_parent"
