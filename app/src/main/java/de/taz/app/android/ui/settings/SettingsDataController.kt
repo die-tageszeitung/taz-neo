@@ -5,7 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.base.BaseDataController
-import de.taz.app.android.singletons.KEEP_ISSUES_DOWNLOADED_DEFAULT
+import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.observe
@@ -50,7 +50,7 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
     }
 
     override fun getTextSizePercent(): String {
-        return textSizeLiveData.value ?: "100"
+        return textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
     }
 
     override fun initializeSettings(applicationContext: Context) {
@@ -59,23 +59,19 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
             textSizeLiveData =
                 SharedPreferenceStringLiveData(
                     it,
-                    "text_font_size",
-                    "100"
+                    SETTINGS_TEXT_FONT_SIZE,
+                    SETTINGS_TEXT_FONT_SIZE_DEFAULT
                 )
             nightModeLiveData =
-                SharedPreferenceBooleanLiveData(
-                    it,
-                    "text_night_mode",
-                    false
-                )
+                SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_NIGHT_MODE, false)
         }
 
         applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)?.let {
             storedIssueNumberLiveData =
                 SharedPreferenceStringLiveData(
                     it,
-                    "general_keep_number_issues",
-                    KEEP_ISSUES_DOWNLOADED_DEFAULT.toString()
+                    SETTINGS_GENERAL_KEEP_ISSUES,
+                    SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
                 )
 
         }
