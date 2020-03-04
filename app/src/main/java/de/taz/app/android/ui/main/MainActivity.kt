@@ -70,19 +70,21 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             cssFile.writeText(cssString)
 
             if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setTheme(sharedPreferences)
+                setThemeAndReCreate(sharedPreferences, true)
             }
         }
 
-    private fun setTheme(sharedPreferences: SharedPreferences) {
-        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, true)) {
+    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isRreCreateFlagSet : Boolean = false) {
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
         }
-        recreate()
+        if (isRreCreateFlagSet) {
+            recreate()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,8 +126,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, true)){
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
         }
     }
 
