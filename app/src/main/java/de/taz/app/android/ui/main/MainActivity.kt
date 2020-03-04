@@ -251,6 +251,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
     }
 
+    override fun openDrawer() {
+        openDrawer(GravityCompat.START)
+    }
+
+    override fun openDrawer(gravity: Int) {
+        drawer_layout.openDrawer(gravity)
+    }
+
     override fun closeDrawer() {
         drawer_layout.closeDrawers()
     }

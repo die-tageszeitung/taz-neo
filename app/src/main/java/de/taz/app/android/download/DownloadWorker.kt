@@ -116,7 +116,7 @@ class DownloadWorker(
                                 downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             }
                         } else {
-                            log.warn("Download was not successful")
+                            log.warn("Download was not successful ${response.code}")
                             downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             Sentry.capture(response.message)
                         }
