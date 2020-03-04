@@ -39,13 +39,20 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
         }
     }
 
-    fun stringToLocalizedString(dateString: String): String? {
+    fun stringToLongLocalizedString(dateString: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
                 issueDate
             ).toLowerCase(Locale.getDefault())
         }
+    }
 
+    fun stringToMediumLocalizedString(dateString: String): String? {
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            SimpleDateFormat("d.M.yyyy", deviceLocale).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
+        }
     }
 
     fun dateToLowerCaseString(date: String): String? {
