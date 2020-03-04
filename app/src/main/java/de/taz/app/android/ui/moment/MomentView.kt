@@ -82,7 +82,7 @@ class MomentView @JvmOverloads constructor(
 
     private fun setDate(date: String?) {
         if (date !== null) {
-            fragment_archive_moment_date.text = dateHelper.stringToLocalizedString(date)
+            fragment_archive_moment_date.text = dateHelper.stringToLongLocalizedString(date)
         }
         else {
             fragment_archive_moment_date.visibility = View.GONE
