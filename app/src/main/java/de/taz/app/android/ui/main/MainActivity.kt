@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
-    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isRreCreateFlagSet : Boolean = false) {
+    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
         }
-        if (isRreCreateFlagSet) {
+        if (isReCreateFlagSet) {
             recreate()
         }
     }
