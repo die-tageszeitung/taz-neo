@@ -10,20 +10,18 @@ fun <T> LiveData<T>.observeDistinctIgnoreFirst(
     observationCallback: (T) -> Unit
 ): Observer<T> {
     val distinctLiveData = Transformations.distinctUntilChanged(this)
-    val observer = Observer(observationCallback)
     val firstTimeObserver = object : Observer<T> {
         var firstTime = true
         override fun onChanged(t: T) {
             if (firstTime) {
                 firstTime = false
             } else {
-                removeObserver(this)
-                distinctLiveData.observe(lifecycleOwner, observer)
+                observationCallback(t)
             }
         }
     }
     distinctLiveData.observe(lifecycleOwner, firstTimeObserver)
-    return observer
+    return firstTimeObserver
 }
 
 fun <T> LiveData<T>.observeDistinct(
