@@ -35,9 +35,9 @@
                     android:id="@+id/fragment_error_report_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_login_title_margin_top"
+                    android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
                     android:text="@string/fragment_error_report_title"
-                    android:textAppearance="@style/TextAppearance.Fragment.Title"
+                    android:textAppearance="@style/TextAppearance.Settings.Category"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
