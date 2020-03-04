@@ -5,7 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/backgroundColor"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -13,7 +13,7 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/backgroundColor"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout

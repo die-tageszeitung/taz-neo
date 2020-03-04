@@ -23,7 +23,7 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
                 }
             }
             // only show archive if created in the beginning else show current fragment
-            if (savedInstanceState == null) {
+            if (savedInstanceState == null || sectionDrawerFragmentReference == null) {
                 createSectionDrawerFragment()
                 sectionDrawerFragmentReference?.get()?.let {
                     showDrawerFragment(it)
@@ -35,7 +35,8 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
     override fun setDrawerIssue() {
         viewModel?.getIssueStub()?.let {
             sectionDrawerFragmentReference?.get()?.setIssueStub(it) ?: run {
-                createSectionDrawerFragment().setIssueStub(it)
+                val sectionDrawerFragment = createSectionDrawerFragment()
+                sectionDrawerFragment.setIssueStub(it)
             }
         }
     }
