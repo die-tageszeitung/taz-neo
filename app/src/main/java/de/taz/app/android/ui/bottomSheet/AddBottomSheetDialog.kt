@@ -27,8 +27,6 @@ class AddBottomSheetDialog : BottomSheetDialogFragment() {
 
     companion object {
         fun newInstance(fragmentToShow: Fragment): AddBottomSheetDialog {
-
-
             val fragment = AddBottomSheetDialog()
             fragment.fragment = fragmentToShow
             return fragment
