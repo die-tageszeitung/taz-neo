@@ -70,7 +70,7 @@
         android:contentDescription="@string/fragment_bookmarks_delete"
         android:layout_marginTop="@dimen/fragment_bookmarks_share_icon_vertical_margin"
         android:layout_marginBottom="@dimen/fragment_bookmarks_share_icon_vertical_margin"
-        android:src="@android:drawable/ic_delete"
+        android:src="@drawable/ic_delete"
         android:tint="@color/textColorAccent" />
 
     <View
