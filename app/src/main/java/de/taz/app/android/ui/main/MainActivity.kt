@@ -24,8 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
@@ -39,6 +37,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -68,15 +67,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             )
             val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
-             cssFile.writeText(cssString)
+            cssFile.writeText(cssString)
 
-            if (key == "text_night_mode"){
+            if (key == SETTINGS_TEXT_NIGHT_MODE) {
                 setTheme(sharedPreferences)
             }
         }
 
     private fun setTheme(sharedPreferences: SharedPreferences) {
-        if (sharedPreferences.getBoolean("text_night_mode", true)) {
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, true)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
         } else {
@@ -125,7 +124,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        if (tazApiCssPreferences.getBoolean("text_night_mode", true)){
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, true)){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
