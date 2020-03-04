@@ -27,35 +27,26 @@ class LoginViewModel(
 
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
+    private var statusBeforePasswordRequest: LoginViewModelState? = null
+
+    val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
+    val noInternet by lazy { MutableLiveData(false) }
 
     var username: String? = null
         private set
     var password: String? = null
         private set
-
     var subscriptionId: Int? = null
         private set
     var subscriptionPassword: String? = null
         private set
-
     var backToArticle: Boolean = true
 
-    val status by lazy {
-        MutableLiveData<LoginViewModelState>(LoginViewModelState.INITIAL)
-    }
-
-    private var statusBeforePasswordRequest: LoginViewModelState? = null
-
-    val noInternet by lazy {
-        MutableLiveData<Boolean>(false)
-    }
-
     init {
+        initialUsername?.let { username = it }
+        initialPassword?.let { password = it }
         if (!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
             login(initialUsername, initialPassword)
-        } else {
-            initialUsername?.let { username = it }
-            initialPassword?.let { password = it }
         }
     }
 
