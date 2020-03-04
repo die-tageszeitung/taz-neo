@@ -25,7 +25,9 @@ var tazApi = (function() {
                 for (i in name){
                     result[name[i]] = ANDROIDAPI.getConfiguration(name[i]);
                 }
-                callback(result);
+                if (typeof(callback === "function")) {
+                    callback(result);
+                }
             }
         }
 

@@ -14,6 +14,7 @@ import android.webkit.WebView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -36,6 +37,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -66,7 +68,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
             cssFile.writeText(cssString)
+
+            if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                setThemeAndReCreate(sharedPreferences, true)
+            }
         }
+
+    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            log.debug("setTheme to NIGHT")
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            log.debug("setTheme to DAY")
+        }
+        if (isReCreateFlagSet) {
+            recreate()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +126,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
+        }
     }
 
     override fun onResume() {
