@@ -3,11 +3,12 @@ package de.taz.app.android.api.models
 enum class SubscriptionStatus {
     valid,
     tazIdNotValid,
-    aboIdNotValid,
     elapsed,
     invalidConnection,
+    invalidMail,
+    subscriptionIdNotValid,
     alreadyLinked,
-    waitForEmail,
+    waitForMail,
     waitForProc,
     noPollEntry
 }

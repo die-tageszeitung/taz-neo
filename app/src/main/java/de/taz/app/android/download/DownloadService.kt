@@ -46,8 +46,10 @@ object DownloadService {
         val start: Long = System.currentTimeMillis()
         val issue = if (cacheableDownload is Issue) cacheableDownload else null
 
-        if (!cacheableDownload.isDownloadedOrDownloading()) {
-            issue?.let{
+        if (!cacheableDownload.isDownloadedOrDownloading()
+            && appInfoRepository.get() != null
+        ) {
+            issue?.let {
                 issueRepository.setDownloadDate(issue, Date())
             }
 
@@ -90,7 +92,7 @@ object DownloadService {
                     }
                 } else {
                     if (cause is ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(appContext).makeToast(R.string.toast_no_internet)
+                        ToastHelper.getInstance(appContext).showToast(R.string.toast_no_internet)
                     }
                 }
             }

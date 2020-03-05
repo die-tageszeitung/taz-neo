@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="tazRed">#d50d2e</color>
+
+    <color name="white">#fff</color>
+    <color name="lightGrey">#9C9C9C</color>
+    <color name="mediumGrey">#38383A</color>
+    <color name="darkGrey">#262626</color>
+    <color name="black">#000</color>
+
+    <color name="colorPrimary">@color/tazRed</color>
+    <color name="colorPrimaryDark">@color/tazRed</color>
+
+    <color name="colorAccent">@color/tazRed</color>
+
+    <color name="backgroundColor">@color/black</color>
+    <color name="textColor">@color/white</color>
+    <color name="textColorAccent">@color/lightGrey</color>
+
+    <color name="colorEdgeEffect">@color/lightGrey</color>
+
+    <color name="splashBackground">@color/tazRed</color>
+
+    <color name="drawer_sections_item">@color/white</color>
+    <color name="drawer_sections_imprint">@color/darkGrey</color>
+    <color name="navigation_drawer_header_title">@color/tazRed</color>
+
+    <color name="navigation_drawer_icon">@color/darkGrey</color>
+    <color name="navigation_drawer_icon_selected">@color/tazRed</color>
+
+    <color name="navigation_bottom_background">@color/lightGrey</color>
+    <color name="navigation_bottom_item">@color/darkGrey</color>
+    <color name="navigation_bottom_item_active">@color/tazRed</color>
+
+    <color name="fragment_archive_background">@color/mediumGrey</color>
+
+    <color name="bottom_sheet_background">@color/black</color>
+</resources>

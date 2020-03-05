@@ -1,8 +1,0 @@
-query AuthInfoQuery {
-    product {
-        authInfo {
-            status
-            message
-        }
-    }
-}

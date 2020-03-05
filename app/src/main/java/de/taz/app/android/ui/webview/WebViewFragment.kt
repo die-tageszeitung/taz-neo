@@ -16,7 +16,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.web_view
-import kotlinx.android.synthetic.main.fragment_webview_section.web_view_spinner
+import kotlinx.android.synthetic.main.include_loading_screen.*
 
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
@@ -55,7 +55,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
 
     override fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            web_view_spinner?.visibility = View.GONE
+            loading_screen?.visibility = View.GONE
             web_view?.visibility = View.VISIBLE
         }
     }

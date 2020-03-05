@@ -1,0 +1,6 @@
+mutation SubscriptionReset($subscriptionId: Int!) {
+    subscriptionReset(subscriptionId: $subscriptionId) {
+        status
+        mail
+    }
+}

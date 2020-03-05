@@ -58,28 +58,12 @@ unitTests:
 
 integrationTests:
   extends: .prepareEnv
-  interruptible: true
   stage: test
-  cache:
-    paths:
-      - .gradle/wrapper
-      - .gradle/caches
-      - app/build
-      - build
-    key: android-base
-    policy: pull
-  variables:
-    ANDROID_SERIAL: TA930035W2
-  before_script:
-    - mkdir -p ~/.android
-    - echo $ADB_PRIVKEY_BASE64 | base64 -d > ~/.android/adbkey
-    - echo $ADB_PUBKEY > ~/.android/adbkey.pub
   script:
-    - sudo -E /opt/android/sdk/platform-tools/adb uninstall de.taz.android.app || true
-    - sudo -E /opt/android/sdk/platform-tools/adb uninstall de.taz.android.app.test || true
-    - sudo -E ./gradlew --no-daemon --console=plain :app:cGTDAT
+    - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
+    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:cAT
   tags:
-    - real-android
+    - powerhouse
 
 publishNextcloud:
   cache: {}
@@ -93,9 +77,10 @@ publishNextcloud:
 
 publishGooglePlay:
   cache: {}
+  extends: .prepareEnv
   stage: publish
   script:
-    - ./gradlew publishGoogleTazRelease
+    - ./gradlew publishGoogleTazReleaseBundle
   only:
     - tags
   when: manual

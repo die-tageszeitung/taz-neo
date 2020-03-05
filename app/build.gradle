@@ -35,7 +35,7 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 19
+        versionCode 21
         versionName "0.5.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -130,7 +130,7 @@ android {
 }
 
 dependencies {
-    def room_version = '2.2.3'
+    def room_version = '2.2.4'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -140,12 +140,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.2'
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
 
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.2.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.1'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.2.1'
 
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
@@ -159,7 +159,7 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    implementation "androidx.work:work-runtime-ktx:2.3.0"
+    implementation "androidx.work:work-runtime-ktx:2.3.2"
 
     implementation 'com.squareup.okhttp3:okhttp:4.2.0'
     implementation 'org.conscrypt:conscrypt-android:2.2.1'
@@ -167,7 +167,7 @@ dependencies {
     implementation 'com.squareup.moshi:moshi:1.8.0'
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
 
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
 
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.0'

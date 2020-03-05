@@ -16,7 +16,6 @@ import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
@@ -25,6 +24,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
+import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
@@ -108,6 +108,8 @@ class SplashActivity : AppCompatActivity() {
             ApiService.createInstance(it)
             DownloadedIssueHelper.createInstance(it)
 
+            SubscriptionPollHelper.createInstance(it)
+
             FirebaseHelper.createInstance(it)
             NotificationHelper.createInstance(it)
         }
@@ -143,7 +145,7 @@ class SplashActivity : AppCompatActivity() {
                 log.debug("Initialized Issues")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 toastHelper.showNoConnectionToast()
-                log.debug("Initializing Issues failed")
+                log.warn("Initializing Issues failed")
             }
         }
     }
@@ -156,7 +158,7 @@ class SplashActivity : AppCompatActivity() {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)
-                    log.warn("Initialized AppInfo")
+                    log.info("Initialized AppInfo")
                     if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                         NotificationHelper.getInstance().showNotification(
                             R.string.notification_new_version_title,
@@ -235,15 +237,21 @@ class SplashActivity : AppCompatActivity() {
             tazApiCssFile.createNewFile()
             log.debug("Created tazApi.css")
         }
+
+        val tazApiAssetPath = "js/tazApi.js"
         val tazApiJsFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.js")
-        if (!tazApiJsFile.exists()) {
-            tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
-            log.debug("Created tazApi.js")
+        if (!tazApiJsFile.exists() || !fileHelper.assetFileSameContentAsFile(
+               tazApiAssetPath,
+                tazApiJsFile
+            )
+        ) {
+            fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
+            log.debug("Created/updated tazApi.js")
         }
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
-        if (AuthHelper.getInstance().authStatus == AuthStatus.valid) {
+        if (AuthHelper.getInstance().isLoggedIn()) {
             log.debug("Deleting public Issues")
             IssueRepository.getInstance().deletePublicIssues()
         }

@@ -10,22 +10,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.ui.login.ArticleLoginFragment
+import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.monkey.observeDistinct
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     private val log by Log
     var article: Article? = null
+    var articleLiveData: LiveData<Article?>? = null
+    var observer : Observer<Article?>? = null
 
     private val fileHelper = FileHelper.getInstance()
     override val presenter = ArticleWebViewPresenter()
@@ -33,7 +39,9 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     companion object {
         fun createInstance(article: Article): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
+            val articleRepository = ArticleRepository.getInstance()
             fragment.article = article
+            fragment.articleLiveData = articleRepository.getLiveData(articleName = article.articleFileName)
             return fragment
         }
     }
@@ -56,9 +64,12 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO needs to be livedata
-        if (article?.bookmarked == true) {
-            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
+        articleLiveData?.let {
+            observer = it.observeDistinct( this) { articleLiveData ->
+                if (articleLiveData?.bookmarked == true) {
+                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
+                }
+            }
         }
         activity?.lifecycleScope?.launch(Dispatchers.IO) {
             article?.getSection()?.let { section ->
@@ -88,12 +99,14 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     override fun hideLoadingScreen() {
         super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
-            if (article?.getIssueStub()?.status == IssueStatus.public) {
-                withContext(Dispatchers.Main) {
-                    childFragmentManager.beginTransaction().replace(
-                        R.id.fragment_article_bottom_fragment_placeholder,
-                        ArticleLoginFragment()
-                    ).commit()
+            article?.let { article ->
+                if (article.getIssueStub()?.status == IssueStatus.public) {
+                    withContext(Dispatchers.Main) {
+                        childFragmentManager.beginTransaction().replace(
+                            R.id.fragment_article_bottom_fragment_placeholder,
+                            ArticleLoginFragment.create(article.articleFileName)
+                        ).commit()
+                    }
                 }
             }
         }
@@ -126,11 +139,12 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     private fun shareArticle(url: String, title: String?, image: FileEntry?) {
         view?.let { view ->
             var imageUri : Uri? = null
+            val applicationId = view.context.packageName
             image?.let {
                 val imageAsFile = fileHelper.getFile(image)
                 imageUri = FileProvider.getUriForFile(
                     view.context,
-                    "de.taz.app.android.provider",
+                    "${applicationId}.contentProvider",
                     imageAsFile
                 )
             }
@@ -157,6 +171,13 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
             val shareIntent = Intent.createChooser(sendIntent, null)
             startActivity(shareIntent)
         }
+    }
+
+    override fun onDestroy() {
+        observer?.let{
+            articleLiveData?.removeObserver(it)
+        }
+        super.onDestroy()
     }
 
 }
