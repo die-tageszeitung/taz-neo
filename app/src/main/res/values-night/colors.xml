@@ -18,6 +18,8 @@
     <color name="textColor">@color/white</color>
     <color name="textColorAccent">@color/lightGrey</color>
 
+    <color name="colorEdgeEffect">@color/lightGrey</color>
+
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/white</color>
