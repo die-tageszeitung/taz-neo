@@ -237,10 +237,16 @@ class SplashActivity : AppCompatActivity() {
             tazApiCssFile.createNewFile()
             log.debug("Created tazApi.css")
         }
+
+        val tazApiAssetPath = "js/tazApi.js"
         val tazApiJsFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.js")
-        if (!tazApiJsFile.exists()) {
-            tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
-            log.debug("Created tazApi.js")
+        if (!tazApiJsFile.exists() || !fileHelper.assetFileSameContentAsFile(
+               tazApiAssetPath,
+                tazApiJsFile
+            )
+        ) {
+            fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
+            log.debug("Created/updated tazApi.js")
         }
     }
 
