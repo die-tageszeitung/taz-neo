@@ -146,7 +146,10 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     fun copyAssetFileToFile(path: String, file: File) {
         val tazApiAssetReader = assetFileReader(path)
-        tazApiAssetReader.copyTo(file.writer())
+        val fileWriter = file.writer()
+        tazApiAssetReader.copyTo(fileWriter)
+        tazApiAssetReader.close()
+        fileWriter.close()
     }
 
 }
