@@ -92,12 +92,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
         var bufferedReader: BufferedReader? = null
         var data = ""
         try {
-            bufferedReader = BufferedReader(
-                InputStreamReader(
-                    applicationContext.assets.open(path),
-                    "UTF-8"
-                )
-            )
+            bufferedReader = assetFileReader(path)
 
             var line: String? = bufferedReader.readLine()
             while (line != null) {
@@ -109,4 +104,14 @@ class FileHelper private constructor(private val applicationContext: Context) {
         }
         return data
     }
+
+    fun assetFileReader(path: String): BufferedReader {
+        return BufferedReader(
+            InputStreamReader(
+                applicationContext.assets.open(path),
+                "UTF-8"
+            )
+        )
+    }
+
 }

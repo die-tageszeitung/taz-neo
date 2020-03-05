@@ -19,6 +19,7 @@ import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.monkey.sameContentAs
 import de.taz.app.android.util.Log
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
@@ -237,9 +238,11 @@ class SplashActivity : AppCompatActivity() {
             tazApiCssFile.createNewFile()
             log.debug("Created tazApi.css")
         }
+
         val tazApiJsFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.js")
-        if (!tazApiJsFile.exists()) {
-            tazApiJsFile.writeText(fileHelper.readFileFromAssets("js/tazApi.js"))
+        val tazApiAssetReader = fileHelper.assetFileReader("js/tazApi.js")
+        if (!tazApiJsFile.exists() || !tazApiJsFile.sameContentAs(tazApiAssetReader) ) {
+            tazApiAssetReader.copyTo(tazApiJsFile.writer())
             log.debug("Created tazApi.js")
         }
     }
