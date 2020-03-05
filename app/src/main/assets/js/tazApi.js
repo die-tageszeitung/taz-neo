@@ -89,17 +89,17 @@ var tazApi = (function() {
             /* remove old previously injected style elements */
             var oldStyleElements = parent.getElementsByTagName('style');
 
-            for (element of oldStyleElements) {
-                parent.removeChild(element);
+            for (var i = 0; i < oldStyleElements.length; i++) {
+                parent.removeChild(oldStyleElements.item(i));
             }
 
             /* remove current tazApi.css as well, since it sometimes contradicts the injected style */
-            for (element of parent.getElementsByTagName('link')) {
-                if (element.href.indexOf('tazApi.css') >= 0) {
-                    document.getElementsByTagName('head').item(0).removeChild(element);
+            var oldStyleLinks = parent.getElementsByTagName('link');
+            for (var i = 0; i < oldStyleLinks.length; i++) {
+                if (oldStyleLinks.item(i).href.indexOf('tazApi.css') >= 0) {
+                    parent.removeChild(oldStyleLinks.item(i));
                 }
             }
-
 
             /* inject new css */
             var style = document.createElement('style');
