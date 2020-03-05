@@ -1,6 +1,5 @@
 package de.taz.app.android.api
 
-import android.util.Log
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import kotlinx.coroutines.runBlocking
@@ -11,18 +10,10 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
-import org.powermock.api.mockito.PowerMockito
-import org.powermock.core.classloader.annotations.PowerMockIgnore
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.junit4.PowerMockRunner
 
-@RunWith(PowerMockRunner::class)
-@PowerMockIgnore("javax.net.ssl.*")
-@PrepareForTest(Log::class)
 class GraphQlClientTest {
     private val mockServer = MockWebServer()
     @Mock private lateinit var queryServiceMock: QueryService
@@ -31,7 +22,6 @@ class GraphQlClientTest {
 
     @Before
     fun setUp() {
-        PowerMockito.mockStatic(Log::class.java)
         mockServer.start()
         MockitoAnnotations.initMocks(this)
         graphQlClient = GraphQlClient(

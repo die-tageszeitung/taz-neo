@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import androidx.core.content.FileProvider.getUriForFile
+import de.taz.app.android.R
 
 
 /**
@@ -76,9 +78,27 @@ open class HomePageAdapter(
 
     private fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
-        return allIssueStubList.filter {
+
+        // do not show public issues if logged in
+        val filteredIssueList = allIssueStubList.filter {
             it.feedName !in inactiveFeedNames && (!authenticated || it.status != IssueStatus.public)
         }
+
+        val mutableFilteredIssueList = filteredIssueList.toMutableList()
+        // only show regular issue if 2 exist
+        // i.e. when user is not logged in anymore but has issues from before
+        filteredIssueList.forEach { item ->
+            val issuesAtSameDate = filteredIssueList.filter {
+                item.date == it.date && item.feedName == it.feedName
+            }
+            if (issuesAtSameDate.size > 1) {
+                mutableFilteredIssueList.removeAll(
+                    issuesAtSameDate.filter { it.status != IssueStatus.regular }
+                )
+            }
+        }
+
+        return mutableFilteredIssueList
     }
 
     private fun filterAndSetIssues() {
@@ -110,7 +130,7 @@ open class HomePageAdapter(
         return ViewHolder(
             LayoutInflater.from(fragment.getContext()).inflate(
                 itemLayoutRes, parent, false
-            ) as MomentView
+            ) as ConstraintLayout
         )
     }
 
@@ -118,8 +138,8 @@ open class HomePageAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->
             fragment.getLifecycleOwner().lifecycleScope.launch {
-                viewHolder.itemView as MomentView
-                viewHolder.itemView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
+                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
+                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
             }
         }
     }
@@ -127,7 +147,7 @@ open class HomePageAdapter(
     /**
      * ViewHolder for this Adapter
      */
-    inner class ViewHolder constructor(itemView: MomentView) :
+    inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
@@ -143,7 +163,8 @@ open class HomePageAdapter(
                 fragment.getLifecycleOwner().lifecycleScope.launch {
                     getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
                         val imageAsFile = fileHelper.getFile(image)
-                        val imageUriNew = getUriForFile(view.context, "de.taz.app.android.provider", imageAsFile)
+                        val applicationId = view.context.packageName
+                        val imageUriNew = getUriForFile(view.context, "${applicationId}.contentProvider", imageAsFile)
 
                         log.debug("imageUriNew: $imageUriNew")
                         log.debug("imageAsFile: $imageAsFile")

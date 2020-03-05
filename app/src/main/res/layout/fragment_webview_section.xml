@@ -5,7 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/backgroundColor"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -13,7 +13,7 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/backgroundColor"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -49,27 +49,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/web_view_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        android:background="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-
-            />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/include_loading_screen" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -78,7 +58,7 @@
         android:background="@color/navigation_bottom_background"
         android:orientation="vertical"
         android:visibility="invisible"
-        app:layout_behavior="de.taz.app.android.singletons.BottomNavigationBehavior">
+        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation_bottom"

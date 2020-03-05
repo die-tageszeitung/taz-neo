@@ -2,6 +2,7 @@ package de.taz.app.android.ui.main
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
@@ -13,6 +14,7 @@ import android.webkit.WebView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -27,38 +29,63 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
+const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
+const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
+const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val log by Log
 
-    private val fileHelper = FileHelper.getInstance()
-
     private val presenter = MainPresenter()
 
-    private lateinit var tazApiCssPreferences : SharedPreferences
+    private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-        log.debug("Shared pref changed: $key")
-        val cssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
-        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+    private val tazApiCssPrefListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            log.debug("Shared pref changed: $key")
+            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
+                "$RESOURCE_FOLDER/tazApi.css"
+            )
+            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
-        cssFile.writeText(cssString)
+            cssFile.writeText(cssString)
+
+            if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                setThemeAndReCreate(sharedPreferences, true)
+            }
+        }
+
+    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            log.debug("setTheme to NIGHT")
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            log.debug("setTheme to DAY")
+        }
+        if (isReCreateFlagSet) {
+            recreate()
+        }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,13 +104,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         lockEndNavigationView()
 
-        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener{
+        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
 
             override fun onDrawerOpened(drawerView: View) {
-                 opened = true
+                opened = true
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -97,7 +124,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         })
 
-        tazApiCssPreferences = applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
+        }
     }
 
     override fun onResume() {
@@ -133,12 +164,22 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         bookmarksArticle: Boolean
     ) {
         when (webViewDisplayable) {
-            is Article -> showArticle(webViewDisplayable, enterAnimation, exitAnimation, bookmarksArticle)
+            is Article -> showArticle(
+                webViewDisplayable,
+                enterAnimation,
+                exitAnimation,
+                bookmarksArticle
+            )
             is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
         }
     }
 
-    private fun showArticle(article: Article, enterAnimation: Int, exitAnimation: Int, bookmarksArticle: Boolean) {
+    private fun showArticle(
+        article: Article,
+        enterAnimation: Int = 0,
+        exitAnimation: Int = 0,
+        bookmarksArticle: Boolean = false
+    ) {
         val fragment = ArticlePagerFragment.createInstance(article, bookmarksArticle)
         showMainFragment(fragment, enterAnimation, exitAnimation)
     }
@@ -228,11 +269,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showToast(stringId: Int) {
-        ToastHelper.getInstance(applicationContext).makeToast(stringId)
+        ToastHelper.getInstance(applicationContext).showToast(stringId)
     }
 
     override fun showToast(string: String) {
-        ToastHelper.getInstance(applicationContext).makeToast(string)
+        ToastHelper.getInstance(applicationContext).showToast(string)
     }
 
     override fun getLifecycleOwner(): LifecycleOwner = this
@@ -252,4 +293,30 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val view = currentFocus ?: View(this)
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == ACTIVITY_LOGIN_REQUEST_CODE) {
+            data?.let {
+                data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
+                    if (it == MAIN_EXTRA_TARGET_ARTICLE) {
+                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                ArticleRepository.getInstance(
+                                    applicationContext
+                                ).get(articleName)?.let { article ->
+                                    showArticle(article)
+                                }
+                            }
+                        }
+                    }
+                    if (it == MAIN_EXTRA_TARGET_HOME) {
+                        showHome()
+                    }
+                }
+            }
+        }
+    }
+
 }

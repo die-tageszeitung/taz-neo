@@ -1,5 +1,9 @@
 query LastIssuesQuery($feedName: String, $limit: Int!) {
     product {
+        authInfo {
+            status
+            message
+        }
         feedList(name: $feedName) {
             name
             cycle

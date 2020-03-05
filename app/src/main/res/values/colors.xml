@@ -14,8 +14,12 @@
 
     <color name="colorAccent">@color/tazRed</color>
 
+    <color name="backgroundColor">@color/white</color>
     <color name="textColor">@color/black</color>
+    <color name="textColorAccent">@color/darkGrey</color>
 
+    <color name="colorEdgeEffect">@color/lightGrey</color>
+    
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/black</color>

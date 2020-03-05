@@ -9,9 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val KEEP_ISSUES_DOWNLOADED_DEFAULT = 20
+const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
+const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
 
-class DownloadedIssueHelper private constructor(applicationContext: Context){
+class DownloadedIssueHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<DownloadedIssueHelper, Context>(::DownloadedIssueHelper)
 
@@ -23,7 +24,9 @@ class DownloadedIssueHelper private constructor(applicationContext: Context){
 
     private val storedIssueNumberLiveData =
         SharedPreferenceStringLiveData(
-            generalSettings, "general_keep_number_issues", KEEP_ISSUES_DOWNLOADED_DEFAULT.toString()
+            generalSettings,
+            SETTINGS_GENERAL_KEEP_ISSUES,
+            SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
         )
     private val downloadIssueNumberLiveData = issueRepository.getAllDownloadedStubsLiveData()
 
@@ -35,7 +38,8 @@ class DownloadedIssueHelper private constructor(applicationContext: Context){
     private fun ensureIssueCount() {
         CoroutineScope(Dispatchers.IO).launch {
             var downloadedIssueCount = downloadIssueNumberLiveData.value?.size ?: 0
-            val storedIssuePreference = storedIssueNumberLiveData.value?.toInt() ?: KEEP_ISSUES_DOWNLOADED_DEFAULT
+            val storedIssuePreference = storedIssueNumberLiveData.value?.toInt()
+                ?: SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 
             while (downloadedIssueCount > storedIssuePreference) {
                 issueRepository.getEarliestDownloadedIssue()?.let {

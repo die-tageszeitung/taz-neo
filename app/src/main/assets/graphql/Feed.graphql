@@ -1,5 +1,9 @@
 query FeedQuery($name: String) {
     product {
+        authInfo {
+            status
+            message
+        }
         feedList(name: $name) {
             name
             cycle
