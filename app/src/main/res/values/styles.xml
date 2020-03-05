@@ -18,7 +18,7 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:buttonStyle">@style/AppTheme.NoActionBar.ButtonStyle</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
-        <item name="android:colorEdgeEffect">@color/lightGrey</item>
+        <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
     </style>
 
     <style name="AppTheme.NoActionBar.ButtonStyle" parent="Widget.AppCompat.Button">
