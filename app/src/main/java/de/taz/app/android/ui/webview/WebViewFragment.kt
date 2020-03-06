@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.LayoutRes
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -19,8 +20,10 @@ import kotlinx.android.synthetic.main.fragment_webview_section.web_view
 import kotlinx.android.synthetic.main.include_loading_screen.*
 
 
-abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable> :
-    BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(),
+abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
+    @LayoutRes layoutResourceId: Int
+) :
+    BaseMainFragment<WebViewPresenter<DISPLAYABLE>>(layoutResourceId),
     WebViewContract.View<DISPLAYABLE> {
 
     private val log by Log

@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -20,7 +18,8 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 const val SECTION_POSITION = "position"
 
-class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
+class SectionPagerFragment :
+    BaseMainFragment<SectionPagerPresenter>(R.layout.fragment_webview_pager),
     SectionPagerContract.View,
     BackFragment {
 
@@ -67,14 +66,6 @@ class SectionPagerFragment : BaseMainFragment<SectionPagerPresenter>(),
             presenter.setCurrentPosition(it)
             webview_pager_viewpager.currentItem = it
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
     override fun onBackPressed(): Boolean {

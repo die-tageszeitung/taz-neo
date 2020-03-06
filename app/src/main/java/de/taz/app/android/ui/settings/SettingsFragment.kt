@@ -16,19 +16,12 @@ import de.taz.app.android.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
-class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(), SettingsContract.View {
+class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.fragment_settings),
+    SettingsContract.View {
 
     override val presenter = SettingsPresenter()
 
     private var storedIssueNumber: String? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_settings, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
