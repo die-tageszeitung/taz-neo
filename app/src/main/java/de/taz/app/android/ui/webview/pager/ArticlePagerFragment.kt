@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -58,7 +59,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
 
         webview_pager_viewpager.apply {
-            reduceDragSensitivity(2)
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
         // Initialize the presenter and let it call this fragment to render the pager
