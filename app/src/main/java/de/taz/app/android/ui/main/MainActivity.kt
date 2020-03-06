@@ -41,6 +41,7 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,11 +88,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private fun isDarkTheme(): Boolean {
+        return this.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
-
         setContentView(R.layout.activity_main)
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -126,6 +131,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+
+        // if "text_night_mode" is not set in shared preferences -> set it now
+        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
+            SharedPreferenceBooleanLiveData(
+                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
+            ).postValue(isDarkTheme())
+        }
+
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
