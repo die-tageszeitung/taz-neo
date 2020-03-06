@@ -92,12 +92,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
         var bufferedReader: BufferedReader? = null
         var data = ""
         try {
-            bufferedReader = BufferedReader(
-                InputStreamReader(
-                    applicationContext.assets.open(path),
-                    "UTF-8"
-                )
-            )
+            bufferedReader = assetFileReader(path)
 
             var line: String? = bufferedReader.readLine()
             while (line != null) {
@@ -109,4 +104,52 @@ class FileHelper private constructor(private val applicationContext: Context) {
         }
         return data
     }
+
+    private fun assetFileReader(path: String): BufferedReader {
+        return BufferedReader(
+            InputStreamReader(
+                applicationContext.assets.open(path),
+                "UTF-8"
+            )
+        )
+    }
+
+    fun assetFileSameContentAsFile(assetFilePath: String, file: File): Boolean {
+        val assetBufferedReader = assetFileReader(assetFilePath)
+        val fileBufferedReader = file.bufferedReader()
+
+        var areEqual = true
+
+        try {
+            var line = assetBufferedReader.readLine()
+            var otherLine = fileBufferedReader.readLine()
+
+            while (line != null || otherLine != null) {
+                if (line == null || otherLine == null) {
+                    areEqual = false
+                    break
+                } else if (line != otherLine) {
+                    areEqual = false;
+                    break
+                }
+
+                line = assetBufferedReader.readLine()
+                otherLine = fileBufferedReader.readLine()
+            }
+        } finally {
+            assetBufferedReader.close()
+            fileBufferedReader.close()
+        }
+
+        return areEqual
+    }
+
+    fun copyAssetFileToFile(path: String, file: File) {
+        val tazApiAssetReader = assetFileReader(path)
+        val fileWriter = file.writer()
+        tazApiAssetReader.copyTo(fileWriter)
+        tazApiAssetReader.close()
+        fileWriter.close()
+    }
+
 }
