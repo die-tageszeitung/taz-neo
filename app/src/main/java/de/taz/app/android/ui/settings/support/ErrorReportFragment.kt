@@ -35,6 +35,7 @@ class ErrorReportFragment :
                 getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
 
             fragment_error_report_send_button.setOnClickListener {
+                loading_screen.visibility = View.VISIBLE
                 val email = fragment_error_report_email.text.toString()
                 val message = fragment_error_report_message.text.toString()
                 val lastAction = fragment_error_report_last_action.text.toString()
@@ -67,7 +68,8 @@ class ErrorReportFragment :
                 )
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance().showToast("sending bug report")
+            ToastHelper.getInstance().showToast(R.string.toast_error_report_sent)
+            parentFragmentManager.popBackStack()
         }
     }
 
