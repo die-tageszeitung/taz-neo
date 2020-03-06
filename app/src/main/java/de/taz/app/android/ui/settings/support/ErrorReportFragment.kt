@@ -68,7 +68,7 @@ class ErrorReportFragment :
             val memoryInfo = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
 
-            val availableRam = "%.2f GB".format(memoryInfo.availMem / 1073741824f)
+            val totalRam = "%.2f GB".format(memoryInfo.totalMem/ 1073741824f)
             val usedRam = "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem)/ 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -80,7 +80,7 @@ class ErrorReportFragment :
                     storageType,
                     errorProtocol,
                     usedRam,
-                    availableRam
+                    totalRam
                 )
                 log.debug("Sending an error report")
             }
