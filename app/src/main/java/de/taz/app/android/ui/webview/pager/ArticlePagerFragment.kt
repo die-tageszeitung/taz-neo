@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
@@ -56,7 +58,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Ensure initial fragment states are copied to the model via the presenter
         initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
 
-        webview_pager_viewpager.reduceDragSensitivity(2)
+        webview_pager_viewpager.apply {
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            moveContentBeneathStatusBar()
+        }
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 
