@@ -3,7 +3,6 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.os.Bundle
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
@@ -26,7 +25,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), CoverflowContract.View {
+class CoverflowFragment :
+    BaseMainFragment<CoverflowContract.Presenter>(R.layout.fragment_coverflow),
+    CoverflowContract.View {
 
     override val presenter = CoverflowPresenter()
 
@@ -38,14 +39,6 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
         presenter
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_coverflow, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         presenter.attach(this)
