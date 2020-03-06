@@ -2,9 +2,7 @@ package de.taz.app.android.ui.home.page.archive
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
@@ -17,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_archive.*
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
+class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(R.layout.fragment_archive),
     ArchiveContract.View {
 
     override val presenter = ArchivePresenter()
@@ -27,14 +25,6 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(),
             R.layout.fragment_archive_item,
             presenter
         )
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_archive, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

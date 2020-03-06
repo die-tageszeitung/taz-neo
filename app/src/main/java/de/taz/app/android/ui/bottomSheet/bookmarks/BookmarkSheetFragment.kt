@@ -10,18 +10,10 @@ import de.taz.app.android.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
 
 class BookmarkSheetFragment(private val articleFileName: String) :
-    BaseFragment<BookmarkSheetPresenter>(),
+    BaseFragment<BookmarkSheetPresenter>(R.layout.fragment_bottom_sheet_bookmarks),
     BookmarkSheetContract.View {
 
     override val presenter = BookmarkSheetPresenter()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_bottom_sheet_bookmarks, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
