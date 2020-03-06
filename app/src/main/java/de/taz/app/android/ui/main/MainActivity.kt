@@ -137,10 +137,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             SharedPreferenceBooleanLiveData(
                 tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
             ).postValue(isDarkTheme())
-        }
 
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
+            if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+                setThemeAndReCreate(tazApiCssPreferences, false)
+            }
         }
     }
 
