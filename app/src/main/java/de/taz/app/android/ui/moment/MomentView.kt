@@ -111,7 +111,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun setDimension(dimensionString: String) {
-        log.debug("setting dimension to $dimensionString")
+        log.info("setting dimension to $dimensionString")
         fragment_archive_item_centered.apply {
             (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
             requestLayout()
