@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -12,7 +13,9 @@ import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 
-abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter> : BaseFragment<PRESENTER>(),
+abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
+    @LayoutRes layoutResourceId: Int
+) : BaseFragment<PRESENTER>(layoutResourceId),
     BaseContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -2,10 +2,8 @@ package de.taz.app.android.ui.bookmarks
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
@@ -15,20 +13,12 @@ import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import java.util.*
 
 class BookmarksFragment :
-    BaseMainFragment<BookmarksPresenter>(),
+    BaseMainFragment<BookmarksPresenter>(R.layout.fragment_bookmarks),
     BookmarksContract.View {
 
     override val presenter: BookmarksPresenter = BookmarksPresenter()
 
     private val recycleAdapter = BookmarksAdapter(presenter)
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_bookmarks, container, false)
-    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

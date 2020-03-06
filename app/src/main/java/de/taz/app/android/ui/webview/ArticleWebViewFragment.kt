@@ -5,9 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
@@ -26,12 +24,13 @@ import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.monkey.observeDistinct
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
+class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
+    BackFragment {
 
     private val log by Log
     var article: Article? = null
     var articleLiveData: LiveData<Article?>? = null
-    var observer : Observer<Article?>? = null
+    var observer: Observer<Article?>? = null
 
     private val fileHelper = FileHelper.getInstance()
     override val presenter = ArticleWebViewPresenter()
@@ -41,17 +40,10 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
             val fragment = ArticleWebViewFragment()
             val articleRepository = ArticleRepository.getInstance()
             fragment.article = article
-            fragment.articleLiveData = articleRepository.getLiveData(articleName = article.articleFileName)
+            fragment.articleLiveData =
+                articleRepository.getLiveData(articleName = article.articleFileName)
             return fragment
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview_article, container, false)
     }
 
     override fun getWebViewDisplayable(): Article? {
@@ -65,7 +57,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         articleLiveData?.let {
-            observer = it.observeDistinct( this) { articleLiveData ->
+            observer = it.observeDistinct(this) { articleLiveData ->
                 if (articleLiveData?.bookmarked == true) {
                     setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
                 }
@@ -115,8 +107,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     override fun share(url: String, title: String?, image: FileEntry?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             shareArticle(url, title, image)
-        }
-        else {
+        } else {
             shareArticle(url, title)
         }
     }
@@ -138,7 +129,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     @TargetApi(28)
     private fun shareArticle(url: String, title: String?, image: FileEntry?) {
         view?.let { view ->
-            var imageUri : Uri? = null
+            var imageUri: Uri? = null
             val applicationId = view.context.packageName
             image?.let {
                 val imageAsFile = fileHelper.getFile(image)
@@ -174,7 +165,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(), BackFragment {
     }
 
     override fun onDestroy() {
-        observer?.let{
+        observer?.let {
             articleLiveData?.removeObserver(it)
         }
         super.onDestroy()

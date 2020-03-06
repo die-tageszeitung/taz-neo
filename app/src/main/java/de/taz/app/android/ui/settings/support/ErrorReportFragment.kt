@@ -1,10 +1,8 @@
 package de.taz.app.android.ui.settings.support
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
@@ -19,27 +17,22 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), ErrorReportContract.View {
+class ErrorReportFragment :
+    BaseMainFragment<ErrorReportContract.Presenter>(R.layout.fragment_error_report),
+    ErrorReportContract.View {
 
     override val presenter = ErrorReportPresenter()
     private val fileHelper = FileHelper.getInstance()
     private val log by Log
     val apiService = ApiService.getInstance()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_error_report, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
 
         view.apply {
-            fragment_header_default_title.text = getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
+            fragment_header_default_title.text =
+                getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
 
             fragment_error_report_send_button.setOnClickListener {
                 val email = fragment_error_report_email.text.toString()
@@ -53,13 +46,25 @@ class ErrorReportFragment : BaseMainFragment<ErrorReportContract.Presenter>(), E
         presenter.onViewCreated(savedInstanceState)
     }
 
-    override fun sendErrorReport(email: String?, message: String?, lastAction: String?, conditions: String?) {
+    override fun sendErrorReport(
+        email: String?,
+        message: String?,
+        lastAction: String?,
+        conditions: String?
+    ) {
         context?.let { context ->
             val storageType = fileHelper.getFilesDir(context)
             val errorProtocol = Log.trace.toString()
 
             CoroutineScope(Dispatchers.IO).launch {
-                apiService.sendErrorReport(email, message, lastAction, conditions, storageType, errorProtocol)
+                apiService.sendErrorReport(
+                    email,
+                    message,
+                    lastAction,
+                    conditions,
+                    storageType,
+                    errorProtocol
+                )
                 log.debug("Sending an error report")
             }
             ToastHelper.getInstance().showToast("sending bug report")
