@@ -87,10 +87,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             recreate()
         }
     }
+    
     private fun isDarkTheme(activity: Activity): Boolean {
         return activity.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -130,6 +132,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
+        // if "text_night_mode" is not set in shared preferences -> set it now
         if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
             SharedPreferenceBooleanLiveData(
                 tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme(this)
