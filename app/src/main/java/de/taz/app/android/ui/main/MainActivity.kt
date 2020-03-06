@@ -87,9 +87,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             recreate()
         }
     }
-    
-    private fun isDarkTheme(activity: Activity): Boolean {
-        return activity.resources.configuration.uiMode and
+
+    private fun isDarkTheme(): Boolean {
+        return this.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 
@@ -135,8 +135,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         // if "text_night_mode" is not set in shared preferences -> set it now
         if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
             SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme(this)
-            ).postValue(isDarkTheme(this))
+                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
+            ).postValue(isDarkTheme())
         }
 
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
