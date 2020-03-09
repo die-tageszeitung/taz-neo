@@ -35,7 +35,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     }
 
     private fun poll(timeoutMillis: Long = 100) {
-        CoroutineScope(Dispatchers.IO).launch {
+        /*CoroutineScope(Dispatchers.IO).launch {
             delay(timeoutMillis)
 
             try {
@@ -88,6 +88,6 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                 // continue polling
                 poll(timeoutMillis * 2)
             }
-        }
+        }*/
     }
 }
