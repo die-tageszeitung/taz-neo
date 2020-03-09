@@ -1,6 +1,5 @@
 package de.taz.app.android.api.variables
 
-import android.app.ActivityManager
 import android.os.Environment
 import android.os.StatFs
 import com.squareup.moshi.JsonClass
@@ -26,8 +25,8 @@ data class ErrorReportVariables(
     val installationId: String = AuthHelper.getInstance().installationId,
     val storageAvailable: String? = "${StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
     val storageUsed: String? = "${StatFs(Environment.getDataDirectory().path).totalBytes - StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
-    val ramAvailable: String? = ActivityManager.MemoryInfo().availMem.toString(),
-    val ramUsed: String? = (ActivityManager.MemoryInfo().totalMem - ActivityManager.MemoryInfo().availMem).toString(),
+    val ramAvailable: String?,
+    val ramUsed: String?,
     val pushToken: String? = FirebaseHelper.getInstance().firebaseToken ?: "",
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,

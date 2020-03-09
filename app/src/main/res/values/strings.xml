@@ -9,6 +9,7 @@
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_login_with_email">Please login with your email-adress.</string>
+    <string name="toast_error_report_sent">Error report sent.</string>
 
     <string name="toast_unknown_error">Unknown error occurred.</string>
     <string name="toast_logout_elapsed">Your subscription has expired.</string>
@@ -82,7 +83,6 @@
     <string name="settings_increase_font_size">Increase font size</string>
     <string name="settings_general_keep_number_issues">Keep last %s issues</string>
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
-    <string name="settings_category_push">pushID</string>
     <string name="settings_category_support">support</string>
     <string name="settings_support_report_bug">Report a bug</string>
 
