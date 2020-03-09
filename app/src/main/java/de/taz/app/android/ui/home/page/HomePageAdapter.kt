@@ -1,8 +1,11 @@
 package de.taz.app.android.ui.home.page
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import androidx.core.content.FileProvider.getUriForFile
 import de.taz.app.android.R
+import java.util.*
 
 
 /**
@@ -179,6 +183,21 @@ open class HomePageAdapter(
                 }
 
                 true
+            }
+
+            itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener {view ->
+                log.debug("click datepicker")
+                val c = Calendar.getInstance()
+                val year = c.get(Calendar.YEAR)
+                val month = c.get(Calendar.MONTH)
+                val day = c.get(Calendar.DAY_OF_MONTH)
+
+                val dpd = DatePickerDialog(view.context, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                    // Display Selected date in Toast
+                    Toast.makeText(view.context, """$dayOfMonth - ${monthOfYear + 1} - $year""", Toast.LENGTH_LONG).show()
+
+                }, year, month, day)
+                dpd.show()
             }
         }
     }
