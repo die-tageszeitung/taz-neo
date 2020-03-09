@@ -7,6 +7,7 @@ import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.JsonHelper
 
 @JsonClass(generateAdapter = true)
 data class DownloadStartVariables(
@@ -20,11 +21,5 @@ data class DownloadStartVariables(
     val deviceFormat: DeviceFormat = DeviceFormat.mobile,
     val deviceType: DeviceType = DeviceType.android
 ) : Variables {
-
-    override fun toJson(): String {
-        val moshi = Moshi.Builder().build()
-        val adapter = moshi.adapter(DownloadStartVariables::class.java)
-
-        return adapter.toJson(this)
-    }
+    override fun toJson() = JsonHelper.toJson(this)
 }
