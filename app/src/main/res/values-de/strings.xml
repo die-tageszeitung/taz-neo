@@ -55,7 +55,6 @@
     <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
-
     <string name="fragment_bookmarks_title">Leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
@@ -100,11 +99,14 @@
     <string name="fragment_error_report_conditions_hint">Beschreiben Sie mögliche Außeneinflüsse hier: war WLAN an? ein Firewall? Benutzen Sie ein Proxy? Gabs gar kein Netz?</string>
     <string name="fragment_error_report_send_button">Abschicken</string>
 
-    <string name="channel_new_version">Neue Version</string>
-    <string name="channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
+    <string name="notification_channel_new_version">Neue Version</string>
+    <string name="notification_channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
 
     <string name="notification_new_version_title">Neue Version verfügbar</string>
     <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
+
+    <string name="notification_channel_fcm">Eilmeldungen</string>
+    <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>
