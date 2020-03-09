@@ -11,6 +11,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -32,7 +33,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     private val tazApiCssPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
         log.debug("WebViewFragment: shared pref changed: $key")
-        presenter.injectCss(sharedPreferences)
+        if (key == SETTINGS_TEXT_FONT_SIZE) {
+            presenter.injectCss(sharedPreferences)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
