@@ -38,7 +38,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
             log.debug("Message data payload: " + remoteMessage.data)
-            Sentry.capture("REMOVE: Message data payload: " + remoteMessage.data)
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFOM_KEY)) {
                 when(remoteMessage.data[REMOTE_MESSAGE_PERFOM_KEY]) {
                     REMOTE_MESSAGE_PERFOM_VALUE_SUBSCRIPTION_POLL -> {
