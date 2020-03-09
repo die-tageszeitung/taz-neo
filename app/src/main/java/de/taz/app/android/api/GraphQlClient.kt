@@ -25,21 +25,19 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * class to get DTOs from the [GRAPHQL_ENDPOINT]
  */
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: OkHttpClient = okHttpClient,
+    private val okHttpClient: OkHttpClient = okHttpClient(),
     private val url: String = GRAPHQL_ENDPOINT,
     private val queryService: QueryService = QueryService.getInstance()
 ) {
 
     private val log by Log
 
-    private constructor(applicationContext: Context): this(
+    private constructor(applicationContext: Context) : this(
+        okHttpClient = okHttpClient(applicationContext),
         queryService = QueryService.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
-
-    private val moshi = Moshi.Builder().build()
-    private val jsonAdapter = moshi.adapter(WrapperDto::class.java)
 
     /**
      * function to get DTO from query
@@ -53,7 +51,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             variables?.let { query.variables = variables }
             val body = query.toJson().toRequestBody("application/json".toMediaType())
             val response = awaitCallback(
-                httpClient.newCall(
+                okHttpClient.newCall(
                     Request.Builder().url(url).post(body).build()
                 )::enqueue
             )
@@ -63,7 +61,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             }
             withContext(Dispatchers.IO) {
                 log.info("graphQL response: $string")
-                val wrapper = jsonAdapter.fromJson(string)
+                val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(string)
                 if (wrapper?.data == null) {
                     val errorString = wrapper?.errors.toString()
                     log.error(errorString)
@@ -79,30 +77,33 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 /**
  * set ACCEPT headers needed by backend
  */
-class AcceptHeaderInterceptor: Interceptor {
+class AcceptHeaderInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        return chain.proceed(chain.request().newBuilder().addHeader("Accept", "application/json, */*").build())
+        return chain.proceed(
+            chain.request().newBuilder().addHeader("Accept", "application/json, */*").build()
+        )
     }
 }
 
 /**
  * set authentication header if authenticated
  */
-class AuthenticationHeaderInterceptor: Interceptor {
-
-    private val authHelper = AuthHelper.getInstance()
+class AuthenticationHeaderInterceptor(
+    private val authHelper: AuthHelper = AuthHelper.getInstance()
+) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = authHelper.token
         val originalRequest = chain.request()
-        val request = if (originalRequest.url.toString() == GRAPHQL_ENDPOINT && token.isNotEmpty()) {
+        val request =
+            if (originalRequest.url.toString() == GRAPHQL_ENDPOINT && token.isNotEmpty()) {
                 chain.request().newBuilder().addHeader(
                     TAZ_AUTH_HEADER,
                     token
                 ).build()
-        } else {
-            originalRequest
-        }
+            } else {
+                originalRequest
+            }
 
         return chain.proceed(request)
     }

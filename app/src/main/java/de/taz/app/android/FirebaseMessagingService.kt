@@ -36,6 +36,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val notification = remoteMessage.notification
         if (notification != null) {
             log.debug("Notification data title: ${notification.title} body: ${notification.body}")
+            notificationHelper.showNotification(notification)
         }
     }
 

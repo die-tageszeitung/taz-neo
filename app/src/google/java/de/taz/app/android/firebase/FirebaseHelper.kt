@@ -32,9 +32,14 @@ class FirebaseHelper private constructor(applicationContext: Context) : Firebase
         SharedPreferenceBooleanLiveData(
             preferences, PREFERENCES_FCM_TOKEN_SENT, false
         )
+
     override var hasTokenBeenSent: Boolean
         get() = firebaseTokenHasBeenSentLiveData.value ?: false
         set(value) {
             firebaseTokenHasBeenSentLiveData.postValue(value)
         }
+
+    init {
+        log.info("firebase registration token: $firebaseToken")
+    }
 }
