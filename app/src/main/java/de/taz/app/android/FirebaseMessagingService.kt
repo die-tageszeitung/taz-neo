@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val REMOTE_MESSAGE_PERFOM_KEY = "perform"
+const val REMOTE_MESSAGE_PERFOM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
@@ -40,7 +41,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             Sentry.capture("REMOVE: Message data payload: " + remoteMessage.data)
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFOM_KEY)) {
                 when(remoteMessage.data[REMOTE_MESSAGE_PERFOM_KEY]) {
-                    "subscriptionPoll" -> authHelper.isPolling = true
+                    REMOTE_MESSAGE_PERFOM_VALUE_SUBSCRIPTION_POLL -> {
+                        log.info("notification triggered subscription poll")
+                        authHelper.isPolling = true
+                    }
                 }
             }
         }
