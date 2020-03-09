@@ -10,7 +10,6 @@ import android.widget.Switch
 import android.widget.TextView
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_settings.*
@@ -28,11 +27,6 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
         presenter.attach(this)
 
         view.apply {
-
-            val tokenText = FirebaseHelper.getInstance().firebaseToken ?: "No push ID"
-            findViewById<TextView>(R.id.fragment_settings_push_id).apply {
-                text = tokenText
-            }
             findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
@@ -49,7 +43,6 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                     presenter.reportBug()
                 }
             }
-
 
             findViewById<Button>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {

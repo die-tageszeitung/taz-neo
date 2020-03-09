@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.settings.support
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -35,11 +37,17 @@ class ErrorReportFragment :
                 getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
 
             fragment_error_report_send_button.setOnClickListener {
+                loading_screen.visibility = View.VISIBLE
                 val email = fragment_error_report_email.text.toString()
                 val message = fragment_error_report_message.text.toString()
                 val lastAction = fragment_error_report_last_action.text.toString()
                 val conditions = fragment_error_report_conditions.text.toString()
-                sendErrorReport(email, message, lastAction, conditions)
+
+                if (email.isNotEmpty() || message.isNotEmpty() || lastAction.isNotEmpty() || conditions.isNotEmpty()) {
+                    sendErrorReport(email, message, lastAction, conditions)
+                } else {
+                    loading_screen.visibility = View.GONE
+                }
             }
         }
 
@@ -56,6 +64,13 @@ class ErrorReportFragment :
             val storageType = fileHelper.getFilesDir(context)
             val errorProtocol = Log.trace.toString()
 
+            val activityManager = this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val memoryInfo = ActivityManager.MemoryInfo()
+            activityManager.getMemoryInfo(memoryInfo)
+
+            val totalRam = "%.2f GB".format(memoryInfo.totalMem/ 1073741824f)
+            val usedRam = "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem)/ 1073741824f)
+
             CoroutineScope(Dispatchers.IO).launch {
                 apiService.sendErrorReport(
                     email,
@@ -63,11 +78,14 @@ class ErrorReportFragment :
                     lastAction,
                     conditions,
                     storageType,
-                    errorProtocol
+                    errorProtocol,
+                    usedRam,
+                    totalRam
                 )
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance().showToast("sending bug report")
+            ToastHelper.getInstance().showToast(R.string.toast_error_report_sent)
+            parentFragmentManager.popBackStack()
         }
     }
 
