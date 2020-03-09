@@ -4,12 +4,12 @@ import android.app.ActivityManager
 import android.os.Environment
 import android.os.StatFs
 import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.JsonHelper
 
 @JsonClass(generateAdapter = true)
 data class ErrorReportVariables(
@@ -33,11 +33,6 @@ data class ErrorReportVariables(
     val deviceType: DeviceType = DeviceType.android,
     val deviceFormat: DeviceFormat = DeviceFormat.mobile
 ): Variables {
-
-    override fun toJson(): String {
-        val moshi = Moshi.Builder().build()
-        val adapter = moshi.adapter(ErrorReportVariables::class.java)
-
-        return adapter.toJson(this)
-    }
+    override fun toJson(): String = JsonHelper.toJson(this)
 }
+
