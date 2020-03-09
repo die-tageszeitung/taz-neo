@@ -7,6 +7,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.util.*
@@ -85,6 +86,9 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
                 }
                 if (authStatus == AuthStatus.notValid) {
                     toastHelper.showToast(R.string.toast_logout_invalid)
+                }
+                if (authStatus == AuthStatus.valid) {
+                    ApiService.getInstance(applicationContext).sendNotificationInfo()
                 }
             }
         }
