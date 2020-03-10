@@ -1,10 +1,12 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +25,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class CoverflowFragment :
@@ -33,10 +36,26 @@ class CoverflowFragment :
 
     val log by Log
 
+    private val openDatePicker =  {
+        log.debug("click datepicker")
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+
+        val dpd = DatePickerDialog(context!!, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            // Display Selected date in Toast
+            Toast.makeText(context, """$dayOfMonth - ${monthOfYear + 1} - $year""", Toast.LENGTH_LONG).show()
+
+        }, year, month, day)
+        dpd.show()
+    }
+
     private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        presenter
+        presenter,
+        openDatePicker
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
