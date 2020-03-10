@@ -22,7 +22,7 @@
             android:background="@color/white"
             android:elevation="5dp"
             android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
-            app:in_drawer_sections="true"/>
+            app:do_not_show_download_icon="true"/>
 
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
