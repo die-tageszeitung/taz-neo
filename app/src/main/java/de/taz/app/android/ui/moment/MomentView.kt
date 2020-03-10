@@ -49,7 +49,7 @@ class MomentView @JvmOverloads constructor(
                 false
             )
             if (isMomentInDrawer) {
-                fragment_archive_moment_is_downloaded.visibility = View.GONE
+                hideDownloadIcon()
             }
             ta.recycle()
 
@@ -132,7 +132,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     override fun hideDownloadIcon() {
-        fragment_archive_moment_is_downloaded?.visibility = View.INVISIBLE
+        fragment_archive_moment_is_downloaded?.visibility = View.GONE
     }
 
     override fun setDimension(feed: Feed?) {
