@@ -25,7 +25,7 @@ class GraphQlClientTest {
         mockServer.start()
         MockitoAnnotations.initMocks(this)
         graphQlClient = GraphQlClient(
-            httpClient = OkHttpClient(),
+            okHttpClient = OkHttpClient(),
             url = mockServer.url("").toString(),
             queryService= queryServiceMock
         )
