@@ -76,6 +76,7 @@
 
     <string name="fragment_bottom_sheet_issue_read">read this issue</string>
     <string name="fragment_bottom_sheet_issue_share">share cover</string>
+    <string name="fragment_bottom_sheet_issue_delete">delete issue</string>
 
     <string name="fragment_cover_flow_to_archive">To archive</string>
 
