@@ -30,7 +30,7 @@ abstract class HomePageAdapter(
     private val fragment: HomePageContract.View,
     @LayoutRes private val itemLayoutRes: Int,
     private val presenter: HomePageContract.Presenter,
-    private val dateOnClickListener: (() -> Unit)? = null
+    private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()

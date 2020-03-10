@@ -36,26 +36,11 @@ class CoverflowFragment :
 
     val log by Log
 
-    private val openDatePicker =  {
-        log.debug("click datepicker")
-        val c = Calendar.getInstance()
-        val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
-        val day = c.get(Calendar.DAY_OF_MONTH)
-
-        val dpd = DatePickerDialog(context!!, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-            // Display Selected date in Toast
-            Toast.makeText(context, """$dayOfMonth - ${monthOfYear + 1} - $year""", Toast.LENGTH_LONG).show()
-
-        }, year, month, day)
-        dpd.show()
-    }
-
     private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
         presenter,
-        openDatePicker
+        null
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
