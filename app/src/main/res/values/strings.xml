@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">taz neo</string>
 
+    <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
+
+    <string name="notification_channel_new_version">New version</string>
+    <string name="notification_channel_new_version_description">Notification if a new version exists</string>
+
+    <string name="notification_new_version_title">A new version is available</string>
+    <string name="notification_new_version_body">Click here to download it</string>
+
+    <string name="notification_channel_fcm">Breaking news</string>
+    <string name="notification_channel_fcm_description">Breaking news like election results</string>
+
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
 
@@ -98,12 +109,6 @@
     <string name="fragment_error_report_send_button">Send</string>
 
     <string name="percentage">%d%%</string>
-
-    <string name="channel_new_version">New version</string>
-    <string name="channel_new_version_description">Notification if a new version exists</string>
-
-    <string name="notification_new_version_title">A new version is available</string>
-    <string name="notification_new_version_body">Click here to download it</string>
 
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>

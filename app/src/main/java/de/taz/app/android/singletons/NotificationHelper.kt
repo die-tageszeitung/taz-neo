@@ -5,14 +5,30 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.R
 import de.taz.app.android.util.SingletonHolder
+import de.taz.app.android.util.runIfNotNull
+
 
 class NotificationHelper private constructor(private val applicationContext: Context) {
 
     private val notificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
     companion object : SingletonHolder<NotificationHelper, Context>(::NotificationHelper)
+
+    fun showNotification(notification: RemoteMessage.Notification) {
+        notification.apply {
+            runIfNotNull(title, body) { title, body ->
+                showNotification(
+                    title,
+                    body,
+                    applicationContext.getString(R.string.notification_fcm_channel_id)
+                )
+            }
+        }
+    }
 
     fun showNotification(
         @StringRes title: Int,
@@ -29,7 +45,6 @@ class NotificationHelper private constructor(private val applicationContext: Con
         )
     }
 
-
     fun showNotification(
         title: String,
         body: String,
@@ -41,6 +56,7 @@ class NotificationHelper private constructor(private val applicationContext: Con
 
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setColor(ContextCompat.getColor(applicationContext, R.color.colorAccent))
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

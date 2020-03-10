@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -19,8 +18,6 @@ import java.lang.Exception
 class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
-
-    private val log by Log
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 

@@ -39,12 +39,12 @@ class DownloadWorker(
     private val workManager: WorkManager
 ) {
 
-    constructor(appContext: Context) : this(
-        okHttpClient,
-        DownloadRepository.getInstance(appContext),
-        FileEntryRepository.getInstance(appContext),
-        FileHelper.createInstance(appContext),
-        WorkManager.getInstance(appContext)
+    constructor(applicationContext: Context) : this(
+        okHttpClient(applicationContext),
+        DownloadRepository.getInstance(applicationContext),
+        FileEntryRepository.getInstance(applicationContext),
+        FileHelper.createInstance(applicationContext),
+        WorkManager.getInstance(applicationContext)
     )
 
     private val log by Log
