@@ -14,6 +14,8 @@ interface MomentViewContract {
         fun clearIssue()
         fun getContext(): Context
         fun setDimension(feed: Feed?)
+        fun showDownloadIcon()
+        fun hideDownloadIcon()
     }
 
     interface Presenter: BaseContract.Presenter {
