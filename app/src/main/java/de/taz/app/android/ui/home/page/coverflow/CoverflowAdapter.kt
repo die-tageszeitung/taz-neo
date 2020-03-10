@@ -13,7 +13,7 @@ class CoverflowAdapter(
     private val fragment: CoverflowContract.View,
     @LayoutRes private val itemLayoutRes: Int,
     presenter: CoverflowContract.Presenter,
-    dateOnClickListener: () -> Unit
+    dateOnClickListener: (() -> Unit)?
 ) : HomePageAdapter(fragment, itemLayoutRes, presenter, dateOnClickListener) {
 
     override fun setIssueStubs(issues: List<IssueStub>) {
