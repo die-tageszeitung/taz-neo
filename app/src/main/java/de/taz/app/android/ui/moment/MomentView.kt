@@ -44,6 +44,13 @@ class MomentView @JvmOverloads constructor(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
             )
+            val isMomentInDrawer =  ta.getBoolean(
+                R.styleable.MomentView_in_drawer_sections,
+                false
+            )
+            if (isMomentInDrawer) {
+                fragment_archive_moment_is_downloaded.visibility = View.GONE
+            }
             ta.recycle()
 
             fragment_archive_moment_date?.apply {
