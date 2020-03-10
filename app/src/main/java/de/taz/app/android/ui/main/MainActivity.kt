@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             ).postValue(isDarkTheme())
         }
 
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
     }
