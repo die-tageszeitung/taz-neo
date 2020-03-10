@@ -11,6 +11,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -84,12 +85,12 @@ class MomentViewPresenter(
         getView()?.clearIssue()
     }
 
-    override suspend fun setIssue(issueStub: IssueStub, feed: Feed?) {
+    override suspend fun setIssue(issueStub: IssueStub, feed: Feed?, dateFormat: DateFormat) {
         clearIssue()
         getView()?.setDimension(feed)
         val bitmap = downloadMomentAndGenerateImage(issueStub)
         bitmap?.let {
-            getView()?.displayIssue(bitmap, issueStub.date)
+            getView()?.displayIssue(bitmap, issueStub.date, dateFormat)
         }
     }
 }

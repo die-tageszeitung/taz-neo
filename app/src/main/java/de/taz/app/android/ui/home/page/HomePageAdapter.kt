@@ -1,11 +1,10 @@
 package de.taz.app.android.ui.home.page
 
-import android.app.DatePickerDialog
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -15,24 +14,23 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import androidx.core.content.FileProvider.getUriForFile
 import de.taz.app.android.R
-import java.util.*
 
 
 /**
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
  *  [ViewHolder] is used to recycle views
  */
-open class HomePageAdapter(
+abstract class HomePageAdapter(
     private val fragment: HomePageContract.View,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: HomePageContract.Presenter
+    private val presenter: HomePageContract.Presenter,
+    private val dateOnClickListener: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()
@@ -45,7 +43,7 @@ open class HomePageAdapter(
 
     private val log by Log
 
-    private val feedMap
+    protected val feedMap
         get() = feedList.associateBy { it.name }
 
     fun getItem(position: Int): IssueStub? {
@@ -138,16 +136,6 @@ open class HomePageAdapter(
         )
     }
 
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launch {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
-            }
-        }
-    }
-
     /**
      * ViewHolder for this Adapter
      */
@@ -185,19 +173,9 @@ open class HomePageAdapter(
                 true
             }
 
-            itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener {view ->
-                log.debug("click datepicker")
-                val c = Calendar.getInstance()
-                val year = c.get(Calendar.YEAR)
-                val month = c.get(Calendar.MONTH)
-                val day = c.get(Calendar.DAY_OF_MONTH)
-
-                val dpd = DatePickerDialog(view.context, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                    // Display Selected date in Toast
-                    Toast.makeText(view.context, """$dayOfMonth - ${monthOfYear + 1} - $year""", Toast.LENGTH_LONG).show()
-
-                }, year, month, day)
-                dpd.show()
+            dateOnClickListener?.let{ dateOnClickListener ->
+                itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener(
+                    View.OnClickListener { dateOnClickListener()})
             }
         }
     }

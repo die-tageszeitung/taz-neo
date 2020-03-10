@@ -20,7 +20,7 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(R.layout.fra
 
     override val presenter = ArchivePresenter()
     val archiveListAdapter =
-        HomePageAdapter(
+        ArchiveAdapter(
             this,
             R.layout.fragment_archive_item,
             presenter
