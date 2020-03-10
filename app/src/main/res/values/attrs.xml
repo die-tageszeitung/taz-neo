@@ -12,6 +12,7 @@
             <flag name="view_start" value="5" />
             <flag name="view_end" value="6" />
         </attr>
+        <attr name="in_drawer_sections" format="boolean" />
 
     </declare-styleable>
 </resources>

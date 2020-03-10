@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -20,7 +21,8 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:elevation="5dp"
-            android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom" />
+            android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
+            app:in_drawer_sections="true"/>
 
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
