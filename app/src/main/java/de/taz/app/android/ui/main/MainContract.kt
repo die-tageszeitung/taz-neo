@@ -46,6 +46,7 @@ interface MainContract : BaseContract {
 
         fun unlockEndNavigationView()
 
+        fun recreate()
     }
 
     interface Presenter : BaseContract.Presenter {
