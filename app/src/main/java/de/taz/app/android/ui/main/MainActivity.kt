@@ -27,9 +27,12 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -75,7 +78,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
-    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
+    private fun setThemeAndReCreate(
+        sharedPreferences: SharedPreferences,
+        isReCreateFlagSet: Boolean = false
+    ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
@@ -206,6 +212,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun showIssue(issueStub: IssueStub) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val issue = IssueRepository.getInstance().getIssue(issueStub)
+
+            // start download if not yet downloaded
+            if (!issue.isDownloaded()) {
+                applicationContext.let { applicationContext ->
+                    DownloadService.download(applicationContext, issue)
+                }
+            }
+
+            // set main issue
+            getMainDataController().setIssueOperations(issueStub)
+
+            issue.sectionList.first().let { firstSection ->
+                showInWebView(firstSection)
+            }
+        }
+    }
+
     @MainThread
     private fun tryShowExistingSection(section: Section): Boolean {
         val currentFragment =
@@ -216,7 +242,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return false
     }
 
-    override fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {
+    override fun showMainFragment(
+        fragment: Fragment,
+        @AnimRes enterAnimation: Int,
+        @AnimRes exitAnimation: Int
+    ) {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
