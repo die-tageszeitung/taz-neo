@@ -18,8 +18,14 @@ class ArchiveAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->
             fragment.getLifecycleOwner().lifecycleScope.launch {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName], dateFormat= DateFormat.LongWithoutWeekDay)
+                val momentView = viewHolder.itemView.findViewById<MomentView>(
+                        R.id.fragment_cover_flow_item
+                )
+                momentView.presenter.setIssue(
+                    issueStub,
+                    feedMap[issueStub.feedName],
+                    dateFormat= DateFormat.LongWithoutWeekDay
+                )
             }
         }
     }

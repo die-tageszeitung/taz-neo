@@ -173,7 +173,7 @@ abstract class HomePageAdapter(
                 true
             }
 
-            dateOnClickListener?.let{ dateOnClickListener ->
+            dateOnClickListenerFunction?.let{ dateOnClickListener ->
                 itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener(
                     View.OnClickListener { dateOnClickListener()})
             }
