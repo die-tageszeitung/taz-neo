@@ -7,6 +7,7 @@ import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,7 +52,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val notification = remoteMessage.notification
         if (notification != null) {
             log.info("Notification data title: ${notification.title} body: ${notification.body}")
-            notificationHelper.showNotification(notification)
+            showNotification(notification)
         }
     }
 
@@ -65,4 +66,17 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }
+
+    private fun showNotification(notification: RemoteMessage.Notification) {
+        notification.apply {
+            runIfNotNull(title, body) { title, body ->
+                notificationHelper.showNotification(
+                    title,
+                    body,
+                    applicationContext.getString(R.string.notification_fcm_channel_id)
+                )
+            }
+        }
+    }
+
 }
