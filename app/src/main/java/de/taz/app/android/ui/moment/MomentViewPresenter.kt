@@ -65,6 +65,21 @@ class MomentViewPresenter(
                     continuation.resume(generateBitmapForMoment(moment))
                 }
             } ?: continuation.resume(null)
+            val issueLiveData =
+                IssueRepository.getInstance().getIssue(issueStub).isDownloadedLiveData()
+            withContext(Dispatchers.Main) {
+                issueLiveData.observe(
+                    lifecycleOwner,
+                    Observer { isDownloaded ->
+                        if (isDownloaded) {
+                            getView()?.hideDownloadIcon()
+                        }
+                        else {
+                            getView()?.showDownloadIcon()
+                        }
+                    }
+                )
+            }
         }
     }
 

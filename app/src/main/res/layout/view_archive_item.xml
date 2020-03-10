@@ -50,7 +50,7 @@
             app:layout_constraintRight_toRightOf="parent"/>
 
         <ImageView
-            android:id="@+id/moment_is_downloaded"
+            android:id="@+id/fragment_archive_moment_is_downloaded"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
