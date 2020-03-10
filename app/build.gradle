@@ -149,17 +149,19 @@ dependencies {
 
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
+    implementation 'androidx.browser:browser:1.2.0'
+
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
-    implementation 'com.google.firebase:firebase-messaging:20.1.0'
+
     testImplementation "androidx.room:room-testing:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    implementation "androidx.work:work-runtime-ktx:2.3.2"
+    implementation "androidx.work:work-runtime-ktx:2.3.3"
 
     implementation 'com.squareup.okhttp3:okhttp:4.2.0'
     implementation 'org.conscrypt:conscrypt-android:2.2.1'
@@ -179,7 +181,7 @@ dependencies {
     implementation 'io.sentry:sentry-android:1.7.28'
     implementation 'org.slf4j:slf4j-nop:1.7.25'
     // testing
-    testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.2.0'
     testImplementation 'org.mockito:mockito-core:2.28.2'
@@ -209,10 +211,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
     // room
-    androidTestImplementation 'android.arch.persistence.room:testing:1.1.1'
+    androidTestImplementation 'androidx.room:room-testing:2.2.4'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.1.0'
+    googleImplementation 'com.google.firebase:firebase-messaging:20.1.2'
 }
 
 // Open all classes and their methods annotated with @Mockable if this is a test build

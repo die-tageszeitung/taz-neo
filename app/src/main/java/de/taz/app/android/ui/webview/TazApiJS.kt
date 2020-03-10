@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.JavascriptInterface
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -93,9 +95,12 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable>(val view: WebViewContract.View<
     }
 
     private fun openExternally(url: String) {
-        view.getWebView()?.context?.startActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        )
+        view.getWebView()?.context?.let {
+            val color = ContextCompat.getColor(it, R.color.colorAccent)
+            CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
+                launchUrl(it, Uri.parse(url))
+            }
+        }
     }
 
 }
