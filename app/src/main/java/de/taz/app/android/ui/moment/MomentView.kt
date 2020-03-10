@@ -35,23 +35,24 @@ class MomentView @JvmOverloads constructor(
         clearIssue()
 
         attrs?.let {
-            val ta = getContext().obtainStyledAttributes(attrs, R.styleable.MomentView)
-            val textColor = ta.getColor(
+            val styledAttributes =
+                getContext().obtainStyledAttributes(attrs, R.styleable.MomentView)
+            val textColor = styledAttributes.getColor(
                 R.styleable.MomentView_archive_item_text_color,
                 Color.WHITE
             )
-            val textAlign = ta.getInteger(
+            val textAlign = styledAttributes.getInteger(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
             )
-            val isMomentInDrawer =  ta.getBoolean(
+            val isMomentInDrawer = styledAttributes.getBoolean(
                 R.styleable.MomentView_in_drawer_sections,
                 false
             )
             if (isMomentInDrawer) {
                 hideDownloadIcon()
             }
-            ta.recycle()
+            styledAttributes.recycle()
 
             fragment_archive_moment_date?.apply {
                 setTextColor(textColor)
