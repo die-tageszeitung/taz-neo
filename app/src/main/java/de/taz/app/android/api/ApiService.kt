@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import java.net.SocketTimeoutException
@@ -27,15 +26,12 @@ class ApiService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
-    private val log by Log
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
-
 
     /**
      * function to connect subscriptionId to tazId

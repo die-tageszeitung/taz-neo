@@ -12,7 +12,6 @@ class FeedRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<FeedRepository, Context>(::FeedRepository)
 
-
     fun save(feeds: List<Feed>) {
         appDatabase.feedDao().insertOrReplace(feeds)
     }

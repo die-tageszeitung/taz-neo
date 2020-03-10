@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueMomentJoin
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 class MomentRepository private constructor(applicationContext: Context) :
@@ -14,7 +13,6 @@ class MomentRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val log by Log
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.runInTransaction {

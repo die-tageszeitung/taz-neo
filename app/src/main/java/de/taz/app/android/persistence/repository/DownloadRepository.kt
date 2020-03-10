@@ -7,7 +7,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 import kotlin.Exception
@@ -19,7 +18,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<DownloadRepository, Context>(::DownloadRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val log by Log
 
     @Throws(NotFoundException::class)
     fun save(download: Download) {

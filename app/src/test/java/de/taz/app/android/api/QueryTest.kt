@@ -1,15 +1,14 @@
 package de.taz.app.android.api
 
-import com.squareup.moshi.Moshi
 import de.taz.app.android.api.variables.AuthenticationVariables
+import de.taz.app.android.singletons.JsonHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class QueryTest {
 
-    private val moshi = Moshi.Builder().build()
-    private val jsonAdapter = moshi.adapter(QueryTestHelper::class.java)
+    private val jsonAdapter = JsonHelper.adapter<QueryTestHelper>()
 
     @Test
     fun withVariables() {

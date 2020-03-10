@@ -7,6 +7,8 @@ open class SingletonHolder<out T, in A>(creator: (A) -> T) {
     private var creator: ((A) -> T)? = creator
     @Volatile private var instance: T? = null
 
+    protected val log by Log
+
     fun getInstance(arg: A? = null): T {
         if (arg != null && instance == null)
             return createInstance(arg)

@@ -241,7 +241,7 @@ class SplashActivity : AppCompatActivity() {
         val tazApiAssetPath = "js/tazApi.js"
         val tazApiJsFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.js")
         if (!tazApiJsFile.exists() || !fileHelper.assetFileSameContentAsFile(
-               tazApiAssetPath,
+                tazApiAssetPath,
                 tazApiJsFile
             )
         ) {
@@ -273,9 +273,15 @@ class SplashActivity : AppCompatActivity() {
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             generateNotificationChannel(
-                R.string.channel_new_version,
-                R.string.channel_new_version_description,
+                R.string.notification_channel_new_version,
+                R.string.notification_channel_new_version_description,
                 CHANNEL_ID_NEW_VERSION,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            generateNotificationChannel(
+                R.string.notification_channel_fcm,
+                R.string.notification_channel_fcm_description,
+                R.string.notification_fcm_channel_id,
                 NotificationManager.IMPORTANCE_HIGH
             )
         }
@@ -286,11 +292,25 @@ class SplashActivity : AppCompatActivity() {
     private fun generateNotificationChannel(
         @StringRes channelName: Int,
         @StringRes channeldDescription: Int,
+        @StringRes channelId: Int,
+        importance: Int
+    ) {
+        generateNotificationChannel(
+            channelName,
+            channeldDescription,
+            getString(channelId),
+            importance)
+    }
+
+    @TargetApi(26)
+    private fun generateNotificationChannel(
+        @StringRes channelName: Int,
+        @StringRes channelDescription: Int,
         channelId: String,
         importance: Int
     ) {
         val name = getString(channelName)
-        val descriptionText = getString(channeldDescription)
+        val descriptionText = getString(channelDescription)
         val channel = NotificationChannel(channelId, name, importance).apply {
             description = descriptionText
         }
