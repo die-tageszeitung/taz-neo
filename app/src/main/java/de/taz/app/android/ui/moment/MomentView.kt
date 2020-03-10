@@ -46,7 +46,7 @@ class MomentView @JvmOverloads constructor(
                 View.TEXT_ALIGNMENT_CENTER
             )
             val isMomentInDrawer = styledAttributes.getBoolean(
-                R.styleable.MomentView_in_drawer_sections,
+                R.styleable.MomentView_do_not_show_download_icon,
                 false
             )
             if (isMomentInDrawer) {
