@@ -126,7 +126,9 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
                                     view.getLifecycleOwner(),
                                     Observer { isDownloadedOrDownloading ->
                                         if (!isDownloadedOrDownloading) {
-                                            DownloadService.download(it, resourceInfo)
+                                            launch(Dispatchers.IO) {
+                                                DownloadService.download(it, resourceInfo)
+                                            }
                                         }
                                     }
                                 )
@@ -136,7 +138,7 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
                                 Observer { isDownloaded ->
                                     if (isDownloaded) {
                                         isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
-                                        runBlocking(Dispatchers.IO) {
+                                        launch(Dispatchers.IO) {
                                             isDisplayableLiveData.postValue(displayable.isDownloaded())
                                         }
                                     }
