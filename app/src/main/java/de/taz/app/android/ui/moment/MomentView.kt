@@ -121,12 +121,10 @@ class MomentView @JvmOverloads constructor(
     }
 
     override fun showDownloadIcon() {
-        log.debug("show download icon")
         fragment_archive_moment_is_downloaded?.visibility = View.VISIBLE
     }
 
     override fun hideDownloadIcon() {
-        log.debug("hide download icon")
         fragment_archive_moment_is_downloaded?.visibility = View.INVISIBLE
     }
 
