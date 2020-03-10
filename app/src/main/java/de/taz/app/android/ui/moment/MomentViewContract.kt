@@ -10,7 +10,7 @@ import de.taz.app.android.singletons.DateFormat
 interface MomentViewContract {
 
     interface View: BaseContract.View {
-        fun displayIssue(momentImageBitmap: Bitmap, date: String?, dateFormat: DateFormat)
+        fun displayIssue(momentImageBitmap: Bitmap, date: String?, dateFormat: DateFormat = DateFormat.LongWithoutWeekDay)
         fun clearIssue()
         fun getContext(): Context
         fun setDimension(feed: Feed?)
