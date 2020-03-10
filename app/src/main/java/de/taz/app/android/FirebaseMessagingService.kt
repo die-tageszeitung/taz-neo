@@ -7,13 +7,12 @@ import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val REMOTE_MESSAGE_PERFOM_KEY = "perform"
-const val REMOTE_MESSAGE_PERFOM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
+const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
+const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
@@ -38,9 +37,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
             log.debug("Message data payload: " + remoteMessage.data)
-            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFOM_KEY)) {
-                when(remoteMessage.data[REMOTE_MESSAGE_PERFOM_KEY]) {
-                    REMOTE_MESSAGE_PERFOM_VALUE_SUBSCRIPTION_POLL -> {
+            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFORM_KEY)) {
+                when(remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
+                    REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                         log.info("notification triggered subscription poll")
                         authHelper.isPolling = true
                     }
