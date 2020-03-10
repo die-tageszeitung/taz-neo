@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import java.io.IOException
@@ -40,7 +39,6 @@ class QueryService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<QueryService, Context>(::QueryService)
 
-    private val log by Log
     private val fileHelper = FileHelper.getInstance(applicationContext)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -60,7 +58,6 @@ class QueryService private constructor(applicationContext: Context) {
             return null
         })
     }
-
 
     @Throws(IOException::class)
     private fun readGraphQlQueryFromAssets(fileName: String): String {

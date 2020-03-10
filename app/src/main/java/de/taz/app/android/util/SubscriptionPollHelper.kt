@@ -17,8 +17,6 @@ import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
 
-    private val log by Log
-
     companion object : SingletonHolder<SubscriptionPollHelper, Context>(::SubscriptionPollHelper)
 
     private val apiService = ApiService.getInstance(applicationContext)

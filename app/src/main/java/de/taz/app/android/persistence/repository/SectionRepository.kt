@@ -11,7 +11,6 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 
 @Mockable
@@ -22,7 +21,6 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val log by Log
 
     fun save(section: Section) {
         appDatabase.runInTransaction {

@@ -3,13 +3,11 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
-import com.squareup.moshi.Moshi
 import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.util.okHttpClient
@@ -29,9 +27,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val url: String = GRAPHQL_ENDPOINT,
     private val queryService: QueryService = QueryService.getInstance()
 ) {
-
-    private val log by Log
-
     private constructor(applicationContext: Context) : this(
         okHttpClient = okHttpClient(applicationContext),
         queryService = QueryService.getInstance(applicationContext)
