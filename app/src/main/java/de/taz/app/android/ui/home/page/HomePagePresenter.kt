@@ -55,25 +55,7 @@ abstract class HomePagePresenter<VIEW : HomePageContract.View>(
     }
 
     override suspend fun onItemSelected(issueStub: IssueStub) {
-        getView()?.apply {
-            withContext(Dispatchers.IO) {
-                val issue = issueRepository.getIssue(issueStub)
-
-                getView()?.getMainView()?.apply {
-                    // start download if not yet downloaded
-                    if (!issue.isDownloaded()) {
-                        downloadService.download(issue)
-                    }
-
-                    // set main issue
-                    getMainDataController().setIssueOperations(issueStub)
-
-                    issue.sectionList.first().let { firstSection ->
-                        showInWebView(firstSection)
-                    }
-                }
-            }
-        }
+        getView()?.getMainView()?.showIssue(issueStub)
     }
 
     override suspend fun getNextIssueMoments(date: String) {

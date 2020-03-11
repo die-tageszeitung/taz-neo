@@ -2,7 +2,9 @@ package de.taz.app.android.ui.main
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import kotlinx.coroutines.Dispatchers
@@ -47,4 +49,22 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
         return sectionDrawerFragment
     }
 
+
+    override fun showIssue(issueStub: IssueStub) {
+        getView()?.getLifecycleOwner()?.lifecycleScope?.launch(Dispatchers.IO) {
+            val issue = IssueRepository.getInstance().getIssue(issueStub)
+
+            // start download if not yet downloaded
+            if (!issue.isDownloaded()) {
+                DownloadService.getInstance().download(issue)
+            }
+
+            // set main issue
+            getView()?.getMainDataController()?.setIssueOperations(issueStub)
+
+            issue.sectionList.first().let { firstSection ->
+                getView()?.showInWebView(firstSection)
+            }
+        }
+    }
 }
