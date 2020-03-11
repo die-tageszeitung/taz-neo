@@ -16,6 +16,8 @@ import kotlinx.coroutines.launch
 
 const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
 const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
+const val REMOTE_MESSAGE_REFRESH_KEY = "refresh"
+const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
@@ -48,6 +50,18 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                         log.info("notification triggered subscription poll")
                         authHelper.isPolling = true
+                    }
+                }
+            }
+            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
+                when(remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
+                    REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
+                        log.info("notification triggered abo poll")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val issue = apiService.getLastIssues(1).first()
+                            issueRepository.save(issue)
+                            downloadService.scheduleDownload(issue)
+                        }
                     }
                 }
             }
