@@ -98,7 +98,7 @@ data class Issue(
     }
 
     fun delete() {
-        DownloadService.cancelAllDownloads()
+        DownloadService.getInstance().cancelAllDownloads()
         moment.deleteFiles()
         deleteFiles()
         IssueRepository.getInstance().delete(this)
