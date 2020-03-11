@@ -110,6 +110,15 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
     }
 
+    fun getStubLiveData(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): LiveData<IssueStub?> {
+        return appDatabase.issueDao()
+            .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
+    }
+
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
@@ -268,8 +277,28 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueOperations.status
     )
 
+    fun getIssueLiveData(issueOperations: IssueOperations) = getIssueLiveData(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status
+    )
+
     fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
         return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
+    }
+
+    fun getIssueLiveData(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): LiveData<Issue?> {
+        return Transformations.map(
+            getStubLiveData(
+                issueFeedName,
+                issueDate,
+                issueStatus
+            )
+        ) { runBlocking(Dispatchers.IO) { it?.let { getIssue(it) } } }
     }
 
     fun getIssue(issueStub: IssueStub): Issue {

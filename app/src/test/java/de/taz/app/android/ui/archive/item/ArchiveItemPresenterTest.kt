@@ -3,7 +3,7 @@ package de.taz.app.android.ui.archive.item
 import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.ui.moment.MomentViewContract
-import de.taz.app.android.ui.moment.MomentViewPresenter
+import de.taz.app.android.ui.moment.MomentViewModel
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -26,7 +26,7 @@ class ArchiveItemPresenterTest {
 
     private val lifecycleOwner = TestLifecycleOwner()
 
-    private lateinit var presenter: MomentViewPresenter
+    private lateinit var model: MomentViewModel
 
     @Before
     fun setUp() {
@@ -34,15 +34,15 @@ class ArchiveItemPresenterTest {
         MockitoAnnotations.initMocks(this)
 
         doReturn(lifecycleOwner).`when`(momentViewContractView).getLifecycleOwner()
-        presenter = MomentViewPresenter(issueRepository)
+        model = MomentViewModel(issueRepository)
 
-        presenter.attach(momentViewContractView)
-        presenter.onViewCreated(null)
+        model.attach(momentViewContractView)
+        model.onViewCreated(null)
     }
 
     @Test
     fun clearIssue() {
-        presenter.clearIssue()
+        model.clearIssue()
         verify(momentViewContractView, times(1)).clearIssue()
     }
 }
