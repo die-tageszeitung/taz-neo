@@ -6,10 +6,8 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.R
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.runIfNotNull
 
 
 class NotificationHelper private constructor(private val applicationContext: Context) {
@@ -17,18 +15,6 @@ class NotificationHelper private constructor(private val applicationContext: Con
     private val notificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
     companion object : SingletonHolder<NotificationHelper, Context>(::NotificationHelper)
-
-    fun showNotification(notification: RemoteMessage.Notification) {
-        notification.apply {
-            runIfNotNull(title, body) { title, body ->
-                showNotification(
-                    title,
-                    body,
-                    applicationContext.getString(R.string.notification_fcm_channel_id)
-                )
-            }
-        }
-    }
 
     fun showNotification(
         @StringRes title: Int,
