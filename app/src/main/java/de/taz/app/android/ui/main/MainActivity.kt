@@ -27,6 +27,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -75,7 +76,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
-    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
+    private fun setThemeAndReCreate(
+        sharedPreferences: SharedPreferences,
+        isReCreateFlagSet: Boolean = false
+    ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
@@ -206,6 +210,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun showIssue(issueStub: IssueStub) {
+        presenter.showIssue(issueStub)
+    }
+
     @MainThread
     private fun tryShowExistingSection(section: Section): Boolean {
         val currentFragment =
@@ -216,7 +224,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return false
     }
 
-    override fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {
+    override fun showMainFragment(
+        fragment: Fragment,
+        @AnimRes enterAnimation: Int,
+        @AnimRes exitAnimation: Int
+    ) {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()

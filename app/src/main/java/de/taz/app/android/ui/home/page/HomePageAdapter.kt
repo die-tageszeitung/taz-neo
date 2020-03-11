@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home.page
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +17,8 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
-import androidx.core.content.FileProvider.getUriForFile
 import de.taz.app.android.R
+import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 
 
 /**
@@ -152,24 +151,11 @@ abstract class HomePageAdapter(
 
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
-                fragment.getLifecycleOwner().lifecycleScope.launch {
-                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
-                        val imageAsFile = fileHelper.getFile(image)
-                        val applicationId = view.context.packageName
-                        val imageUriNew = getUriForFile(view.context, "${applicationId}.contentProvider", imageAsFile)
-
-                        log.debug("imageUriNew: $imageUriNew")
-                        log.debug("imageAsFile: $imageAsFile")
-                        val sendIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                            type = "image/jpg"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        view.context.startActivity(shareIntent)
+                getItem(adapterPosition)?.let { item ->
+                    fragment.getMainView()?.let { mainView ->
+                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
-
                 true
             }
 

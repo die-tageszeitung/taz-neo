@@ -9,6 +9,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
@@ -173,7 +174,12 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
     override fun showBottomSheet(fragment: Fragment) {
-        val addBottomSheet = AddBottomSheetDialog.newInstance(fragment)
+        val addBottomSheet =
+            if (fragment is BottomSheetDialogFragment) {
+                fragment
+            } else {
+                AddBottomSheetDialog.newInstance(fragment)
+            }
         addBottomSheet.show(childFragmentManager, null)
     }
 }
