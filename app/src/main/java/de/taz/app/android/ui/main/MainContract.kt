@@ -14,6 +14,10 @@ import de.taz.app.android.base.BaseContract
 interface MainContract : BaseContract {
     interface View : BaseContract.View {
 
+        fun openDrawer()
+
+        fun openDrawer(gravity: Int)
+
         fun closeDrawer()
 
         fun getApplicationContext(): Context
@@ -42,6 +46,7 @@ interface MainContract : BaseContract {
 
         fun unlockEndNavigationView()
 
+        fun recreate()
     }
 
     interface Presenter : BaseContract.Presenter {

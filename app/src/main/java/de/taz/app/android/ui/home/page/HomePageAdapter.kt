@@ -71,7 +71,7 @@ abstract class HomePageAdapter(
 
     open fun setIssueStubs(issues: List<IssueStub>) {
         if (allIssueStubList != issues) {
-            log.debug("settings issueStubs to a list of ${issues.size} issues")
+            log.debug("setting issueStubs to a list of ${issues.size} issues")
             allIssueStubList = issues
             filterAndSetIssues()
         }

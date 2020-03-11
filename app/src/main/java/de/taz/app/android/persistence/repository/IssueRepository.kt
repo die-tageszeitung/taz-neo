@@ -271,8 +271,22 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     }
 
+    fun getIssue(issueOperations: IssueOperations) = getIssue(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status
+    )
+
+    fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
+       return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
+    }
+
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
+    }
+
+    fun delete(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+        getIssue(issueFeedName, issueDate, issueStatus)?.let { delete(it) }
     }
 
     fun delete(issue: Issue) {

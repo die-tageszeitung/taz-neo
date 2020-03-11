@@ -97,6 +97,13 @@ data class Issue(
         IssueRepository.getInstance().resetDownloadDate(this)
     }
 
+    fun delete() {
+        DownloadService.getInstance().cancelAllDownloads()
+        moment.deleteFiles()
+        deleteFiles()
+        IssueRepository.getInstance().delete(this)
+    }
+
 }
 @JsonClass(generateAdapter = false)
 enum class IssueStatus {
