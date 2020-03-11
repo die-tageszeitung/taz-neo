@@ -170,22 +170,28 @@ class WorkManagerDownloadWorker(
 }
 
 class ScheduleIssueDownloadWorkManagerWorker(
-    private val appContext: Context,
+    applicationContext: Context,
     workerParameters: WorkerParameters
-) : CoroutineWorker(appContext, workerParameters) {
+) : CoroutineWorker(applicationContext, workerParameters) {
 
     override suspend fun doWork(): Result = coroutineScope {
+
+        val downloadService = DownloadService.getInstance(applicationContext)
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+
         inputData.getString(DATA_ISSUE_FEEDNAME)?.let { feedName ->
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService.getInstance(appContext).getIssueByFeedAndDate(
+                        ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
                             feedName,
                             date
                         )?.let { issue ->
-                            IssueRepository.getInstance(appContext).save(issue)
-                            IssueRepository.getInstance(appContext).setDownloadDate(issue, Date())
-                            DownloadService.scheduleDownload(appContext, issue)
+                            issueRepository.apply {
+                                save(issue)
+                                setDownloadDate(issue, Date())
+                            }
+                            downloadService.scheduleDownload(issue)
                             Result.success()
                         } ?: Result.failure()
                     } catch (e: Exception) {

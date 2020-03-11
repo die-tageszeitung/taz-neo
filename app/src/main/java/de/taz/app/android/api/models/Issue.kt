@@ -66,16 +66,16 @@ data class Issue(
         return tag
     }
 
-    suspend fun downloadMoment(applicationContext: Context) {
+    suspend fun downloadMoment(applicationContext: Context? = null) {
         withContext(Dispatchers.IO) {
-            DownloadService.download(applicationContext, moment)
+            DownloadService.getInstance(applicationContext).download(moment)
         }
     }
 
-    suspend fun downloadPages(applicationContext: Context) {
+    suspend fun downloadPages(applicationContext: Context? = null) {
         withContext(Dispatchers.IO) {
             pageList.forEach {
-                DownloadService.download(applicationContext, it)
+                DownloadService.getInstance(applicationContext).download(it)
             }
         }
     }

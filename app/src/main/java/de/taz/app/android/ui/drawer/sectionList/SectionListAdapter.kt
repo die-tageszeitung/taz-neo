@@ -25,6 +25,7 @@ class SectionListAdapter(
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
+    private val downloadService = DownloadService.getInstance()
     private val fileHelper = FileHelper.getInstance()
     private val feedRepository = FeedRepository.getInstance()
     private val issueRepository = IssueRepository.getInstance()
@@ -141,7 +142,7 @@ class SectionListAdapter(
                         withContext(Dispatchers.Main) {
                             closeDrawer()
                         }
-                        DownloadService.download(applicationContext, section.getIssue())
+                        downloadService.download(section.getIssue())
                     }
                 }
             }

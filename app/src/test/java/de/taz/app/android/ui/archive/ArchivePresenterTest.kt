@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.testIssues
 import de.taz.app.android.ui.home.page.archive.ArchiveContract
@@ -50,6 +51,8 @@ class ArchivePresenterTest {
     lateinit var issueRepository: IssueRepository
     @Mock
     lateinit var dateHelper: DateHelper
+    @Mock
+    lateinit var downloadService: DownloadService
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
@@ -63,9 +66,10 @@ class ArchivePresenterTest {
 
         apiService.simpleDateFormat = SimpleDateFormat()
         presenter = ArchivePresenter(
-            apiService,
-            issueRepository,
-            dateHelper
+            apiService = apiService,
+            downloadService = downloadService,
+            issueRepository = issueRepository,
+            dateHelper = dateHelper
         )
         presenter.attach(archiveContractView)
 

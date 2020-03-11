@@ -5,14 +5,20 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ArticleWebViewPresenter(
     apiService: ApiService = ApiService.getInstance(),
+    downloadService: DownloadService = DownloadService.getInstance(),
     resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
-) : WebViewPresenter<Article>(apiService, resourceInfoRepository) {
+) : WebViewPresenter<Article>(
+    apiService = apiService,
+    downloadService = downloadService,
+    resourceInfoRepository = resourceInfoRepository
+) {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         val article = viewModel?.getWebViewDisplayable()
