@@ -45,6 +45,8 @@ interface MainContract : BaseContract {
     }
 
     interface Presenter : BaseContract.Presenter {
+        fun showIssue(issueStub: IssueStub)
+
         fun setDrawerIssue()
     }
 
