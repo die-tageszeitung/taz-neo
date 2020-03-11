@@ -139,7 +139,6 @@ class DownloadService private constructor(val applicationContext: Context){
 
     /**
      * enqueue [Download]s with [WorkManager]
-     * @param applicationContext - [Context] of the app
      * @param downloads - downloads to enqueue
      * @param tag - tag for the downloads (can be used to cancel downloads)
      */

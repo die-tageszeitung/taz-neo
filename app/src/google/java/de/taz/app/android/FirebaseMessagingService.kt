@@ -46,17 +46,17 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         if (remoteMessage.data.isNotEmpty()) {
             log.debug("Message data payload: " + remoteMessage.data)
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFORM_KEY)) {
-                when(remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
+                when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
                     REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
-                        log.info("notification triggered subscription poll")
+                        log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
                         authHelper.isPolling = true
                     }
                 }
             }
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
-                when(remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
+                when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                     REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
-                        log.info("notification triggered abo poll")
+                        log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
                         CoroutineScope(Dispatchers.IO).launch {
                             val issue = apiService.getLastIssues(1).first()
                             issueRepository.save(issue)
