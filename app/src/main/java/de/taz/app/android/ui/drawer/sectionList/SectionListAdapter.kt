@@ -12,6 +12,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
@@ -155,7 +156,7 @@ class SectionListAdapter(
                     fragment.view?.findViewById<MomentView>(
                         R.id.fragment_drawer_sections_moment
                     )?.apply {
-                        displayIssue(bitmap, null)
+                        displayIssue(bitmap, null, dateFormat=DateFormat.LongWithoutWeekDay)
                         visibility = View.VISIBLE
                     }
                 }

@@ -8,6 +8,12 @@ import de.taz.app.android.util.SingletonHolder
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+enum class DateFormat {
+    LongWithWeekDay,
+    LongWithoutWeekDay
+}
+
 @Mockable
 class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
@@ -62,5 +68,4 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
             ).toLowerCase(Locale.getDefault())
         }
     }
-
 }

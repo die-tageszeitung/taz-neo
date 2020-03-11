@@ -2,7 +2,9 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +14,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
@@ -25,10 +26,11 @@ import de.taz.app.android.R
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
  *  [ViewHolder] is used to recycle views
  */
-open class HomePageAdapter(
+abstract class HomePageAdapter(
     private val fragment: HomePageContract.View,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: HomePageContract.Presenter
+    private val presenter: HomePageContract.Presenter,
+    private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()
@@ -41,7 +43,7 @@ open class HomePageAdapter(
 
     private val log by Log
 
-    private val feedMap
+    protected val feedMap
         get() = feedList.associateBy { it.name }
 
     fun getItem(position: Int): IssueStub? {
@@ -134,16 +136,6 @@ open class HomePageAdapter(
         )
     }
 
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launch {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
-            }
-        }
-    }
-
     /**
      * ViewHolder for this Adapter
      */
@@ -179,6 +171,11 @@ open class HomePageAdapter(
                 }
 
                 true
+            }
+
+            dateOnClickListenerFunction?.let{ dateOnClickListener ->
+                itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener(
+                    View.OnClickListener { dateOnClickListener()})
             }
         }
     }

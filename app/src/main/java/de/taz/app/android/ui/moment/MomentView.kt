@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
@@ -24,7 +25,6 @@ class MomentView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr), MomentViewContract.View {
     val presenter = MomentViewPresenter()
-
     private val log by Log
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
@@ -70,10 +70,10 @@ class MomentView @JvmOverloads constructor(
         showProgressBar()
     }
 
-    override fun displayIssue(momentImageBitmap: Bitmap, date: String?) {
+    override fun displayIssue(momentImageBitmap: Bitmap, date: String?, dateFormat: DateFormat) {
         hideProgressBar()
         showBitmap(momentImageBitmap)
-        setDate(date)
+        setDate(date, dateFormat)
     }
 
     override fun getLifecycleOwner(): LifecycleOwner {
@@ -88,9 +88,14 @@ class MomentView @JvmOverloads constructor(
         fragment_archive_moment_date.text = ""
     }
 
-    private fun setDate(date: String?) {
+    private fun setDate(date: String?, dateFormat: DateFormat) {
         if (date !== null) {
-            fragment_archive_moment_date.text = dateHelper.stringToLongLocalizedString(date)
+            when (dateFormat) {
+                DateFormat.LongWithWeekDay ->
+                    fragment_archive_moment_date.text = dateHelper.stringToLongLocalizedString(date)
+                DateFormat.LongWithoutWeekDay ->
+                    fragment_archive_moment_date.text = dateHelper.stringToMediumLocalizedString(date)
+            }
         }
         else {
             fragment_archive_moment_date.visibility = View.GONE
