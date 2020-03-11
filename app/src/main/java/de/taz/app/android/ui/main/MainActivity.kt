@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        log.debug("in onCreate. isDarktheme()? ${isDarkTheme()}")
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
