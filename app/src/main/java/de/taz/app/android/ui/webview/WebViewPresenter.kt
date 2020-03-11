@@ -29,6 +29,7 @@ const val TAZ_API_JS = "ANDROIDAPI"
 
 abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private val apiService: ApiService = ApiService.getInstance(),
+    private val downloadService: DownloadService = DownloadService.getInstance(),
     private val resourceInfoRepository: ResourceInfoRepository = ResourceInfoRepository.getInstance()
 ) : BasePresenter<WebViewContract.View<DISPLAYABLE>, WebViewDataController<DISPLAYABLE>>(
     WebViewDataController<DISPLAYABLE>().javaClass
@@ -88,63 +89,61 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
 
         resourceInfo?.let {
             getView()?.let { view ->
-                view.getMainView()?.getApplicationContext()?.let {
+                val isDownloadingLiveData = displayable.isDownloadedOrDownloadingLiveData()
+                val isDownloadedLiveData = displayable.isDownloadedLiveData()
 
-                    val isDownloadingLiveData = displayable.isDownloadedOrDownloadingLiveData()
-                    val isDownloadedLiveData = displayable.isDownloadedLiveData()
+                withContext(Dispatchers.Main) {
+                    isDownloadingLiveData.observe(
+                        view.getLifecycleOwner(),
+                        Observer { isDownloadedOrDownloading ->
+                            if (!isDownloadedOrDownloading) {
+                                runBlocking(Dispatchers.IO) {
+                                    downloadService.download(displayable)
+                                }
+                            }
+                        }
+                    )
+                    isDownloadedLiveData.observe(
+                        view.getLifecycleOwner(),
+                        Observer { isDownloaded ->
+                            if (isDownloaded) {
+                                isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
+                                runBlocking(Dispatchers.IO) {
+                                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+                                }
+                            }
+                        }
+                    )
+
+                    val resourceInfoIsDownloadingLiveData =
+                        resourceInfo.isDownloadedOrDownloadingLiveData()
+                    val resourceInfoIsDownloadedLiveData =
+                        resourceInfo.isDownloadedLiveData()
+
                     withContext(Dispatchers.Main) {
-                        isDownloadingLiveData.observe(
-                            view.getLifecycleOwner(),
-                            Observer { isDownloadedOrDownloading ->
-                                if (!isDownloadedOrDownloading) {
-                                    runBlocking(Dispatchers.IO) {
-                                        DownloadService.download(it, displayable)
-                                    }
-                                }
-                            }
-                        )
-                        isDownloadedLiveData.observe(
-                            view.getLifecycleOwner(),
-                            Observer { isDownloaded ->
-                                if (isDownloaded) {
-                                    isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
-                                    runBlocking(Dispatchers.IO) {
-                                        isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
-                                    }
-                                }
-                            }
-                        )
-
-                        val resourceInfoIsDownloadingLiveData =
-                            resourceInfo.isDownloadedOrDownloadingLiveData()
-                        val resourceInfoIsDownloadedLiveData =
-                            resourceInfo.isDownloadedLiveData()
-
-                        withContext(Dispatchers.Main) {
-                            if (!isResourceInfoUpToDate) {
-                                resourceInfoIsDownloadingLiveData.observe(
-                                    view.getLifecycleOwner(),
-                                    Observer { isDownloadedOrDownloading ->
-                                        if (!isDownloadedOrDownloading) {
-                                            launch(Dispatchers.IO) {
-                                                DownloadService.download(it, resourceInfo)
-                                            }
-                                        }
-                                    }
-                                )
-                            }
-                            resourceInfoIsDownloadedLiveData.observe(
+                        if (!isResourceInfoUpToDate) {
+                            resourceInfoIsDownloadingLiveData.observe(
                                 view.getLifecycleOwner(),
-                                Observer { isDownloaded ->
-                                    if (isDownloaded) {
-                                        isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
+                                Observer { isDownloadedOrDownloading ->
+                                    if (!isDownloadedOrDownloading) {
                                         launch(Dispatchers.IO) {
-                                            isDisplayableLiveData.postValue(displayable.isDownloaded())
+                                            downloadService.download(resourceInfo)
                                         }
                                     }
                                 }
                             )
                         }
+                        resourceInfoIsDownloadedLiveData.observe(
+                            view.getLifecycleOwner(),
+                            Observer { isDownloaded ->
+                                if (isDownloaded) {
+                                    isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
+                                    launch(Dispatchers.IO) {
+                                        isDisplayableLiveData.postValue(displayable.isDownloaded())
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }

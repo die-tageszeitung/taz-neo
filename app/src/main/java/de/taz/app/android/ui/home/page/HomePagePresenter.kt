@@ -18,8 +18,9 @@ const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
 abstract class HomePagePresenter<VIEW : HomePageContract.View>(
     private val apiService: ApiService = ApiService.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val dateHelper: DateHelper = DateHelper.getInstance()
+    private val dateHelper: DateHelper = DateHelper.getInstance(),
+    private val downloadService: DownloadService = DownloadService.getInstance(),
+    private val issueRepository: IssueRepository = IssueRepository.getInstance()
 ) : BasePresenter<VIEW, HomePageDataController>(
     HomePageDataController::class.java
 ), HomePageContract.Presenter {
@@ -61,9 +62,7 @@ abstract class HomePagePresenter<VIEW : HomePageContract.View>(
                 getView()?.getMainView()?.apply {
                     // start download if not yet downloaded
                     if (!issue.isDownloaded()) {
-                        getApplicationContext().let { applicationContext ->
-                            DownloadService.download(applicationContext, issue)
-                        }
+                        downloadService.download(issue)
                     }
 
                     // set main issue
