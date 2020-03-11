@@ -19,8 +19,8 @@ interface CacheableDownload {
         getAllFiles().forEach { it.deleteFile() }
     }
 
-    fun download(applicationContext: Context) {
-        DownloadService.download(applicationContext, this)
+    fun download(applicationContext: Context? = null) {
+        DownloadService.getInstance(applicationContext).download( this)
     }
 
     fun isDownloadedLiveData(): LiveData<Boolean> {

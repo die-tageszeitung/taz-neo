@@ -3,7 +3,9 @@ package de.taz.app.android
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
@@ -19,14 +21,17 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private lateinit var authHelper: AuthHelper
-    private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var apiService: ApiService
+    private lateinit var authHelper: AuthHelper
+    private lateinit var downloadService: DownloadService
+    private lateinit var firebaseHelper: FirebaseHelper
+    private lateinit var issueRepository: IssueRepository
     private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate() {
         super.onCreate()
         authHelper = AuthHelper.getInstance(applicationContext)
+        downloadService = DownloadService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         apiService = ApiService.getInstance(applicationContext)
         notificationHelper = NotificationHelper.getInstance(applicationContext)
