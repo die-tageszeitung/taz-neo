@@ -3,7 +3,9 @@ package de.taz.app.android
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
@@ -14,19 +16,24 @@ import kotlinx.coroutines.launch
 
 const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
 const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
+const val REMOTE_MESSAGE_REFRESH_KEY = "refresh"
+const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private lateinit var authHelper: AuthHelper
-    private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var apiService: ApiService
+    private lateinit var authHelper: AuthHelper
+    private lateinit var downloadService: DownloadService
+    private lateinit var firebaseHelper: FirebaseHelper
+    private lateinit var issueRepository: IssueRepository
     private lateinit var notificationHelper: NotificationHelper
 
     override fun onCreate() {
         super.onCreate()
         authHelper = AuthHelper.getInstance(applicationContext)
+        downloadService = DownloadService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         apiService = ApiService.getInstance(applicationContext)
         notificationHelper = NotificationHelper.getInstance(applicationContext)
@@ -39,10 +46,22 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         if (remoteMessage.data.isNotEmpty()) {
             log.debug("Message data payload: " + remoteMessage.data)
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFORM_KEY)) {
-                when(remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
+                when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
                     REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
-                        log.info("notification triggered subscription poll")
+                        log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
                         authHelper.isPolling = true
+                    }
+                }
+            }
+            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
+                when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
+                    REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
+                        log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val issue = apiService.getLastIssues(1).first()
+                            issueRepository.save(issue)
+                            downloadService.scheduleDownload(issue)
+                        }
                     }
                 }
             }

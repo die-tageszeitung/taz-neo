@@ -16,6 +16,7 @@ import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
+import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
@@ -106,6 +107,7 @@ class SplashActivity : AppCompatActivity() {
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
+            DownloadService.createInstance(it)
             DownloadedIssueHelper.createInstance(it)
 
             SubscriptionPollHelper.createInstance(it)
@@ -220,8 +222,10 @@ class SplashActivity : AppCompatActivity() {
                         local?.let { resourceInfoRepository.delete(local) }
 
                         // ensure resources are downloaded
-                        DownloadService.scheduleDownload(applicationContext, fromServer)
-                        DownloadService.download(applicationContext, fromServer)
+                        DownloadService.getInstance(applicationContext).apply {
+                            scheduleDownload(fromServer)
+                            download(fromServer)
+                        }
                         local?.let { log.debug("Initialized ResourceInfo") }
                             ?: log.debug("Updated ResourceInfo")
                     }
