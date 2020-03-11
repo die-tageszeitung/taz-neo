@@ -12,6 +12,7 @@
             <flag name="view_start" value="5" />
             <flag name="view_end" value="6" />
         </attr>
+        <attr name="do_not_show_download_icon" format="boolean" />
 
     </declare-styleable>
 </resources>

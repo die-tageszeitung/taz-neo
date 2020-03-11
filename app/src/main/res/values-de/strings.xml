@@ -87,6 +87,7 @@
     <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
     <string name="settings_category_support">Support</string>
     <string name="settings_support_report_bug">Fehler melden</string>
+    <string name="settings_download_issue">Ausgabe herunterladen</string>
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Fromular um das fehlerhafte Verhalten zu beschreiben.</string>
