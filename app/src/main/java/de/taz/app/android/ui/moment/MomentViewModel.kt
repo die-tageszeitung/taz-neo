@@ -4,46 +4,62 @@ import androidx.lifecycle.*
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class MomentViewModel(
-    val issueRepository: IssueRepository = IssueRepository.getInstance()
+    val issueRepository: IssueRepository = IssueRepository.getInstance(),
+    val momentRepository: MomentRepository = MomentRepository.getInstance()
 ) : ViewModel() {
     private val log by Log
 
     private var currentIssueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
 
     val issueLiveData: LiveData<Issue?> =
-        Transformations.switchMap(
-            Transformations.distinctUntilChanged(
-                currentIssueOperationsLiveData
-            )
-        ) { issueOperations ->
-            runBlocking(Dispatchers.IO) {
+        currentIssueOperationsLiveData.switchMap { issueOperations ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 issueOperations?.let {
-                    issueRepository.getIssueLiveData(issueOperations)
-                } ?: MutableLiveData<Issue?>(null)
+                    emitSource(
+                        issueRepository.getIssueLiveData(issueOperations)
+                    )
+                } ?: emit(null)
             }
         }
 
     val issue: Issue?
         get() = issueLiveData.value
 
-    val isDownloadedLiveData: LiveData<Boolean> =
-        Transformations.switchMap(Transformations.distinctUntilChanged(issueLiveData)) { issue ->
-            issue?.isDownloadedLiveData() ?: MutableLiveData(false)
+    val isDownloadedLiveData: LiveData<Boolean> = issueLiveData.switchMap { issue ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            issue?.let {
+                emitSource(issue.isDownloadedLiveData())
+            } ?: emit(false)
         }
+    }
 
     val isMomentDownloadedLiveData: LiveData<Boolean> =
-        Transformations.switchMap(issueLiveData) { issue ->
-            issue?.moment?.isDownloadedLiveData() ?: MutableLiveData(false)
+        currentIssueOperationsLiveData.switchMap { issueOperations ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                issueOperations?.let {
+                    emitSource(
+                        momentRepository.get(issueOperations)?.isDownloadedLiveData()
+                            ?: MutableLiveData(false)
+                    )
+                } ?: emit(false)
+            }
         }
 
     val isMomentDownloadingLiveData: LiveData<Boolean> =
-        Transformations.switchMap(issueLiveData) { issue ->
-            issue?.moment?.isDownloadedOrDownloadingLiveData() ?: MutableLiveData(false)
+        currentIssueOperationsLiveData.switchMap { issueOperations ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                issueOperations?.let {
+                    emitSource(
+                        momentRepository.get(issueOperations)?.isDownloadedOrDownloadingLiveData()
+                            ?: MutableLiveData(false)
+                    )
+                } ?: emit(false)
+            }
         }
 
     fun setIssueOperations(issueStub: IssueOperations) {

@@ -2,8 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
@@ -291,16 +290,14 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): LiveData<Issue?> {
-        return Transformations.map(
-            getStubLiveData(
-                issueFeedName,
-                issueDate,
-                issueStatus
-            )
-        ) { runBlocking(Dispatchers.IO) { it?.let { getIssue(it) } } }
-    }
-
+    ): LiveData<Issue?> =
+        getStubLiveData(issueFeedName, issueDate, issueStatus).switchMap { issueStub ->
+            liveData(Dispatchers.IO) {
+                issueStub?.let {
+                    emit(getIssue(issueStub))
+                } ?: emit(null)
+            }
+        }
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
     }
