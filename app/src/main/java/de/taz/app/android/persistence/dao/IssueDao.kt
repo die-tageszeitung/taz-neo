@@ -19,7 +19,7 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     abstract fun getLatestLiveData(): LiveData<IssueStub?>
 
     @Query("SELECT * FROM Issue ORDER BY date DESC")
-    abstract fun getAllLiveData(): LiveData<List<IssueStub>?>
+    abstract fun getAllLiveData(): LiveData<List<IssueStub>>
 
     @Query("SELECT * FROM Issue WHERE Issue.status != \"public\" ORDER BY date DESC")
     abstract fun getAllLiveDataExceptPublic(): LiveData<List<IssueStub>?>

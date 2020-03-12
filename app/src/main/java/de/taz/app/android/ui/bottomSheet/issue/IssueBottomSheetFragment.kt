@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
@@ -106,10 +107,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 }
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    IssueRepository.getInstance().getIssue(issueStub).delete()
-                    withContext(Dispatchers.Main){
-                        // TODO remove after beta so taz moment will be retained
-                        weakActivityReference?.get()?.recreate()
+                    val issueRepository = IssueRepository.getInstance()
+                    issueRepository.getIssue(issueStub).delete()
+                    ApiService.getInstance().getIssueByFeedAndDate(
+                        issueStub.feedName, issueStub.date
+                    )?.let { issueRepository.save(it) }
+                    withContext(Dispatchers.Main) {
                         dismiss()
                     }
                 }

@@ -97,11 +97,11 @@ data class Issue(
         IssueRepository.getInstance().resetDownloadDate(this)
     }
 
-    fun delete() {
+    suspend fun delete() = withContext(Dispatchers.Default) {
         DownloadService.getInstance().cancelAllDownloads()
         moment.deleteFiles()
         deleteFiles()
-        IssueRepository.getInstance().delete(this)
+        IssueRepository.getInstance().delete(this@Issue)
     }
 
 }
