@@ -24,7 +24,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_archive_item.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 
@@ -37,7 +36,7 @@ class MomentView @JvmOverloads constructor(
     private val log by Log
 
     private val viewModel = MomentViewModel()
-    private var dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
+    private var dateFormat: DateFormat? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
     private var lifecycleOwner: LifecycleOwner? = null
 
@@ -80,37 +79,37 @@ class MomentView @JvmOverloads constructor(
         lifecycleOwner = context as? LifecycleOwner ?: throw LifecycleOwnerNotFoundException()
 
         lifecycleOwner?.let { lifecycleOwner ->
-            viewModel.issueLiveData.observeDistinct(lifecycleOwner) { issue ->
-
-                issue?.apply {
-                    momentIsDownloadingObserver = viewModel.isMomentDownloadingLiveData
-                        .observeDistinct(lifecycleOwner) { isDownloading ->
-                            if (!isDownloading) moment.download()
-                        }
-
-                    momentIsDownloadedObserver = viewModel.isMomentDownloadedLiveData
-                            .observeDistinct(lifecycleOwner) { isDownloaded ->
-                                if (isDownloaded) {
-                                    showMoment()
-                                }
-                            }
-
+            momentIsDownloadingObserver = viewModel.isMomentDownloadingLiveData
+                .observeDistinct(lifecycleOwner) { isDownloading ->
+                    if (!isDownloading) {
+                        lifecycleOwner.lifecycleScope.launch { viewModel.moment?.download() }
+                    }
                 }
-            }
+
+            momentIsDownloadedObserver = viewModel.isMomentDownloadedLiveData
+                .observeDistinct(lifecycleOwner) { isDownloaded ->
+                    if (isDownloaded) {
+                        showMoment()
+                    }
+                }
+
         }
     }
 
-    private fun clear() {
+    fun clear() {
         showDownloadIconObserver?.let {
-            viewModel.issue?.moment?.isDownloadedLiveData()?.removeObserver(it)
+            viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
+            showDownloadIconObserver = null
         }
         momentIsDownloadingObserver?.let {
             viewModel.isMomentDownloadingLiveData.removeObserver(it)
+            momentIsDownloadingObserver = null
         }
         momentIsDownloadedObserver?.let {
             viewModel.isMomentDownloadedLiveData.removeObserver(it)
+            momentIsDownloadedObserver = null
         }
-
+        viewModel.setIssueOperations(null)
         clearDate()
         hideBitmap()
         hideDownloadIcon()
@@ -118,31 +117,28 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showMoment() {
-        viewModel.issue?.let {
-            setDate(it.date)
-            showMomentImage(it.moment)
-            if (!shouldNotShowDownloadIcon) {
-                showDownloadIconObserver = viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
+        setDate(viewModel.date)
+        viewModel.moment?.let { showMomentImage(it) }
+        if (!shouldNotShowDownloadIcon) {
+            showDownloadIconObserver =
+                viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
                     if (isDownloaded) {
                         hideDownloadIcon()
                     } else {
                         showDownloadIcon()
                     }
                 }
-            }
         }
     }
 
     fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
         this.clear()
-        this.dateFormat = dateFormat ?: this.dateFormat
+        this.dateFormat = dateFormat
         viewModel.setIssueOperations(issueOperations)
 
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
             val feed = issueOperations.getFeed()
-            withContext(Dispatchers.Main) {
-                setDimension(feed)
-            }
+            setDimension(feed)
         }
     }
 
@@ -158,6 +154,8 @@ class MomentView @JvmOverloads constructor(
                 DateFormat.LongWithoutWeekDay ->
                     fragment_archive_moment_date.text =
                         dateHelper.stringToMediumLocalizedString(date)
+                null ->
+                    fragment_archive_moment_date.visibility = View.GONE
             }
         } else {
             fragment_archive_moment_date.visibility = View.GONE
@@ -167,19 +165,17 @@ class MomentView @JvmOverloads constructor(
     private fun hideBitmap() {
         fragment_archive_moment_image.apply {
             visibility = View.INVISIBLE
-            setImageDrawable(null)
+            setImageResource(android.R.color.transparent)
         }
     }
 
     private fun showMomentImage(moment: Moment) {
-        lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
-            generateBitmapForMoment(moment)?.let {
-                showBitmap(it)
-            }
+        generateBitmapForMoment(moment)?.let {
+            showBitmap(it)
         }
     }
 
-    private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
+    private fun showBitmap(bitmap: Bitmap) {
         fragment_archive_moment_image.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
@@ -196,11 +192,11 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun setDimension(dimensionString: String) {
-        log.info("setting dimension to $dimensionString")
-        fragment_archive_item_centered.apply {
-            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
-            requestLayout()
-            forceLayout()
+        lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
+            log.info("setting dimension to $dimensionString")
+            fragment_archive_item_centered.apply {
+                (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
+            }
         }
 
     }
@@ -214,19 +210,20 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun setDimension(feed: Feed?) {
-        setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
+        val dimensionString = feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
+        setDimension(dimensionString)
     }
 
-    private suspend fun generateBitmapForMoment(moment: Moment): Bitmap? = withContext(Dispatchers.IO) {
+    private fun generateBitmapForMoment(moment: Moment): Bitmap? {
         moment.getMomentImage().let {
             val file = FileHelper.getInstance().getFile(it)
             if (file.exists()) {
-                return@withContext BitmapFactory.decodeFile(file.absolutePath)
+                return BitmapFactory.decodeFile(file.absolutePath)
             } else {
                 log.error("imgFile of $moment does not exist")
             }
         }
-        return@withContext null
+        return null
     }
 }
 
