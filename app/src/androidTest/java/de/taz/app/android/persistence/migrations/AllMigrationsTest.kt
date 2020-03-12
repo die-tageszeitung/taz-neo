@@ -18,7 +18,8 @@ class AllMigrationsTest {
     // Array of all migrations
     private val allMigrations = arrayOf(
         Migration1to2,
-        Migration2to3
+        Migration2to3,
+        Migration3to4
     )
 
     @get:Rule
