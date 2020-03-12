@@ -10,7 +10,7 @@ import de.taz.app.android.api.models.IssueStub
  */
 class HomePageIssueStubsObserver(
     private val homePagePresenter: HomePageContract.Presenter
-) : Observer<List<IssueStub>?> {
+) : Observer<List<IssueStub>> {
 
     override fun onChanged(issueStubs: List<IssueStub>?) {
         homePagePresenter.getView()?.apply {

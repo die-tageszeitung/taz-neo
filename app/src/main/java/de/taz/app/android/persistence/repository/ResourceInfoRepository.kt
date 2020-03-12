@@ -17,25 +17,23 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(resourceInfo: ResourceInfo) {
-        appDatabase.runInTransaction {
-            appDatabase.resourceInfoDao().insertOrReplace(
-                ResourceInfoStub(
-                    resourceInfo.resourceVersion,
-                    resourceInfo.resourceBaseUrl,
-                    resourceInfo.resourceZip
-                )
+        appDatabase.resourceInfoDao().insertOrReplace(
+            ResourceInfoStub(
+                resourceInfo.resourceVersion,
+                resourceInfo.resourceBaseUrl,
+                resourceInfo.resourceZip
             )
-            // save file resourceList
-            fileEntryRepository.save(
-                resourceInfo.resourceList
-            )
-            // save relation to files
-            appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
-                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
-                }
-            )
-        }
+        )
+        // save file resourceList
+        fileEntryRepository.save(
+            resourceInfo.resourceList
+        )
+        // save relation to files
+        appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
+            resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
+            }
+        )
     }
 
     @Throws(NotFoundException::class)
@@ -82,14 +80,12 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(resourceInfo: ResourceInfo) {
-        appDatabase.runInTransaction {
-            appDatabase.resourceInfoFileEntryJoinDao().delete(
-                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
-                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
-                }
-            )
+        appDatabase.resourceInfoFileEntryJoinDao().delete(
+            resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
+            }
+        )
 
-            appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
-        }
+        appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
 }

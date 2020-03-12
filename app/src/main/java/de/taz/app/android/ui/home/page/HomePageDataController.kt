@@ -18,18 +18,11 @@ open class HomePageDataController : BaseDataController(), HomePageContract.DataC
     /**
      * issues to be shown
      */
-    private val issueLiveData: LiveData<List<IssueStub>> =
+    override val issueStubsLiveData: LiveData<List<IssueStub>> =
         IssueRepository.getInstance().getAllStubsLiveData()
 
     override fun getIssueStubs(): List<IssueStub>? {
-        return issueLiveData.value
-    }
-
-    override fun observeIssueStubs(
-        lifeCycleOwner: LifecycleOwner,
-        observer: Observer<List<IssueStub>?>
-    ) {
-        issueLiveData.observe(lifeCycleOwner, observer)
+        return issueStubsLiveData.value
     }
 
     /**

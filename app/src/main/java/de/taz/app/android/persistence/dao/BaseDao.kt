@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import android.os.AsyncTask
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

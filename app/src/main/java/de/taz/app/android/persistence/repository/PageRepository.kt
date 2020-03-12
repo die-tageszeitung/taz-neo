@@ -13,25 +13,21 @@ class PageRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(page: Page) {
-        appDatabase.runInTransaction {
-            appDatabase.pageDao().insertOrReplace(
-                PageStub(
-                    page.pagePdf.name,
-                    page.title,
-                    page.pagina,
-                    page.type,
-                    page.frameList
-                )
+        appDatabase.pageDao().insertOrReplace(
+            PageStub(
+                page.pagePdf.name,
+                page.title,
+                page.pagina,
+                page.type,
+                page.frameList
             )
-            fileEntryRepository.save(page.pagePdf)
-        }
+        )
+        fileEntryRepository.save(page.pagePdf)
     }
 
     fun save(pages: List<Page>) {
-        appDatabase.runInTransaction {
-            pages.forEach { page ->
-                save(page)
-            }
+        pages.forEach { page ->
+            save(page)
         }
     }
 
@@ -64,18 +60,16 @@ class PageRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(page: Page) {
-        appDatabase.runInTransaction {
-            appDatabase.pageDao().delete(
-                PageStub(
-                    page.pagePdf.name,
-                    page.title,
-                    page.pagina,
-                    page.type,
-                    page.frameList
-                )
+        appDatabase.pageDao().delete(
+            PageStub(
+                page.pagePdf.name,
+                page.title,
+                page.pagina,
+                page.type,
+                page.frameList
             )
-            fileEntryRepository.delete(page.pagePdf)
-        }
+        )
+        fileEntryRepository.delete(page.pagePdf)
     }
 
     fun delete(pages: List<Page>) {

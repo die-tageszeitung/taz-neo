@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -40,14 +41,14 @@ interface HomePageContract {
 
     interface DataController {
 
+        val issueStubsLiveData: LiveData<List<IssueStub>>
+
         fun getIssueStubs(): List<IssueStub>?
 
         fun observeAuthStatus(
             lifeCycleOwner: LifecycleOwner,
             observationCallback: (AuthStatus) -> (Unit)
         )
-
-        fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
 
         fun observeInactiveFeedNames(
             lifeCycleOwner: LifecycleOwner,

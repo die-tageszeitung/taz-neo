@@ -32,58 +32,55 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun save(issue: Issue) {
-        appDatabase.runInTransaction {
+        appDatabase.issueDao().insertOrReplace(
+            IssueStub(issue)
+        )
 
-            appDatabase.issueDao().insertOrReplace(
-                IssueStub(issue)
-            )
+        // save pages
+        pageRepository.save(issue.pageList)
 
-            // save pages
-            pageRepository.save(issue.pageList)
-
-            // save page relation
-            appDatabase.issuePageJoinDao().insertOrReplace(
-                issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        page.pagePdf.name,
-                        index
-                    )
-                }
-            )
-
-            // save moment
-            momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
-
-            // save imprint
-            issue.imprint?.let { imprint ->
-                articleRepository.save(imprint)
-                appDatabase.issueImprintJoinDao().insertOrReplace(
-                    IssueImprintJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        imprint.articleHtml.name
-                    )
+        // save page relation
+        appDatabase.issuePageJoinDao().insertOrReplace(
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    page.pagePdf.name,
+                    index
                 )
             }
+        )
 
-            // save sections
-            issue.sectionList.let { sectionList ->
-                sectionList.forEach { sectionRepository.save(it) }
-                appDatabase.issueSectionJoinDao()
-                    .insertOrReplace(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(
-                            issue.feedName,
-                            issue.date,
-                            issue.status,
-                            it.sectionHtml.name,
-                            index
-                        )
-                    })
-            }
+        // save moment
+        momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
+
+        // save imprint
+        issue.imprint?.let { imprint ->
+            articleRepository.save(imprint)
+            appDatabase.issueImprintJoinDao().insertOrReplace(
+                IssueImprintJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    imprint.articleHtml.name
+                )
+            )
+        }
+
+        // save sections
+        issue.sectionList.let { sectionList ->
+            sectionList.forEach { sectionRepository.save(it) }
+            appDatabase.issueSectionJoinDao()
+                .insertOrReplace(sectionList.mapIndexed { index, it ->
+                    IssueSectionJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        it.sectionHtml.name,
+                        index
+                    )
+                })
         }
     }
 
@@ -211,10 +208,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun setDownloadDate(issueStub: IssueStub, dateDownload: Date) {
-        appDatabase.runInTransaction {
-            update(issueStub.copy(dateDownload = dateDownload))
-        }
-
+        update(issueStub.copy(dateDownload = dateDownload))
     }
 
     fun resetDownloadDate(issue: Issue) {
@@ -222,9 +216,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun resetDownloadDate(issueStub: IssueStub) {
-        appDatabase.runInTransaction {
-            update(issueStub.copy(dateDownload = null))
-        }
+        update(issueStub.copy(dateDownload = null))
     }
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
@@ -278,7 +270,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     )
 
     fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
-       return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
+        return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
     }
 
     fun getIssue(issueStub: IssueStub): Issue {
@@ -290,60 +282,58 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        appDatabase.runInTransaction {
-            // delete moment
-            momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
+        // delete moment
+        momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
 
-            // delete imprint
-            issue.imprint?.let { imprint ->
-                appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        imprint.articleHtml.name
-                    )
+        // delete imprint
+        issue.imprint?.let { imprint ->
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    imprint.articleHtml.name
                 )
-                try {
-                    articleRepository.delete(imprint)
-                } catch (e: SQLiteConstraintException) {
-                    // do not delete used by another issue
-                }
+            )
+            try {
+                articleRepository.delete(imprint)
+            } catch (e: SQLiteConstraintException) {
+                // do not delete used by another issue
             }
-            // delete page relation
-            appDatabase.issuePageJoinDao().delete(
-                issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(
+        }
+        // delete page relation
+        appDatabase.issuePageJoinDao().delete(
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    page.pagePdf.name,
+                    index
+                )
+            }
+        )
+        // delete pages
+        pageRepository.delete(issue.pageList)
+
+        // delete sections
+        issue.sectionList.let { sectionList ->
+            appDatabase.issueSectionJoinDao()
+                .delete(sectionList.mapIndexed { index, it ->
+                    IssueSectionJoin(
                         issue.feedName,
                         issue.date,
                         issue.status,
-                        page.pagePdf.name,
+                        it.sectionHtml.name,
                         index
                     )
-                }
-            )
-            // delete pages
-            pageRepository.delete(issue.pageList)
-
-            // delete sections
-            issue.sectionList.let { sectionList ->
-                appDatabase.issueSectionJoinDao()
-                    .delete(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(
-                            issue.feedName,
-                            issue.date,
-                            issue.status,
-                            it.sectionHtml.name,
-                            index
-                        )
-                    })
-                sectionList.forEach { sectionRepository.delete(it) }
-            }
-
-            appDatabase.issueDao().delete(
-                IssueStub(issue)
-            )
+                })
+            sectionList.forEach { sectionRepository.delete(it) }
         }
+
+        appDatabase.issueDao().delete(
+            IssueStub(issue)
+        )
     }
 
     fun deletePublicIssues() {
