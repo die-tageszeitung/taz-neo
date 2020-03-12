@@ -102,7 +102,7 @@ class MomentView @JvmOverloads constructor(
 
     private fun clear() {
         showDownloadIconObserver?.let {
-            viewModel.issue?.isDownloadedLiveData()?.removeObserver(it)
+            viewModel.issue?.moment?.isDownloadedLiveData()?.removeObserver(it)
         }
         momentIsDownloadingObserver?.let {
             viewModel.isMomentDownloadingLiveData.removeObserver(it)
