@@ -41,13 +41,13 @@ abstract class HomePagePresenter<VIEW : HomePageContract.View>(
                         )
                     )
 
-                    observeFeeds(it) { feeds ->
+                    feedsLiveData.observeDistinct(it) { feeds ->
                         view.setFeeds(feeds)
                     }
-                    observeInactiveFeedNames(it) { feedNames ->
+                    inactiveFeedNameLiveData.observeDistinct(it) { feedNames ->
                         view.setInactiveFeedNames(feedNames)
                     }
-                    observeAuthStatus(it) { authStatus ->
+                    authStatusLiveData.observeDistinct(it) { authStatus ->
                         view.setAuthStatus(authStatus)
                     }
                 }
