@@ -49,7 +49,6 @@ const val DATABASE_NAME = "db"
     FrameListTypeConverter::class,
     IssueStatusTypeConverter::class,
     IssueDateDownloadTypeConverter::class,
-    NavButtonTypeConverter::class,
     PageTypeTypeConverter::class,
     StorageTypeConverter::class,
     StringListTypeConverter::class,
