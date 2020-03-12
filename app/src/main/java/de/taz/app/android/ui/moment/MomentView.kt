@@ -24,6 +24,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_archive_item.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 
@@ -117,17 +118,19 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showMoment() {
-        setDate(viewModel.date)
-        viewModel.moment?.let { showMomentImage(it) }
-        if (!shouldNotShowDownloadIcon) {
-            showDownloadIconObserver =
-                viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
-                    if (isDownloaded) {
-                        hideDownloadIcon()
-                    } else {
-                        showDownloadIcon()
+        lifecycleOwner?.lifecycleScope?.launch {
+            setDate(viewModel.date)
+            viewModel.moment?.let { showMomentImage(it) }
+            if (!shouldNotShowDownloadIcon) {
+                showDownloadIconObserver =
+                    viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
+                        if (isDownloaded) {
+                            hideDownloadIcon()
+                        } else {
+                            showDownloadIcon()
+                        }
                     }
-                }
+            }
         }
     }
 
@@ -169,13 +172,13 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
-    private fun showMomentImage(moment: Moment) {
+    private suspend fun showMomentImage(moment: Moment) = withContext(Dispatchers.IO) {
         generateBitmapForMoment(moment)?.let {
             showBitmap(it)
         }
     }
 
-    private fun showBitmap(bitmap: Bitmap) {
+    private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
         fragment_archive_moment_image.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
@@ -196,6 +199,8 @@ class MomentView @JvmOverloads constructor(
             log.info("setting dimension to $dimensionString")
             fragment_archive_item_centered.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
+                requestLayout()
+                forceLayout()
             }
         }
 
