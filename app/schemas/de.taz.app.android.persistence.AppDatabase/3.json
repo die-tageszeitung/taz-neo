@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "338d29c5973a814fbab9b1e53c8aea41",
+    "identityHash": "ca4eef44c6d691e2f0f0a1529809acbf",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -455,7 +455,7 @@
       },
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `zipName` TEXT, `zipPdfName` TEXT, `fileList` TEXT NOT NULL, `fileListPdf` TEXT NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `zipName` TEXT, `zipPdfName` TEXT, `navButton` TEXT, `fileList` TEXT NOT NULL, `fileListPdf` TEXT NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
         "fields": [
           {
             "fieldPath": "feedName",
@@ -502,6 +502,12 @@
           {
             "fieldPath": "zipPdfName",
             "columnName": "zipPdfName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "navButton",
+            "columnName": "navButton",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -1180,7 +1186,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '338d29c5973a814fbab9b1e53c8aea41')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ca4eef44c6d691e2f0f0a1529809acbf')"
     ]
   }
 }
