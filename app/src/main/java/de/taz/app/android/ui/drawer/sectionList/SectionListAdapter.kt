@@ -11,7 +11,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.FileHelper
 import kotlinx.coroutines.*
@@ -107,9 +107,10 @@ class SectionListAdapter(
                     fragment.view?.findViewById<MomentView>(
                         R.id.fragment_drawer_sections_moment
                     )?.apply {
-                        displayIssue(issueOperations, dateFormat=DateFormat.LongWithoutWeekDay)
+                        displayIssue(issueOperations)
                         visibility = View.VISIBLE
                     }
+                    setMomentDate(issueOperations)
                 }
             }
         }
@@ -146,6 +147,15 @@ class SectionListAdapter(
                     }
                 }
             }
+        }
+    }
+
+    private fun setMomentDate(issueOperations: IssueOperations) {
+        val dateHelper = DateHelper.getInstance()
+        fragment.view?.findViewById<TextView>(
+            R.id.fragment_drawer_sections_date
+        )?.apply {
+            text = dateHelper.stringToMediumLocalizedString(issueOperations.date)
         }
     }
 

@@ -2,8 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
@@ -11,7 +10,6 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 
 @Mockable
@@ -89,9 +87,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getLiveData(articleName: String): LiveData<Article?> {
-        return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
-            runBlocking(Dispatchers.IO) {
-                input?.let { articleStubToArticle(input) }
+        return appDatabase.articleDao().getLiveData(articleName).switchMap { input ->
+            liveData(Dispatchers.IO) {
+                emit(input?.let { articleStubToArticle(input) })
             }
         }
     }
@@ -191,19 +189,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
     }
 
-    fun getBookmarkedArticles(): LiveData<List<Article>> {
-        return Transformations.map(appDatabase.articleDao().getBookmarkedArticlesLiveData()) {
-            runBlocking(Dispatchers.IO) {
-                it.map { articleStub -> articleStubToArticle(articleStub) }
+    fun getBookmarkedArticles(): LiveData<List<Article>> =
+        appDatabase.articleDao().getBookmarkedArticlesLiveData().switchMap { input ->
+            liveData(Dispatchers.IO) {
+                emit(input.map { articleStub -> articleStubToArticle(articleStub) })
             }
         }
-    }
+
 
     fun getBookmarkedArticlesList(): List<Article> {
-        return runBlocking(Dispatchers.IO) {
-            appDatabase.articleDao().getBookmarkedArticlesList().map {
-                articleStubToArticle(it)
-            }
+        return appDatabase.articleDao().getBookmarkedArticlesList().map {
+            articleStubToArticle(it)
         }
     }
 

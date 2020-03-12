@@ -2,7 +2,8 @@ package de.taz.app.android.ui.moment
 
 import androidx.lifecycle.*
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.Moment
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.util.Log
@@ -15,54 +16,61 @@ class MomentViewModel(
     private val log by Log
 
     private var currentIssueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
-
-    val issueLiveData: LiveData<Issue?> =
+    val issueStubLiveData: LiveData<IssueStub?> =
         currentIssueOperationsLiveData.switchMap { issueOperations ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 issueOperations?.let {
                     emitSource(
-                        issueRepository.getIssueLiveData(issueOperations)
+                        issueRepository.getStubLiveData(
+                            issueOperations.feedName,
+                            issueOperations.date,
+                            issueOperations.status
+                        )
                     )
                 } ?: emit(null)
             }
         }
 
-    val issue: Issue?
-        get() = issueLiveData.value
-
-    val isDownloadedLiveData: LiveData<Boolean> = issueLiveData.switchMap { issue ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            issue?.let {
-                emitSource(issue.isDownloadedLiveData())
-            } ?: emit(false)
-        }
+    val isDownloadedLiveData: LiveData<Boolean> = issueStubLiveData.map { issueStub ->
+        issueStub?.dateDownload != null
     }
 
-    val isMomentDownloadedLiveData: LiveData<Boolean> =
+    val date: String?
+        get() = currentIssueOperationsLiveData.value?.date
+
+    val momentLiveData: LiveData<Moment?> =
         currentIssueOperationsLiveData.switchMap { issueOperations ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                issueOperations?.let {
+                emit(issueOperations?.let { momentRepository.get(issueOperations) })
+            }
+        }
+
+    val moment: Moment?
+        get() = momentLiveData.value
+
+    val isMomentDownloadedLiveData: LiveData<Boolean> =
+        momentLiveData.switchMap { moment ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                moment?.let {
                     emitSource(
-                        momentRepository.get(issueOperations)?.isDownloadedLiveData()
-                            ?: MutableLiveData(false)
+                        moment.isDownloadedLiveData()
                     )
                 } ?: emit(false)
             }
         }
 
     val isMomentDownloadingLiveData: LiveData<Boolean> =
-        currentIssueOperationsLiveData.switchMap { issueOperations ->
+        momentLiveData.switchMap { moment ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                issueOperations?.let {
+                moment?.let {
                     emitSource(
-                        momentRepository.get(issueOperations)?.isDownloadedOrDownloadingLiveData()
-                            ?: MutableLiveData(false)
+                        moment.isDownloadedOrDownloadingLiveData()
                     )
                 } ?: emit(false)
             }
         }
 
-    fun setIssueOperations(issueStub: IssueOperations) {
+    fun setIssueOperations(issueStub: IssueOperations?) {
         currentIssueOperationsLiveData.postValue(issueStub)
     }
 
