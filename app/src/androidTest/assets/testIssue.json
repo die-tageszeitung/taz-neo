@@ -41,8 +41,6 @@
               "baseUrl": "https://example.com/2019/2019-09-25",
               "status": "regular",
               "minResourceVersion": 6,
-              "zipName": "content.pdf.taz.zip",
-              "zipPdfName": null,
               "imprint": {
                 "articleHtml": {
                   "name": "art03445036.html",
@@ -4951,8 +4949,6 @@
               "baseUrl": "https://example.com/2019/2019-09-24",
               "status": "regular",
               "minResourceVersion": 6,
-              "zipName": "content.pdf.taz.zip",
-              "zipPdfName": null,
               "imprint": {
                 "articleHtml": {
                   "name": "art03444774.html",
