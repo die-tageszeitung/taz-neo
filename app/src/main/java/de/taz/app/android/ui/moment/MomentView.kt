@@ -56,16 +56,15 @@ class MomentView @JvmOverloads constructor(
             val textAlign = styledAttributes.getInteger(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
-            ).let {
-                fragment_archive_moment_date.textAlignment = it
-            }
-
-            shouldNotShowDownloadIcon = styledAttributes.getBoolean(
+            )
+            val isMomentInDrawer = styledAttributes.getBoolean(
                 R.styleable.MomentView_do_not_show_download_icon,
                 false
             )
+            if (isMomentInDrawer) {
+                hideDownloadIcon()
+            }
             styledAttributes.recycle()
-
 
             fragment_archive_moment_date?.apply {
                 textAlignment = textAlign
