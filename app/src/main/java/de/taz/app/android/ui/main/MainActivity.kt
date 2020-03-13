@@ -100,6 +100,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+
+        // if "text_night_mode" is not set in shared preferences -> set it now
+        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
+            SharedPreferenceBooleanLiveData(
+                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
+            ).postValue(isDarkTheme())
+        }
+
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
+        }
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
@@ -134,20 +147,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 }
             }
         })
-
-        tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
-        // if "text_night_mode" is not set in shared preferences -> set it now
-        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
-            SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
-            ).postValue(isDarkTheme())
-        }
-
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
-        }
     }
 
     override fun onResume() {

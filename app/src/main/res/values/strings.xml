@@ -153,7 +153,7 @@
     <string name="fragment_login_missing_credentials_header">To use the new app you need to login with your email and a self-elected password.</string>
     <string name="fragment_login_missing_credentials_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
     <string name="login_forgot_password">Did you forget your password?</string>
-    <string name="login_forgot_password_button">Click here.</string>
+    <string name="login_forgot_password_button">Click here</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
     <string name="fragment_login_missing_credentials_login">Login</string>
 
