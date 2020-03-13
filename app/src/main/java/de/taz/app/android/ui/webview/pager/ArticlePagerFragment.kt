@@ -106,7 +106,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
     private fun getCurrentFragment(): ArticleWebViewFragment? {
         return childFragmentManager.fragments.firstOrNull {
             (it as? ArticleWebViewFragment)?.let { fragment ->
-                return@firstOrNull fragment.article == articlePagerAdapter?.getCurrentArticle()
+                return@firstOrNull fragment.viewModel.displayableKey == articlePagerAdapter?.getCurrentArticle()?.articleFileName
             }
             return@firstOrNull false
         } as? ArticleWebViewFragment
