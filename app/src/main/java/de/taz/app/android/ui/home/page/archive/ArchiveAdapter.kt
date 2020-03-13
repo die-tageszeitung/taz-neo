@@ -21,9 +21,8 @@ class ArchiveAdapter(
                 val momentView = viewHolder.itemView.findViewById<MomentView>(
                         R.id.fragment_cover_flow_item
                 )
-                momentView.presenter.setIssue(
+                momentView.displayIssue(
                     issueStub,
-                    feedMap[issueStub.feedName],
                     dateFormat= DateFormat.LongWithoutWeekDay
                 )
             }

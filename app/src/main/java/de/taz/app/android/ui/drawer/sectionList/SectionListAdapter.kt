@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.drawer.sectionList
 
-import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +11,8 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.FileHelper
 import kotlinx.coroutines.*
 import java.util.*
@@ -27,7 +25,6 @@ class SectionListAdapter(
 
     private val downloadService = DownloadService.getInstance()
     private val fileHelper = FileHelper.getInstance()
-    private val feedRepository = FeedRepository.getInstance()
     private val issueRepository = IssueRepository.getInstance()
     private val momentRepository = MomentRepository.getInstance()
     private val sectionRepository = SectionRepository.getInstance()
@@ -105,11 +102,15 @@ class SectionListAdapter(
     inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
         override fun onChanged(isDownloaded: Boolean?) {
             if (isDownloaded == true) {
-                issueOperations?.let { issue ->
+                issueOperations?.let { issueOperations ->
                     moment?.isDownloadedLiveData()?.removeObserver(this)
-                    setMomentRatio(issue)
-                    setMomentImage()
-                    setMomentDate(issue)
+                    fragment.view?.findViewById<MomentView>(
+                        R.id.fragment_drawer_sections_moment
+                    )?.apply {
+                        displayIssue(issueOperations)
+                        visibility = View.VISIBLE
+                    }
+                    setMomentDate(issueOperations)
                 }
             }
         }
@@ -131,7 +132,7 @@ class SectionListAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        val sectionStub = sectionList.get(position)
+        val sectionStub = sectionList[position]
         sectionStub.let {
             holder.textView.text = sectionStub.title
             holder.textView.setOnClickListener {
@@ -149,39 +150,12 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentImage() {
-        moment?.getMomentImage()?.let {
-            val file = fileHelper.getFile(it)
-            if (file.exists()) {
-                BitmapFactory.decodeFile(file.absolutePath)?.let { bitmap ->
-                    fragment.view?.findViewById<MomentView>(
-                        R.id.fragment_drawer_sections_moment
-                    )?.apply {
-                        displayIssue(bitmap, null, dateFormat=DateFormat.LongWithoutWeekDay)
-                        visibility = View.VISIBLE
-                    }
-                }
-            }
-        }
-    }
-
-    private fun setMomentRatio(issue: IssueOperations) {
-        fragment.lifecycleScope.launch(Dispatchers.IO) {
-            val feed = feedRepository.get(issue.feedName)
-            withContext(Dispatchers.Main) {
-                fragment.view?.findViewById<MomentView>(
-                    R.id.fragment_drawer_sections_moment
-                )?.setDimension(feed)
-            }
-        }
-    }
-
-    private fun setMomentDate(issue: IssueOperations) {
+    private fun setMomentDate(issueOperations: IssueOperations) {
         val dateHelper = DateHelper.getInstance()
         fragment.view?.findViewById<TextView>(
             R.id.fragment_drawer_sections_date
         )?.apply {
-            text = dateHelper.stringToMediumLocalizedString(issue.date)
+            text = dateHelper.stringToMediumLocalizedString(issueOperations.date)
         }
     }
 
