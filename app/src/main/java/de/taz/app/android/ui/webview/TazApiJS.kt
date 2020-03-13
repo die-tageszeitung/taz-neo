@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
 
+const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
 class TazApiJS constructor(private val applicationContext: Context) {
