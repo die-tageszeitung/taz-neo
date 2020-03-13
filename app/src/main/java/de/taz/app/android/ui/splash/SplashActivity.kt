@@ -16,7 +16,6 @@ import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
@@ -179,13 +178,6 @@ class SplashActivity : AppCompatActivity() {
                 log.warn("Initializing AppInfo failed")
             }
         }
-    }
-
-    private fun showInStoreIntent(): Intent {
-        return Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("market://details?id=${applicationContext.packageName}")
-        )
     }
 
     private fun downloadFromServerIntent(): Intent {
