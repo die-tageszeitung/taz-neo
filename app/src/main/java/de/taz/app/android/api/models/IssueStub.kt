@@ -18,17 +18,12 @@ data class IssueStub(
     override val baseUrl: String,
     override val status: IssueStatus,
     val minResourceVersion: Int,
-    val zipName: String? = null,
-    val zipPdfName: String? = null,
-    val fileList: List<String>,
-    val fileListPdf: List<String> = emptyList(),
     override val dateDownload: Date? = null
 ): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
-        issue.minResourceVersion, issue.zipName, issue.zipPdfName,
-        issue.fileList, issue.fileListPdf, issue.dateDownload
+        issue.minResourceVersion, issue.dateDownload
     )
 
     suspend fun getIssue(): Issue {

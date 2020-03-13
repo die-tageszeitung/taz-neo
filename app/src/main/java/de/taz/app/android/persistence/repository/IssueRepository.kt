@@ -258,11 +258,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.baseUrl,
             issueStub.status,
             issueStub.minResourceVersion,
-            issueStub.zipName,
-            issueStub.zipPdfName,
             imprint,
-            issueStub.fileList,
-            issueStub.fileListPdf,
             sections,
             pageList,
             issueStub.dateDownload
