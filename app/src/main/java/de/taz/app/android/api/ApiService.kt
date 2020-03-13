@@ -16,6 +16,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.NoSuchElementException
 
 /**
  * Service class to get Models from GraphQl
@@ -162,7 +163,11 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getIssueByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate")
         return transformExceptions({
-            getIssuesByFeedAndDate(feedName, issueDate, 1).first()
+            try {
+                getIssuesByFeedAndDate(feedName, issueDate, 1).first()
+            } catch (e: NoSuchElementException) {
+                null
+            }
         }, tag)
     }
 
