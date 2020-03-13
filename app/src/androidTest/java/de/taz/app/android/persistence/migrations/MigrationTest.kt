@@ -17,8 +17,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import org.junit.Assert
+import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
@@ -29,9 +32,9 @@ class MigrationTest {
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            AppDatabase::class.java.canonicalName,
-            FrameworkSQLiteOpenHelperFactory()
+        InstrumentationRegistry.getInstrumentation(),
+        AppDatabase::class.java.canonicalName,
+        FrameworkSQLiteOpenHelperFactory()
     )
 
     @Before
@@ -44,9 +47,10 @@ class MigrationTest {
             ApplicationProvider.getApplicationContext<Context>(),
             AppDatabase::class.java, testDb
         ).addMigrations(
-                Migration1to2,
-                Migration2to3
-            ).build()
+            Migration1to2,
+            Migration2to3,
+            Migration3to4
+        ).build()
         // close the database and release any stream resources when the test finishes
         helper.closeWhenFinished(database)
         return database
@@ -97,5 +101,52 @@ class MigrationTest {
         val fromDB = getMigratedRoomDatabase()!!.sectionDao().get(sectionFileName)
         Assert.assertNotNull(fromDB)
         Assert.assertEquals(fromDB, SectionStub(sectionFileName, issueDate, title, type, null))
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate3To4() {
+        val feedName: String = "rss"
+        val date: String = "1869-06-27"
+        val key: String? = "key"
+        val baseUrl: String = "https://example.com"
+        val status: IssueStatus = IssueStatus.demo
+        val minResourceVersion: Int = 23
+        val zipName: String? = "zipName"
+        val zipPdfName: String? = "zipPdf"
+        val fileList: List<String> = emptyList()
+        val fileListPdf: List<String> = emptyList()
+        val dateDownload: Date? = null
+        val navButton: String = "nabutton dummy"
+        helper.createDatabase(testDb, 3).apply {
+            execSQL(
+                """INSERT INTO Issue (feedName, date, key, baseUrl, status, minResourceVersion, navButton, zipName, zipPdfName, fileList, fileListPdf, dateDownload)
+                   VALUES ('$feedName', '$date', '$key', '$baseUrl', '$status',
+                    $minResourceVersion, '$navButton', '$zipName', '$zipPdfName', '$fileList',
+                     '$fileListPdf', '$dateDownload'
+                    )""".trimMargin()
+            )
+            close()
+        }
+
+        helper.runMigrationsAndValidate(testDb, 3, true, Migration3to4)
+
+        val fromDB: IssueStub? =
+            getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
+        Assert.assertNotNull(fromDB)
+        val issueStub = IssueStub(
+                feedName,
+                date,
+                key,
+                baseUrl,
+                status,
+                minResourceVersion,
+                zipName,
+                zipPdfName,
+                fileList,
+                fileListPdf,
+                dateDownload
+            )
+        Assert.assertEquals(fromDB, issueStub)
     }
 }

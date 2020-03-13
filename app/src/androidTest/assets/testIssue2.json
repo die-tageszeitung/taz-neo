@@ -61,10 +61,6 @@
                 "imageList": null,
                 "authorList": null
               },
-              "navButton": {
-                "name": "navButton.taz.normal.pngasdf",
-                "alpha": 0.9
-              },
               "fileList": [
                 "Media.968545.norm.jpgasdf",
                 "section.22256.htmlasdf",
@@ -4967,10 +4963,6 @@
                 "audioFile": null,
                 "imageList": null,
                 "authorList": null
-              },
-              "navButton": {
-                "name": "navButton.taz.normal.pngasdf",
-                "alpha": 0.9
               },
               "fileList": [
                 "Media.968375.norm.jpgasdf",
