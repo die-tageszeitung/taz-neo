@@ -15,13 +15,18 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.lang.Exception
 import java.net.URLDecoder
 
-class AppWebViewClient() :
-    WebViewClient() {
+interface AppWebViewClientCallBack {
+    fun onLinkClicked(displayable: WebViewDisplayable)
+    fun onPageFinishedLoading()
+}
+
+class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
@@ -75,7 +80,7 @@ class AppWebViewClient() :
                             url.split("/").last()
                         )
                         section?.let {
-                            //onLinkClicked(section)
+                            callBack.onLinkClicked(section)
                         }
                     }
                     true
@@ -86,7 +91,7 @@ class AppWebViewClient() :
                             url.split("/").last()
                         )
                         article?.let {
-                           // presenter.onLinkClicked(article)
+                           callBack.onLinkClicked(article)
                         }
                     }
                     true
@@ -198,7 +203,6 @@ class AppWebViewClient() :
 
     override fun onPageFinished(webview: WebView, url: String) {
         super.onPageFinished(webview, url)
-
-        //presenter.onPageFinishedLoading()
+        callBack.onPageFinishedLoading()
     }
 }

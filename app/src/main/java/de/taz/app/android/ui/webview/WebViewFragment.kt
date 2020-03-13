@@ -35,7 +35,7 @@ import kotlinx.coroutines.withContext
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     @LayoutRes layoutResourceId: Int
-) : ViewModelBaseMainFragment(layoutResourceId), AppWebViewCallback {
+) : ViewModelBaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
 
     private val log by Log
 
@@ -63,7 +63,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        configureWebView()
         viewModel.displayable?.let { displayable ->
             lifecycleScope.launch(Dispatchers.IO) {
                 setHeader(displayable)
@@ -75,7 +75,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
         web_view?.apply {
-            webViewClient = AppWebViewClient()
+            webViewClient = AppWebViewClient(this@WebViewFragment)
             webChromeClient = WebChromeClient()
             settings.javaScriptEnabled = true
             addJavascriptInterface(TazApiJS(context.applicationContext), TAZ_API_JS)
@@ -86,14 +86,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen?.visibility = View.GONE
-            web_view?.visibility = View.VISIBLE
+            loading_screen.animate().setDuration(300).alpha(0f).start()
         }
     }
 
     fun loadUrl(url: String) {
         activity?.runOnUiThread {
-            view?.findViewById<AppWebView>(R.id.web_view)?.loadUrl(url)
+            web_view.loadUrl(url)
         }
     }
 
@@ -200,11 +199,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     }
 
 
-    fun onLinkClicked(webViewDisplayable: WebViewDisplayable) {
-        getMainView()?.showInWebView(webViewDisplayable)
+    override fun onLinkClicked(displayable: WebViewDisplayable) {
+        getMainView()?.showInWebView(displayable)
     }
 
-    fun onPageFinishedLoading() {
+    override fun onPageFinishedLoading() {
         hideLoadingScreen()
     }
 
