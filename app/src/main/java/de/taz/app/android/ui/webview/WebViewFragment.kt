@@ -86,7 +86,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen.animate().setDuration(300).alpha(0f).start()
+            loading_screen?.animate()?.setDuration(300)?.alpha(0f)?.start()
         }
     }
 
