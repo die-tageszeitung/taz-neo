@@ -1,113 +1,184 @@
 package de.taz.app.android.ui.moment
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_archive_item.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 
 class MomentView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr), MomentViewContract.View {
-    val presenter = MomentViewPresenter()
+) : RelativeLayout(context, attrs, defStyleAttr) {
+
     private val log by Log
 
+    private val viewModel = MomentViewModel()
+    private var dateFormat: DateFormat? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
+    private var lifecycleOwner: LifecycleOwner? = null
+
+    private var shouldNotShowDownloadIcon: Boolean = false
+
+    private var momentIsDownloadingObserver: Observer<Boolean>? = null
+    private var momentIsDownloadedObserver: Observer<Boolean>? = null
+    private var showDownloadIconObserver: Observer<Boolean>? = null
 
     init {
         inflate(context, R.layout.view_archive_item, this)
 
-        clearIssue()
-
         attrs?.let {
             val styledAttributes =
                 getContext().obtainStyledAttributes(attrs, R.styleable.MomentView)
-            val textColor = styledAttributes.getColor(
+            styledAttributes.getColor(
                 R.styleable.MomentView_archive_item_text_color,
                 Color.WHITE
-            )
-            val textAlign = styledAttributes.getInteger(
+            ).let {
+                fragment_archive_moment_date.setTextColor(it)
+            }
+
+            styledAttributes.getInteger(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
-            )
-            val isMomentInDrawer = styledAttributes.getBoolean(
+            ).let {
+                fragment_archive_moment_date.textAlignment = it
+            }
+
+            shouldNotShowDownloadIcon = styledAttributes.getBoolean(
                 R.styleable.MomentView_do_not_show_download_icon,
                 false
             )
-            if (isMomentInDrawer) {
-                hideDownloadIcon()
-            }
             styledAttributes.recycle()
-
-            fragment_archive_moment_date?.apply {
-                setTextColor(textColor)
-                textAlignment = textAlign
-            }
         }
-
-        presenter.attach(this)
-        presenter.onViewCreated(null)
     }
 
-    override fun clearIssue() {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        lifecycleOwner = context as? LifecycleOwner ?: throw LifecycleOwnerNotFoundException()
+
+        lifecycleOwner?.let { lifecycleOwner ->
+            momentIsDownloadingObserver = viewModel.isMomentDownloadingLiveData
+                .observeDistinct(lifecycleOwner) { isDownloading ->
+                    if (!isDownloading) {
+                        lifecycleOwner.lifecycleScope.launch { viewModel.moment?.download() }
+                    }
+                }
+
+            momentIsDownloadedObserver = viewModel.isMomentDownloadedLiveData
+                .observeDistinct(lifecycleOwner) { isDownloaded ->
+                    if (isDownloaded) {
+                        showMoment()
+                    }
+                }
+
+        }
+    }
+
+    fun clear() {
+        showDownloadIconObserver?.let {
+            viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
+            showDownloadIconObserver = null
+        }
+        momentIsDownloadingObserver?.let {
+            viewModel.isMomentDownloadingLiveData.removeObserver(it)
+            momentIsDownloadingObserver = null
+        }
+        momentIsDownloadedObserver?.let {
+            viewModel.isMomentDownloadedLiveData.removeObserver(it)
+            momentIsDownloadedObserver = null
+        }
+        viewModel.setIssueOperations(null)
         clearDate()
         hideBitmap()
+        hideDownloadIcon()
         showProgressBar()
     }
 
-    override fun displayIssue(momentImageBitmap: Bitmap, date: String?, dateFormat: DateFormat) {
-        hideProgressBar()
-        showBitmap(momentImageBitmap)
-        setDate(date, dateFormat)
+    private fun showMoment() {
+        lifecycleOwner?.lifecycleScope?.launch {
+            setDate(viewModel.date)
+            viewModel.moment?.let { showMomentImage(it) }
+            if (!shouldNotShowDownloadIcon) {
+                showDownloadIconObserver =
+                    viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
+                        if (isDownloaded) {
+                            hideDownloadIcon()
+                        } else {
+                            showDownloadIcon()
+                        }
+                    }
+            }
+        }
     }
 
-    override fun getLifecycleOwner(): LifecycleOwner {
-        var context = context
-        while (context !is LifecycleOwner) {
-            context = (context as ContextWrapper).baseContext
+    fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
+        this.clear()
+        this.dateFormat = dateFormat
+        viewModel.setIssueOperations(issueOperations)
+
+        lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
+            val feed = issueOperations.getFeed()
+            setDimension(feed)
         }
-        return context
     }
 
     private fun clearDate() {
         fragment_archive_moment_date.text = ""
     }
 
-    private fun setDate(date: String?, dateFormat: DateFormat) {
+    private fun setDate(date: String?) {
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
                     fragment_archive_moment_date.text = dateHelper.stringToLongLocalizedString(date)
                 DateFormat.LongWithoutWeekDay ->
-                    fragment_archive_moment_date.text = dateHelper.stringToMediumLocalizedString(date)
+                    fragment_archive_moment_date.text =
+                        dateHelper.stringToMediumLocalizedString(date)
+                null ->
+                    fragment_archive_moment_date.visibility = View.GONE
             }
-        }
-        else {
+        } else {
             fragment_archive_moment_date.visibility = View.GONE
         }
     }
 
-
     private fun hideBitmap() {
-        fragment_archive_moment_image.visibility = View.INVISIBLE
+        fragment_archive_moment_image.apply {
+            visibility = View.INVISIBLE
+            setImageResource(android.R.color.transparent)
+        }
     }
 
-    private fun showBitmap(bitmap: Bitmap) {
+    private suspend fun showMomentImage(moment: Moment) = withContext(Dispatchers.IO) {
+        generateBitmapForMoment(moment)?.let {
+            showBitmap(it)
+        }
+    }
+
+    private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
         fragment_archive_moment_image.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
@@ -124,30 +195,41 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun setDimension(dimensionString: String) {
-        log.info("setting dimension to $dimensionString")
-        fragment_archive_item_centered.apply {
-            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
-            requestLayout()
-            forceLayout()
+        lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
+            log.info("setting dimension to $dimensionString")
+            fragment_archive_item_centered.apply {
+                (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
+                requestLayout()
+                forceLayout()
+            }
         }
 
     }
 
-    override fun showDownloadIcon() {
+    private fun showDownloadIcon() {
         fragment_archive_moment_is_downloaded?.visibility = View.VISIBLE
     }
 
-    override fun hideDownloadIcon() {
+    private fun hideDownloadIcon() {
         fragment_archive_moment_is_downloaded?.visibility = View.GONE
     }
 
-    override fun setDimension(feed: Feed?) {
-        setDimension(feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO)
+    private fun setDimension(feed: Feed?) {
+        val dimensionString = feed?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
+        setDimension(dimensionString)
     }
 
-    //TODO: We need to implement this to comply with BaseContract.View although unneeded. The TODO is to refactor these interfaces
-    override fun getMainView(): MainContract.View? {
+    private fun generateBitmapForMoment(moment: Moment): Bitmap? {
+        moment.getMomentImage().let {
+            val file = FileHelper.getInstance().getFile(it)
+            if (file.exists()) {
+                return BitmapFactory.decodeFile(file.absolutePath)
+            } else {
+                log.error("imgFile of $moment does not exist")
+            }
+        }
         return null
     }
-
 }
+
+class LifecycleOwnerNotFoundException : Exception("no lifecycle owner given")

@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.LayoutRes
@@ -19,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
+import de.taz.app.android.ui.moment.MomentView
 
 
 /**
@@ -41,9 +41,6 @@ abstract class HomePageAdapter(
     private var inactiveFeedNames: Set<String> = emptySet()
 
     private val log by Log
-
-    protected val feedMap
-        get() = feedList.associateBy { it.name }
 
     fun getItem(position: Int): IssueStub? {
         return try {
@@ -135,6 +132,11 @@ abstract class HomePageAdapter(
         )
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item).clear()
+        super.onViewRecycled(holder)
+    }
+
     /**
      * ViewHolder for this Adapter
      */
@@ -159,10 +161,12 @@ abstract class HomePageAdapter(
                 true
             }
 
-            dateOnClickListenerFunction?.let{ dateOnClickListener ->
-                itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener(
-                    View.OnClickListener { dateOnClickListener()})
+            dateOnClickListenerFunction?.let{ dateOnClickListenerFunction ->
+                itemView.findViewById<TextView>(R.id.fragment_archive_moment_date).setOnClickListener {
+                    dateOnClickListenerFunction()
+                }
             }
         }
+
     }
 }

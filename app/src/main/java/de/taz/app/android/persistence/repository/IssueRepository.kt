@@ -2,8 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
@@ -108,6 +107,15 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
+    }
+
+    fun getStubLiveData(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): LiveData<IssueStub?> {
+        return appDatabase.issueDao()
+            .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
     }
 
     fun getLatestIssueStub(): IssueStub? {
@@ -268,10 +276,28 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueOperations.status
     )
 
+    fun getIssueLiveData(issueOperations: IssueOperations) = getIssueLiveData(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status
+    )
+
     fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
         return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
     }
 
+    fun getIssueLiveData(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): LiveData<Issue?> =
+        getStubLiveData(issueFeedName, issueDate, issueStatus).switchMap { issueStub ->
+            liveData(Dispatchers.IO) {
+                issueStub?.let {
+                    emit(getIssue(issueStub))
+                } ?: emit(null)
+            }
+        }
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
     }
