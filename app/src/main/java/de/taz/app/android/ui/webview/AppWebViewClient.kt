@@ -15,13 +15,12 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.lang.Exception
 import java.net.URLDecoder
 
-class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) :
+class AppWebViewClient() :
     WebViewClient() {
 
     private val log by Log
@@ -76,7 +75,7 @@ class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: 
                             url.split("/").last()
                         )
                         section?.let {
-                            presenter.onLinkClicked(section)
+                            //onLinkClicked(section)
                         }
                     }
                     true
@@ -87,7 +86,7 @@ class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: 
                             url.split("/").last()
                         )
                         article?.let {
-                            presenter.onLinkClicked(article)
+                           // presenter.onLinkClicked(article)
                         }
                     }
                     true
@@ -200,6 +199,6 @@ class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: 
     override fun onPageFinished(webview: WebView, url: String) {
         super.onPageFinished(webview, url)
 
-        presenter.onPageFinishedLoading()
+        //presenter.onPageFinishedLoading()
     }
 }

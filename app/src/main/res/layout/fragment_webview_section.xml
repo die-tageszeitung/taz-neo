@@ -49,7 +49,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <include layout="@layout/include_loading_screen" />
+    <include android:visibility="gone" layout="@layout/include_loading_screen" />
 
     <LinearLayout
         android:layout_width="match_parent"

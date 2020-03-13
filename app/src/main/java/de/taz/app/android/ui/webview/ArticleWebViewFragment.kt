@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.FileProvider
@@ -22,36 +23,27 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
     BackFragment {
 
     private val log by Log
-    var article: Article? = null
     var articleLiveData: LiveData<Article?>? = null
     var observer: Observer<Article?>? = null
 
     private val fileHelper = FileHelper.getInstance()
-    override val presenter = ArticleWebViewPresenter()
 
     companion object {
         fun createInstance(article: Article): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
             val articleRepository = ArticleRepository.getInstance()
-            fragment.article = article
+            fragment.viewModel.displayable = article
             fragment.articleLiveData =
                 articleRepository.getLiveData(articleName = article.articleFileName)
             return fragment
         }
-    }
-
-    override fun getWebViewDisplayable(): Article? {
-        return article
-    }
-
-    override fun setWebViewDisplayable(displayable: Article?) {
-        this.article = displayable
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,8 +55,11 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
                 }
             }
         }
+    }
+
+    override fun setHeader(displayable: Article) {
         activity?.lifecycleScope?.launch(Dispatchers.IO) {
-            article?.getSection()?.let { section ->
+            viewModel.displayable?.getSection()?.let { section ->
                 setHeaderForSection(section)
             }
         }
@@ -75,36 +70,40 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
             view?.findViewById<TextView>(R.id.section)?.text = section.title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
                 R.string.fragment_header_article,
-                section.articleList.indexOf(article) + 1,
+                section.articleList.indexOf(viewModel.displayable) + 1,
                 section.articleList.size
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                presenter.showSection()
+                //showSection()
             }
         }
     }
 
     override fun onBackPressed(): Boolean {
-        return presenter.onBackPressed()
+        return onBackPressed()
     }
 
     override fun hideLoadingScreen() {
         super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
-            article?.let { article ->
+            viewModel.displayable?.let { article ->
                 if (article.getIssueStub()?.status == IssueStatus.public) {
                     withContext(Dispatchers.Main) {
-                        childFragmentManager.beginTransaction().replace(
-                            R.id.fragment_article_bottom_fragment_placeholder,
-                            ArticleLoginFragment.create(article.articleFileName)
-                        ).commit()
+                        try {
+                            childFragmentManager.beginTransaction().replace(
+                                R.id.fragment_article_bottom_fragment_placeholder,
+                                ArticleLoginFragment.create(article.articleFileName)
+                            ).commit()
+                        } catch (e: IllegalStateException) {
+                            // do nothing already hidden
+                        }
                     }
                 }
             }
         }
     }
 
-    override fun share(url: String, title: String?, image: FileEntry?) {
+    fun share(url: String, title: String?, image: FileEntry?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             shareArticle(url, title, image)
         } else {
@@ -171,5 +170,37 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
         super.onDestroy()
     }
 
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                //TODO  showHome()
+            }
+
+            R.id.bottom_navigation_action_bookmark -> {
+                showBookmarkBottomSheet()
+            }
+
+            R.id.bottom_navigation_action_share ->
+                viewModel.displayable?.let { article ->
+                    article.onlineLink?.let {
+                        share(article.onlineLink, article.title, article.imageList.first())
+                    }
+                }
+
+            R.id.bottom_navigation_action_size -> {
+                showFontSettingBottomSheet()
+            }
+        }
+    }
+
+    fun showSection() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.displayable?.getSection()?.let { section ->
+                // TODO showInWebView(section)
+            }
+        }
+    }
+
+    private fun showBookmarkBottomSheet() = showBottomSheet(BookmarkSheetFragment(viewModel.displayableKey))
 }
 

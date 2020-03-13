@@ -83,7 +83,7 @@ class SectionPagerFragment :
     private fun getCurrentFragment(): SectionWebViewFragment? {
         return childFragmentManager.fragments.firstOrNull {
             (it as? SectionWebViewFragment)?.let { fragment ->
-                return@firstOrNull fragment.section == sectionAdapter?.getCurrentSection()
+                return@firstOrNull fragment.viewModel.displayableKey == sectionAdapter?.getCurrentSection()?.sectionFileName
             }
             return@firstOrNull false
         } as? SectionWebViewFragment

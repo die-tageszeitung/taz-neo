@@ -14,61 +14,13 @@ import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 
-abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
+abstract class ViewModelBaseMainFragment(
     @LayoutRes layoutResourceId: Int
-) : BaseFragment<PRESENTER>(layoutResourceId),
-    BaseContract.View {
+) : Fragment(layoutResourceId) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configBottomNavigation()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setEndNavigation()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        removeEndNavigationView()
-    }
-
-    /**
-     * endNavigationFragment - the fragment to be shown in the
-     * [NavigationView] at [Gravitiy.End]
-     * if null NavigationView will not be openable
-     */
-    open val endNavigationFragment: Fragment? = null
-
-    /**
-     * show [endNavigationFragment]
-     */
-    private fun setEndNavigation() {
-        endNavigationFragment?.let { endNavigationFragment ->
-            activity?.apply {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_view_end_fragment_placeholder, endNavigationFragment)
-                    .commit()
-                getMainView()?.unlockEndNavigationView()
-            }
-        }
-    }
-
-    /**
-     * ensure endNavigationView can not be opened if another fragment doesn't have it
-     */
-    private fun removeEndNavigationView() {
-        endNavigationFragment?.let { endNavigationFragment ->
-            activity?.apply {
-                findViewById<NavigationView>(R.id.nav_view_end)?.apply {
-                    supportFragmentManager.beginTransaction()
-                        .remove(endNavigationFragment)
-                        .commit()
-                }
-            }
-            getMainView()?.lockEndNavigationView()
-        }
     }
 
     /**
@@ -173,7 +125,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
      * show bottomSheet
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
-    override fun showBottomSheet(fragment: Fragment) {
+    fun showBottomSheet(fragment: Fragment) {
         val addBottomSheet =
             if (fragment is BottomSheetDialogFragment) {
                 fragment

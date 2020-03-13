@@ -1,71 +1,47 @@
 package de.taz.app.android.ui.webview
 
-import android.os.Bundle
-import android.view.View
+import android.view.MenuItem
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.DateHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section),
     BackFragment {
 
-    var section: Section? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
-
-    override val presenter = SectionWebViewPresenter()
 
     companion object {
         fun createInstance(section: Section): WebViewFragment<Section> {
             val fragment = SectionWebViewFragment()
-            fragment.section = section
+            fragment.viewModel.displayable = section
             return fragment
         }
     }
 
-    override fun getWebViewDisplayable(): Section? {
-        return section
-    }
-
-    override fun setWebViewDisplayable(displayable: Section?) {
-        section = displayable
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        section?.let {
-            lifecycleScope.launch(Dispatchers.IO) {
-                section?.let { section ->
-                    setHeader(section, section.issueStub)
-                }
-            }
-        }
-
-    }
-
-    override fun share(url: String, title: String?, image: FileEntry?) {
-
-    }
-
-    private fun setHeader(section: Section, issueStub: IssueStub) {
+    override fun setHeader(displayable: Section) {
         activity?.apply {
             runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {
-                    text = section.getHeaderTitle()
+                    text = displayable.getHeaderTitle()
                 }
-                dateHelper.dateToLowerCaseString(issueStub.date)?.let {
+                dateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
                     view?.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
                 }
             }
+        }
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                // TODO showHome()
+            }
+            R.id.bottom_navigation_action_size ->
+                showFontSettingBottomSheet()
         }
     }
 
