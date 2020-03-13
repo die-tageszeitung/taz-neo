@@ -65,10 +65,6 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         }
                     }
                 }
-                navButton {
-                    name
-                    alpha
-                }
                 fileList
                 fileListPdf
                 sectionList {

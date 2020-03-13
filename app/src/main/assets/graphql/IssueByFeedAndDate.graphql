@@ -65,10 +65,6 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         }
                     }
                 }
-                navButton {
-                    name
-                    alpha
-                }
                 fileList
                 fileListPdf
                 sectionList {

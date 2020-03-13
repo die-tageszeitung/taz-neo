@@ -15,7 +15,6 @@ class IssueDto(
     val minResourceVersion: Int,
     val zipName: String? = null,
     val zipPdfName: String? = null,
-    val navButton: NavButtonDto? = null,
     val imprint: ArticleDto?,
     val fileList: List<String>,
     val fileListPdf: List<String>?,

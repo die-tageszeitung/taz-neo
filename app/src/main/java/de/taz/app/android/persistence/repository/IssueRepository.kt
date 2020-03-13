@@ -260,7 +260,6 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.minResourceVersion,
             issueStub.zipName,
             issueStub.zipPdfName,
-            issueStub.navButton,
             imprint,
             issueStub.fileList,
             issueStub.fileListPdf,
