@@ -3,7 +3,6 @@ package de.taz.app.android.ui.moment
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
@@ -66,7 +65,7 @@ class MomentView @JvmOverloads constructor(
             }
             styledAttributes.recycle()
 
-            fragment_archive_moment_date?.apply {
+            fragment_moment_date?.apply {
                 textAlignment = textAlign
             }
         }
