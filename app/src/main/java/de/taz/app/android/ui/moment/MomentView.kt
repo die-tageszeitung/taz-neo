@@ -53,14 +53,7 @@ class MomentView @JvmOverloads constructor(
         attrs?.let {
             val styledAttributes =
                 getContext().obtainStyledAttributes(attrs, R.styleable.MomentView)
-            styledAttributes.getColor(
-                R.styleable.MomentView_archive_item_text_color,
-                Color.WHITE
-            ).let {
-                fragment_archive_moment_date.setTextColor(it)
-            }
-
-            styledAttributes.getInteger(
+            val textAlign = styledAttributes.getInteger(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
             ).let {
@@ -72,6 +65,11 @@ class MomentView @JvmOverloads constructor(
                 false
             )
             styledAttributes.recycle()
+
+
+            fragment_archive_moment_date?.apply {
+                textAlignment = textAlign
+            }
         }
     }
 
@@ -93,7 +91,6 @@ class MomentView @JvmOverloads constructor(
                         showMoment()
                     }
                 }
-
         }
     }
 
