@@ -31,34 +31,26 @@ val testSection = Section(
 )
 
 val testIssue = Issue(
-    "taz",
-    "2019-10-17",
-    Moment(),
-    null,
-    "https://example.com",
-    IssueStatus.regular,
-    23,
-    null,
-    null,
-    null,
-    emptyList(),
-    emptyList(),
-    listOf(testSection),
-    emptyList()
+    feedName = "taz",
+    date = "2019-10-17",
+    moment = Moment(),
+    key =  null,
+    baseUrl = "https://example.com",
+    status = IssueStatus.regular,
+    minResourceVersion = 23,
+    imprint = null,
+    sectionList = listOf(testSection),
+    pageList = emptyList()
 )
 val testIssues = listOf(testIssue)
 
 val testIssueStub = IssueStub(
-    "feed",
-    "01-01-1900",
-    "key",
-    "https://example.com",
-    IssueStatus.regular,
-    1312,
-    null,
-    null,
-    emptyList(),
-    emptyList()
+    feedName = "feed",
+    date = "01-01-1900",
+    key = "key",
+    baseUrl = "https://example.com",
+    status = IssueStatus.regular,
+    minResourceVersion = 1312
 )
 
 val testArticle = Article(
