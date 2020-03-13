@@ -22,38 +22,35 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(article: Article) {
-        appDatabase.runInTransaction {
+        val articleFileName = article.articleHtml.name
+        appDatabase.articleDao().insertOrReplace(ArticleStub(article))
 
-            val articleFileName = article.articleHtml.name
-            appDatabase.articleDao().insertOrReplace(ArticleStub(article))
+        // save audioFile and relation
+        article.audioFile?.let { audioFile ->
+            fileEntryRepository.save(audioFile)
+            appDatabase.articleAudioFileJoinDao().insertOrReplace(
+                ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+            )
+        }
 
-            // save audioFile and relation
-            article.audioFile?.let { audioFile ->
-                fileEntryRepository.save(audioFile)
-                appDatabase.articleAudioFileJoinDao().insertOrReplace(
-                    ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+        // save html file
+        fileEntryRepository.save(article.articleHtml)
+
+        // save images and relations
+        article.imageList.forEachIndexed { index, fileEntry ->
+            fileEntryRepository.save(fileEntry)
+            appDatabase.articleImageJoinDao().insertOrReplace(
+                ArticleImageJoin(articleFileName, fileEntry.name, index)
+            )
+        }
+
+        // save authors
+        article.authorList.forEachIndexed { index, author ->
+            author.imageAuthor?.let {
+                fileEntryRepository.save(it)
+                appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                    ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
                 )
-            }
-
-            // save html file
-            fileEntryRepository.save(article.articleHtml)
-
-            // save images and relations
-            article.imageList.forEachIndexed { index, fileEntry ->
-                fileEntryRepository.save(fileEntry)
-                appDatabase.articleImageJoinDao().insertOrReplace(
-                    ArticleImageJoin(articleFileName, fileEntry.name, index)
-                )
-            }
-
-            // save authors
-            article.authorList.forEachIndexed { index, author ->
-                author.imageAuthor?.let {
-                    fileEntryRepository.save(it)
-                    appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                        ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
-                    )
-                }
             }
         }
     }
@@ -92,7 +89,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getLiveData(articleName: String): LiveData<Article?> {
-       return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
+        return Transformations.map(appDatabase.articleDao().getLiveData(articleName)) { input ->
             runBlocking(Dispatchers.IO) {
                 input?.let { articleStubToArticle(input) }
             }
@@ -239,66 +236,64 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(article: Article) {
-        appDatabase.runInTransaction {
-            appDatabase.articleDao().get(article.articleFileName)?.let {
-                val articleStub = ArticleStub(article)
-                if (!it.bookmarked) {
-                    val articleFileName = article.articleHtml.name
+        appDatabase.articleDao().get(article.articleFileName)?.let {
+            val articleStub = ArticleStub(article)
+            if (!it.bookmarked) {
+                val articleFileName = article.articleHtml.name
 
-                    // delete authors
-                    appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
-                        articleFileName
-                    ).forEach { articleAuthorImageJoin ->
-                        log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
-                        appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
-                        articleAuthorImageJoin.authorFileName?.let { authorFileName ->
-                            try {
-                                fileEntryRepository.delete(
-                                    fileEntryRepository.getOrThrow(
-                                        authorFileName
-                                    )
-                                )
-                            } catch (e: SQLiteConstraintException) {
-                                // do nothing as author is still referenced by another article
-                            } catch (e: NotFoundException) {
-                                log.warn("tried to delete non-existent file: $authorFileName")
-                            }
-                        }
-                    }
-
-                    // delete audioFile and relation
-                    article.audioFile?.let { audioFile ->
-                        log.debug("deleting ArticleAudioFile ${audioFile.name}")
-                        appDatabase.articleAudioFileJoinDao().delete(
-                            ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-                        )
-                        fileEntryRepository.delete(audioFile)
-                    }
-
-                    // delete html file
-                    fileEntryRepository.delete(article.articleHtml)
-
-                    // delete images and relations
-                    article.imageList.forEachIndexed { index, fileEntry ->
-                        appDatabase.articleImageJoinDao().delete(
-                            ArticleImageJoin(articleFileName, fileEntry.name, index)
-                        )
-                        log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
+                // delete authors
+                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
+                    articleFileName
+                ).forEach { articleAuthorImageJoin ->
+                    log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
+                    appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
+                    articleAuthorImageJoin.authorFileName?.let { authorFileName ->
                         try {
-                            fileEntryRepository.delete(fileEntry)
-                            log.debug("deleted FileEntry of image ${fileEntry.name}")
+                            fileEntryRepository.delete(
+                                fileEntryRepository.getOrThrow(
+                                    authorFileName
+                                )
+                            )
                         } catch (e: SQLiteConstraintException) {
-                            log.warn("FileEntry ${fileEntry.name} not deleted, maybe still used by section?")
-                            // do not delete - still used by section
+                            // do nothing as author is still referenced by another article
+                        } catch (e: NotFoundException) {
+                            log.warn("tried to delete non-existent file: $authorFileName")
                         }
                     }
+                }
 
-                    log.debug("delete ArticleStub $article")
+                // delete audioFile and relation
+                article.audioFile?.let { audioFile ->
+                    log.debug("deleting ArticleAudioFile ${audioFile.name}")
+                    appDatabase.articleAudioFileJoinDao().delete(
+                        ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                    )
+                    fileEntryRepository.delete(audioFile)
+                }
+
+                // delete html file
+                fileEntryRepository.delete(article.articleHtml)
+
+                // delete images and relations
+                article.imageList.forEachIndexed { index, fileEntry ->
+                    appDatabase.articleImageJoinDao().delete(
+                        ArticleImageJoin(articleFileName, fileEntry.name, index)
+                    )
+                    log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
                     try {
-                        appDatabase.articleDao().delete(articleStub)
-                    } catch (e: Exception) {
-                        log.warn("article not deleted", e)
+                        fileEntryRepository.delete(fileEntry)
+                        log.debug("deleted FileEntry of image ${fileEntry.name}")
+                    } catch (e: SQLiteConstraintException) {
+                        log.warn("FileEntry ${fileEntry.name} not deleted, maybe still used by section?")
+                        // do not delete - still used by section
                     }
+                }
+
+                log.debug("delete ArticleStub $article")
+                try {
+                    appDatabase.articleDao().delete(articleStub)
+                } catch (e: Exception) {
+                    log.warn("article not deleted", e)
                 }
             }
         }

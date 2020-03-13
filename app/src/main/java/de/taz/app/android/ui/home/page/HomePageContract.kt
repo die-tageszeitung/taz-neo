@@ -1,8 +1,7 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
@@ -39,32 +38,17 @@ interface HomePageContract {
     }
 
     interface DataController {
+        val authStatusLiveData: LiveData<AuthStatus>
+        val currentPositionLiveData: LiveData<Int?>
+        val feedsLiveData: LiveData<List<Feed>>
+        val inactiveFeedNameLiveData: LiveData<Set<String>>
+        val issueStubsLiveData: LiveData<List<IssueStub>>
+
 
         fun getIssueStubs(): List<IssueStub>?
 
-        fun observeAuthStatus(
-            lifeCycleOwner: LifecycleOwner,
-            observationCallback: (AuthStatus) -> (Unit)
-        )
-
-        fun observeIssueStubs(lifeCycleOwner: LifecycleOwner, observer: Observer<List<IssueStub>?>)
-
-        fun observeInactiveFeedNames(
-            lifeCycleOwner: LifecycleOwner,
-            observationCallback: (Set<String>) -> (Unit)
-        )
-
-        fun observeFeeds(
-            lifeCycleOwner: LifecycleOwner,
-            observationCallback: (List<Feed>) -> (Unit)
-        )
-
         fun setCurrentPosition(position: Int)
         fun getCurrentPosition(): Int?
-        fun observeCurrentPosition(
-            lifeCycleOwner: LifecycleOwner,
-            observationCallback: (Int?) -> Unit
-        )
     }
 
 }

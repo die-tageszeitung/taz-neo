@@ -89,15 +89,6 @@ class ArchivePresenterTest {
     }
 
     @Test
-    fun onViewCreated() {
-        presenter.onViewCreated(null)
-
-        Mockito.verify(viewModel).observeFeeds(any(), any())
-        Mockito.verify(viewModel).observeInactiveFeedNames(any(), any())
-        Mockito.verify(viewModel).observeIssueStubs(any(), any())
-    }
-
-    @Test
     fun getNextIssueMoments() {
         runBlocking {
             doReturn(testIssues).`when`(apiService).getIssuesByDate(any(), any())

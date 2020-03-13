@@ -23,25 +23,23 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun save(section: Section) {
-        appDatabase.runInTransaction {
-            appDatabase.sectionDao().insertOrReplace(SectionStub(section))
-            fileEntryRepository.save(section.sectionHtml)
-            section.articleList.forEach { articleRepository.save(it) }
-            appDatabase.sectionArticleJoinDao().insertOrReplace(
-                section.articleList.mapIndexed { index, article ->
-                    SectionArticleJoin(
-                        section.sectionHtml.name,
-                        article.articleHtml.name,
-                        index
-                    )
-                }
-            )
-            fileEntryRepository.save(section.imageList)
-            appDatabase.sectionImageJoinDao()
-                .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
-                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
-                })
-        }
+        appDatabase.sectionDao().insertOrReplace(SectionStub(section))
+        fileEntryRepository.save(section.sectionHtml)
+        section.articleList.forEach { articleRepository.save(it) }
+        appDatabase.sectionArticleJoinDao().insertOrReplace(
+            section.articleList.mapIndexed { index, article ->
+                SectionArticleJoin(
+                    section.sectionHtml.name,
+                    article.articleHtml.name,
+                    index
+                )
+            }
+        )
+        fileEntryRepository.save(section.imageList)
+        appDatabase.sectionImageJoinDao()
+            .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
+                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+            })
     }
 
     fun getBase(sectionFileName: String): SectionStub? {
@@ -117,9 +115,10 @@ class SectionRepository private constructor(applicationContext: Context) :
         val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
 
         val articles =
-            appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)?.let {
-                articleRepository.getOrThrow(it)
-            } ?: listOf()
+            appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)
+                ?.let {
+                    articleRepository.getOrThrow(it)
+                } ?: listOf()
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
@@ -137,42 +136,40 @@ class SectionRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(section: Section) {
-        appDatabase.runInTransaction {
-            appDatabase.sectionArticleJoinDao().delete(
-                section.articleList.mapIndexed { index, article ->
-                    SectionArticleJoin(
-                        section.sectionHtml.name,
-                        article.articleHtml.name,
-                        index
-                    )
-                }
-            )
-            section.articleList.forEach { article ->
-                if (!article.bookmarked) {
-                    articleRepository.delete(article)
-                }
+        appDatabase.sectionArticleJoinDao().delete(
+            section.articleList.mapIndexed { index, article ->
+                SectionArticleJoin(
+                    section.sectionHtml.name,
+                    article.articleHtml.name,
+                    index
+                )
             }
-
-            fileEntryRepository.delete(section.sectionHtml)
-
-            appDatabase.sectionImageJoinDao().delete(
-                section.imageList.mapIndexed { index, fileEntry ->
-                    SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
-                }
-            )
-
-            section.imageList.forEach {
-                try {
-                    fileEntryRepository.delete(it)
-                    log.debug("deleted FileEntry of image $it")
-                } catch (e: SQLiteConstraintException) {
-                    log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")
-                    // do not delete still used by (presumably bookmarked) article
-                }
+        )
+        section.articleList.forEach { article ->
+            if (!article.bookmarked) {
+                articleRepository.delete(article)
             }
-
-            appDatabase.sectionDao().delete(SectionStub(section))
         }
+
+        fileEntryRepository.delete(section.sectionHtml)
+
+        appDatabase.sectionImageJoinDao().delete(
+            section.imageList.mapIndexed { index, fileEntry ->
+                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+            }
+        )
+
+        section.imageList.forEach {
+            try {
+                fileEntryRepository.delete(it)
+                log.debug("deleted FileEntry of image $it")
+            } catch (e: SQLiteConstraintException) {
+                log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")
+                // do not delete still used by (presumably bookmarked) article
+            }
+        }
+
+        appDatabase.sectionDao().delete(SectionStub(section))
     }
 }
 

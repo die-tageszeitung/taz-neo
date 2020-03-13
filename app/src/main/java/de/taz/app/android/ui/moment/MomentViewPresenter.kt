@@ -63,7 +63,7 @@ class MomentViewPresenter(
                         moment.isDownloadedLiveData().observe(lifecycleOwner, waitForDownloadObserver)
                     }
                 } else {
-                    continuation.resume(generateBitmapForMoment(moment))
+                    continuation.resume(try {generateBitmapForMoment(moment)} catch (e: NoSuchElementException) { null })
                 }
             } ?: continuation.resume(null)
             val issueLiveData =
