@@ -21,7 +21,7 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.view_archive_item.view.*
+import kotlinx.android.synthetic.main.view_moment.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +48,7 @@ class MomentView @JvmOverloads constructor(
     private var showDownloadIconObserver: Observer<Boolean>? = null
 
     init {
-        inflate(context, R.layout.view_archive_item, this)
+        inflate(context, R.layout.view_moment, this)
 
         attrs?.let {
             val styledAttributes =
@@ -142,27 +142,27 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun clearDate() {
-        fragment_archive_moment_date.text = ""
+        fragment_moment_date.text = ""
     }
 
     private fun setDate(date: String?) {
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
-                    fragment_archive_moment_date.text = dateHelper.stringToLongLocalizedString(date)
+                    fragment_moment_date.text = dateHelper.stringToLongLocalizedString(date)
                 DateFormat.LongWithoutWeekDay ->
-                    fragment_archive_moment_date.text =
+                    fragment_moment_date.text =
                         dateHelper.stringToMediumLocalizedString(date)
                 null ->
-                    fragment_archive_moment_date.visibility = View.GONE
+                    fragment_moment_date.visibility = View.GONE
             }
         } else {
-            fragment_archive_moment_date.visibility = View.GONE
+            fragment_moment_date.visibility = View.GONE
         }
     }
 
     private fun hideBitmap() {
-        fragment_archive_moment_image.apply {
+        fragment_moment_image.apply {
             visibility = View.INVISIBLE
             setImageResource(android.R.color.transparent)
         }
@@ -175,7 +175,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
-        fragment_archive_moment_image.apply {
+        fragment_moment_image.apply {
             setImageBitmap(bitmap)
             visibility = View.VISIBLE
         }
@@ -183,17 +183,17 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showProgressBar() {
-        fragment_archive_moment_image_progressbar.visibility = View.VISIBLE
+        fragment_moment_image_progressbar.visibility = View.VISIBLE
     }
 
     private fun hideProgressBar() {
-        fragment_archive_moment_image_progressbar.visibility = View.GONE
+        fragment_moment_image_progressbar.visibility = View.GONE
     }
 
     private fun setDimension(dimensionString: String) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
             log.info("setting dimension to $dimensionString")
-            fragment_archive_item_centered.apply {
+            fragment_moment_centered.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
                 requestLayout()
                 forceLayout()
@@ -203,11 +203,11 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showDownloadIcon() {
-        fragment_archive_moment_is_downloaded?.visibility = View.VISIBLE
+        fragment_moment_is_downloaded?.visibility = View.VISIBLE
     }
 
     private fun hideDownloadIcon() {
-        fragment_archive_moment_is_downloaded?.visibility = View.GONE
+        fragment_moment_is_downloaded?.visibility = View.GONE
     }
 
     private fun setDimension(feed: Feed?) {
