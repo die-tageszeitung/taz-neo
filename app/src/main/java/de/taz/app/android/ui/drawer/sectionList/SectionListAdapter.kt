@@ -155,7 +155,7 @@ class SectionListAdapter(
         fragment.view?.findViewById<TextView>(
             R.id.fragment_drawer_sections_date
         )?.apply {
-            text = dateHelper.stringToMediumLocalizedString(issueOperations.date)
+            text = dateHelper.stringToLongLocalizedString(issueOperations.date)
         }
     }
 
