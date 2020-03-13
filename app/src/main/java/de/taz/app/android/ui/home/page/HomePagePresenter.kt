@@ -7,6 +7,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
@@ -33,20 +34,20 @@ abstract class HomePagePresenter<VIEW : HomePageContract.View>(
         getView()?.let { view ->
             view.getLifecycleOwner().let {
                 viewModel?.apply {
-                    observeIssueStubs(
+                    issueStubsLiveData.observeDistinct(
                         it,
                         HomePageIssueStubsObserver(
                             this@HomePagePresenter
                         )
                     )
 
-                    observeFeeds(it) { feeds ->
+                    feedsLiveData.observeDistinct(it) { feeds ->
                         view.setFeeds(feeds)
                     }
-                    observeInactiveFeedNames(it) { feedNames ->
+                    inactiveFeedNameLiveData.observeDistinct(it) { feedNames ->
                         view.setInactiveFeedNames(feedNames)
                     }
-                    observeAuthStatus(it) { authStatus ->
+                    authStatusLiveData.observeDistinct(it) { authStatus ->
                         view.setAuthStatus(authStatus)
                     }
                 }
