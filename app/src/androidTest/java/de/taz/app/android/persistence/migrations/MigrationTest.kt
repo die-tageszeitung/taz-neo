@@ -106,18 +106,18 @@ class MigrationTest {
     @Test
     @Throws(IOException::class)
     fun migrate3To4() {
-        val feedName: String = "rss"
-        val date: String = "1869-06-27"
+        val feedName = "rss"
+        val date = "1869-06-27"
         val key: String? = "key"
-        val baseUrl: String = "https://example.com"
+        val baseUrl = "https://example.com"
         val status: IssueStatus = IssueStatus.demo
-        val minResourceVersion: Int = 23
+        val minResourceVersion = 23
         val zipName: String? = "zipName"
         val zipPdfName: String? = "zipPdf"
         val fileList: List<String> = emptyList()
         val fileListPdf: List<String> = emptyList()
         val dateDownload: Date? = null
-        val navButton: String = "nabutton dummy"
+        val navButton = "nabutton dummy"
         helper.createDatabase(testDb, 3).apply {
             execSQL(
                 """INSERT INTO Issue (feedName, date, key, baseUrl, status, minResourceVersion, navButton, zipName, zipPdfName, fileList, fileListPdf, dateDownload)
@@ -134,19 +134,16 @@ class MigrationTest {
         val fromDB: IssueStub? =
             getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
         Assert.assertNotNull(fromDB)
+
         val issueStub = IssueStub(
-                feedName,
-                date,
-                key,
-                baseUrl,
-                status,
-                minResourceVersion,
-                zipName,
-                zipPdfName,
-                fileList,
-                fileListPdf,
-                dateDownload
-            )
+            feedName,
+            date,
+            key,
+            baseUrl,
+            status,
+            minResourceVersion,
+            dateDownload
+        )
         Assert.assertEquals(fromDB, issueStub)
     }
 }
