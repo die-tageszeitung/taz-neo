@@ -19,6 +19,7 @@
             android:id="@+id/collapsing_toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:colorBackground"
             app:expandedTitleGravity="top"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:scrimAnimationDuration="0">
