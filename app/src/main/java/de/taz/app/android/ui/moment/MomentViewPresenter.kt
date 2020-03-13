@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.base.BasePresenter
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateFormat
@@ -39,7 +40,7 @@ class MomentViewPresenter(
                 if (!it.isDownloaded()) {
                     log.debug("requesting download of $moment")
 
-                    moment.download()
+                    DownloadService.getInstance().download(moment)
 
                     val waitForDownloadObserver = object: Observer<Boolean> {
                         override fun onChanged(isDownloaded: Boolean) {
