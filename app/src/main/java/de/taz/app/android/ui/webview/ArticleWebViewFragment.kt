@@ -29,6 +29,10 @@ import kotlinx.coroutines.*
 class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
     BackFragment {
 
+    override val viewModel = object : WebViewViewModel<Article>() {
+        override val displayableKey: String? = displayable?.articleFileName
+    }
+
     private val log by Log
     var articleLiveData: LiveData<Article?>? = null
     var observer: Observer<Article?>? = null
@@ -193,15 +197,9 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
         }
     }
 
-    fun showSection() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.displayable?.getSection()?.let { section ->
-                showInWebView(section)
-            }
-        }
-    }
-
     private fun showBookmarkBottomSheet() =
-        showBottomSheet(BookmarkSheetFragment(viewModel.displayableKey))
+        viewModel.displayable?.articleFileName?.let {
+            showBottomSheet(BookmarkSheetFragment.create(it))
+        }
 }
 

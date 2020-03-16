@@ -12,6 +12,10 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
+    override val viewModel = object : WebViewViewModel<Section>() {
+        override val displayableKey: String? = displayable?.sectionFileName
+    }
+
     companion object {
         fun createInstance(section: Section): WebViewFragment<Section> {
             val fragment = SectionWebViewFragment()
