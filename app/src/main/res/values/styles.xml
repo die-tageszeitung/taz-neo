@@ -67,7 +67,7 @@
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/textColorSection</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:paddingBottom">7dp</item>
     </style>
