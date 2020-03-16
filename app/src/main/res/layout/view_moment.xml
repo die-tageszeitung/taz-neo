@@ -58,6 +58,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image"
             app:layout_constraintRight_toRightOf="@+id/fragment_moment_image"
+            android:visibility="gone"
             android:src="@drawable/ic_download_cloud"
             android:contentDescription="@string/settings_download_issue"/>
 
