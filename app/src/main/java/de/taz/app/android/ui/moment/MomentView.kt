@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -47,7 +48,7 @@ class MomentView @JvmOverloads constructor(
     private var showDownloadIconObserver: Observer<Boolean>? = null
 
     init {
-        inflate(context, R.layout.view_moment, this)
+        LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
 
         attrs?.let {
             val styledAttributes =
@@ -56,11 +57,11 @@ class MomentView @JvmOverloads constructor(
                 R.styleable.MomentView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
             )
-            val isMomentInDrawer = styledAttributes.getBoolean(
+            shouldNotShowDownloadIcon = styledAttributes.getBoolean(
                 R.styleable.MomentView_do_not_show_download_icon,
                 false
             )
-            if (isMomentInDrawer) {
+            if (shouldNotShowDownloadIcon) {
                 hideDownloadIcon()
             }
             styledAttributes.recycle()
