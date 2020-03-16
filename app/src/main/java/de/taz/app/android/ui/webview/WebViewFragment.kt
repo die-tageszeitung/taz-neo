@@ -39,7 +39,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     private val log by Log
 
-    val viewModel = WebViewViewModel<DISPLAYABLE>()
+    abstract val viewModel: WebViewViewModel<DISPLAYABLE>
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
