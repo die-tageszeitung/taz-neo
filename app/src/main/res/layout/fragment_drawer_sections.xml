@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:clipToPadding="false"
+        android:clipChildren="false"
         android:paddingTop="@dimen/drawer_margin_top"
         android:paddingStart="@dimen/drawer_margin_horizontal"
         android:paddingEnd="@dimen/drawer_margin_horizontal" >
@@ -20,7 +21,8 @@
             android:layout_width="@dimen/fragment_drawer_moment_width"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:elevation="@dimen/moment_elevation"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
             app:do_not_show_download_icon="true"/>
 
