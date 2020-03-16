@@ -36,6 +36,8 @@ class DatePickerFragment :
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
 
+        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
+
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener {
             val day = fragment_bottom_sheet_date_picker.dayOfMonth
             val year = fragment_bottom_sheet_date_picker.year

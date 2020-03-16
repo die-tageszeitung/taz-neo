@@ -27,6 +27,10 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
     // ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
     private val deviceLocale = Locale.GERMAN
 
+    fun today(): Long {
+        return cal.timeInMillis
+    }
+
     private fun dateToString(date: Date) : String {
         return dateHelper.format(date)
     }
