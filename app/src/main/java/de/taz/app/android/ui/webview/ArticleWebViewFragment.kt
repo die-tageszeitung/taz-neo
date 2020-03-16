@@ -173,7 +173,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                //TODO  showHome()
+                showHome()
             }
 
             R.id.bottom_navigation_action_bookmark -> {
@@ -183,7 +183,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
             R.id.bottom_navigation_action_share ->
                 viewModel.displayable?.let { article ->
                     article.onlineLink?.let {
-                        share(article.onlineLink, article.title, article.imageList.first())
+                        share(article.onlineLink, article.title, article.imageList.firstOrNull())
                     }
                 }
 
@@ -196,11 +196,12 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
     fun showSection() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.getSection()?.let { section ->
-                // TODO showInWebView(section)
+                showInWebView(section)
             }
         }
     }
 
-    private fun showBookmarkBottomSheet() = showBottomSheet(BookmarkSheetFragment(viewModel.displayableKey))
+    private fun showBookmarkBottomSheet() =
+        showBottomSheet(BookmarkSheetFragment(viewModel.displayableKey))
 }
 
