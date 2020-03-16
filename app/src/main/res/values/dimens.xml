@@ -9,6 +9,7 @@
     <dimen name="nav_bottom_height">60dp</dimen>
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
+    <dimen name="moment_elevation">5dp</dimen>
 
     <dimen name="drawer_margin_top">30dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
