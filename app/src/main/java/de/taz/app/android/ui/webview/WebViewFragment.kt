@@ -47,7 +47,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("WebViewFragment: shared pref changed: $key")
             if (key == SETTINGS_TEXT_FONT_SIZE) {
-                web_view.injectCss(sharedPreferences)
+                web_view?.injectCss(sharedPreferences)
             }
         }
 
@@ -245,6 +245,5 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
         return minResourceVersion <= currentResourceVersion
     }
-
 
 }

@@ -38,7 +38,7 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                // TODO showHome()
+                showHome()
             }
             R.id.bottom_navigation_action_size ->
                 showFontSettingBottomSheet()
