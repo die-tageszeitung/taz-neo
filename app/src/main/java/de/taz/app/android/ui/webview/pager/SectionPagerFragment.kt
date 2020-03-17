@@ -73,9 +73,6 @@ class SectionPagerFragment :
     }
 
     override fun onBackPressed(): Boolean {
-        getCurrentFragment()?.let {
-            if (it.onBackPressed()) return true
-        }
         presenter.onBackPressed()
         return true
     }
@@ -143,7 +140,7 @@ class SectionPagerFragment :
 
         override fun createFragment(position: Int): Fragment {
             val section = sections[position]
-            return SectionWebViewFragment.createInstance(section)
+            return SectionWebViewFragment.createInstance(section.sectionFileName)
         }
 
         override fun getItemCount(): Int = sections.size

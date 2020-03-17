@@ -142,7 +142,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
 
         override fun createFragment(position: Int): Fragment {
             val article = articles[position]
-            return ArticleWebViewFragment.createInstance(article)
+            return ArticleWebViewFragment.createInstance(article.articleFileName)
         }
 
         override fun getItemCount(): Int = articles.size
