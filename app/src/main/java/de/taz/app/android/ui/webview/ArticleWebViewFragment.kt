@@ -29,30 +29,24 @@ import kotlinx.coroutines.*
 class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
     BackFragment {
 
-    override val viewModel = object : WebViewViewModel<Article>() {
-        override val displayableKey: String? = displayable?.articleFileName
-    }
+    override val viewModel = ArticleWebViewViewModel()
 
     private val log by Log
-    var articleLiveData: LiveData<Article?>? = null
     var observer: Observer<Article?>? = null
 
     private val fileHelper = FileHelper.getInstance()
 
     companion object {
-        fun createInstance(article: Article): WebViewFragment<Article> {
+        fun createInstance(articleFileName: String): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
-            val articleRepository = ArticleRepository.getInstance()
-            fragment.viewModel.displayable = article
-            fragment.articleLiveData =
-                articleRepository.getLiveData(articleName = article.articleFileName)
+            fragment.viewModel.displayableKey = articleFileName
             return fragment
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        articleLiveData?.let {
+        viewModel.displayableLiveData.let {
             observer = it.observeDistinct(this) { articleLiveData ->
                 if (articleLiveData?.bookmarked == true) {
                     setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
@@ -78,13 +72,13 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
                 section.articleList.size
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                //showSection()
+                // TODO showSection()
             }
         }
     }
 
     override fun onBackPressed(): Boolean {
-        return onBackPressed()
+        return false
     }
 
     override fun hideLoadingScreen() {
@@ -169,7 +163,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
 
     override fun onDestroy() {
         observer?.let {
-            articleLiveData?.removeObserver(it)
+            viewModel.displayableLiveData.removeObserver(it)
         }
         super.onDestroy()
     }

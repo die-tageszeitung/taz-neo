@@ -7,19 +7,16 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.DateHelper
 
-class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section),
-    BackFragment {
+class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section) {
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
-    override val viewModel = object : WebViewViewModel<Section>() {
-        override val displayableKey: String? = displayable?.sectionFileName
-    }
+    override val viewModel = SectionWebViewViewModel()
 
     companion object {
-        fun createInstance(section: Section): WebViewFragment<Section> {
+        fun createInstance(sectionFileName: String): WebViewFragment<Section> {
             val fragment = SectionWebViewFragment()
-            fragment.viewModel.displayable = section
+            fragment.viewModel.displayableKey = sectionFileName
             return fragment
         }
     }
@@ -49,7 +46,4 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
         }
     }
 
-    override fun onBackPressed(): Boolean {
-        return false
-    }
 }

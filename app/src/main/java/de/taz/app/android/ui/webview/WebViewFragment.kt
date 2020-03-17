@@ -18,6 +18,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
@@ -53,7 +54,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        getMainActivity()?.getApplicationContext()?.let { applicationContext ->
+        getMainActivity()?.applicationContext?.let { applicationContext ->
             tazApiCssPreferences =
                 applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
             tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
@@ -63,10 +64,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configureWebView()
-        viewModel.displayable?.let { displayable ->
-            lifecycleScope.launch(Dispatchers.IO) {
+        viewModel.displayableLiveData.observeDistinct(this) { displayable ->
+            displayable?.let {
                 setHeader(displayable)
-                viewModel.displayable?.let { ensureDownloadedAndShow(it) }
+                viewModel.displayable?.let {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        ensureDownloadedAndShow(displayable)
+                    }
+                }
             }
         }
     }

@@ -2,8 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
@@ -12,6 +11,7 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
 
 @Mockable
 class SectionRepository private constructor(applicationContext: Context) :
@@ -57,8 +57,10 @@ class SectionRepository private constructor(applicationContext: Context) :
     }
 
     fun getLiveData(sectionFileName: String): LiveData<Section?> {
-        return Transformations.map(appDatabase.sectionDao().getLiveData(sectionFileName)) { input ->
-            input?.let { sectionStubToSection(it) }
+        return appDatabase.sectionDao().getLiveData(sectionFileName).switchMap { input ->
+            liveData(Dispatchers.IO) {
+                input?.let { emit(sectionStubToSection(input)) } ?: emit(null)
+            }
         }
     }
 
