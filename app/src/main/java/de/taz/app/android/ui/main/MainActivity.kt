@@ -37,7 +37,6 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
-import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
@@ -172,6 +171,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun showInWebView(issueStub: IssueStub) {
+        runOnUiThread {
+            val fragment = SectionPagerFragment.createInstance(issueStub)
+            showMainFragment(fragment)
+        }
+    }
+
     override fun showInWebView(
         webViewDisplayable: WebViewDisplayable,
         enterAnimation: Int,
@@ -214,10 +220,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     @MainThread
     private fun tryShowExistingSection(section: Section): Boolean {
-        val currentFragment =
+        supportFragmentManager.popBackStackImmediate(SectionPagerFragment::class.java.name, 0)
+        val sectionPagerFragment =
             supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
-        if (currentFragment is SectionPagerContract.View) {
-            return currentFragment.tryLoadSection(section)
+        if (sectionPagerFragment is SectionPagerFragment) {
+            return sectionPagerFragment.tryLoadSection(section)
         }
         return false
     }
@@ -228,14 +235,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         @AnimRes exitAnimation: Int
     ) {
         runOnUiThread {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(enterAnimation, exitAnimation)
-                .replace(
-                    R.id.main_content_fragment_placeholder, fragment
-                )
-                .addToBackStack(fragment::javaClass.name)
-                .commit()
+            val fragmentClassName = fragment::class.java.name
+
+            if (!supportFragmentManager.popBackStackImmediate(fragmentClassName, 0)) {
+                supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.main_content_fragment_placeholder, fragment)
+                    addToBackStack(fragmentClassName)
+                    commit()
+                }
+            }
         }
     }
 
@@ -281,10 +289,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showHome() {
-        supportFragmentManager.popBackStack(
-            HomeFragment::javaClass.name,
-            POP_BACK_STACK_INCLUSIVE
-        )
+        showMainFragment(HomeFragment())
     }
 
     override fun showToast(stringId: Int) {

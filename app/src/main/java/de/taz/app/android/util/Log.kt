@@ -17,7 +17,7 @@ import kotlin.reflect.KProperty
 class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) =
-            Log(requestBuilder.javaClass.name)
+            Log(requestBuilder::class.java.name)
 
         var trace = mutableListOf<String>()
     }

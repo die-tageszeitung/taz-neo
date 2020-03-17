@@ -18,7 +18,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
@@ -64,7 +64,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configureWebView()
-        viewModel.displayableLiveData.observeDistinct(this) { displayable ->
+        viewModel.displayableLiveData.observeDistinctOnce(this) { displayable ->
             displayable?.let {
                 setHeader(displayable)
                 viewModel.displayable?.let {
