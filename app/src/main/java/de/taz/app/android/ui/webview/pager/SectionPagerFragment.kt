@@ -18,8 +18,6 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
-import de.taz.app.android.util.StableIdProvider
-import de.taz.app.android.util.StableIdViewModel
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
@@ -28,7 +26,6 @@ class SectionPagerFragment :
 
     lateinit var viewModel: SectionPagerViewModel
 
-    private var stableIdProvider: StableIdViewModel? = null
     private var sectionAdapter: SectionPagerAdapter? = null
 
     private var sectionKey: String? = null
@@ -70,9 +67,7 @@ class SectionPagerFragment :
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
-        stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
-            sectionAdapter = SectionPagerAdapter(this, it)
-        }
+        sectionAdapter = sectionAdapter ?: SectionPagerAdapter(this)
 
         setupViewPager()
 
@@ -107,9 +102,19 @@ class SectionPagerFragment :
         webview_pager_viewpager?.apply {
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            offscreenPageLimit = 1
             registerOnPageChangeCallback(pageChangeListener)
         }
+    }
+
+    private fun tearDownViewPager() {
+        webview_pager_viewpager?.apply {
+            adapter = null
+        }
+    }
+
+    override fun onDestroy() {
+        tearDownViewPager()
+        super.onDestroy()
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
@@ -129,14 +134,13 @@ class SectionPagerFragment :
         webview_pager_viewpager.setCurrentItem(position, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onStop() {
         webview_pager_viewpager?.adapter = null
+        super.onStop()
     }
 
     private inner class SectionPagerAdapter(
-        fragment: Fragment,
-        private val stableIdProvider: StableIdProvider
+        fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
         private var sections = emptyList<Section>()
 
@@ -150,11 +154,6 @@ class SectionPagerFragment :
         fun submitList(newSections: List<Section>) {
             sections = newSections
             notifyDataSetChanged()
-        }
-
-        override fun getItemId(position: Int): Long {
-            val filename = sections[position].sectionFileName
-            return stableIdProvider.getId(filename)
         }
 
         fun getCurrentSection(): Section {

@@ -5,12 +5,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +24,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
+import kotlinx.android.synthetic.main.fragment_webview_article.*
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
@@ -46,18 +46,18 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
         viewModel.displayableKey = displayableKey
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.scrollPosition?.let {
+            nested_scroll_view.scrollY = it
+        }
+
+        nested_scroll_view.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+            viewModel.scrollPosition = scrollY
+        }
 
         viewModel.displayableLiveData.let {
             observer = it.observeDistinct(this) { articleLiveData ->

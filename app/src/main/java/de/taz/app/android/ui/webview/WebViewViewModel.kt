@@ -16,5 +16,5 @@ abstract class WebViewViewModel<DISPLAYABLE : WebViewDisplayable> : ViewModel() 
     val displayable: DISPLAYABLE?
         get() = displayableLiveData.value
 
-
+    var scrollPosition: Int? = null
 }
