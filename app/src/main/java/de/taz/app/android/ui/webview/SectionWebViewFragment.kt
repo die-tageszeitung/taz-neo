@@ -1,16 +1,15 @@
 package de.taz.app.android.ui.webview
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.DateHelper
+import kotlinx.android.synthetic.main.fragment_webview_section.*
 
 class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section) {
 
@@ -19,14 +18,14 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
     override lateinit var viewModel: SectionWebViewViewModel
     private var displayableKey: String? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(SectionWebViewViewModel::class.java)
         viewModel.displayableKey = displayableKey
-        return super.onCreateView(inflater, container, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
+
+        web_view_wrapper.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+            viewModel.scrollPosition = scrollY
+        }
     }
 
     companion object {
@@ -62,4 +61,10 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
         }
     }
 
+    override fun onPageFinishedLoading() {
+        viewModel.scrollPosition?.let {
+            web_view_wrapper.scrollY = it
+        }
+        super.onPageFinishedLoading()
+    }
 }

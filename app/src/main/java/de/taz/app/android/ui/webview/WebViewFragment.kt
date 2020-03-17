@@ -114,7 +114,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
-    // TODO REFACTOR
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
         val isDisplayableLiveData = MediatorLiveData<Boolean>()
 
