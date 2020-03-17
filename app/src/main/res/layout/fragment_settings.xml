@@ -5,6 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -33,14 +34,15 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/fragment_settings_padding_horizontal"
-        android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/web_view_wrapper"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/nav_bottom_height"
+            android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+            android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
 
             <TextView
                 android:id="@+id/fragment_settings_category_general"
@@ -117,27 +119,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
             <TextView
-                android:id="@+id/fragment_settings_category_push_id"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_push"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
-
-            <TextView
-                android:id="@+id/fragment_settings_push_id"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_push_id" />
-
-            <TextView
                 android:id="@+id/fragment_settings_category_support"
                 style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_category_support"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_push_id" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
 
             <TextView
                 android:id="@+id/fragment_settings_support_report_bug"

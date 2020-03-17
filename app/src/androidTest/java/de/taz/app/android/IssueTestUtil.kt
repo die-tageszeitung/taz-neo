@@ -1,18 +1,17 @@
 package de.taz.app.android
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.squareup.moshi.Moshi
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.singletons.JsonHelper
 import kotlinx.io.IOException
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 object IssueTestUtil {
 
-    private val moshi = Moshi.Builder().build()
-    private val jsonAdapter = moshi.adapter(WrapperDto::class.java)
+    private val jsonAdapter = JsonHelper.adapter<WrapperDto>()
 
     private val context = InstrumentationRegistry.getInstrumentation().context
 

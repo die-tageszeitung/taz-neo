@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.eq
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.testArticle
 import de.taz.app.android.ui.main.MainContract
@@ -41,6 +42,8 @@ class ArticleWebViewPresenterTest {
     lateinit var apiService: ApiService
     @Mock
     lateinit var resourceInfoRepository: ResourceInfoRepository
+    @Mock
+    lateinit var downloadService: DownloadService
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
@@ -51,7 +54,11 @@ class ArticleWebViewPresenterTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
         MockitoAnnotations.initMocks(this)
-        presenter = ArticleWebViewPresenter(apiService, resourceInfoRepository)
+        presenter = ArticleWebViewPresenter(
+            apiService = apiService,
+            downloadService = downloadService,
+            resourceInfoRepository = resourceInfoRepository
+        )
 
         presenter.attach(webViewContractView)
 

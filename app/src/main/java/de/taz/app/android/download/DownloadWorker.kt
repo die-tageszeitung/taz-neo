@@ -39,12 +39,12 @@ class DownloadWorker(
     private val workManager: WorkManager
 ) {
 
-    constructor(appContext: Context) : this(
-        okHttpClient,
-        DownloadRepository.getInstance(appContext),
-        FileEntryRepository.getInstance(appContext),
-        FileHelper.createInstance(appContext),
-        WorkManager.getInstance(appContext)
+    constructor(applicationContext: Context) : this(
+        okHttpClient(applicationContext),
+        DownloadRepository.getInstance(applicationContext),
+        FileEntryRepository.getInstance(applicationContext),
+        FileHelper.createInstance(applicationContext),
+        WorkManager.getInstance(applicationContext)
     )
 
     private val log by Log
@@ -116,7 +116,7 @@ class DownloadWorker(
                                 downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             }
                         } else {
-                            log.warn("Download was not successful")
+                            log.warn("Download was not successful ${response.code}")
                             downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             Sentry.capture(response.message)
                         }
@@ -170,22 +170,28 @@ class WorkManagerDownloadWorker(
 }
 
 class ScheduleIssueDownloadWorkManagerWorker(
-    private val appContext: Context,
+    applicationContext: Context,
     workerParameters: WorkerParameters
-) : CoroutineWorker(appContext, workerParameters) {
+) : CoroutineWorker(applicationContext, workerParameters) {
 
     override suspend fun doWork(): Result = coroutineScope {
+
+        val downloadService = DownloadService.getInstance(applicationContext)
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+
         inputData.getString(DATA_ISSUE_FEEDNAME)?.let { feedName ->
             inputData.getString(DATA_ISSUE_DATE)?.let { date ->
                 async {
                     try {
-                        ApiService.getInstance(appContext).getIssueByFeedAndDate(
+                        ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
                             feedName,
                             date
                         )?.let { issue ->
-                            IssueRepository.getInstance(appContext).save(issue)
-                            IssueRepository.getInstance(appContext).setDownloadDate(issue, Date())
-                            DownloadService.scheduleDownload(appContext, issue)
+                            issueRepository.apply {
+                                save(issue)
+                                setDownloadDate(issue, Date())
+                            }
+                            downloadService.scheduleDownload(issue)
                             Result.success()
                         } ?: Result.failure()
                     } catch (e: Exception) {

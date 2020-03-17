@@ -41,8 +41,6 @@
               "baseUrl": "https://example.com/2019/2019-09-25",
               "status": "regular",
               "minResourceVersion": 6,
-              "zipName": "content.pdf.taz.zip",
-              "zipPdfName": null,
               "imprint": {
                 "articleHtml": {
                   "name": "art03445036.html",
@@ -60,10 +58,6 @@
                 "audioFile": null,
                 "imageList": null,
                 "authorList": null
-              },
-              "navButton": {
-                "name": "navButton.taz.normal.png",
-                "alpha": 0.9
               },
               "fileList": [
                 "Media.968545.norm.jpg",
@@ -4955,8 +4949,6 @@
               "baseUrl": "https://example.com/2019/2019-09-24",
               "status": "regular",
               "minResourceVersion": 6,
-              "zipName": "content.pdf.taz.zip",
-              "zipPdfName": null,
               "imprint": {
                 "articleHtml": {
                   "name": "art03444774.html",
@@ -4974,10 +4966,6 @@
                 "audioFile": null,
                 "imageList": null,
                 "authorList": null
-              },
-              "navButton": {
-                "name": "navButton.taz.normal.png",
-                "alpha": 0.9
               },
               "fileList": [
                 "Media.968375.norm.jpg",

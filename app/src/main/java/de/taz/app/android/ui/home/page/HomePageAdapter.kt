@@ -1,8 +1,8 @@
 package de.taz.app.android.ui.home.page
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -12,23 +12,24 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
-import androidx.core.content.FileProvider.getUriForFile
 import de.taz.app.android.R
+import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
+import de.taz.app.android.ui.moment.MomentView
 
 
 /**
  *  [HomePageAdapter] binds the [IssueStub]s to the [RecyclerView]/[ViewPager2]
  *  [ViewHolder] is used to recycle views
  */
-open class HomePageAdapter(
+abstract class HomePageAdapter(
     private val fragment: HomePageContract.View,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: HomePageContract.Presenter
+    private val presenter: HomePageContract.Presenter,
+    private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private val fileHelper = FileHelper.getInstance()
@@ -40,9 +41,6 @@ open class HomePageAdapter(
     private var inactiveFeedNames: Set<String> = emptySet()
 
     private val log by Log
-
-    private val feedMap
-        get() = feedList.associateBy { it.name }
 
     fun getItem(position: Int): IssueStub? {
         return try {
@@ -70,7 +68,7 @@ open class HomePageAdapter(
 
     open fun setIssueStubs(issues: List<IssueStub>) {
         if (allIssueStubList != issues) {
-            log.debug("settings issueStubs to a list of ${issues.size} issues")
+            log.debug("setting issueStubs to a list of ${issues.size} issues")
             allIssueStubList = issues
             filterAndSetIssues()
         }
@@ -134,14 +132,9 @@ open class HomePageAdapter(
         )
     }
 
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launch {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName])
-            }
-        }
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item).clear()
+        super.onViewRecycled(holder)
     }
 
     /**
@@ -160,26 +153,20 @@ open class HomePageAdapter(
 
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
-                fragment.getLifecycleOwner().lifecycleScope.launch {
-                    getItem(adapterPosition)?.getIssue()?.moment?.getAllFiles()?.last()?.let{ image ->
-                        val imageAsFile = fileHelper.getFile(image)
-                        val applicationId = view.context.packageName
-                        val imageUriNew = getUriForFile(view.context, "${applicationId}.contentProvider", imageAsFile)
-
-                        log.debug("imageUriNew: $imageUriNew")
-                        log.debug("imageAsFile: $imageAsFile")
-                        val sendIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                            type = "image/jpg"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        view.context.startActivity(shareIntent)
+                getItem(adapterPosition)?.let { item ->
+                    fragment.getMainView()?.let { mainView ->
+                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
-
                 true
             }
+
+            dateOnClickListenerFunction?.let{ dateOnClickListenerFunction ->
+                itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
+                    dateOnClickListenerFunction()
+                }
+            }
         }
+
     }
 }

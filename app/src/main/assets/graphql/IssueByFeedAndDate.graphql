@@ -26,8 +26,6 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                 baseUrl
                 status
                 minResourceVersion
-                zipName
-                zipPdfName
                 imprint {
                     articleHtml {
                         name
@@ -65,12 +63,6 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         }
                     }
                 }
-                navButton {
-                    name
-                    alpha
-                }
-                fileList
-                fileListPdf
                 sectionList {
                     sectionHtml {
                         name

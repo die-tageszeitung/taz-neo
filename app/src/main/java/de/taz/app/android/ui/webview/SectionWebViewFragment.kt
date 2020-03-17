@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -15,7 +13,8 @@ import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
+class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section),
+    BackFragment {
 
     var section: Section? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
@@ -28,14 +27,6 @@ class SectionWebViewFragment : WebViewFragment<Section>(), BackFragment {
             fragment.section = section
             return fragment
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview_section, container, false)
     }
 
     override fun getWebViewDisplayable(): Section? {

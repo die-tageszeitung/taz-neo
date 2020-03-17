@@ -1,16 +1,16 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 const val ARTICLE_POSITION = "position"
 
-class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
+class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fragment_webview_pager),
     ArticlePagerContract.View, BackFragment {
 
     override val presenter = ArticlePagerPresenter()
@@ -56,7 +56,10 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
         // Ensure initial fragment states are copied to the model via the presenter
         initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
 
-        webview_pager_viewpager.reduceDragSensitivity(2)
+        webview_pager_viewpager.apply {
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            moveContentBeneathStatusBar()
+        }
         // Initialize the presenter and let it call this fragment to render the pager
         presenter.onViewCreated(savedInstanceState)
 
@@ -91,14 +94,6 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(),
     override fun onDestroyView() {
         webview_pager_viewpager?.adapter = null
         super.onDestroyView()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_webview_pager, container, false)
     }
 
     override fun onBackPressed(): Boolean {

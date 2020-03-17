@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import java.net.SocketTimeoutException
@@ -17,6 +16,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.NoSuchElementException
 
 /**
  * Service class to get Models from GraphQl
@@ -27,15 +27,12 @@ class ApiService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
-    private val log by Log
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
-
 
     /**
      * function to connect subscriptionId to tazId
@@ -166,7 +163,11 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getIssueByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate")
         return transformExceptions({
-            getIssuesByFeedAndDate(feedName, issueDate, 1).first()
+            try {
+                getIssuesByFeedAndDate(feedName, issueDate, 1).first()
+            } catch (e: NoSuchElementException) {
+                null
+            }
         }, tag)
     }
 
@@ -379,7 +380,9 @@ class ApiService private constructor(applicationContext: Context) {
         lastAction: String?,
         conditions: String?,
         storageType: String?,
-        errorProtocol: String?
+        errorProtocol: String?,
+        ramUsed: String?,
+        ramAvailable: String?
     ): Boolean? {
         val tag = "sendErrorReport"
         log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
@@ -394,7 +397,9 @@ class ApiService private constructor(applicationContext: Context) {
                         lastAction,
                         conditions,
                         storageType,
-                        errorProtocol
+                        errorProtocol,
+                        ramUsed = ramUsed,
+                        ramAvailable = ramAvailable
                     )
                 )?.errorReport
             },

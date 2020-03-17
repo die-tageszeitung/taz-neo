@@ -16,7 +16,8 @@
 
     <color name="backgroundColor">@color/white</color>
     <color name="textColor">@color/black</color>
-    <color name="textColorAccent">@color/darkGrey</color>
+    <color name="textColorAccent">@color/lightGrey</color>
+    <color name="textColorSection">@color/tazRed</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
     
