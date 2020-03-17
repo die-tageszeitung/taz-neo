@@ -19,12 +19,7 @@ data class Issue(
     override val baseUrl: String,
     override val status: IssueStatus,
     val minResourceVersion: Int,
-    val zipName: String? = null,
-    val zipPdfName: String? = null,
-    val navButton: NavButton? = null,
     val imprint: Article?,
-    val fileList: List<String> = emptyList(),
-    val fileListPdf: List<String> = emptyList(),
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val dateDownload: Date? = null
@@ -38,12 +33,7 @@ data class Issue(
         issueDto.baseUrl,
         issueDto.status,
         issueDto.minResourceVersion,
-        issueDto.zipName,
-        issueDto.zipPdfName,
-        issueDto.navButton,
         issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
-        issueDto.fileList,
-        issueDto.fileListPdf ?: emptyList(),
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
@@ -66,16 +56,16 @@ data class Issue(
         return tag
     }
 
-    suspend fun downloadMoment(applicationContext: Context) {
+    suspend fun downloadMoment(applicationContext: Context? = null) {
         withContext(Dispatchers.IO) {
-            DownloadService.download(applicationContext, moment)
+            DownloadService.getInstance(applicationContext).download(moment)
         }
     }
 
-    suspend fun downloadPages(applicationContext: Context) {
+    suspend fun downloadPages(applicationContext: Context? = null) {
         withContext(Dispatchers.IO) {
             pageList.forEach {
-                DownloadService.download(applicationContext, it)
+                DownloadService.getInstance(applicationContext).download(it)
             }
         }
     }
@@ -95,6 +85,13 @@ data class Issue(
     override fun deleteFiles() {
         super.deleteFiles()
         IssueRepository.getInstance().resetDownloadDate(this)
+    }
+
+    suspend fun delete() = withContext(Dispatchers.Default) {
+        DownloadService.getInstance().cancelAllDownloads()
+        moment.deleteFiles()
+        deleteFiles()
+        IssueRepository.getInstance().delete(this@Issue)
     }
 
 }

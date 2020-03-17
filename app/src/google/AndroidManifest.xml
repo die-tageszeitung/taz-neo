@@ -1,30 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="de.taz.app.android"
-        android:installLocation="auto">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.taz.app.android"
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
-            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-            android:maxSdkVersion="18" />
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
 
     <supports-screens
-        android:smallScreens="true"
-        android:normalScreens="true"
         android:largeScreens="false"
-        android:xlargeScreens="false"
+        android:largestWidthLimitDp="600"
+        android:normalScreens="true"
         android:requiresSmallestWidthDp="200"
-        android:largestWidthLimitDp="600"/>
+        android:smallScreens="true"
+        android:xlargeScreens="false" />
 
     <application>
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/notification_fcm_channel_id" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_foreground" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
         <service
-                tools:replace="android:exported"
-                android:name=".FirebaseMessagingService"
-                android:exported="false">
+            android:name=".FirebaseMessagingService"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

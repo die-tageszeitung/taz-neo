@@ -1,11 +1,12 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -24,9 +25,12 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
-class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), CoverflowContract.View {
+class CoverflowFragment :
+    BaseMainFragment<CoverflowContract.Presenter>(R.layout.fragment_coverflow),
+    CoverflowContract.View {
 
     override val presenter = CoverflowPresenter()
 
@@ -35,17 +39,10 @@ class CoverflowFragment : BaseMainFragment<CoverflowContract.Presenter>(), Cover
     private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        presenter
+        presenter,
+        null
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_coverflow, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         presenter.attach(this)

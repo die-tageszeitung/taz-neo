@@ -14,20 +14,13 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_archive_end_navigation.*
 
-class FeedFilterFragment : BaseFragment<FeedFilterContract.Presenter>(),
+class FeedFilterFragment :
+    BaseFragment<FeedFilterContract.Presenter>(R.layout.fragment_archive_end_navigation),
     FeedFilterContract.View {
 
     override val presenter =
         FeedFilterPresenter()
     internal val adapter = FeedAdapter()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_archive_end_navigation, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,7 +45,7 @@ class FeedFilterFragment : BaseFragment<FeedFilterContract.Presenter>(),
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        if(adapter.inactiveFeedList != inactiveFeedNames) {
+        if (adapter.inactiveFeedList != inactiveFeedNames) {
             adapter.inactiveFeedList = inactiveFeedNames.toMutableList()
             adapter.notifyDataSetChanged()
         }

@@ -67,7 +67,7 @@
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/textColorSection</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:paddingBottom">7dp</item>
     </style>
@@ -78,23 +78,20 @@
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">32dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">25dp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">32dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">32dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
@@ -185,6 +182,7 @@
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:textSize">17sp</item>
@@ -193,6 +191,7 @@
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Date" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
         <item name="android:textSize">16sp</item>
         <item name="android:includeFontPadding">false</item>

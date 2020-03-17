@@ -12,6 +12,9 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
     abstract fun getByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): IssueStub?
 
+    @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
+    abstract fun getByFeedDateAndStatusLiveData(feedName: String, date: String, status: IssueStatus): LiveData<IssueStub?>
+
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatest(): IssueStub?
 
@@ -19,7 +22,7 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     abstract fun getLatestLiveData(): LiveData<IssueStub?>
 
     @Query("SELECT * FROM Issue ORDER BY date DESC")
-    abstract fun getAllLiveData(): LiveData<List<IssueStub>?>
+    abstract fun getAllLiveData(): LiveData<List<IssueStub>>
 
     @Query("SELECT * FROM Issue WHERE Issue.status != \"public\" ORDER BY date DESC")
     abstract fun getAllLiveDataExceptPublic(): LiveData<List<IssueStub>?>

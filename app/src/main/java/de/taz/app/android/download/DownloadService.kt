@@ -3,6 +3,7 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.work.*
 import de.taz.app.android.R
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.dto.StorageType
@@ -14,6 +15,7 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -24,14 +26,17 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 
 const val CAUSE_NO_INTERNET = "no internet"
 
-object DownloadService {
+@Mockable
+class DownloadService private constructor(val applicationContext: Context){
+
+    companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    private val apiService = ApiService.getInstance()
-    private val appInfoRepository = AppInfoRepository.getInstance()
-    private val downloadRepository = DownloadRepository.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
+    private val apiService = ApiService.getInstance(applicationContext)
+    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    private val downloadRepository = DownloadRepository.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     private val downloadJobs = Collections.synchronizedList(mutableListOf<Job>())
 
@@ -40,7 +45,7 @@ object DownloadService {
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    fun download(appContext: Context, cacheableDownload: CacheableDownload) {
+    fun download(cacheableDownload: CacheableDownload) {
 
         var downloadId: String? = null
         val start: Long = System.currentTimeMillis()
@@ -62,9 +67,9 @@ object DownloadService {
                     this.cancel(CAUSE_NO_INTERNET, e)
                 }
 
-                createDownloadsForCacheableDownload(appContext, cacheableDownload)
+                createDownloadsForCacheableDownload(cacheableDownload)
 
-                DownloadWorker(appContext).startDownloads(
+                DownloadWorker(applicationContext).startDownloads(
                     cacheableDownload.getAllFiles()
                 )
             }
@@ -92,7 +97,7 @@ object DownloadService {
                     }
                 } else {
                     if (cause is ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(appContext).showToast(R.string.toast_no_internet)
+                        ToastHelper.getInstance(applicationContext).showToast(R.string.toast_no_internet)
                     }
                 }
             }
@@ -103,11 +108,10 @@ object DownloadService {
      * use [WorkManager] to download in background
      * @param cacheableDownload - object implementing [CacheableDownload] to download files of
      */
-    fun scheduleDownload(appContext: Context, cacheableDownload: CacheableDownload) {
-        val downloads = createDownloadsForCacheableDownload(appContext, cacheableDownload)
+    fun scheduleDownload(cacheableDownload: CacheableDownload) {
+        val downloads = createDownloadsForCacheableDownload(cacheableDownload)
         if (downloads.isNotEmpty()) {
             enqueueDownloads(
-                appContext,
                 downloads,
                 cacheableDownload.getDownloadTag()
             )
@@ -119,8 +123,8 @@ object DownloadService {
      * @param issueFeedName: name of the feed of the issue
      * @param issueDate: date of the issue
      */
-    fun scheduleDownload(appContext: Context, issueFeedName: String, issueDate: String) {
-        WorkManager.getInstance(appContext)
+    fun scheduleDownload(issueFeedName: String, issueDate: String) {
+        WorkManager.getInstance(applicationContext)
             .enqueue(createScheduleDownloadsRequest(issueFeedName, issueDate))
     }
 
@@ -135,21 +139,18 @@ object DownloadService {
 
     /**
      * enqueue [Download]s with [WorkManager]
-     * @param appContext - [Context] of the app
      * @param downloads - downloads to enqueue
      * @param tag - tag for the downloads (can be used to cancel downloads)
      */
     private fun enqueueDownloads(
-        appContext: Context,
         downloads: List<Download>,
         tag: String? = null
     ): Operation {
         val requests = downloads.map { createRequestAndUpdate(it, tag) }
-        return WorkManager.getInstance(appContext).enqueue(requests)
+        return WorkManager.getInstance(applicationContext).enqueue(requests)
     }
 
     private fun createDownloadsForCacheableDownload(
-        appContext: Context,
         cacheableDownload: CacheableDownload
     ): List<Download> {
         val downloads = mutableListOf<Download>()
@@ -173,7 +174,7 @@ object DownloadService {
         // create resource downloads
         val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
         if (resourceFiles.isNotEmpty()) {
-            val resourceInfo = ResourceInfoRepository.getInstance(appContext).get()
+            val resourceInfo = ResourceInfoRepository.getInstance(applicationContext).get()
             resourceInfo?.let {
                 downloads.addAll(
                     createAndSaveDownloads(

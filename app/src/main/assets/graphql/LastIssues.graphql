@@ -26,8 +26,6 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                 baseUrl
                 status
                 minResourceVersion
-                zipName
-                zipPdfName
                 imprint {
                     articleHtml {
                         name
@@ -65,12 +63,6 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         }
                     }
                 }
-                navButton {
-                    name
-                    alpha
-                }
-                fileList
-                fileListPdf
                 sectionList {
                     sectionHtml {
                         name

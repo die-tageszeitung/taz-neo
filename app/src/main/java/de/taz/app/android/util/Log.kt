@@ -4,6 +4,8 @@ import android.util.Log
 import de.taz.app.android.annotation.Mockable
 import io.sentry.Sentry
 import io.sentry.event.BreadcrumbBuilder
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.reflect.KProperty
 
 /**
@@ -16,6 +18,7 @@ class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) =
             Log(requestBuilder.javaClass.name)
+
         var trace = mutableListOf<String>()
     }
 
@@ -52,16 +55,20 @@ class Log(private val tag: String) {
     }
 
     /**
-        keep 50 lines of logs for attach to error reports;
-        if a log line is longer than 200 chars, truncate it
+    keep 50 lines of logs for attach to error reports;
+    if a log line is longer than 200 chars, truncate it
      */
     private fun addToTrace(message: String) {
-        var truncateMessage = if (message.length > 200) message.substring(0,200) else message
-        val traceLine = "$tag: $truncateMessage\n"
+        val truncateMessage = if (message.length > 200) message.substring(0, 200) else message
+
+        val time = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.GERMAN).format(
+            Calendar.getInstance().time
+        )
+
+        val traceLine = "$time $tag: $truncateMessage\n"
         if (trace.size < 50) {
-          trace.add(traceLine)
-        }
-        else {
+            trace.add(traceLine)
+        } else {
             trace.removeAt(0)
             trace.add(traceLine)
         }

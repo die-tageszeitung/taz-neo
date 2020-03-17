@@ -33,6 +33,14 @@ fun <T> LiveData<T>.observeDistinct(
     return observer
 }
 
+fun <T> LiveData<T>.observeDistinct(
+    lifecycleOwner: LifecycleOwner,
+    observer: Observer<T>
+): Observer<T> {
+    Transformations.distinctUntilChanged(this).observe(lifecycleOwner, observer)
+    return observer
+}
+
 fun <T> LiveData<T>.observeDistinctOnce(
     lifecycleOwner: LifecycleOwner,
     observationCallback: (T) -> Unit

@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview
 
-import android.content.Intent
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -13,13 +12,17 @@ import de.taz.app.android.util.Log
 import java.io.File
 import android.net.Uri
 import androidx.annotation.RequiresApi
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
+import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.lang.Exception
 import java.net.URLDecoder
 
-class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) : WebViewClient() {
+class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) :
+    WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
@@ -31,8 +34,14 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    override fun shouldOverrideUrlLoading(webView: WebView?, request: WebResourceRequest?): Boolean {
-        return shouldOverride(webView, request?.url.toString()) || super.shouldOverrideUrlLoading(webView, request)
+    override fun shouldOverrideUrlLoading(
+        webView: WebView?,
+        request: WebResourceRequest?
+    ): Boolean {
+        return shouldOverride(webView, request?.url.toString()) || super.shouldOverrideUrlLoading(
+            webView,
+            request
+        )
     }
 
     private fun shouldOverride(webView: WebView?, url: String?): Boolean {
@@ -104,7 +113,7 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
     ): WebResourceResponse? {
         request?.let {
             val url = Uri.decode(request.url.toString())
-            if(handleLinks(webView, url)) {
+            if (handleLinks(webView, url)) {
                 return createCustomWebResourceResponse(webView, url)
             }
         }
@@ -122,7 +131,10 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
     }
 
     private fun openInBrowser(webView: WebView, url: String) {
-        webView.context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        val color = ContextCompat.getColor(webView.context, R.color.colorAccent)
+        CustomTabsIntent.Builder().setToolbarColor(color).build().apply{
+            launchUrl(webView.context, Uri.parse(url))
+        }
     }
 
     /**
@@ -153,7 +165,10 @@ class AppWebViewClient<DISPLAYABLE: WebViewDisplayable>(private val presenter: W
      * handle correctly different resource types
      * TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
      */
-    private fun createCustomWebResourceResponse(view: WebView?, url: String?): WebResourceResponse? {
+    private fun createCustomWebResourceResponse(
+        view: WebView?,
+        url: String?
+    ): WebResourceResponse? {
         val newUrl = overrideInternalLinks(view, url)
         val data = File(newUrl.toString().removePrefix("file:///"))
         log.debug("Intercepted Url is $url")

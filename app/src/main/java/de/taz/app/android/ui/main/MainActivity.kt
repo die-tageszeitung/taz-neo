@@ -27,9 +27,12 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -41,6 +44,7 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +78,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
-    private fun setThemeAndReCreate(sharedPreferences: SharedPreferences, isReCreateFlagSet : Boolean = false) {
+    private fun setThemeAndReCreate(
+        sharedPreferences: SharedPreferences,
+        isReCreateFlagSet: Boolean = false
+    ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
@@ -87,11 +94,28 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private fun isDarkTheme(): Boolean {
+        return this.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+
+        // if "text_night_mode" is not set in shared preferences -> set it now
+        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
+            SharedPreferenceBooleanLiveData(
+                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
+            ).postValue(isDarkTheme())
+        }
+
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
+        }
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
-
         setContentView(R.layout.activity_main)
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -123,12 +147,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 }
             }
         })
-
-        tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
-        }
     }
 
     override fun onResume() {
@@ -193,6 +211,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun showIssue(issueStub: IssueStub) {
+        presenter.showIssue(issueStub)
+    }
+
     @MainThread
     private fun tryShowExistingSection(section: Section): Boolean {
         val currentFragment =
@@ -203,7 +225,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return false
     }
 
-    override fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int, @AnimRes exitAnimation: Int) {
+    override fun showMainFragment(
+        fragment: Fragment,
+        @AnimRes enterAnimation: Int,
+        @AnimRes exitAnimation: Int
+    ) {
         runOnUiThread {
             supportFragmentManager
                 .beginTransaction()
@@ -222,6 +248,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun unlockEndNavigationView() {
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
+    }
+
+    override fun openDrawer() {
+        openDrawer(GravityCompat.START)
+    }
+
+    override fun openDrawer(gravity: Int) {
+        drawer_layout.openDrawer(gravity)
     }
 
     override fun closeDrawer() {

@@ -13,19 +13,15 @@ class FileEntryRepository private constructor(
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
     fun save(fileEntry: FileEntry) {
-        appDatabase.runInTransaction {
-            val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
-            fromDB?.let {
-                if (fromDB.moTime < fileEntry.moTime)
-                    appDatabase.fileEntryDao().insertOrReplace(fileEntry)
-            } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
-        }
+        val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
+        fromDB?.let {
+            if (fromDB.moTime < fileEntry.moTime)
+                appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+        } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
     fun save(fileEntries: List<FileEntry>) {
-        appDatabase.runInTransaction {
-            fileEntries.forEach { save(it) }
-        }
+        fileEntries.forEach { save(it) }
     }
 
     fun get(fileEntryName: String): FileEntry? {
@@ -43,14 +39,12 @@ class FileEntryRepository private constructor(
     }
 
     fun delete(fileEntry: FileEntry) {
-        appDatabase.runInTransaction {
-            appDatabase.downloadDao().apply {
-                get(fileEntry.name)?.let {
-                    delete(it)
-                }
+        appDatabase.downloadDao().apply {
+            get(fileEntry.name)?.let {
+                delete(it)
             }
-            appDatabase.fileEntryDao().delete(fileEntry)
         }
+        appDatabase.fileEntryDao().delete(fileEntry)
     }
 
     fun delete(fileEntries: List<FileEntry>) {

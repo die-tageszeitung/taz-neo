@@ -10,6 +10,7 @@
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer tazId ein.</string>
+    <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_elapsed">Ihr Abo ist abelaufen.</string>
@@ -55,6 +56,9 @@
     <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
+    <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
+    <string name="fragment_bottom_sheet_issue_share">Moment teilen</string>
+    <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
 
     <string name="fragment_bookmarks_title">Leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
@@ -85,9 +89,9 @@
     <string name="percentage">%d%%</string>
     <string name="settings_general_keep_number_issues">Die letzten %s Ausgaben speichern</string>
     <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
-    <string name="settings_category_push">PushID</string>
     <string name="settings_category_support">Support</string>
-    <string name="settings_support_report_bug">Bug melden</string>
+    <string name="settings_support_report_bug">Fehler melden</string>
+    <string name="settings_download_issue">Ausgabe herunterladen</string>
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Fromular um das fehlerhafte Verhalten zu beschreiben.</string>
@@ -100,11 +104,14 @@
     <string name="fragment_error_report_conditions_hint">Beschreiben Sie mögliche Außeneinflüsse hier: war WLAN an? ein Firewall? Benutzen Sie ein Proxy? Gabs gar kein Netz?</string>
     <string name="fragment_error_report_send_button">Abschicken</string>
 
-    <string name="channel_new_version">Neue Version</string>
-    <string name="channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
+    <string name="notification_channel_new_version">Neue Version</string>
+    <string name="notification_channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
 
     <string name="notification_new_version_title">Neue Version verfügbar</string>
     <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
+
+    <string name="notification_channel_fcm">Eilmeldungen</string>
+    <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>

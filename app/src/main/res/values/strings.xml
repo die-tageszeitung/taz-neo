@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">taz neo</string>
 
+    <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
+
+    <string name="notification_channel_new_version">New version</string>
+    <string name="notification_channel_new_version_description">Notification if a new version exists</string>
+
+    <string name="notification_new_version_title">A new version is available</string>
+    <string name="notification_new_version_body">Click here to download it</string>
+
+    <string name="notification_channel_fcm">Breaking news</string>
+    <string name="notification_channel_fcm_description">Breaking news like election results</string>
+
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
 
@@ -9,6 +20,7 @@
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_login_with_email">Please login with your email-adress.</string>
+    <string name="toast_error_report_sent">Error report sent.</string>
 
     <string name="toast_unknown_error">Unknown error occurred.</string>
     <string name="toast_logout_elapsed">Your subscription has expired.</string>
@@ -62,6 +74,10 @@
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
 
+    <string name="fragment_bottom_sheet_issue_read">read this issue</string>
+    <string name="fragment_bottom_sheet_issue_share">share cover</string>
+    <string name="fragment_bottom_sheet_issue_delete">delete issue</string>
+
     <string name="fragment_cover_flow_to_archive">To archive</string>
 
     <string name="settings_header">settings</string>
@@ -82,9 +98,9 @@
     <string name="settings_increase_font_size">Increase font size</string>
     <string name="settings_general_keep_number_issues">Keep last %s issues</string>
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
-    <string name="settings_category_push">pushID</string>
     <string name="settings_category_support">support</string>
     <string name="settings_support_report_bug">Report a bug</string>
+    <string name="settings_download_issue">Download issue</string>
 
     <string name="fragment_error_report_title">Report a bug</string>
     <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>
@@ -98,12 +114,6 @@
     <string name="fragment_error_report_send_button">Send</string>
 
     <string name="percentage">%d%%</string>
-
-    <string name="channel_new_version">New version</string>
-    <string name="channel_new_version_description">Notification if a new version exists</string>
-
-    <string name="notification_new_version_title">A new version is available</string>
-    <string name="notification_new_version_body">Click here to download it</string>
 
     <string name="fragment_login_title">Login</string>
     <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
@@ -143,7 +153,7 @@
     <string name="fragment_login_missing_credentials_header">To use the new app you need to login with your email and a self-elected password.</string>
     <string name="fragment_login_missing_credentials_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
     <string name="login_forgot_password">Did you forget your password?</string>
-    <string name="login_forgot_password_button">Click here.</string>
+    <string name="login_forgot_password_button">Click here</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
     <string name="fragment_login_missing_credentials_login">Login</string>
 
