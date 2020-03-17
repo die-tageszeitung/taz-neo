@@ -23,7 +23,6 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.web_view
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -54,7 +53,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        getMainView()?.getApplicationContext()?.let { applicationContext ->
+        getMainActivity()?.getApplicationContext()?.let { applicationContext ->
             tazApiCssPreferences =
                 applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
             tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
@@ -78,7 +77,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             webViewClient = AppWebViewClient(this@WebViewFragment)
             webChromeClient = WebChromeClient()
             settings.javaScriptEnabled = true
-            addJavascriptInterface(TazApiJS(context.applicationContext), TAZ_API_JS)
+            addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
         }
     }
 
@@ -96,7 +95,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         }
     }
 
-    fun getMainView(): MainContract.View? {
+    fun getMainActivity(): MainActivity? {
         return activity as? MainActivity
     }
 
@@ -200,7 +199,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
 
     override fun onLinkClicked(displayable: WebViewDisplayable) {
-        getMainView()?.showInWebView(displayable)
+        getMainActivity()?.showInWebView(displayable)
     }
 
     override fun onPageFinishedLoading() {
@@ -217,11 +216,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                 ResourceInfoRepository.getInstance().save(it)
                 it
             } ?: run {
-                getMainView()?.showToast(R.string.something_went_wrong_try_later)
+                getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
                 null
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
-            getMainView()?.showToast(R.string.toast_no_internet)
+            getMainActivity()?.showToast(R.string.toast_no_internet)
             null
         }
     }
