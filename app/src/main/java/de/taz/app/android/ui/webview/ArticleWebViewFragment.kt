@@ -5,19 +5,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
@@ -29,27 +30,41 @@ import kotlinx.coroutines.*
 class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
     BackFragment {
 
-    override val viewModel = ArticleWebViewViewModel()
+    override lateinit var viewModel: ArticleWebViewViewModel
 
     private val log by Log
     var observer: Observer<Article?>? = null
 
     private val fileHelper = FileHelper.getInstance()
+    private var displayableKey: String? = null
 
     companion object {
         fun createInstance(articleFileName: String): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
-            fragment.viewModel.displayableKey = articleFileName
+            fragment.displayableKey = articleFileName
             return fragment
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        viewModel = ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
+        viewModel.displayableKey = displayableKey
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         viewModel.displayableLiveData.let {
             observer = it.observeDistinct(this) { articleLiveData ->
                 if (articleLiveData?.bookmarked == true) {
-                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_active)
+                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+                } else {
+                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
                 }
             }
         }
