@@ -81,7 +81,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
                 section.articleList.size
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                // TODO showSection()
+                activity?.onBackPressed()
             }
         }
     }
