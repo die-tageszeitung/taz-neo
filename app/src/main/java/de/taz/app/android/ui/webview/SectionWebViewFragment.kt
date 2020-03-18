@@ -56,14 +56,15 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
             R.id.bottom_navigation_action_home -> {
                 showHome()
             }
-            R.id.bottom_navigation_action_size ->
+            R.id.bottom_navigation_action_size -> {
                 showFontSettingBottomSheet()
+            }
         }
     }
 
     override fun onPageFinishedLoading() {
         viewModel.scrollPosition?.let {
-            web_view_wrapper.scrollY = it
+            web_view_wrapper?.scrollY = it
         }
         super.onPageFinishedLoading()
     }

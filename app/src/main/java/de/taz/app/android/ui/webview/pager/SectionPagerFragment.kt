@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -24,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
 
-    lateinit var viewModel: SectionPagerViewModel
+    val viewModel = SectionPagerViewModel()
 
     private var sectionAdapter: SectionPagerAdapter? = null
 
@@ -50,7 +49,6 @@ class SectionPagerFragment :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(SectionPagerViewModel::class.java)
         sectionKey?.let {
             viewModel.sectionKey = it
         }

@@ -8,14 +8,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
-import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.main.MainActivity
 
 abstract class ViewModelBaseMainFragment(

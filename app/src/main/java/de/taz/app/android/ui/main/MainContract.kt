@@ -36,7 +36,7 @@ interface MainContract : BaseContract {
 
         fun showIssue(issueStub: IssueStub)
 
-        fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0)
+        fun showMainFragment(fragment: Fragment, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0, showFromBackStack: Boolean = true)
 
         fun showToast(@StringRes stringId: Int)
 
