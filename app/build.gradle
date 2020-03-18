@@ -44,6 +44,7 @@ android {
             }
         }
         vectorDrawables.useSupportLibrary = true
+        resConfig "de"
     }
 
     compileOptions {
