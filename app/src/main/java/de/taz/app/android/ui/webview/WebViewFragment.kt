@@ -234,14 +234,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
      */
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = viewModel.displayable?.getIssueOperations()
-
-        val issue = IssueRepository.getInstance().getIssueByFeedAndDate(
-            issueOperations?.feedName ?: "",
-            issueOperations?.date ?: "",
-            issueOperations?.status ?: IssueStatus.public
-        )
-
-        val minResourceVersion = issue?.minResourceVersion ?: 0
+        val minResourceVersion = issueOperations?.minResourceVersion ?: 0
         val currentResourceVersion =
             ResourceInfoRepository.getInstance().get()?.resourceVersion ?: 0
 
