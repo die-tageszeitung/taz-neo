@@ -1,0 +1,1169 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "d20d80b07e17e8555aa598d4ad44ad38",
+    "entities": [
+      {
+        "tableName": "AppInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`appName` TEXT NOT NULL, `globalBaseUrl` TEXT NOT NULL, `appType` TEXT NOT NULL, `androidVersion` INTEGER NOT NULL, PRIMARY KEY(`appName`))",
+        "fields": [
+          {
+            "fieldPath": "appName",
+            "columnName": "appName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "globalBaseUrl",
+            "columnName": "globalBaseUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appType",
+            "columnName": "appType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "androidVersion",
+            "columnName": "androidVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "appName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ArticleAudioFileJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `audioFileName` TEXT NOT NULL, PRIMARY KEY(`articleFileName`, `audioFileName`), FOREIGN KEY(`articleFileName`) REFERENCES `Article`(`articleFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`audioFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioFileName",
+            "columnName": "audioFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "articleFileName",
+            "audioFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ArticleAudioFileJoin_articleFileName",
+            "unique": false,
+            "columnNames": [
+              "articleFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAudioFileJoin_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
+          },
+          {
+            "name": "index_ArticleAudioFileJoin_audioFileName",
+            "unique": false,
+            "columnNames": [
+              "audioFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAudioFileJoin_audioFileName` ON `${TABLE_NAME}` (`audioFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Article",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "articleFileName"
+            ],
+            "referencedColumns": [
+              "articleFileName"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "audioFileName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ArticleAuthor",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `authorName` TEXT, `authorFileName` TEXT, `index` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(`articleFileName`) REFERENCES `Article`(`articleFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "authorName",
+            "columnName": "authorName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "authorFileName",
+            "columnName": "authorFileName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_ArticleAuthor_authorFileName",
+            "unique": false,
+            "columnNames": [
+              "authorFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAuthor_authorFileName` ON `${TABLE_NAME}` (`authorFileName`)"
+          },
+          {
+            "name": "index_ArticleAuthor_articleFileName",
+            "unique": false,
+            "columnNames": [
+              "articleFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAuthor_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Article",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "articleFileName"
+            ],
+            "referencedColumns": [
+              "articleFileName"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Article",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarked` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, PRIMARY KEY(`articleFileName`))",
+        "fields": [
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "teaser",
+            "columnName": "teaser",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "onlineLink",
+            "columnName": "onlineLink",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pageNameList",
+            "columnName": "pageNameList",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookmarked",
+            "columnName": "bookmarked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "articleType",
+            "columnName": "articleType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "percentage",
+            "columnName": "percentage",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "articleFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ArticleImageJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `imageFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`articleFileName`, `imageFileName`), FOREIGN KEY(`articleFileName`) REFERENCES `Article`(`articleFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`imageFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageFileName",
+            "columnName": "imageFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "articleFileName",
+            "imageFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ArticleImageJoin_imageFileName",
+            "unique": false,
+            "columnNames": [
+              "imageFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleImageJoin_imageFileName` ON `${TABLE_NAME}` (`imageFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Article",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "articleFileName"
+            ],
+            "referencedColumns": [
+              "articleFileName"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "imageFileName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Download",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`fileName` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `workerManagerId` TEXT, `status` TEXT NOT NULL, PRIMARY KEY(`fileName`))",
+        "fields": [
+          {
+            "fieldPath": "fileName",
+            "columnName": "fileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseUrl",
+            "columnName": "baseUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workerManagerId",
+            "columnName": "workerManagerId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "fileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Feed",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `cycle` TEXT NOT NULL, `momentRatio` REAL NOT NULL, `issueMinDate` TEXT NOT NULL, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cycle",
+            "columnName": "cycle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "momentRatio",
+            "columnName": "momentRatio",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueMinDate",
+            "columnName": "issueMinDate",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "FileEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `storageType` TEXT NOT NULL, `moTime` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `size` INTEGER NOT NULL, `folder` TEXT NOT NULL, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "storageType",
+            "columnName": "storageType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moTime",
+            "columnName": "moTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sha256",
+            "columnName": "sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folder",
+            "columnName": "folder",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Issue",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `isWeekend` INTEGER NOT NULL DEFAULT 0, `dateDownload` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
+        "fields": [
+          {
+            "fieldPath": "feedName",
+            "columnName": "feedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "baseUrl",
+            "columnName": "baseUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minResourceVersion",
+            "columnName": "minResourceVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isWeekend",
+            "columnName": "isWeekend",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "dateDownload",
+            "columnName": "dateDownload",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "feedName",
+            "date",
+            "status"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "IssueImprintJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `articleFileName` TEXT NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `articleFileName`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`articleFileName`) REFERENCES `Article`(`articleFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueStatus",
+            "columnName": "issueStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueFeedName",
+            "issueDate",
+            "issueStatus",
+            "articleFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_IssueImprintJoin_articleFileName",
+            "unique": false,
+            "columnNames": [
+              "articleFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueImprintJoin_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueFeedName",
+              "issueDate",
+              "issueStatus"
+            ],
+            "referencedColumns": [
+              "feedName",
+              "date",
+              "status"
+            ]
+          },
+          {
+            "table": "Article",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "articleFileName"
+            ],
+            "referencedColumns": [
+              "articleFileName"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "IssueMomentJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `momentFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `momentFileName`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`momentFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueStatus",
+            "columnName": "issueStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "momentFileName",
+            "columnName": "momentFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueFeedName",
+            "issueDate",
+            "issueStatus",
+            "momentFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_IssueMomentJoin_momentFileName",
+            "unique": false,
+            "columnNames": [
+              "momentFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueMomentJoin_momentFileName` ON `${TABLE_NAME}` (`momentFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueFeedName",
+              "issueDate",
+              "issueStatus"
+            ],
+            "referencedColumns": [
+              "feedName",
+              "date",
+              "status"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "momentFileName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "IssuePageJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `pageKey`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`pageKey`) REFERENCES `Page`(`pdfFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueStatus",
+            "columnName": "issueStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageKey",
+            "columnName": "pageKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueFeedName",
+            "issueDate",
+            "issueStatus",
+            "pageKey"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_IssuePageJoin_pageKey",
+            "unique": false,
+            "columnNames": [
+              "pageKey"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IssuePageJoin_pageKey` ON `${TABLE_NAME}` (`pageKey`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueFeedName",
+              "issueDate",
+              "issueStatus"
+            ],
+            "referencedColumns": [
+              "feedName",
+              "date",
+              "status"
+            ]
+          },
+          {
+            "table": "Page",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pageKey"
+            ],
+            "referencedColumns": [
+              "pdfFileName"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "IssueSectionJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `sectionFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `sectionFileName`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueStatus",
+            "columnName": "issueStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sectionFileName",
+            "columnName": "sectionFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueFeedName",
+            "issueDate",
+            "issueStatus",
+            "sectionFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_IssueSectionJoin_sectionFileName",
+            "unique": false,
+            "columnNames": [
+              "sectionFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueSectionJoin_sectionFileName` ON `${TABLE_NAME}` (`sectionFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueFeedName",
+              "issueDate",
+              "issueStatus"
+            ],
+            "referencedColumns": [
+              "feedName",
+              "date",
+              "status"
+            ]
+          },
+          {
+            "table": "Section",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sectionFileName"
+            ],
+            "referencedColumns": [
+              "sectionFileName"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Page",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pdfFileName` TEXT NOT NULL, `title` TEXT, `pagina` TEXT, `type` TEXT, `frameList` TEXT, PRIMARY KEY(`pdfFileName`))",
+        "fields": [
+          {
+            "fieldPath": "pdfFileName",
+            "columnName": "pdfFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pagina",
+            "columnName": "pagina",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "frameList",
+            "columnName": "frameList",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "pdfFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ResourceInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`resourceVersion` INTEGER NOT NULL, `resourceBaseUrl` TEXT NOT NULL, `resourceZip` TEXT NOT NULL, PRIMARY KEY(`resourceVersion`))",
+        "fields": [
+          {
+            "fieldPath": "resourceVersion",
+            "columnName": "resourceVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceBaseUrl",
+            "columnName": "resourceBaseUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceZip",
+            "columnName": "resourceZip",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "resourceVersion"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ResourceInfoFileEntryJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`resourceInfoVersion` INTEGER NOT NULL, `fileEntryName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`resourceInfoVersion`, `fileEntryName`), FOREIGN KEY(`resourceInfoVersion`) REFERENCES `ResourceInfo`(`resourceVersion`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`fileEntryName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "resourceInfoVersion",
+            "columnName": "resourceInfoVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileEntryName",
+            "columnName": "fileEntryName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "resourceInfoVersion",
+            "fileEntryName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ResourceInfoFileEntryJoin_fileEntryName",
+            "unique": false,
+            "columnNames": [
+              "fileEntryName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ResourceInfoFileEntryJoin_fileEntryName` ON `${TABLE_NAME}` (`fileEntryName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ResourceInfo",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "resourceInfoVersion"
+            ],
+            "referencedColumns": [
+              "resourceVersion"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "fileEntryName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Section",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sectionFileName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `extendedTitle` TEXT, PRIMARY KEY(`sectionFileName`))",
+        "fields": [
+          {
+            "fieldPath": "sectionFileName",
+            "columnName": "sectionFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "extendedTitle",
+            "columnName": "extendedTitle",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "sectionFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SectionArticleJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sectionFileName` TEXT NOT NULL, `articleFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`articleFileName`, `sectionFileName`), FOREIGN KEY(`articleFileName`) REFERENCES `Article`(`articleFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "sectionFileName",
+            "columnName": "sectionFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "articleFileName",
+            "columnName": "articleFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "articleFileName",
+            "sectionFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_SectionArticleJoin_sectionFileName",
+            "unique": false,
+            "columnNames": [
+              "sectionFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionArticleJoin_sectionFileName` ON `${TABLE_NAME}` (`sectionFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Article",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "articleFileName"
+            ],
+            "referencedColumns": [
+              "articleFileName"
+            ]
+          },
+          {
+            "table": "Section",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sectionFileName"
+            ],
+            "referencedColumns": [
+              "sectionFileName"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "SectionImageJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sectionFileName` TEXT NOT NULL, `imageFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`sectionFileName`, `imageFileName`), FOREIGN KEY(`sectionFileName`) REFERENCES `Section`(`sectionFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`imageFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "sectionFileName",
+            "columnName": "sectionFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageFileName",
+            "columnName": "imageFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "sectionFileName",
+            "imageFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_SectionImageJoin_imageFileName",
+            "unique": false,
+            "columnNames": [
+              "imageFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionImageJoin_imageFileName` ON `${TABLE_NAME}` (`imageFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Section",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sectionFileName"
+            ],
+            "referencedColumns": [
+              "sectionFileName"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "imageFileName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd20d80b07e17e8555aa598d4ad44ad38')"
+    ]
+  }
+}
