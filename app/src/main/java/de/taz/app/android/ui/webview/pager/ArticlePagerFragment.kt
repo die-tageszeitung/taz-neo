@@ -140,8 +140,5 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
             notifyDataSetChanged()
         }
 
-        fun getCurrentArticle(): Article {
-            return articles[webview_pager_viewpager.currentItem]
-        }
     }
 }
