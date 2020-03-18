@@ -6,6 +6,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.allMigrations
 import kotlinx.io.IOException
 import org.junit.Rule
 import org.junit.Test
@@ -14,13 +15,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AllMigrationsTest {
     private val testDb = "migration-test"
-
-    // Array of all migrations
-    private val allMigrations = arrayOf(
-        Migration1to2,
-        Migration2to3,
-        Migration3to4
-    )
 
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(

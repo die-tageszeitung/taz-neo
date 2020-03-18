@@ -63,6 +63,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         }
                     }
                 }
+                isWeekend
                 sectionList {
                     sectionHtml {
                         name
