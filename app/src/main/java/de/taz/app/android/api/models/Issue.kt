@@ -18,7 +18,7 @@ data class Issue(
     val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
-    val minResourceVersion: Int,
+    override val minResourceVersion: Int,
     val imprint: Article?,
     val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
