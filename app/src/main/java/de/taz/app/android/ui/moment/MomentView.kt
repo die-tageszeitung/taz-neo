@@ -96,9 +96,7 @@ class MomentView @JvmOverloads constructor(
 
     fun clear() {
         showDownloadIconObserver?.let {
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
-            }
+            viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
             showDownloadIconObserver = null
         }
         momentIsDownloadingObserver?.let {
