@@ -39,8 +39,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     private val log by Log
 
-    abstract val viewModel: WebViewViewModel<DISPLAYABLE>
+    protected var displayable: DISPLAYABLE? = null
 
+    abstract val viewModel: WebViewViewModel<DISPLAYABLE>
     private lateinit var tazApiCssPreferences: SharedPreferences
 
     private val tazApiCssPrefListener =
@@ -64,13 +65,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configureWebView()
-        viewModel.displayableLiveData.observeDistinctOnce(this) { displayable ->
-            displayable?.let {
-                setHeader(displayable)
-                viewModel.displayable?.let {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        ensureDownloadedAndShow(displayable)
-                    }
+        displayable?.let { displayable ->
+            setHeader(displayable)
+            viewModel.displayable?.let {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    ensureDownloadedAndShow(displayable)
                 }
             }
         }

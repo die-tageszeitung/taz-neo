@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
@@ -39,4 +40,7 @@ interface ArticleOperations {
         return ArticleRepository.getInstance().getIndexInSection(articleFileName)
     }
 
+    fun isBookmarkedLiveData(): LiveData<Boolean> {
+        return ArticleRepository.getInstance().isBookmarkedLiveData(this.articleFileName)
+    }
 }

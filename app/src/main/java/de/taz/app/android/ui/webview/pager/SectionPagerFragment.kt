@@ -138,7 +138,7 @@ class SectionPagerFragment :
 
         override fun createFragment(position: Int): Fragment {
             val section = sections[position]
-            return SectionWebViewFragment.createInstance(section.sectionFileName)
+            return SectionWebViewFragment.createInstance(section)
         }
 
         override fun getItemCount(): Int = sections.size
