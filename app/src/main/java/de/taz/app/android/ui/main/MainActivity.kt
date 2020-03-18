@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         presenter.onViewCreated(savedInstanceState)
-
+        showHome()
         lockEndNavigationView()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showInWebView(issueStub: IssueStub) {
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
-            showMainFragment(fragment)
+            showMainFragment(fragment, showFromBackStack = false)
         }
     }
 
@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         runOnUiThread {
             if (!tryShowExistingSection(section)) {
                 val fragment = SectionPagerFragment.createInstance(section)
-                showMainFragment(fragment, enterAnimation, exitAnimation)
+                showMainFragment(fragment, enterAnimation, exitAnimation, false)
             }
         }
     }
@@ -232,12 +232,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showMainFragment(
         fragment: Fragment,
         @AnimRes enterAnimation: Int,
-        @AnimRes exitAnimation: Int
+        @AnimRes exitAnimation: Int,
+        showFromBackStack: Boolean
     ) {
         runOnUiThread {
             val fragmentClassName = fragment::class.java.name
 
-            if (!supportFragmentManager.popBackStackImmediate(fragmentClassName, 0)) {
+            if (!showFromBackStack || !supportFragmentManager.popBackStackImmediate(fragmentClassName, 0)) {
                 supportFragmentManager.beginTransaction().apply {
                     replace(R.id.main_content_fragment_placeholder, fragment)
                     addToBackStack(fragmentClassName)
@@ -289,7 +290,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showHome() {
-        showMainFragment(HomeFragment())
+        showMainFragment(HomeFragment(), showFromBackStack = true)
     }
 
     override fun showToast(stringId: Int) {
