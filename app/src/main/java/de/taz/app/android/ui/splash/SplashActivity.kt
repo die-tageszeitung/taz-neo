@@ -122,7 +122,7 @@ class SplashActivity : AppCompatActivity() {
         val feedRepository = FeedRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        runBlocking(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val feeds = apiService.getFeeds()
                 feedRepository.save(feeds)
@@ -135,27 +135,35 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun initLastIssues() {
+        runBlocking {
+            initIssues(1)
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            initIssues(10)
+        }
+    }
+
+    private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO){
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        runBlocking(Dispatchers.IO) {
-            try {
-                val issues = apiService.getLastIssues()
-                issueRepository.saveIfDoNotExist(issues)
-                log.debug("Initialized Issues")
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-                log.warn("Initializing Issues failed")
-            }
+        try {
+            val issues = apiService.getLastIssues(number)
+            issueRepository.saveIfDoNotExist(issues)
+            log.debug("Initialized Issues")
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            toastHelper.showNoConnectionToast()
+            log.warn("Initializing Issues failed")
         }
     }
+
 
     /**
      * download AppInfo and persist it
      */
     private fun initAppInfoAndCheckAndroidVersion() {
-        runBlocking(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 ApiService.getInstance(applicationContext).getAppInfo()?.let {
                     AppInfoRepository.getInstance(applicationContext).save(it)

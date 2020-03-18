@@ -62,9 +62,10 @@ class MainPresenter: MainContract.Presenter, BasePresenter<MainContract.View, Ma
             // set main issue
             getView()?.getMainDataController()?.setIssueOperations(issueStub)
 
-            issue.sectionList.first().let { firstSection ->
+            issue.sectionList.firstOrNull()?.let { firstSection ->
                 getView()?.showInWebView(firstSection)
             }
+
         }
     }
 }
