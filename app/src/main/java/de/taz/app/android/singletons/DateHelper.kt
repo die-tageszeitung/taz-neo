@@ -1,7 +1,6 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
-import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
@@ -21,17 +20,19 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
-    private val deviceLocale = ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
+    // if we want to use devices Locale replace Locale.GERMAN with:
+    // ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
+    private val deviceLocale = Locale.GERMAN
 
-    fun dateToString(date: Date) : String {
+    private fun dateToString(date: Date) : String {
         return dateHelper.format(date)
     }
 
-    fun stringToDate(string: String): Date? {
+    private fun stringToDate(string: String): Date? {
         return dateHelper.parse(string)
     }
 
-    fun stringToDateWithDelta(string: String, days: Int): Date? {
+    private fun stringToDateWithDelta(string: String, days: Int): Date? {
         return stringToDate(string)?.let { date ->
             cal.time = date
             cal.add(Calendar.DAY_OF_YEAR, days)
