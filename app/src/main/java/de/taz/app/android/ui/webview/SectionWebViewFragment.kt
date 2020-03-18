@@ -5,7 +5,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
-import androidx.lifecycle.ViewModelProvider
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.singletons.DateHelper
@@ -15,23 +14,21 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
-    override lateinit var viewModel: SectionWebViewViewModel
-    private var displayableKey: String? = null
+    override val viewModel = WebViewViewModel<Section>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(SectionWebViewViewModel::class.java)
-        viewModel.displayableKey = displayableKey
+        viewModel.displayable = displayable
         super.onViewCreated(view, savedInstanceState)
 
-        web_view_wrapper.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+        web_view_wrapper.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
             viewModel.scrollPosition = scrollY
         }
     }
 
     companion object {
-        fun createInstance(sectionFileName: String): WebViewFragment<Section> {
+        fun createInstance(section: Section): WebViewFragment<Section> {
             val fragment = SectionWebViewFragment()
-            fragment.displayableKey = sectionFileName
+            fragment.displayable = section
             return fragment
         }
     }

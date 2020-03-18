@@ -11,61 +11,55 @@ import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.android.synthetic.main.fragment_webview_article.*
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article),
-    BackFragment {
+class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article) {
 
-    override lateinit var viewModel: ArticleWebViewViewModel
+    override val viewModel = ArticleWebViewViewModel()
 
     private val log by Log
-    var observer: Observer<Article?>? = null
+    var observer: Observer<Boolean>? = null
 
     private val fileHelper = FileHelper.getInstance()
-    private var displayableKey: String? = null
 
     companion object {
-        fun createInstance(articleFileName: String): WebViewFragment<Article> {
+        fun createInstance(article: Article): WebViewFragment<Article> {
             val fragment = ArticleWebViewFragment()
-            fragment.displayableKey = articleFileName
+            fragment.displayable = article
             return fragment
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
-        viewModel.displayableKey = displayableKey
+        viewModel.displayable = displayable
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.scrollPosition?.let {
             nested_scroll_view.scrollY = it
         }
 
-        nested_scroll_view.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
+        nested_scroll_view.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
             viewModel.scrollPosition = scrollY
         }
 
-        viewModel.displayableLiveData.let {
-            observer = it.observeDistinct(this) { articleLiveData ->
-                if (articleLiveData?.bookmarked == true) {
-                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-                } else {
-                    setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-                }
+        observer = viewModel.isBookmarkedLiveData.observeDistinct(this) { isBookmarked ->
+            if (isBookmarked) {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+            } else {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
             }
         }
     }
@@ -90,10 +84,6 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
                 // TODO showSection()
             }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        return false
     }
 
     override fun hideLoadingScreen() {
@@ -178,7 +168,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
 
     override fun onDestroy() {
         observer?.let {
-            viewModel.displayableLiveData.removeObserver(it)
+            Transformations.distinctUntilChanged(viewModel.isBookmarkedLiveData).removeObserver(it)
         }
         super.onDestroy()
     }

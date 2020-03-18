@@ -12,7 +12,6 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.StableIdProvider
@@ -22,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 const val ARTICLE_POSITION = "position"
 
 class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fragment_webview_pager),
-    ArticlePagerContract.View, BackFragment {
+    ArticlePagerContract.View {
 
     override val presenter = ArticlePagerPresenter()
 
@@ -96,22 +95,6 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
         super.onDestroyView()
     }
 
-    override fun onBackPressed(): Boolean {
-        getCurrentFragment()?.let {
-            if (it.onBackPressed()) return true
-        }
-        return presenter.onBackPressed()
-    }
-
-    private fun getCurrentFragment(): ArticleWebViewFragment? {
-        return childFragmentManager.fragments.firstOrNull {
-            (it as? ArticleWebViewFragment)?.let { fragment ->
-                return@firstOrNull fragment.viewModel.displayableKey == articlePagerAdapter?.getCurrentArticle()?.articleFileName
-            }
-            return@firstOrNull false
-        } as? ArticleWebViewFragment
-    }
-
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             adapter = articlePagerAdapter
@@ -142,7 +125,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
 
         override fun createFragment(position: Int): Fragment {
             val article = articles[position]
-            return ArticleWebViewFragment.createInstance(article.articleFileName)
+            return ArticleWebViewFragment.createInstance(article)
         }
 
         override fun getItemCount(): Int = articles.size

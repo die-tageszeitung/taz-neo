@@ -211,6 +211,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStub.bookmarked
     }
 
+    fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
+        return getStubLiveData(articleName).map { it?.bookmarked ?: false }
+    }
+
     fun getIndexInSection(articleName: String): Int? {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
     }
