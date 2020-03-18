@@ -7,14 +7,15 @@ import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 
-class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section) {
+class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
-    override val viewModel = WebViewViewModel<Section>()
+    override val viewModel = WebViewViewModel<SectionStub>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.displayable = displayable
@@ -26,14 +27,14 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
     }
 
     companion object {
-        fun createInstance(section: Section): WebViewFragment<Section> {
+        fun createInstance(section: SectionStub): SectionWebViewFragment {
             val fragment = SectionWebViewFragment()
             fragment.displayable = section
             return fragment
         }
     }
 
-    override fun setHeader(displayable: Section) {
+    override fun setHeader(displayable: SectionStub) {
         activity?.apply {
             runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {

@@ -10,6 +10,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
@@ -19,6 +20,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
@@ -73,9 +75,10 @@ class SectionPagerFragment :
             }
         }
 
-        viewModel.issueLiveData.observeDistinct(this) { liveIssue ->
-            runIfNotNull(liveIssue, viewModel.currentPosition) { issue, currentPosition ->
-                setSections(issue.sectionList, currentPosition)
+        viewModel.sectionStubListLiveData.observeDistinct(this) { liveIssue ->
+            runIfNotNull(liveIssue, viewModel.currentPosition) { sectionStubs, currentPosition ->
+                setSections(sectionStubs, currentPosition)
+                loading_screen?.visibility = View.GONE
             }
         }
     }
@@ -115,7 +118,7 @@ class SectionPagerFragment :
         }
     }
 
-    private fun setSections(sections: List<Section>, currentPosition: Int) {
+    private fun setSections(sections: List<SectionStub>, currentPosition: Int) {
         webview_pager_viewpager.apply {
             (adapter as SectionPagerAdapter?)?.submitList(sections)
             setCurrentItem(currentPosition, false)
@@ -134,7 +137,7 @@ class SectionPagerFragment :
     private inner class SectionPagerAdapter(
         fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
-        private var sections = emptyList<Section>()
+        private var sections = emptyList<SectionStub>()
 
         override fun createFragment(position: Int): Fragment {
             val section = sections[position]
@@ -143,7 +146,7 @@ class SectionPagerFragment :
 
         override fun getItemCount(): Int = sections.size
 
-        fun submitList(newSections: List<Section>) {
+        fun submitList(newSections: List<SectionStub>) {
             sections = newSections
             notifyDataSetChanged()
         }

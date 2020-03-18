@@ -40,15 +40,15 @@ data class Issue(
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
 
-    override fun getAllFiles(): List<FileEntry> {
-        val files = mutableListOf(moment.getAllFiles())
+    override fun getAllFileNames(): List<String> {
+        val files = mutableListOf(moment.getAllFileNames())
         imprint?.let {
-            files.add(imprint.getAllFiles())
+            files.add(imprint.getAllFileNames())
         }
         sectionList.forEach { section ->
-            files.add(section.getAllFiles())
+            files.add(section.getAllFileNames())
             getArticleList().forEach { article ->
-                files.add(article.getAllFiles())
+                files.add(article.getAllFileNames())
             }
         }
         return files.flatten().distinct()
@@ -84,7 +84,7 @@ data class Issue(
         return articleList
     }
 
-    override fun deleteFiles() {
+    override suspend fun deleteFiles() {
         super.deleteFiles()
         IssueRepository.getInstance().resetDownloadDate(this)
     }

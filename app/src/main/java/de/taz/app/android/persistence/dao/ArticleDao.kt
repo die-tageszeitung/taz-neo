@@ -13,7 +13,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
     abstract fun getLiveData(articleFileName: String): LiveData<ArticleStub?>
 
-    @Query("SELECT * FROM Article WHERE Article.articleFileName in(:articleFileNames)")
+    @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     abstract fun get(articleFileNames: List<String>): List<ArticleStub>
 
     @Query("SELECT * FROM Article WHERE Article.bookmarked != 0")

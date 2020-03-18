@@ -7,19 +7,16 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebChromeClient
 import androidx.annotation.LayoutRes
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.monkey.observeDistinctOnce
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -89,7 +86,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen?.animate()?.setDuration(300)?.alpha(0f)?.start()
+            loading_screen?.visibility = View.GONE
         }
     }
 
@@ -114,7 +111,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     }
 
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
-        val isDisplayableLiveData = MediatorLiveData<Boolean>()
+        val isDisplayableLiveData = MutableLiveData<Boolean>()
 
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
 
@@ -143,7 +140,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                     this@WebViewFragment,
                     Observer { isDownloaded ->
                         if (isDownloaded) {
-                            isDisplayableLiveData.removeSource(displayable.isDownloadedLiveData())
                             runBlocking(Dispatchers.IO) {
                                 isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
                             }
@@ -173,7 +169,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         this@WebViewFragment,
                         Observer { isDownloaded ->
                             if (isDownloaded) {
-                                isDisplayableLiveData.removeSource(resourceInfo.isDownloadedLiveData())
                                 launch(Dispatchers.IO) {
                                     isDisplayableLiveData.postValue(displayable.isDownloaded())
                                 }

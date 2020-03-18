@@ -22,6 +22,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -95,7 +96,9 @@ class MomentView @JvmOverloads constructor(
 
     fun clear() {
         showDownloadIconObserver?.let {
-            viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.moment?.isDownloadedLiveData()?.removeObserver(it)
+            }
             showDownloadIconObserver = null
         }
         momentIsDownloadingObserver?.let {

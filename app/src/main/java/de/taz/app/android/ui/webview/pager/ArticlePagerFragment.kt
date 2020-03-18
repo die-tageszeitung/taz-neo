@@ -77,6 +77,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
             webview_pager_viewpager.currentItem = it
         }
 
+        loading_screen.visibility = View.GONE
     }
 
     override fun persistPosition(position: Int) {

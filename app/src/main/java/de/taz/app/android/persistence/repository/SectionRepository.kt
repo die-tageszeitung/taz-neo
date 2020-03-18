@@ -6,6 +6,8 @@ import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
@@ -85,11 +87,55 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
-    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations): List<SectionStub> {
+    fun getSectionStubsLiveDataForIssue(issueOperations: IssueOperations) =
+        getSectionStubsLiveDataForIssue(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status
+        )
+
+    fun getSectionStubsLiveDataForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionStub> {
         return appDatabase.sectionDao().getSectionsForIssue(
-            issueOperations.feedName, issueOperations.date, issueOperations.status
+            issueFeedName, issueDate, issueStatus
         )
     }
+
+    fun getSectionsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ) = getSectionStubsForIssue(
+        issueFeedName,
+        issueDate,
+        issueStatus
+    ).map { sectionStubToSection(it) }
+
+    fun getSectionStubsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionStub> {
+        return appDatabase.sectionDao().getSectionsForIssue(
+            issueFeedName, issueDate, issueStatus
+        )
+    }
+
+
+    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations) =
+        getSectionStubsForIssue(
+            issueOperations.feedName, issueOperations.date, issueOperations.status
+        )
+
+    fun getAllSectionStubsForSectionName(sectionName: String): List<SectionStub> {
+        return appDatabase.sectionDao().getAllSectionStubsForSectionName(sectionName)
+    }
+
+    fun getAllSectionsForSectionName(sectionFileName: String) =
+        getAllSectionStubsForSectionName(sectionFileName).map { sectionStubToSection(it) }
 
     @Throws(NotFoundException::class)
     fun getNextSection(sectionFileName: String): Section? =
@@ -111,6 +157,14 @@ class SectionRepository private constructor(applicationContext: Context) :
     fun getPreviousSection(section: SectionOperations): Section? =
         getPreviousSection(section.sectionFileName)
 
+    fun imagesForSectionStub(sectionFileName: String): List<FileEntry> {
+        return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
+    }
+
+    fun imageNamesForSectionStub(sectionFileName: String): List<String> {
+        return appDatabase.sectionImageJoinDao().getImageNamesForSection(sectionFileName)
+    }
+
     @Throws(NotFoundException::class)
     fun sectionStubToSection(sectionStub: SectionStub): Section {
         val sectionFileName = sectionStub.sectionFileName
@@ -124,7 +178,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        images?.let {
+        images.let {
             return Section(
                 sectionFile,
                 sectionStub.issueDate,
@@ -134,7 +188,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 images,
                 sectionStub.extendedTitle
             )
-        } ?: throw NotFoundException()
+        }
     }
 
     fun delete(section: Section) {
