@@ -32,10 +32,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
+        apiService = ApiService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         downloadService = DownloadService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
-        apiService = ApiService.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
         notificationHelper = NotificationHelper.getInstance(applicationContext)
     }
 
