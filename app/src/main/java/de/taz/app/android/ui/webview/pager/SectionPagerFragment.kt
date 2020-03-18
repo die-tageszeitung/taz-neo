@@ -67,28 +67,22 @@ class SectionPagerFragment :
         }
         sectionAdapter = sectionAdapter ?: SectionPagerAdapter(this)
 
-        setupViewPager()
-
         viewModel.currentPositionLiveData.observeDistinct(this) {
             if (webview_pager_viewpager.currentItem != it) {
                 webview_pager_viewpager.setCurrentItem(it, false)
             }
         }
 
-        viewModel.issueLiveData.observeDistinct(this) { issue ->
-            runIfNotNull(issue, viewModel.currentPosition) { issue, currentPosition ->
+        viewModel.issueLiveData.observeDistinct(this) { liveIssue ->
+            runIfNotNull(liveIssue, viewModel.currentPosition) { issue, currentPosition ->
                 setSections(issue.sectionList, currentPosition)
             }
         }
     }
 
-    private fun getCurrentFragment(): SectionWebViewFragment? {
-        return childFragmentManager.fragments.firstOrNull {
-            (it as? SectionWebViewFragment)?.let { fragment ->
-                return@firstOrNull fragment.viewModel.displayableKey == sectionAdapter?.getCurrentSection()?.sectionFileName
-            }
-            return@firstOrNull false
-        } as? SectionWebViewFragment
+    override fun onResume() {
+        super.onResume()
+        setupViewPager()
     }
 
     fun tryLoadSection(section: Section): Boolean {
@@ -121,7 +115,7 @@ class SectionPagerFragment :
         }
     }
 
-    fun setSections(sections: List<Section>, currentPosition: Int) {
+    private fun setSections(sections: List<Section>, currentPosition: Int) {
         webview_pager_viewpager.apply {
             (adapter as SectionPagerAdapter?)?.submitList(sections)
             setCurrentItem(currentPosition, false)
@@ -154,9 +148,6 @@ class SectionPagerFragment :
             notifyDataSetChanged()
         }
 
-        fun getCurrentSection(): Section {
-            return sections[webview_pager_viewpager.currentItem]
-        }
     }
 
     override fun onBackPressed(): Boolean {
