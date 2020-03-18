@@ -47,11 +47,18 @@ data class Article(
     override val articleFileName
         get() = articleHtml.name
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.name.contains(".norm.") })
         return list
+    }
+
+    override fun getAllFileNames(): List<String> {
+        val list = mutableListOf(articleHtml)
+        list.addAll(authorList.mapNotNull { it.imageAuthor })
+        list.addAll(imageList.filter { it.name.contains(".norm.") })
+        return list.map { it.name }.distinct()
     }
 
     override fun getFile(): File? {

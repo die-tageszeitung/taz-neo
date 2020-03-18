@@ -6,10 +6,14 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.FileHelper
+import java.io.File
 
-interface SectionOperations {
+interface SectionOperations : WebViewDisplayable {
 
     val sectionFileName: String
+    val extendedTitle: String?
+    val title: String
 
     val issueStub: IssueStub
         get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
@@ -33,5 +37,23 @@ interface SectionOperations {
     fun getIssue(): Issue {
         return IssueRepository.getInstance().getIssueForSection(sectionFileName)
     }
+
+    override fun getFile(): File? {
+        return FileHelper.getInstance().getFile(sectionFileName)
+    }
+
+    override fun previous(): Section? {
+        return previousSection()
+    }
+
+    override fun next(): Section? {
+        return nextSection()
+    }
+
+    fun getHeaderTitle(): String {
+        return extendedTitle ?: title
+    }
+
+    override fun getIssueOperations() = issueStub
 
 }

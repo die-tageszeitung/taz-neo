@@ -13,8 +13,11 @@ data class Author(
         authorDto.imageAuthor?.let { FileEntry(it, GLOBAL_FOLDER) }
     )
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         return imageAuthor?.let { listOf(it) } ?: emptyList()
     }
 
+    override fun getAllFileNames(): List<String> {
+        return imageAuthor?.let { listOf(it.name) }?.distinct() ?: emptyList()
+    }
 }

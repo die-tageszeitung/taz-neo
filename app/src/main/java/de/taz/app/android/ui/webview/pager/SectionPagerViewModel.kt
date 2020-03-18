@@ -1,9 +1,9 @@
 package de.taz.app.android.ui.webview.pager
 
 import androidx.lifecycle.*
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,21 +11,21 @@ import kotlinx.coroutines.launch
 
 class SectionPagerViewModel : ViewModel() {
 
-    val sectionKeyLiveData = MutableLiveData<String?>(null)
+    private val sectionKeyLiveData = MutableLiveData<String?>(null)
     var sectionKey
         get() = sectionKeyLiveData.value
         set(value) {
             sectionKeyLiveData.value = value
         }
 
-    val issueFeedNameLiveData = MutableLiveData<String?>(null)
+    private val issueFeedNameLiveData = MutableLiveData<String?>(null)
     var issueFeedName
         get() = issueFeedNameLiveData.value
         set(value) {
             issueFeedNameLiveData.value = value
         }
 
-    val issueDateLiveData = MutableLiveData<String?>(null)
+    private val issueDateLiveData = MutableLiveData<String?>(null)
     var issueDate
         get() = issueDateLiveData.value
         set(value) {
@@ -33,7 +33,7 @@ class SectionPagerViewModel : ViewModel() {
         }
 
 
-    val issueStatusLiveData = MutableLiveData<IssueStatus?>(null)
+    private val issueStatusLiveData = MutableLiveData<IssueStatus?>(null)
     var issueStatus
         get() = issueStatusLiveData.value
         set(value) {
@@ -48,34 +48,34 @@ class SectionPagerViewModel : ViewModel() {
             currentPositionLiveData.value = value
         }
 
-    val issueLiveData: LiveData<Issue?> = MediatorLiveData<Issue?>().apply {
+    val sectionStubListLiveData: LiveData<List<SectionStub>> = MediatorLiveData<List<SectionStub>>().apply {
             addSource(sectionKeyLiveData) { getIssueBySection(this) }
             addSource(issueDateLiveData) { getIssue(this) }
             addSource(issueFeedNameLiveData) { getIssue(this) }
             addSource(issueStatusLiveData) { getIssue(this) }
         }
-    val issue = issueLiveData.value
+    val issue = sectionStubListLiveData.value
 
-    private fun getIssue(mediatorLiveData: MediatorLiveData<Issue?>) {
+    private fun getIssue(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
         runIfNotNull(
             issueDate,
             issueFeedName,
             issueStatus
         ) { issueDate, issueFeedName, issueStatus ->
             CoroutineScope(Dispatchers.IO).launch {
-                mediatorLiveData.postValue(
-                    IssueRepository.getInstance().getIssue(issueFeedName, issueDate, issueStatus)
-                )
+                mediatorLiveData.postValue(SectionRepository.getInstance().getSectionStubsForIssue(
+                    issueFeedName, issueDate, issueStatus
+                ))
             }
         }
     }
 
-    private fun getIssueBySection(mediatorLiveData: MediatorLiveData<Issue?>) {
+    private fun getIssueBySection(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
         CoroutineScope(Dispatchers.IO).launch {
             sectionKey?.let { sectionKey ->
-                val issue = IssueRepository.getInstance().getIssueForSection(sectionKey)
-                currentPositionLiveData.postValue(issue.sectionList.indexOfFirst { it.sectionFileName == sectionKey })
-                mediatorLiveData.postValue(issue)
+                val sections = SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionKey)
+                currentPositionLiveData.postValue(sections.indexOfFirst { it.sectionFileName == sectionKey })
+                mediatorLiveData.postValue(sections)
             }
         }
     }
