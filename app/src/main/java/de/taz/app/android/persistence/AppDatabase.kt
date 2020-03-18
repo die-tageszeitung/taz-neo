@@ -6,16 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.migrations.Migration1to2
+import de.taz.app.android.persistence.migrations.*
 import de.taz.app.android.persistence.dao.*
 import de.taz.app.android.persistence.join.*
-import de.taz.app.android.persistence.migrations.Migration2to3
-import de.taz.app.android.persistence.migrations.Migration3to4
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 4
+const val DATABASE_VERSION = 5
 const val DATABASE_NAME = "db"
+
+val allMigrations = arrayOf(
+    Migration1to2,
+    Migration2to3,
+    Migration3to4,
+    Migration4to5
+)
 
 @Database(
     entities = [
@@ -63,11 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
             applicationContext,
             AppDatabase::class.java, DATABASE_NAME
         )
-            .addMigrations(
-                Migration1to2,
-                Migration2to3,
-                Migration3to4
-            )
+            .addMigrations(*allMigrations)
             .fallbackToDestructiveMigration()
             .build()
     })

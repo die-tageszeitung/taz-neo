@@ -259,6 +259,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.status,
             issueStub.minResourceVersion,
             imprint,
+            issueStub.isWeekend,
             sections,
             pageList,
             issueStub.dateDownload
