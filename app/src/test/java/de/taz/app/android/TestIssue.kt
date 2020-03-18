@@ -40,6 +40,7 @@ val testIssue = Issue(
     minResourceVersion = 23,
     imprint = null,
     sectionList = listOf(testSection),
+    isWeekend = false,
     pageList = emptyList()
 )
 val testIssues = listOf(testIssue)
@@ -50,7 +51,8 @@ val testIssueStub = IssueStub(
     key = "key",
     baseUrl = "https://example.com",
     status = IssueStatus.regular,
-    minResourceVersion = 1312
+    minResourceVersion = 1312,
+    isWeekend = false
 )
 
 val testArticle = Article(

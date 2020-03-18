@@ -20,6 +20,7 @@ data class Issue(
     override val status: IssueStatus,
     val minResourceVersion: Int,
     val imprint: Article?,
+    val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val dateDownload: Date? = null
@@ -34,6 +35,7 @@ data class Issue(
         issueDto.status,
         issueDto.minResourceVersion,
         issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
+        issueDto.isWeekend,
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )

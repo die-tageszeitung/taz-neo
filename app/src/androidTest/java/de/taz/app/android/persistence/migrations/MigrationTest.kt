@@ -16,10 +16,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.persistence.allMigrations
 import org.junit.Assert
 import java.util.*
 
@@ -39,18 +38,14 @@ class MigrationTest {
 
     @Before
     fun createDb() {
-        context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext()
     }
 
     private fun getMigratedRoomDatabase(): AppDatabase? {
         val database = Room.databaseBuilder(
-            ApplicationProvider.getApplicationContext<Context>(),
+            ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java, testDb
-        ).addMigrations(
-            Migration1to2,
-            Migration2to3,
-            Migration3to4
-        ).build()
+        ).addMigrations(*allMigrations).build()
         // close the database and release any stream resources when the test finishes
         helper.closeWhenFinished(database)
         return database
@@ -77,8 +72,13 @@ class MigrationTest {
 
         val fromDB = getMigratedRoomDatabase()!!.appInfoDao().get()
         Assert.assertNotNull(fromDB)
-        Assert.assertEquals(fromDB, AppInfo(appName, globalBaseUrl, appType, 0))
 
+        fromDB?.let {
+            Assert.assertEquals(fromDB.appName, appName)
+            Assert.assertEquals(fromDB.globalBaseUrl, globalBaseUrl)
+            Assert.assertEquals(fromDB.appType, appType)
+            Assert.assertEquals(fromDB.androidVersion, 0)
+        }
     }
 
     @Test
@@ -100,7 +100,14 @@ class MigrationTest {
 
         val fromDB = getMigratedRoomDatabase()!!.sectionDao().get(sectionFileName)
         Assert.assertNotNull(fromDB)
-        Assert.assertEquals(fromDB, SectionStub(sectionFileName, issueDate, title, type, null))
+
+        fromDB.let {
+            Assert.assertEquals(fromDB.sectionFileName, sectionFileName)
+            Assert.assertEquals(fromDB.issueDate, issueDate)
+            Assert.assertEquals(fromDB.title, title)
+            Assert.assertEquals(fromDB.type, type)
+            Assert.assertEquals(fromDB.extendedTitle, null)
+        }
     }
 
     @Test
@@ -129,21 +136,59 @@ class MigrationTest {
             close()
         }
 
-        helper.runMigrationsAndValidate(testDb, 3, true, Migration3to4)
+        helper.runMigrationsAndValidate(testDb, 4, true, Migration3to4)
 
         val fromDB: IssueStub? =
             getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
         Assert.assertNotNull(fromDB)
 
-        val issueStub = IssueStub(
-            feedName,
-            date,
-            key,
-            baseUrl,
-            status,
-            minResourceVersion,
-            dateDownload
-        )
-        Assert.assertEquals(fromDB, issueStub)
+        fromDB?.let {
+            Assert.assertEquals(fromDB.feedName, feedName)
+            Assert.assertEquals(fromDB.date, date)
+            Assert.assertEquals(fromDB.key, key)
+            Assert.assertEquals(fromDB.baseUrl, baseUrl)
+            Assert.assertEquals(fromDB.status, status)
+            Assert.assertEquals(fromDB.minResourceVersion, minResourceVersion)
+            Assert.assertEquals(fromDB.dateDownload, dateDownload)
+        }
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate4To5() {
+        val feedName = "rss"
+        val date = "1869-06-27"
+        val key: String? = "key"
+        val baseUrl = "https://example.com"
+        val status: IssueStatus = IssueStatus.demo
+        val minResourceVersion = 23
+        val dateDownload: Date? = null
+        helper.createDatabase(testDb, 4).apply {
+            execSQL(
+                """INSERT INTO Issue (feedName, date, key, baseUrl, status, minResourceVersion, dateDownload)
+                   VALUES ('$feedName', '$date', '$key', '$baseUrl', '$status',
+                    $minResourceVersion, '$dateDownload'
+                    )""".trimMargin()
+            )
+            close()
+        }
+
+        helper.runMigrationsAndValidate(testDb, 5, true, Migration4to5)
+
+        val fromDB: IssueStub? =
+            getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
+        Assert.assertNotNull(fromDB)
+
+        fromDB?.let {
+            Assert.assertEquals(fromDB.feedName, feedName)
+            Assert.assertEquals(fromDB.date, date)
+            Assert.assertEquals(fromDB.key, key)
+            Assert.assertEquals(fromDB.baseUrl, baseUrl)
+            Assert.assertEquals(fromDB.status, status)
+            Assert.assertEquals(fromDB.minResourceVersion, minResourceVersion)
+            Assert.assertEquals(fromDB.dateDownload, dateDownload)
+            Assert.assertFalse(fromDB.isWeekend)
+        }
+    }
+
 }

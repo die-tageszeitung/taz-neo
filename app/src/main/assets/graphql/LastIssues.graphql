@@ -63,6 +63,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         }
                     }
                 }
+                isWeekend
                 sectionList {
                     sectionHtml {
                         name
