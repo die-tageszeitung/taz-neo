@@ -37,7 +37,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        null
+        openDatePicker
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
