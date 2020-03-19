@@ -57,15 +57,15 @@ class BookmarksViewHolder(
 
             bookmarkTitle?.text = article.title
             bookmarkBox?.setOnClickListener {
-                bookmarksPresenter.openArticle(article)
+                bookmarksPresenter.openArticle(article.articleFileName)
             }
 
             bookmarkShare.setOnClickListener {
-                bookmarksPresenter.shareArticle(article)
+                bookmarksPresenter.shareArticle(article.articleFileName)
             }
 
             bookmarkDelete.setOnClickListener {
-                bookmarksPresenter.debookmarkArticle(article)
+                bookmarksPresenter.debookmarkArticle(article.articleFileName)
             }
         }
     }

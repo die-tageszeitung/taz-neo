@@ -18,7 +18,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
@@ -106,11 +105,19 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
         }
     }
 
-    fun share(url: String, title: String?, image: FileEntry?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            shareArticle(url, title, image)
-        } else {
-            shareArticle(url, title)
+    fun share() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.displayable?.let { article ->
+                val url = article.onlineLink
+                url?.let {
+                    val title = article.title
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        shareArticle(url, title, article.getFirstImage())
+                    } else {
+                        shareArticle(url, title)
+                    }
+                }
+            }
         }
     }
 
@@ -130,39 +137,42 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
     @TargetApi(28)
     private fun shareArticle(url: String, title: String?, image: FileEntry?) {
-        view?.let { view ->
-            var imageUri: Uri? = null
-            val applicationId = view.context.packageName
-            image?.let {
-                val imageAsFile = fileHelper.getFile(image)
-                imageUri = FileProvider.getUriForFile(
-                    view.context,
-                    "${applicationId}.contentProvider",
-                    imageAsFile
-                )
-            }
-            log.debug("image is: $image")
-            log.debug("imageUri is: $imageUri")
-
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, url)
-
-                putExtra(Intent.EXTRA_STREAM, imageUri)
-                type = "image/jpg"
-
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-                title?.let {
-                    putExtra(Intent.EXTRA_SUBJECT, title)
+        lifecycleScope.launch(Dispatchers.IO) {
+            view?.let { view ->
+                var imageUri: Uri? = null
+                val applicationId = view.context.packageName
+                image?.let {
+                    val imageAsFile = fileHelper.getFile(image)
+                    imageUri = FileProvider.getUriForFile(
+                        view.context,
+                        "${applicationId}.contentProvider",
+                        imageAsFile
+                    )
                 }
-                // add rich content for android 10+
-                putExtra(Intent.EXTRA_TITLE, title ?: url)
-                data = imageUri
-            }
+                log.debug("image is: $image")
+                log.debug("imageUri is: $imageUri")
 
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            startActivity(shareIntent)
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, url)
+
+                    putExtra(Intent.EXTRA_STREAM, imageUri)
+                    type = "image/jpg"
+
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                    title?.let {
+                        putExtra(Intent.EXTRA_SUBJECT, title)
+                    }
+                    // add rich content for android 10+
+                    putExtra(Intent.EXTRA_TITLE, title ?: url)
+                    data = imageUri
+                }
+                withContext(Dispatchers.Main) {
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    startActivity(shareIntent)
+                }
+            }
         }
     }
 
@@ -184,11 +194,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             }
 
             R.id.bottom_navigation_action_share ->
-                viewModel.displayable?.let { article ->
-                    article.onlineLink?.let {
-                        share(article.onlineLink, article.title, article.getFirstImage())
-                    }
-                }
+                share()
 
             R.id.bottom_navigation_action_size -> {
                 showFontSettingBottomSheet()

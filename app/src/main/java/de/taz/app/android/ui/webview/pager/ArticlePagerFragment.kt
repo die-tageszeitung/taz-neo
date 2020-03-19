@@ -44,8 +44,6 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        log.debug("onViewCreated: $view $savedInstanceState")
-
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -63,6 +61,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             setArticles(it, viewModel.articlePosition)
             loading_screen.visibility = View.GONE
         }
+
     }
 
     override fun onResume() {

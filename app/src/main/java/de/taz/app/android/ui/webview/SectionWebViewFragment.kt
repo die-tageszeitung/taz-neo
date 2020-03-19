@@ -59,6 +59,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
         }
     }
 
+    // TODO scroll to position if not visible as well...
     override fun onPageFinishedLoading() {
         viewModel.scrollPosition?.let {
             web_view_wrapper?.scrollY = it
