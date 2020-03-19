@@ -135,6 +135,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 }
             }
         })
+
+        if (savedInstanceState == null) {
+            showHome()
+        }
     }
 
     override fun onResume() {
@@ -176,7 +180,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         exitAnimation: Int,
         bookmarksArticle: Boolean
     ) {
-        if(webViewDisplayableKey.startsWith("art")) {
+        if (webViewDisplayableKey.startsWith("art")) {
             showArticle(
                 webViewDisplayableKey,
                 enterAnimation,
@@ -231,7 +235,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         runOnUiThread {
             val fragmentClassName = fragment::class.java.name
 
-            if (!showFromBackStack || !supportFragmentManager.popBackStackImmediate(fragmentClassName, 0)) {
+            if (!showFromBackStack || !supportFragmentManager.popBackStackImmediate(
+                    fragmentClassName,
+                    0
+                )
+            ) {
                 supportFragmentManager.beginTransaction().apply {
                     replace(R.id.main_content_fragment_placeholder, fragment)
                     addToBackStack(fragmentClassName)
@@ -268,6 +276,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)
+            || drawer_layout.isDrawerOpen(GravityCompat.END)
+        ) {
+            closeDrawer()
+            return
+        }
+
+
         if (count > 1) {
             supportFragmentManager
                 .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
@@ -278,7 +294,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     }
                 }
         } else {
-            super.onBackPressed()
+            finish()
         }
     }
 
