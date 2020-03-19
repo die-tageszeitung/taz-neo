@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
 import kotlinx.android.synthetic.main.fragment_webview_section.*
@@ -63,7 +62,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
     override fun onPageFinishedLoading() {
         viewModel.scrollPosition?.let {
             web_view_wrapper?.scrollY = it
-        }
+        } ?: app_bar_layout.setExpanded(true, false)
         super.onPageFinishedLoading()
     }
 }

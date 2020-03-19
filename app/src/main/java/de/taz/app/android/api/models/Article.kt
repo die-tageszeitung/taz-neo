@@ -2,11 +2,6 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.FileHelper
-import java.io.File
 
 data class Article(
     val articleHtml: FileEntry,
@@ -19,11 +14,11 @@ data class Article(
     val pageNameList: List<String> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     val authorList: List<Author> = emptyList(),
-    val articleType: ArticleType = ArticleType.STANDARD,
+    override val articleType: ArticleType = ArticleType.STANDARD,
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0
-) : ArticleOperations, CacheableDownload, WebViewDisplayable {
+) : ArticleOperations {
 
     constructor(
         issueFeedName: String,
@@ -60,35 +55,5 @@ data class Article(
         list.addAll(imageList.filter { it.name.contains(".norm.") })
         return list.map { it.name }.distinct()
     }
-
-    override fun getFile(): File? {
-        return FileHelper.getInstance().getFile(articleHtml)
-    }
-
-    override fun previous(): Article? {
-        return previousArticle()
-    }
-
-    override fun next(): Article? {
-        return nextArticle()
-    }
-
-    fun isImprint(): Boolean {
-        return articleType == ArticleType.IMPRINT
-    }
-
-    fun getIssueStub(): IssueStub? {
-        return if (isImprint()) {
-            IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
-        } else {
-            getSection()?.issueStub
-        }
-    }
-
-    fun getIssue(): Issue? {
-        return getIssueStub()?.let { IssueRepository.getInstance().getIssue(it) }
-    }
-
-    override fun getIssueOperations() = getIssueStub()
 
 }

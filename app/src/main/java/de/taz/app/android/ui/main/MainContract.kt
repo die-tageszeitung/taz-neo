@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
 
@@ -30,7 +29,7 @@ interface MainContract : BaseContract {
         fun showDrawerFragment(fragment: Fragment)
 
         fun showInWebView(issueStub: IssueStub)
-        fun showInWebView(webViewDisplayable: WebViewDisplayable, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0, bookmarksArticle: Boolean = false)
+        fun showInWebView(webViewDisplayableKey: String, @AnimRes enterAnimation: Int = 0, @AnimRes exitAnimation: Int = 0, bookmarksArticle: Boolean = false)
 
         fun showHome()
 

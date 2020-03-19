@@ -4,44 +4,41 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.StableIdProvider
 import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-const val ARTICLE_POSITION = "position"
+class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
 
-class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fragment_webview_pager),
-    ArticlePagerContract.View {
-
-    override val presenter = ArticlePagerPresenter()
+    val viewModel = ArticlePagerViewModel()
 
     val log by Log
-
-    private var initialArticle: Article? = null
 
     private var stableIdProvider: StableIdProvider? = null
     private var articlePagerAdapter: ArticlePagerAdapter? = null
 
-    private var currentPosition: Int? = null
-
-    private var bookmarksArticle = false
-
     companion object {
-        fun createInstance(initialArticle: Article, bookmarksArticle: Boolean): ArticlePagerFragment {
-            // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
+        fun createInstance(articleName: String, showBookmarks: Boolean = false): ArticlePagerFragment {
             val fragment = ArticlePagerFragment()
-            fragment.initialArticle = initialArticle
-            fragment.bookmarksArticle = bookmarksArticle
+            fragment.viewModel.showBookmarks = showBookmarks
+            fragment.viewModel.articleName = articleName
             return fragment
         }
     }
@@ -49,51 +46,33 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         log.debug("onViewCreated: $view $savedInstanceState")
 
-        // Attach the presenter to this view and ensure its datamodel is created and bound to this fragments lifecycle
-        presenter.attach(this)
-
-        // Ensure initial fragment states are copied to the model via the presenter
-        initialArticle?.let { presenter.setInitialArticle(it, bookmarksArticle) }
-
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
-        // Initialize the presenter and let it call this fragment to render the pager
-        presenter.onViewCreated(savedInstanceState)
 
         stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
             articlePagerAdapter = ArticlePagerAdapter(this, it)
         }
 
-        setupViewPager()
-
-        if (savedInstanceState?.containsKey(ARTICLE_POSITION) == true) {
-            currentPosition = savedInstanceState.getInt(ARTICLE_POSITION)
-        }
-
-        currentPosition?.let {
-            presenter.setCurrentPosition(it)
+        viewModel.currentPosition?.let {
             webview_pager_viewpager.currentItem = it
         }
 
-        loading_screen.visibility = View.GONE
-    }
-
-    override fun persistPosition(position: Int) {
-        currentPosition = position
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        currentPosition?.let {
-            outState.putInt(ARTICLE_POSITION, it)
+        viewModel.articleListLiveData.observeDistinct(this) {
+            setArticles(it, viewModel.articlePosition)
+            loading_screen.visibility = View.GONE
         }
-        super.onSaveInstanceState(outState)
     }
 
-    override fun onDestroyView() {
-        webview_pager_viewpager?.adapter = null
-        super.onDestroyView()
+    override fun onResume() {
+        setupViewPager()
+        super.onResume()
+    }
+
+    override fun onStop() {
+        webview_pager_viewpager.adapter = null
+        super.onStop()
     }
 
     private fun setupViewPager() {
@@ -107,11 +86,11 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            this@ArticlePagerFragment.presenter.setCurrentPosition(position)
+            viewModel.currentPosition = position
         }
     }
 
-    override fun setArticles(articles: List<Article>, currentPosition: Int) {
+    private fun setArticles(articles: List<ArticleStub>, currentPosition: Int) {
         webview_pager_viewpager.apply {
             (adapter as ArticlePagerAdapter?)?.submitList(articles)
             setCurrentItem(currentPosition, false)
@@ -122,7 +101,7 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
         fragment: Fragment,
         private val stableIdProvider: StableIdProvider
     ) : FragmentStateAdapter(fragment) {
-        private var articles = emptyList<Article>()
+        private var articles = emptyList<ArticleStub>()
 
         override fun createFragment(position: Int): Fragment {
             val article = articles[position]
@@ -136,10 +115,30 @@ class ArticlePagerFragment : BaseMainFragment<ArticlePagerPresenter>(R.layout.fr
             return stableIdProvider.getId(filename)
         }
 
-        fun submitList(newArticles: List<Article>) {
+        fun submitList(newArticles: List<ArticleStub>) {
             articles = newArticles
             notifyDataSetChanged()
         }
 
     }
+
+    override fun onBackPressed(): Boolean {
+        if (viewModel.showBookmarks) {
+            showMainFragment(BookmarksFragment())
+            showHome()
+        } else {
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.articleList?.get(
+                    viewModel.currentPosition ?: 0
+                )?.getSectionStub()?.webViewDisplayableKey?.let {
+                    withContext(Dispatchers.Main) {
+                        showInWebView(it)
+                    }
+                }
+            }
+        }
+        return true
+    }
+
+
 }

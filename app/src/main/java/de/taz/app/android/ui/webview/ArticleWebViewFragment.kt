@@ -14,19 +14,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.android.synthetic.main.fragment_webview_article.*
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webview_article) {
+class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
 
     override val viewModel = ArticleWebViewViewModel()
 
@@ -36,7 +35,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
     private val fileHelper = FileHelper.getInstance()
 
     companion object {
-        fun createInstance(article: Article): WebViewFragment<Article> {
+        fun createInstance(article: ArticleStub): ArticleWebViewFragment {
             val fragment = ArticleWebViewFragment()
             fragment.displayable = article
             return fragment
@@ -64,21 +63,22 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
         }
     }
 
-    override fun setHeader(displayable: Article) {
+    override fun setHeader(displayable: ArticleStub) {
         activity?.lifecycleScope?.launch(Dispatchers.IO) {
-            viewModel.displayable?.getSection()?.let { section ->
-                setHeaderForSection(section)
-            }
+            val index = displayable.getIndexInSection() ?: 0
+            val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
+                displayable.articleFileName
+            ).size
+            val title = displayable.getSectionStub()?.title ?: ""
+            setHeaderForSection(index, count, title)
         }
     }
 
-    private fun setHeaderForSection(section: Section) {
+    private fun setHeaderForSection(index: Int, count: Int, title: String) {
         activity?.runOnUiThread {
-            view?.findViewById<TextView>(R.id.section)?.text = section.title
+            view?.findViewById<TextView>(R.id.section)?.text = title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
-                R.string.fragment_header_article,
-                section.articleList.indexOf(viewModel.displayable) + 1,
-                section.articleList.size
+                R.string.fragment_header_article, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
                 activity?.onBackPressed()
@@ -186,7 +186,7 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
             R.id.bottom_navigation_action_share ->
                 viewModel.displayable?.let { article ->
                     article.onlineLink?.let {
-                        share(article.onlineLink, article.title, article.imageList.firstOrNull())
+                        share(article.onlineLink, article.title, article.getFirstImage())
                     }
                 }
 
@@ -200,5 +200,6 @@ class ArticleWebViewFragment : WebViewFragment<Article>(R.layout.fragment_webvie
         viewModel.displayable?.articleFileName?.let {
             showBottomSheet(BookmarkSheetFragment.create(it))
         }
+
 }
 

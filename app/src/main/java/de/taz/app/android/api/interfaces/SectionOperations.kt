@@ -15,6 +15,9 @@ interface SectionOperations : WebViewDisplayable {
     val extendedTitle: String?
     val title: String
 
+    override val webViewDisplayableKey: String
+        get() = sectionFileName
+
     val issueStub: IssueStub
         get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
 

@@ -21,42 +21,34 @@ class SectionPagerViewModel : ViewModel() {
     private val issueFeedNameLiveData = MutableLiveData<String?>(null)
     var issueFeedName
         get() = issueFeedNameLiveData.value
-        set(value) {
-            issueFeedNameLiveData.value = value
-        }
+        set(value) = issueFeedNameLiveData.postValue(value)
 
     private val issueDateLiveData = MutableLiveData<String?>(null)
     var issueDate
         get() = issueDateLiveData.value
-        set(value) {
-            issueDateLiveData.value = value
-        }
+        set(value) = issueDateLiveData.postValue(value)
 
 
     private val issueStatusLiveData = MutableLiveData<IssueStatus?>(null)
     var issueStatus
         get() = issueStatusLiveData.value
-        set(value) {
-            issueStatusLiveData.value = value
-        }
+        set(value) = issueStatusLiveData.postValue(value)
 
 
     val currentPositionLiveData = MutableLiveData(0)
     var currentPosition
         get() = currentPositionLiveData.value
-        set(value) {
-            currentPositionLiveData.value = value
-        }
+        set(value) = currentPositionLiveData.postValue(value)
 
     val sectionStubListLiveData: LiveData<List<SectionStub>> = MediatorLiveData<List<SectionStub>>().apply {
-            addSource(sectionKeyLiveData) { getIssueBySection(this) }
-            addSource(issueDateLiveData) { getIssue(this) }
-            addSource(issueFeedNameLiveData) { getIssue(this) }
-            addSource(issueStatusLiveData) { getIssue(this) }
+            addSource(sectionKeyLiveData) { getSectionListBySection(this) }
+            addSource(issueDateLiveData) { getSectionListByIssue(this) }
+            addSource(issueFeedNameLiveData) { getSectionListByIssue(this) }
+            addSource(issueStatusLiveData) { getSectionListByIssue(this) }
         }
-    val issue = sectionStubListLiveData.value
+    val sectionStubList = sectionStubListLiveData.value
 
-    private fun getIssue(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
+    private fun getSectionListByIssue(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
         runIfNotNull(
             issueDate,
             issueFeedName,
@@ -70,11 +62,10 @@ class SectionPagerViewModel : ViewModel() {
         }
     }
 
-    private fun getIssueBySection(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
+    private fun getSectionListBySection(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
         CoroutineScope(Dispatchers.IO).launch {
             sectionKey?.let { sectionKey ->
-                val sections = SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionKey)
-                currentPositionLiveData.postValue(sections.indexOfFirst { it.sectionFileName == sectionKey })
+                val sections = sectionStubList ?: SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionKey)
                 mediatorLiveData.postValue(sections)
             }
         }

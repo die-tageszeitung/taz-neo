@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.ui.main.MainActivity
 
@@ -136,12 +135,17 @@ abstract class ViewModelBaseMainFragment(
         addBottomSheet.show(childFragmentManager, null)
     }
 
+    fun showMainFragment(fragment: Fragment) {
+        (activity as? MainActivity)?.showMainFragment(fragment)
+    }
+
     fun showHome() {
         (activity as? MainActivity)?.showHome()
     }
 
-    fun showInWebView(webViewDisplayable: WebViewDisplayable) {
-        (activity as? MainActivity)?.showInWebView(webViewDisplayable)
+    // TODO no need for article
+    fun showInWebView(webViewDisplayableKey: String) {
+        (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
     }
 
 }

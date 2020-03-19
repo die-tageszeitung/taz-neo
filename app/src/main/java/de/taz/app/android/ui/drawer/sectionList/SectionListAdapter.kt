@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.moment.MomentView
@@ -23,7 +22,6 @@ class SectionListAdapter(
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
-    private val downloadService = DownloadService.getInstance()
     private val fileHelper = FileHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
     private val momentRepository = MomentRepository.getInstance()
@@ -83,6 +81,7 @@ class SectionListAdapter(
         }
     }
 
+    // TODO no need for article
     private fun showImprint(imprint: Article) {
         fragment.view?.findViewById<TextView>(
             R.id.fragment_drawer_sections_imprint
@@ -90,7 +89,7 @@ class SectionListAdapter(
             text = text.toString().toLowerCase(Locale.getDefault())
             setOnClickListener {
                 fragment.getMainView()?.apply {
-                    showInWebView(imprint)
+                    showInWebView(imprint.articleFileName)
                     closeDrawer()
                 }
             }
@@ -138,12 +137,10 @@ class SectionListAdapter(
             holder.textView.setOnClickListener {
                 fragment.getMainView()?.apply {
                     lifecycleScope.launch(Dispatchers.IO) {
-                        val section = sectionRepository.sectionStubToSection(sectionStub)
-                        showInWebView(section)
+                        showInWebView(sectionStub.webViewDisplayableKey)
                         withContext(Dispatchers.Main) {
                             closeDrawer()
                         }
-                        downloadService.download(section.getIssue())
                     }
                 }
             }

@@ -94,6 +94,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+        return appDatabase.articleDao().getSectionArticleListByArticle(articleName)
+    }
+
+    fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+        return appDatabase.articleDao().getIssueArticleListByArticle(articleName)
+    }
+
     fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
@@ -120,6 +128,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         previousArticleStub(articleName)?.let { articleStubToArticle(it) }
 
     fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
+
+    fun getImagesForArticle(articleFileName: String): List<FileEntry> {
+        return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
+    }
+
+    fun getAuthorImageFileNamesForArticle(articleFileName: String): List<String> {
+        return appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleFileName).mapNotNull { it.authorFileName }
+    }
 
     @Throws(NotFoundException::class)
     fun articleStubToArticle(articleStub: ArticleStub): Article {
@@ -196,9 +212,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             }
         }
 
+    fun getBookmarkedArticleStubList(): List<ArticleStub> {
+        return appDatabase.articleDao().getBookmarkedArticlesList()
+    }
 
     fun getBookmarkedArticlesList(): List<Article> {
-        return appDatabase.articleDao().getBookmarkedArticlesList().map {
+        return getBookmarkedArticleStubList().map {
             articleStubToArticle(it)
         }
     }
@@ -215,8 +234,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStubLiveData(articleName).map { it?.bookmarked ?: false }
     }
 
-    fun getIndexInSection(articleName: String): Int? {
-        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
+    fun getIndexInSection(articleName: String): Int {
+        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
 
     fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
