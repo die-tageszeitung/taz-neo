@@ -10,20 +10,20 @@ interface BookmarksContract {
 
         fun setBookmarks(bookmarks: List<Article>)
 
-        fun shareArticle(article: Article)
+        fun shareArticle(articleFileName: String)
     }
 
     interface Presenter : BaseContract.Presenter {
 
-        fun debookmarkArticle(article: Article)
+        fun debookmarkArticle(articleFileName: String)
 
         fun onBackPressed(): Boolean
 
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
 
-        fun openArticle(article: Article)
+        fun openArticle(articleFileName: String)
 
-        fun shareArticle(article: Article)
+        fun shareArticle(articleFileName: String)
     }
 
     interface DataController : BaseContract.DataController

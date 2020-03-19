@@ -79,10 +79,24 @@ class SectionPagerFragment :
             }
         }
 
-        viewModel.sectionStubListLiveData.observeDistinct(this) { liveIssue ->
-            runIfNotNull(liveIssue, viewModel.currentPosition) { sectionStubs, currentPosition ->
+        viewModel.sectionStubListLiveData.observeDistinct(this) { sectionStubList ->
+            runIfNotNull(
+                sectionStubList,
+                viewModel.currentPosition
+            ) { sectionStubs, currentPosition ->
                 setSections(sectionStubs, currentPosition)
                 loading_screen?.visibility = View.GONE
+            }
+        }
+
+        savedInstanceState?.let {
+            runIfNotNull(
+                viewModel.sectionStubList,
+                viewModel.currentPosition
+            ) {
+                    sectionStubs, currentPosition ->
+                setSections(sectionStubs, currentPosition)
+                loading_screen.visibility = View.GONE
             }
         }
     }

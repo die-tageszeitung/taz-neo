@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.persistence.repository.ArticleRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Entity(tableName = "Article")
 data class ArticleStub(
@@ -44,8 +46,8 @@ data class ArticleStub(
         return list.distinct()
     }
 
-    fun getFirstImage(): FileEntry? {
-        return ArticleRepository.getInstance().getImagesForArticle(this.articleFileName)
+    suspend fun getFirstImage(): FileEntry? = withContext(Dispatchers.IO) {
+        ArticleRepository.getInstance().getImagesForArticle(this@ArticleStub.articleFileName)
             .firstOrNull()
     }
 

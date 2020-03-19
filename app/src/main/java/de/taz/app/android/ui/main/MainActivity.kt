@@ -114,7 +114,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         presenter.onViewCreated(savedInstanceState)
-        showHome()
         lockEndNavigationView()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
