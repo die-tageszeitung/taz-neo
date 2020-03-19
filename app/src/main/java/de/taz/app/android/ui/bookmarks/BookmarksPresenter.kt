@@ -22,8 +22,9 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
         }
     }
 
+    // TODO no need for article
     override fun openArticle(article: Article) {
-        getView()?.getMainView()?.showInWebView(article, bookmarksArticle = true)
+        getView()?.getMainView()?.showInWebView(article.articleFileName, bookmarksArticle = true)
     }
 
     override fun debookmarkArticle(article: Article) {

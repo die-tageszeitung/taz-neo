@@ -3,24 +3,28 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
@@ -35,9 +39,9 @@ class SectionPagerFragment :
     private var issueStatus: IssueStatus? = null
 
     companion object {
-        fun createInstance(initialSection: Section): SectionPagerFragment {
+        fun createInstance(sectionFileName: String): SectionPagerFragment {
             val fragment = SectionPagerFragment()
-            fragment.sectionKey = initialSection.sectionFileName
+            fragment.sectionKey = sectionFileName
             return fragment
         }
 
@@ -88,8 +92,17 @@ class SectionPagerFragment :
         setupViewPager()
     }
 
-    fun tryLoadSection(section: Section): Boolean {
-        viewModel.sectionKey = section.sectionFileName
+    fun tryLoadSection(sectionFileName: String): Boolean {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val sectionStubs =
+                SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionFileName)
+
+            withContext(Dispatchers.Main) {
+                webview_pager_viewpager.setCurrentItem(
+                    sectionStubs.indexOfFirst { it.sectionFileName == sectionFileName }, false
+                )
+            }
+        }
         return true
     }
 
@@ -123,10 +136,6 @@ class SectionPagerFragment :
             (adapter as SectionPagerAdapter?)?.submitList(sections)
             setCurrentItem(currentPosition, false)
         }
-    }
-
-    fun setCurrentPosition(position: Int) {
-        webview_pager_viewpager.setCurrentItem(position, false)
     }
 
     override fun onStop() {

@@ -195,9 +195,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         }
     }
 
-
+    // TODO no displayable needed
     override fun onLinkClicked(displayable: WebViewDisplayable) {
-        getMainActivity()?.showInWebView(displayable)
+        getMainActivity()?.showInWebView(displayable.webViewDisplayableKey)
     }
 
     override fun onPageFinishedLoading() {

@@ -69,22 +69,24 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         }
     }
 
+    // TODO no next needed -> only name
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.debug("nextArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.next()?.let { next ->
-                mainActivity?.showInWebView(next, R.anim.slide_in_left, R.anim.slide_out_left)
+                mainActivity?.showInWebView(next.webViewDisplayableKey, R.anim.slide_in_left, R.anim.slide_out_left)
             }
         }
     }
 
+    // TODO no previous needed -> only name
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.debug("previousArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.previous()?.let { previous ->
-                mainActivity?.showInWebView(previous, R.anim.slide_in_right, R.anim.slide_out_right)
+                mainActivity?.showInWebView(previous.webViewDisplayableKey, R.anim.slide_in_right, R.anim.slide_out_right)
             }
         }
     }
@@ -96,11 +98,11 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
 
         mainActivity?.apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                ArticleRepository.getInstance().get(url)?.let {
-                    showInWebView(it)
-                } ?: SectionRepository.getInstance().get(url)?.let {
-                    showInWebView(it)
-                } ?: openExternally(url)
+                if (url.endsWith(".html") && (url.startsWith("article") || url.startsWith("section"))) {
+                    showInWebView(url)
+                } else {
+                    openExternally(url)
+                }
             }
         }
     }

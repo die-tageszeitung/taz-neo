@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -18,22 +17,16 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.api.models.Section
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
@@ -179,36 +172,37 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showInWebView(
-        webViewDisplayable: WebViewDisplayable,
+        webViewDisplayableKey: String,
         enterAnimation: Int,
         exitAnimation: Int,
         bookmarksArticle: Boolean
     ) {
-        when (webViewDisplayable) {
-            is Article -> showArticle(
-                webViewDisplayable,
+        if(webViewDisplayableKey.startsWith("art")) {
+            showArticle(
+                webViewDisplayableKey,
                 enterAnimation,
                 exitAnimation,
                 bookmarksArticle
             )
-            is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
+        } else {
+            showSection(webViewDisplayableKey, enterAnimation, exitAnimation)
         }
     }
 
     private fun showArticle(
-        article: Article,
+        articleName: String,
         enterAnimation: Int = 0,
         exitAnimation: Int = 0,
         bookmarksArticle: Boolean = false
     ) {
-        val fragment = ArticlePagerFragment.createInstance(article, bookmarksArticle)
+        val fragment = ArticlePagerFragment.createInstance(articleName, bookmarksArticle)
         showMainFragment(fragment, enterAnimation, exitAnimation)
     }
 
-    private fun showSection(section: Section, enterAnimation: Int, exitAnimation: Int) {
+    private fun showSection(sectionFileName: String, enterAnimation: Int, exitAnimation: Int) {
         runOnUiThread {
-            if (!tryShowExistingSection(section)) {
-                val fragment = SectionPagerFragment.createInstance(section)
+            if (!tryShowExistingSection(sectionFileName)) {
+                val fragment = SectionPagerFragment.createInstance(sectionFileName)
                 showMainFragment(fragment, enterAnimation, exitAnimation, false)
             }
         }
@@ -219,12 +213,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     @MainThread
-    private fun tryShowExistingSection(section: Section): Boolean {
+    private fun tryShowExistingSection(sectionFileName: String): Boolean {
         supportFragmentManager.popBackStackImmediate(SectionPagerFragment::class.java.name, 0)
         val sectionPagerFragment =
             supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
         if (sectionPagerFragment is SectionPagerFragment) {
-            return sectionPagerFragment.tryLoadSection(section)
+            return sectionPagerFragment.tryLoadSection(sectionFileName)
         }
         return false
     }
@@ -275,7 +269,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
-        if (count > 0) {
+        if (count > 1) {
             supportFragmentManager
                 .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
                     if (it is BackFragment && it.onBackPressed()) {
@@ -328,11 +322,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                ArticleRepository.getInstance(
-                                    applicationContext
-                                ).get(articleName)?.let { article ->
-                                    showArticle(article)
-                                }
+                                showArticle(articleName)
                             }
                         }
                     }
