@@ -31,7 +31,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     val log by Log
 
     private val openDatePicker =  {
-        showBottomSheet(DatePickerFragment())
+        showBottomSheet(DatePickerFragment.create(getMainView()))
     }
 
     private val coverFlowPagerAdapter = CoverflowAdapter(

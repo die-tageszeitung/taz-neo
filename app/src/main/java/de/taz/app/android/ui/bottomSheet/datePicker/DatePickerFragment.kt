@@ -40,16 +40,14 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     private val dateHelper = DateHelper.getInstance()
 
     private var issueStub: IssueStub? = null
-    private var weakActivityReference: WeakReference<MainContract.View>? = null
+    private var weakActivityReference: WeakReference<MainContract.View?>? = null
 
     companion object {
         fun create(
-            mainActivity: MainContract.View,
-            issueStub: IssueStub
+            mainActivity: MainContract.View?
         ): DatePickerFragment {
             val fragment = DatePickerFragment()
             fragment.weakActivityReference = WeakReference(mainActivity)
-            fragment.issueStub = issueStub
             return fragment
         }
     }
@@ -89,25 +87,13 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     suspend fun setIssue(feedName: String, date: String){
         log.debug("call setIssue()")
         log.debug("with feedName: $feedName, date:$date")
-        //getItem(position)?.let { issueStub ->
-        //    this.getLifecycleOwner().lifecycleScope.launch {
-        //        val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-        //        momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName], dateFormat= DateFormat.LongWithoutWeekDay)
-        //    }
-        //}
         withContext(Dispatchers.IO) {
             log.debug("before stub loading")
-            val latestIssue = issueRepository.getLatestIssueStub()
-            log.debug("latest stub: $latestIssue")
             issueStub = issueRepository.getIssueStubByFeedAndDate(feedName, date, status = IssueStatus.regular)
             log.debug("selected issueStub is: $issueStub")
             issueStub?.let {issueStub ->
                 log.debug("will call showIssue for $issueStub")
-                //log.debug("activity is: $activity")
-                //val momentView = activity?.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                //val momentView = fragmentManager?.findFragmentById(R.id.fragment_cover_flow_item)?.view?.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                //this@DatePickerFragment.view?.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                //momentView.presenter.setIssue(issueStub, feedMap[issueStub.feedName], dateFormat= DateFormat.LongWithoutWeekDay)
+                log.debug("activity is: $activity")
                 weakActivityReference?.get()?.showIssue(issueStub)
             }
             /*
@@ -117,24 +103,6 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                - load next possible issue if issue for selected date does not exist (i.e. user selected a Sunday)
                - bound datepicker to begin of taz-today
              */
-            /*
-            val issue = issueRepository.getIssue(issueStub)
-
-            getMainView()?.apply {
-                // start download if not yet downloaded
-                if (!issue.isDownloaded()) {
-                    getApplicationContext().let { applicationContext ->
-                        DownloadService.download(applicationContext, issue)
-                    }
-                }
-
-                // set main issue
-                getMainDataController().setIssueOperations(issueStub)
-
-                issue.sectionList.first().let { firstSection ->
-                    showInWebView(firstSection)
-                }
-            }*/
         }
     }
 }
