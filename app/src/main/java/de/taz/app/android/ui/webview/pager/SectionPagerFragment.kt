@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
@@ -25,6 +26,11 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+const val ISSUE_DATE = "issueDate"
+const val ISSUE_FEED = "issueFeed"
+const val ISSUE_STATUS = "issueStatus"
+const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
@@ -51,6 +57,16 @@ class SectionPagerFragment :
             fragment.issueDate = issueStub.date
             fragment.issueStatus = issueStub.status
             return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.apply {
+            issueDate = getString(ISSUE_DATE)
+            issueFeedName = getString(ISSUE_FEED)
+            issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+            sectionKey = getString(SECTION_KEY)
         }
     }
 
@@ -162,7 +178,14 @@ class SectionPagerFragment :
             sections = newSections
             notifyDataSetChanged()
         }
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ISSUE_DATE, issueDate)
+        outState.putString(ISSUE_FEED, issueFeedName)
+        outState.putString(ISSUE_STATUS, issueStatus.toString())
+        outState.putString(SECTION_KEY, sectionKey)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onBackPressed(): Boolean {
