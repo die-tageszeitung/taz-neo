@@ -25,6 +25,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+const val SHOW_BOOKMARKS = "showBookmarks"
+const val ARTICLE_NAME = "articleName"
+
 class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager),
     BackFragment {
 
@@ -35,19 +38,33 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     private var articlePagerAdapter: ArticlePagerAdapter? = null
     private var articleListObserver: Observer<List<ArticleStub>>? = null
 
+    private var showBookmarks: Boolean = false
+    private var articleName: String? = null
+
     companion object {
         fun createInstance(
             articleName: String,
             showBookmarks: Boolean = false
         ): ArticlePagerFragment {
             val fragment = ArticlePagerFragment()
-            fragment.viewModel.showBookmarks = showBookmarks
-            fragment.viewModel.articleName = articleName
+            fragment.showBookmarks = showBookmarks
+            fragment.articleName = articleName
             return fragment
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        savedInstanceState?.apply {
+            showBookmarks = getBoolean(SHOW_BOOKMARKS)
+            articleName = getString(ARTICLE_NAME)
+        }
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewModel.showBookmarks = showBookmarks
+        viewModel.articleName = articleName
+
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -150,6 +167,12 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             }
         }
         return true
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(SHOW_BOOKMARKS, showBookmarks)
+        outState.putString(ARTICLE_NAME, articleName)
+        super.onSaveInstanceState(outState)
     }
 
 }
