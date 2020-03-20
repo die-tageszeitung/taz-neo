@@ -22,6 +22,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.android.synthetic.main.fragment_webview_article.*
+import kotlinx.android.synthetic.main.fragment_webview_article.app_bar_layout
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
@@ -44,10 +45,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.displayable = displayable
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel.scrollPosition?.let {
-            nested_scroll_view.scrollY = it
-        }
 
         nested_scroll_view.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
             viewModel.scrollPosition = scrollY
@@ -206,6 +203,14 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
         viewModel.displayable?.articleFileName?.let {
             showBottomSheet(BookmarkSheetFragment.create(it))
         }
+
+    // TODO scroll to position if not visible as well...
+    override fun onPageFinishedLoading() {
+        super.onPageFinishedLoading()
+        viewModel.scrollPosition?.let {
+            nested_scroll_view?.scrollY = it
+        } ?: app_bar_layout?.setExpanded(true, false)
+    }
 
 }
 

@@ -94,8 +94,7 @@ class SectionPagerFragment :
             runIfNotNull(
                 viewModel.sectionStubList,
                 viewModel.currentPosition
-            ) {
-                    sectionStubs, currentPosition ->
+            ) { sectionStubs, currentPosition ->
                 setSections(sectionStubs, currentPosition)
                 loading_screen.visibility = View.GONE
             }
@@ -114,7 +113,7 @@ class SectionPagerFragment :
 
             withContext(Dispatchers.Main) {
                 webview_pager_viewpager.setCurrentItem(
-                    sectionStubs.indexOfFirst { it.sectionFileName == sectionFileName }, false
+                    sectionStubs.indexOfFirst { it.webViewDisplayableKey == sectionFileName }, false
                 )
             }
         }

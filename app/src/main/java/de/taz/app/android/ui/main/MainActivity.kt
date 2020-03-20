@@ -198,8 +198,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         exitAnimation: Int = 0,
         bookmarksArticle: Boolean = false
     ) {
-        val fragment = ArticlePagerFragment.createInstance(articleName, bookmarksArticle)
-        showMainFragment(fragment, enterAnimation, exitAnimation)
+        runOnUiThread {
+            if (!tryShowExistingArticle(articleName)) {
+                val fragment = ArticlePagerFragment.createInstance(articleName, bookmarksArticle)
+                showMainFragment(fragment, enterAnimation, exitAnimation, false)
+            }
+        }
     }
 
     private fun showSection(sectionFileName: String, enterAnimation: Int, exitAnimation: Int) {
@@ -222,6 +226,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
         if (sectionPagerFragment is SectionPagerFragment) {
             return sectionPagerFragment.tryLoadSection(sectionFileName)
+        }
+        return false
+    }
+
+    @MainThread
+    private fun tryShowExistingArticle(articleFileName: String): Boolean {
+        supportFragmentManager.popBackStackImmediate(ArticlePagerFragment::class.java.name, 0)
+        val articlePagerFragment =
+            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
+        if (articlePagerFragment is ArticlePagerFragment) {
+            return articlePagerFragment.tryLoadArticle(articleFileName)
         }
         return false
     }
