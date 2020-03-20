@@ -30,6 +30,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <include
+        android:id="@+id/loading_screen"
         layout="@layout/include_loading_screen"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
