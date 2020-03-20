@@ -61,9 +61,9 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
 
     // TODO scroll to position if not visible as well...
     override fun onPageFinishedLoading() {
+        super.onPageFinishedLoading()
         viewModel.scrollPosition?.let {
             web_view_wrapper?.scrollY = it
-        } ?: app_bar_layout.setExpanded(true, false)
-        super.onPageFinishedLoading()
+        } ?: app_bar_layout?.setExpanded(true, false)
     }
 }

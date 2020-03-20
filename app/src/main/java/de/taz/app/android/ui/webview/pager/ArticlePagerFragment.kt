@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -16,30 +15,31 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.StableIdProvider
-import de.taz.app.android.util.StableIdViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
+class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager),
+    BackFragment {
 
     val viewModel = ArticlePagerViewModel()
 
     val log by Log
 
-    private var stableIdProvider: StableIdProvider? = null
     private var articlePagerAdapter: ArticlePagerAdapter? = null
-
     private var articleListObserver: Observer<List<ArticleStub>>? = null
 
     companion object {
-        fun createInstance(articleName: String, showBookmarks: Boolean = false): ArticlePagerFragment {
+        fun createInstance(
+            articleName: String,
+            showBookmarks: Boolean = false
+        ): ArticlePagerFragment {
             val fragment = ArticlePagerFragment()
             fragment.viewModel.showBookmarks = showBookmarks
             fragment.viewModel.articleName = articleName
@@ -53,10 +53,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             moveContentBeneathStatusBar()
         }
 
-        stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
-            articlePagerAdapter = ArticlePagerAdapter(this, it)
-        }
-
+        articlePagerAdapter = articlePagerAdapter ?: ArticlePagerAdapter(this)
     }
 
     override fun onStart() {
@@ -104,8 +101,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     private inner class ArticlePagerAdapter(
-        fragment: Fragment,
-        private val stableIdProvider: StableIdProvider
+        fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
         private var articles = emptyList<ArticleStub>()
 
@@ -115,11 +111,6 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         }
 
         override fun getItemCount(): Int = articles.size
-
-        override fun getItemId(position: Int): Long {
-            val filename = articles[position].articleFileName
-            return stableIdProvider.getId(filename)
-        }
 
         fun submitList(newArticles: List<ArticleStub>) {
             articles = newArticles
@@ -146,5 +137,19 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         return true
     }
 
+    fun tryLoadArticle(articleFileName: String): Boolean {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val articleStubs =
+                ArticleRepository.getInstance()
+                    .getIssueArticleStubListByArticleName(articleFileName)
+
+            withContext(Dispatchers.Main) {
+                webview_pager_viewpager.setCurrentItem(
+                    articleStubs.indexOfFirst { it.webViewDisplayableKey == articleFileName }, false
+                )
+            }
+        }
+        return true
+    }
 
 }
