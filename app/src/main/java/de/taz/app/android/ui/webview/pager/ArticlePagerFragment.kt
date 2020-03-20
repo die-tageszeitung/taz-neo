@@ -3,6 +3,8 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -34,6 +36,8 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     private var stableIdProvider: StableIdProvider? = null
     private var articlePagerAdapter: ArticlePagerAdapter? = null
 
+    private var articleListObserver: Observer<List<ArticleStub>>? = null
+
     companion object {
         fun createInstance(articleName: String, showBookmarks: Boolean = false): ArticlePagerFragment {
             val fragment = ArticlePagerFragment()
@@ -53,23 +57,26 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             articlePagerAdapter = ArticlePagerAdapter(this, it)
         }
 
-        viewModel.currentPosition?.let {
-            webview_pager_viewpager.currentItem = it
-        }
+    }
 
-        viewModel.articleListLiveData.observeDistinct(this) {
+    override fun onStart() {
+        setupViewPager()
+        articleListObserver = viewModel.articleListLiveData.observeDistinct(this) {
             setArticles(it, viewModel.articlePosition)
             loading_screen.visibility = View.GONE
         }
 
-    }
+        viewModel.currentPosition?.let {
+            webview_pager_viewpager.currentItem = it
+        }
 
-    override fun onResume() {
-        setupViewPager()
-        super.onResume()
+        super.onStart()
     }
 
     override fun onStop() {
+        articleListObserver?.let {
+            Transformations.distinctUntilChanged(viewModel.articleListLiveData).removeObserver(it)
+        }
         webview_pager_viewpager.adapter = null
         super.onStop()
     }

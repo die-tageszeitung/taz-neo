@@ -89,6 +89,7 @@ class SectionPagerFragment :
             }
         }
 
+        // TODO FIX THIS
         savedInstanceState?.let {
             runIfNotNull(
                 viewModel.sectionStubList,
@@ -101,8 +102,8 @@ class SectionPagerFragment :
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         setupViewPager()
     }
 
@@ -126,17 +127,6 @@ class SectionPagerFragment :
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
         }
-    }
-
-    private fun tearDownViewPager() {
-        webview_pager_viewpager?.apply {
-            adapter = null
-        }
-    }
-
-    override fun onDestroy() {
-        tearDownViewPager()
-        super.onDestroy()
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
