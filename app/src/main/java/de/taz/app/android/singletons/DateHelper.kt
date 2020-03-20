@@ -47,6 +47,10 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
         }
     }
 
+    fun stringToLong(string: String): Long {
+        return dateHelper.parse(string).time
+    }
+
     fun stringToStringWithDelta(string: String, days: Int): String? {
         return stringToDateWithDelta(string, days)?.let {
             dateToString(it)
