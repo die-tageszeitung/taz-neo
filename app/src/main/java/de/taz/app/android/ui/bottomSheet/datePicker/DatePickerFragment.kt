@@ -4,26 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseFragment
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.main.MainContract
-import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
-import kotlinx.android.synthetic.main.fragment_cover_flow_item.*
-import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,22 +68,30 @@ class DatePickerFragment : BottomSheetDialogFragment() {
 
             dismiss() //close bottomSheet
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
-            lifecycleScope.launch(Dispatchers.IO) {
-                issueStub = issueRepository.getIssueStubByFeedAndDate("taz", "$year-$month-$day", status = IssueStatus.regular)
-                issueStub?.let { issueStub ->
-                    log.debug("will call showIssue for $issueStub")
-                    weakActivityReference?.get()?.showIssue(issueStub)
-                }
+            //lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch() {
+                setIssue("$year-$month-$day")
+                //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", "$year-$month-$day", status = IssueStatus.regular)
+                //issueStub?.let { issueStub ->
+                //    log.debug("will call showIssue for $issueStub")
+                //    weakActivityReference?.get()?.showIssue(issueStub)
+                //}
             }
         }
     }
 
-    suspend fun setIssue(feedName: String, date: String){
+    private suspend fun setIssue(date: String){
         log.debug("call setIssue()")
-        log.debug("with feedName: $feedName, date:$date")
         withContext(Dispatchers.IO) {
-            log.debug("before stub loading")
-            issueStub = issueRepository.getIssueStubByFeedAndDate(feedName, date, status = IssueStatus.regular)
+            // use proper issue status (regular if logged in; public if not)
+            val authStatus = AuthHelper.getInstance().authStatus
+            var issueStatus : IssueStatus = IssueStatus.public
+            if (authStatus == AuthStatus.valid
+                || authStatus == AuthStatus.alreadyLinked
+                || authStatus == AuthStatus.tazIdNotLinked) {
+               issueStatus = IssueStatus.regular
+            }
+            issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
             log.debug("selected issueStub is: $issueStub")
             issueStub?.let {issueStub ->
                 log.debug("will call showIssue for $issueStub")
@@ -99,7 +101,6 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             /*
               TODO
                - use proper status (regular if logged in; public if not)
-               - issue has to be downloaded if not on the device
                - load next possible issue if issue for selected date does not exist (i.e. user selected a Sunday)
                - bound datepicker to begin of taz-today
              */
