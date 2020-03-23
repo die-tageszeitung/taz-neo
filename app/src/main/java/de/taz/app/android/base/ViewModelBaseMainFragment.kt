@@ -143,7 +143,6 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showHome()
     }
 
-    // TODO no need for article
     fun showInWebView(webViewDisplayableKey: String) {
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
     }

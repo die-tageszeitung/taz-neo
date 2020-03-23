@@ -68,7 +68,6 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         }
     }
 
-    // TODO no next needed -> only name
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.debug("nextArticle $position")
@@ -79,7 +78,6 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         }
     }
 
-    // TODO no previous needed -> only name
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.debug("previousArticle $position")

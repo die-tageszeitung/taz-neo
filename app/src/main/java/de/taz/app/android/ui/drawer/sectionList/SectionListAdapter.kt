@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
@@ -29,7 +30,7 @@ class SectionListAdapter(
 
     private var moment: Moment? = null
     private val sectionList = mutableListOf<SectionStub>()
-    private var imprint: Article? = null
+    private var imprint: ArticleStub? = null
 
     private var currentJob: Job? = null
     private val observer = MomentDownloadedObserver()
@@ -64,7 +65,7 @@ class SectionListAdapter(
                         issueStub
                     )
                 )
-                imprint = issueRepository.getImprint(issueStub)
+                imprint = issueRepository.getImprintStub(issueStub)
             }
 
             withContext(Dispatchers.Main) {
@@ -81,8 +82,7 @@ class SectionListAdapter(
         }
     }
 
-    // TODO no need for article
-    private fun showImprint(imprint: Article) {
+    private fun showImprint(imprint: ArticleOperations) {
         fragment.view?.findViewById<TextView>(
             R.id.fragment_drawer_sections_imprint
         )?.apply {

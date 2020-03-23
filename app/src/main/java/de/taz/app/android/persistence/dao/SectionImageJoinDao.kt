@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
@@ -29,9 +30,7 @@ abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
     )
     abstract fun getImageNamesForSection(sectionFileName: String): List<String>
 
-    fun getImagesForSection(section: Section): List<FileEntry> =
-        getImagesForSection(section.sectionHtml.name)
+    fun getImagesForSectionOperation(section: SectionOperations): List<FileEntry> =
+        getImagesForSection(section.key)
 
-    fun getImagesForSection(sectionStub: SectionStub): List<FileEntry> =
-        getImagesForSection(sectionStub.sectionFileName)
 }
