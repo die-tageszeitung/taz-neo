@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
@@ -101,11 +102,10 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                 || authStatus == AuthStatus.tazIdNotLinked) {
                issueStatus = IssueStatus.regular
             }
-            issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
+            //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
+            issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
             log.debug("selected issueStub is: $issueStub")
-            issueStub?.let {issueStub ->
-                log.debug("will call showIssue for $issueStub")
-                log.debug("activity is: $activity")
+            issueStub?.let { issueStub ->
                 weakActivityReference?.get()?.showIssue(issueStub)
             }
             /*
