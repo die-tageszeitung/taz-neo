@@ -99,7 +99,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         webview_pager_viewpager?.apply {
             adapter = articlePagerAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            offscreenPageLimit = 1
+            offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
         }
     }

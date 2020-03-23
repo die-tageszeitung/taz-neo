@@ -13,11 +13,10 @@ import kotlinx.android.synthetic.main.fragment_webview_section.*
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
     private val dateHelper: DateHelper = DateHelper.getInstance()
-
     override val viewModel = WebViewViewModel<SectionStub>()
+    override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.displayable = displayable
         super.onViewCreated(view, savedInstanceState)
 
         web_view_wrapper.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
@@ -59,11 +58,4 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
         }
     }
 
-    // TODO scroll to position if not visible as well...
-    override fun onPageFinishedLoading() {
-        super.onPageFinishedLoading()
-        viewModel.scrollPosition?.let {
-            web_view_wrapper?.scrollY = it
-        } ?: app_bar_layout?.setExpanded(true, false)
-    }
 }

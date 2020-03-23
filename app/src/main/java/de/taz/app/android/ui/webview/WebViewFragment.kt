@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebChromeClient
 import androidx.annotation.LayoutRes
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -22,23 +24,26 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_webview_section.web_view
+import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
+const val SCROLL_POSITION = "scrollPosition"
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     @LayoutRes layoutResourceId: Int
 ) : ViewModelBaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
 
-    private val log by Log
+    protected val log by Log
 
     protected var displayable: DISPLAYABLE? = null
 
     abstract val viewModel: WebViewViewModel<DISPLAYABLE>
+    abstract val nestedScrollViewId: Int
+
     private lateinit var tazApiCssPreferences: SharedPreferences
 
     private val tazApiCssPrefListener =
@@ -61,6 +66,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.displayable = displayable
+
         configureWebView()
         displayable?.let { displayable ->
             setHeader(displayable)
@@ -70,6 +78,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                 }
             }
         }
+
+        view.findViewById<NestedScrollView>(nestedScrollViewId).setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+            viewModel.scrollPosition = scrollY
+        }
+
+        savedInstanceState?.apply{
+            viewModel.scrollPosition = getInt(SCROLL_POSITION)
+            view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
+        }
+
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -92,7 +110,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     private fun loadUrl(url: String) {
         activity?.runOnUiThread {
-            web_view.loadUrl(url)
+            web_view?.loadUrl(url)
         }
     }
 
@@ -201,6 +219,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onPageFinishedLoading() {
         hideLoadingScreen()
+        val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        viewModel.scrollPosition?.let {
+            nestedScrollView?.scrollY = it
+        } ?: view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
     }
 
     /**
@@ -233,6 +255,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             ResourceInfoRepository.getInstance().get()?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.scrollPosition?.let {
+            outState.putInt(SCROLL_POSITION, it)
+        }
+        super.onSaveInstanceState(outState)
     }
 
 }

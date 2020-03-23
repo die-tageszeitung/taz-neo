@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.FileProvider
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +17,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.android.synthetic.main.fragment_webview_article.*
@@ -28,8 +26,8 @@ import kotlinx.coroutines.*
 class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
 
     override val viewModel = ArticleWebViewViewModel()
+    override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
-    private val log by Log
     var observer: Observer<Boolean>? = null
 
     private val fileHelper = FileHelper.getInstance()
@@ -43,12 +41,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.displayable = displayable
         super.onViewCreated(view, savedInstanceState)
-
-        nested_scroll_view.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-            viewModel.scrollPosition = scrollY
-        }
 
         observer = viewModel.isBookmarkedLiveData.observeDistinct(this) { isBookmarked ->
             if (isBookmarked) {
@@ -203,14 +196,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
         viewModel.displayable?.articleFileName?.let {
             showBottomSheet(BookmarkSheetFragment.create(it))
         }
-
-    // TODO scroll to position if not visible as well...
-    override fun onPageFinishedLoading() {
-        super.onPageFinishedLoading()
-        viewModel.scrollPosition?.let {
-            nested_scroll_view?.scrollY = it
-        } ?: app_bar_layout?.setExpanded(true, false)
-    }
 
 }
 

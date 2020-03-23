@@ -8,7 +8,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
@@ -104,17 +103,6 @@ class SectionPagerFragment :
                 loading_screen?.visibility = View.GONE
             }
         }
-
-        // TODO FIX THIS
-        savedInstanceState?.let {
-            runIfNotNull(
-                viewModel.sectionStubList,
-                viewModel.currentPosition
-            ) { sectionStubs, currentPosition ->
-                setSections(sectionStubs, currentPosition)
-                loading_screen.visibility = View.GONE
-            }
-        }
     }
 
     override fun onStart() {
@@ -141,6 +129,7 @@ class SectionPagerFragment :
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
+            offscreenPageLimit = 2
         }
     }
 

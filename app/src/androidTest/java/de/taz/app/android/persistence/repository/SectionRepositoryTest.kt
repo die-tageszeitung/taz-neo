@@ -64,7 +64,7 @@ class SectionRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         sectionRepository.save(section)
-        val fromDB = sectionRepository.getBase(section.sectionHtml.name)
+        val fromDB = sectionRepository.getStub(section.sectionHtml.name)
         assertEquals(fromDB, SectionStub(section))
     }
 
