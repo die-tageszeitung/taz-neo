@@ -13,6 +13,8 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
 
+const val ACTIVITY_WELCOME_REQUEST_CODE: Int = 13
+
 class WelcomeActivity : AppCompatActivity() {
 
     private val log by Log
