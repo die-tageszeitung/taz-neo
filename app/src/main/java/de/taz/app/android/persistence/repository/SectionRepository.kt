@@ -143,7 +143,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getNextSection(section: SectionOperations): Section? =
-        getNextSection(section.sectionFileName)
+        getNextSection(section.key)
 
     fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
@@ -155,7 +155,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getPreviousSection(section: SectionOperations): Section? =
-        getPreviousSection(section.sectionFileName)
+        getPreviousSection(section.key)
 
     fun imagesForSectionStub(sectionFileName: String): List<FileEntry> {
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)

@@ -24,7 +24,7 @@ data class Section(
         sectionDto.extendedTitle
     )
 
-    override val sectionFileName: String
+    override val key: String
         get() = sectionHtml.name
 
     override suspend fun getAllFiles(): List<FileEntry> {

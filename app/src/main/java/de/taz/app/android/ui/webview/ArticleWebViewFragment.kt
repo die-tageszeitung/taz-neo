@@ -19,8 +19,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
-import kotlinx.android.synthetic.main.fragment_webview_article.*
-import kotlinx.android.synthetic.main.fragment_webview_article.app_bar_layout
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
@@ -56,7 +54,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
         activity?.lifecycleScope?.launch(Dispatchers.IO) {
             val index = displayable.getIndexInSection() ?: 0
             val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
-                displayable.articleFileName
+                displayable.key
             ).size
             val title = displayable.getSectionStub()?.title ?: ""
             setHeaderForSection(index, count, title)
@@ -84,7 +82,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                         try {
                             childFragmentManager.beginTransaction().replace(
                                 R.id.fragment_article_bottom_fragment_placeholder,
-                                ArticleLoginFragment.create(article.articleFileName)
+                                ArticleLoginFragment.create(article.key)
                             ).commit()
                         } catch (e: IllegalStateException) {
                             // do nothing already hidden
@@ -193,7 +191,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     private fun showBookmarkBottomSheet() =
-        viewModel.displayable?.articleFileName?.let {
+        viewModel.displayable?.key?.let {
             showBottomSheet(BookmarkSheetFragment.create(it))
         }
 

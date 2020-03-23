@@ -89,7 +89,7 @@ class SectionListAdapter(
             text = text.toString().toLowerCase(Locale.getDefault())
             setOnClickListener {
                 fragment.getMainView()?.apply {
-                    showInWebView(imprint.articleFileName)
+                    showInWebView(imprint.key)
                     closeDrawer()
                 }
             }
@@ -137,7 +137,7 @@ class SectionListAdapter(
             holder.textView.setOnClickListener {
                 fragment.getMainView()?.apply {
                     lifecycleScope.launch(Dispatchers.IO) {
-                        showInWebView(sectionStub.webViewDisplayableKey)
+                        showInWebView(sectionStub.key)
                         withContext(Dispatchers.Main) {
                             closeDrawer()
                         }

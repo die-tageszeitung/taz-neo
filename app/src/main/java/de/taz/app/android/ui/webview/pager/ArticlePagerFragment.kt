@@ -144,7 +144,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.articleList?.get(
                     viewModel.currentPosition ?: 0
-                )?.getSectionStub()?.webViewDisplayableKey?.let {
+                )?.getSectionStub()?.key?.let {
                     withContext(Dispatchers.Main) {
                         showInWebView(it)
                     }
@@ -162,7 +162,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
 
             withContext(Dispatchers.Main) {
                 webview_pager_viewpager.setCurrentItem(
-                    articleStubs.indexOfFirst { it.webViewDisplayableKey == articleFileName }, false
+                    articleStubs.indexOfFirst { it.key == articleFileName }, false
                 )
             }
         }

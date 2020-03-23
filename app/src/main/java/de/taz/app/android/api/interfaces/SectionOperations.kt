@@ -1,8 +1,6 @@
 package de.taz.app.android.api.interfaces
 
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -11,46 +9,31 @@ import java.io.File
 
 interface SectionOperations : WebViewDisplayable {
 
-    val sectionFileName: String
+    override val key: String
     val extendedTitle: String?
     val title: String
 
-    override val webViewDisplayableKey: String
-        get() = sectionFileName
-
     val issueStub: IssueStub
-        get() = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
+        get() = IssueRepository.getInstance().getIssueStubForSection(this.key)
 
     fun nextSectionStub(): SectionStub? {
-        return SectionRepository.getInstance().getNextSectionStub(sectionFileName)
+        return SectionRepository.getInstance().getNextSectionStub(this.key)
     }
 
     fun previousSectionStub(): SectionStub? {
-        return SectionRepository.getInstance().getPreviousSectionStub(sectionFileName)
-    }
-
-    fun nextSection(): Section? {
-        return SectionRepository.getInstance().getNextSection(sectionFileName)
-    }
-
-    fun previousSection(): Section? {
-        return SectionRepository.getInstance().getPreviousSection(sectionFileName)
-    }
-
-    fun getIssue(): Issue {
-        return IssueRepository.getInstance().getIssueForSection(sectionFileName)
+        return SectionRepository.getInstance().getPreviousSectionStub(this.key)
     }
 
     override fun getFile(): File? {
-        return FileHelper.getInstance().getFile(sectionFileName)
+        return FileHelper.getInstance().getFile(this.key)
     }
 
-    override fun previous(): Section? {
-        return previousSection()
+    override fun previous(): SectionStub? {
+        return previousSectionStub()
     }
 
-    override fun next(): Section? {
-        return nextSection()
+    override fun next(): SectionStub? {
+        return nextSectionStub()
     }
 
     fun getHeaderTitle(): String {

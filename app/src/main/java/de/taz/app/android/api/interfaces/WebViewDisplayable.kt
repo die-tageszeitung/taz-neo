@@ -4,7 +4,7 @@ import java.io.File
 
 interface WebViewDisplayable: CacheableDownload {
 
-    val webViewDisplayableKey: String
+    val key: String
 
     fun getFile(): File?
 
