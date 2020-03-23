@@ -105,9 +105,20 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
             issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
             log.debug("selected issueStub is: $issueStub")
-            issueStub?.let { issueStub ->
-                weakActivityReference?.get()?.showIssue(issueStub)
+            if (issueStub != null) {
+                weakActivityReference?.get()?.showIssue(issueStub!!)
             }
+            else {
+                log.debug("entering else branch")
+                ApiService.getInstance().getIssuesByFeedAndDate("taz", date).first().let { issue ->
+                    log.debug("bla")
+                    issueRepository.save(issue)
+                }
+                log.debug("after bla")
+                issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+                weakActivityReference?.get()?.showIssue(issueStub!!)
+            }
+
             /*
               TODO
                - use proper status (regular if logged in; public if not)
