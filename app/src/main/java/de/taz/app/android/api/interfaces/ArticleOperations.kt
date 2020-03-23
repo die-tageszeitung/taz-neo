@@ -10,53 +10,39 @@ import java.io.File
 
 interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
 
-    val articleFileName: String
+    override val key: String
     val articleType: ArticleType
-    override val webViewDisplayableKey
-        get() = articleFileName
 
     fun nextArticleStub(): ArticleStub? {
-        return ArticleRepository.getInstance().nextArticleStub(articleFileName)
+        return ArticleRepository.getInstance().nextArticleStub(this.key)
     }
 
     fun previousArticleStub(): ArticleStub? {
-        return ArticleRepository.getInstance().previousArticleStub(articleFileName)
-    }
-
-    fun previousArticle(): Article? {
-        return ArticleRepository.getInstance().previousArticle(articleFileName)
-    }
-
-    fun nextArticle(): Article? {
-        return ArticleRepository.getInstance().nextArticle(articleFileName)
+        return ArticleRepository.getInstance().previousArticleStub(this.key)
     }
 
     fun getSectionStub(): SectionStub? {
-        return SectionRepository.getInstance().getSectionStubForArticle(articleFileName)
-    }
-
-    fun getSection(): Section? {
-        return SectionRepository.getInstance().getSectionForArticle(articleFileName)
+        return SectionRepository.getInstance().getSectionStubForArticle(this.key)
     }
 
     fun getIndexInSection(): Int? {
-        return ArticleRepository.getInstance().getIndexInSection(articleFileName)
+        return ArticleRepository.getInstance().getIndexInSection(this.key)
     }
 
     fun isBookmarkedLiveData(): LiveData<Boolean> {
-        return ArticleRepository.getInstance().isBookmarkedLiveData(this.articleFileName)
+        return ArticleRepository.getInstance().isBookmarkedLiveData(this.key)
     }
 
     override fun getFile(): File? {
-        return FileHelper.getInstance().getFile(articleFileName)
+        return FileHelper.getInstance().getFile(this.key)
     }
 
-    override fun previous(): Article? {
-        return previousArticle()
+    override fun previous(): ArticleStub? {
+        return previousArticleStub()
     }
 
-    override fun next(): Article? {
-        return nextArticle()
+    override fun next(): ArticleStub? {
+        return nextArticleStub()
     }
 
 
@@ -66,14 +52,10 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
 
     fun getIssueStub(): IssueStub? {
         return if (isImprint()) {
-            IssueRepository.getInstance().getIssueStubByImprintFileName(articleFileName)
+            IssueRepository.getInstance().getIssueStubByImprintFileName(this.key)
         } else {
             getSectionStub()?.issueStub
         }
-    }
-
-    fun getIssue(): Issue? {
-        return getIssueStub()?.let { IssueRepository.getInstance().getIssue(it) }
     }
 
     override fun getIssueOperations() = getIssueStub()

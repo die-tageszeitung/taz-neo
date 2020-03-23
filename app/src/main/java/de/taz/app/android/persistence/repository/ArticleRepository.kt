@@ -107,7 +107,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
-    fun nextArticleStub(article: Article): ArticleStub? = nextArticleStub(article.articleFileName)
+    fun nextArticleStub(article: Article): ArticleStub? = nextArticleStub(article.key)
 
     fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
@@ -117,17 +117,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun previousArticleStub(article: Article): ArticleStub? =
-        previousArticleStub(article.articleFileName)
+        previousArticleStub(article.key)
 
     fun nextArticle(articleName: String): Article? =
         nextArticleStub(articleName)?.let { articleStubToArticle(it) }
 
-    fun nextArticle(article: Article): Article? = nextArticle(article.articleFileName)
+    fun nextArticle(article: Article): Article? = nextArticle(article.key)
 
     fun previousArticle(articleName: String): Article? =
         previousArticleStub(articleName)?.let { articleStubToArticle(it) }
 
-    fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
+    fun previousArticle(article: Article): Article? = previousArticle(article.key)
 
     fun getImagesForArticle(articleFileName: String): List<FileEntry> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
@@ -238,7 +238,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
 
-    fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
+    fun getIndexInSection(article: Article): Int? = getIndexInSection(article.key)
 
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
         saveScrollingPosition(ArticleStub(article), percentage, position)
@@ -255,7 +255,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(article: Article) {
-        appDatabase.articleDao().get(article.articleFileName)?.let {
+        appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
             if (!it.bookmarked) {
                 val articleFileName = article.articleHtml.name

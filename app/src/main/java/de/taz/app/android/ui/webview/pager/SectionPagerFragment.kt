@@ -117,7 +117,7 @@ class SectionPagerFragment :
 
             withContext(Dispatchers.Main) {
                 webview_pager_viewpager.setCurrentItem(
-                    sectionStubs.indexOfFirst { it.webViewDisplayableKey == sectionFileName }, false
+                    sectionStubs.indexOfFirst { it.key == sectionFileName }, false
                 )
             }
         }

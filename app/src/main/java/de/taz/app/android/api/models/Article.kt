@@ -39,7 +39,7 @@ data class Article(
         articleType
     )
 
-    override val articleFileName
+    override val key
         get() = articleHtml.name
 
     override suspend fun getAllFiles(): List<FileEntry> {

@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
@@ -75,7 +74,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         log.debug("nextArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.next()?.let { next ->
-                mainActivity?.showInWebView(next.webViewDisplayableKey, R.anim.slide_in_left, R.anim.slide_out_left)
+                mainActivity?.showInWebView(next.key, R.anim.slide_in_left, R.anim.slide_out_left)
             }
         }
     }
@@ -86,7 +85,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         log.debug("previousArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.previous()?.let { previous ->
-                mainActivity?.showInWebView(previous.webViewDisplayableKey, R.anim.slide_in_right, R.anim.slide_out_right)
+                mainActivity?.showInWebView(previous.key, R.anim.slide_in_right, R.anim.slide_out_right)
             }
         }
     }

@@ -18,7 +18,7 @@ class ArticlePagerViewModel : ViewModel() {
         set(value) = articleNameLiveData.postValue(value)
 
     val articlePosition: Int
-        get() = articleList?.indexOfFirst { it.articleFileName == articleName } ?: 0
+        get() = articleList?.indexOfFirst { it.key == articleName } ?: 0
 
     val showBookmarksLiveData = MutableLiveData(false)
     var showBookmarks: Boolean
