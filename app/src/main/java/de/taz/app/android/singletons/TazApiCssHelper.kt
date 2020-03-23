@@ -5,6 +5,7 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 
 const val DEFAULT_FONT_SIZE = 18
 const val SETTINGS_TEXT_NIGHT_MODE = "text_night_mode"
+const val SETTINGS_FIRST_TIME_APP_STARTS = "first_time_app_starts"
 const val SETTINGS_TEXT_FONT_SIZE = "text_font_size"
 const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
 
