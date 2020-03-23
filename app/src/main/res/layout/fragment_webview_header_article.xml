@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/section"
             android:src="@drawable/ic_dotted_line"
-            android:tint="@color/textColor"
+            app:tint="@color/textColor"
             android:rotation="180"
             />
 </androidx.constraintlayout.widget.ConstraintLayout>
