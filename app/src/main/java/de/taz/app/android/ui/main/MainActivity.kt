@@ -30,20 +30,16 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
-import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -113,6 +109,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
+
+        if (!tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)) {
+            log.debug("show welcome slides")
+            startActivity(Intent(this, WelcomeActivity::class.java))
+        }
+
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
