@@ -44,18 +44,18 @@ class SectionRepository private constructor(applicationContext: Context) :
             })
     }
 
-    fun getBase(sectionFileName: String): SectionStub? {
+    fun getStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
-    fun getBaseOrThrow(sectionFileName: String): SectionStub {
-        return getBase(sectionFileName) ?: throw NotFoundException()
+    fun getStubOrThrow(sectionFileName: String): SectionStub {
+        return getStub(sectionFileName) ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
     fun getOrThrow(sectionFileName: String): Section {
-        return sectionStubToSection(getBaseOrThrow(sectionFileName))
+        return sectionStubToSection(getStubOrThrow(sectionFileName))
     }
 
     fun getLiveData(sectionFileName: String): LiveData<Section?> {
