@@ -130,6 +130,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
     }
 
+    fun getLatestIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getLatestByFeedDateAndStatus(feedName, date, status)
+    }
+
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }
