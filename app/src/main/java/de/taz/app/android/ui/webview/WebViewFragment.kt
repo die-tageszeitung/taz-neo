@@ -90,7 +90,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         }
     }
 
-    fun loadUrl(url: String) {
+    private fun loadUrl(url: String) {
         activity?.runOnUiThread {
             web_view.loadUrl(url)
         }
@@ -195,9 +195,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         }
     }
 
-    // TODO no displayable needed
-    override fun onLinkClicked(displayable: WebViewDisplayable) {
-        getMainActivity()?.showInWebView(displayable.webViewDisplayableKey)
+    override fun onLinkClicked(displayableKey: String) {
+        getMainActivity()?.showInWebView(displayableKey)
     }
 
     override fun onPageFinishedLoading() {
