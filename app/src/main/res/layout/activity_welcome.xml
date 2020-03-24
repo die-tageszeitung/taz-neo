@@ -1,14 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="de.taz.app.android.ui.WelcomeActivity">
 
-    <de.taz.app.android.ui.webview.AppWebView
-        android:id="@+id/web_view_fullscreen_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
-</FrameLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:expandedTitleGravity="top"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:scrimAnimationDuration="0">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/data_privacy_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
+                android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/data_privacy_header_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_header_default_margin_top"
+                    android:text="@string/fragment_default_header_title"
+                    android:textAppearance="@style/TextAppearance.Fragment.Title"
+                    android:textColor="@color/black"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:rotation="180"
+                    android:src="@drawable/ic_dotted_line"
+                    app:layout_constraintTop_toBottomOf="@id/data_privacy_header_title"
+                    app:tint="@color/black"
+                    tools:ignore="ContentDescription" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/data_privacy_logo"
+                android:layout_width="@dimen/drawer_logo_width"
+                android:layout_height="@dimen/drawer_logo_height"
+                android:background="@color/tazRed"
+                android:contentDescription="@string/navigation_drawer_open"
+                android:elevation="10dp"
+                android:translationY="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:srcCompat="@drawable/ic_taz_week_logo" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/content_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40sp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <de.taz.app.android.ui.webview.AppWebView
+                android:id="@+id/data_privacy_fullscreen_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/data_privacy_accept_button"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/data_privacy_accept_button"
+                android:layout_width="240sp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="@string/accept_button"
+                android:textSize="17sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/data_privacy_fullscreen_content" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
