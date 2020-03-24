@@ -271,18 +271,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     /**
-     * Workaround for AppCompat 1.1.0 and WebView on API 21 - 25
-     * See: https://issuetracker.google.com/issues/141132133
-     * TODO: try to remove when updating appcompat
-     */
-    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
-        if (Build.VERSION.SDK_INT in 21..25 && (resources.configuration.uiMode == applicationContext.resources.configuration.uiMode)) {
-            return
-        }
-        super.applyOverrideConfiguration(overrideConfiguration)
-    }
-
-    /**
      * if currently shown fragment implements onBackPressed and returns true it has handled the
      * back button
      */
