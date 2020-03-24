@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.interfaces.DownloadOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
@@ -46,25 +47,25 @@ class DownloadRepository private constructor(applicationContext: Context) :
         appDatabase.downloadDao().update(downloadStub)
     }
 
-    fun getWithoutFile(fileName: String): DownloadStub? {
+    fun getStub(fileName: String): DownloadStub? {
         return appDatabase.downloadDao().get(fileName)
     }
 
-    fun getWithoutFileLiveData(fileName: String): LiveData<DownloadStub?> {
+    fun getStubLiveData(fileName: String): LiveData<DownloadStub?> {
         return appDatabase.downloadDao().getLiveData(fileName)
     }
 
-    fun getWithoutFile(fileNames: List<String>): List<DownloadStub?> {
+    fun getStub(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
     }
 
-    fun getWithoutFileLiveData(fileNames: List<String>): List<LiveData<DownloadStub?>> {
+    fun getStubLiveData(fileNames: List<String>): List<LiveData<DownloadStub?>> {
         return fileNames.map { appDatabase.downloadDao().getLiveData(it) }
     }
 
     @Throws(NotFoundException::class)
     fun getWithoutFileOrThrow(fileName: String): DownloadStub {
-        return getWithoutFile(fileName) ?: throw NotFoundException()
+        return getStub(fileName) ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
@@ -99,11 +100,19 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun setStatus(download: Download, downloadStatus: DownloadStatus) {
+    fun saveLastSha256(downloadStub: DownloadStub, sha256: String) {
         try {
-            update(getWithoutFileOrThrow(download.file.name).copy(status = downloadStatus))
+            update(downloadStub.copy(lastSha256 = sha256))
         } catch (e: NotFoundException) {
-            log.error("${e.message.toString()}: ${download.file.name}")
+            log.error("${e.message.toString()}: ${downloadStub.fileName}")
+        }
+    }
+
+    fun setStatus(download: DownloadOperations, downloadStatus: DownloadStatus) {
+        try {
+            update(getWithoutFileOrThrow(download.fileName).copy(status = downloadStatus))
+        } catch (e: NotFoundException) {
+            log.error("${e.message.toString()}: ${download.fileName}")
         }
     }
 
@@ -116,18 +125,18 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun isDownloaded(fileName: String): Boolean {
-        return getWithoutFile(fileName)?.status == DownloadStatus.done
+        return getStub(fileName)?.status == DownloadStatus.done
     }
 
     fun isDownloaded(fileNames: List<String>): Boolean {
-        val downloads = getWithoutFile(fileNames)
+        val downloads = getStub(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
             download?.status != DownloadStatus.done
         } == null
     }
 
     fun isDownloadedOrDownloading(fileNames: List<String>): Boolean {
-        val downloads = getWithoutFile(fileNames)
+        val downloads = getStub(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
             !arrayOf(DownloadStatus.done, DownloadStatus.started).contains(download?.status)
         } == null
@@ -159,7 +168,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
     }
 
     fun isDownloadingOrDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
-        val downloadLiveDataList = getWithoutFileLiveData(fileNames)
+        val downloadLiveDataList = getStubLiveData(fileNames)
 
         val mediatorLiveData = MediatorLiveData<Boolean>()
         downloadLiveDataList.forEach {
