@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.api.models.DownloadStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -73,6 +74,7 @@ class DownloadWorkerTest {
     fun abortDownloadOn400Response() {
         val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
         val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockDownloadStub = DownloadStub(mockDownload)
         val mockFile = mock<File>()
         val mockResponse = MockResponse().setResponseCode(400)
         mockServer.enqueue(mockResponse)
@@ -80,8 +82,8 @@ class DownloadWorkerTest {
         doReturn(mockFileEntry)
             .`when`(fileEntryRepository).get(TEST_FILE_NAME)
 
-        doReturn(mockDownload)
-            .`when`(downloadRepository).get(TEST_FILE_NAME)
+        doReturn(mockDownloadStub)
+            .`when`(downloadRepository).getStub(TEST_FILE_NAME)
 
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
@@ -90,7 +92,7 @@ class DownloadWorkerTest {
             runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
 
             inOrder(downloadRepository).apply {
-                verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
+                verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.aborted)
                 verifyNoMoreInteractions()
             }
         }
@@ -106,6 +108,7 @@ class DownloadWorkerTest {
         val mockFileSha = MessageDigest.getInstance("SHA-256").digest(mockFile.readBytes()).fold("", { str, it -> str + "%02x".format(it) })
         val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, mockFileSha, 0, "bla")
         val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockDownloadStub = DownloadStub(mockDownload)
 
         val mockResponse = MockResponse()
             .setResponseCode(200)
@@ -116,8 +119,8 @@ class DownloadWorkerTest {
         doReturn(mockFileEntry)
             .`when`(fileEntryRepository).get(TEST_FILE_NAME)
 
-        doReturn(mockDownload)
-            .`when`(downloadRepository).get(TEST_FILE_NAME)
+        doReturn(mockDownloadStub)
+            .`when`(downloadRepository).getStub(TEST_FILE_NAME)
 
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
@@ -128,7 +131,7 @@ class DownloadWorkerTest {
         runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
 
         inOrder(downloadRepository).apply {
-            verify(downloadRepository).setStatus(mockDownload, DownloadStatus.done)
+            verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.done)
             verifyNoMoreInteractions()
         }
     }
@@ -137,6 +140,7 @@ class DownloadWorkerTest {
     fun abortDownloadOnDivergingShaSums() {
         val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
         val mockDownload = Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+        val mockDownloadStub = DownloadStub(mockDownload)
         val mockFile = mock<File>()
 
         val mockResponse = MockResponse()
@@ -148,8 +152,8 @@ class DownloadWorkerTest {
         doReturn(mockFileEntry)
             .`when`(fileEntryRepository).get(TEST_FILE_NAME)
 
-        doReturn(mockDownload)
-            .`when`(downloadRepository).get(TEST_FILE_NAME)
+        doReturn(mockDownloadStub)
+            .`when`(downloadRepository).getStub(TEST_FILE_NAME)
 
         doReturn(mockFile)
             .`when`(fileHelper).getFile(mockFileEntry)
@@ -160,7 +164,7 @@ class DownloadWorkerTest {
         runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
 
         inOrder(downloadRepository).apply {
-            verify(downloadRepository).setStatus(mockDownload, DownloadStatus.aborted)
+            verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.aborted)
             verifyNoMoreInteractions()
         }
     }
