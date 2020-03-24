@@ -34,7 +34,6 @@ import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -353,9 +352,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                showArticle(articleName)
-                            }
+                            showHome()
+                            showArticle(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -365,5 +363,4 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
     }
-
 }
