@@ -216,13 +216,13 @@ abstract class WebViewPresenter<DISPLAYABLE : WebViewDisplayable>(
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = getView()?.getWebViewDisplayable()?.getIssueOperations()
 
-        val issue = IssueRepository.getInstance().getIssueByFeedAndDate(
+        val issueStub = IssueRepository.getInstance().getIssueStubByFeedAndDate(
             issueOperations?.feedName ?: "",
             issueOperations?.date ?: "",
             issueOperations?.status ?: IssueStatus.public
         )
 
-        val minResourceVersion = issue?.minResourceVersion ?: 0
+        val minResourceVersion = issueStub?.minResourceVersion ?: 0
         val currentResourceVersion = resourceInfoRepository.get()?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
