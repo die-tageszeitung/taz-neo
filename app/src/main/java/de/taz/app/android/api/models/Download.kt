@@ -10,7 +10,7 @@ data class Download(
     override var workerManagerId: UUID? = null,
     val tag: String? = null
 ): DownloadOperations {
-    constructor(downloadStub: DownloadStub, file: FileEntry, tag: String? = null, sha256: String? = null): this(
+    constructor(downloadStub: DownloadStub, file: FileEntry, tag: String? = null): this(
         baseUrl = downloadStub.baseUrl,
         file = file,
         status = downloadStub.status,
