@@ -13,6 +13,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
@@ -24,6 +25,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
@@ -56,7 +58,11 @@ class SplashActivity : AppCompatActivity() {
 
         ensurePushTokenSent()
 
-        startActivity(Intent(this, MainActivity::class.java))
+        if (isFirstTimeStart()) {
+            startActivity(Intent(this, MainActivity::class.java))
+        } else {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+        }
     }
 
     private fun generateInstallationId() {
@@ -73,6 +79,12 @@ class SplashActivity : AppCompatActivity() {
             ).apply()
             log.debug("initialized InstallationId: $uuid")
         }
+    }
+
+    private fun isFirstTimeStart(): Boolean {
+        val tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        return tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 
     private fun setupSentry() {

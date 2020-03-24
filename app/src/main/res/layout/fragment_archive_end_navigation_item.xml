@@ -17,7 +17,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:srcCompat="@drawable/ic_circle"
-            android:tint="@color/colorAccent"
+            app:tint="@color/colorAccent"
             android:contentDescription="@string/fragment_archive_navigation_end_item_image_active"
         />
 
