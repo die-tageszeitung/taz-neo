@@ -110,17 +110,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
 
-        if (!tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)) {
-            log.debug("show welcome slides as activity")
-            // finish welcomeActivity if it was already started:
-            finishActivity(ACTIVITY_LOGIN_REQUEST_CODE)
-            startActivityForResult(
-                Intent(this, WelcomeActivity::class.java),
-                ACTIVITY_LOGIN_REQUEST_CODE
-            )
-
-        }
-
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
