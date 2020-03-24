@@ -105,6 +105,3 @@ enum class IssueStatus {
     public
 }
 
-enum class ArticleType {
-    STANDARD, IMPRINT;
-}
