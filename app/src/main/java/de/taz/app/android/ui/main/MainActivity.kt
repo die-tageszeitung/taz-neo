@@ -199,8 +199,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         bookmarksArticle: Boolean = false
     ) {
         runOnUiThread {
-            if (!tryShowExistingArticle(articleName)) {
-                val fragment = ArticlePagerFragment.createInstance(articleName, bookmarksArticle)
+            if (bookmarksArticle || !tryShowExistingArticle(articleName)) {
+                val fragment = ArticlePagerFragment.createInstance(
+                    articleName, showBookmarks = bookmarksArticle
+                )
                 showMainFragment(fragment, enterAnimation, exitAnimation, false)
             }
         }
