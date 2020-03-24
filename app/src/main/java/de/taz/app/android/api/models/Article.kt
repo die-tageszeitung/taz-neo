@@ -39,7 +39,7 @@ data class Article(
         articleType
     )
 
-    override val key
+    override val key: String
         get() = articleHtml.name
 
     override suspend fun getAllFiles(): List<FileEntry> {
@@ -56,4 +56,8 @@ data class Article(
         return list.map { it.name }.distinct()
     }
 
+}
+
+enum class ArticleType {
+    STANDARD, IMPRINT;
 }
