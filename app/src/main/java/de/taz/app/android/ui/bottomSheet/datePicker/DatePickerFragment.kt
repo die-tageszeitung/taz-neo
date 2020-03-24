@@ -23,6 +23,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
@@ -72,16 +73,21 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener {
-            val day = fragment_bottom_sheet_date_picker.dayOfMonth
+            val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
             val year = fragment_bottom_sheet_date_picker.year
             val monthShort = fragment_bottom_sheet_date_picker.month + 1
             val month= if (monthShort > 10) monthShort.toString() else "0${monthShort}"
+            val day = if (dayShort > 10) dayShort.toString() else "0${dayShort}"
 
             dismiss() //close bottomSheet
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
+            log.debug("new date set: $day.$month.$year")
             //lifecycleScope.launch(Dispatchers.IO) {
             lifecycleScope.launch() {
-                setIssue("$year-$month-$day")
+                //TODO use runBlocking for debugging; step through why is it not downloading anything from api?
+                runBlocking {
+                    setIssue("$year-$month-$day")
+                }
                 //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", "$year-$month-$day", status = IssueStatus.regular)
                 //issueStub?.let { issueStub ->
                 //    log.debug("will call showIssue for $issueStub")
@@ -92,7 +98,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     }
 
     private suspend fun setIssue(date: String){
-        log.debug("call setIssue()")
+        log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
             // use proper issue status (regular if logged in; public if not)
             val authStatus = AuthHelper.getInstance().authStatus
@@ -103,20 +109,27 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                issueStatus = IssueStatus.regular
             }
             //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
-            issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+            val issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
             log.debug("selected issueStub is: $issueStub")
             if (issueStub != null) {
-                weakActivityReference?.get()?.showIssue(issueStub!!)
+                if (dateHelper.stringToDate(issueStub.date)!! >= dateHelper.stringToDateWithDelta(date, -2)) {
+                    weakActivityReference?.get()?.showIssue(issueStub)
+                }
+                else {
+                    ApiService.getInstance().getIssuesByFeedAndDate("taz", date).first().let { issue ->
+                        log.debug("bla")
+                        issueRepository.save(issue)
+                        weakActivityReference?.get()?.showIssue(IssueStub(issue))
+                    }
+                }
             }
             else {
                 log.debug("entering else branch")
                 ApiService.getInstance().getIssuesByFeedAndDate("taz", date).first().let { issue ->
                     log.debug("bla")
                     issueRepository.save(issue)
+                    weakActivityReference?.get()?.showIssue(IssueStub(issue))
                 }
-                log.debug("after bla")
-                issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
-                weakActivityReference?.get()?.showIssue(issueStub!!)
             }
 
             /*
