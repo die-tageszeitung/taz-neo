@@ -35,11 +35,11 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
         return dateHelper.format(date)
     }
 
-    private fun stringToDate(string: String): Date? {
+    fun stringToDate(string: String): Date? {
         return dateHelper.parse(string)
     }
 
-    private fun stringToDateWithDelta(string: String, days: Int): Date? {
+    fun stringToDateWithDelta(string: String, days: Int): Date? {
         return stringToDate(string)?.let { date ->
             cal.time = date
             cal.add(Calendar.DAY_OF_YEAR, days)
