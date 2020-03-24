@@ -40,7 +40,7 @@ data class SectionStub(
     override fun getAllFileNames(): List<String> {
         val list = SectionRepository.getInstance().imageNamesForSectionStub(
             key
-        ).toMutableList()
+        ).filter { it.contains(".norm.") }.toMutableList()
         list.add(key)
         return list.distinct()
     }

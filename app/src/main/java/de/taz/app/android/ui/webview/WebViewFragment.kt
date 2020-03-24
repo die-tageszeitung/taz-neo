@@ -28,7 +28,6 @@ import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 const val SCROLL_POSITION = "scrollPosition"
@@ -148,7 +147,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                     this@WebViewFragment,
                     Observer { isDownloadedOrDownloading ->
                         if (!isDownloadedOrDownloading) {
-                            runBlocking(Dispatchers.IO) {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                log.debug("starting download of displayable")
                                 DownloadService.getInstance().download(displayable)
                             }
                         }
@@ -158,7 +158,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                     this@WebViewFragment,
                     Observer { isDownloaded ->
                         if (isDownloaded) {
-                            runBlocking(Dispatchers.IO) {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                log.info("displayable is ready")
                                 isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
                             }
                         }
@@ -176,7 +177,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                             this@WebViewFragment,
                             Observer { isDownloadedOrDownloading ->
                                 if (!isDownloadedOrDownloading) {
-                                    launch(Dispatchers.IO) {
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        log.info("starting download of resources")
                                         DownloadService.getInstance().download(resourceInfo)
                                     }
                                 }
@@ -187,7 +189,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         this@WebViewFragment,
                         Observer { isDownloaded ->
                             if (isDownloaded) {
-                                launch(Dispatchers.IO) {
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    log.info("resources are ready")
                                     isDisplayableLiveData.postValue(displayable.isDownloaded())
                                 }
                             }
