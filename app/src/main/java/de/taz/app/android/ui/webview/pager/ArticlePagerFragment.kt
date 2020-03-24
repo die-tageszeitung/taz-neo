@@ -40,6 +40,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
 
     private var showBookmarks: Boolean = false
     private var articleName: String? = null
+    private var hasBeenSwiped: Boolean = false
 
     companion object {
         fun createInstance(
@@ -105,7 +106,15 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
+        var firstSwipe = true
+
         override fun onPageSelected(position: Int) {
+            if (firstSwipe) {
+                firstSwipe = false
+            } else {
+                hasBeenSwiped = true
+            }
+
             viewModel.currentPosition = position
         }
     }
@@ -139,19 +148,26 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     override fun onBackPressed(): Boolean {
         if (viewModel.showBookmarks) {
             showMainFragment(BookmarksFragment())
-            showHome()
         } else {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.articleList?.get(
-                    viewModel.currentPosition ?: 0
-                )?.getSectionStub()?.key?.let {
-                    withContext(Dispatchers.Main) {
-                        showInWebView(it)
-                    }
-                }
+            if (hasBeenSwiped) {
+                showSection()
+            } else {
+                parentFragmentManager.popBackStack()
             }
         }
         return true
+    }
+
+    private fun showSection() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.articleList?.get(
+                viewModel.currentPosition ?: 0
+            )?.getSectionStub()?.key?.let {
+                withContext(Dispatchers.Main) {
+                    showInWebView(it)
+                }
+            }
+        }
     }
 
     fun tryLoadArticle(articleFileName: String): Boolean {
