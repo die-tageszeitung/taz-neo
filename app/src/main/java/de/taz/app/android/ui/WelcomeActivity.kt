@@ -3,8 +3,7 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -12,8 +11,6 @@ import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
-
-const val ACTIVITY_WELCOME_REQUEST_CODE: Int = 13
 
 class WelcomeActivity : AppCompatActivity() {
 
@@ -24,18 +21,13 @@ class WelcomeActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
-        web_view_fullscreen_content.loadUrl("file:///android_asset/html/slide1.html")
+        data_privacy_fullscreen_content.loadUrl("file:///android_asset/html/data_policy_screen.html")
 
-        val ws: WebSettings = web_view_fullscreen_content.settings
-        ws.javaScriptEnabled = true
-        web_view_fullscreen_content.addJavascriptInterface(object : Any() {
-            @JavascriptInterface
-            fun performClick() {
-                log.debug("data policy accepted")
+        findViewById<Button>(R.id.data_privacy_accept_button)
+            .setOnClickListener {
                 acceptDataPolicy()
                 finish()
             }
-        }, "ok")
     }
 
     private fun acceptDataPolicy() {
