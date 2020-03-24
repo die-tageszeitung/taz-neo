@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">taz neo</string>
+    <string name="accept_button">Akzeptieren</string>
 
     <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
 

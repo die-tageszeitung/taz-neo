@@ -54,7 +54,7 @@
             android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
             android:contentDescription="@string/fragment_bookmarks_share"
             android:src="@drawable/ic_share"
-            android:tint="@color/textColorAccent"
+            app:tint="@color/textColorAccent"
             app:layout_constraintStart_toStartOf="@id/fragment_bookmark_date"
             app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark_date" />
 
@@ -66,7 +66,7 @@
             android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
             android:contentDescription="@string/fragment_bookmarks_delete"
             android:src="@drawable/ic_delete"
-            android:tint="@color/textColorAccent"
+            app:tint="@color/textColorAccent"
             app:layout_constraintStart_toEndOf="@id/fragment_bookmark_share"
             app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark_date" />
 

@@ -30,20 +30,16 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
-import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -113,6 +109,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
+
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
@@ -260,18 +257,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun closeDrawer() {
         drawer_layout.closeDrawers()
-    }
-
-    /**
-     * Workaround for AppCompat 1.1.0 and WebView on API 21 - 25
-     * See: https://issuetracker.google.com/issues/141132133
-     * TODO: try to remove when updating appcompat
-     */
-    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
-        if (Build.VERSION.SDK_INT in 21..25 && (resources.configuration.uiMode == applicationContext.resources.configuration.uiMode)) {
-            return
-        }
-        super.applyOverrideConfiguration(overrideConfiguration)
     }
 
     /**

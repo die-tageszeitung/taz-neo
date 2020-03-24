@@ -1,0 +1,23 @@
+/* Knile SemiBold */
+@font-face {
+    font-family	    : Knile;
+    src		        : url(knile-semibold-webfont.woff) format("woff");
+    font-style	    : normal;
+    font-weight	    : 600;
+    font-stretch	: normal;
+}@font-face {
+    font-family	    : grotesk;
+    src		        : url(../res/font/aktiv_grotest_regular.ttf) format("ttf");
+    font-style	    : normal;
+    font-weight	    : 600;
+    font-stretch	: normal;
+  }
+h2.Titel {
+    font-family		: Knile, taz;
+    font-weight		: 200;
+    letter-spacing	: -0.05rem;
+}
+p {
+    font-family      : grotest;
+
+}
