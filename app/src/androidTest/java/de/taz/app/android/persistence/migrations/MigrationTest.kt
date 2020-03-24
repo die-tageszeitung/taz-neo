@@ -16,6 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import de.taz.app.android.api.dto.SectionType
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.allMigrations
@@ -190,5 +191,38 @@ class MigrationTest {
             Assert.assertFalse(fromDB.isWeekend)
         }
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate5To6() {
+        val fileName = "filenamen.html"
+        val baseUrl = "example.com/tp/"
+        val status = DownloadStatus.aborted
+        val workerManagerId = UUID.randomUUID()
+
+        helper.createDatabase(testDb, 5).apply {
+            execSQL(
+                """INSERT INTO Download (fileName, baseUrl, status, workerManagerId)
+                   VALUES ('$fileName', '$baseUrl', '$status', '$workerManagerId' )""".trimMargin()
+            )
+            close()
+        }
+
+        helper.runMigrationsAndValidate(testDb, 6, true, Migration5to6)
+
+        val fromDB = getMigratedRoomDatabase()!!.downloadDao().get(fileName)
+
+        Assert.assertNotNull(fromDB)
+
+        fromDB?.let {
+            Assert.assertEquals(fromDB.fileName, fileName)
+            Assert.assertEquals(fromDB.baseUrl, baseUrl)
+            Assert.assertEquals(fromDB.status, status)
+            Assert.assertEquals(fromDB.workerManagerId, workerManagerId)
+            Assert.assertNull(fromDB.lastSha256)
+        }
+    }
+
+
 
 }

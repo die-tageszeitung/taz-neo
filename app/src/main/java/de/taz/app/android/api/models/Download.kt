@@ -1,24 +1,25 @@
 package de.taz.app.android.api.models
 
+import de.taz.app.android.api.interfaces.DownloadOperations
 import java.util.*
 
 data class Download(
-    val baseUrl: String,
+    override val baseUrl: String,
     val file: FileEntry,
-    var status: DownloadStatus = DownloadStatus.pending,
-    var workerManagerId: UUID? = null,
+    override var status: DownloadStatus = DownloadStatus.pending,
+    override var workerManagerId: UUID? = null,
     val tag: String? = null
-){
+): DownloadOperations {
     constructor(downloadStub: DownloadStub, file: FileEntry, tag: String? = null): this(
-        downloadStub.baseUrl,
-        file,
-        downloadStub.status,
-        downloadStub.workerManagerId,
-        tag
+        baseUrl = downloadStub.baseUrl,
+        file = file,
+        status = downloadStub.status,
+        workerManagerId = downloadStub.workerManagerId,
+        tag = tag
     )
 
-    val url
-        get() = "$baseUrl/${file.name}"
+    override val fileName: String
+        get() = file.name
 
 }
 
