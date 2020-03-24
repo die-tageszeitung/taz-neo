@@ -10,18 +10,20 @@ data class Section(
     val issueDate: String,
     override val title: String,
     val type: SectionType,
+    val navButton: FileEntry,
     val articleList: List<Article> = emptyList(),
     val imageList: List<FileEntry> = emptyList(),
     override val extendedTitle: String? = null
 ) : SectionOperations, CacheableDownload {
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
-        FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
-        issueDate,
-        sectionDto.title,
-        sectionDto.type,
-        sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) } ?: listOf(),
-        sectionDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: listOf(),
-        sectionDto.extendedTitle
+        sectionHtml = FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
+        issueDate = issueDate,
+        title = sectionDto.title,
+        type = sectionDto.type,
+        navButton = FileEntry(sectionDto.navButton, "$issueFeedName/$issueDate"),
+        articleList = sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) } ?: listOf(),
+        imageList = sectionDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: listOf(),
+        extendedTitle = sectionDto.extendedTitle
     )
 
     override val key: String
