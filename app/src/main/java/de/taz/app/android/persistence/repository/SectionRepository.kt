@@ -2,16 +2,18 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
 
 @Mockable
 class SectionRepository private constructor(applicationContext: Context) :
@@ -42,23 +44,25 @@ class SectionRepository private constructor(applicationContext: Context) :
             })
     }
 
-    fun getBase(sectionFileName: String): SectionStub? {
+    fun getStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
-    fun getBaseOrThrow(sectionFileName: String): SectionStub {
-        return getBase(sectionFileName) ?: throw NotFoundException()
+    fun getStubOrThrow(sectionFileName: String): SectionStub {
+        return getStub(sectionFileName) ?: throw NotFoundException()
     }
 
     @Throws(NotFoundException::class)
     fun getOrThrow(sectionFileName: String): Section {
-        return sectionStubToSection(getBaseOrThrow(sectionFileName))
+        return sectionStubToSection(getStubOrThrow(sectionFileName))
     }
 
     fun getLiveData(sectionFileName: String): LiveData<Section?> {
-        return Transformations.map(appDatabase.sectionDao().getLiveData(sectionFileName)) { input ->
-            input?.let { sectionStubToSection(it) }
+        return appDatabase.sectionDao().getLiveData(sectionFileName).switchMap { input ->
+            liveData(Dispatchers.IO) {
+                input?.let { emit(sectionStubToSection(input)) } ?: emit(null)
+            }
         }
     }
 
@@ -83,11 +87,55 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
-    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations): List<SectionStub> {
+    fun getSectionStubsLiveDataForIssue(issueOperations: IssueOperations) =
+        getSectionStubsLiveDataForIssue(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status
+        )
+
+    fun getSectionStubsLiveDataForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionStub> {
         return appDatabase.sectionDao().getSectionsForIssue(
-            issueOperations.feedName, issueOperations.date, issueOperations.status
+            issueFeedName, issueDate, issueStatus
         )
     }
+
+    fun getSectionsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ) = getSectionStubsForIssue(
+        issueFeedName,
+        issueDate,
+        issueStatus
+    ).map { sectionStubToSection(it) }
+
+    fun getSectionStubsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionStub> {
+        return appDatabase.sectionDao().getSectionsForIssue(
+            issueFeedName, issueDate, issueStatus
+        )
+    }
+
+
+    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations) =
+        getSectionStubsForIssue(
+            issueOperations.feedName, issueOperations.date, issueOperations.status
+        )
+
+    fun getAllSectionStubsForSectionName(sectionName: String): List<SectionStub> {
+        return appDatabase.sectionDao().getAllSectionStubsForSectionName(sectionName)
+    }
+
+    fun getAllSectionsForSectionName(sectionFileName: String) =
+        getAllSectionStubsForSectionName(sectionFileName).map { sectionStubToSection(it) }
 
     @Throws(NotFoundException::class)
     fun getNextSection(sectionFileName: String): Section? =
@@ -95,7 +143,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getNextSection(section: SectionOperations): Section? =
-        getNextSection(section.sectionFileName)
+        getNextSection(section.key)
 
     fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
@@ -107,7 +155,15 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getPreviousSection(section: SectionOperations): Section? =
-        getPreviousSection(section.sectionFileName)
+        getPreviousSection(section.key)
+
+    fun imagesForSectionStub(sectionFileName: String): List<FileEntry> {
+        return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
+    }
+
+    fun imageNamesForSectionStub(sectionFileName: String): List<String> {
+        return appDatabase.sectionImageJoinDao().getImageNamesForSection(sectionFileName)
+    }
 
     @Throws(NotFoundException::class)
     fun sectionStubToSection(sectionStub: SectionStub): Section {
@@ -122,7 +178,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        images?.let {
+        images.let {
             return Section(
                 sectionFile,
                 sectionStub.issueDate,
@@ -132,7 +188,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 images,
                 sectionStub.extendedTitle
             )
-        } ?: throw NotFoundException()
+        }
     }
 
     fun delete(section: Section) {

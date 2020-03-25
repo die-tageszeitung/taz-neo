@@ -5,8 +5,6 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import java.io.File
@@ -15,14 +13,16 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import io.sentry.Sentry
-import kotlinx.coroutines.*
 import java.lang.Exception
 import java.net.URLDecoder
 
-class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: WebViewPresenter<DISPLAYABLE>) :
-    WebViewClient() {
+interface AppWebViewClientCallBack {
+    fun onLinkClicked(displayableKey: String)
+    fun onPageFinishedLoading()
+}
+
+class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
@@ -71,25 +71,11 @@ class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: 
         url?.let {
             return when {
                 it.startsWith("file:///") && it.contains("section") && it.endsWith(".html") -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val section = SectionRepository.getInstance().get(
-                            url.split("/").last()
-                        )
-                        section?.let {
-                            presenter.onLinkClicked(section)
-                        }
-                    }
+                    callBack.onLinkClicked(url.split("/").last())
                     true
                 }
                 it.startsWith("file:///") && it.contains("art") && it.endsWith(".html") -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val article = ArticleRepository.getInstance().get(
-                            url.split("/").last()
-                        )
-                        article?.let {
-                            presenter.onLinkClicked(article)
-                        }
-                    }
+                   callBack.onLinkClicked(url.split("/").last())
                     true
                 }
                 else -> false
@@ -199,7 +185,6 @@ class AppWebViewClient<DISPLAYABLE : WebViewDisplayable>(private val presenter: 
 
     override fun onPageFinished(webview: WebView, url: String) {
         super.onPageFinished(webview, url)
-
-        presenter.onPageFinishedLoading()
+        callBack.onPageFinishedLoading()
     }
 }

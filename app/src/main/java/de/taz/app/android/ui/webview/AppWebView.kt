@@ -2,11 +2,14 @@ package de.taz.app.android.ui.webview
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Base64
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
+import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.util.Log
 import java.net.URLDecoder
 
@@ -20,8 +23,6 @@ class AppWebView @JvmOverloads constructor(
 ) : WebView(context, attributeSet, defStyle) {
 
     private val log by Log
-
-    private var callback: AppWebViewCallback? = null
 
     init {
         // prevent horizontal scrolling
@@ -69,6 +70,18 @@ class AppWebView @JvmOverloads constructor(
         context?.startActivity(intent)
     }
 
+    /**
+     * This method will help to re-inject css into the WebView upon changes
+     * to the corresponding shared preferences
+     */
+    fun injectCss(sharedPreferences: SharedPreferences) {
+        log.debug("Injecting css")
+
+        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+        val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
+        log.debug("Injected css: $cssString")
+        evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
+    }
 
     override fun loadDataWithBaseURL(
         baseUrl: String?,
@@ -81,10 +94,6 @@ class AppWebView @JvmOverloads constructor(
             "loadDataWithBaseURL: baseUrl: $baseUrl, mimeType: $mimeType, encoding: $encoding, failUrl: $failUrl\n data: $data"
         )
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl)
-    }
-
-    fun setArticleWebViewCallback(listener: AppWebViewCallback) {
-        callback = listener
     }
 
 }

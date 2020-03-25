@@ -5,8 +5,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
 import org.junit.After
@@ -103,9 +105,9 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == issue.sectionList.size - 1) {
-                assertNull(section.nextSection())
+                assertNull(section.next())
             } else {
-                assertEquals(issue.sectionList[index + 1], section.nextSection())
+                assertEquals(SectionStub(issue.sectionList[index + 1]), section.next())
             }
 
         }
@@ -117,9 +119,9 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == 0) {
-                assertNull(section.previousSection())
+                assertNull(section.previous())
             } else {
-                assertEquals(issue.sectionList[index - 1], section.previousSection())
+                assertEquals(SectionStub(issue.sectionList[index - 1]), section.previous())
             }
         }
     }
@@ -133,14 +135,17 @@ class IssueRepositoryTest {
                 if (sectionIndex == issue.sectionList.size - 1 &&
                     articleIndex == section.articleList.size - 1
                 ) {
-                    assertNull(article.nextArticle())
+                    assertNull(article.next())
                 } else if (articleIndex == section.articleList.size - 1) {
                     assertEquals(
-                        article.nextArticle(),
-                        issue.sectionList[sectionIndex + 1].articleList.first()
+                        article.next(),
+                        ArticleStub(issue.sectionList[sectionIndex + 1].articleList.first())
                     )
                 } else {
-                    assertEquals(article.nextArticle(), section.articleList[articleIndex + 1])
+                    assertEquals(
+                        article.next(),
+                        ArticleStub(section.articleList[articleIndex + 1])
+                    )
                 }
             }
         }
@@ -153,14 +158,17 @@ class IssueRepositoryTest {
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->
                 if (sectionIndex == 0 && articleIndex == 0) {
-                    assertNull(article.previousArticle())
+                    assertNull(article.previous())
                 } else if (articleIndex == 0) {
                     assertEquals(
-                        article.previousArticle(),
-                        issue.sectionList[sectionIndex - 1].articleList.last()
+                        article.previous(),
+                        ArticleStub(issue.sectionList[sectionIndex - 1].articleList.last())
                     )
                 } else {
-                    assertEquals(article.previousArticle(), section.articleList[articleIndex - 1])
+                    assertEquals(
+                        article.previous(),
+                        ArticleStub(section.articleList[articleIndex - 1])
+                    )
                 }
             }
         }

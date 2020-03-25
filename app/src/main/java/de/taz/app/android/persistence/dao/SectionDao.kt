@@ -23,9 +23,40 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         ORDER BY IssueSectionJoin.`index` ASC
     """
     )
-    abstract fun getSectionsForIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): List<SectionStub>
+    abstract fun getSectionsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionStub>
 
-    @Query(""" SELECT Section.* FROM Section 
+    @Query(
+        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
+        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.issueDate == IssueSectionJoin.issueDate
+        WHERE IssueSectionJoin.issueDate == :issueDate AND IssueSectionJoin.issueFeedName == :issueFeedName
+            AND IssueSectionJoin.issueStatus == :issueStatus
+        ORDER BY IssueSectionJoin.`index` ASC
+    """
+    )
+    abstract fun getSectionsLiveDataForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): LiveData<List<SectionStub>>
+
+    @Query(
+        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin INNER JOIN IssueSectionJoin as ISJ2
+        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.issueDate == IssueSectionJoin.issueDate
+        WHERE ISJ2.sectionFileName == :sectionName
+            AND IssueSectionJoin.issueDate == ISJ2.issueDate
+            AND IssueSectionJoin.issueFeedName == ISJ2.issueFeedName
+            AND IssueSectionJoin.issueStatus == ISJ2.issueStatus
+        ORDER BY IssueSectionJoin.`index` ASC
+    """
+    )
+    abstract fun getAllSectionStubsForSectionName(sectionName: String): List<SectionStub>
+
+    @Query(
+        """ SELECT Section.* FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
         INNER JOIN IssueSectionJoin as ISJ2
         WHERE ISJ1.issueDate == ISJ2.issueDate
@@ -34,11 +65,13 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         AND ISJ2.`index` == ISJ1.`index` - 1
         AND ISJ1.sectionFileName == :sectionFileName
         AND Section.sectionFileName == ISJ2.sectionFileName
-    """)
+    """
+    )
     abstract fun getPrevious(sectionFileName: String): SectionStub?
 
 
-    @Query(""" SELECT Section.* FROM Section 
+    @Query(
+        """ SELECT Section.* FROM Section 
         INNER JOIN IssueSectionJoin as ISJ1
         INNER JOIN IssueSectionJoin as ISJ2
         WHERE ISJ1.issueDate == ISJ2.issueDate
@@ -47,7 +80,8 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         AND ISJ1.sectionFileName == :sectionFileName
         AND ISJ2.`index` == ISJ1.`index` + 1
         AND Section.sectionFileName == ISJ2.sectionFileName
-    """)
+    """
+    )
     abstract fun getNext(sectionFileName: String): SectionStub?
 
 }
