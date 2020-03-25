@@ -45,7 +45,8 @@ val allMigrations = arrayOf(
         ResourceInfoFileEntryJoin::class,
         SectionStub::class,
         SectionArticleJoin::class,
-        SectionImageJoin::class
+        SectionImageJoin::class,
+        SectionNavButtonJoin::class
     ],
     version = DATABASE_VERSION
 )
