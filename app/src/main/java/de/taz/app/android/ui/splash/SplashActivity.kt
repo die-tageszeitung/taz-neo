@@ -98,7 +98,7 @@ class SplashActivity : AppCompatActivity() {
     private fun isFirstTimeStart(): Boolean {
         val tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        return tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
+        return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 
     private fun setupSentry() {

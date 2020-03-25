@@ -33,7 +33,7 @@ class WelcomeActivity : AppCompatActivity() {
             fun performClick() {
                 log.debug("welcome screen close clicked")
                 setFirstTimeStart()
-                finish() //startActivity(Intent(this, MainActivity::class.java))
+                startActivity(Intent(applicationContext, MainActivity::class.java))
             }
         }, "close")
     }
