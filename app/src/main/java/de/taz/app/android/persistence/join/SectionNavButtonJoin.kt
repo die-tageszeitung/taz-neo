@@ -25,6 +25,5 @@ import de.taz.app.android.api.models.SectionStub
 )
 data class SectionNavButtonJoin(
     val sectionFileName: String,
-    val navButtonFileName: String,
-    val index: Int
+    val navButtonFileName: String
 )

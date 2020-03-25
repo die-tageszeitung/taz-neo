@@ -99,5 +99,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
+    abstract fun sectionNavButtonJoinDao():SectionNavButtonJoinDao
 
 }

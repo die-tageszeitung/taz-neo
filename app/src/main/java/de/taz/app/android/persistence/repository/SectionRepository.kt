@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 
@@ -42,6 +43,16 @@ class SectionRepository private constructor(applicationContext: Context) :
             .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
+
+        appDatabase.imageDao().insertOrReplace(section.navButton)
+
+        appDatabase.sectionNavButtonJoinDao().insertOrReplace(
+            SectionNavButtonJoin(
+                sectionFileName = section.sectionHtml.name,
+                navButtonFileName = section.navButton.name
+            )
+        )
+
     }
 
     fun getStub(sectionFileName: String): SectionStub? {
@@ -178,15 +189,18 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
+        val navButton = appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
+
         images.let {
             return Section(
-                sectionFile,
-                sectionStub.issueDate,
-                sectionStub.title,
-                sectionStub.type,
-                articles,
-                images,
-                sectionStub.extendedTitle
+                sectionHtml = sectionFile,
+                issueDate = sectionStub.issueDate,
+                title = sectionStub.title,
+                type = sectionStub.type,
+                navButton = navButton,
+                articleList = articles,
+                imageList = images,
+                extendedTitle = sectionStub.extendedTitle
             )
         }
     }
@@ -224,6 +238,12 @@ class SectionRepository private constructor(applicationContext: Context) :
                 // do not delete still used by (presumably bookmarked) article
             }
         }
+
+        appDatabase.sectionNavButtonJoinDao().delete(
+            SectionNavButtonJoin(section.sectionHtml.name, section.navButton.name)
+        )
+
+        appDatabase.imageDao().delete(section.navButton)
 
         appDatabase.sectionDao().delete(SectionStub(section))
     }
