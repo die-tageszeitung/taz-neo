@@ -2,41 +2,43 @@
 <html>
 <head>
     <title>Pocket taz</title>
+    <link rel="stylesheet" type="text/css" href="base.css">
 </head>
 
 <body style="
     background-image: url('taz_pocket.png');
-    background-size: cover;
+    background-size: inherit;
+    background-position-x: center;
 ">
     <div id="close-button" style="
         position: fixed;
-        top: 40pt;
-        right: 20pt;
-        height: 26pt;
-        line-height: 26pt;
-        width: 26pt;
+        top: 70px;
+        right: 40px;
+        height: 32px;
+        line-height: 32px;
+        width: 32px;
         background-color: #d3dfe3;
         color: #7a8185;
-        font-size: 26pt;
+        font-size: 32px;
         border-radius: 50%;
         display: inline-block;
         text-align: center;
-    ">
+    " onclick="close.performClick();">
         &times;
     </div>
-    <div id="welcome-text" style="
-        display: inline;
-        font-size: 39.57pt;
+    <div id="welcome-text" claass="Titel" style="
+        font-family: Knile, taz;
+        font-size: 28px;
         text-align: center;
-        margin-left: 22pt;
-        margin-right: 22pt;
+        margin-left: 22px;
+        margin-right: 22px;
         color: white;
         position: fixed;
-        bottom: 30pt;
+        bottom: 30px;
     ">
-        <p>
+        <h2>
             Willkommen zur neuen Pocket-taz
-        </p>
+        </h2>
     </div>
     <div id="pagexOfY" style="
         position: fixed;
@@ -88,8 +90,6 @@
             display: inline-block;
             opacity: 0.25;
         "></div>
-
     </div>
-
 </body>
 </html>
