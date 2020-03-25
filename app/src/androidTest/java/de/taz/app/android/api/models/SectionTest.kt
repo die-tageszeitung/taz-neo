@@ -8,6 +8,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +48,7 @@ class SectionTest {
     }
 
     @Test
-    fun getAllFiles() {
+    fun getAllFiles() = runBlocking {
         sectionRepository.save(section)
         val fileList = section.getAllFiles()
 

@@ -18,7 +18,7 @@ data class IssueStub(
     val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
-    val minResourceVersion: Int,
+    override val minResourceVersion: Int,
     @ColumnInfo(defaultValue = "0") val isWeekend: Boolean,
     override val dateDownload: Date? = null
 ): IssueOperations {

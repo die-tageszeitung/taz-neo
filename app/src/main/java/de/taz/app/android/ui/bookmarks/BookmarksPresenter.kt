@@ -22,14 +22,14 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
         }
     }
 
-    override fun openArticle(article: Article) {
-        getView()?.getMainView()?.showInWebView(article, bookmarksArticle = true)
+    override fun openArticle(articleFileName: String) {
+        getView()?.getMainView()?.showInWebView(articleFileName, bookmarksArticle = true)
     }
 
-    override fun debookmarkArticle(article: Article) {
+    override fun debookmarkArticle(articleFileName: String) {
         getView()?.getLifecycleOwner().let {
             it?.lifecycleScope?.launch(Dispatchers.IO) {
-                ArticleRepository.getInstance().debookmarkArticle(article)
+                ArticleRepository.getInstance().debookmarkArticle(articleFileName)
             }
         }
     }
@@ -46,9 +46,9 @@ class BookmarksPresenter : BasePresenter<BookmarksContract.View, BookmarksDataCo
         }
     }
 
-    override fun shareArticle(article: Article) {
+    override fun shareArticle(articleFileName: String) {
         getView()?.let { view ->
-            view.shareArticle(article)
+            view.shareArticle(articleFileName)
         }
     }
 }

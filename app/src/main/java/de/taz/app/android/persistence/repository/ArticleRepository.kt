@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
@@ -94,12 +95,20 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+        return appDatabase.articleDao().getSectionArticleListByArticle(articleName)
+    }
+
+    fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+        return appDatabase.articleDao().getIssueArticleListByArticle(articleName)
+    }
+
     fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
-    fun nextArticleStub(article: Article): ArticleStub? = nextArticleStub(article.articleFileName)
+    fun nextArticleStub(article: ArticleOperations): ArticleStub? = nextArticleStub(article.key)
 
     fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
@@ -108,18 +117,26 @@ class ArticleRepository private constructor(applicationContext: Context) :
             )
     }
 
-    fun previousArticleStub(article: Article): ArticleStub? =
-        previousArticleStub(article.articleFileName)
+    fun previousArticleStub(article: ArticleOperations): ArticleStub? =
+        previousArticleStub(article.key)
 
     fun nextArticle(articleName: String): Article? =
         nextArticleStub(articleName)?.let { articleStubToArticle(it) }
 
-    fun nextArticle(article: Article): Article? = nextArticle(article.articleFileName)
+    fun nextArticle(article: ArticleOperations): Article? = nextArticle(article.key)
 
     fun previousArticle(articleName: String): Article? =
         previousArticleStub(articleName)?.let { articleStubToArticle(it) }
 
-    fun previousArticle(article: Article): Article? = previousArticle(article.articleFileName)
+    fun previousArticle(article: ArticleOperations): Article? = previousArticle(article.key)
+
+    fun getImagesForArticle(articleFileName: String): List<FileEntry> {
+        return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
+    }
+
+    fun getAuthorImageFileNamesForArticle(articleFileName: String): List<String> {
+        return appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleFileName).mapNotNull { it.authorFileName }
+    }
 
     @Throws(NotFoundException::class)
     fun articleStubToArticle(articleStub: ArticleStub): Article {
@@ -196,9 +213,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             }
         }
 
+    fun getBookmarkedArticleStubList(): List<ArticleStub> {
+        return appDatabase.articleDao().getBookmarkedArticlesList()
+    }
 
     fun getBookmarkedArticlesList(): List<Article> {
-        return appDatabase.articleDao().getBookmarkedArticlesList().map {
+        return getBookmarkedArticleStubList().map {
             articleStubToArticle(it)
         }
     }
@@ -211,11 +231,15 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStub.bookmarked
     }
 
-    fun getIndexInSection(articleName: String): Int? {
-        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
+    fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
+        return getStubLiveData(articleName).map { it?.bookmarked ?: false }
     }
 
-    fun getIndexInSection(article: Article): Int? = getIndexInSection(article.articleFileName)
+    fun getIndexInSection(articleName: String): Int {
+        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
+    }
+
+    fun getIndexInSection(article: ArticleOperations): Int? = getIndexInSection(article.key)
 
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
         saveScrollingPosition(ArticleStub(article), percentage, position)
@@ -232,7 +256,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(article: Article) {
-        appDatabase.articleDao().get(article.articleFileName)?.let {
+        appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
             if (!it.bookmarked) {
                 val articleFileName = article.articleHtml.name

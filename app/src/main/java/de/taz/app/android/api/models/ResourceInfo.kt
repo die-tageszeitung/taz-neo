@@ -19,8 +19,12 @@ data class ResourceInfo(
         productDto.resourceList!!.map { FileEntry(it, RESOURCE_FOLDER) }
     )
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         return resourceList
+    }
+
+    override fun getAllFileNames(): List<String> {
+        return resourceList.map { it.name }
     }
 
     override fun getDownloadTag(): String? {

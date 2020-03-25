@@ -8,6 +8,7 @@ import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -42,7 +43,7 @@ class ArticleTest {
     }
 
     @Test
-    fun getAllFiles() {
+    fun getAllFiles() = runBlocking {
         articleRepository.save(article)
         val fileList = article.getAllFiles()
 

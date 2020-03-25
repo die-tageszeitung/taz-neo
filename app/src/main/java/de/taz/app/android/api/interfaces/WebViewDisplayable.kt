@@ -4,6 +4,8 @@ import java.io.File
 
 interface WebViewDisplayable: CacheableDownload {
 
+    val key: String
+
     fun getFile(): File?
 
     fun previous(): WebViewDisplayable?
