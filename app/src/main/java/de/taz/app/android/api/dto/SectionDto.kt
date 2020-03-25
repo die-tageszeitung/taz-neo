@@ -10,7 +10,7 @@ data class SectionDto (
     val articleList: List<ArticleDto>? = null,
     val imageList: List<FileEntryDto>? = null,
     val extendedTitle: String? = null,
-    val navButton: FileEntryDto
+    val navButton: ImageDto
 )
 
 @JsonClass(generateAdapter = false)
