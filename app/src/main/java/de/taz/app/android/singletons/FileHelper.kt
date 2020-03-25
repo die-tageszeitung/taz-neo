@@ -4,9 +4,10 @@ import android.content.Context
 import android.os.Environment
 import androidx.core.content.ContextCompat
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import kotlinx.io.IOException
 import java.io.BufferedReader
 import java.io.File
@@ -18,27 +19,30 @@ class FileHelper private constructor(private val applicationContext: Context) {
     companion object : SingletonHolder<FileHelper, Context>(::FileHelper)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
-    fun createFile(fileEntry: FileEntry): Boolean {
+    fun createFile(fileEntry: FileEntryOperations): Boolean {
         createFileDirs(fileEntry)
         return getFile(fileEntry).createNewFile()
     }
 
-    fun createFileDirs(fileEntry: FileEntry): Boolean {
+    fun createFileDirs(fileEntry: FileEntryOperations): Boolean {
         return getDir(fileEntry).mkdirs()
     }
 
     fun deleteFile(fileName: String): Boolean {
         return fileEntryRepository.get(fileName)?.let { fileEntry ->
             deleteFile(fileEntry)
+        } ?: imageRepository.get(fileName)?.let { image ->
+            deleteFile(image)
         } ?: false
     }
 
-    fun deleteFile(fileEntry: FileEntry): Boolean {
+    fun deleteFile(fileEntry: FileEntryOperations): Boolean {
         return getFile(fileEntry).delete()
     }
 
-    fun getDir(fileEntry: FileEntry): File {
+    fun getDir(fileEntry: FileEntryOperations): File {
         return getFileByPath(fileEntry.folder)
     }
 
@@ -46,11 +50,11 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return fileEntryRepository.get(fileEntryName)?.let { getFile(it) }
     }
 
-    fun getFile(fileEntry: FileEntry): File {
+    fun getFile(fileEntry: FileEntryOperations): File {
         return getFileByPath(fileEntry.path)
     }
 
-    fun writeFile(fileEntry: FileEntry, byteArray: ByteArray) {
+    fun writeFile(fileEntry: FileEntryOperations, byteArray: ByteArray) {
         val file = getFile(fileEntry)
         file.writeBytes(byteArray)
     }
