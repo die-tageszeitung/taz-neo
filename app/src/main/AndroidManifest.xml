@@ -21,6 +21,7 @@
         <activity
             android:name=".ui.WelcomeActivity"
             android:noHistory="true" />
+        <activity android:name=".ui.DataPolicyActivity" />
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />
