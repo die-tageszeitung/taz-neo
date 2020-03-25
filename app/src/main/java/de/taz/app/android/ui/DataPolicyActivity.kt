@@ -8,10 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
+import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import kotlinx.android.synthetic.main.activity_welcome.*
+import kotlinx.android.synthetic.main.activity_data_policy.*
 
 class DataPolicyActivity : AppCompatActivity() {
 
@@ -20,13 +21,19 @@ class DataPolicyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_welcome)
+        setContentView(R.layout.activity_data_policy)
         data_policy_fullscreen_content.loadUrl("file:///android_asset/html/data_policy_screen.html")
 
         findViewById<Button>(R.id.data_privacy_accept_button)
             .setOnClickListener {
                 acceptDataPolicy()
-                startActivity(Intent(this, MainActivity::class.java))
+                if (isFirstTimeStart()) {
+                    log.debug("start welcome activity")
+                    startActivity(Intent(this, WelcomeActivity::class.java))
+                } else {
+                    log.debug("start main activity")
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
             }
     }
 
@@ -37,5 +44,11 @@ class DataPolicyActivity : AppCompatActivity() {
         SharedPreferenceBooleanLiveData(
             tazApiCssPreferences, SETTINGS_DATA_POLICY_ACCEPTED ,true
         ).postValue(true)
+    }
+
+    private fun isFirstTimeStart(): Boolean {
+        val tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 }
