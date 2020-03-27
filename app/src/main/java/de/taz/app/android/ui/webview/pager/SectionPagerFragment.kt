@@ -140,6 +140,12 @@ class SectionPagerFragment :
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             viewModel.currentPosition = position
+            sectionAdapter?.getSectionStub(position)?.let {
+                lifecycleScope.launch {
+                    val navButton = it.getNavButton()
+                    showNavButton(navButton)
+                }
+            }
         }
     }
 
@@ -158,18 +164,22 @@ class SectionPagerFragment :
     private inner class SectionPagerAdapter(
         fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
-        private var sections = emptyList<SectionStub>()
+        private var sectionStubs = emptyList<SectionStub>()
 
         override fun createFragment(position: Int): Fragment {
-            val section = sections[position]
+            val section = sectionStubs[position]
             return SectionWebViewFragment.createInstance(section)
         }
 
-        override fun getItemCount(): Int = sections.size
+        override fun getItemCount(): Int = sectionStubs.size
 
         fun submitList(newSections: List<SectionStub>) {
-            sections = newSections
+            sectionStubs = newSections
             notifyDataSetChanged()
+        }
+
+        fun getSectionStub(position: Int): SectionStub {
+            return sectionStubs[position]
         }
     }
 

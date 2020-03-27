@@ -45,5 +45,4 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
             }
         }
     }
-
 }
