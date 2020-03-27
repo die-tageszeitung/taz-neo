@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.join
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.SectionStub
 
@@ -16,14 +17,15 @@ import de.taz.app.android.api.models.SectionStub
         ),
         ForeignKey(
             entity = Image::class,
-            parentColumns = ["name"],
-            childColumns = ["navButtonFileName"]
+            parentColumns = ["name", "storageType"],
+            childColumns = ["navButtonFileName", "navButtonStorageType"]
         )
     ],
-    primaryKeys = ["sectionFileName", "navButtonFileName"],
-    indices = [Index("navButtonFileName")]
+    primaryKeys = ["sectionFileName", "navButtonFileName", "navButtonStorageType"],
+    indices = [Index("sectionFileName")]
 )
 data class SectionNavButtonJoin(
     val sectionFileName: String,
-    val navButtonFileName: String
+    val navButtonFileName: String,
+    val navButtonStorageType: StorageType
 )

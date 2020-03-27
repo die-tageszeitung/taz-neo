@@ -49,7 +49,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionNavButtonJoinDao().insertOrReplace(
             SectionNavButtonJoin(
                 sectionFileName = section.sectionHtml.name,
-                navButtonFileName = section.navButton.name
+                navButtonFileName = section.navButton.name,
+                navButtonStorageType = section.navButton.storageType
             )
         )
 
@@ -189,7 +190,8 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        val navButton = appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
+        val navButton =
+            appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
 
         images.let {
             return Section(
@@ -240,10 +242,18 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
 
         appDatabase.sectionNavButtonJoinDao().delete(
-            SectionNavButtonJoin(section.sectionHtml.name, section.navButton.name)
+            SectionNavButtonJoin(
+                section.sectionHtml.name,
+                section.navButton.name,
+                section.navButton.storageType
+            )
         )
 
-        appDatabase.imageDao().delete(section.navButton)
+        try {
+            appDatabase.imageDao().delete(section.navButton)
+        } catch (e: SQLiteConstraintException) {
+            log.warn("NavButton ${section.navButton} not deleted - pobably still used by another section")
+        }
 
         appDatabase.sectionDao().delete(SectionStub(section))
     }
