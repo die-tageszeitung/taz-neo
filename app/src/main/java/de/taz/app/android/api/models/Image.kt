@@ -7,10 +7,10 @@ import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import kotlinx.serialization.Serializable
 
-@Entity(tableName = "Image")
 @Serializable
+@Entity(tableName = "Image", primaryKeys = ["name", "storageType"])
 data class Image(
-    @PrimaryKey override val name: String,
+    override val name: String,
     override val storageType: StorageType,
     override val moTime: Long,
     override val sha256: String,
@@ -35,6 +35,7 @@ data class Image(
 }
 
 enum class ImageType {
+    button,
     picture,
     advertisement,
     facsimile
