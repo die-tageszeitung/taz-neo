@@ -6,6 +6,8 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.FileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
@@ -59,4 +61,9 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
     }
 
     override fun getIssueOperations() = getIssueStub()
+
+    suspend fun getNavButton(): Image? = withContext(Dispatchers.IO){
+        return@withContext this@ArticleOperations.getSectionStub()?.getNavButton()
+    }
+
 }
