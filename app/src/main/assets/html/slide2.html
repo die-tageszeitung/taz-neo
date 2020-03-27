@@ -6,11 +6,11 @@
 </head>
 
 <body style="
-    background-image: url('taz_pocket.png');
+    background-image: url('img/taz_pocket.png');
     background-size: inherit;
     background-position-x: center;
 ">
-    <div id="close" type="button" style="
+<div id="close" type="button" style="
         position: fixed;
         top: 70px;
         right: 40px;
@@ -24,72 +24,19 @@
         display: inline-block;
         text-align: center;
     " onclick="window.close.performClick();">
-        &times;
-    </div>
-    <div id="welcome-text" claass="Titel" style="
-        font-family: Knile, taz;
-        font-size: 28px;
-        text-align: center;
-        margin-left: 22px;
-        margin-right: 22px;
-        color: white;
-        position: fixed;
-        bottom: 30px;
-    ">
-        <h2>
-            Willkommen zur neuen Pocket-taz
-        </h2>
-    </div>
-    <div id="pagexOfY" style="
-        position: fixed;
-        left: 50%;
-        bottom: 20pt;
-        transform: translate( -50%, -50%);
-    ">
-        <div style="
-            height: 7pt;
-            width: 7pt;
-            background-color: #000;
-            border-radius: 50%;
-            margin: 0 3pt;
-            display: inline-block;
-        "></div>
-        <div style="
-            height: 7pt;
-            width: 7pt;
-            background-color: #000;
-            border-radius: 50%;
-            margin: 0 3pt;
-            display: inline-block;
-            opacity: 0.25;
-        "></div>
-        <div style="
-            height: 7pt;
-            width: 7pt;
-            background-color: #000;
-            border-radius: 50%;
-            margin: 0 3pt;
-            display: inline-block;
-            opacity: 0.25;
-        "></div>
-        <div style="
-            height: 7pt;
-            width: 7pt;
-            background-color: #000;
-            border-radius: 50%;
-            margin: 0 3pt;
-            display: inline-block;
-            opacity: 0.25;
-        "></div>
-        <div style="
-            height: 7pt;
-            width: 7pt;
-            background-color: #000;
-            border-radius: 50%;
-            margin: 0 3pt;
-            display: inline-block;
-            opacity: 0.25;
-        "></div>
-    </div>
+    &times;
+</div>
+<div class="pocket-title">
+    Willkommen<br>
+    zur neuen<br>
+    Pocket-taz
+</div>
+<div class="page-x-of-y">
+    <div class="page-active"></div>
+    <div class="page-inactive"></div>
+    <div class="page-inactive"></div>
+    <div class="page-inactive"></div>
+    <div class="page-inactive"></div>
+</div>
 </body>
 </html>

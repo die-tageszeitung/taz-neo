@@ -1,4 +1,3 @@
-/* Knile SemiBold */
 @font-face {
     font-family	    : Knile;
     src		        : url(knile-semibold-webfont.woff) format("woff");
@@ -12,12 +11,68 @@
     font-weight	    : 600;
     font-stretch	: normal;
   }
-h2.Titel {
-    font-family		: Knile, taz;
-    font-weight		: 200;
-    letter-spacing	: -0.05rem;
-}
 p {
-    font-family      : grotest;
-
+    font-family      : grotesk;
+}
+.pocket-title {
+    font-family: Knile;
+    font-size: 36px;
+    text-align: center;
+    color: white;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate( -50%, -50%);
+}
+.title {
+    font-family		: Knile;
+    font-weight		: 200;
+    font-size       : 30px;
+    letter-spacing	: -0.05rem;
+    color           : #D50D2E;
+    text-align      : center;
+    margin-bottom: 0px;
+}
+.sub-title {
+    font-family: grotesk;
+    font-weight: 400;
+    font-size: 18px;
+    text-align: center;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+.three-vertical-images {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+.rotate90 {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.page-x-of-y {
+    position: fixed;
+    left: 50%;
+    bottom: 20pt;
+    transform: translate( -50%, -50%);
+}
+.page-active {
+    height: 7pt;
+    width: 7pt;
+    background-color: #000;
+    border-radius: 50%;
+    margin: 0 3pt;
+    display: inline-block;
+}
+.page-inactive {
+    height: 7pt;
+    width: 7pt;
+    background-color: #000;
+    border-radius: 50%;
+    margin: 0 3pt;
+    display: inline-block;
+    opacity: 0.25;
 }
