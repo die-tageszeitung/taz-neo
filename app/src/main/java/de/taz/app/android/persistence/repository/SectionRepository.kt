@@ -6,10 +6,7 @@ import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.Section
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
@@ -257,5 +254,10 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         appDatabase.sectionDao().delete(SectionStub(section))
     }
+
+    fun getNavButton(sectionFileName: String): Image {
+        return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
+    }
+
 }
 

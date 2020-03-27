@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.ui.main.MainActivity
 
@@ -145,6 +146,10 @@ abstract class ViewModelBaseMainFragment(
 
     fun showInWebView(webViewDisplayableKey: String) {
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
+    }
+
+    fun showNavButton(navButton: Image) {
+        (activity as? MainActivity)?.setDrawerNavButton(navButton)
     }
 
 }

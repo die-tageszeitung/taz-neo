@@ -1,10 +1,13 @@
 package de.taz.app.android.api.interfaces
 
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.FileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 interface SectionOperations : WebViewDisplayable {
@@ -41,5 +44,9 @@ interface SectionOperations : WebViewDisplayable {
     }
 
     override fun getIssueOperations() = issueStub
+
+    suspend fun getNavButton(): Image = withContext(Dispatchers.IO) {
+        return@withContext SectionRepository.getInstance().getNavButton(this@SectionOperations.key)
+    }
 
 }

@@ -6,10 +6,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
+import android.widget.ImageView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +25,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.singletons.*
@@ -333,6 +336,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun setDrawerIssue(issueOperations: IssueOperations?) {
         lifecycleScope.launch(Dispatchers.IO) {
             presenter.viewModel?.setIssueOperations(issueOperations)
+        }
+    }
+
+    fun setDrawerNavButton(navButton: Image) {
+        runOnUiThread {
+            val file = FileHelper.getInstance().getFile(navButton)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            findViewById<ImageView>(R.id.drawer_logo)?.setImageBitmap(bitmap)
         }
     }
 
