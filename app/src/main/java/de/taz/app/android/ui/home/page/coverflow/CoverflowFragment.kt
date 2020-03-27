@@ -1,12 +1,10 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +23,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 
 class CoverflowFragment :
@@ -145,7 +142,12 @@ class CoverflowFragment :
 
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
 
-                    getMainView()?.setDrawerIssue(coverFlowPagerAdapter.getItem(position))
+                    getMainView()?.apply {
+                        coverFlowPagerAdapter.getItem(position)?.let {
+                            setDrawerNavButton(it.getNavButton())
+                            setDrawerIssue(it)
+                        }
+                    }
 
                     val visibleItemCount = 3
 
@@ -156,7 +158,7 @@ class CoverflowFragment :
                     }
                 }
             }
-
         }
+
     }
 }
