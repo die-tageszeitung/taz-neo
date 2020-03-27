@@ -339,11 +339,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    fun setDrawerNavButton(navButton: Image) {
+    override fun setDrawerNavButton(navButton: Image) {
         runOnUiThread {
             val file = FileHelper.getInstance().getFile(navButton)
             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            findViewById<ImageView>(R.id.drawer_logo)?.setImageBitmap(bitmap)
+            findViewById<ImageView>(R.id.drawer_logo)?.apply {
+                setImageBitmap(bitmap)
+            }
         }
     }
 

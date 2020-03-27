@@ -133,6 +133,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
     }
 
+    fun getSectionStubsForIssue(issueOperations: IssueOperations) =
+        getSectionStubsForIssue(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status
+        )
 
     fun getSectionStubsForIssueOperations(issueOperations: IssueOperations) =
         getSectionStubsForIssue(
