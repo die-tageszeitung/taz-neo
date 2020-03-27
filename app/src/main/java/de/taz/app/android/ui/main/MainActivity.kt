@@ -28,6 +28,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.monkey.animatedChange
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
@@ -339,12 +340,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private var navButton: Image? = null
     override fun setDrawerNavButton(navButton: Image) {
-        runOnUiThread {
-            val file = FileHelper.getInstance().getFile(navButton)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                setImageBitmap(bitmap)
+        if (this.navButton != navButton) {
+            this.navButton = navButton
+            runOnUiThread {
+                val file = FileHelper.getInstance().getFile(navButton)
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                findViewById<ImageView>(R.id.drawer_logo)?.apply {
+                    animatedChange(bitmap, targetAlpha = navButton.alpha)
+                }
             }
         }
     }
