@@ -5,9 +5,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -51,12 +51,12 @@ class DownloadWorker(
 
     /**
      * start download of given files/downloads
-     * @param fileEntries - [FileEntry]s to download
-     * @param fileNames - [FileEntry.name] of files to download
+     * @param fileEntries - [FileEntryOperations] to download
+     * @param fileNames - [FileEntryOperations.name] of files to download
      * @param downloads - [Download]s to download
      */
     suspend fun startDownloads(
-        fileEntries: List<FileEntry>? = null,
+        fileEntries: List<FileEntryOperations>? = null,
         fileNames: List<String>? = null,
         downloads: List<Download>? = null
     ) {
@@ -73,7 +73,7 @@ class DownloadWorker(
 
     /**
      * start download
-     * @param fileName - [FileEntry.name] of [FileEntry] to download
+     * @param fileName - [FileEntryOperations.name] of [FileEntryOperations] to download
      */
     suspend fun startDownload(fileName: String) {
 
