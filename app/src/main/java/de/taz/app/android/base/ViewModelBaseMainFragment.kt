@@ -148,7 +148,7 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
     }
 
-    fun showNavButton(navButton: Image) {
+    fun showNavButton(navButton: Image? = null) {
         (activity as? MainActivity)?.setDrawerNavButton(navButton)
     }
 
