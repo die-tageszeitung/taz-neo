@@ -24,7 +24,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
-        web_view_fullscreen_content.loadUrl("file:///android_asset/html/slide3.html")
+        web_view_fullscreen_content.loadUrl("file:///android_asset/html/welcome_slides.html")
 
         val ws: WebSettings = web_view_fullscreen_content.settings
         ws.javaScriptEnabled = true

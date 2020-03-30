@@ -59,7 +59,7 @@ p {
     bottom: 20pt;
     transform: translate( -50%, -50%);
 }
-.page-active {
+.carousel-indicators .active {
     height: 7pt;
     width: 7pt;
     background-color: #000;
@@ -67,7 +67,7 @@ p {
     margin: 0 3pt;
     display: inline-block;
 }
-.page-inactive {
+.carousel-indicators li {
     height: 7pt;
     width: 7pt;
     background-color: #000;
