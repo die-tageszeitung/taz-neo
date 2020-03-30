@@ -18,7 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".ui.WelcomeActivity" />
+        <activity
+            android:name=".ui.WelcomeActivity"
+            android:noHistory="true" />
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />
