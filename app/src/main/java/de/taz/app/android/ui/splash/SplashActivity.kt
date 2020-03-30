@@ -19,6 +19,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
@@ -207,43 +208,10 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         val fileHelper = FileHelper.getInstance(applicationContext)
-        val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val fromServer = apiService.getResourceInfo()
-                val local = resourceInfoRepository.get()
-
-                fromServer?.let {
-                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                        resourceInfoRepository.save(fromServer)
-
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                // only delete modified files
-                                if (oldFileEntry != newFileEntry) {
-                                    oldFileEntry.deleteFile()
-                                }
-                            }
-                        }
-
-                        local?.let { resourceInfoRepository.delete(local) }
-
-                        // ensure resources are downloaded
-                        DownloadService.getInstance(applicationContext).apply {
-                            scheduleDownload(fromServer)
-                            download(fromServer)
-                        }
-                        local?.let { log.debug("Initialized ResourceInfo") }
-                            ?: log.debug("Updated ResourceInfo")
-                    }
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                log.warn("Initializing ResourceInfo failed")
-            }
+            ResourceInfo.update()
         }
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()

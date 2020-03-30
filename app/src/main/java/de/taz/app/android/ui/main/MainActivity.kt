@@ -22,13 +22,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.monkey.animatedChange
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
@@ -40,6 +43,7 @@ import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -341,14 +345,43 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private var navButton: Image? = null
-    override fun setDrawerNavButton(navButton: Image) {
+    private var defaultNavButton: Image? = null
+    override fun setDrawerNavButton(navButton: Image?) {
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            if (defaultNavButton == null) {
+                //  get defaultNavButton
+                defaultNavButton = ImageRepository.getInstance().get(DEFAULT_NAV_DRAWER_FILE_NAME)
+            }
+
+            val image = navButton ?: defaultNavButton
+            image?.let {
+                // if image exists wait for it to be downloaded and show it
+                val isDownloadedLiveData = image.isDownloadedLiveData()
+                withContext(Dispatchers.Main) {
+                    isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
+                        if (isDownloaded) {
+                            showNavButton(image)
+                        }
+                    }
+                }
+            } ?: run {
+                // if the image does not exist update ResourceInfo and try to show again
+                ResourceInfo.update()
+                setDrawerNavButton(image)
+            }
+        }
+    }
+
+    private fun showNavButton(navButton: Image) {
         if (this.navButton != navButton) {
             this.navButton = navButton
             runOnUiThread {
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    animatedChange(bitmap, targetAlpha = navButton.alpha)
+                    setImageBitmap(bitmap)
+                    imageAlpha = (navButton.alpha * 255).toInt()
                 }
             }
         }

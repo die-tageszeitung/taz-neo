@@ -26,7 +26,7 @@ interface MainContract : BaseContract {
         fun hideKeyboard()
 
         fun setDrawerIssue(issueOperations: IssueOperations?)
-        fun setDrawerNavButton(navButton: Image)
+        fun setDrawerNavButton(navButton: Image? = null)
 
         fun showDrawerFragment(fragment: Fragment)
 
