@@ -7,6 +7,7 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
@@ -43,7 +44,11 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    fun download(cacheableDownload: CacheableDownload) {
+    suspend fun download(cacheableDownload: CacheableDownload) {
+
+        if (appInfoRepository.get() == null) {
+            AppInfo.update()
+        }
 
         var downloadId: String? = null
         val start: Long = System.currentTimeMillis()

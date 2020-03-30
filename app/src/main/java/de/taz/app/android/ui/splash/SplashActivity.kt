@@ -17,6 +17,7 @@ import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
+import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
@@ -155,7 +156,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO){
+    private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
@@ -177,9 +178,7 @@ class SplashActivity : AppCompatActivity() {
     private fun initAppInfoAndCheckAndroidVersion() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                ApiService.getInstance(applicationContext).getAppInfo()?.let {
-                    AppInfoRepository.getInstance(applicationContext).save(it)
-                    log.info("Initialized AppInfo")
+                AppInfo.update()?.let {
                     if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                         NotificationHelper.getInstance().showNotification(
                             R.string.notification_new_version_title,
@@ -315,7 +314,8 @@ class SplashActivity : AppCompatActivity() {
             channelName,
             channeldDescription,
             getString(channelId),
-            importance)
+            importance
+        )
     }
 
     @TargetApi(26)
