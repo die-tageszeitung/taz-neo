@@ -66,6 +66,10 @@ class SectionPagerViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             sectionKey?.let { sectionKey ->
                 val sections = sectionStubList ?: SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionKey)
+                val index = sections.indexOfFirst { it.sectionFileName == sectionKey }
+                if (index > 0) {
+                    currentPosition = index
+                }
                 mediatorLiveData.postValue(sections)
             }
         }

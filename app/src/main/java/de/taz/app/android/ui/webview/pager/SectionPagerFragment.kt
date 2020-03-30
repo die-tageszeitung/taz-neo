@@ -79,7 +79,6 @@ class SectionPagerFragment :
                 issueDate = date
                 issueStatus = status
             }
-
         }
 
         webview_pager_viewpager.apply {
@@ -106,8 +105,13 @@ class SectionPagerFragment :
     }
 
     override fun onStart() {
-        super.onStart()
         setupViewPager()
+
+        viewModel.currentPosition?.let {
+            webview_pager_viewpager.currentItem = it
+        }
+
+        super.onStart()
     }
 
     fun tryLoadSection(sectionFileName: String): Boolean {
@@ -135,7 +139,7 @@ class SectionPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            viewModel.currentPositionLiveData.postValue(position)
+            viewModel.currentPosition = position
         }
     }
 
