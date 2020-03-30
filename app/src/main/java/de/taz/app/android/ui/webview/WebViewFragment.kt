@@ -19,6 +19,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -173,7 +174,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
                 withContext(Dispatchers.Main) {
                     if (!isResourceInfoUpToDate) {
-                        resourceInfoIsDownloadingLiveData.observe(
+                        resourceInfoIsDownloadingLiveData.observeDistinct(
                             this@WebViewFragment,
                             Observer { isDownloadedOrDownloading ->
                                 if (!isDownloadedOrDownloading) {
@@ -185,7 +186,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                             }
                         )
                     }
-                    resourceInfoIsDownloadedLiveData.observe(
+                    resourceInfoIsDownloadedLiveData.observeDistinct(
                         this@WebViewFragment,
                         Observer { isDownloaded ->
                             if (isDownloaded) {
