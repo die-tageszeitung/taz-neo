@@ -56,7 +56,7 @@ data class ResourceInfo(
                         resourceInfoRepository.save(fromServer)
 
                         // delete unused files
-                        local?.resourceList?.filter { it in fromServer.resourceList }?.forEach {
+                        local?.resourceList?.filter { it !in fromServer.resourceList }?.forEach {
                             fileEntryRepository.delete(it)
                         }
 
