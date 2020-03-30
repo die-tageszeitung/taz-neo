@@ -14,7 +14,7 @@ data class Moment(
     )
 
     override suspend fun getAllFiles(): List<FileEntry> {
-        return imageList.filter { it.name.contains(".normal.") }
+        return imageList.filter { it.name.contains(".normal.") }.distinct()
     }
 
     override fun getAllFileNames(): List<String> {
