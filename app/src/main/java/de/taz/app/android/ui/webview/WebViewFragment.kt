@@ -70,14 +70,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         viewModel.displayable = displayable
 
         configureWebView()
-        displayable?.let { displayable ->
-            setHeader(displayable)
-            viewModel.displayable?.let {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    ensureDownloadedAndShow(displayable)
-                }
-            }
-        }
 
         view.findViewById<NestedScrollView>(nestedScrollViewId).setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
             viewModel.scrollPosition = scrollY
@@ -88,6 +80,18 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        displayable?.let { displayable ->
+            setHeader(displayable)
+            viewModel.displayable?.let {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    ensureDownloadedAndShow(displayable)
+                }
+            }
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
