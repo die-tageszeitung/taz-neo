@@ -1,84 +1,91 @@
 @font-face {
-    font-family	    : Knile;
-    src		        : url(knile-semibold-webfont.woff) format("woff");
-    font-style	    : normal;
-    font-weight	    : 600;
-    font-stretch	: normal;
-}@font-face {
-    font-family	    : grotesk;
-    src		        : url(AktivGrotesk_W_Bd.woff) format("ttf");
-    font-style	    : normal;
-    font-weight	    : 600;
-    font-stretch	: normal;
-  }
-p {
-    font-family      : grotesk;
+     font-family: Knile;
+     src: url(knile-semibold-webfont.woff) format("woff");
+     font-style: normal;
+     font-weight: 600;
+     font-stretch: normal;
 }
-.pocket-title {
-    font-family: Knile;
-    font-size: 36px;
-    text-align: center;
-    color: white;
-    margin-bottom: 80px;
+@font-face {
+     font-family: grotesk;
+     src: url(AktivGrotesk_W_Bd.woff) format("ttf");
+     font-style: normal;
+     font-weight: 600;
+     font-stretch: normal;
 }
-.title {
-    font-family		: Knile;
-    font-weight		: 200;
-    font-size       : 30px;
-    letter-spacing	: -0.05rem;
-    color           : #D50D2E;
-    text-align      : center;
-    margin-bottom: 0px;
+ p {
+     font-family: grotesk;
+
 }
-.sub-title {
-    font-family: grotesk;
-    font-weight: 400;
-    font-size: 18px;
-    text-align: center;
-    margin-top: 2%;
-    margin-bottom: 2%;
+ .pocket-title {
+     font-family: Knile;
+     font-size: 36px;
+     text-align: center;
+     color: white;
+     margin-bottom: 80px;
 }
-.div-in-carousel-item {
-    padding:70px 0;
-    height: 100vh;
-    margin: 0 22px;
-    display:flex;
-    flex-direction: column;
-    justify-content:center;
-    align-items:center;
+ .title {
+     font-family : Knile;
+     font-weight : 200;
+     font-size : 30px;
+     letter-spacing : -0.05rem;
+     color : #D50D2E;
+     text-align : center;
+     margin-bottom: 0px;
 }
-.three-vertical-images {
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+ .sub-title {
+     font-family: grotesk;
+     font-weight: 400;
+     font-size: 18px;
+     text-align: center;
+     margin-top: 2%;
+     margin-bottom: 2%;
 }
-.rotate90 {
-    -webkit-transform: rotate(-90deg);
-    -moz-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
-    transform: rotate(-90deg);
+ .div-in-carousel-item {
+     padding:70px 0;
+     height: 100vh;
+     margin: 0 22px;
+     display:flex;
+     flex-direction: column;
+     justify-content:center;
+     align-items:center;
 }
-.page-x-of-y {
-    position: fixed;
-    left: 50%;
-    bottom: 20pt;
-    transform: translate( -50%, -50%);
+ .three-vertical-images {
+     margin-left: auto;
+     margin-right: auto;
+     display: block;
 }
-.carousel-indicators .active {
-    height: 7pt;
-    width: 7pt;
-    background-color: #000;
-    border-radius: 50%;
-    margin: 0 3pt;
-    display: inline-block;
+ .rotate90 {
+     -webkit-transform: rotate(-90deg);
+     -moz-transform: rotate(-90deg);
+     -o-transform: rotate(-90deg);
+     -ms-transform: rotate(-90deg);
+     transform: rotate(-90deg);
 }
-.carousel-indicators li {
-    height: 7pt;
-    width: 7pt;
-    background-color: #000;
-    border-radius: 50%;
-    margin: 0 3pt;
-    display: inline-block;
-    opacity: 0.25;
+ .page-x-of-y {
+     position: fixed;
+     left: 50%;
+     bottom: 20pt;
+     transform: translate( -50%, -50%);
+}
+ .carousel-indicators .active {
+     height: 7pt;
+     width: 7pt;
+     background-color: #000;
+     border-radius: 50%;
+     margin: 0 3pt;
+     display: inline-block;
+}
+ .carousel-indicators li {
+     height: 7pt;
+     width: 7pt;
+     background-color: #000;
+     border-radius: 50%;
+     margin: 0 3pt;
+     display: inline-block;
+     opacity: 0.25;
+}
+ .carousel-inner .carousel-item {
+     transition: -webkit-transform 0.5s ease;
+     transition: transform 0.5s ease;
+     transition: transform 0.5s ease, -webkit-transform 0.5s ease;
 }
