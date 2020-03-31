@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.TargetApi
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -58,6 +60,17 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             ).size
             val title = displayable.getSectionStub()?.title ?: ""
             setHeaderForSection(index, count, title)
+
+            val issueOperations = displayable.getIssueOperations()
+            issueOperations?.apply {
+                if(isWeekend) {
+                    FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
+                        val typeface = Typeface.createFromFile(it)
+                        view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                        view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                    }
+                }
+            }
         }
     }
 
