@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 6
+const val DATABASE_VERSION = 7
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -20,7 +20,8 @@ val allMigrations = arrayOf(
     Migration2to3,
     Migration3to4,
     Migration4to5,
-    Migration5to6
+    Migration5to6,
+    Migration6to7
 )
 
 @Database(
@@ -33,6 +34,7 @@ val allMigrations = arrayOf(
         DownloadStub::class,
         Feed::class,
         FileEntry::class,
+        Image::class,
         IssueStub::class,
         IssueImprintJoin::class,
         IssueMomentJoin::class,
@@ -43,7 +45,8 @@ val allMigrations = arrayOf(
         ResourceInfoFileEntryJoin::class,
         SectionStub::class,
         SectionArticleJoin::class,
-        SectionImageJoin::class
+        SectionImageJoin::class,
+        SectionNavButtonJoin::class
     ],
     version = DATABASE_VERSION
 )
@@ -54,6 +57,8 @@ val allMigrations = arrayOf(
     CycleTypeConverter::class,
     DownloadStatusTypeConverter::class,
     FrameListTypeConverter::class,
+    ImageResolutionTypeConverter::class,
+    ImageTypeTypeConverter::class,
     IssueStatusTypeConverter::class,
     IssueDateDownloadTypeConverter::class,
     PageTypeTypeConverter::class,
@@ -82,6 +87,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun downloadDao(): DownloadDao
     abstract fun feedDao(): FeedDao
     abstract fun fileEntryDao(): FileEntryDao
+    abstract fun imageDao(): ImageDao
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issueMomentJoinDao(): IssueMomentJoinDao
@@ -93,5 +99,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
+    abstract fun sectionNavButtonJoinDao():SectionNavButtonJoinDao
 
 }

@@ -4,6 +4,18 @@ import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.*
 
+val testImage = Image(
+    "imageName",
+    StorageType.resource,
+    1869L,
+    "goldman",
+    1940L,
+    "Ⓐ",
+    ImageType.picture,
+    alpha = 1f,
+    resolution = ImageResolution.high
+)
+
 val testFileEntry = FileEntry(
     "fileName",
     StorageType.issue,
@@ -26,6 +38,7 @@ val testSection = Section(
     "1313-12-13",
     "a section",
     SectionType.articles,
+    testImage,
     emptyList(),
     emptyList()
 )

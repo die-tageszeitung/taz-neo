@@ -116,6 +116,12 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             }
 
             viewModel.currentPosition = position
+
+            lifecycleScope.launch {
+                articlePagerAdapter?.getArticleStub(position)?.getNavButton()?.let {
+                    showNavButton(it)
+                }
+            }
         }
     }
 
@@ -129,18 +135,22 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     private inner class ArticlePagerAdapter(
         fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
-        private var articles = emptyList<ArticleStub>()
+        private var articleStubs = emptyList<ArticleStub>()
 
         override fun createFragment(position: Int): Fragment {
-            val article = articles[position]
+            val article = articleStubs[position]
             return ArticleWebViewFragment.createInstance(article)
         }
 
-        override fun getItemCount(): Int = articles.size
+        override fun getItemCount(): Int = articleStubs.size
 
-        fun submitList(newArticles: List<ArticleStub>) {
-            articles = newArticles
+        fun submitList(newArticleStubs: List<ArticleStub>) {
+            articleStubs = newArticleStubs
             notifyDataSetChanged()
+        }
+
+        fun getArticleStub(position: Int): ArticleStub {
+            return articleStubs[position]
         }
 
     }

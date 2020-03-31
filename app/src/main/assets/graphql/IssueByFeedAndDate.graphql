@@ -75,6 +75,16 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                     title
                     extendedTitle
                     type
+                    navButton {
+                        resolution
+                        name
+                        type
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        alpha
+                    }
                     articleList {
                         articleHtml {
                             name

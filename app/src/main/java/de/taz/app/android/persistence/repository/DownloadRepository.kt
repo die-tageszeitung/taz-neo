@@ -142,6 +142,10 @@ class DownloadRepository private constructor(applicationContext: Context) :
         } == null
     }
 
+    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
+        return isDownloadedLiveData(listOf(fileName))
+    }
+
     fun isDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
         val mediatorLiveData = MediatorLiveData<Boolean>()
         mediatorLiveData.postValue(false)
