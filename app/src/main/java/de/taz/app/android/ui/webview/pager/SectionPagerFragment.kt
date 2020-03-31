@@ -108,7 +108,9 @@ class SectionPagerFragment :
         setupViewPager()
 
         viewModel.currentPosition?.let {
-            webview_pager_viewpager.currentItem = it
+            if (it != webview_pager_viewpager.currentItem) {
+                webview_pager_viewpager.setCurrentItem(it, false)
+            }
         }
 
         super.onStart()
@@ -158,12 +160,14 @@ class SectionPagerFragment :
 
     override fun onStop() {
         webview_pager_viewpager?.adapter = null
+        webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
 
     private inner class SectionPagerAdapter(
         fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
+
         private var sectionStubs = emptyList<SectionStub>()
 
         override fun createFragment(position: Int): Fragment {
@@ -174,8 +178,10 @@ class SectionPagerFragment :
         override fun getItemCount(): Int = sectionStubs.size
 
         fun submitList(newSections: List<SectionStub>) {
-            sectionStubs = newSections
-            notifyDataSetChanged()
+            if (sectionStubs != newSections) {
+                sectionStubs = newSections
+                notifyDataSetChanged()
+            }
         }
 
         fun getSectionStub(position: Int): SectionStub {
