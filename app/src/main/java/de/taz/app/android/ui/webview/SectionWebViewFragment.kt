@@ -11,6 +11,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
@@ -35,7 +36,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                     if(isWeekend) {
                         FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
                             val typeface = Typeface.createFromFile(it)
-                            runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 view?.findViewById<TextView>(R.id.section)?.typeface = typeface
                             }
                         }

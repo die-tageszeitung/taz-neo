@@ -66,8 +66,10 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                 if(isWeekend) {
                     FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
                         val typeface = Typeface.createFromFile(it)
-                        view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                        view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                        withContext(Dispatchers.Main) {
+                            view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                            view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                        }
                     }
                 }
             }
