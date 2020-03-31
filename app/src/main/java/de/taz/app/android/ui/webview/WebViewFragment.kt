@@ -71,10 +71,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
         configureWebView()
         displayable?.let { displayable ->
-            viewModel.displayable?.let {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    ensureDownloadedAndShow(displayable)
-                }
+            lifecycleScope.launch(Dispatchers.IO) {
+                ensureDownloadedAndShow(displayable)
             }
         }
 
