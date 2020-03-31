@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
+    android:layout_marginTop="@dimen/fragment_header_section_margin_top"
+    android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+    android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <TextView
+        android:id="@+id/section"
+        style="@style/TextAppearance.Header.Section"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fragment_header_default_margin_top"
+        android:textAlignment="viewEnd"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/dotted_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
-        android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
-        android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
-        app:layout_constraintTop_toTopOf="parent">
+        android:rotation="180"
+        android:src="@drawable/ic_dotted_line"
+        app:layout_constraintTop_toBottomOf="@id/section"
+        app:tint="@color/textColor"
+        tools:ignore="ContentDescription" />
 
     <TextView
-            android:id="@+id/section"
-            android:textAppearance="@style/TextAppearance.Header.Section"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textAlignment="viewEnd"
-            android:layout_marginTop="@dimen/fragment_header_default_margin_top"
-            app:layout_constraintRight_toRightOf="parent" />
-
-    <ImageView tools:ignore="ContentDescription"
-            android:id="@+id/dotted_line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/section"
-            android:src="@drawable/ic_dotted_line"
-            app:tint="@color/textColor"
-            android:rotation="180"
-            />
-
-    <TextView
-            android:id="@+id/issue_date"
-            android:textAppearance="@style/TextAppearance.Header.Date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/dotted_line"
-            android:textAlignment="viewEnd"
-            android:layout_marginBottom="@dimen/fragment_header_date_margin_bottom"
-            app:layout_constraintRight_toRightOf="parent" />
+        android:id="@+id/issue_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fragment_header_date_margin_bottom"
+        android:textAlignment="viewEnd"
+        style="@style/TextAppearance.Header.Date"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dotted_line" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
