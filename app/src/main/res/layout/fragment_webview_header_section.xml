@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/fragment_header_date_margin_bottom"
         android:textAlignment="viewEnd"
-        android:textAppearance="@style/TextAppearance.Header.Date"
+        style="@style/TextAppearance.Header.Date"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dotted_line" />
 

@@ -102,7 +102,7 @@
     </style>
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColorAccent</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
