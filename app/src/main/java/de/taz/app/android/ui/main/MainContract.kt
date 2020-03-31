@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseContract
 
@@ -25,6 +26,7 @@ interface MainContract : BaseContract {
         fun hideKeyboard()
 
         fun setDrawerIssue(issueOperations: IssueOperations?)
+        fun setDrawerNavButton(navButton: Image? = null)
 
         fun showDrawerFragment(fragment: Fragment)
 

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.singletons.FileHelper
 import kotlinx.serialization.Serializable
@@ -13,13 +14,13 @@ const val GLOBAL_FOLDER = "global"
 @Entity(tableName = "FileEntry")
 @Serializable
 data class FileEntry(
-    @PrimaryKey val name: String,
-    val storageType: StorageType,
-    val moTime: Long,
-    val sha256: String,
-    val size: Long,
-    val folder: String
-) {
+    @PrimaryKey override val name: String,
+    override val storageType: StorageType,
+    override val moTime: Long,
+    override val sha256: String,
+    override val size: Long,
+    override val folder: String
+): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
         fileEntryDto.name,
@@ -27,26 +28,7 @@ data class FileEntry(
         fileEntryDto.moTime,
         fileEntryDto.sha256,
         fileEntryDto.size,
-        getStorageFolder(fileEntryDto.storageType, folder)
+        FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder)
     )
-
-    val path
-        get() = "$folder/$name"
-
-    fun deleteFile() {
-        val fileHelper = FileHelper.getInstance()
-        fileHelper.deleteFile(name)
-        DownloadRepository.getInstance().delete(name)
-    }
-
-    companion object {
-        private fun getStorageFolder(storageType: StorageType, folder: String): String {
-            return when (storageType) {
-                StorageType.global -> GLOBAL_FOLDER
-                StorageType.resource -> RESOURCE_FOLDER
-                else -> folder
-            }
-        }
-    }
 
 }

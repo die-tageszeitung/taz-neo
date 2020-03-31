@@ -46,9 +46,8 @@
 
         <ImageView
             android:id="@+id/drawer_logo"
-            android:layout_width="@dimen/drawer_logo_width"
-            android:layout_height="@dimen/drawer_logo_height"
-            android:background="@color/tazRed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:contentDescription="@string/navigation_drawer_open"
             android:elevation="10dp"

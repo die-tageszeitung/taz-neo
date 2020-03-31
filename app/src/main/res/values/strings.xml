@@ -16,7 +16,7 @@
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
-    <string name="toast_logout_elapsed">Ihr Abo ist abelaufen.</string>
+    <string name="toast_logout_elapsed">Ihr Abo ist abgelaufen.</string>
     <string name="toast_logout_invalid">Ihr Abo ist nicht mehr gültig.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
