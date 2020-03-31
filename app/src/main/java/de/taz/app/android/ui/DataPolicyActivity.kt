@@ -22,7 +22,7 @@ class DataPolicyActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_policy)
-        data_policy_fullscreen_content.loadUrl("file:///android_asset/html/data_policy_screen.html")
+        data_policy_fullscreen_content.loadUrl("file:///android_asset/www/data_policy_screen.html")
 
         findViewById<Button>(R.id.data_privacy_accept_button)
             .setOnClickListener {
