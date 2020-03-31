@@ -19,10 +19,7 @@ p {
     font-size: 36px;
     text-align: center;
     color: white;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translate( -50%, -50%);
+    margin-bottom: 80px;
 }
 .title {
     font-family		: Knile;
@@ -40,6 +37,15 @@ p {
     text-align: center;
     margin-top: 2%;
     margin-bottom: 2%;
+}
+.div-in-carousel-item {
+    padding:70px 0;
+    height: 100vh;
+    margin: 0 22px;
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items:center;
 }
 .three-vertical-images {
     margin-left: auto;
