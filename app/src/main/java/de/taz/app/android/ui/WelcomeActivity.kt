@@ -3,9 +3,12 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -24,21 +27,33 @@ class WelcomeActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
-        web_view_fullscreen_content.loadUrl("file:///android_asset/www/welcome_slides.html")
 
-        val ws: WebSettings = web_view_fullscreen_content.settings
-        ws.javaScriptEnabled = true
-        ws.domStorageEnabled = true
-        ws.useWideViewPort = true
-        ws.loadWithOverviewMode = true
-        web_view_fullscreen_content.addJavascriptInterface(object : Any() {
-            @JavascriptInterface
-            fun performClick() {
-                log.debug("welcome screen close clicked")
-                setFirstTimeStart()
-                startActivity(Intent(applicationContext, MainActivity::class.java))
+        if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
+
+        web_view_fullscreen_content.apply {
+            webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
+
+            settings.apply {
+                javaScriptEnabled = true
+                domStorageEnabled = true
+                useWideViewPort = true
+                loadWithOverviewMode = true
             }
-        }, "close")
+
+            addJavascriptInterface(object : Any() {
+                @JavascriptInterface
+                fun performClick() {
+                    log.debug("welcome screen close clicked")
+                    setFirstTimeStart()
+                    startActivity(Intent(applicationContext, MainActivity::class.java))
+                }
+            }, "close")
+
+            loadUrl("file:///android_asset/www/welcome_slides.html")
+        }
     }
 
     private fun setFirstTimeStart() {
