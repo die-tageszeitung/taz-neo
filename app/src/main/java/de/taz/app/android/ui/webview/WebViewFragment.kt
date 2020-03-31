@@ -71,11 +71,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
         configureWebView()
         displayable?.let { displayable ->
-            setHeader(displayable)
-            viewModel.displayable?.let {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    ensureDownloadedAndShow(displayable)
-                }
+            lifecycleScope.launch(Dispatchers.IO) {
+                ensureDownloadedAndShow(displayable)
             }
         }
 
@@ -88,6 +85,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        displayable?.let { displayable ->
+            setHeader(displayable)
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
