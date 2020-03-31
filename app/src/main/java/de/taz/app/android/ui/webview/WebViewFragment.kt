@@ -70,6 +70,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         viewModel.displayable = displayable
 
         configureWebView()
+        displayable?.let { displayable ->
+            viewModel.displayable?.let {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    ensureDownloadedAndShow(displayable)
+                }
+            }
+        }
 
         view.findViewById<NestedScrollView>(nestedScrollViewId).setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
             viewModel.scrollPosition = scrollY
@@ -82,15 +89,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         displayable?.let { displayable ->
             setHeader(displayable)
-            viewModel.displayable?.let {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    ensureDownloadedAndShow(displayable)
-                }
-            }
         }
     }
 
