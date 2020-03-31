@@ -7,6 +7,12 @@
         <link rel="stylesheet" type="text/css" href="base.css">
         <script src="file:///android_asset/js/jquery-3.4.1.slim.min.js"></script>
         <script src="file:///android_asset/js/bootstrap.min.js"></script>
+        <script>
+            $( document ).ready(function() {
+                // initialize carousel
+                $("#welcome-carousel").carousel(0);
+            });
+        </script>
     </head>
     <body>
 
@@ -25,6 +31,8 @@
                         background-size: cover;
                         background-position-x: center;
                         height: 100vh;
+                        display: flex;
+                        flex-direction: column-reverse;
                     ">
                         <div class="pocket-title">
                             Willkommen<br>
@@ -34,11 +42,8 @@
                     </div>
                 </div>
                 <div id="slide2" class="carousel-item">
-                    <div style="
-                        padding:70px 0;
-                        height: 100vh;
-                    ">
-                        <div>
+                    <div class="div-in-carousel-item">
+                        <div style="width: 100%;">
                             <p class="title">
                                 Immer dabei
                             </p>
@@ -52,7 +57,8 @@
                                 Früher als gedruckt
                             </p>
                             <p class="sub-title">
-                                Per Push-Nachricht bereits am Vorabend informiert werden
+                                Per Push-Nachricht bereits am
+                                Vorabend informiert werden
                             </p>
                             <img src="img/Monduhr.svg" class="three-vertical-images">
                         </div>
@@ -68,10 +74,7 @@
                     </div>
                 </div>
                 <div id="slide3" class="carousel-item">
-                    <div style="
-                        padding:70px 0;
-                        height: 100vh;
-                    ">
+                    <div class="div-in-carousel-item">
                         <div>
                             <p class="title">
                                 Weiter lesen
@@ -86,7 +89,7 @@
                                 Sharing is caring
                             </p>
                             <p class="sub-title">
-                                Das können Sie nicht für sich behalten?<br>
+                                Das können Sie nicht für sich behalten?
                                 Texte mit anderen teilen
                             </p>
                             <img src="img/Teilen.svg" class="three-vertical-images">
@@ -96,7 +99,7 @@
                                 Statt Brille
                             </p>
                             <p class="sub-title">
-                                Schrifteinstellung<br>
+                                Schrifteinstellung
                                 direkt am Artikel ändern
                             </p>
                             <img src="img/aA.svg" class="three-vertical-images">
@@ -104,32 +107,29 @@
                     </div>
                 </div>
                 <div id="slide4" class="carousel-item">
-                    <div style="
-                        padding:70px 0;
-                        height: 100vh;
-                    ">
+                    <div class="div-in-carousel-item">
                         <div>
                             <p class="title">
                                 Ganz einfach
                             </p>
                             <p class="sub-title">
-                                Durch Wischen nach links und rechts<br>
+                                Durch Wischen nach links und rechts
                                 Ressorts und Artikel durchblättern
                             </p>
                             <img src="img/Swipen.svg" class="three-vertical-images">
                         </div>
                         <div>
                             <p class="sub-title" style="margin-top: 8%">
-                                Mit den neuen Ressortübersichten<br>
-                                haben Sie auch im Smartphone<br>
+                                Mit den neuen Ressortübersichten
+                                haben Sie auch im Smartphone
                                 den Überblick
                             </p>
                             <img src="img/Ressortuebersichten.svg" class="three-vertical-images">
                         </div>
                         <div>
                             <p class="sub-title" style="margin-top: 8%">
-                                Da wo taz steht, finden Sie auch<br>
-                                unseren Inhalt: schnelle Navigation<br>
+                                Da wo taz steht, finden Sie auch
+                                unseren Inhalt: schnelle Navigation
                                 zu Ihren Themen
                             </p>
                             <img src="img/taz_logo.svg" class="three-vertical-images rotate90" style="
@@ -142,33 +142,30 @@
                     </div>
                 </div>
                 <div id="slide5" class="carousel-item">
-                    <div style="
-                        padding:70px 0;
-                        height: 100vh;
-                    ">
+                    <div class="div-in-carousel-item">
                         <div>
                             <p class="title">
                                 Die Zeitung von heute
                             </p>
                             <p class="sub-title">
-                                ...oder die vom Wochenende<br>
-                                horizontal in den automatisch<br>
+                                ...oder die vom Wochenende
+                                horizontal in den automatisch
                                 geladenen Ausgaben suchen
                             </p>
                             <img src="img/Karussell.svg" class="three-vertical-images">
                         </div>
                         <div>
                             <p class="sub-title" style="margin-top: 8%">
-                                Runterscrollen,<br>
-                                um schneller in die vergangenen<br>
+                                Runterscrollen,
+                                um schneller in die vergangenen
                                 Wochen zu reisen
                             </p>
                             <img src="img/Scrollen.svg" class="three-vertical-images">
                         </div>
                         <div>
                             <p class="sub-title" style="margin-top: 8%">
-                                Oder der Blick ins Archiv:<br>
-                                Alte Ausgaben mit einem Klick<br>
+                                Oder der Blick ins Archiv:
+                                Alte Ausgaben mit einem Klick
                                 aufs Datum finden
                             </p>
                             <h2 style="
