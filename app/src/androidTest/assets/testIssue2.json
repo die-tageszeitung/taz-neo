@@ -70,6 +70,16 @@
                   },
                   "title": "titel",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -256,6 +266,16 @@
                   },
                   "title": "der tag",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -423,6 +443,16 @@
                   },
                   "title": "das thema",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -525,6 +555,16 @@
                   },
                   "title": "nahaufnahme",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -671,6 +711,16 @@
                   },
                   "title": "inland",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -911,6 +961,16 @@
                   },
                   "title": "wirtschaft + umwelt",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1148,6 +1208,16 @@
                   },
                   "title": "ausland",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1279,6 +1349,16 @@
                   },
                   "title": "briefe",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1380,6 +1460,16 @@
                   },
                   "title": "meinung + diskussion",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1536,6 +1626,16 @@
                   },
                   "title": "taz zwei",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1715,6 +1815,16 @@
                   },
                   "title": "kultur",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -1879,6 +1989,16 @@
                   },
                   "title": "medien",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -2046,6 +2166,16 @@
                   },
                   "title": "bildung",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -2133,6 +2263,16 @@
                   },
                   "title": "leibesübungen",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -2278,6 +2418,16 @@
                   },
                   "title": "die wahrheit",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -2489,6 +2639,16 @@
                   },
                   "title": "berlin",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -2881,6 +3041,16 @@
                   },
                   "title": "nord",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -4559,6 +4729,16 @@
                   },
                   "title": "titel",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -4770,6 +4950,16 @@
                   },
                   "title": "der tag",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -4980,6 +5170,16 @@
                   },
                   "title": "das thema",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5089,6 +5289,16 @@
                   },
                   "title": "nahaufnahme",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5233,6 +5443,16 @@
                   },
                   "title": "inland",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5448,6 +5668,16 @@
                   },
                   "title": "wirtschaft + umwelt",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5630,6 +5860,16 @@
                   },
                   "title": "ausland",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5783,6 +6023,16 @@
                   },
                   "title": "meinung + diskussion",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -5939,6 +6189,16 @@
                   },
                   "title": "taz zwei",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -6171,6 +6431,16 @@
                   },
                   "title": "kultur",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -6405,6 +6675,16 @@
                   },
                   "title": "medien",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -6547,6 +6827,16 @@
                   },
                   "title": "leibesübungen",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -6663,6 +6953,16 @@
                   },
                   "title": "die wahrheit",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -6863,6 +7163,16 @@
                   },
                   "title": "berlin",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
@@ -7244,6 +7554,16 @@
                   },
                   "title": "nord",
                   "type": "articles",
+                  "navButton": {
+                    "resolution": "normal",
+                    "name": "navButton.taz.normal.png",
+                    "type": "button",
+                    "storageType": "resource",
+                    "moTime": "1564992869",
+                    "sha256": "c9efd6fc5ca392a9d417cff4990130e533fadb6ce4f81a9577c50e7252842d2a",
+                    "size": "6286",
+                    "alpha": 1
+                  },
                   "articleList": [
                     {
                       "articleHtml": {
