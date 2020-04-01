@@ -31,10 +31,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     val log by Log
 
     private val openDatePicker =  {
-        showBottomSheet(DatePickerFragment.create(getMainView()))
+        showBottomSheet(DatePickerFragment.create(this))
     }
 
-    private val coverFlowPagerAdapter = CoverflowAdapter(
+    val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
         openDatePicker
@@ -129,7 +129,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun skipToPosition(position: Int) {
+    fun skipToPosition(position: Int) = activity?.runOnUiThread {
         fragment_cover_flow_grid.apply {
             scrollToPosition(position)
             smoothScrollBy(1, 0)

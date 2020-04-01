@@ -75,7 +75,7 @@ abstract class HomePageAdapter(
         }
     }
 
-    private fun filterIssueStubs(): List<IssueStub> {
+    fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
 
         // do not show public issues if logged in
