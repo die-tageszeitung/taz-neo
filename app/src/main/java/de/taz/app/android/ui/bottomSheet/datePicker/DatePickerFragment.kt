@@ -76,8 +76,8 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
             val year = fragment_bottom_sheet_date_picker.year
             val monthShort = fragment_bottom_sheet_date_picker.month + 1
-            val month= if (monthShort > 10) monthShort.toString() else "0${monthShort}"
-            val day = if (dayShort > 10) dayShort.toString() else "0${dayShort}"
+            val month= if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
+            val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
             dismiss() //close bottomSheet
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
