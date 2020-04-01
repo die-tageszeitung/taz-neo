@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
@@ -16,15 +15,12 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
 class DatePickerFragment : BottomSheetDialogFragment() {
@@ -38,15 +34,15 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     private val dateHelper = DateHelper.getInstance()
 
     private var issueStub: IssueStub? = null
-    private var weakActivityReference: WeakReference<MainContract.View?>? = null
+    private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
     private var feed : Feed? = null
 
     companion object {
         fun create(
-            mainActivity: MainContract.View?
+            coverFlowFragment: CoverflowFragment?
         ): DatePickerFragment {
             val fragment = DatePickerFragment()
-            fragment.weakActivityReference = WeakReference(mainActivity)
+            fragment.coverFlowFragment = WeakReference(coverFlowFragment)
             return fragment
         }
     }
@@ -83,17 +79,9 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             dismiss() //close bottomSheet
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
-            //lifecycleScope.launch(Dispatchers.IO) {
+
             lifecycleScope.launch() {
-                //TODO use runBlocking for debugging; step through why is it not downloading anything from api?
-                runBlocking {
-                    setIssue("$year-$month-$day")
-                }
-                //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", "$year-$month-$day", status = IssueStatus.regular)
-                //issueStub?.let { issueStub ->
-                //    log.debug("will call showIssue for $issueStub")
-                //    weakActivityReference?.get()?.showIssue(issueStub)
-                //}
+                setIssue("$year-$month-$day")
             }
         }
     }
@@ -109,36 +97,12 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                 || authStatus == AuthStatus.tazIdNotLinked) {
                issueStatus = IssueStatus.regular
             }
-            //issueStub = issueRepository.getIssueStubByFeedAndDate("taz", date, issueStatus)
-            val issueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
-            log.debug("selected issueStub is: $issueStub")
-            if (issueStub != null) {
-                if (dateHelper.stringToDate(issueStub.date)!! >= dateHelper.stringToDateWithDelta(date, -2)) {
-                    weakActivityReference?.get()?.showIssue(issueStub)
-                }
-                else {
-                    ApiService.getInstance().getIssuesByFeedAndDate("taz", date).first().let { issue ->
-                        log.debug("bla")
-                        issueRepository.save(issue)
-                        weakActivityReference?.get()?.showIssue(IssueStub(issue))
-                    }
-                }
+            val selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+            log.debug("selected issueStub is: $selectedIssueStub")
+            coverFlowFragment?.get()?.let { coverFlowFragment ->
+                val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                coverFlowFragment.skipToPosition(issueStubPosition)
             }
-            else {
-                log.debug("entering else branch")
-                ApiService.getInstance().getIssuesByFeedAndDate("taz", date).first().let { issue ->
-                    log.debug("bla")
-                    issueRepository.save(issue)
-                    weakActivityReference?.get()?.showIssue(IssueStub(issue))
-                }
-            }
-
-            /*
-              TODO
-               - use proper status (regular if logged in; public if not)
-               - load next possible issue if issue for selected date does not exist (i.e. user selected a Sunday)
-               - bound datepicker to begin of taz-today
-             */
         }
     }
 }
