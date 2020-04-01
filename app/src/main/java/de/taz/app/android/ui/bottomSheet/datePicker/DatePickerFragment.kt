@@ -63,14 +63,15 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         log.debug("created a new date picker")
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
-        lifecycleScope.launch(Dispatchers.IO) {
-            feed = FeedRepository.getInstance().get("taz")
-            feed?.let {feed ->
-                log.debug("minDate is: ${feed.issueMinDate}")
-                fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
-            }
-        }
+        //Comment in for minDate and maxDate constraints. UX is somewhat whack..
+        //fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
+        //lifecycleScope.launch(Dispatchers.IO) {
+        //    feed = FeedRepository.getInstance().get("taz")
+        //    feed?.let { feed ->
+        //        log.debug("minDate is: ${feed.issueMinDate}")
+        //        fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
+        //    }
+        //}
 
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener {
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
