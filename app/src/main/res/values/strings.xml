@@ -193,4 +193,6 @@
     <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden. Bitte wenden Sie sich an den Support:</string>
     <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
 
+    <string name="button_close_text">×</string>
+
 </resources>

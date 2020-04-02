@@ -102,4 +102,8 @@
     <dimen name="icon_size">24dp</dimen>
     <dimen name="ic_circle_size">12dp</dimen>
 
+    <dimen name="ic_close_button_size">30dp</dimen>
+    <dimen name="ic_close_button_margin_end">20dp</dimen>
+    <dimen name="ic_close_button_margin_top">60dp</dimen>
+
 </resources>

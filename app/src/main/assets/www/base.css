@@ -7,7 +7,7 @@
 }
 @font-face {
      font-family: grotesk;
-     src: url(fonts/AktivGrotesk_W_Bd.woff) format("ttf");
+     src: url(fonts/AktivGrotesk_W_Bd.woff) format("woff");
      font-style: normal;
      font-weight: 600;
      font-stretch: normal;
@@ -34,7 +34,7 @@
 }
  .sub-title {
      font-family: grotesk;
-     font-weight: 400;
+     font-weight: 200;
      font-size: 18px;
      text-align: center;
      margin-top: 2%;
