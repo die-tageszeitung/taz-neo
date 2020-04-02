@@ -6,16 +6,23 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.migrations.Migration1to2
+import de.taz.app.android.persistence.migrations.*
 import de.taz.app.android.persistence.dao.*
 import de.taz.app.android.persistence.join.*
-import de.taz.app.android.persistence.migrations.Migration2to3
-import de.taz.app.android.persistence.migrations.Migration3to4
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 4
+const val DATABASE_VERSION = 7
 const val DATABASE_NAME = "db"
+
+val allMigrations = arrayOf(
+    Migration1to2,
+    Migration2to3,
+    Migration3to4,
+    Migration4to5,
+    Migration5to6,
+    Migration6to7
+)
 
 @Database(
     entities = [
@@ -27,6 +34,7 @@ const val DATABASE_NAME = "db"
         DownloadStub::class,
         Feed::class,
         FileEntry::class,
+        Image::class,
         IssueStub::class,
         IssueImprintJoin::class,
         IssueMomentJoin::class,
@@ -37,7 +45,8 @@ const val DATABASE_NAME = "db"
         ResourceInfoFileEntryJoin::class,
         SectionStub::class,
         SectionArticleJoin::class,
-        SectionImageJoin::class
+        SectionImageJoin::class,
+        SectionNavButtonJoin::class
     ],
     version = DATABASE_VERSION
 )
@@ -48,6 +57,8 @@ const val DATABASE_NAME = "db"
     CycleTypeConverter::class,
     DownloadStatusTypeConverter::class,
     FrameListTypeConverter::class,
+    ImageResolutionTypeConverter::class,
+    ImageTypeTypeConverter::class,
     IssueStatusTypeConverter::class,
     IssueDateDownloadTypeConverter::class,
     PageTypeTypeConverter::class,
@@ -63,11 +74,7 @@ abstract class AppDatabase : RoomDatabase() {
             applicationContext,
             AppDatabase::class.java, DATABASE_NAME
         )
-            .addMigrations(
-                Migration1to2,
-                Migration2to3,
-                Migration3to4
-            )
+            .addMigrations(*allMigrations)
             .fallbackToDestructiveMigration()
             .build()
     })
@@ -80,6 +87,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun downloadDao(): DownloadDao
     abstract fun feedDao(): FeedDao
     abstract fun fileEntryDao(): FileEntryDao
+    abstract fun imageDao(): ImageDao
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issueMomentJoinDao(): IssueMomentJoinDao
@@ -91,5 +99,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
+    abstract fun sectionNavButtonJoinDao():SectionNavButtonJoinDao
 
 }

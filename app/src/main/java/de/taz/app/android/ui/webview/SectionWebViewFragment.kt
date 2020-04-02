@@ -1,66 +1,54 @@
 package de.taz.app.android.ui.webview
 
-import android.os.Bundle
-import android.view.View
+import android.graphics.Typeface
+import android.view.MenuItem
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Section
-import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webview_section),
-    BackFragment {
+class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
-    var section: Section? = null
     private val dateHelper: DateHelper = DateHelper.getInstance()
-
-    override val presenter = SectionWebViewPresenter()
+    override val viewModel = WebViewViewModel<SectionStub>()
+    override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
     companion object {
-        fun createInstance(section: Section): WebViewFragment<Section> {
+        fun createInstance(section: SectionStub): SectionWebViewFragment {
             val fragment = SectionWebViewFragment()
-            fragment.section = section
+            fragment.displayable = section
             return fragment
         }
     }
 
-    override fun getWebViewDisplayable(): Section? {
-        return section
-    }
+    override fun setHeader(displayable: SectionStub) {
+        activity?.apply {
 
-    override fun setWebViewDisplayable(displayable: Section?) {
-        section = displayable
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        section?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                section?.let { section ->
-                    setHeader(section, section.issueStub)
+                val issueOperations = displayable.getIssueOperations()
+                issueOperations.apply {
+                    if(isWeekend) {
+                        FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
+                            val typeface = Typeface.createFromFile(it)
+                            withContext(Dispatchers.Main) {
+                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                            }
+                        }
+                    }
                 }
             }
-        }
 
-    }
-
-    override fun share(url: String, title: String?, image: FileEntry?) {
-
-    }
-
-    private fun setHeader(section: Section, issueStub: IssueStub) {
-        activity?.apply {
             runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {
-                    text = section.getHeaderTitle()
+                    text = displayable.getHeaderTitle()
                 }
-                dateHelper.dateToLowerCaseString(issueStub.date)?.let {
+                dateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
                     view?.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }
@@ -69,7 +57,14 @@ class SectionWebViewFragment : WebViewFragment<Section>(R.layout.fragment_webvie
         }
     }
 
-    override fun onBackPressed(): Boolean {
-        return false
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                showHome()
+            }
+            R.id.bottom_navigation_action_size -> {
+                showFontSettingBottomSheet()
+            }
+        }
     }
 }

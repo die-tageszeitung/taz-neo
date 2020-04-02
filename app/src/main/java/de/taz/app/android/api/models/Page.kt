@@ -21,8 +21,12 @@ data class Page (
         pageDto.frameList
     )
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         return listOf(pagePdf)
+    }
+
+    override fun getAllFileNames(): List<String> {
+        return listOf(pagePdf).map { it.name }.distinct()
     }
 }
 

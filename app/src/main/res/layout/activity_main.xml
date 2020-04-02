@@ -15,10 +15,8 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/main_content_fragment_placeholder"
-            android:name="de.taz.app.android.ui.home.HomeFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:tag="de.taz.app.android.ui.home.HomeFragment"
             tools:showIn="@layout/activity_main" />
 
         <TextView
@@ -48,9 +46,8 @@
 
         <ImageView
             android:id="@+id/drawer_logo"
-            android:layout_width="@dimen/drawer_logo_width"
-            android:layout_height="@dimen/drawer_logo_height"
-            android:background="@color/tazRed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:contentDescription="@string/navigation_drawer_open"
             android:elevation="10dp"

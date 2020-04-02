@@ -10,7 +10,7 @@ abstract class DownloadDao : BaseDao<DownloadStub>() {
     @Query("SELECT * FROM Download WHERE Download.fileName == :fileName LIMIT 1")
     abstract fun get(fileName: String): DownloadStub?
 
-    @Query("SELECT * FROM Download WHERE Download.fileName in(:fileNames)")
+    @Query("SELECT * FROM Download WHERE Download.fileName in (:fileNames)")
     abstract fun get(fileNames: List<String>): List<DownloadStub?>
 
     @Query("SELECT * FROM Download WHERE Download.fileName == :fileName LIMIT 1")

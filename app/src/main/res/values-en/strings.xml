@@ -1,0 +1,195 @@
+<resources>
+    <string name="app_name">taz neo</string>
+    <string name="accept_button">accept</string>
+
+    <string name="notification_channel_new_version">New version</string>
+    <string name="notification_channel_new_version_description">Notification if a new version exists</string>
+
+    <string name="notification_new_version_title">A new version is available</string>
+    <string name="notification_new_version_body">Click here to download it</string>
+
+    <string name="notification_channel_fcm">Breaking news</string>
+    <string name="notification_channel_fcm_description">Breaking news like election results</string>
+
+    <string name="toast_no_internet">No Internet Connection.</string>
+    <string name="toast_no_email_client">No configured e-mail client found.</string>
+
+    <string name="toast_login_elapsed">Account no longer valid.</string>
+    <string name="toast_login_failed">Login failed.</string>
+    <string name="toast_login_failed_retry">Login failed. Please try again.</string>
+    <string name="toast_login_successful">Login succeeded.</string>
+    <string name="toast_login_with_email">Please login with your email-address.</string>
+    <string name="toast_error_report_sent">Error report sent.</string>
+
+    <string name="toast_unknown_error">Unknown error occurred.</string>
+    <string name="toast_logout_elapsed">Your subscription has expired.</string>
+    <string name="toast_logout_invalid">Your subscription is no longer valid.</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="something_went_wrong_try_later">Something went wrong - please try again later</string>
+
+    <string name="navigation_drawer_icon_content">Content</string>
+    <string name="navigation_drawer_icon_home">Home</string>
+    <string name="navigation_drawer_icon_bookmarks">Bookmarks</string>
+    <string name="navigation_drawer_icon_help">Help</string>
+
+    <string name="bottom_navigation_action_bookmark">add to bookmarks</string>
+    <string name="bottom_navigation_action_help">show help</string>
+    <string name="bottom_navigation_action_home">go to home</string>
+    <string name="bottom_navigation_action_mp3">stream mp3</string>
+    <string name="bottom_navigation_action_share">share</string>
+    <string name="bottom_navigation_action_search">search</string>
+    <string name="bottom_navigation_action_size">change font size</string>
+
+    <string name="fragment_default_header_title">die tageszeitung</string>
+    <string name="fragment_header_article">%1$d/%2$d</string>
+
+    <string name="fragment_article_read_onreadon">Please log in to read on.</string>
+
+    <string name="trial_subscription_title">Do you want to test the digital taz for 14 days?</string>
+    <string name="register_button">Register</string>
+
+    <string name="archive">Archive</string>
+    <string name="feeds">Feeds</string>
+    <string name="imprint">Imprint</string>
+    <string name="settings">Settings</string>
+
+    <string name="fragment_archive_navigation_end_item_image_active">active</string>
+    <string name="fragment_archive_navigation_end_item_image_inactive">inactive</string>
+
+    <string name="fragment_bookmarks_title">Bookmarks</string>
+    <string name="fragment_bookmarks_delete">delete</string>
+    <string name="fragment_bookmarks_share">share</string>
+
+    <string name="fragment_bottom_sheet_text_size_decrease">decrease text size</string>
+    <string name="fragment_bottom_sheet_text_size_increase">increase text size</string>
+    <string name="fragment_bottom_sheet_text_night_mode">Night mode</string>
+    <string name="fragment_bottom_sheet_text_size_settings">Settings</string>
+
+    <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">My bookmarks</string>
+    <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
+    <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
+
+    <string name="fragment_bottom_sheet_issue_read">read this issue</string>
+    <string name="fragment_bottom_sheet_issue_share">share cover</string>
+    <string name="fragment_bottom_sheet_issue_delete">delete issue</string>
+
+    <string name="fragment_cover_flow_to_archive">To archive</string>
+
+    <string name="settings_header">settings</string>
+    <string name="settings_category_general">general</string>
+    <string name="settings_category_text">text</string>
+    <string name="settings_category_account">account</string>
+    <string name="settings_text_font_size">Font size</string>
+    <string name="settings_text_night_mode">Night mode</string>
+    <string name="settings_text_epaper">Always read as ePaper</string>
+    <string name="settings_text_tap_on_edge">Enable tap on the edge</string>
+    <string name="settings_account_abo_id">Subscription ID</string>
+    <string name="settings_account_password">Password</string>
+    <string name="settings_account_status">Status</string>
+    <string name="settings_account_status_subscriber">Subscriber</string>
+    <string name="settings_account_manage_account">manage account</string>
+    <string name="settings_account_logout">Logout</string>
+    <string name="settings_decrease_font_size">Decrease font size</string>
+    <string name="settings_increase_font_size">Increase font size</string>
+    <string name="settings_general_keep_number_issues">Keep last %s issues</string>
+    <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
+    <string name="settings_category_support">support</string>
+    <string name="settings_support_report_bug">Report a bug</string>
+    <string name="settings_download_issue">Download issue</string>
+
+    <string name="fragment_error_report_title">Report a bug</string>
+    <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>
+    <string name="fragment_error_report_email_title">Your email address</string>
+    <string name="fragment_error_report_message_title">Your message</string>
+    <string name="fragment_error_report_message_hint">Describe here the problem you have encountered.</string>
+    <string name="fragment_error_report_last_action_title">Last action</string>
+    <string name="fragment_error_report_last_action_hint">What was the last thing you did when the problem occurred?</string>
+    <string name="fragment_error_report_conditions_title">Conditions</string>
+    <string name="fragment_error_report_conditions_hint">Describe here external conditions such as: was wifi on? firewall? were you using a proxy?</string>
+    <string name="fragment_error_report_send_button">Send</string>
+
+    <string name="percentage">%d%%</string>
+
+    <string name="fragment_login_title">Login</string>
+    <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
+
+    <string name="login_error_unknown_credentials">Login failed</string>
+
+    <string name="login_subscription_hint">subscription</string>
+    <string name="login_subscription_error_invalid">Subscription ID is not valid.</string>
+    <string name="login_subscription_error_empty">Subscription ID needs to be provided.</string>
+
+    <string name="login_email_hint">email</string>
+    <string name="login_email_error_empty">Email can\'t be empty.</string>
+    <string name="login_email_error_no_email">Must be an email address</string>
+
+    <string name="login_first_name_hint">first name</string>
+    <string name="login_first_name_error_empty">Please enter your first name</string>
+
+    <string name="login_surname_hint">surname</string>
+    <string name="login_surname_error_empty">Please enter your surname</string>
+
+    <string name="login_username_hint">subscription ID</string>
+
+    <string name="login_password_confirmation_hint">confirm password</string>
+    <string name="login_username_error_empty">Username can\'t be empty.</string>
+    <string name="login_username_error_wrong_format">Please use your tazId or subscription id.</string>
+
+    <string name="login_password_hint">password</string>
+    <string name="login_password_error_empty">Password can\'t be empty</string>
+    <string name="login_password_confirmation_error_match">Passwords do not match</string>
+
+    <string name="login_button">Login</string>
+
+    <string name="fragment_login_subscription_inactive_header">Your subscription is currently inactive (e.g. because it expired).</string>
+    <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
+    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_missing_credentials_header">To use the new app you need to login with your email and a self-elected password.</string>
+    <string name="fragment_login_missing_credentials_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
+    <string name="login_forgot_password">Did you forget your password?</string>
+    <string name="login_forgot_password_button">Click here</string>
+    <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
+    <string name="fragment_login_missing_credentials_login">Login</string>
+
+    <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
+    <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
+    <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
+    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
+    <string name="fragment_login_forgot_password_send">Send and request link</string>
+    <string name="login_forgot_password_error_invalid_id">Invalid subscription ID</string>
+
+    <string name="fragment_login_forgot_password_email_sent_header">The email has been sent. Please check your inbox. If you can not find it please check the spam folder as well.</string>
+    <string name="fragment_login_forgot_password_email_sent_back">Back to login/registration</string>
+
+    <string name="fragment_login_success_login_header">Login successful. </string>
+    <string name="fragment_login_success_login_back_article">Back to the article</string>
+    <string name="fragment_login_success_login_back_settings">Back to the settings</string>
+
+    <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
+    <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
+    <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string>
+
+    <string name="fragment_login_request_test_subscription_header">You can try the digital taz for 14 days:</string>
+    <string name="fragment_login_request_test_subscription_existing_account">If you already have an taz.de account (to comment on articles or use the archive) with email address and password please enter them here</string>>
+    <string name="fragment_login_request_test_subscription_terms_and_conditions">I accept the terms and conditions, as well as the information on revocation and privacy.</string>
+
+    <string name="fragment_login_confirm_email_header">Thanks for your registration! We sent you an email. Please open it and confirm your address. As soon as it has been confirmed you will be able to use the new taz app.</string>
+
+    <string name="fragment_login_registration_successful_header">Thank you for your registration. Enjoy the new digital taz!</string>
+
+    <string name="fragment_login_subscription_taken_header">Your subscription is already connected to another account.</string>
+    <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
+    <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
+    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
+
+    <string name="fragment_login_forgot_password_no_mail_body">We were not able to send you an email. Please write to our support:</string>
+    <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
+
+</resources>

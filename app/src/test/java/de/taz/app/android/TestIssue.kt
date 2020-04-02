@@ -4,6 +4,18 @@ import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.*
 
+val testImage = Image(
+    "imageName",
+    StorageType.resource,
+    1869L,
+    "goldman",
+    1940L,
+    "Ⓐ",
+    ImageType.picture,
+    alpha = 1f,
+    resolution = ImageResolution.high
+)
+
 val testFileEntry = FileEntry(
     "fileName",
     StorageType.issue,
@@ -26,6 +38,7 @@ val testSection = Section(
     "1313-12-13",
     "a section",
     SectionType.articles,
+    testImage,
     emptyList(),
     emptyList()
 )
@@ -40,6 +53,7 @@ val testIssue = Issue(
     minResourceVersion = 23,
     imprint = null,
     sectionList = listOf(testSection),
+    isWeekend = false,
     pageList = emptyList()
 )
 val testIssues = listOf(testIssue)
@@ -50,7 +64,8 @@ val testIssueStub = IssueStub(
     key = "key",
     baseUrl = "https://example.com",
     status = IssueStatus.regular,
-    minResourceVersion = 1312
+    minResourceVersion = 1312,
+    isWeekend = false
 )
 
 val testArticle = Article(

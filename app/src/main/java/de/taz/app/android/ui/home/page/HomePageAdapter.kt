@@ -167,6 +167,5 @@ abstract class HomePageAdapter(
                 }
             }
         }
-
     }
 }

@@ -29,6 +29,10 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <include
+        layout="@layout/include_loading_screen"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/web_view_wrapper"
         android:layout_width="match_parent"
@@ -42,14 +46,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:overScrollMode="never"
-            android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintTop_toTopOf="parent" />
-
-
     </androidx.core.widget.NestedScrollView>
-
-    <include layout="@layout/include_loading_screen" />
 
     <LinearLayout
         android:layout_width="match_parent"

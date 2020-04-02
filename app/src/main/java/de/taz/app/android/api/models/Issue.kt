@@ -18,8 +18,9 @@ data class Issue(
     val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
-    val minResourceVersion: Int,
+    override val minResourceVersion: Int,
     val imprint: Article?,
+    override val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val dateDownload: Date? = null
@@ -34,19 +35,20 @@ data class Issue(
         issueDto.status,
         issueDto.minResourceVersion,
         issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
+        issueDto.isWeekend,
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
     )
 
-    override fun getAllFiles(): List<FileEntry> {
-        val files = mutableListOf(moment.getAllFiles())
+    override fun getAllFileNames(): List<String> {
+        val files = mutableListOf(moment.getAllFileNames())
         imprint?.let {
-            files.add(imprint.getAllFiles())
+            files.add(imprint.getAllFileNames())
         }
         sectionList.forEach { section ->
-            files.add(section.getAllFiles())
+            files.add(section.getAllFileNames())
             getArticleList().forEach { article ->
-                files.add(article.getAllFiles())
+                files.add(article.getAllFileNames())
             }
         }
         return files.flatten().distinct()
@@ -82,7 +84,7 @@ data class Issue(
         return articleList
     }
 
-    override fun deleteFiles() {
+    override suspend fun deleteFiles() {
         super.deleteFiles()
         IssueRepository.getInstance().resetDownloadDate(this)
     }
@@ -103,6 +105,3 @@ enum class IssueStatus {
     public
 }
 
-enum class ArticleType {
-    STANDARD, IMPRINT;
-}

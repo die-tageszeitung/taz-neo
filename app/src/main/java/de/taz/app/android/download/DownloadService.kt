@@ -7,13 +7,11 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.persistence.repository.AppInfoRepository
-import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
@@ -27,7 +25,7 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 const val CAUSE_NO_INTERNET = "no internet"
 
 @Mockable
-class DownloadService private constructor(val applicationContext: Context){
+class DownloadService private constructor(val applicationContext: Context) {
 
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
@@ -36,6 +34,7 @@ class DownloadService private constructor(val applicationContext: Context){
     private val apiService = ApiService.getInstance(applicationContext)
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val downloadRepository = DownloadRepository.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     private val downloadJobs = Collections.synchronizedList(mutableListOf<Job>())
@@ -45,7 +44,11 @@ class DownloadService private constructor(val applicationContext: Context){
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    fun download(cacheableDownload: CacheableDownload) {
+    suspend fun download(cacheableDownload: CacheableDownload) {
+
+        if (appInfoRepository.get() == null) {
+            AppInfo.update()
+        }
 
         var downloadId: String? = null
         val start: Long = System.currentTimeMillis()
@@ -155,7 +158,7 @@ class DownloadService private constructor(val applicationContext: Context){
     ): List<Download> {
         val downloads = mutableListOf<Download>()
 
-        val allFiles = cacheableDownload.getAllFiles()
+        val allFiles = fileEntryRepository.get(cacheableDownload.getAllFileNames())
         val tag = cacheableDownload.getDownloadTag()
 
         val globalFiles = allFiles.filter { it.storageType == StorageType.global }

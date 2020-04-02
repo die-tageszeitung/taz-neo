@@ -78,24 +78,31 @@
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:textSize" tools:ignore="SpUsage">25dp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">32dp</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColorAccent</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>

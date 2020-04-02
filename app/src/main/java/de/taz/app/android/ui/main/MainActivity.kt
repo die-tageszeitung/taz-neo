@@ -6,11 +6,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
-import android.os.Build
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
+import android.widget.ImageView
 import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
@@ -18,37 +19,31 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.api.models.Section
-import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
-import de.taz.app.android.ui.webview.pager.SectionPagerContract
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.Log
-import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -113,6 +108,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
             setThemeAndReCreate(tazApiCssPreferences, false)
         }
+
         super.onCreate(savedInstanceState)
 
         presenter.attach(this)
@@ -125,7 +121,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         presenter.onViewCreated(savedInstanceState)
-
         lockEndNavigationView()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -147,6 +142,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 }
             }
         })
+
+        if (savedInstanceState == null) {
+            showHome()
+        }
     }
 
     override fun onResume() {
@@ -175,38 +174,52 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun showInWebView(issueStub: IssueStub) {
+        runOnUiThread {
+            val fragment = SectionPagerFragment.createInstance(issueStub)
+            showMainFragment(fragment, showFromBackStack = false)
+        }
+    }
+
     override fun showInWebView(
-        webViewDisplayable: WebViewDisplayable,
+        webViewDisplayableKey: String,
         enterAnimation: Int,
         exitAnimation: Int,
         bookmarksArticle: Boolean
     ) {
-        when (webViewDisplayable) {
-            is Article -> showArticle(
-                webViewDisplayable,
+        if (webViewDisplayableKey.startsWith("art")) {
+            showArticle(
+                webViewDisplayableKey,
                 enterAnimation,
                 exitAnimation,
                 bookmarksArticle
             )
-            is Section -> showSection(webViewDisplayable, enterAnimation, exitAnimation)
+        } else {
+            showSection(webViewDisplayableKey, enterAnimation, exitAnimation)
         }
     }
 
     private fun showArticle(
-        article: Article,
+        articleName: String,
         enterAnimation: Int = 0,
         exitAnimation: Int = 0,
         bookmarksArticle: Boolean = false
     ) {
-        val fragment = ArticlePagerFragment.createInstance(article, bookmarksArticle)
-        showMainFragment(fragment, enterAnimation, exitAnimation)
+        runOnUiThread {
+            if (bookmarksArticle || !tryShowExistingArticle(articleName)) {
+                val fragment = ArticlePagerFragment.createInstance(
+                    articleName, showBookmarks = bookmarksArticle
+                )
+                showMainFragment(fragment, enterAnimation, exitAnimation, false)
+            }
+        }
     }
 
-    private fun showSection(section: Section, enterAnimation: Int, exitAnimation: Int) {
+    private fun showSection(sectionFileName: String, enterAnimation: Int, exitAnimation: Int) {
         runOnUiThread {
-            if (!tryShowExistingSection(section)) {
-                val fragment = SectionPagerFragment.createInstance(section)
-                showMainFragment(fragment, enterAnimation, exitAnimation)
+            if (!tryShowExistingSection(sectionFileName)) {
+                val fragment = SectionPagerFragment.createInstance(sectionFileName)
+                showMainFragment(fragment, enterAnimation, exitAnimation, false)
             }
         }
     }
@@ -216,11 +229,23 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     @MainThread
-    private fun tryShowExistingSection(section: Section): Boolean {
-        val currentFragment =
+    private fun tryShowExistingSection(sectionFileName: String): Boolean {
+        supportFragmentManager.popBackStackImmediate(SectionPagerFragment::class.java.name, 0)
+        val sectionPagerFragment =
             supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
-        if (currentFragment is SectionPagerContract.View) {
-            return currentFragment.tryLoadSection(section)
+        if (sectionPagerFragment is SectionPagerFragment) {
+            return sectionPagerFragment.tryLoadSection(sectionFileName)
+        }
+        return false
+    }
+
+    @MainThread
+    private fun tryShowExistingArticle(articleFileName: String): Boolean {
+        supportFragmentManager.popBackStackImmediate(ArticlePagerFragment::class.java.name, 0)
+        val articlePagerFragment =
+            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
+        if (articlePagerFragment is ArticlePagerFragment) {
+            return articlePagerFragment.tryLoadArticle(articleFileName)
         }
         return false
     }
@@ -228,17 +253,23 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showMainFragment(
         fragment: Fragment,
         @AnimRes enterAnimation: Int,
-        @AnimRes exitAnimation: Int
+        @AnimRes exitAnimation: Int,
+        showFromBackStack: Boolean
     ) {
         runOnUiThread {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(enterAnimation, exitAnimation)
-                .replace(
-                    R.id.main_content_fragment_placeholder, fragment
+            val fragmentClassName = fragment::class.java.name
+
+            if (!showFromBackStack || !supportFragmentManager.popBackStackImmediate(
+                    fragmentClassName,
+                    0
                 )
-                .addToBackStack(fragment::javaClass.name)
-                .commit()
+            ) {
+                supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.main_content_fragment_placeholder, fragment)
+                    addToBackStack(fragmentClassName)
+                    commit()
+                }
+            }
         }
     }
 
@@ -263,25 +294,21 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     /**
-     * Workaround for AppCompat 1.1.0 and WebView on API 21 - 25
-     * See: https://issuetracker.google.com/issues/141132133
-     * TODO: try to remove when updating appcompat
-     */
-    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
-        if (Build.VERSION.SDK_INT in 21..25 && (resources.configuration.uiMode == applicationContext.resources.configuration.uiMode)) {
-            return
-        }
-        super.applyOverrideConfiguration(overrideConfiguration)
-    }
-
-    /**
      * if currently shown fragment implements onBackPressed and returns true it has handled the
      * back button
      */
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
-        if (count > 0) {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)
+            || drawer_layout.isDrawerOpen(GravityCompat.END)
+        ) {
+            closeDrawer()
+            return
+        }
+
+
+        if (count > 1) {
             supportFragmentManager
                 .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
                     if (it is BackFragment && it.onBackPressed()) {
@@ -291,15 +318,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     }
                 }
         } else {
-            super.onBackPressed()
+            finish()
         }
     }
 
     override fun showHome() {
-        supportFragmentManager.popBackStack(
-            HomeFragment::javaClass.name,
-            POP_BACK_STACK_INCLUSIVE
-        )
+        showMainFragment(HomeFragment(), showFromBackStack = true)
     }
 
     override fun showToast(stringId: Int) {
@@ -320,6 +344,49 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private var navButton: Image? = null
+    private var defaultNavButton: Image? = null
+    override fun setDrawerNavButton(navButton: Image?) {
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            if (defaultNavButton == null) {
+                //  get defaultNavButton
+                defaultNavButton = ImageRepository.getInstance().get(DEFAULT_NAV_DRAWER_FILE_NAME)
+            }
+
+            val image = navButton ?: defaultNavButton
+            image?.let {
+                // if image exists wait for it to be downloaded and show it
+                val isDownloadedLiveData = image.isDownloadedLiveData()
+                withContext(Dispatchers.Main) {
+                    isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
+                        if (isDownloaded) {
+                            showNavButton(image)
+                        }
+                    }
+                }
+            } ?: run {
+                // if the image does not exist update ResourceInfo and try to show again
+                ResourceInfo.update()
+                setDrawerNavButton(image)
+            }
+        }
+    }
+
+    private fun showNavButton(navButton: Image) {
+        if (this.navButton != navButton) {
+            this.navButton = navButton
+            runOnUiThread {
+                val file = FileHelper.getInstance().getFile(navButton)
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                findViewById<ImageView>(R.id.drawer_logo)?.apply {
+                    setImageBitmap(bitmap)
+                    imageAlpha = (navButton.alpha * 255).toInt()
+                }
+            }
+        }
+    }
+
     override fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = getSystemService(
             Activity.INPUT_METHOD_SERVICE
@@ -336,13 +403,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                ArticleRepository.getInstance(
-                                    applicationContext
-                                ).get(articleName)?.let { article ->
-                                    showArticle(article)
-                                }
-                            }
+                            showHome()
+                            showArticle(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -352,5 +414,4 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
     }
-
 }
