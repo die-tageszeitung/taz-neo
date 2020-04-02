@@ -1,0 +1,84 @@
+ p {
+     font-family: grotesk;
+
+}
+ .pocket-title {
+     font-family: Knile;
+     font-weight : 600;
+     font-style	: normal;
+     font-stretch : normal;
+     font-size: 36px;
+     line-height: 1.2;
+     text-align: center;
+     color: white;
+     margin-bottom: 100px;
+}
+ .title {
+     font-family : Knile;
+     font-weight	: 600;
+     font-style	: normal;
+     font-stretch	: normal;
+     font-size : 30px;
+     letter-spacing : -0.05rem;
+     color : #D50D2E;
+     text-align : center;
+     margin-bottom: 10px;
+}
+ .sub-title {
+     font-family: grotesk;
+     font-style	: normal;
+     font-stretch	: normal;
+     font-size: 18px;
+     text-align: center;
+     margin-bottom: 2%;
+}
+ .div-in-carousel-item {
+     padding:70px 0;
+     height: 100vh;
+     margin: 0 22px;
+     display:flex;
+     flex-direction: column;
+     justify-content:center;
+     align-items:center;
+}
+ .three-vertical-images {
+     margin-left: auto;
+     margin-right: auto;
+     display: block;
+     margin-bottom: 10%;
+}
+ .rotate90 {
+     -webkit-transform: rotate(-90deg);
+     -moz-transform: rotate(-90deg);
+     -o-transform: rotate(-90deg);
+     -ms-transform: rotate(-90deg);
+     transform: rotate(-90deg);
+}
+ .page-x-of-y {
+     position: fixed;
+     left: 50%;
+     bottom: 20pt;
+     transform: translate( -50%, -50%);
+}
+ .carousel-indicators .active {
+     height: 7pt;
+     width: 7pt;
+     background-color: #000;
+     border-radius: 50%;
+     margin: 0 3pt;
+     display: inline-block;
+}
+ .carousel-indicators li {
+     height: 7pt;
+     width: 7pt;
+     background-color: #000;
+     border-radius: 50%;
+     margin: 0 3pt;
+     display: inline-block;
+     opacity: 0.25;
+}
+ .carousel-inner .carousel-item {
+     transition: -webkit-transform 0.5s ease;
+     transition: transform 0.5s ease;
+     transition: transform 0.5s ease, -webkit-transform 0.5s ease;
+}

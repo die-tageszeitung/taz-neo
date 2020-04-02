@@ -3,15 +3,14 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
-import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -39,8 +38,8 @@ class WelcomeActivity : AppCompatActivity() {
             webChromeClient = WebChromeClient()
 
             settings.javaScriptEnabled = true
-
-            loadUrl("file:///android_asset/www/welcome_slides.html")
+            val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
+            loadUrl("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
         }
     }
 
