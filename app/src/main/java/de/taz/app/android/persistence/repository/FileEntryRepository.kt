@@ -28,6 +28,10 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 
+    fun get(fileEntryNames: List<String>): List<FileEntry> {
+        return appDatabase.fileEntryDao().getByNames(fileEntryNames)
+    }
+
     @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryName: String): FileEntry {
         return get(fileEntryName) ?: throw NotFoundException()

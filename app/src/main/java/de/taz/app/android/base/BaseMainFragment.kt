@@ -182,4 +182,5 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
             }
         addBottomSheet.show(childFragmentManager, null)
     }
+
 }

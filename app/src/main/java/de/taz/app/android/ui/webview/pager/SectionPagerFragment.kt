@@ -3,163 +3,202 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.models.Section
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
-import de.taz.app.android.util.StableIdProvider
-import de.taz.app.android.util.StableIdViewModel
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-const val SECTION_POSITION = "position"
+const val ISSUE_DATE = "issueDate"
+const val ISSUE_FEED = "issueFeed"
+const val ISSUE_STATUS = "issueStatus"
+const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment :
-    BaseMainFragment<SectionPagerPresenter>(R.layout.fragment_webview_pager),
-    SectionPagerContract.View,
-    BackFragment {
+    ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
 
-    override val presenter = SectionPagerPresenter()
+    val viewModel = SectionPagerViewModel()
 
-    private var initialSection: Section? = null
-
-    private var stableIdProvider: StableIdViewModel? = null
     private var sectionAdapter: SectionPagerAdapter? = null
 
-    private var currentPosition: Int? = null
+    private var sectionKey: String? = null
+    private var issueFeedName: String? = null
+    private var issueDate: String? = null
+    private var issueStatus: IssueStatus? = null
 
     companion object {
-        fun createInstance(initialSection: Section): SectionPagerFragment {
-            // FIXME: think about using the Bundle with a  id and getting the data from the viewmodel directly
+        fun createInstance(sectionFileName: String): SectionPagerFragment {
             val fragment = SectionPagerFragment()
-            fragment.initialSection = initialSection
+            fragment.sectionKey = sectionFileName
+            return fragment
+        }
+
+        fun createInstance(issueStub: IssueStub): SectionPagerFragment {
+            val fragment = SectionPagerFragment()
+            fragment.issueFeedName = issueStub.feedName
+            fragment.issueDate = issueStub.date
+            fragment.issueStatus = issueStub.status
             return fragment
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.apply {
+            issueDate = getString(ISSUE_DATE)
+            issueFeedName = getString(ISSUE_FEED)
+            issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+            sectionKey = getString(SECTION_KEY)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Attach the presenter to this view and ensure its datamodel is created and bound to this fragments lifecycle
-        presenter.attach(this)
+        sectionKey?.let {
+            viewModel.sectionKey = it
+        }
+        runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
+            viewModel.apply {
+                issueFeedName = feedName
+                issueDate = date
+                issueStatus = status
+            }
+        }
 
-        // Ensure initial fragment states are copied to the model via the presenter
-        initialSection?.let { presenter.setInitialSection(it) }
-
-        // Initialize the presenter and let it call this fragment to render the pager
-        presenter.onViewCreated(savedInstanceState)
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
-        stableIdProvider = ViewModelProvider(this).get(StableIdViewModel::class.java).also {
-            sectionAdapter = SectionPagerAdapter(this, it)
+        sectionAdapter = sectionAdapter ?: SectionPagerAdapter(this)
+
+        viewModel.currentPositionLiveData.observeDistinct(this) {
+            if (webview_pager_viewpager.currentItem != it) {
+                webview_pager_viewpager.setCurrentItem(it, false)
+            }
         }
 
+        viewModel.sectionStubListLiveData.observeDistinct(this) { sectionStubList ->
+            runIfNotNull(
+                sectionStubList,
+                viewModel.currentPosition
+            ) { sectionStubs, currentPosition ->
+                setSections(sectionStubs, currentPosition)
+                loading_screen?.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onStart() {
         setupViewPager()
 
-        if (savedInstanceState?.containsKey(SECTION_POSITION) == true) {
-            currentPosition = savedInstanceState.getInt(SECTION_POSITION)
-        }
-
-        currentPosition?.let {
-            presenter.setCurrentPosition(it)
-            webview_pager_viewpager.currentItem = it
-        }
-    }
-
-    override fun onBackPressed(): Boolean {
-        getCurrentFragment()?.let {
-            if (it.onBackPressed()) return true
-        }
-        presenter.onBackPressed()
-        return true
-    }
-
-    private fun getCurrentFragment(): SectionWebViewFragment? {
-        return childFragmentManager.fragments.firstOrNull {
-            (it as? SectionWebViewFragment)?.let { fragment ->
-                return@firstOrNull fragment.section == sectionAdapter?.getCurrentSection()
+        viewModel.currentPosition?.let {
+            if (it != webview_pager_viewpager.currentItem) {
+                webview_pager_viewpager.setCurrentItem(it, false)
             }
-            return@firstOrNull false
-        } as? SectionWebViewFragment
+        }
+
+        super.onStart()
     }
 
-    override fun tryLoadSection(section: Section): Boolean {
-        return presenter.trySetSection(section)
+    fun tryLoadSection(sectionFileName: String): Boolean {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val sectionStubs =
+                SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionFileName)
+
+            withContext(Dispatchers.Main) {
+                webview_pager_viewpager.setCurrentItem(
+                    sectionStubs.indexOfFirst { it.key == sectionFileName }, false
+                )
+            }
+        }
+        return true
     }
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             adapter = sectionAdapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            offscreenPageLimit = 1
             registerOnPageChangeCallback(pageChangeListener)
+            offscreenPageLimit = 2
         }
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            this@SectionPagerFragment.presenter.setCurrentPosition(position)
+            viewModel.currentPosition = position
+            sectionAdapter?.getSectionStub(position)?.let {
+                lifecycleScope.launch {
+                    val navButton = it.getNavButton()
+                    showNavButton(navButton)
+                }
+            }
         }
     }
 
-    override fun setSections(sections: List<Section>, currentPosition: Int) {
+    private fun setSections(sections: List<SectionStub>, currentPosition: Int) {
         webview_pager_viewpager.apply {
             (adapter as SectionPagerAdapter?)?.submitList(sections)
             setCurrentItem(currentPosition, false)
         }
     }
 
-    override fun setCurrentPosition(position: Int) {
-        webview_pager_viewpager.setCurrentItem(position, false)
-    }
-
-    override fun persistPosition(position: Int) {
-        currentPosition = position
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        currentPosition?.let {
-            outState.putInt(SECTION_POSITION, it)
-        }
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onStop() {
         webview_pager_viewpager?.adapter = null
+        webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
+        super.onStop()
     }
 
     private inner class SectionPagerAdapter(
-        fragment: Fragment,
-        private val stableIdProvider: StableIdProvider
+        fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
-        private var sections = emptyList<Section>()
+
+        private var sectionStubs = emptyList<SectionStub>()
 
         override fun createFragment(position: Int): Fragment {
-            val section = sections[position]
+            val section = sectionStubs[position]
             return SectionWebViewFragment.createInstance(section)
         }
 
-        override fun getItemCount(): Int = sections.size
+        override fun getItemCount(): Int = sectionStubs.size
 
-        fun submitList(newSections: List<Section>) {
-            sections = newSections
-            notifyDataSetChanged()
+        fun submitList(newSections: List<SectionStub>) {
+            if (sectionStubs != newSections) {
+                sectionStubs = newSections
+                notifyDataSetChanged()
+            }
         }
 
-        override fun getItemId(position: Int): Long {
-            val filename = sections[position].sectionFileName
-            return stableIdProvider.getId(filename)
+        fun getSectionStub(position: Int): SectionStub {
+            return sectionStubs[position]
         }
+    }
 
-        fun getCurrentSection(): Section {
-            return sections[webview_pager_viewpager.currentItem]
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ISSUE_DATE, issueDate)
+        outState.putString(ISSUE_FEED, issueFeedName)
+        outState.putString(ISSUE_STATUS, issueStatus.toString())
+        outState.putString(SECTION_KEY, sectionKey)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onBackPressed(): Boolean {
+        (activity as? MainActivity)?.showHome()
+        return true
     }
 }

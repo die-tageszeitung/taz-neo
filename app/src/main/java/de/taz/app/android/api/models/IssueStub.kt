@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -17,13 +18,14 @@ data class IssueStub(
     val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
-    val minResourceVersion: Int,
+    override val minResourceVersion: Int,
+    @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
     override val dateDownload: Date? = null
 ): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
-        issue.minResourceVersion, issue.dateDownload
+        issue.minResourceVersion, issue.isWeekend, issue.dateDownload
     )
 
     suspend fun getIssue(): Issue {

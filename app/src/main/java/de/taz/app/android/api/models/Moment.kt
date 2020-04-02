@@ -13,9 +13,14 @@ data class Moment(
             ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
-    override fun getAllFiles(): List<FileEntry> {
-        return imageList.filter { it.name.contains(".normal.") }
+    override suspend fun getAllFiles(): List<FileEntry> {
+        return imageList.filter { it.name.contains(".normal.") }.distinct()
     }
+
+    override fun getAllFileNames(): List<String> {
+        return imageList.filter { it.name.contains(".normal.") }.map { it.name }.distinct()
+    }
+
 
     fun getIssueStub(): IssueStub {
         return IssueRepository.getInstance().getIssueStubForMoment(this)

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,7 +18,7 @@ interface CacheableDownload {
      * remove all downloaded files
      * metadata will be kepts
      */
-    fun deleteFiles() {
+    suspend fun deleteFiles() {
         getAllFiles().forEach { it.deleteFile() }
     }
 
@@ -41,11 +42,11 @@ interface CacheableDownload {
         return DownloadRepository.getInstance().isDownloadingOrDownloadedLiveData(getAllFileNames())
     }
 
-    fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }
+    fun getAllFileNames(): List<String>
+    suspend fun getAllFiles(): List<FileEntry> {
+        val fileEntryRepository = FileEntryRepository.getInstance()
+        return getAllFileNames().mapNotNull { fileEntryRepository.get(it) }
     }
-
-    fun getAllFiles(): List<FileEntry>
 
     // the download tag can be used to cancel downloads
     fun getDownloadTag(): String? = null

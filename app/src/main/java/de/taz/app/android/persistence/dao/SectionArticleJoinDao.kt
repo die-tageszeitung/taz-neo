@@ -126,6 +126,6 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             WHERE SectionArticleJoin.articleFileName == :articleFileName
         """
     )
-    abstract fun getIndexOfArticleInSection(articleFileName: String): Int?
+    abstract fun getIndexOfArticleInSection(articleFileName: String): Int
 
 }

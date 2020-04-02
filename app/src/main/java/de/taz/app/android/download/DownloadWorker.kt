@@ -5,9 +5,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -51,12 +51,12 @@ class DownloadWorker(
 
     /**
      * start download of given files/downloads
-     * @param fileEntries - [FileEntry]s to download
-     * @param fileNames - [FileEntry.name] of files to download
+     * @param fileEntries - [FileEntryOperations] to download
+     * @param fileNames - [FileEntryOperations.name] of files to download
      * @param downloads - [Download]s to download
      */
     suspend fun startDownloads(
-        fileEntries: List<FileEntry>? = null,
+        fileEntries: List<FileEntryOperations>? = null,
         fileNames: List<String>? = null,
         downloads: List<Download>? = null
     ) {
@@ -73,15 +73,19 @@ class DownloadWorker(
 
     /**
      * start download
-     * @param fileName - [FileEntry.name] of [FileEntry] to download
+     * @param fileName - [FileEntryOperations.name] of [FileEntryOperations] to download
      */
     suspend fun startDownload(fileName: String) {
 
         fileEntryRepository.get(fileName)?.let { fileEntry ->
-            downloadRepository.get(fileName)?.let { fromDB ->
+            downloadRepository.getStub(fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
-                if (fromDB.status !in arrayOf(DownloadStatus.done, DownloadStatus.started)) {
-                    log.debug("starting download of ${fromDB.file.name}")
+                if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
+                        DownloadStatus.done,
+                        DownloadStatus.started
+                    )
+                ) {
+                    log.debug("starting download of ${fromDB.fileName}")
 
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
@@ -103,16 +107,18 @@ class DownloadWorker(
                                 // check sha256
                                 val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
                                     .fold("", { str, it -> str + "%02x".format(it) })
-                                if (sha256 == fromDB.file.sha256) {
-                                    log.debug("sha256 matched for file ${fromDB.file.name}")
+                                if (sha256 == fileEntry.sha256) {
+                                    log.debug("sha256 matched for file ${fromDB.fileName}")
+                                    downloadRepository.saveLastSha256(fromDB, sha256)
                                     downloadRepository.setStatus(fromDB, DownloadStatus.done)
-                                    log.debug("finished download of ${fromDB.file.name}")
+                                    log.debug("finished download of ${fromDB.fileName}")
                                 } else {
-                                    log.warn("sha256 did NOT match the one of ${fromDB.file.name}")
+                                    // TODO how to reload this?!
+                                    log.warn("sha256 did NOT match the one of ${fromDB.fileName}")
                                     downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                                 }
                             } ?: run {
-                                log.debug("aborted download of ${fromDB.file.name} - file is empty")
+                                log.debug("aborted download of ${fromDB.fileName} - file is empty")
                                 downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                             }
                         } else {
@@ -121,19 +127,19 @@ class DownloadWorker(
                             Sentry.capture(response.message)
                         }
                     } catch (e: Exception) {
-                        log.warn("aborted download of ${fromDB.file.name} - ${e.localizedMessage}")
+                        log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                         Sentry.capture(e)
                     }
                 } else {
-                    log.debug("skipping download of ${fromDB.file.name} - already downloading/ed")
+                    log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
                 }
 
                 // cancel workmanager request if downloaded successfully
                 if (fromDB.status == DownloadStatus.done) {
                     fromDB.workerManagerId?.let {
                         workManager.cancelWorkById(it)
-                        log.info("canceling WorkerManagerRequest for ${fromDB.file.name}")
+                        log.info("canceling WorkerManagerRequest for ${fromDB.fileName}")
                     }
                     fromDB.workerManagerId = null
                     downloadRepository.update(fromDB)

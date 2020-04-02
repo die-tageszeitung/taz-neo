@@ -79,8 +79,8 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
         set(value) = isPollingLiveData.postValue(value)
 
     init {
-        authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
-            CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Main).launch {
+            authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
                     toastHelper.showToast(R.string.toast_logout_elapsed)
                 }
@@ -88,7 +88,9 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
                     toastHelper.showToast(R.string.toast_logout_invalid)
                 }
                 if (authStatus == AuthStatus.valid) {
-                    ApiService.getInstance(applicationContext).sendNotificationInfo()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ApiService.getInstance(applicationContext).sendNotificationInfo()
+                    }
                 }
             }
         }

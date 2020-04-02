@@ -13,10 +13,13 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
+import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
@@ -24,6 +27,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
@@ -56,7 +60,11 @@ class SplashActivity : AppCompatActivity() {
 
         ensurePushTokenSent()
 
-        startActivity(Intent(this, MainActivity::class.java))
+        if (isFirstTimeStart()) {
+            startActivity(Intent(this, MainActivity::class.java))
+        } else {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+        }
     }
 
     private fun generateInstallationId() {
@@ -73,6 +81,12 @@ class SplashActivity : AppCompatActivity() {
             ).apply()
             log.debug("initialized InstallationId: $uuid")
         }
+    }
+
+    private fun isFirstTimeStart(): Boolean {
+        val tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        return tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 
     private fun setupSentry() {
@@ -122,7 +136,7 @@ class SplashActivity : AppCompatActivity() {
         val feedRepository = FeedRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        runBlocking(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val feeds = apiService.getFeeds()
                 feedRepository.save(feeds)
@@ -135,31 +149,37 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun initLastIssues() {
+        runBlocking {
+            initIssues(1)
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            initIssues(10)
+        }
+    }
+
+    private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        runBlocking(Dispatchers.IO) {
-            try {
-                val issues = apiService.getLastIssues()
-                issueRepository.saveIfDoNotExist(issues)
-                log.debug("Initialized Issues")
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-                log.warn("Initializing Issues failed")
-            }
+        try {
+            val issues = apiService.getLastIssues(number)
+            issueRepository.saveIfDoNotExist(issues)
+            log.debug("Initialized Issues")
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            toastHelper.showNoConnectionToast()
+            log.warn("Initializing Issues failed")
         }
     }
+
 
     /**
      * download AppInfo and persist it
      */
     private fun initAppInfoAndCheckAndroidVersion() {
-        runBlocking(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                ApiService.getInstance(applicationContext).getAppInfo()?.let {
-                    AppInfoRepository.getInstance(applicationContext).save(it)
-                    log.info("Initialized AppInfo")
+                AppInfo.update()?.let {
                     if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                         NotificationHelper.getInstance().showNotification(
                             R.string.notification_new_version_title,
@@ -188,43 +208,10 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         val fileHelper = FileHelper.getInstance(applicationContext)
-        val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val fromServer = apiService.getResourceInfo()
-                val local = resourceInfoRepository.get()
-
-                fromServer?.let {
-                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                        resourceInfoRepository.save(fromServer)
-
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                // only delete modified files
-                                if (oldFileEntry != newFileEntry) {
-                                    oldFileEntry.deleteFile()
-                                }
-                            }
-                        }
-
-                        local?.let { resourceInfoRepository.delete(local) }
-
-                        // ensure resources are downloaded
-                        DownloadService.getInstance(applicationContext).apply {
-                            scheduleDownload(fromServer)
-                            download(fromServer)
-                        }
-                        local?.let { log.debug("Initialized ResourceInfo") }
-                            ?: log.debug("Updated ResourceInfo")
-                    }
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                log.warn("Initializing ResourceInfo failed")
-            }
+            ResourceInfo.update()
         }
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()
@@ -295,7 +282,8 @@ class SplashActivity : AppCompatActivity() {
             channelName,
             channeldDescription,
             getString(channelId),
-            importance)
+            importance
+        )
     }
 
     @TargetApi(26)

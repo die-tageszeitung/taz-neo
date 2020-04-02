@@ -63,6 +63,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         }
                     }
                 }
+                isWeekend
                 sectionList {
                     sectionHtml {
                         name
@@ -74,6 +75,16 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                     title
                     extendedTitle
                     type
+                    navButton {
+                        resolution
+                        name
+                        type
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        alpha
+                    }
                     articleList {
                         articleHtml {
                             name

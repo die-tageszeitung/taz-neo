@@ -1,46 +1,70 @@
 package de.taz.app.android.ui.bottomSheet.bookmarks
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import de.taz.app.android.R
-import de.taz.app.android.base.BaseFragment
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class BookmarkSheetFragment(private val articleFileName: String) :
-    BaseFragment<BookmarkSheetPresenter>(R.layout.fragment_bottom_sheet_bookmarks),
-    BookmarkSheetContract.View {
+class BookmarkSheetFragment : Fragment(R.layout.fragment_bottom_sheet_bookmarks) {
 
-    override val presenter = BookmarkSheetPresenter()
+    private val articleRepository = ArticleRepository.getInstance(activity?.applicationContext)
+
+    companion object {
+        fun create(articleFileName: String): BookmarkSheetFragment {
+            val fragment = BookmarkSheetFragment()
+            fragment.setArticleFileName(articleFileName)
+            return fragment
+        }
+    }
+
+    fun setArticleFileName(articleFileName: String) {
+        viewModel.articleFileName = articleFileName
+    }
+
+    val viewModel = BookmarkSheetViewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        presenter.attach(this)
-        presenter.onViewCreated(savedInstanceState)
-
         fragment_bottom_sheet_bookmarks_add?.setOnClickListener {
-            presenter.toggleBookmark()
+            toggleBookmark()
             (this.parentFragment as DialogFragment).dismiss()
         }
 
         fragment_bottom_sheet_bookmarks_my_bookmarks?.setOnClickListener {
-            presenter.openBookmarks()
+            (activity as? MainActivity)?.showMainFragment(BookmarksFragment())
+            (this.parentFragment as DialogFragment).dismiss()
+        }
+
+        viewModel.isBookmarkedLiveData.observeDistinct(this) { isBookmarked ->
+            fragment_bottom_sheet_bookmarks_add?.text = getText(
+                if (isBookmarked)
+                    R.string.fragment_bottom_sheet_bookmarks_remove_bookmark
+                else
+                    R.string.fragment_bottom_sheet_bookmarks_add_bookmark
+            )
         }
     }
 
-    override fun setIsBookmarked(bookmarked: Boolean) {
-        fragment_bottom_sheet_bookmarks_add?.text = getText(
-            if (bookmarked)
-                R.string.fragment_bottom_sheet_bookmarks_remove_bookmark
-            else
-                R.string.fragment_bottom_sheet_bookmarks_add_bookmark
-        )
-    }
-
-    override fun getArticleFileName(): String {
-        return articleFileName
+    private fun toggleBookmark() {
+        CoroutineScope(Dispatchers.IO).launch {
+            viewModel.articleStub?.let { articleStub: ArticleStub ->
+                if (articleStub.bookmarked) {
+                    articleRepository.debookmarkArticle(articleStub)
+                } else {
+                    articleRepository.bookmarkArticle(articleStub)
+                }
+            }
+        }
     }
 }

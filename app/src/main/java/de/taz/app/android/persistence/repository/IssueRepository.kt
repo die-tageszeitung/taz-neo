@@ -180,6 +180,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getAllDownloadedLiveData()
     }
 
+    fun getImprintStub(issueStub: IssueOperations) = getImprintStub(
+        issueStub.feedName,
+        issueStub.date,
+        issueStub.status
+    )
+
     fun getImprintStub(
         issueFeedName: String,
         issueDate: String,
@@ -259,6 +265,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.status,
             issueStub.minResourceVersion,
             imprint,
+            issueStub.isWeekend,
             sections,
             pageList,
             issueStub.dateDownload
