@@ -82,11 +82,11 @@
                 android:id="@+id/data_policy_fullscreen_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/data_privacy_accept_button"
+                android:layout_above="@id/data_policy_accept_button"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/data_privacy_accept_button"
+                android:id="@+id/data_policy_accept_button"
                 android:layout_width="240sp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"

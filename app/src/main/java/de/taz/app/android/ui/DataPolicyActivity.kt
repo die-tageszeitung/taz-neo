@@ -3,10 +3,14 @@ package de.taz.app.android.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.webkit.WebChromeClient
+import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
@@ -22,9 +26,8 @@ class DataPolicyActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_policy)
-        data_policy_fullscreen_content.loadUrl("file:///android_asset/www/data_policy_screen.html")
 
-        findViewById<Button>(R.id.data_privacy_accept_button)
+        findViewById<Button>(R.id.data_policy_accept_button)
             .setOnClickListener {
                 acceptDataPolicy()
                 if (isFirstTimeStart()) {
@@ -35,6 +38,14 @@ class DataPolicyActivity : AppCompatActivity() {
                     startActivity(Intent(this, MainActivity::class.java))
                 }
             }
+
+        data_policy_fullscreen_content.apply {
+            webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
+
+            val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
+            loadUrl("$fileDir/$RESOURCE_FOLDER/welcomeSlidesDataPolicy.html")
+        }
     }
 
     private fun acceptDataPolicy() {
