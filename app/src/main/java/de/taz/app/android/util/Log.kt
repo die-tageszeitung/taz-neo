@@ -19,7 +19,7 @@ class Log(private val tag: String) {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) =
             Log(requestBuilder::class.java.name)
 
-        var trace = mutableListOf<String>()
+        var trace: MutableList<String> = Collections.synchronizedList(mutableListOf<String>())
     }
 
     fun debug(message: String, throwable: Throwable? = null) {
