@@ -11,6 +11,7 @@
         android:layout_height="match_parent"/>
 
     <Button
+        android:id="@+id/button_close"
         android:layout_height="@dimen/ic_close_button_size"
         android:layout_width="@dimen/ic_close_button_size"
         android:layout_marginEnd="@dimen/ic_close_button_margin_end"

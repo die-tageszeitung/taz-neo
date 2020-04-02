@@ -28,29 +28,17 @@ class WelcomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
 
-        if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
-            WebView.setWebContentsDebuggingEnabled(true)
+        button_close.setOnClickListener {
+            log.debug("welcome screen close clicked")
+            setFirstTimeStart()
+            startActivity(Intent(applicationContext, MainActivity::class.java))
         }
 
         web_view_fullscreen_content.apply {
             webViewClient = WebViewClient()
             webChromeClient = WebChromeClient()
 
-            settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                useWideViewPort = true
-                loadWithOverviewMode = true
-            }
-
-            addJavascriptInterface(object : Any() {
-                @JavascriptInterface
-                fun performClick() {
-                    log.debug("welcome screen close clicked")
-                    setFirstTimeStart()
-                    startActivity(Intent(applicationContext, MainActivity::class.java))
-                }
-            }, "close")
+            settings.javaScriptEnabled = true
 
             loadUrl("file:///android_asset/www/welcome_slides.html")
         }
