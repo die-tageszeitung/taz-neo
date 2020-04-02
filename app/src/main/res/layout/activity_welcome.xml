@@ -10,4 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <Button
+        android:layout_height="@dimen/ic_close_button_size"
+        android:layout_width="@dimen/ic_close_button_size"
+        android:layout_marginEnd="@dimen/ic_close_button_margin_end"
+        android:layout_marginTop="@dimen/ic_close_button_margin_top"
+        android:background="@drawable/ic_circle"
+        android:backgroundTint="@color/white"
+        android:layout_gravity="end"
+        android:textColor="@color/lightGrey"
+        android:text="@string/button_close_text"
+        android:textSize="22sp"/>
 </FrameLayout>
