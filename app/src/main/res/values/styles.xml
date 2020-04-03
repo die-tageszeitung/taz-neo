@@ -82,6 +82,10 @@
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize" tools:ignore="SpUsage">25dp</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">25dp</item>
+        <item name="autoSizeMinTextSize">2dp</item>
+        <item name="autoSizeStepGranularity">0.1dp</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
