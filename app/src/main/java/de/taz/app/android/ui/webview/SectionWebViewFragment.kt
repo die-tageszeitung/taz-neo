@@ -59,15 +59,21 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                     }
                 }
 
-                // ensure the text is not shown below the logo
-                val point = Point()
-                windowManager.defaultDisplay.getSize(point)
-                view?.findViewById<TextView>(R.id.section)?.apply {
-                    val parentView = (parent as View)
-                    width = point.x - drawer_logo.width - parentView.marginLeft - parentView.marginRight - marginLeft - marginRight
+                resizeHeaderSectionTitle(drawer_logo)
+                drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                    resizeHeaderSectionTitle(v)
                 }
-
             }
+        }
+    }
+
+    private fun resizeHeaderSectionTitle(drawerLogo: View) {
+        // ensure the text is not shown below the logo
+        val point = Point()
+        activity?.windowManager?.defaultDisplay?.getSize(point)
+        view?.findViewById<TextView>(R.id.section)?.apply {
+            val parentView = (parent as View)
+            width = point.x - drawerLogo.width - parentView.marginLeft - parentView.marginRight - marginLeft - marginRight
         }
     }
 
