@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -32,7 +34,10 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
+import de.taz.app.android.singletons.TazApiCssHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -44,6 +49,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -379,12 +385,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             runOnUiThread {
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+                val scaledBitmap = Bitmap.createScaledBitmap(
+                    bitmap,
+                    pxToDp(bitmap.width),
+                    pxToDp(bitmap.height),
+                    false
+                )
+
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    setImageBitmap(bitmap)
+                    setImageBitmap(scaledBitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
                 }
             }
         }
+    }
+
+    private fun pxToDp(px: Int): Int {
+        return (px / (resources.displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
     }
 
     override fun hideKeyboard() {
