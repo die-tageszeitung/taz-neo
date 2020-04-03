@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -382,9 +384,23 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             runOnUiThread {
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                val scaledBitmap = Bitmap.createScaledBitmap(
+                    bitmap,
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        bitmap.width.toFloat(),
+                        resources.displayMetrics
+                    ).toInt()/3,
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        bitmap.height.toFloat(),
+                        resources.displayMetrics
+                    ).toInt()/3,
+                    false
+                )
 
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    setImageBitmap(bitmap)
+                    setImageBitmap(scaledBitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
                 }
             }
