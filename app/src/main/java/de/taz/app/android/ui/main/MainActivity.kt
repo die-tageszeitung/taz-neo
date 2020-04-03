@@ -386,15 +386,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
-                val scaledBitmap = Bitmap.createScaledBitmap(
-                    bitmap,
-                    pxToDp(bitmap.width),
-                    pxToDp(bitmap.height),
-                    false
-                )
-
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    setImageBitmap(scaledBitmap)
+                    setImageBitmap(bitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
                 }
             }
