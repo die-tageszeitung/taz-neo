@@ -4,7 +4,9 @@ import android.graphics.Point
 import android.graphics.Typeface
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.lifecycle.lifecycleScope
@@ -13,10 +15,11 @@ import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
-import kotlinx.android.synthetic.main.activity_main.*
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
@@ -40,9 +43,13 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                 issueOperations.apply {
                     if (isWeekend) {
                         FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
-                            val typeface = Typeface.createFromFile(it)
-                            withContext(Dispatchers.Main) {
-                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                            try {
+                                val typeface = Typeface.createFromFile(it)
+                                withContext(Dispatchers.Main) {
+                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                                }
+                            } catch (e: Exception) {
+                                Sentry.capture(e)
                             }
                         }
                     }
@@ -58,22 +65,43 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         text = it
                     }
                 }
-
-                resizeHeaderSectionTitle(drawer_logo)
-                drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-                    resizeHeaderSectionTitle(v)
-                }
             }
         }
     }
 
+    override fun onResume() {
+        activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
+            resizeHeaderSectionTitle(it)
+            it.addOnLayoutChangeListener(resizeDrawerLogoListener)
+        }
+        super.onResume()
+    }
+
+    override fun onPause() {
+        activity?.findViewById<ImageView>(R.id.drawer_logo)?.removeOnLayoutChangeListener(
+            resizeDrawerLogoListener
+        )
+        super.onPause()
+    }
+
+    private val resizeDrawerLogoListener =
+        View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            resizeHeaderSectionTitle(v)
+        }
+
     private fun resizeHeaderSectionTitle(drawerLogo: View) {
         // ensure the text is not shown below the logo
+        setMaxSizeDependingOnDrawerLogo(R.id.section, drawerLogo)
+        setMaxSizeDependingOnDrawerLogo(R.id.issue_date, drawerLogo)
+    }
+
+    private fun setMaxSizeDependingOnDrawerLogo(@IdRes viewId: Int, drawerLogo: View) {
         val point = Point()
         activity?.windowManager?.defaultDisplay?.getSize(point)
-        view?.findViewById<TextView>(R.id.section)?.apply {
+        view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width = point.x - drawerLogo.width - parentView.marginLeft - parentView.marginRight - marginLeft - marginRight
+            width =
+                point.x - drawerLogo.width - parentView.marginLeft - parentView.marginRight - marginLeft - marginRight
         }
     }
 
