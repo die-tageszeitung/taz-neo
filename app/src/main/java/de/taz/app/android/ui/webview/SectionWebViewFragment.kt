@@ -65,6 +65,9 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         text = it
                     }
                 }
+                activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
+                    resizeHeaderSectionTitle(it)
+                }
             }
         }
     }
