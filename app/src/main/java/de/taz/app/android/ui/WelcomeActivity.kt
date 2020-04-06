@@ -39,7 +39,14 @@ class WelcomeActivity : AppCompatActivity() {
 
             settings.javaScriptEnabled = true
             val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
-            loadUrl("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
+            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html");
+            if(file.exists()) {
+                loadUrl(file.path)
+            }
+            else {
+                log.debug("load from local www, because couldn't find on resources")
+                loadUrl("file:///android_asset/www/welcomeSlides.html")
+            }
         }
     }
 
