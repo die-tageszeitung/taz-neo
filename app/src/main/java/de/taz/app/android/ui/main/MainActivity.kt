@@ -382,20 +382,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (this.navButton != navButton) {
             this.navButton = navButton
             runOnUiThread {
+                // the scalingFactor is used to scale the image as using 100dp instead of 100px
+                // would be too big - the value is taken from experience rather than science
+                val scalingFactor = 1f/3f
+
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
-                    TypedValue.applyDimension(
+                    (TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         bitmap.width.toFloat(),
                         resources.displayMetrics
-                    ).toInt()/3,
-                    TypedValue.applyDimension(
+                    )* scalingFactor).toInt(),
+                    (TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         bitmap.height.toFloat(),
                         resources.displayMetrics
-                    ).toInt()/3,
+                    )* scalingFactor).toInt(),
                     false
                 )
 
