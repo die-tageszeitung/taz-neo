@@ -40,6 +40,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,6 +111,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         super.onCreate(savedInstanceState)
+
+        // test to ensure sentry is working as expected
+        // TODO remove in next release
+        Sentry.capture("BOOOOM")
 
         presenter.attach(this)
         setContentView(R.layout.activity_main)
