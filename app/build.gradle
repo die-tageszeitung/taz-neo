@@ -216,7 +216,19 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.1.3'
+    googleImplementation 'com.google.firebase:firebase-messaging:20.1.5'
+}
+
+sentry {
+    // Disables or enables the automatic configuration of proguard
+    // for Sentry.  This injects a default config for proguard so
+    // you don't need to do it manually.
+    autoProguardConfig true
+
+    // Enables or disables the automatic upload of mapping files
+    // during a build.  If you disable this you'll need to manually
+    // upload the mapping files with sentry-cli when you do a release.
+    autoUpload true
 }
 
 // Open all classes and their methods annotated with @Mockable if this is a test build
