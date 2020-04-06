@@ -32,7 +32,10 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
+import de.taz.app.android.singletons.TazApiCssHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -379,6 +382,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             runOnUiThread {
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
                     setImageBitmap(bitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
