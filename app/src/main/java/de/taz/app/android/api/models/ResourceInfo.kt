@@ -54,9 +54,12 @@ data class ResourceInfo(
                 fromServer?.let {
                     if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
                         resourceInfoRepository.save(fromServer)
+                        local?.let { resourceInfoRepository.delete(local) }
+
 
                         // delete unused files
                         local?.resourceList?.filter { it !in fromServer.resourceList }?.forEach {
+                            it.deleteFile()
                             fileEntryRepository.delete(it)
                         }
 
@@ -65,11 +68,10 @@ data class ResourceInfo(
                             fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                                 if (oldFileEntry != newFileEntry) {
                                     oldFileEntry.deleteFile()
+                                    fileEntryRepository.delete(oldFileEntry)
                                 }
                             }
                         }
-
-                        local?.let { resourceInfoRepository.delete(local) }
 
                         // ensure resources are downloaded
                         DownloadService.getInstance().apply {
