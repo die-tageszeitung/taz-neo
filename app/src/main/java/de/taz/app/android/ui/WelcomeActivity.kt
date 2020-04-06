@@ -16,6 +16,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
+import java.io.File
 
 class WelcomeActivity : AppCompatActivity() {
 
@@ -57,5 +58,10 @@ class WelcomeActivity : AppCompatActivity() {
         SharedPreferenceBooleanLiveData(
             tazApiCssPreferences, SETTINGS_FIRST_TIME_APP_STARTS, true
         ).postValue(true)
+    }
+
+    override fun onBackPressed() {
+        // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
+        startActivity(Intent(applicationContext, MainActivity::class.java))
     }
 }
