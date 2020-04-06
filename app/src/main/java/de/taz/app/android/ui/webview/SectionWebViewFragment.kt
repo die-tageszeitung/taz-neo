@@ -66,7 +66,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                     }
                 }
                 activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
-                    resizeHeaderSectionTitle(it)
+                    resizeHeaderSectionTitle(it.width)
                 }
             }
         }
@@ -74,7 +74,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
 
     override fun onResume() {
         activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
-            resizeHeaderSectionTitle(it)
+            resizeHeaderSectionTitle(it.width)
             it.addOnLayoutChangeListener(resizeDrawerLogoListener)
         }
         super.onResume()
@@ -89,22 +89,25 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
 
     private val resizeDrawerLogoListener =
         View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-            resizeHeaderSectionTitle(v)
+            resizeHeaderSectionTitle(v.width)
         }
 
-    private fun resizeHeaderSectionTitle(drawerLogo: View) {
-        // ensure the text is not shown below the logo
-        setMaxSizeDependingOnDrawerLogo(R.id.section, drawerLogo)
-        setMaxSizeDependingOnDrawerLogo(R.id.issue_date, drawerLogo)
+    /**
+     * ensure the text is not shown below the drawerLogo
+     * @param drawerLogoWidth: Int - the width of the current logo shown in the drawer
+     */
+    private fun resizeHeaderSectionTitle(drawerLogoWidth: Int) {
+        setMaxSizeDependingOnDrawerLogo(R.id.section, drawerLogoWidth)
+        setMaxSizeDependingOnDrawerLogo(R.id.issue_date, drawerLogoWidth)
     }
 
-    private fun setMaxSizeDependingOnDrawerLogo(@IdRes viewId: Int, drawerLogo: View) {
+    private fun setMaxSizeDependingOnDrawerLogo(@IdRes viewId: Int, drawerLogoWidth: Int) {
         val point = Point()
         activity?.windowManager?.defaultDisplay?.getSize(point)
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width =
-                point.x - drawerLogo.width - parentView.marginLeft - parentView.marginRight - marginLeft - marginRight
+            width = point.x - drawerLogoWidth - parentView.marginLeft - parentView.marginRight -
+                    marginLeft - marginRight
         }
     }
 
