@@ -6,7 +6,6 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -46,7 +45,6 @@ data class ResourceInfo(
         suspend fun update() = withContext(Dispatchers.IO) {
             val apiService = ApiService.getInstance()
             val fileEntryRepository = FileEntryRepository.getInstance()
-            val fileHelper = FileHelper.getInstance()
             val resourceInfoRepository = ResourceInfoRepository.getInstance()
 
             try {
