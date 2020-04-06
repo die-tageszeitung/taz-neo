@@ -81,9 +81,9 @@
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize" tools:ignore="SpUsage">25dp</item>
+        <item name="android:textSize" tools:ignore="SpUsage">@dimen/fragment_header_section_text_size</item>
         <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">25dp</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
         <item name="autoSizeMinTextSize">2dp</item>
         <item name="autoSizeStepGranularity">0.1dp</item>
     </style>
@@ -107,14 +107,14 @@
 
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
         <item name="android:maxLines">1</item>
         <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">16sp</item>
-        <item name="autoSizeMinTextSize">2sp</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_issue_date_text_size</item>
+        <item name="autoSizeMinTextSize">2dp</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="autoSizeStepGranularity">0.1sp</item>
+        <item name="autoSizeStepGranularity">0.1dp</item>
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
