@@ -3,13 +3,18 @@ package de.taz.app.android.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
@@ -17,11 +22,15 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_data_policy.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
-
+    fun getLifecycleOwner(): LifecycleOwner = this
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -44,7 +53,10 @@ class DataPolicyActivity : AppCompatActivity() {
             webChromeClient = WebChromeClient()
 
             val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
-            loadUrl("$fileDir/$RESOURCE_FOLDER/welcomeSlidesDataPolicy.html")
+            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlidesDataPolicy.html")
+            lifecycleScope.launch(Dispatchers.IO) {
+                ensureResourceInfoIsDownloadedAndShow(file.path)
+            }
         }
     }
 
@@ -61,5 +73,31 @@ class DataPolicyActivity : AppCompatActivity() {
         val tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
         return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
+    }
+
+    private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
+        val resourceInfo = ResourceInfoRepository.getInstance().get()
+
+        resourceInfo?.let {
+            val isDownloadedLiveData = it.isDownloadedLiveData()
+
+            withContext(Dispatchers.Main) {
+                isDownloadedLiveData.observe(
+                    getLifecycleOwner(),
+                    Observer { isDownloaded ->
+                        if (isDownloaded) {
+                            hideLoadingScreen()
+                            data_policy_fullscreen_content.loadUrl(filePath)
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun hideLoadingScreen() {
+        this.runOnUiThread {
+            data_policy_loading_screen?.visibility = View.GONE
+        }
     }
 }
