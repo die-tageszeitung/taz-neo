@@ -24,14 +24,15 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
-    private val openDatePicker =  {
-        showBottomSheet(DatePickerFragment.create(this))
+    private val openDatePicker : (Date) -> Unit =  { issueDate ->
+        showBottomSheet(DatePickerFragment.create(this, issueDate))
     }
 
     val coverFlowPagerAdapter = CoverflowAdapter(
