@@ -9,7 +9,8 @@
     android:stretchMode="columnWidth"
     android:nestedScrollingEnabled="false"
     android:paddingTop="@dimen/fragment_archive_padding_top"
-    android:clipToPadding="false" />
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/nav_bottom_height"/>
 
 
 
