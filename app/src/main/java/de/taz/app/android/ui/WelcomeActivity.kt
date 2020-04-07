@@ -14,13 +14,13 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,13 +72,12 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
-        val resourceInfo = ResourceInfoRepository.getInstance().get()
-
-        resourceInfo?.let {
-            val isDownloadedLiveData = it.isDownloadedLiveData()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val isDownloadedLiveData =
+                ResourceInfoRepository.getInstance().get()?.isDownloadedLiveData()
 
             withContext(Dispatchers.Main) {
-                isDownloadedLiveData.observe(
+                isDownloadedLiveData?.observeDistinct(
                     getLifecycleOwner(),
                     Observer { isDownloaded ->
                         if (isDownloaded) {
