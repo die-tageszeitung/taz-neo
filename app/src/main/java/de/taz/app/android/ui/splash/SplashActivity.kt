@@ -165,7 +165,7 @@ class SplashActivity : AppCompatActivity() {
         try {
             val issues = apiService.getLastIssues(number)
             issueRepository.saveIfDoNotExist(issues)
-            log.debug("Initialized Issues")
+            log.debug("Initialized Issues: ${issues.size}")
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             toastHelper.showNoConnectionToast()
             log.warn("Initializing Issues failed")

@@ -31,6 +31,7 @@ interface FileEntryOperations {
     }
 
     companion object {
+        // inline is needed to prevent a crash after proguard optimization
         inline fun getStorageFolder(storageType: StorageType, folder: String): String {
             return when (storageType) {
                 StorageType.global -> GLOBAL_FOLDER
