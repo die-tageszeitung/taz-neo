@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
@@ -76,10 +77,9 @@ class DataPolicyActivity : AppCompatActivity() {
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
-        val resourceInfo = ResourceInfoRepository.getInstance().get()
-
-        resourceInfo?.let {
-            val isDownloadedLiveData = it.isDownloadedLiveData()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val isDownloadedLiveData =
+                DownloadRepository.getInstance().isDownloadedLiveData(filePath)
 
             withContext(Dispatchers.Main) {
                 isDownloadedLiveData.observe(
@@ -93,6 +93,7 @@ class DataPolicyActivity : AppCompatActivity() {
                 )
             }
         }
+
     }
 
     private fun hideLoadingScreen() {
