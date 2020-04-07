@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.main
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -11,10 +10,8 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.widget.ImageView
-import androidx.annotation.AnimRes
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -31,7 +28,6 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.FileHelper
@@ -39,6 +35,7 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
@@ -56,11 +53,9 @@ const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
 const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
-class MainActivity : AppCompatActivity(), MainContract.View {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val log by Log
-
-    private val presenter = MainPresenter()
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
@@ -121,8 +116,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         // TODO remove in next release
         Sentry.capture("BOOOOM")
 
-        presenter.attach(this)
-        setContentView(R.layout.activity_main)
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
 
@@ -130,7 +123,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             activity_main_version.visibility = View.VISIBLE
         }
 
-        presenter.onViewCreated(savedInstanceState)
         lockEndNavigationView()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -148,7 +140,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
             override fun onDrawerStateChanged(newState: Int) {
                 if (!opened) {
-                    presenter.setDrawerIssue()
+                    changeDrawerIssue()
                 }
             }
         })
@@ -168,51 +160,22 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
-    override fun getMainDataController(): MainContract.DataController {
-        return presenter.viewModel as MainContract.DataController
-    }
-
-    override fun showDrawerFragment(fragment: Fragment) {
-        runOnUiThread {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(
-                    R.id.drawer_menu_fragment_placeholder,
-                    fragment
-                )
-                .commit()
-        }
-    }
-
-    override fun showInWebView(issueStub: IssueStub) {
-        runOnUiThread {
-            val fragment = SectionPagerFragment.createInstance(issueStub)
-            showMainFragment(fragment, showFromBackStack = false)
-        }
-    }
-
-    override fun showInWebView(
+    fun showInWebView(
         webViewDisplayableKey: String,
-        enterAnimation: Int,
-        exitAnimation: Int,
-        bookmarksArticle: Boolean
+        bookmarksArticle: Boolean = false
     ) {
         if (webViewDisplayableKey.startsWith("art")) {
             showArticle(
                 webViewDisplayableKey,
-                enterAnimation,
-                exitAnimation,
                 bookmarksArticle
             )
         } else {
-            showSection(webViewDisplayableKey, enterAnimation, exitAnimation)
+            showSection(webViewDisplayableKey)
         }
     }
 
     private fun showArticle(
         articleName: String,
-        enterAnimation: Int = 0,
-        exitAnimation: Int = 0,
         bookmarksArticle: Boolean = false
     ) {
         runOnUiThread {
@@ -220,22 +183,25 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 val fragment = ArticlePagerFragment.createInstance(
                     articleName, showBookmarks = bookmarksArticle
                 )
-                showMainFragment(fragment, enterAnimation, exitAnimation, false)
+                showMainFragment(fragment, false)
             }
         }
     }
 
-    private fun showSection(sectionFileName: String, enterAnimation: Int, exitAnimation: Int) {
+    private fun showSection(sectionFileName: String) {
         runOnUiThread {
             if (!tryShowExistingSection(sectionFileName)) {
                 val fragment = SectionPagerFragment.createInstance(sectionFileName)
-                showMainFragment(fragment, enterAnimation, exitAnimation, false)
+                showMainFragment(fragment, false)
             }
         }
     }
 
-    override fun showIssue(issueStub: IssueStub) {
-        presenter.showIssue(issueStub)
+    fun showIssue(issueStub: IssueStub) {
+        runOnUiThread {
+            val fragment = SectionPagerFragment.createInstance(issueStub)
+            showMainFragment(fragment, showFromBackStack = false)
+        }
     }
 
     @MainThread
@@ -260,11 +226,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return false
     }
 
-    override fun showMainFragment(
+    fun showMainFragment(
         fragment: Fragment,
-        @AnimRes enterAnimation: Int,
-        @AnimRes exitAnimation: Int,
-        showFromBackStack: Boolean
+        showFromBackStack: Boolean = true
     ) {
         runOnUiThread {
             val fragmentClassName = fragment::class.java.name
@@ -283,23 +247,27 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    override fun lockEndNavigationView() {
+    fun lockEndNavigationView() {
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
     }
 
-    override fun unlockEndNavigationView() {
+    fun unlockEndNavigationView() {
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
     }
 
-    override fun openDrawer() {
+    fun isDrawerVisible(gravity: Int): Boolean {
+        return drawer_layout.isDrawerVisible(gravity)
+    }
+
+    fun openDrawer() {
         openDrawer(GravityCompat.START)
     }
 
-    override fun openDrawer(gravity: Int) {
+    fun openDrawer(gravity: Int) {
         drawer_layout.openDrawer(gravity)
     }
 
-    override fun closeDrawer() {
+    fun closeDrawer() {
         drawer_layout.closeDrawers()
     }
 
@@ -332,31 +300,43 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    override fun showHome() {
+    fun showHome() {
         showMainFragment(HomeFragment(), showFromBackStack = true)
     }
 
-    override fun showToast(stringId: Int) {
+    fun showToast(stringId: Int) {
         ToastHelper.getInstance(applicationContext).showToast(stringId)
     }
 
-    override fun showToast(string: String) {
+    fun showToast(string: String) {
         ToastHelper.getInstance(applicationContext).showToast(string)
     }
 
-    override fun getLifecycleOwner(): LifecycleOwner = this
+    fun getLifecycleOwner(): LifecycleOwner = this
 
-    override fun getMainView(): MainContract.View? = this
+    fun getMainView(): MainActivity? = this
 
-    override fun setDrawerIssue(issueOperations: IssueOperations?) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            presenter.viewModel?.setIssueOperations(issueOperations)
+    fun setDrawerIssue(issueOperations: IssueOperations) {
+        (supportFragmentManager.findFragmentById(
+            R.id.drawer_menu_fragment_placeholder
+        ) as? SectionDrawerFragment)?.apply {
+            setIssueStub(issueOperations)
+        }
+    }
+
+    fun changeDrawerIssue() {
+        runOnUiThread {
+            (supportFragmentManager.findFragmentById(
+                R.id.drawer_menu_fragment_placeholder
+            ) as? SectionDrawerFragment)?.apply {
+                showIssueStub()
+            }
         }
     }
 
     private var navButton: Image? = null
     private var defaultNavButton: Image? = null
-    override fun setDrawerNavButton(navButton: Image?) {
+    fun setDrawerNavButton(navButton: Image? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
             suspendSetDrawerNavButton(navButton)
         }
@@ -415,14 +395,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 }
             }
         }
-    }
-
-    override fun hideKeyboard() {
-        val inputMethodManager: InputMethodManager = getSystemService(
-            Activity.INPUT_METHOD_SERVICE
-        ) as InputMethodManager
-        val view = currentFocus ?: View(this)
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

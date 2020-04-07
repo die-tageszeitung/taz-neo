@@ -62,8 +62,9 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <FrameLayout
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/drawer_menu_fragment_placeholder"
+                android:name="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>

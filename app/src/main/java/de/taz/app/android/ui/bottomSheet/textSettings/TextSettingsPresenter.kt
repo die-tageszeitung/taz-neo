@@ -16,7 +16,7 @@ class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsD
 
     override fun onViewCreated(savedInstanceState: Bundle?) {
         getView()?.apply {
-            getMainView()?.getApplicationContext()?.getSharedPreferences(
+            getMainView()?.applicationContext?.getSharedPreferences(
                 PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
                 viewModel?.setPreferences(it)
             }
