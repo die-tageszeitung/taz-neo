@@ -4,7 +4,6 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.main.MainContract
 
 abstract class BaseFragment<out PRESENTER: BaseContract.Presenter>(
     @LayoutRes layoutResourceId: Int
@@ -16,7 +15,7 @@ abstract class BaseFragment<out PRESENTER: BaseContract.Presenter>(
         return this
     }
 
-    override fun getMainView(): MainContract.View? {
+    override fun getMainView(): MainActivity? {
         return activity as? MainActivity
     }
 

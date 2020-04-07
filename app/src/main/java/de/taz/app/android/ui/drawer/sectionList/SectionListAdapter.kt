@@ -38,20 +38,22 @@ class SectionListAdapter(
     fun setData(newIssueOperations: IssueOperations?) {
         if (issueOperations?.tag != newIssueOperations?.tag) {
             this.issueOperations = newIssueOperations
-
-            moment?.isDownloadedLiveData()?.removeObserver(observer)
-            fragment.view?.findViewById<MomentView>(
-                R.id.fragment_drawer_sections_moment
-            )?.apply {
-                visibility = View.INVISIBLE
-            }
-
-            sectionList.clear()
-            moment = null
-            imprint = null
-
-            drawIssue()
         }
+    }
+
+    fun show() {
+        moment?.isDownloadedLiveData()?.removeObserver(observer)
+        fragment.view?.findViewById<MomentView>(
+            R.id.fragment_drawer_sections_moment
+        )?.apply {
+            visibility = View.INVISIBLE
+        }
+
+        sectionList.clear()
+        moment = null
+        imprint = null
+
+        drawIssue()
     }
 
     private fun drawIssue() {

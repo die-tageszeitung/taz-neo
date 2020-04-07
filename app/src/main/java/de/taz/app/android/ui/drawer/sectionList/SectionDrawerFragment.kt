@@ -38,4 +38,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
        recyclerAdapter.setData(issueOperations)
     }
 
+    fun showIssueStub() {
+        recyclerAdapter.show()
+    }
 }

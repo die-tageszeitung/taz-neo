@@ -12,7 +12,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
@@ -32,7 +31,6 @@ abstract class HomePageAdapter(
     private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
-    private val fileHelper = FileHelper.getInstance()
     private var allIssueStubList: List<IssueStub> = emptyList()
     protected var visibleIssueStubList: List<IssueStub> = emptyList()
 
