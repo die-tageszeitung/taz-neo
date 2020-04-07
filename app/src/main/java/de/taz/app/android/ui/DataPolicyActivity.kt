@@ -32,29 +32,30 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
     fun getLifecycleOwner(): LifecycleOwner = this
+    private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_policy)
 
-        findViewById<Button>(R.id.data_policy_accept_button)
-            .setOnClickListener {
-                acceptDataPolicy()
-                if (isFirstTimeStart()) {
-                    log.debug("start welcome activity")
-                    startActivity(Intent(this, WelcomeActivity::class.java))
-                } else {
-                    log.debug("start main activity")
-                    startActivity(Intent(this, MainActivity::class.java))
-                }
+        data_policy_accept_button?.setOnClickListener {
+            acceptDataPolicy()
+            if (isFirstTimeStart()) {
+                log.debug("start welcome activity")
+                startActivity(Intent(this, WelcomeActivity::class.java))
+            } else {
+                log.debug("start main activity")
+                startActivity(Intent(this, MainActivity::class.java))
             }
+        }
 
         data_policy_fullscreen_content.apply {
             webViewClient = WebViewClient()
             webChromeClient = WebChromeClient()
 
             val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
-            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlidesDataPolicy.html")
+            val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureResourceInfoIsDownloadedAndShow(file.path)
             }
@@ -66,7 +67,7 @@ class DataPolicyActivity : AppCompatActivity() {
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
         SharedPreferenceBooleanLiveData(
-            tazApiCssPreferences, SETTINGS_DATA_POLICY_ACCEPTED ,true
+            tazApiCssPreferences, SETTINGS_DATA_POLICY_ACCEPTED, true
         ).postValue(true)
     }
 
@@ -76,11 +77,11 @@ class DataPolicyActivity : AppCompatActivity() {
         return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 
-    private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
+    private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val isDownloadedLiveData =
                 DownloadRepository.getInstance().isDownloadedLiveData(
-                    "welcomeSlidesDataPolicy.html"
+                    dataPolicyPage
                 )
 
             withContext(Dispatchers.Main) {
