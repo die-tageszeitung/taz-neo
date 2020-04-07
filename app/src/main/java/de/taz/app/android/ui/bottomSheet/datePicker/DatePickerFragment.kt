@@ -11,26 +11,25 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
-import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
+import java.util.*
 
-class DatePickerFragment : BottomSheetDialogFragment() {
+
+class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
     private val log by Log
 
     private val issueRepository = IssueRepository.getInstance()
-    private var feedList: List<Feed> = emptyList()
-    private val feedMap
-        get() = feedList.associateBy { it.name }
     private val dateHelper = DateHelper.getInstance()
 
     private var issueStub: IssueStub? = null
@@ -39,9 +38,10 @@ class DatePickerFragment : BottomSheetDialogFragment() {
 
     companion object {
         fun create(
-            coverFlowFragment: CoverflowFragment?
+            coverFlowFragment: CoverflowFragment?,
+            date : Date
         ): DatePickerFragment {
-            val fragment = DatePickerFragment()
+            val fragment = DatePickerFragment(date)
             fragment.coverFlowFragment = WeakReference(coverFlowFragment)
             return fragment
         }
@@ -58,6 +58,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         log.debug("created a new date picker")
         super.onViewCreated(view, savedInstanceState)
+
 
         //Comment in for minDate and maxDate constraints. UX is somewhat whack..
         //fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
@@ -84,6 +85,16 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                 setIssue("$year-$month-$day")
             }
         }
+
+        // Set newly selected date to focus in DatePicker
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        fragment_bottom_sheet_date_picker.updateDate(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
     }
 
     private suspend fun setIssue(date: String){
