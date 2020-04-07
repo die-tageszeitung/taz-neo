@@ -1,8 +1,10 @@
 package de.taz.app.android.api.dto
 
+import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.api.models.ImageType
 
+@JsonClass(generateAdapter = true)
 data class ImageDto(
     val name: String,
     val storageType: StorageType,
