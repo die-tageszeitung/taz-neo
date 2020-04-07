@@ -358,13 +358,18 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private var defaultNavButton: Image? = null
     override fun setDrawerNavButton(navButton: Image?) {
         lifecycleScope.launch(Dispatchers.IO) {
+            suspendSetDrawerNavButton(navButton)
+        }
+    }
 
+    private suspend fun suspendSetDrawerNavButton(navButton: Image?) {
+        withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
                 defaultNavButton = ImageRepository.getInstance().get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
-            val image = navButton ?: defaultNavButton
+            val image: Image? = navButton ?: defaultNavButton
             image?.let {
                 // if image exists wait for it to be downloaded and show it
                 val isDownloadedLiveData = image.isDownloadedLiveData()
@@ -375,10 +380,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         }
                     }
                 }
-            } ?: run {
-                // if the image does not exist update ResourceInfo and try to show again
-                ResourceInfo.update()
-                setDrawerNavButton(image)
             }
         }
     }
@@ -389,7 +390,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             runOnUiThread {
                 // the scalingFactor is used to scale the image as using 100dp instead of 100px
                 // would be too big - the value is taken from experience rather than science
-                val scalingFactor = 1f/3f
+                val scalingFactor = 1f / 3f
 
                 val file = FileHelper.getInstance().getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
@@ -399,12 +400,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         TypedValue.COMPLEX_UNIT_DIP,
                         bitmap.width.toFloat(),
                         resources.displayMetrics
-                    )* scalingFactor).toInt(),
+                    ) * scalingFactor).toInt(),
                     (TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         bitmap.height.toFloat(),
                         resources.displayMetrics
-                    )* scalingFactor).toInt(),
+                    ) * scalingFactor).toInt(),
                     false
                 )
 

@@ -8,9 +8,9 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-keepclassmembers class de.taz.app.android.ui.webview.TazApiJS {
+   public *;
+}
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
@@ -39,10 +39,10 @@
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.SerializationKt
 -keep,includedescriptorclasses class de.taz.app.android.**$$serializer { *; }
--keepclassmembers class de.taz.app.android.** { # <-- change package name to your app's
+-keepclassmembers class de.taz.app.android.** {
     *** Companion;
 }
--keepclasseswithmembers class de.taz.app.android.** { # <-- change package name to your app's
+-keepclasseswithmembers class de.taz.app.android.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
