@@ -22,7 +22,7 @@
         android:layout_gravity="end"
         android:textColor="@color/lightGrey"
         android:text="@string/button_close_text"
-        android:textSize="22sp"/>
+        android:textSize="@dimen/activity_welcome_button_text_size"/>
 
     <include
         android:id="@+id/welcome_loading_screen"
