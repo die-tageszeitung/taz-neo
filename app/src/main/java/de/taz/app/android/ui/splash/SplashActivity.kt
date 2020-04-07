@@ -43,6 +43,7 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        log.info("splashactivity onresume called")
 
         setupSentry()
 
@@ -90,6 +91,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun setupSentry() {
+        log.info("setting up sentry")
         val preferences =
             applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
         val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
@@ -100,6 +102,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun createSingletons() {
+        log.info("creating singletons")
         applicationContext.let {
             AppDatabase.createInstance(it)
 
@@ -149,9 +152,6 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun initLastIssues() {
-        runBlocking {
-            initIssues(1)
-        }
         CoroutineScope(Dispatchers.IO).launch {
             initIssues(10)
         }
@@ -165,7 +165,7 @@ class SplashActivity : AppCompatActivity() {
         try {
             val issues = apiService.getLastIssues(number)
             issueRepository.saveIfDoNotExist(issues)
-            log.debug("Initialized Issues")
+            log.debug("Initialized Issues: ${issues.size}")
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             toastHelper.showNoConnectionToast()
             log.warn("Initializing Issues failed")
@@ -208,6 +208,7 @@ class SplashActivity : AppCompatActivity() {
      * download resources, save to db and download necessary files
      */
     private fun initResources() {
+        log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
