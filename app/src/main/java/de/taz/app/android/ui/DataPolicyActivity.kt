@@ -14,8 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
@@ -79,10 +79,12 @@ class DataPolicyActivity : AppCompatActivity() {
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val isDownloadedLiveData =
-                DownloadRepository.getInstance().isDownloadedLiveData(filePath)
+                DownloadRepository.getInstance().isDownloadedLiveData(
+                    "welcomeSlidesDataPolicy.html"
+                )
 
             withContext(Dispatchers.Main) {
-                isDownloadedLiveData.observe(
+                isDownloadedLiveData.observeDistinct(
                     getLifecycleOwner(),
                     Observer { isDownloaded ->
                         if (isDownloaded) {
@@ -93,7 +95,6 @@ class DataPolicyActivity : AppCompatActivity() {
                 )
             }
         }
-
     }
 
     private fun hideLoadingScreen() {
