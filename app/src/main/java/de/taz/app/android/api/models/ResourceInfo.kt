@@ -43,6 +43,7 @@ data class ResourceInfo(
         private val log by Log
 
         suspend fun update() = withContext(Dispatchers.IO) {
+            log.info("ResourceInfo.update called")
             val apiService = ApiService.getInstance()
             val fileEntryRepository = FileEntryRepository.getInstance()
             val resourceInfoRepository = ResourceInfoRepository.getInstance()
@@ -55,7 +56,6 @@ data class ResourceInfo(
                     if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
                         resourceInfoRepository.save(fromServer)
                         local?.let { resourceInfoRepository.delete(local) }
-
 
                         // delete unused files
                         local?.resourceList?.filter { it !in fromServer.resourceList }?.forEach {

@@ -1,14 +1,13 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import kotlinx.serialization.Serializable
 
-@Serializable
 @Entity(tableName = "Image", primaryKeys = ["name", "storageType"])
+@Serializable
 data class Image(
     override val name: String,
     override val storageType: StorageType,
