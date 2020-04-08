@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
@@ -31,6 +32,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
     private val issueRepository = IssueRepository.getInstance()
     private val dateHelper = DateHelper.getInstance()
+    private val apiService = ApiService.getInstance()
 
     private var issueStub: IssueStub? = null
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
@@ -112,7 +114,23 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             log.debug("selected issueStub is: $selectedIssueStub")
             coverFlowFragment?.get()?.let { coverFlowFragment ->
                 val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
-                coverFlowFragment.skipToPosition(issueStubPosition)
+                log.debug("selected issueStubPosition is: $issueStubPosition")
+                if (issueStubPosition != -1) {
+                    coverFlowFragment.skipToPosition(issueStubPosition)
+                }
+                else {
+                    //download Issue
+                    log.debug("downloading next issues")
+                    //coverFlowFragment.presenter.downloadNextIssues(date, 10)
+                    try {
+                        log.debug("and enters the try block")
+                        val issues = apiService.getIssuesByDate(issueDate = date, limit = 1)
+                        log.debug("issues are a downloaded from api")
+                        issueRepository.save(issues)
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        log.debug("there was not internet")
+                    }
+                }
             }
         }
     }
