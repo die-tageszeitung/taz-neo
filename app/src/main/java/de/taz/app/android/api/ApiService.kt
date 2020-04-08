@@ -202,14 +202,14 @@ class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
-        val tag = "getIssuesByFeedAndDate"
+        val tag = "getIssuesByDate"
         log.debug("$tag issueDate: $issueDate limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()
             updateAuthStatus(
                 graphQlClient.query(
                     QueryType.IssueByFeedAndDate,
-                    IssueVariables(issueDate = issueDate, limit = limit)
+                    IssueVariables(feedName = "taz", issueDate = issueDate, limit = limit)
                 )?.product
             )?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
