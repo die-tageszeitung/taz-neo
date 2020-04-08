@@ -20,7 +20,12 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".ui.WelcomeActivity"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.DataPolicyActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />

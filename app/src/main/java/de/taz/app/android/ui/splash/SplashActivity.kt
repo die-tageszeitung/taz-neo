@@ -27,6 +27,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
+import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
@@ -61,10 +62,14 @@ class SplashActivity : AppCompatActivity() {
 
         ensurePushTokenSent()
 
-        if (isFirstTimeStart()) {
-            startActivity(Intent(this, MainActivity::class.java))
+        if (isDataPolicyAccepted()) {
+            if (isFirstTimeStart()) {
+                startActivity(Intent(this, WelcomeActivity::class.java))
+            } else {
+                startActivity(Intent(this, MainActivity::class.java))
+            }
         } else {
-            startActivity(Intent(this, WelcomeActivity::class.java))
+            startActivity(Intent(this, DataPolicyActivity::class.java))
         }
     }
 
@@ -84,10 +89,16 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    private fun isDataPolicyAccepted(): Boolean {
+        val tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        return tazApiCssPreferences.contains(SETTINGS_DATA_POLICY_ACCEPTED)
+    }
+
     private fun isFirstTimeStart(): Boolean {
         val tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        return tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
+        return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
     }
 
     private fun setupSentry() {

@@ -25,6 +25,8 @@
     <dimen name="drawer_logo_height">44dp</dimen>
     <dimen name="drawer_logo_width">95dp</dimen>
     <dimen name="drawer_logo_margin_top">49dp</dimen>
+    <dimen name="drawer_logo_elevation">10dp</dimen>
+    <dimen name="drawer_logo_translation_y">40dp</dimen>
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 
@@ -102,4 +104,13 @@
     <dimen name="icon_size">24dp</dimen>
     <dimen name="ic_circle_size">12dp</dimen>
 
+    <dimen name="ic_close_button_size">30dp</dimen>
+    <dimen name="ic_close_button_margin_end">20dp</dimen>
+    <dimen name="ic_close_button_margin_top">60dp</dimen>
+
+    <dimen name="activity_data_policy_button_width">240sp</dimen>
+    <dimen name="activity_data_policy_button_text_size">17sp</dimen>
+    <dimen name="activity_data_policy_button_margin_bottom">40sp</dimen>
+
+    <dimen name="activity_welcome_button_text_size">22sp</dimen>
 </resources>
