@@ -83,7 +83,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
 
-            lifecycleScope.launch() {
+            activity?.lifecycleScope?.launch() {
                 setIssue("$year-$month-$day")
             }
         }
