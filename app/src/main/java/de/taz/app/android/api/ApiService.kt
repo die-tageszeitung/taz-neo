@@ -209,7 +209,7 @@ class ApiService private constructor(applicationContext: Context) {
             updateAuthStatus(
                 graphQlClient.query(
                     QueryType.IssueByFeedAndDate,
-                    IssueVariables(feedName = "taz", issueDate = issueDate, limit = limit)
+                    IssueVariables(issueDate = issueDate, limit = limit)
                 )?.product
             )?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
