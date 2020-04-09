@@ -15,6 +15,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/main_content_fragment_placeholder"
+            android:name="de.taz.app.android.ui.home.HomeFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:showIn="@layout/activity_main" />

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
@@ -144,10 +145,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-
-        if (savedInstanceState == null) {
-            showHome()
-        }
     }
 
     override fun onResume() {
@@ -301,7 +298,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun showHome() {
-        showMainFragment(HomeFragment(), showFromBackStack = true)
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     fun showToast(stringId: Int) {
