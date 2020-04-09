@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
 
-        if (count > 1) {
+        if (count > 0) {
             supportFragmentManager
                 .findFragmentById(R.id.main_content_fragment_placeholder)?.let {
                     if (it is BackFragment && it.onBackPressed()) {
