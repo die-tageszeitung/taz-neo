@@ -72,6 +72,7 @@ class SectionPagerFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sectionKey?.let {
             viewModel.sectionKey = it
+            sectionKey = null
         }
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
             viewModel.apply {
