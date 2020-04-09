@@ -50,7 +50,10 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
-        val resourceInfoStub = appDatabase.resourceInfoDao().get()
+        return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().get())
+    }
+
+    fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )
@@ -71,6 +74,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         )
     }
 
+
     fun get(): ResourceInfo? {
         return try {
             getOrThrow()
@@ -87,5 +91,11 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         )
 
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
+    }
+
+    fun deleteAllButNewest() {
+        appDatabase.resourceInfoDao().getAllButNewest().forEach { resourceInfo ->
+            delete(resourceInfoStubToResourceInfo(resourceInfo))
+        }
     }
 }
