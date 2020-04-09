@@ -73,7 +73,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         log.debug("nextArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.next()?.let { next ->
-                mainActivity?.showInWebView(next.key, R.anim.slide_in_left, R.anim.slide_out_left)
+                mainActivity?.showInWebView(next.key)
             }
         }
     }
@@ -83,7 +83,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
         log.debug("previousArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.previous()?.let { previous ->
-                mainActivity?.showInWebView(previous.key, R.anim.slide_in_right, R.anim.slide_out_right)
+                mainActivity?.showInWebView(previous.key)
             }
         }
     }
