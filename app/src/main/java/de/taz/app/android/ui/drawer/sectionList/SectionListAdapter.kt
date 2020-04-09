@@ -23,7 +23,6 @@ class SectionListAdapter(
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
-    private val fileHelper = FileHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
     private val momentRepository = MomentRepository.getInstance()
     private val sectionRepository = SectionRepository.getInstance()
