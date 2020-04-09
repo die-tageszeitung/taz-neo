@@ -25,6 +25,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
@@ -53,6 +54,7 @@ const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
 const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
+@Mockable
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val log by Log
