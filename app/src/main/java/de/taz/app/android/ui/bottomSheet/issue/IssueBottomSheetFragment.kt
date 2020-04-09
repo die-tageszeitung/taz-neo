@@ -14,7 +14,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -29,11 +29,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private val log by Log
     private var afterDelete: Boolean = false
     private var issueStub: IssueStub? = null
-    private var weakActivityReference: WeakReference<MainContract.View>? = null
+    private var weakActivityReference: WeakReference<MainActivity>? = null
 
     companion object {
         fun create(
-            mainActivity: MainContract.View,
+            mainActivity: MainActivity,
             issueStub: IssueStub
         ): IssueBottomSheetFragment {
             val fragment = IssueBottomSheetFragment()

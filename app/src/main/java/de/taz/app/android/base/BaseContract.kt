@@ -3,7 +3,7 @@ package de.taz.app.android.base
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.ui.main.MainActivity
 
 interface BaseContract {
 
@@ -11,7 +11,7 @@ interface BaseContract {
 
         fun getLifecycleOwner(): LifecycleOwner
 
-        fun getMainView(): MainContract.View?
+        fun getMainView(): MainActivity?
 
         fun showBottomSheet(fragment: Fragment) = Unit
 

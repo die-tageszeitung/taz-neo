@@ -12,8 +12,8 @@ import de.taz.app.android.testIssues
 import de.taz.app.android.ui.home.page.archive.ArchiveContract
 import de.taz.app.android.ui.home.page.archive.ArchiveDataController
 import de.taz.app.android.ui.home.page.archive.ArchivePresenter
-import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
@@ -42,7 +42,7 @@ class ArchivePresenterTest {
     @Mock
     lateinit var archiveContractView: ArchiveContract.View
     @Mock
-    lateinit var mainContractView: MainContract.View
+    lateinit var mainContractView: MainActivity
     @Mock
     lateinit var viewModel: ArchiveDataController
     @Mock

@@ -18,7 +18,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.main.MainContract
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +99,7 @@ class CoverflowFragment :
         return viewLifecycleOwner
     }
 
-    override fun getMainView(): MainContract.View? {
+    override fun getMainView(): MainActivity? {
         return activity as? MainActivity
     }
 
@@ -150,6 +149,9 @@ class CoverflowFragment :
                     getMainView()?.apply {
                         coverFlowPagerAdapter.getItem(position)?.let {
                             setDrawerIssue(it)
+                            if(getMainView()?.isDrawerVisible(Gravity.START) == true) {
+                                changeDrawerIssue()
+                            }
                         }
                     }
 

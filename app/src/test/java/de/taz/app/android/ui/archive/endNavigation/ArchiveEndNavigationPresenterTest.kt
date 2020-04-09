@@ -8,7 +8,7 @@ import de.taz.app.android.testFeed
 import de.taz.app.android.ui.home.feedFilter.FeedFilterContract
 import de.taz.app.android.ui.home.feedFilter.FeedFilterDataController
 import de.taz.app.android.ui.home.feedFilter.FeedFilterPresenter
-import de.taz.app.android.ui.main.MainContract
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.FeedHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -35,7 +35,7 @@ class ArchiveEndNavigationPresenterTest {
     @Mock
     lateinit var contractView: FeedFilterContract.View
     @Mock
-    lateinit var mainContractView: MainContract.View
+    lateinit var mainContractView: MainActivity
     @Mock
     lateinit var viewModel: FeedFilterDataController
     @Mock
