@@ -37,7 +37,6 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
-import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
