@@ -118,6 +118,14 @@ class IssueRepository private constructor(applicationContext: Context) :
             .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
     }
 
+    fun getEarliestIssueStub(): IssueStub? {
+        return appDatabase.issueDao().getEarliest()
+    }
+
+    fun getEarliestIssue(): Issue? {
+        return getEarliestIssueStub()?.let { issueStubToIssue(it) }
+    }
+
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
