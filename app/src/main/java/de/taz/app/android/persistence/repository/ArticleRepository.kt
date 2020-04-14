@@ -96,11 +96,25 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
-        return appDatabase.articleDao().getSectionArticleListByArticle(articleName)
+        var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
+        // if it is the imprint we want to return a list of it
+        if (articleStubList.isEmpty()) {
+            articleStubList = getStub(articleName)?.let {
+                listOf(it)
+            } ?: emptyList()
+        }
+        return articleStubList
     }
 
     fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
-        return appDatabase.articleDao().getIssueArticleListByArticle(articleName)
+        var articleStubList = appDatabase.articleDao().getIssueArticleListByArticle(articleName)
+        // if it is the imprint we want to return a list of it
+        if (articleStubList.isEmpty()) {
+            articleStubList = getStub(articleName)?.let {
+                listOf(it)
+            } ?: emptyList()
+        }
+        return articleStubList
     }
 
     fun nextArticleStub(articleName: String): ArticleStub? {
@@ -135,7 +149,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getAuthorImageFileNamesForArticle(articleFileName: String): List<String> {
-        return appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleFileName).mapNotNull { it.authorFileName }
+        return appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleFileName)
+            .mapNotNull { it.authorFileName }
     }
 
     @Throws(NotFoundException::class)
