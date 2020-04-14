@@ -63,7 +63,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                 presenter.resetTextSize()
             }
 
-            findViewById<Switch>(R.id.fragment_settings_night_mode).apply {
+            fragment_settings_night_mode?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         presenter.enableNightMode()
@@ -77,10 +77,9 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                 presenter.logout()
             }
 
-            findViewById<TextView>(R.id.fragment_settings_version_number)?.text =
-                BuildConfig.VERSION_NAME
+            fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
 
-            findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch).apply {
+            fragment_settings_auto_download_wifi_switch?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
                     presenter.setDownloadOnlyInWifi(isChecked)
                 }
