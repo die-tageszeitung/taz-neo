@@ -103,7 +103,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 listOf(it)
             } ?: emptyList()
         }
-        return articleStubList    }
+        return articleStubList
+    }
 
     fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
         var articleStubList = appDatabase.articleDao().getIssueArticleListByArticle(articleName)
