@@ -94,7 +94,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     override fun hideLoadingScreen() {
-        super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let { article ->
                 if (article.getIssueStub()?.status == IssueStatus.public) {
@@ -107,7 +106,10 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                         } catch (e: IllegalStateException) {
                             // do nothing already hidden
                         }
+                        super.hideLoadingScreen()
                     }
+                } else {
+                    super.hideLoadingScreen()
                 }
             }
         }
