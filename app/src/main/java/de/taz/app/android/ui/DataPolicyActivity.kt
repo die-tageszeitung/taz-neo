@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -20,6 +18,7 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_data_policy.*
@@ -52,7 +51,7 @@ class DataPolicyActivity : AppCompatActivity() {
 
         data_policy_fullscreen_content.apply {
             webViewClient = WebViewClient()
-            webChromeClient = WebChromeClient()
+            webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
             val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
@@ -89,7 +88,6 @@ class DataPolicyActivity : AppCompatActivity() {
                     getLifecycleOwner(),
                     Observer { isDownloaded ->
                         if (isDownloaded) {
-                            hideLoadingScreen()
                             data_policy_fullscreen_content.loadUrl(filePath)
                         }
                     }
