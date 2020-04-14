@@ -37,7 +37,7 @@ class ArticlePagerViewModel : ViewModel() {
         get() = articleListLiveData.value
     val articleListLiveData = MediatorLiveData<List<ArticleStub>>().apply {
         addSource(showBookmarksLiveData) {
-            if(it) {
+            if (it) {
                 articleName?.let {
                     getBookmarkedArticles()
                 }
@@ -47,7 +47,7 @@ class ArticlePagerViewModel : ViewModel() {
         }
         addSource(articleNameLiveData) {
             it?.let {
-                if(showBookmarks) {
+                if (showBookmarks) {
                     getBookmarkedArticles()
                 } else {
                     getIssueArticleList()
@@ -68,11 +68,12 @@ class ArticlePagerViewModel : ViewModel() {
 
     private fun getIssueArticleList() {
         articleListLiveData.apply {
-            articleName?.let {
+            articleName?.let { articleName ->
                 CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
-                    val articleList =
-                        ArticleRepository.getInstance().getIssueArticleStubListByArticleName(it)
-                    postValue(articleList)
+                    postValue(
+                        ArticleRepository.getInstance()
+                            .getIssueArticleStubListByArticleName(articleName)
+                    )
                 }
             }
         }

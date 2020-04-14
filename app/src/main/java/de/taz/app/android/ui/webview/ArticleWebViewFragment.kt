@@ -59,7 +59,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
                 displayable.key
             ).size
-            val title = displayable.getSectionStub()?.title ?: ""
+
+            // only the imprint should have no section
+            val title = displayable.getSectionStub()?.title ?: getString(R.string.imprint)
             setHeaderForSection(index, count, title)
 
             val issueOperations = displayable.getIssueOperations()
