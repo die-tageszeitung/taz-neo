@@ -144,11 +144,19 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                         val issues = apiService.getIssuesByDate(issueDate = date, limit = 1)
                         log.debug("issues are a downloaded from api")
                         issueRepository.save(issues)
+
+                        //determine issue position and show
+                        selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+                        log.debug("selected issueStub after downloading is: $selectedIssueStub")
+                        issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                        log.debug("selected issueStubPosition after download is: $issueStubPosition")
+                        coverFlowFragment.skipToPosition(issueStubPosition)
                     } catch (e: ApiService.ApiServiceException.NoInternetException) {
                         log.debug("there was not internet")
                     }
                 }
             }
+            */
         }
     }
 }
