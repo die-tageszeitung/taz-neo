@@ -99,6 +99,9 @@
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
     <string name="settings_category_support">support</string>
     <string name="settings_support_report_bug">Report a bug</string>
+    <string name="settings_auto_downloads">automatic downloads</string>
+    <string name="settings_auto_downloads_wifi_switch">Download only with wifi</string>
+    <string name="settings_version_number">version</string>
     <string name="settings_download_issue">Download issue</string>
 
     <string name="fragment_error_report_title">Report a bug</string>
