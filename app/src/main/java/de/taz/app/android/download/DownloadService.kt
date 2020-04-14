@@ -2,6 +2,7 @@ package de.taz.app.android.download
 
 import android.content.Context
 import androidx.work.*
+import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
@@ -12,7 +13,9 @@ import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
@@ -241,10 +244,13 @@ class DownloadService private constructor(val applicationContext: Context) {
      * get Constraints for [WorkRequest] of [WorkManager]
      */
     private fun getConstraints(): Constraints {
-        return Constraints.Builder() // TODO read constraints from settings
-            .setRequiredNetworkType(NetworkType.UNMETERED)
+        val onlyWifi: Boolean = applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
+            SharedPreferenceBooleanLiveData(it, SETTINGS_DOWNLOAD_ONLY_WIFI, true).value
+        } ?: true
+
+        return Constraints.Builder()
+            .setRequiredNetworkType(if (onlyWifi) NetworkType.UNMETERED else NetworkType.CONNECTED)
             .setRequiresStorageNotLow(true)
-            .setRequiresBatteryNotLow(true)
             .build()
     }
 

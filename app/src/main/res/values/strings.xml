@@ -94,6 +94,9 @@
     <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
     <string name="settings_category_support">Support</string>
     <string name="settings_support_report_bug">Fehler melden</string>
+    <string name="settings_auto_downloads">Automatische Downloads</string>
+    <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
+    <string name="settings_version_number">Version</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
