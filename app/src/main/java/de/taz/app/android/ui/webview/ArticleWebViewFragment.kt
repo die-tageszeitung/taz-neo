@@ -64,7 +64,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
-                if(isWeekend) {
+                if (isWeekend) {
                     FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
                         try {
                             val typeface = Typeface.createFromFile(it)
@@ -106,9 +106,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                         } catch (e: IllegalStateException) {
                             // do nothing already hidden
                         }
-                        super.hideLoadingScreen()
                     }
-                } else {
+                }
+                withContext(Dispatchers.Main) {
                     super.hideLoadingScreen()
                 }
             }
