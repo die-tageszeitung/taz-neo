@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
@@ -19,6 +18,7 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
@@ -46,7 +46,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         web_view_fullscreen_content.apply {
             webViewClient = WebViewClient()
-            webChromeClient = WebChromeClient()
+            webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
             val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
@@ -81,7 +81,6 @@ class WelcomeActivity : AppCompatActivity() {
                     getLifecycleOwner(),
                     Observer { isDownloaded ->
                         if (isDownloaded) {
-                            hideLoadingScreen()
                             web_view_fullscreen_content.loadUrl(filePath)
                         }
                     }
