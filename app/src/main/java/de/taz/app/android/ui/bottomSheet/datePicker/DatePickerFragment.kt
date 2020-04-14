@@ -110,10 +110,27 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 || authStatus == AuthStatus.tazIdNotLinked) {
                issueStatus = IssueStatus.regular
             }
-            val selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+
+            issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
+                var earliestDate = earliestIssueStub.date
+                while (issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus) == null)  {
+                    //get stuff from api
+                    val newIssues = apiService.getIssuesByDate(earliestDate)
+                    newIssues.forEach { issueRepository.save(it) }
+                    earliestDate = newIssues.last().date
+                }
+                val selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+                coverFlowFragment?.get()?.let { coverFlowFragment ->
+                    val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                    coverFlowFragment.skipToPosition(issueStubPosition)
+                }
+
+            }
+            /*
+            var selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
             log.debug("selected issueStub is: $selectedIssueStub")
             coverFlowFragment?.get()?.let { coverFlowFragment ->
-                val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                var issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
                 log.debug("selected issueStubPosition is: $issueStubPosition")
                 if (issueStubPosition != -1) {
                     coverFlowFragment.skipToPosition(issueStubPosition)

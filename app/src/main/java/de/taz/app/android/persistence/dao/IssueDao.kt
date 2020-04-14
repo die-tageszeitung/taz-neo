@@ -39,6 +39,9 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE dateDownload != \"\" ORDER BY dateDownload ASC LIMIT 1")
     abstract fun getEarliestDownloaded(): IssueStub?
 
+    @Query("SELECT * FROM Issue ORDER BY date ASC LIMIT 1")
+    abstract fun getEarliest(): IssueStub?
+
     @Query("SELECT * FROM Issue WHERE dateDownload != \"\"")
     abstract fun getAllDownloaded(): List<IssueStub>?
 
