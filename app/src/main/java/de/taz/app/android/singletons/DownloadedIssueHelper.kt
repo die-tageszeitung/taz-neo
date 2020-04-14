@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
+const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 
 class DownloadedIssueHelper private constructor(applicationContext: Context) {
 

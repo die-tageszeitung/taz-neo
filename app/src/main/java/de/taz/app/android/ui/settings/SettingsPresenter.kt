@@ -24,7 +24,7 @@ class SettingsPresenter(
 
     override fun attach(view: SettingsFragment) {
         super.attach(view)
-        view.getMainView()?.getApplicationContext()?.let {
+        view.getMainView()?.applicationContext?.let {
             viewModel?.initializeSettings(it)
         }
     }
@@ -42,6 +42,9 @@ class SettingsPresenter(
                 }
                 it.observeStoredIssueNumber(getLifecycleOwner()) { storedIssueNumber ->
                     showStoredIssueNumber(storedIssueNumber)
+                }
+                it.observeDownloadOnlyInWifi(getLifecycleOwner()) { onlyWifi ->
+                    showOnlyWifi(onlyWifi)
                 }
             }
 
@@ -106,6 +109,10 @@ class SettingsPresenter(
 
     override fun reportBug() {
         getView()?.getMainView()?.showMainFragment(ErrorReportFragment())
+    }
+
+    override fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
+        viewModel?.setDownloadOnlyInWifi(onlyWifi)
     }
 
     override fun logout() {

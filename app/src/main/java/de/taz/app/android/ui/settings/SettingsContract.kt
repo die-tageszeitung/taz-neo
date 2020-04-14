@@ -14,6 +14,8 @@ interface SettingsContract {
 
         fun showTextSize(textSize: Int)
 
+        fun showOnlyWifi(onlyWifi: Boolean)
+
         fun showLogoutButton()
 
         fun showManageAccountButton()
@@ -27,6 +29,8 @@ interface SettingsContract {
 
         fun observeTextSize(lifecycleOwner: LifecycleOwner, observationCallback: (String) -> Unit)
 
+        fun observeDownloadOnlyInWifi(lifecycleOwner: LifecycleOwner, observationCallback: (Boolean) -> Unit)
+
         fun setStoredIssueNumber(number: Int)
 
         fun setTextSizePercent(percent: String)
@@ -34,6 +38,8 @@ interface SettingsContract {
         fun getTextSizePercent(): String
 
         fun setNightMode(activated: Boolean)
+
+        fun setDownloadOnlyInWifi(onlyWifi: Boolean)
 
         fun initializeSettings(applicationContext: Context)
     }
@@ -52,6 +58,8 @@ interface SettingsContract {
         fun onBottomNavigationItemClicked(menuItem: MenuItem)
 
         fun reportBug()
+
+        fun setDownloadOnlyInWifi(onlyWifi: Boolean)
 
         fun logout()
     }
