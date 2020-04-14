@@ -15,7 +15,6 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
@@ -160,7 +159,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             showMainFragment(BookmarksFragment())
         } else {
             if (hasBeenSwiped) {
-                showSection()
+                showSectionOrGoBack()
             } else {
                 parentFragmentManager.popBackStack()
             }
@@ -168,7 +167,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         return true
     }
 
-    private fun showSection() {
+    private fun showSectionOrGoBack() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.articleList?.get(
                 viewModel.currentPosition ?: 0
@@ -176,23 +175,20 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
                 withContext(Dispatchers.Main) {
                     showInWebView(it)
                 }
+            } ?: withContext(Dispatchers.Main) {
+                parentFragmentManager.popBackStack()
             }
         }
     }
 
     fun tryLoadArticle(articleFileName: String): Boolean {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val articleStubs =
-                ArticleRepository.getInstance()
-                    .getIssueArticleStubListByArticleName(articleFileName)
-
-            withContext(Dispatchers.Main) {
-                webview_pager_viewpager.setCurrentItem(
-                    articleStubs.indexOfFirst { it.key == articleFileName }, false
-                )
+        viewModel.articleList?.indexOfFirst { it.key == articleFileName }?.let { index ->
+            if (index > 0) {
+                webview_pager_viewpager.setCurrentItem(index, false)
+                return true
             }
         }
-        return true
+        return false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
