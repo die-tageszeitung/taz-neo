@@ -120,9 +120,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
-
-            activity_main_version.text = BuildConfig.VERSION_NAME
-            activity_main_version.visibility = View.VISIBLE
         }
 
         lockEndNavigationView()

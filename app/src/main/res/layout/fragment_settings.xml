@@ -75,11 +75,12 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
-            <include
+            <Switch
                 android:id="@+id/fragment_settings_night_mode"
-                layout="@layout/settings_switch"
+                style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/settings_text_night_mode"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
 
 
@@ -133,6 +134,37 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_support_report_bug"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
+
+            <TextView
+                android:id="@+id/fragment_settings_title_auto_downloads"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_auto_downloads"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_support_report_bug" />
+
+            <Switch
+                android:id="@+id/fragment_settings_auto_download_wifi_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_auto_downloads_wifi_switch"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_title_auto_downloads" />
+
+            <TextView
+                android:id="@+id/fragment_settings_title_version_number"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_version_number"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_auto_download_wifi_switch" />
+
+            <TextView
+                android:id="@+id/fragment_settings_version_number"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_title_version_number" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

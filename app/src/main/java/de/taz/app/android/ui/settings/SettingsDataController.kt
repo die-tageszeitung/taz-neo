@@ -2,6 +2,7 @@ package de.taz.app.android.ui.settings
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.base.BaseDataController
@@ -15,6 +16,7 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
     private lateinit var textSizeLiveData: SharedPreferenceStringLiveData
     private lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
     private lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
+    private lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
 
     override fun observeNightMode(
         lifecycleOwner: LifecycleOwner,
@@ -37,6 +39,13 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
         storedIssueNumberLiveData.observeDistinct(lifecycleOwner, observationCallback)
     }
 
+    override fun observeDownloadOnlyInWifi(
+        lifecycleOwner: LifecycleOwner,
+        observationCallback: (Boolean) -> Unit
+    ) {
+        downloadOnlyWifiLiveData.observeDistinct(lifecycleOwner, observationCallback)
+    }
+
     override fun setStoredIssueNumber(number: Int) {
         storedIssueNumberLiveData.postValue(number.toString())
     }
@@ -51,6 +60,10 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
 
     override fun getTextSizePercent(): String {
         return textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+    }
+
+    override fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
+        downloadOnlyWifiLiveData.postValue(onlyWifi)
     }
 
     override fun initializeSettings(applicationContext: Context) {
@@ -73,7 +86,15 @@ class SettingsDataController : BaseDataController(), SettingsContract.DataContro
                     SETTINGS_GENERAL_KEEP_ISSUES,
                     SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
                 )
+        }
 
+        applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
+            downloadOnlyWifiLiveData =
+                SharedPreferenceBooleanLiveData(
+                    it,
+                    SETTINGS_DOWNLOAD_ONLY_WIFI,
+                    true
+                )
         }
     }
 }
