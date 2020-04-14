@@ -66,7 +66,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
-                if(isWeekend) {
+                if (isWeekend) {
                     FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
                         try {
                             val typeface = Typeface.createFromFile(it)
@@ -96,7 +96,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     override fun hideLoadingScreen() {
-        super.hideLoadingScreen()
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let { article ->
                 if (article.getIssueStub()?.status == IssueStatus.public) {
@@ -110,6 +109,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                             // do nothing already hidden
                         }
                     }
+                }
+                withContext(Dispatchers.Main) {
+                    super.hideLoadingScreen()
                 }
             }
         }
