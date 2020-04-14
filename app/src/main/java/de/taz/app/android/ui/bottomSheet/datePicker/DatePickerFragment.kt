@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -19,6 +20,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
+import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,9 +81,16 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             val month= if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
-            dismiss() //close bottomSheet
+            //dismiss() //close bottomSheet
+            loading_screen?.visibility = View.VISIBLE
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
+            // do not allow to slide fragment away
+            dialog?.window?.decorView?.findViewById<View>(
+                com.google.android.material.R.id.design_bottom_sheet
+            )?.let { bottomSheetView ->
+                BottomSheetBehavior.from(bottomSheetView).isHideable = false
+            }
 
             activity?.lifecycleScope?.launch() {
                 setIssue("$year-$month-$day")
@@ -123,6 +132,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 coverFlowFragment?.get()?.let { coverFlowFragment ->
                     val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
                     coverFlowFragment.skipToPosition(issueStubPosition)
+                    dismiss()
                 }
 
             }
