@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -62,16 +63,8 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                 presenter.resetTextSize()
             }
 
-            findViewById<View>(R.id.fragment_settings_night_mode).apply {
-                val switch = findViewById<Switch>(R.id.preference_switch_switch)
-
-                findViewById<TextView>(R.id.preference_switch_title).apply {
-                    setText(R.string.settings_text_night_mode)
-                    setOnClickListener { switch.toggle() }
-                }
-
-
-                switch.setOnCheckedChangeListener { _, isChecked ->
+            findViewById<Switch>(R.id.fragment_settings_night_mode).apply {
+                setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         presenter.enableNightMode()
                     } else {
@@ -82,6 +75,15 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
 
             fragment_settings_account_logout.setOnClickListener {
                 presenter.logout()
+            }
+
+            findViewById<TextView>(R.id.fragment_settings_version_number)?.text =
+                BuildConfig.VERSION_NAME
+
+            findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch).apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    presenter.setDownloadOnlyInWifi(isChecked)
+                }
             }
         }
 
@@ -122,7 +124,12 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
     }
 
     override fun showNightMode(nightMode: Boolean) {
-        view?.findViewById<Switch>(R.id.preference_switch_switch)?.isChecked = nightMode
+        view?.findViewById<Switch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
+    }
+
+    override fun showOnlyWifi(onlyWifi: Boolean) {
+        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
+            onlyWifi
     }
 
     override fun showTextSize(textSize: Int) {

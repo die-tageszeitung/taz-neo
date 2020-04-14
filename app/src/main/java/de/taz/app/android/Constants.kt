@@ -13,5 +13,6 @@ const val WEBVIEW_DRAG_SENSITIVITY_FACTOR = 2
 const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME="knile-semibold-webfont.woff"
 
 // Preferences
+const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
 const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
