@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebChromeClient
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.MutableLiveData
@@ -98,7 +97,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     private fun configureWebView() {
         web_view?.apply {
             webViewClient = AppWebViewClient(this@WebViewFragment)
-            webChromeClient = WebChromeClient()
+            webChromeClient = AppWebChromeClient(::onPageRendered)
             settings.javaScriptEnabled = true
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
         }
@@ -106,9 +105,21 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     abstract fun setHeader(displayable: DISPLAYABLE)
 
+    private fun onPageRendered() {
+        val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        viewModel.scrollPosition?.let {
+            nestedScrollView?.scrollY = it
+        } ?: view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
+        hideLoadingScreen()
+    }
+
+    override fun onPageFinishedLoading() {
+        // do nothing instead use onPageRendered
+    }
+
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen?.visibility = View.GONE
+            loading_screen?.animate()?.alpha(0f)?.duration = 100
         }
     }
 
@@ -223,14 +234,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onLinkClicked(displayableKey: String) {
         getMainActivity()?.showInWebView(displayableKey)
-    }
-
-    override fun onPageFinishedLoading() {
-        hideLoadingScreen()
-        val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        viewModel.scrollPosition?.let {
-            nestedScrollView?.scrollY = it
-        } ?: view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
     }
 
     /**
