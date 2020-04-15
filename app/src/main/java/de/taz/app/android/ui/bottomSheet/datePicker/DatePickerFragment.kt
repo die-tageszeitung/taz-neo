@@ -81,7 +81,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             val month= if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
-            //dismiss() //close bottomSheet
             loading_screen?.visibility = View.VISIBLE
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
