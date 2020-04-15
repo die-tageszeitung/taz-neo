@@ -15,6 +15,9 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND strftime('%s', date) <= strftime('%s', :date) AND status == :status ORDER BY date DESC LIMIT 1 ")
     abstract fun getLatestByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): IssueStub?
 
+    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT 1 ")
+    abstract fun getLatestByDate(date: String): IssueStub?
+
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
     abstract fun getByFeedDateAndStatusLiveData(feedName: String, date: String, status: IssueStatus): LiveData<IssueStub?>
 
