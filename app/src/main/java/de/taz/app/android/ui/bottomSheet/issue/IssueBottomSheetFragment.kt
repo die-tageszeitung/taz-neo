@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.main.MainActivity
@@ -94,17 +95,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 afterDelete = true
                 loading_screen?.visibility = View.VISIBLE
 
-                // remove onclicklistener when clicking to greyed out area
-                dialog?.window?.decorView?.findViewById<View>(
-                    com.google.android.material.R.id.touch_outside
-                )?.setOnClickListener(null)
-
-                // do not allow to slide fragment away
-                dialog?.window?.decorView?.findViewById<View>(
-                    com.google.android.material.R.id.design_bottom_sheet
-                )?.let { bottomSheetView ->
-                    BottomSheetBehavior.from(bottomSheetView).isHideable = false
-                }
+                preventDismissal()
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val issueRepository = IssueRepository.getInstance()
