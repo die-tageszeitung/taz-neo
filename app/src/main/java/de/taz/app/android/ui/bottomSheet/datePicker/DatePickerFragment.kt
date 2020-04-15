@@ -13,6 +13,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -84,12 +85,8 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             loading_screen?.visibility = View.VISIBLE
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
-            // do not allow to slide fragment away
-            dialog?.window?.decorView?.findViewById<View>(
-                com.google.android.material.R.id.design_bottom_sheet
-            )?.let { bottomSheetView ->
-                BottomSheetBehavior.from(bottomSheetView).isHideable = false
-            }
+
+            preventDismissal()
 
             activity?.lifecycleScope?.launch() {
                 setIssue("$year-$month-$day")
