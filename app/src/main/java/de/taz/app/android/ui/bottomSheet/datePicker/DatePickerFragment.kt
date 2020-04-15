@@ -118,13 +118,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
                 var earliestDate = earliestIssueStub.date
-                while (issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus) == null)  {
+                while (issueRepository.getLatestIssueStubByDate(date) == null)  {
                     //get stuff from api
                     val newIssues = apiService.getIssuesByDate(earliestDate)
                     newIssues.forEach { issueRepository.save(it) }
                     earliestDate = newIssues.last().date
                 }
-                val selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
+                val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
                 coverFlowFragment?.get()?.let { coverFlowFragment ->
                     val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
                     coverFlowFragment.skipToPosition(issueStubPosition)
