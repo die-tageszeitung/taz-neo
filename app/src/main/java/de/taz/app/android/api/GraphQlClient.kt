@@ -55,7 +55,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 response.body?.string().toString()
             }
             withContext(Dispatchers.IO) {
-                log.debug("graphQL response: $string")
+                log.debug("graphQL response: ${string.take(100)}")
                 val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(string)
                 if (wrapper?.data == null) {
                     val errorString = wrapper?.errors.toString()
