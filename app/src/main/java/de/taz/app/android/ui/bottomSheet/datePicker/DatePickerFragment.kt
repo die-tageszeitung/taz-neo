@@ -107,15 +107,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String){
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            // use proper issue status (regular if logged in; public if not)
-            val authStatus = AuthHelper.getInstance().authStatus
-            var issueStatus : IssueStatus = IssueStatus.public
-            if (authStatus == AuthStatus.valid
-                || authStatus == AuthStatus.alreadyLinked
-                || authStatus == AuthStatus.tazIdNotLinked) {
-               issueStatus = IssueStatus.regular
-            }
-
             issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
                 var earliestDate = earliestIssueStub.date
                 while (issueRepository.getLatestIssueStubByDate(date) == null)  {
