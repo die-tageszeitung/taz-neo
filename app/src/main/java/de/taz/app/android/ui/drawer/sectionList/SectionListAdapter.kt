@@ -36,7 +36,7 @@ class SectionListAdapter(
     private var currentJob: Job? = null
     private val observer = MomentDownloadedObserver()
 
-    fun setData(newIssueOperations: IssueOperations?) {
+    fun setIssueOperations(newIssueOperations: IssueOperations?) {
         if (issueOperations?.tag != newIssueOperations?.tag) {
             fragment.view?.alpha = 0f
             this.issueOperations = newIssueOperations
@@ -47,6 +47,10 @@ class SectionListAdapter(
 
             drawIssue()
         }
+    }
+
+    fun getIssueOperations(): IssueOperations? {
+        return issueOperations
     }
 
     fun show() {
