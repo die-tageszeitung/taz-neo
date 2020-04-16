@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import androidx.room.Entity
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import kotlinx.serialization.Serializable
 
@@ -18,7 +19,8 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution
-): FileEntryOperations {
+):  CacheableDownload,
+    FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
         name = imageDto.name,
@@ -31,6 +33,8 @@ data class Image(
         alpha = imageDto.alpha,
         resolution = imageDto.resolution
     )
+
+    override fun getAllFileNames() = listOf(this.name)
 }
 
 enum class ImageType {

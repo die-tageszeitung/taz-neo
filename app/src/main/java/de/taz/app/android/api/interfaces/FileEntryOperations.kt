@@ -26,10 +26,6 @@ interface FileEntryOperations {
         DownloadRepository.getInstance().delete(name)
     }
 
-    suspend fun isDownloadedLiveData() : LiveData<Boolean> = withContext(Dispatchers.IO) {
-        DownloadRepository.getInstance().isDownloadedLiveData(name)
-    }
-
     companion object {
         fun getStorageFolder(storageType: StorageType, folder: String): String {
             return when (storageType) {
