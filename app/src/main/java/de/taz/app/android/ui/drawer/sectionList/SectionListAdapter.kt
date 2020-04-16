@@ -95,6 +95,11 @@ class SectionListAdapter(
                 }
             }
             visibility = View.VISIBLE
+            fragment.lifecycleScope.launch(Dispatchers.Main) {
+                typeface = if (issueOperations?.isWeekend == true) {
+                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            }
         }
     }
 
