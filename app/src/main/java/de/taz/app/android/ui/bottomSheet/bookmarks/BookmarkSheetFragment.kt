@@ -38,12 +38,12 @@ class BookmarkSheetFragment : Fragment(R.layout.fragment_bottom_sheet_bookmarks)
 
         fragment_bottom_sheet_bookmarks_add?.setOnClickListener {
             toggleBookmark()
-            (this.parentFragment as DialogFragment).dismiss()
+            (this.parentFragment as? DialogFragment)?.dismiss()
         }
 
         fragment_bottom_sheet_bookmarks_my_bookmarks?.setOnClickListener {
             (activity as? MainActivity)?.showMainFragment(BookmarksFragment())
-            (this.parentFragment as DialogFragment).dismiss()
+            (this.parentFragment as? DialogFragment)?.dismiss()
         }
 
         viewModel.isBookmarkedLiveData.observeDistinct(this) { isBookmarked ->
