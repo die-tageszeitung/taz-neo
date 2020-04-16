@@ -117,11 +117,6 @@ class CoverflowFragment :
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        getMainView()?.setDrawerNavButton()
-    }
-
     inner class CoverFlowOnPageChangeCallback : RecyclerView.OnScrollListener() {
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
