@@ -2,7 +2,6 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.TargetApi
 import android.content.Intent
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,9 +18,9 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
-import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
@@ -67,15 +66,10 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
                 if (isWeekend) {
-                    FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
-                        try {
-                            val typeface = Typeface.createFromFile(it)
-                            withContext(Dispatchers.Main) {
-                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
-                            }
-                        } catch (e: Exception) {
-                            Sentry.capture(e)
+                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
+                        withContext(Dispatchers.Main) {
+                            view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                            view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
                         }
                     }
                 }
