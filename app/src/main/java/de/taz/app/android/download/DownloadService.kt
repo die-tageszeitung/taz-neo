@@ -6,8 +6,8 @@ import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.FileEntry
@@ -47,7 +47,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    suspend fun download(cacheableDownload: CacheableDownload) {
+    suspend fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null) {
 
         if (appInfoRepository.get() == null) {
             AppInfo.update()
@@ -73,7 +73,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     this.cancel(CAUSE_NO_INTERNET, e)
                 }
 
-                createDownloadsForCacheableDownload(cacheableDownload)
+                createDownloadsForCacheableDownload(cacheableDownload, baseUrl)
 
                 DownloadWorker(applicationContext).startDownloads(
                     cacheableDownload.getAllFiles()
@@ -157,7 +157,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun createDownloadsForCacheableDownload(
-        cacheableDownload: CacheableDownload
+        cacheableDownload: CacheableDownload,
+        baseUrl: String? = null
     ): List<Download> {
         val downloads = mutableListOf<Download>()
 
@@ -204,6 +205,16 @@ class DownloadService private constructor(val applicationContext: Context) {
             )
         }
 
+        // create single FileEntry downloads if baseUrl is given
+        if (baseUrl != null && cacheableDownload is FileEntry) {
+            downloads.addAll(
+                createAndSaveDownloads(
+                    baseUrl,
+                    allFiles,
+                    tag
+                )
+            )
+        }
         return downloads
     }
 
