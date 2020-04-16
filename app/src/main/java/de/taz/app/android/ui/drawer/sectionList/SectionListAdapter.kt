@@ -38,25 +38,20 @@ class SectionListAdapter(
 
     fun setData(newIssueOperations: IssueOperations?) {
         if (issueOperations?.tag != newIssueOperations?.tag) {
+            fragment.view?.alpha = 0f
             this.issueOperations = newIssueOperations
+
+            sectionList.clear()
+            moment = null
+            imprint = null
+
+            drawIssue()
         }
     }
 
     fun show() {
-        fragment.view?.alpha = 0f
         fragment.view?.scrollY = 0
         moment?.isDownloadedLiveData()?.removeObserver(observer)
-        fragment.view?.findViewById<MomentView>(
-            R.id.fragment_drawer_sections_moment
-        )?.apply {
-            visibility = View.INVISIBLE
-        }
-
-        sectionList.clear()
-        moment = null
-        imprint = null
-
-        drawIssue()
         fragment.view?.animate()?.alpha(1f)?.duration = 500
     }
 
