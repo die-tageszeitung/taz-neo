@@ -44,6 +44,7 @@ class SectionListAdapter(
 
     fun show() {
         fragment.view?.alpha = 0f
+        fragment.view?.scrollY = 0
         moment?.isDownloadedLiveData()?.removeObserver(observer)
         fragment.view?.findViewById<MomentView>(
             R.id.fragment_drawer_sections_moment
