@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
-import android.graphics.Typeface
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -14,7 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.FontHelper
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,15 +41,9 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                 val issueOperations = displayable.getIssueOperations()
                 issueOperations.apply {
                     if (isWeekend) {
-                        FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
-                            try {
-                                val typeface = Typeface.createFromFile(it)
-                                withContext(Dispatchers.Main) {
-                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                }
-                            } catch (e: Exception) {
-                                Sentry.capture(e)
-                            }
+                        withContext(Dispatchers.Main) {
+                            view?.findViewById<TextView>(R.id.section)?.typeface =
+                                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
                         }
                     }
                 }

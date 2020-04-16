@@ -68,8 +68,8 @@
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/textColorSection</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingBottom">7dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:lineSpacingExtra">0dp</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Imprint" parent="TextAppearance.Drawer.Sections">
