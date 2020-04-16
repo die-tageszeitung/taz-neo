@@ -15,10 +15,12 @@ import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.WoffConverter
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.lang.Exception
 
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
@@ -44,7 +46,13 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                     if (isWeekend) {
                         FileHelper.getInstance().getFile(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let {
                             try {
-                                val typeface = Typeface.createFromFile(it)
+                                val ttfPath = it.absolutePath.replace(".woff", ".ttf")
+                                val ttfFile = File(ttfPath)
+                                if (!ttfFile.exists()) {
+                                    ttfFile.createNewFile()
+                                    ttfFile.writeBytes(WoffConverter().convertToTTFByteArray(it.inputStream()))
+                                }
+                                val typeface = Typeface.createFromFile(ttfFile)
                                 withContext(Dispatchers.Main) {
                                     view?.findViewById<TextView>(R.id.section)?.typeface = typeface
                                 }
