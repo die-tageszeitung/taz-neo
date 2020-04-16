@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.drawer.sectionList
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,11 +8,13 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.*
 import java.util.*
@@ -40,6 +43,7 @@ class SectionListAdapter(
     }
 
     fun show() {
+        fragment.view?.alpha = 0f
         moment?.isDownloadedLiveData()?.removeObserver(observer)
         fragment.view?.findViewById<MomentView>(
             R.id.fragment_drawer_sections_moment
@@ -52,6 +56,7 @@ class SectionListAdapter(
         imprint = null
 
         drawIssue()
+        fragment.view?.animate()?.alpha(1f)?.duration = 500
     }
 
     private fun drawIssue() {
@@ -125,6 +130,11 @@ class SectionListAdapter(
         // create a new view
         val textView = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
+        CoroutineScope(Dispatchers.Main).launch {
+            textView.typeface = if (issueOperations?.isWeekend == true) {
+                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+        }
         return SectionListAdapterViewHolder(
             textView
         )
@@ -144,6 +154,15 @@ class SectionListAdapter(
                     }
                 }
             }
+        }
+    }
+
+    override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
+        super.onViewRecycled(holder)
+        CoroutineScope(Dispatchers.Main).launch {
+            holder.textView.typeface = if (issueOperations?.isWeekend == true) {
+                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
         }
     }
 
