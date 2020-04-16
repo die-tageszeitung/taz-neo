@@ -6,10 +6,13 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Moment(
-    val imageList: List<FileEntry> = emptyList()
+    val imageList: List<FileEntry> = emptyList(),
+    val creditList: List<FileEntry> = emptyList()
 ): CacheableDownload {
     constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto): this(
         momentDto.imageList
+            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+        momentDto.creditList
             ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
@@ -21,6 +24,13 @@ data class Moment(
         return imageList.filter { it.name.contains(".normal.") }.map { it.name }.distinct()
     }
 
+    fun getMomentFileToShare(): FileEntry {
+        return if (creditList.isNotEmpty()) {
+            creditList.first { it.name.contains(".high.") }
+        } else {
+            imageList.first { it.name.contains(".high.") }
+        }
+    }
 
     fun getIssueStub(): IssueStub {
         return IssueRepository.getInstance().getIssueStubForMoment(this)

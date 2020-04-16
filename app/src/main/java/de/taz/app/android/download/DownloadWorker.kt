@@ -78,6 +78,7 @@ class DownloadWorker(
     suspend fun startDownload(fileName: String) {
 
         fileEntryRepository.get(fileName)?.let { fileEntry ->
+            log.debug("FILE FOUND IN fileEntryRepository: $fileName")
             downloadRepository.getStub(fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
                 if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
@@ -144,7 +145,7 @@ class DownloadWorker(
                     fromDB.workerManagerId = null
                     downloadRepository.update(fromDB)
                 }
-            } ?: log.error("download for $fileName not found")
+            } ?: log.error("download for $fileName failed. File not found in downloadRepository")
         }
     }
 }

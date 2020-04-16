@@ -13,6 +13,9 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
+import de.taz.app.android.download.DownloadService
+import de.taz.app.android.download.DownloadWorker
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.main.MainActivity
@@ -66,7 +69,13 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             issueStub?.let { issueStub ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     val issue = IssueRepository.getInstance().getIssue(issueStub)
-                    issue.moment.getAllFiles().last().let { image ->
+                    issue.moment.getMomentFileToShare().let { image ->
+                        log.debug("File to share: $image")
+                        FileEntryRepository.getInstance().get(
+                            image.name
+                        )?.let {
+                            DownloadService.getInstance().download(it)
+                        }
                         val imageAsFile = FileHelper.getInstance().getFile(image)
                         val applicationId = view.context.packageName
                         val imageUriNew = FileProvider.getUriForFile(
