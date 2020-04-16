@@ -74,7 +74,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                         FileEntryRepository.getInstance().get(
                             image.name
                         )?.let {
-                            DownloadService.getInstance().download(it)
+                            DownloadService.getInstance().download(it, issue.baseUrl)
                         }
                         val imageAsFile = FileHelper.getInstance().getFile(image)
                         val applicationId = view.context.packageName
