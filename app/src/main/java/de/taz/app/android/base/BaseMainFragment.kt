@@ -26,6 +26,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
 
     override fun onResume() {
         super.onResume()
+        getMainView()?.setDrawerNavButton()
         setEndNavigation()
     }
 
