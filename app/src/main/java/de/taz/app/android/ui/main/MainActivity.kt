@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -315,7 +314,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         (supportFragmentManager.findFragmentById(
             R.id.drawer_menu_fragment_placeholder
         ) as? SectionDrawerFragment)?.apply {
-            setIssueStub(issueOperations)
+            setIssueOperations(issueOperations)
         }
     }
 
