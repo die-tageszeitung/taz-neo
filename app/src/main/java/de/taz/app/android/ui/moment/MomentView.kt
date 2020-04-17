@@ -16,12 +16,15 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.Moment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,7 +109,7 @@ class MomentView @JvmOverloads constructor(
             viewModel.isMomentDownloadedLiveData.removeObserver(it)
             momentIsDownloadedObserver = null
         }
-        viewModel.setIssueOperations(null)
+        viewModel.issueOperations = null
         clearDate()
         hideBitmap()
         hideDownloadIcon()
@@ -133,7 +136,7 @@ class MomentView @JvmOverloads constructor(
     fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
         this.clear()
         this.dateFormat = dateFormat
-        viewModel.setIssueOperations(issueOperations)
+        viewModel.issueOperations = issueOperations
 
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
             val feed = issueOperations.getFeed()
@@ -203,7 +206,19 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showDownloadIcon() {
-        fragment_moment_is_downloaded?.visibility = View.VISIBLE
+        fragment_moment_is_downloaded?.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewModel.issueOperations?.let {
+                        IssueRepository.getInstance().getIssue(it)?.let { issue ->
+                            DownloadService.getInstance().download(issue)
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private fun hideDownloadIcon() {
