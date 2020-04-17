@@ -64,7 +64,11 @@ class SectionPagerFragment :
         savedInstanceState?.apply {
             issueDate = getString(ISSUE_DATE)
             issueFeedName = getString(ISSUE_FEED)
-            issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+            try {
+                issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+            } catch (e: IllegalArgumentException) {
+                // do nothing issueStatus is null
+            }
             sectionKey = getString(SECTION_KEY)
         }
     }
