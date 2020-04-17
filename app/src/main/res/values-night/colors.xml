@@ -14,10 +14,10 @@
 
     <color name="colorAccent">@color/tazRed</color>
 
-    <color name="backgroundColor">@color/black</color>
-    <color name="textColor">@color/white</color>
+    <color name="backgroundColor">@color/antifaGrey</color>
+    <color name="textColor">@color/superLightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
-    <color name="textColorSection">#E3E3E3</color>
+    <color name="textColorSection">@color/superLightGrey</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
 
