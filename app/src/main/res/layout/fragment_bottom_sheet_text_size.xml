@@ -121,7 +121,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
-            android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
+            android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal_switch"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
