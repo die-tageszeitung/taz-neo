@@ -70,8 +70,9 @@ class MomentViewModel(
             }
         }
 
-    fun setIssueOperations(issueStub: IssueOperations?) {
-        currentIssueOperationsLiveData.postValue(issueStub)
-    }
+    var issueOperations: IssueOperations?
+        set(value) = currentIssueOperationsLiveData.postValue(value)
+        get() = currentIssueOperationsLiveData.value
+
 
 }
