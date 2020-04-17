@@ -62,6 +62,7 @@
 
             <TextView
                     android:id="@+id/fragment_bottom_sheet_text_size_text_size_percentage"
+                    style="@style/TextAppearance.BottomSheet.Setting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="100%"
