@@ -5,6 +5,7 @@
 
     <color name="white">#fff</color>
     <color name="lightGrey">#9C9C9C</color>
+    <color name="mediumLightGrey">#707070</color>
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#262626</color>
     <color name="black">#000</color>
@@ -37,4 +38,6 @@
     <color name="fragment_archive_background">@color/mediumGrey</color>
 
     <color name="bottom_sheet_background">@color/white</color>
+    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+
 </resources>
