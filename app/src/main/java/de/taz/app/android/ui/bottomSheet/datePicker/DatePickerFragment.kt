@@ -119,12 +119,14 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 showIssue(issue)
             }
             else {
-                val newIssue = apiService.getIssuesByDate(date, 1).first()
-                log.debug("newIssue is $newIssue")
-                showIssue(newIssue)
-
                 issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
-                    var earliestDate = earliestIssueStub.date
+                    val earliestDate = earliestIssueStub.date
+
+                    val newIssue = apiService.getIssuesByDate(date, 1).first()
+                    log.debug("newIssue is $newIssue")
+                    issueRepository.save(newIssue)
+                    showIssue(newIssue)
+
                     val missingIssuesCount = dateHelper.dayDelta(date, earliestDate)
                     val missingIssues = apiService.getIssuesByDate(earliestDate, missingIssuesCount.toInt())
                     missingIssues.forEach { issueRepository.save(it) }
