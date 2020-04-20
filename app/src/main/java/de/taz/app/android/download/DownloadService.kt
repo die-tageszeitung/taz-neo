@@ -206,7 +206,10 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
 
         // create single FileEntry downloads if baseUrl is given
-        if (baseUrl != null && cacheableDownload is FileEntry) {
+        if (baseUrl != null &&
+            cacheableDownload is FileEntry &&
+            cacheableDownload.getIssueOperations() == null
+        ) {
             downloads.addAll(
                 createAndSaveDownloads(
                     baseUrl,
