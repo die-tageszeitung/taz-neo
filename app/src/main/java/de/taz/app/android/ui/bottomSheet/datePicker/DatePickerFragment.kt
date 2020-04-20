@@ -76,7 +76,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             }
         }
 
-        fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener {
+        fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener { confirmButton ->
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
             val year = fragment_bottom_sheet_date_picker.year
             val monthShort = fragment_bottom_sheet_date_picker.month + 1
@@ -84,6 +84,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
             loading_screen?.visibility = View.VISIBLE
+            confirmButton.visibility = View.GONE
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
 
