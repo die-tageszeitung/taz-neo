@@ -11,7 +11,7 @@
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
 
-    <dimen name="drawer_margin_top">30dp</dimen>
+    <dimen name="drawer_margin_top">40dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
     <dimen name="drawer_date_margin_bottom">40dp</dimen>
@@ -98,7 +98,7 @@
     <dimen name="fragment_bookmarks_delete_icon_margin">29dp</dimen>
     <dimen name="fragment_bookmarks_line_bottom_margin">10dp</dimen>
 
-    <dimen name="fragment_drawer_sections_moment_margin_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
 
