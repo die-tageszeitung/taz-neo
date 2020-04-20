@@ -165,51 +165,10 @@ class DownloadService private constructor(val applicationContext: Context) {
         val allFiles = fileEntryRepository.get(cacheableDownload.getAllFileNames())
         val tag = cacheableDownload.getDownloadTag()
 
-        val globalFiles = allFiles.filter { it.storageType == StorageType.global }
-        if (globalFiles.isNotEmpty()) {
-            appInfoRepository.get()?.let {
-                downloads.addAll(
-                    createAndSaveDownloads(
-                        it.globalBaseUrl,
-                        globalFiles,
-                        tag
-                    )
-                )
-            }
-        }
-
-        // create resource downloads
-        val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
-        if (resourceFiles.isNotEmpty()) {
-            val resourceInfo = ResourceInfoRepository.getInstance(applicationContext).get()
-            resourceInfo?.let {
-                downloads.addAll(
-                    createAndSaveDownloads(
-                        resourceInfo.resourceBaseUrl,
-                        resourceFiles,
-                        tag
-                    )
-                )
-            }
-        }
-
-        // create issue downloads
-        val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
-        cacheableDownload.getIssueOperations()?.let { issue ->
-            downloads.addAll(
-                createAndSaveDownloads(
-                    issue.baseUrl,
-                    issueFiles,
-                    tag
-                )
-            )
-        }
 
         // create single FileEntry downloads if baseUrl is given
         if (baseUrl != null &&
-            cacheableDownload is FileEntry &&
-            cacheableDownload.getIssueOperations() == null
-        ) {
+            cacheableDownload is FileEntry) {
             downloads.addAll(
                 createAndSaveDownloads(
                     baseUrl,
@@ -218,6 +177,49 @@ class DownloadService private constructor(val applicationContext: Context) {
                 )
             )
         }
+        else {
+            val globalFiles = allFiles.filter { it.storageType == StorageType.global }
+            if (globalFiles.isNotEmpty()) {
+                appInfoRepository.get()?.let {
+                    downloads.addAll(
+                        createAndSaveDownloads(
+                            it.globalBaseUrl,
+                            globalFiles,
+                            tag
+                        )
+                    )
+                }
+            }
+
+            // create resource downloads
+            val resourceFiles = allFiles.filter { it.storageType == StorageType.resource }
+            if (resourceFiles.isNotEmpty()) {
+                val resourceInfo = ResourceInfoRepository.getInstance(applicationContext).get()
+                resourceInfo?.let {
+                    downloads.addAll(
+                        createAndSaveDownloads(
+                            resourceInfo.resourceBaseUrl,
+                            resourceFiles,
+                            tag
+                        )
+                    )
+                }
+            }
+
+            // create issue downloads
+            val issueFiles = allFiles.filter { it.storageType == StorageType.issue }
+            cacheableDownload.getIssueOperations()?.let { issue ->
+                downloads.addAll(
+                    createAndSaveDownloads(
+                        issue.baseUrl,
+                        issueFiles,
+                        tag
+                    )
+                )
+            }
+
+        }
+
         return downloads
     }
 
