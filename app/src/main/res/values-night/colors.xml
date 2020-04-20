@@ -37,4 +37,6 @@
     <color name="fragment_archive_background">@color/mediumGrey</color>
 
     <color name="bottom_sheet_background">@color/black</color>
+    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+
 </resources>
