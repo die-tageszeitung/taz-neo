@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import kotlinx.serialization.Serializable
 
@@ -19,8 +18,7 @@ data class FileEntry(
     override val sha256: String,
     override val size: Long,
     override val folder: String
-): CacheableDownload,
-    FileEntryOperations {
+): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
         fileEntryDto.name,
@@ -31,5 +29,4 @@ data class FileEntry(
         FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder)
     )
 
-    override fun getAllFileNames() = listOf(this.name)
 }
