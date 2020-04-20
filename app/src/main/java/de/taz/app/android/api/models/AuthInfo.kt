@@ -14,5 +14,6 @@ enum class AuthStatus {
     tazIdNotLinked,
     alreadyLinked,
     notValid,
-    elapsed
+    elapsed,
+    notValidMail
 }
