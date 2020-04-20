@@ -5,21 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.*
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -59,6 +56,10 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
+    }
+
+    fun getMainView(): MainActivity? {
+        return activity as? MainActivity
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -110,6 +111,27 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String){
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
+
+            val issueStub = issueRepository.getLatestIssueStubByDate(date)
+            if (issueStub != null) {
+                //show
+                val issue = issueRepository.getIssue(issueStub)
+                showIssue(issue)
+            }
+            else {
+                val newIssue = apiService.getIssuesByDate(date, 1).first()
+                log.debug("newIssue is $newIssue")
+                showIssue(newIssue)
+
+                issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
+                    var earliestDate = earliestIssueStub.date
+                    val missingIssuesCount = dateHelper.dayDelta(date, earliestDate)
+                    val missingIssues = apiService.getIssuesByDate(earliestDate, missingIssuesCount.toInt())
+                    missingIssues.forEach { issueRepository.save(it) }
+                }
+            }
+
+            /*
             issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
                 var earliestDate = earliestIssueStub.date
                 while (issueRepository.getLatestIssueStubByDate(date) == null)  {
@@ -126,6 +148,27 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 }
 
             }
+            */
         }
+    }
+
+    private suspend fun showIssue(issue: Issue) {
+        dismiss() //close datePicker
+        getMainView()?.apply {
+            // start download if not yet downloaded
+            if (!issue.isDownloaded()) {
+                DownloadService.getInstance().download(issue)
+            }
+
+            // set main issue
+            setDrawerIssue(issue)
+
+            issue.sectionList.first().let { firstSection ->
+                showInWebView(firstSection.key)
+            }
+        }
+
+        //TODO reset datePicker + coverFlow onto current issue
+
     }
 }
