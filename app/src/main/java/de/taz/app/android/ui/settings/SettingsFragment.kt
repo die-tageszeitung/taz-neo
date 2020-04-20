@@ -10,22 +10,30 @@ import android.widget.Switch
 import android.widget.TextView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
+import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.settings.support.ErrorReportFragment
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
-class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.fragment_settings),
-    SettingsContract.View {
+class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
-    override val presenter = SettingsPresenter()
+    private val log by Log
 
     private var storedIssueNumber: String? = null
 
+    private var viewModel: SettingsViewModel? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.attach(this)
 
         view.apply {
             findViewById<TextView>(R.id.fragment_header_default_title).text =
@@ -41,7 +49,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
 
             findViewById<TextView>(R.id.fragment_settings_support_report_bug).apply {
                 setOnClickListener {
-                    presenter.reportBug()
+                    reportBug()
                 }
             }
 
@@ -54,39 +62,71 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                 }
 
             findViewById<View>(R.id.settings_text_decrease).setOnClickListener {
-                presenter.decreaseTextSize()
+                decreaseTextSize()
             }
             findViewById<View>(R.id.settings_text_increase).setOnClickListener {
-                presenter.increaseTextSize()
+                increaseTextSize()
             }
             findViewById<View>(R.id.settings_text_size).setOnClickListener {
-                presenter.resetTextSize()
+                resetTextSize()
             }
 
             fragment_settings_night_mode?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
-                        presenter.enableNightMode()
+                        enableNightMode()
                     } else {
-                        presenter.disableNightMode()
+                        disableNightMode()
                     }
                 }
             }
 
             fragment_settings_account_logout.setOnClickListener {
-                presenter.logout()
+                logout()
             }
 
             fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
 
             fragment_settings_auto_download_wifi_switch?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
-                    presenter.setDownloadOnlyInWifi(isChecked)
+                    setDownloadOnlyInWifi(isChecked)
                 }
             }
         }
+    }
 
-        presenter.onViewCreated(savedInstanceState)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = viewModel ?: SettingsViewModel(requireActivity().applicationContext)
+
+        viewModel?.apply {
+            textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
+                textSize.toIntOrNull()?.let { textSizeInt ->
+                    showTextSize(textSizeInt)
+                }
+            }
+            nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
+                showNightMode(nightMode)
+            }
+            storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
+                showStoredIssueNumber(storedIssueNumber)
+            }
+            downloadOnlyWifiLiveData.observeDistinct(viewLifecycleOwner) { onlyWifi ->
+                showOnlyWifi(onlyWifi)
+            }
+        }
+
+        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
+            if (authStatus == AuthStatus.valid) {
+                showLogoutButton()
+            } else {
+                showManageAccountButton()
+            }
+        }
+        authHelper.emailLiveData.observeDistinct(viewLifecycleOwner) { email ->
+            fragment_settings_account_email.text = email
+        }
     }
 
     private fun showKeepIssuesDialog() {
@@ -98,7 +138,7 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
                         R.id.dialog_settings_keep_number
                     )
                     editText.text.toString().toIntOrNull()?.let { number ->
-                        presenter.setStoredIssueNumber(number)
+                        setStoredIssueNumber(number)
                         dialog.hide()
                     }
                 }
@@ -116,41 +156,100 @@ class SettingsFragment : BaseMainFragment<SettingsContract.Presenter>(R.layout.f
         }
     }
 
-    override fun showStoredIssueNumber(number: String) {
+    private fun showStoredIssueNumber(number: String) {
         storedIssueNumber = number
         val text = getString(R.string.settings_general_keep_number_issues, number)
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 
-    override fun showNightMode(nightMode: Boolean) {
+    private fun showNightMode(nightMode: Boolean) {
         view?.findViewById<Switch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
-    override fun showOnlyWifi(onlyWifi: Boolean) {
+    private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
     }
 
-    override fun showTextSize(textSize: Int) {
+    private fun showTextSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
-    }
-
-    override fun showLogoutButton() {
+    private fun showLogoutButton() {
         fragment_settings_account_email.visibility = View.VISIBLE
         fragment_settings_account_logout.visibility = View.VISIBLE
         fragment_settings_account_manage_account.visibility = View.GONE
     }
 
-    override fun showManageAccountButton() {
+    private fun showManageAccountButton() {
         fragment_settings_account_email.visibility = View.GONE
         fragment_settings_account_logout.visibility = View.GONE
         fragment_settings_account_manage_account.visibility = View.VISIBLE
     }
 
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
+            showHome()
+        }
+    }
+
+    private fun setStoredIssueNumber(number: Int) {
+        log.debug("setKeepNumber: $number")
+        viewModel?.storedIssueNumberLiveData?.postValue(number.toString())
+    }
+
+    private fun disableNightMode() {
+        log.debug("disableNightMode")
+        viewModel?.nightModeLiveData?.postValue(false)
+    }
+
+    private fun enableNightMode() {
+        log.debug("enableNightMode")
+        viewModel?.nightModeLiveData?.postValue(true)
+    }
+
+
+    private fun decreaseTextSize() {
+        viewModel?.apply {
+            val newSize = getTextSizePercent().toInt() - 10
+            if (newSize >= MIN_TEXT_SIZE) {
+                textSizeLiveData?.postValue(newSize.toString())
+            }
+        }
+    }
+
+    private fun increaseTextSize() {
+        log.debug("increaseTextSize")
+        viewModel?.apply {
+            val newSize = getTextSizePercent().toInt() + 10
+            if (newSize <= MAX_TEST_SIZE) {
+                textSizeLiveData.postValue(newSize.toString())
+            }
+        }
+    }
+
+    private fun resetTextSize() {
+        log.debug("resetTextSize")
+        viewModel?.textSizeLiveData?.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
+    }
+
+    private fun reportBug() {
+        showMainFragment(ErrorReportFragment())
+    }
+
+    private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
+        viewModel?.downloadOnlyWifiLiveData?.postValue(onlyWifi)
+    }
+
+    private fun logout() {
+        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        authHelper.token = ""
+        authHelper.authStatus = AuthStatus.notValid
+    }
+
+    private fun getTextSizePercent(): String {
+        return viewModel?.textSizeLiveData?.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+    }
 }
