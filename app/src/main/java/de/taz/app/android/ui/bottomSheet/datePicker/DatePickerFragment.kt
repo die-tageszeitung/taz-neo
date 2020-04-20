@@ -68,6 +68,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
         //Comment in for minDate and maxDate constraints. UX is somewhat whack..
         fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
+        log.debug("maxDate is ${dateHelper.longToString(dateHelper.today())}")
         lifecycleScope.launch(Dispatchers.IO) {
             feed = FeedRepository.getInstance().get("taz")
             feed?.let { feed ->
