@@ -36,7 +36,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
         super.onViewCreated(view, savedInstanceState)
 
         view.apply {
-            findViewById<TextView>(R.id.fragment_header_default_title).text =
+            findViewById<TextView>(R.id.fragment_header_settings_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
                 )
