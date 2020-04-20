@@ -125,7 +125,7 @@ class LoginViewModel(
                 }
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-
+                AuthStatus.notValidMail,
                 AuthStatus.notValid -> {
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
