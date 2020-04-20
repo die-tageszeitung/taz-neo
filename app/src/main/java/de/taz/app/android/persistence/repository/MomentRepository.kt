@@ -16,6 +16,7 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.fileEntryDao().insertOrReplace(moment.imageList)
+        appDatabase.imageDao().insertOrReplace(moment.creditList)
         appDatabase.issueMomentJoinDao().insertOrReplace(
             moment.imageList.mapIndexed { index, fileEntry ->
                 IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)

@@ -18,7 +18,7 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution
-): FileEntryOperations {
+):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
         name = imageDto.name,
@@ -31,6 +31,7 @@ data class Image(
         alpha = imageDto.alpha,
         resolution = imageDto.resolution
     )
+
 }
 
 enum class ImageType {

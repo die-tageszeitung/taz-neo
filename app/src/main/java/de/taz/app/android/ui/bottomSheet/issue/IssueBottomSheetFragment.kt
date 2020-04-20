@@ -7,22 +7,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
+import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
@@ -66,7 +65,16 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             issueStub?.let { issueStub ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     val issue = IssueRepository.getInstance().getIssue(issueStub)
-                    issue.moment.getAllFiles().last().let { image ->
+                    issue.moment.getMomentFileToShare().let { image ->
+                        ImageRepository.getInstance().get(
+                            image.name
+                        )?.let {
+                            DownloadService.getInstance().download(it, issue.baseUrl)
+                        }?: FileEntryRepository.getInstance().get(
+                                image.name
+                            )?.let {
+                                DownloadService.getInstance().download(it, issue.baseUrl)
+                        }
                         val imageAsFile = FileHelper.getInstance().getFile(image)
                         val applicationId = view.context.packageName
                         val imageUriNew = FileProvider.getUriForFile(
