@@ -1,15 +1,12 @@
 package de.taz.app.android.api.interfaces
 
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.GLOBAL_FOLDER
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.singletons.FileHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
-interface FileEntryOperations {
+interface FileEntryOperations: CacheableDownload {
     val name: String
     val storageType: StorageType
     val moTime: Long
@@ -35,4 +32,5 @@ interface FileEntryOperations {
             }
         }
     }
+    override fun getAllFileNames() = listOf(this.name)
 }
