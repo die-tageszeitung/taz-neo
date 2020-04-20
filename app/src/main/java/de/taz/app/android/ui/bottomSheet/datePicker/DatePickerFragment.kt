@@ -124,37 +124,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 }
 
             }
-            /*
-            var selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
-            log.debug("selected issueStub is: $selectedIssueStub")
-            coverFlowFragment?.get()?.let { coverFlowFragment ->
-                var issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
-                log.debug("selected issueStubPosition is: $issueStubPosition")
-                if (issueStubPosition != -1) {
-                    coverFlowFragment.skipToPosition(issueStubPosition)
-                }
-                else {
-                    //download Issue
-                    log.debug("downloading next issues")
-                    //coverFlowFragment.presenter.downloadNextIssues(date, 10)
-                    try {
-                        log.debug("and enters the try block")
-                        val issues = apiService.getIssuesByDate(issueDate = date, limit = 1)
-                        log.debug("issues are a downloaded from api")
-                        issueRepository.save(issues)
-
-                        //determine issue position and show
-                        selectedIssueStub = issueRepository.getLatestIssueStubByFeedAndDate("taz", date, issueStatus)
-                        log.debug("selected issueStub after downloading is: $selectedIssueStub")
-                        issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
-                        log.debug("selected issueStubPosition after download is: $issueStubPosition")
-                        coverFlowFragment.skipToPosition(issueStubPosition)
-                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        log.debug("there was not internet")
-                    }
-                }
-            }
-            */
         }
     }
 }
