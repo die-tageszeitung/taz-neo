@@ -14,6 +14,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -66,14 +67,14 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
 
         //Comment in for minDate and maxDate constraints. UX is somewhat whack..
-        //fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
-        //lifecycleScope.launch(Dispatchers.IO) {
-        //    feed = FeedRepository.getInstance().get("taz")
-        //    feed?.let { feed ->
-        //        log.debug("minDate is: ${feed.issueMinDate}")
-        //        fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
-        //    }
-        //}
+        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
+        lifecycleScope.launch(Dispatchers.IO) {
+            feed = FeedRepository.getInstance().get("taz")
+            feed?.let { feed ->
+                log.debug("minDate is: ${feed.issueMinDate}")
+                fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
+            }
+        }
 
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener {
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
