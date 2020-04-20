@@ -70,6 +70,7 @@
 
             <include
                 android:id="@+id/fragment_settings_text_size"
+                style="@style/TextAppearance.Settings.Category"
                 layout="@layout/settings_text_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

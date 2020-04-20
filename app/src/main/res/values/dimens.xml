@@ -44,8 +44,8 @@
     <dimen name="fragment_settings_title_margin_top">10dp</dimen>
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
     <dimen name="fragment_settings_padding_vertical">8dp</dimen>
-    <dimen name="fragment_settings_padding_top">1dp</dimen>
-    <dimen name="fragment_settings_padding_bottom">16dp</dimen>
+    <dimen name="fragment_settings_padding_top">0dp</dimen>
+    <dimen name="fragment_settings_padding_bottom">0dp</dimen>
     <dimen name="fragment_settings_category_padding_top">38dp</dimen>
     <dimen name="fragment_settings_category_padding_bottom">16dp</dimen>
     <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>

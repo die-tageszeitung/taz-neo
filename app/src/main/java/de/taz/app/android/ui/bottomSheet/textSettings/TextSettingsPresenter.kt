@@ -7,7 +7,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
 import de.taz.app.android.ui.settings.SettingsFragment
 
-const val MIN_TEXT_SIZE = 0
+const val MIN_TEXT_SIZE = 30
 const val MAX_TEST_SIZE = 200
 
 class TextSizePresenter : BasePresenter<TextSettingsContract.View, TextSettingsDataController>(

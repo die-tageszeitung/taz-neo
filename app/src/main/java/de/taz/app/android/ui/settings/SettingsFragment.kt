@@ -61,13 +61,13 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                     )
                 }
 
-            findViewById<View>(R.id.settings_text_decrease).setOnClickListener {
+            findViewById<View>(R.id.settings_text_decrease_wrapper).setOnClickListener {
                 decreaseTextSize()
             }
-            findViewById<View>(R.id.settings_text_increase).setOnClickListener {
+            findViewById<View>(R.id.settings_text_increase_wrapper).setOnClickListener {
                 increaseTextSize()
             }
-            findViewById<View>(R.id.settings_text_size).setOnClickListener {
+            findViewById<View>(R.id.settings_text_size_wrapper).setOnClickListener {
                 resetTextSize()
             }
 
@@ -215,7 +215,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
         viewModel?.apply {
             val newSize = getTextSizePercent().toInt() - 10
             if (newSize >= MIN_TEXT_SIZE) {
-                textSizeLiveData?.postValue(newSize.toString())
+                textSizeLiveData.postValue(newSize.toString())
             }
         }
     }
