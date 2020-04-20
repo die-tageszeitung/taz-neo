@@ -6,23 +6,25 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.home.feedFilter.FeedFilterFragment
+import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.bookmarks.BookmarksFragment
+import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_feed.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class HomeFragment : BaseMainFragment<HomePresenter>(R.layout.fragment_feed), HomeContract.View {
+class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_feed) {
     val log by Log
-
-    override val presenter: HomePresenter =
-        HomePresenter()
-    override val endNavigationFragment = FeedFilterFragment()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.attach(this)
         feed_archive_pager.adapter =
             HomeFragmentPagerAdapter(
                 childFragmentManager,
@@ -31,7 +33,7 @@ class HomeFragment : BaseMainFragment<HomePresenter>(R.layout.fragment_feed), Ho
 
         // reduce viewpager2 sensitivity to make the view less finnicky
         feed_archive_pager.reduceDragSensitivity(6)
-        feed_archive_pager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+        feed_archive_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 when (position) {
@@ -43,27 +45,44 @@ class HomeFragment : BaseMainFragment<HomePresenter>(R.layout.fragment_feed), Ho
 
         coverflow_refresh_layout.setOnRefreshListener {
             lifecycleScope.launch {
-                presenter.onRefresh()
+                onRefresh()
                 hideRefreshLoadingIcon()
             }
         }
         coverflow_refresh_layout?.reduceDragSensitivity(10)
-
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+    private suspend fun onRefresh() {
+        withContext(Dispatchers.IO) {
+            try {
+                val apiService = ApiService.getInstance(activity?.applicationContext)
+                FeedRepository.getInstance(activity?.applicationContext).save(apiService.getFeeds())
+                IssueRepository.getInstance(activity?.applicationContext)
+                    .saveIfDoNotExist(apiService.getLastIssues())
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                ToastHelper.getInstance(activity?.applicationContext)
+                    .showToast(R.string.toast_no_internet)
+            }
+        }
     }
 
-    override fun enableRefresh() {
+
+    fun enableRefresh() {
         coverflow_refresh_layout?.isEnabled = true
     }
 
-    override fun disableRefresh() {
+    fun disableRefresh() {
         coverflow_refresh_layout?.isEnabled = false
     }
 
     private fun hideRefreshLoadingIcon() {
         coverflow_refresh_layout?.isRefreshing = false
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_bookmark -> showMainFragment(BookmarksFragment())
+            R.id.bottom_navigation_action_settings -> showMainFragment(SettingsFragment())
+        }
     }
 }
