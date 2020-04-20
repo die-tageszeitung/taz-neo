@@ -5,12 +5,13 @@
     android:id="@+id/fragment_archive_grid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:splitMotionEvents="true"
-    android:stretchMode="columnWidth"
+    android:background="@color/darkGrey"
+    android:clipToPadding="false"
     android:nestedScrollingEnabled="false"
     android:paddingTop="@dimen/fragment_archive_padding_top"
-    android:clipToPadding="false"
-    android:paddingBottom="@dimen/nav_bottom_height"/>
+    android:paddingBottom="@dimen/nav_bottom_height"
+    android:splitMotionEvents="true"
+    android:stretchMode="columnWidth" />
 
 
 
