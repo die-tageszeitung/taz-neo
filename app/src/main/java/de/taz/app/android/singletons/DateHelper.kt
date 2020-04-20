@@ -23,17 +23,24 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
+    private val calDefaultTimeZone = Calendar.getInstance()
     // if we want to use devices Locale replace Locale.GERMAN with:
     // ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
     private val deviceLocale = Locale.GERMAN
 
     fun today(): Long {
-        return cal.timeInMillis
+        return calDefaultTimeZone.timeInMillis
     }
 
     private fun dateToString(date: Date) : String {
         return dateHelper.format(date)
     }
+
+    fun longToString(time: Long): String {
+        val date = Date(time)
+        return dateHelper.format(date)
+    }
+
 
     fun stringToDate(string: String): Date? {
         return dateHelper.parse(string)
