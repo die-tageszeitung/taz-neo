@@ -59,7 +59,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
-        <item name="android:textColor">@color/textColorAccent</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize" tools:ignore="SpUsage">15dp</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
