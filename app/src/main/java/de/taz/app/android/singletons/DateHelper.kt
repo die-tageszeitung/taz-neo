@@ -6,6 +6,7 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 enum class DateFormat {
@@ -86,5 +87,9 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
                 issueDate
             ).toLowerCase(Locale.getDefault())
         }
+    }
+
+    fun dayDelta(earlierDate: String, laterDate: String) : Long {
+        return TimeUnit.MILLISECONDS.toDays(stringToDate(laterDate)!!.time - stringToDate(earlierDate)!!.time)
     }
 }
