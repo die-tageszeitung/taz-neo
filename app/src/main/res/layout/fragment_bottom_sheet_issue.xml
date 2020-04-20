@@ -17,6 +17,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read" />
+
     <TextView
         android:id="@+id/fragment_bottom_sheet_issue_share"
         style="@style/TextAppearance.BottomSheet.Setting"
@@ -26,6 +32,12 @@
         android:text="@string/fragment_bottom_sheet_issue_share"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_share" />
 
     <TextView
         android:id="@+id/fragment_bottom_sheet_issue_delete"

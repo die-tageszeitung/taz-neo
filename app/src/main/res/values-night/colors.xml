@@ -14,10 +14,10 @@
 
     <color name="colorAccent">@color/tazRed</color>
 
-    <color name="backgroundColor">@color/black</color>
-    <color name="textColor">@color/white</color>
+    <color name="backgroundColor">@color/antifaGrey</color>
+    <color name="textColor">@color/superLightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
-    <color name="textColorSection">#E3E3E3</color>
+    <color name="textColorSection">@color/superLightGrey</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
 
@@ -30,11 +30,13 @@
     <color name="navigation_drawer_icon">@color/darkGrey</color>
     <color name="navigation_drawer_icon_selected">@color/tazRed</color>
 
-    <color name="navigation_bottom_background">@color/lightGrey</color>
-    <color name="navigation_bottom_item">@color/darkGrey</color>
+    <color name="navigation_bottom_background">@color/darkGrey</color>
+    <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="navigation_bottom_item_active">@color/tazRed</color>
 
     <color name="fragment_archive_background">@color/mediumGrey</color>
 
     <color name="bottom_sheet_background">@color/black</color>
+    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+
 </resources>
