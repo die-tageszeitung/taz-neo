@@ -144,7 +144,7 @@ class DownloadWorker(
                     fromDB.workerManagerId = null
                     downloadRepository.update(fromDB)
                 }
-            } ?: log.error("download for $fileName not found")
+            } ?: log.error("download for $fileName failed. File not found in downloadRepository")
         }
     }
 }
