@@ -5,5 +5,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class MomentDto(
     val imageList: List<FileEntryDto>? = null,
-    val creditList: List<FileEntryDto>? = null
+    val creditList: List<ImageDto>? = null
 )
