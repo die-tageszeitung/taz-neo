@@ -31,6 +31,8 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
 
         viewModel.username?.let {
             fragment_login_username.setText(it)
+        } ?: viewModel.subscriptionId?.let {
+            fragment_login_username.setText(it.toString())
         }
 
         viewModel.password?.let {
