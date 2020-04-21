@@ -90,21 +90,22 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
 
-            // Set newly selected date to focus in DatePicker
-            val calendar = Calendar.getInstance()
-            calendar.time = date
-
-            fragment_bottom_sheet_date_picker.updateDate(
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
             preventDismissal()
 
             activity?.lifecycleScope?.launch() {
                 setIssue("$year-$month-$day")
             }
         }
+
+        // Set newly selected date to focus in DatePicker
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        fragment_bottom_sheet_date_picker.updateDate(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
 
     }
 
