@@ -48,6 +48,7 @@
     <dimen name="fragment_settings_padding_bottom">0dp</dimen>
     <dimen name="fragment_settings_category_padding_top">18dp</dimen>
     <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+    <dimen name="fragment_settings_text_font_size_margin_bottom">6sp</dimen>
     <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
     <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
 
