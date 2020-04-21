@@ -4,19 +4,20 @@
     android:id="@+id/fragment_cover_flow_item_wrapper"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_marginTop="@dimen/fragment_cover_flow_empty_space_height_top"
+    android:layout_marginBottom="@dimen/fragment_cover_flow_empty_space_height_bottom"
     android:layout_height="match_parent">
 
     <de.taz.app.android.ui.moment.MomentView
         android:id="@+id/fragment_cover_flow_item"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:clipChildren="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.9"
         app:layout_constraintWidth_max="wrap"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
