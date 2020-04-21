@@ -45,8 +45,6 @@ class SectionListAdapter(
                 sectionList.clear()
                 moment = null
                 imprint = null
-
-                drawIssue()
             }
         }
     }
