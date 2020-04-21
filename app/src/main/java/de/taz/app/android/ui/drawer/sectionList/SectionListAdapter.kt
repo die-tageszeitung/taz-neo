@@ -37,15 +37,17 @@ class SectionListAdapter(
     private val observer = MomentDownloadedObserver()
 
     fun setIssueOperations(newIssueOperations: IssueOperations?) {
-        if (issueOperations?.tag != newIssueOperations?.tag) {
-            fragment.view?.alpha = 0f
-            this.issueOperations = newIssueOperations
+        fragment.activity?.runOnUiThread {
+            if (issueOperations?.tag != newIssueOperations?.tag) {
+                fragment.view?.alpha = 0f
+                this.issueOperations = newIssueOperations
 
-            sectionList.clear()
-            moment = null
-            imprint = null
+                sectionList.clear()
+                moment = null
+                imprint = null
 
-            drawIssue()
+                drawIssue()
+            }
         }
     }
 
