@@ -56,9 +56,14 @@ class SectionListAdapter(
     }
 
     fun show() {
-        fragment.view?.scrollY = 0
-        moment?.isDownloadedLiveData()?.removeObserver(observer)
-        fragment.view?.animate()?.alpha(1f)?.duration = 500
+        fragment.activity?.runOnUiThread {
+            if (sectionList.isEmpty()) {
+                drawIssue()
+            }
+
+            fragment.view?.scrollY = 0
+            fragment.view?.animate()?.alpha(1f)?.duration = 500
+        }
     }
 
     private fun drawIssue() {
@@ -84,7 +89,9 @@ class SectionListAdapter(
                         observer
                     )
                 }
-                notifyDataSetChanged()
+                fragment.activity?.runOnUiThread {
+                    notifyDataSetChanged()
+                }
             }
         }
     }

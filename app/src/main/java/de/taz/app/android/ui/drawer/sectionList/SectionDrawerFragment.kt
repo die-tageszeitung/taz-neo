@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.drawer.sectionList
 
 import android.os.Bundle
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
@@ -83,6 +84,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         issueFeed = issueOperations.feedName
         issueStatus = issueOperations.status
         recyclerAdapter.setIssueOperations(issueOperations)
+        recyclerAdapter.show()
     }
 
     fun showIssueStub() {
