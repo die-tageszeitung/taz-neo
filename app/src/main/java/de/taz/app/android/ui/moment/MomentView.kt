@@ -18,6 +18,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -90,7 +91,11 @@ class MomentView @JvmOverloads constructor(
             momentIsDownloadedObserver = viewModel.isMomentDownloadedLiveData
                 .observeDistinct(lifecycleOwner) { isDownloaded ->
                     if (isDownloaded) {
-                        showMoment()
+                        viewModel.currentIssueOperationsLiveData.observeDistinctOnce(lifecycleOwner) { issueOperations ->
+                            if (issueOperations != null) {
+                                showMoment()
+                            }
+                        }
                     }
                 }
         }
@@ -196,7 +201,7 @@ class MomentView @JvmOverloads constructor(
     private fun setDimension(dimensionString: String) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
             log.info("setting dimension to $dimensionString")
-            fragment_moment_centered.apply {
+            fragment_moment_image.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
                 requestLayout()
                 forceLayout()

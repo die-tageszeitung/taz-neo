@@ -10,7 +10,7 @@ class ZoomPageTransformer {
     companion object {
         private const val MIN_SCALE = 0.85f
         private const val SCALE_DIFF = 1 - MIN_SCALE
-        private const val GAP_MODIFIER = 1f
+        private const val GAP_MODIFIER = 10f
 
         private fun translationXAtScale(view: View, position: Float, scaleFactor: Float): Float =
             view.run {

@@ -3,70 +3,58 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_archive_item"
-    android:clipToPadding="false"
-    android:clipChildren="false"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_moment_centered"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:clipChildren="false"
+    <ImageView
+        android:id="@+id/fragment_moment_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="@dimen/moment_elevation"
+        android:outlineProvider="paddedBounds"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
+        app:layout_constraintDimensionRatio="1:1.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_play_arrow"
+        tools:ignore="ContentDescription" />
+
+    <ProgressBar
+        android:id="@+id/fragment_moment_image_progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        >
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/fragment_moment_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="invisible"
-            android:outlineProvider="paddedBounds"
-            android:elevation="@dimen/moment_elevation"
-            app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
-            app:layout_constraintDimensionRatio="1:1.5"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_play_arrow"
-            tools:ignore="ContentDescription" />
+    <TextView
+        android:id="@+id/fragment_moment_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
+        android:textAppearance="@style/TextAppearance.Archive.Date"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image" />
 
-        <ProgressBar
-            android:id="@+id/fragment_moment_image_progressbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/fragment_moment_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
-            android:textAppearance="@style/TextAppearance.Archive.Date"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
-
-        <ImageView
-            android:id="@+id/fragment_moment_is_downloaded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image"
-            app:layout_constraintRight_toRightOf="@+id/fragment_moment_image"
-            android:visibility="gone"
-            android:src="@drawable/ic_download_cloud"
-            android:contentDescription="@string/settings_download_issue"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/fragment_moment_is_downloaded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/settings_download_issue"
+        android:src="@drawable/ic_download_cloud"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/fragment_moment_image"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
