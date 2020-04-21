@@ -84,7 +84,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         issueFeed = issueOperations.feedName
         issueStatus = issueOperations.status
         recyclerAdapter.setIssueOperations(issueOperations)
-        recyclerAdapter.show()
     }
 
     fun showIssueStub() {
