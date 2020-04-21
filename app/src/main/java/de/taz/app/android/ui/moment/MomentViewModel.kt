@@ -10,13 +10,12 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 
 class MomentViewModel(
-    val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    val momentRepository: MomentRepository = MomentRepository.getInstance()
+    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
+    private val momentRepository: MomentRepository = MomentRepository.getInstance()
 ) : ViewModel() {
-    private val log by Log
 
-    private var currentIssueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
-    val issueStubLiveData: LiveData<IssueStub?> =
+    var currentIssueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
+    private val issueStubLiveData: LiveData<IssueStub?> =
         currentIssueOperationsLiveData.switchMap { issueOperations ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 issueOperations?.let {
@@ -38,7 +37,7 @@ class MomentViewModel(
     val date: String?
         get() = currentIssueOperationsLiveData.value?.date
 
-    val momentLiveData: LiveData<Moment?> =
+    private val momentLiveData: LiveData<Moment?> =
         currentIssueOperationsLiveData.switchMap { issueOperations ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(issueOperations?.let { momentRepository.get(issueOperations) })
