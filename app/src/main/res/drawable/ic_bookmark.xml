@@ -3,10 +3,15 @@
     android:height="25.896dp"
     android:viewportWidth="27.109"
     android:viewportHeight="25.896">
-  <path
-      android:pathData="M13.555,0.75 L10.512,10.05L0.75,10.05l7.9,5.754L5.606,25.15l7.949,-5.771L21.488,25.15 18.444,15.8 26.359,10.05L16.582,10.05Z"
-      android:strokeLineJoin="round"
-      android:strokeWidth="1.5"
-      android:fillColor="@color/navigation_bottom_background"
-      android:strokeColor="@color/navigation_bottom_item"/>
+    <group
+        android:scaleX="0.95"
+        android:scaleY="0.95"
+        android:translateY="1.3">
+        <path
+            android:fillColor="@color/navigation_bottom_background"
+            android:pathData="M13.555,0.75 L10.512,10.05L0.75,10.05l7.9,5.754L5.606,25.15l7.949,-5.771L21.488,25.15 18.444,15.8 26.359,10.05L16.582,10.05Z"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item"
+            android:strokeLineJoin="round" />
+    </group>
 </vector>
