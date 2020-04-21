@@ -114,8 +114,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             val issueStub = issueRepository.getLatestIssueStubByDate(date)
             if (issueStub != null) {
-                //show
                 val issue = issueRepository.getIssue(issueStub)
+                val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
+                coverFlowFragment?.get()?.let { coverFlowFragment ->
+                    val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                    coverFlowFragment.skipToPosition(issueStubPosition)
+                    dismiss()
+                }
                 showIssue(issue)
             }
             else {
@@ -125,6 +130,12 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                     val newIssue = apiService.getIssuesByDate(date, 1).first()
                     log.debug("newIssue is $newIssue")
                     issueRepository.save(newIssue)
+                    val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
+                    coverFlowFragment?.get()?.let { coverFlowFragment ->
+                        val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
+                        coverFlowFragment.skipToPosition(issueStubPosition)
+                        dismiss()
+                    }
                     showIssue(newIssue)
 
                     val missingIssuesCount = dateHelper.dayDelta(date, earliestDate)
@@ -133,7 +144,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 }
             }
 
-            /*
+           /*
             issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
                 var earliestDate = earliestIssueStub.date
                 while (issueRepository.getLatestIssueStubByDate(date) == null)  {
