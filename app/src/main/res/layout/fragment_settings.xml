@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -26,7 +26,7 @@
 
             <include
                 android:id="@+id/settings_header"
-                layout="@layout/fragment_header_default" />
+                layout="@layout/fragment_header_settings" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -70,6 +70,7 @@
 
             <include
                 android:id="@+id/fragment_settings_text_size"
+                style="@style/TextAppearance.Settings.Category"
                 layout="@layout/settings_text_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
