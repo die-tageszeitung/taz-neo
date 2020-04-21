@@ -144,7 +144,7 @@ class CoverflowFragment :
                     getMainView()?.apply {
                         coverFlowPagerAdapter.getItem(position)?.let {
                             setDrawerIssue(it)
-                            if(getMainView()?.isDrawerVisible(Gravity.START) == true) {
+                            if (getMainView()?.isDrawerVisible(Gravity.START) == true) {
                                 changeDrawerIssue()
                             }
                         }

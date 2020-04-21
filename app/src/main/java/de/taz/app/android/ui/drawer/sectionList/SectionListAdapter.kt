@@ -37,15 +37,15 @@ class SectionListAdapter(
     private val observer = MomentDownloadedObserver()
 
     fun setIssueOperations(newIssueOperations: IssueOperations?) {
-        if (issueOperations?.tag != newIssueOperations?.tag) {
-            fragment.view?.alpha = 0f
-            this.issueOperations = newIssueOperations
+        fragment.activity?.runOnUiThread {
+            if (issueOperations?.tag != newIssueOperations?.tag) {
+                fragment.view?.alpha = 0f
+                this.issueOperations = newIssueOperations
 
-            sectionList.clear()
-            moment = null
-            imprint = null
-
-            drawIssue()
+                sectionList.clear()
+                moment = null
+                imprint = null
+            }
         }
     }
 
@@ -54,9 +54,14 @@ class SectionListAdapter(
     }
 
     fun show() {
-        fragment.view?.scrollY = 0
-        moment?.isDownloadedLiveData()?.removeObserver(observer)
-        fragment.view?.animate()?.alpha(1f)?.duration = 500
+        fragment.activity?.runOnUiThread {
+            if (sectionList.isEmpty()) {
+                drawIssue()
+            }
+
+            fragment.view?.scrollY = 0
+            fragment.view?.animate()?.alpha(1f)?.duration = 500
+        }
     }
 
     private fun drawIssue() {
@@ -82,7 +87,9 @@ class SectionListAdapter(
                         observer
                     )
                 }
-                notifyDataSetChanged()
+                fragment.activity?.runOnUiThread {
+                    notifyDataSetChanged()
+                }
             }
         }
     }
