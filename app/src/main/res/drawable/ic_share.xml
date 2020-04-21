@@ -3,31 +3,36 @@
     android:height="19.5dp"
     android:viewportWidth="17.5"
     android:viewportHeight="19.5">
-  <path
-      android:pathData="M14.75,2.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
-      android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="@color/navigation_bottom_item"/>
-  <path
-      android:pathData="M14.75,16.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
-      android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="@color/navigation_bottom_item"/>
-  <path
-      android:pathData="M2.75,9.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
-      android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="@color/navigation_bottom_item"/>
-  <path
-      android:pathData="M5.25,11.25L12.25,15.25"
-      android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="@color/navigation_bottom_item"
-      android:strokeLineCap="square"/>
-  <path
-      android:pathData="M5.25,8.25L12.25,4.25"
-      android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="@color/navigation_bottom_item"
-      android:strokeLineCap="square"/>
+    <group
+        android:scaleX="0.85"
+        android:scaleY="0.85"
+        android:translateY="2.875">
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M14.75,2.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M14.75,16.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M2.75,9.75m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M5.25,11.25L12.25,15.25"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item"
+            android:strokeLineCap="square" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M5.25,8.25L12.25,4.25"
+            android:strokeWidth="1.5"
+            android:strokeColor="@color/navigation_bottom_item"
+            android:strokeLineCap="square" />
+    </group>
 </vector>
