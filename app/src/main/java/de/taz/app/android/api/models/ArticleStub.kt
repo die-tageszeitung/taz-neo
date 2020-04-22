@@ -47,7 +47,8 @@ data class ArticleStub(
 
         val list = mutableListOf(key)
         list.addAll(authorList)
-        list.addAll(imageList.map { it.name }.filter { it.contains(".norm.") })
+        // TODO filtering should be replaced by filtering ImageResolution
+        list.addAll(imageList.map { it.name }.filter { it.contains(".norm") || it.contains(".quadrat") })
         return list.distinct()
     }
 

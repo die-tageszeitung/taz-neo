@@ -17,12 +17,17 @@ data class Moment(
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
+    private fun getImagesToDownload(): List<FileEntry> {
+        // TODO quickfix should be filtered by ImageResolution
+        return imageList.filter { it.name.contains(".normal.") || it.name.contains(".quadrat")}.distinct()
+    }
+
     override suspend fun getAllFiles(): List<FileEntry> {
-        return imageList.filter { it.name.contains(".normal.") }.distinct()
+        return getImagesToDownload()
     }
 
     override fun getAllFileNames(): List<String> {
-        return imageList.filter { it.name.contains(".normal.") }.map { it.name }.distinct()
+        return getImagesToDownload().map { it.name }
     }
 
     fun getMomentFileToShare(): FileEntryOperations {
@@ -42,6 +47,7 @@ data class Moment(
     }
 
     fun getMomentImage(): FileEntry {
-        return imageList.first { it.name.contains(".normal.") }
+        // TODO quickfix filter by ImageResolution (and use high if device resolution requires it)
+        return imageList.first { it.name.contains(".norm") || it.name.contains(".quadrat") }
     }
 }

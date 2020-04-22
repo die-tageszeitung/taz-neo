@@ -56,7 +56,8 @@ class SectionTest {
         assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
 
         section.imageList
-            .filter { it.name.contains(".norm.") }
+            // TODO Quickfix filter by ImageResolution instead of name
+            .filter { it.name.contains(".norm")  || it.name.contains(".quadrat") }
             .forEach { fileEntry ->
                 assertTrue(fileList.filter { it == fileEntry }.size == 1)
             }
