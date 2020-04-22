@@ -126,7 +126,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             }
             else {
                 issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
-                    val earliestDate = earliestIssueStub.date
+                    var earliestDate = earliestIssueStub.date
 
                     val newIssue = apiService.getIssuesByDate(date, 1).first()
                     log.debug("newIssue is $newIssue")
@@ -139,9 +139,20 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                     }
                     showIssue(newIssue)
 
-                    val missingIssuesCount = dateHelper.dayDelta(date, earliestDate)
-                    val missingIssues = apiService.getIssuesByDate(earliestDate, missingIssuesCount.toInt())
-                    missingIssues.forEach { issueRepository.save(it) }
+                    val missingIssuesCount = dateHelper.dayDelta(date, earliestDate).toInt()
+                    // we download missing issues in batches of 10, since API call has a upper limit
+                    val necessaryNumberAPICalls = missingIssuesCount / 10 + 1
+                    log.debug("necessary number of API calls: $necessaryNumberAPICalls")
+                    log.debug("earliestDate at the beginning: $earliestDate")
+                    for (i in 1..necessaryNumberAPICalls ) {
+                        log.debug("downloading $i batch of missing issues")
+                        val missingIssues = apiService.getIssuesByDate(earliestDate)
+                        missingIssues.forEach {
+                            issueRepository.save(it)
+                            earliestDate = it.date
+                        }
+                        log.debug("reset earliestDate to $earliestDate")
+                    }
                 }
             }
 
@@ -181,8 +192,5 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 showInWebView(firstSection.key)
             }
         }
-
-        //TODO reset datePicker + coverFlow onto current issue
-
     }
 }
