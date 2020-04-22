@@ -33,14 +33,16 @@ data class SectionStub(
     override suspend fun getAllFiles(): List<FileEntry> = withContext(Dispatchers.IO) {
         val imageList = SectionRepository.getInstance().imagesForSectionStub(key)
         val list = mutableListOf(FileEntryRepository.getInstance().getOrThrow(key))
-        list.addAll(imageList.filter { it.name.contains(".norm.") })
+        // TODO quickfix filter by ImageResolution
+        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
         return@withContext list.distinct()
     }
 
     override fun getAllFileNames(): List<String> {
         val list = SectionRepository.getInstance().imageNamesForSectionStub(
             key
-        ).filter { it.contains(".norm.") }.toMutableList()
+        // TODO quickfix filter by ImageResolution
+        ).filter { it.contains(".norm") || it.contains(".quadrat") }.toMutableList()
         list.add(key)
         return list.distinct()
     }
