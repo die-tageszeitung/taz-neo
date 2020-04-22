@@ -31,13 +31,15 @@ data class Section(
 
     override suspend fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
-        list.addAll(imageList.filter { it.name.contains(".norm.") })
+        // TODO quickfix filter by ImageResolution
+        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
         return list.distinct()
     }
 
     override fun getAllFileNames(): List<String> {
         val list = mutableListOf(sectionHtml.name)
-        list.addAll(imageList.map { it.name }.filter { it.contains(".norm.") })
+        // TODO quickfix filter by ImageResolution
+        list.addAll(imageList.map { it.name }.filter { it.contains(".norm") || it.contains(".quadrat") })
         return list.distinct()
     }
 }
