@@ -12,7 +12,6 @@ stages:
     paths:
       - .gradle/wrapper
       - .gradle/caches
-      - app/build
       - build
     key: android-base
   before_script:
