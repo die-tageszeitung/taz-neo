@@ -45,14 +45,16 @@ data class Article(
     override suspend fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList.filter { it.name.contains(".norm.") })
+        // TODO quickfix filter by ImageResolution
+        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
         return list
     }
 
     override fun getAllFileNames(): List<String> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList.filter { it.name.contains(".norm.") })
+        // TODO quickfix filter by ImageResolution
+        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
         return list.map { it.name }.distinct()
     }
 

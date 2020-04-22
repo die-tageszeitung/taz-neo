@@ -50,7 +50,7 @@ class ArticleTest {
         assertTrue(fileList.filter { it == article.articleHtml }.size == 1)
 
         article.imageList
-            .filter { it.name.contains(".norm.") }
+            .filter { it.name.contains(".norm") }
             .forEach { fileEntry ->
                 assertTrue(fileList.filter { it == fileEntry }.size == 1)
             }
