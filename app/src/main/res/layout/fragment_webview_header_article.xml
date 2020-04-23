@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             android:textAlignment="viewEnd"
-            android:layout_marginTop="@dimen/fragment_header_default_margin_top"
+            android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
             android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
             android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
             app:layout_constraintRight_toLeftOf="@id/section" />
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             android:textAlignment="viewEnd"
-            android:layout_marginTop="@dimen/fragment_header_default_margin_top"
+            android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
             app:layout_constraintRight_toRightOf="parent" />
 
     <ImageView tools:ignore="ContentDescription"
