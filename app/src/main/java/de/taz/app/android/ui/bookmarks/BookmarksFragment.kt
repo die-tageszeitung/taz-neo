@@ -41,7 +41,7 @@ class BookmarksFragment :
         presenter.attach(this)
         presenter.onViewCreated(savedInstanceState)
 
-        view.findViewById<TextView>(R.id.fragment_header_bookmarks_title)?.apply {
+        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
                 R.string.fragment_bookmarks_title
             ).toLowerCase(Locale.getDefault())
