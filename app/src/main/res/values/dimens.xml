@@ -52,7 +52,7 @@
     <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
     <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
 
-    <dimen name="fragment_header_default_margin_top">40dp</dimen>
+    <dimen name="fragment_header_default_margin_top">36dp</dimen>
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
     <dimen name="fragment_header_default_margin_bottom">20dp</dimen>
     <dimen name="fragment_header_article_margin_top">14dp</dimen>
@@ -65,6 +65,7 @@
     <dimen name="fragment_header_settings_margin_bottom">38dp</dimen>
     <dimen name="fragment_header_section_text_size">25dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">15.5dp</dimen>
+    <dimen name="fragment_header_webview_margin_top">40dp</dimen>
 
     <dimen name="fragment_archive_padding_top">72dp</dimen>
     <dimen name="fragment_archive_header_height">150dp</dimen>
