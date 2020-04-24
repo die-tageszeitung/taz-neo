@@ -15,7 +15,7 @@
         style="@style/TextAppearance.Header.Section"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/fragment_header_section_text_size"
-        android:layout_marginTop="@dimen/fragment_header_default_margin_top"
+        android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
         android:maxLines="1"
         android:textAlignment="viewEnd"
         app:layout_constraintRight_toRightOf="parent"
