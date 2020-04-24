@@ -19,7 +19,7 @@ data class Moment(
 
     private fun getImagesToDownload(): List<FileEntry> {
         // TODO quickfix should be filtered by ImageResolution
-        return imageList.filter { it.name.contains(".normal.") || it.name.contains(".quadrat")}.distinct()
+        return imageList.filter { it.name.contains(".high") }.distinct()
     }
 
     override suspend fun getAllFiles(): List<FileEntry> {
@@ -48,6 +48,6 @@ data class Moment(
 
     fun getMomentImage(): FileEntry {
         // TODO quickfix filter by ImageResolution (and use high if device resolution requires it)
-        return imageList.first { it.name.contains(".norm") || it.name.contains(".quadrat") }
+        return imageList.first { it.name.contains(".high") }
     }
 }
