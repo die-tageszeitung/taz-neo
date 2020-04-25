@@ -13,26 +13,28 @@
         app:layout_constraintTop_toTopOf="parent">
 
     <TextView
-            style="@style/TextAppearance.Header.Article.Num"
-            android:id="@+id/article_num"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textAlignment="viewEnd"
-            android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
-            android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
-            android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
-            app:layout_constraintRight_toLeftOf="@id/section" />
+        android:id="@+id/article_num"
+        style="@style/TextAppearance.Header.Article.Num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
+        android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
+        android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
+        android:textAlignment="viewEnd"
+        android:translationY="@dimen/fragment_header_article_title_y_translation"
+        app:layout_constraintRight_toLeftOf="@id/section"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-            android:id="@+id/section"
-            style="@style/TextAppearance.Header.Article.Section"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textAlignment="viewEnd"
-            android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
-            app:layout_constraintRight_toRightOf="parent" />
+        android:id="@+id/section"
+        style="@style/TextAppearance.Header.Article.Section"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
+        android:textAlignment="viewEnd"
+        android:translationY="@dimen/fragment_header_article_title_y_translation"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView tools:ignore="ContentDescription"
             android:layout_width="match_parent"
