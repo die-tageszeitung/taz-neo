@@ -7,7 +7,6 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import kotlinx.io.IOException
 import java.io.BufferedReader
 import java.io.File
@@ -19,7 +18,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
     companion object : SingletonHolder<FileHelper, Context>(::FileHelper)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun createFile(fileEntry: FileEntryOperations): Boolean {
         createFileDirs(fileEntry)
@@ -33,8 +31,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
     fun deleteFile(fileName: String): Boolean {
         return fileEntryRepository.get(fileName)?.let { fileEntry ->
             deleteFile(fileEntry)
-        } ?: imageRepository.get(fileName)?.let { image ->
-            deleteFile(image)
         } ?: false
     }
 

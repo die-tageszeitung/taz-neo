@@ -43,6 +43,8 @@ class IssueRepositoryTest {
         sectionRepository.appDatabase = db
         val momentRepository = MomentRepository.createInstance(context)
         momentRepository.appDatabase = db
+        val imageRepository = ImageRepository.createInstance(context)
+        imageRepository.appDatabase = db
 
         issueRepository = IssueRepository.getInstance(context)
         issueRepository.appDatabase = db
@@ -95,7 +97,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        assertTrue(issueRepository.getLatestIssue() == issue2)
+        assertTrue(issueRepository.getLatestIssue() == issue)
     }
 
 

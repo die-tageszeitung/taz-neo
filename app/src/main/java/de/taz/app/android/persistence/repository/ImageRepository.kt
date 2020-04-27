@@ -2,8 +2,9 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.util.SingletonHolder
 
 @Mockable
@@ -14,23 +15,28 @@ class ImageRepository private constructor(
     companion object : SingletonHolder<ImageRepository, Context>(::ImageRepository)
 
     fun save(image: Image) {
-        val fromDB = appDatabase.imageDao().getByNameAndStorageType(image.name)
-        fromDB?.let {
-            if (fromDB.moTime < image.moTime)
-                appDatabase.imageDao().insertOrReplace(image)
-        } ?: appDatabase.imageDao().insertOrReplace(image)
+        appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
+        appDatabase.fileEntryDao().insertOrReplace(FileEntry(image))
     }
 
-    fun save(fileEntries: List<Image>) {
-        fileEntries.forEach { save(it) }
+    fun save(images: List<Image>) {
+        images.forEach { save(it) }
     }
 
-    fun get(imageName: String, storageType: StorageType = StorageType.resource): Image? {
-        return appDatabase.imageDao().getByNameAndStorageType(imageName, storageType)
+    fun get(imageName: String): Image? {
+        return appDatabase.imageDao().getByName(imageName)
+    }
+
+    fun getStub(imageName: String): ImageStub? {
+        return appDatabase.imageStubDao().getByName(imageName)
     }
 
     fun get(imageNames: List<String>): List<Image> {
         return appDatabase.imageDao().getByNames(imageNames)
+    }
+
+    fun getStubs(imageNames: List<String>): List<ImageStub> {
+        return appDatabase.imageStubDao().getByNames(imageNames)
     }
 
     @Throws(NotFoundException::class)
@@ -44,12 +50,8 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        appDatabase.downloadDao().apply {
-            get(image.name)?.let {
-                delete(it)
-            }
-        }
-        appDatabase.imageDao().delete(image)
+        FileEntry(image).deleteFile()
+        appDatabase.imageStubDao().delete(ImageStub(image))
     }
 
     fun delete(fileEntries: List<Image>) {

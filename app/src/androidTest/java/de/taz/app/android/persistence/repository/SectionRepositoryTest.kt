@@ -8,6 +8,7 @@ import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 
@@ -40,6 +41,9 @@ class SectionRepositoryTest {
 
         val articleRepository = ArticleRepository.createInstance(context)
         articleRepository.appDatabase = db
+
+        val imageRepository = ImageRepository.createInstance(context)
+        imageRepository.appDatabase = db
 
         sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db

@@ -43,7 +43,7 @@ interface CacheableDownload {
     }
 
     fun getAllFileNames(): List<String>
-    suspend fun getAllFiles(): List<FileEntry> {
+    suspend fun getAllFiles(): List<FileEntryOperations> {
         val fileEntryRepository = FileEntryRepository.getInstance()
         return getAllFileNames().mapNotNull { fileEntryRepository.get(it) }
     }

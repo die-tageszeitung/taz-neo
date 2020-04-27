@@ -21,6 +21,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
@@ -35,19 +36,18 @@ class SectionRepository private constructor(applicationContext: Context) :
                 )
             }
         )
-        fileEntryRepository.save(section.imageList)
+        imageRepository.save(section.imageList)
         appDatabase.sectionImageJoinDao()
             .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
 
-        appDatabase.imageDao().insertOrReplace(section.navButton)
+        imageRepository.save(section.navButton)
 
         appDatabase.sectionNavButtonJoinDao().insertOrReplace(
             SectionNavButtonJoin(
                 sectionFileName = section.sectionHtml.name,
-                navButtonFileName = section.navButton.name,
-                navButtonStorageType = section.navButton.storageType
+                navButtonFileName = section.navButton.name
             )
         )
 
@@ -172,7 +172,7 @@ class SectionRepository private constructor(applicationContext: Context) :
     fun getPreviousSection(section: SectionOperations): Section? =
         getPreviousSection(section.key)
 
-    fun imagesForSectionStub(sectionFileName: String): List<FileEntry> {
+    fun imagesForSectionStub(sectionFileName: String): List<Image> {
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
     }
 
@@ -236,7 +236,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         section.imageList.forEach {
             try {
-                fileEntryRepository.delete(it)
+                imageRepository.delete(it)
                 log.debug("deleted FileEntry of image $it")
             } catch (e: SQLiteConstraintException) {
                 log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")
@@ -247,13 +247,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionNavButtonJoinDao().delete(
             SectionNavButtonJoin(
                 section.sectionHtml.name,
-                section.navButton.name,
-                section.navButton.storageType
+                section.navButton.name
             )
         )
 
         try {
-            appDatabase.imageDao().delete(section.navButton)
+            imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
             log.warn("NavButton ${section.navButton} not deleted - pobably still used by another section")
         }

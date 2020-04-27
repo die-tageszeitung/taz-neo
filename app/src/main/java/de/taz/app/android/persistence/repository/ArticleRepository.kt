@@ -19,6 +19,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(article: Article) {
         val articleFileName = article.articleHtml.name
@@ -36,10 +37,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         fileEntryRepository.save(article.articleHtml)
 
         // save images and relations
-        article.imageList.forEachIndexed { index, fileEntry ->
-            fileEntryRepository.save(fileEntry)
+        imageRepository.save(article.imageList)
+        article.imageList.forEachIndexed { index, image ->
             appDatabase.articleImageJoinDao().insertOrReplace(
-                ArticleImageJoin(articleFileName, fileEntry.name, index)
+                ArticleImageJoin(articleFileName, image.name, index)
             )
         }
 
@@ -144,7 +145,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun previousArticle(article: ArticleOperations): Article? = previousArticle(article.key)
 
-    fun getImagesForArticle(articleFileName: String): List<FileEntry> {
+    fun getImagesForArticle(articleFileName: String): List<Image> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
@@ -310,16 +311,16 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 fileEntryRepository.delete(article.articleHtml)
 
                 // delete images and relations
-                article.imageList.forEachIndexed { index, fileEntry ->
+                article.imageList.forEachIndexed { index, image ->
                     appDatabase.articleImageJoinDao().delete(
-                        ArticleImageJoin(articleFileName, fileEntry.name, index)
+                        ArticleImageJoin(articleFileName, image.name, index)
                     )
-                    log.debug("deleted ArticleImageJoin $articleFileName - ${fileEntry.name} - $index")
+                    log.debug("deleted ArticleImageJoin $articleFileName - ${image.name} - $index")
                     try {
-                        fileEntryRepository.delete(fileEntry)
-                        log.debug("deleted FileEntry of image ${fileEntry.name}")
+                        imageRepository.delete(image)
+                        log.debug("deleted FileEntry of image ${image.name}")
                     } catch (e: SQLiteConstraintException) {
-                        log.warn("FileEntry ${fileEntry.name} not deleted, maybe still used by section?")
+                        log.warn("FileEntry ${image.name} not deleted, maybe still used by section?")
                         // do not delete - still used by section
                     }
                 }
