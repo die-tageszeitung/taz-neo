@@ -15,7 +15,7 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
     @Query(
         """SELECT * FROM FileEntry INNER JOIN IssueMomentJoin
         ON FileEntry.name == IssueMomentJoin.momentFileName
-        INNER JOIN Image on Image.fileEntryName == IssueMomentJoin.momentFileName
+        INNER JOIN Image ON Image.fileEntryName == IssueMomentJoin.momentFileName
         WHERE  IssueMomentJoin.issueDate == :date AND IssueMomentJoin.issueFeedName == :feedName
             AND IssueMomentJoin.issueStatus == :status
         ORDER BY IssueMomentJoin.`index` ASC

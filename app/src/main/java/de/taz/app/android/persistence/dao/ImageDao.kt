@@ -9,7 +9,7 @@ abstract class ImageDao() {
 
     @Query(
         """
-        SELECT * FROM Image INNER JOIN FileEntry on FileEntry.name == Image.fileEntryName
+        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName == :name
         """
     )
@@ -17,8 +17,8 @@ abstract class ImageDao() {
 
     @Query(
         """
-        SELECT * FROM Image INNER JOIN FileEntry on FileEntry.name == Image.fileEntryName
-         WHERE fileEntryName in (:names)
+        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+         WHERE fileEntryName IN (:names)
         """
     )
     abstract fun getByNames(names: List<String>): List<Image>
