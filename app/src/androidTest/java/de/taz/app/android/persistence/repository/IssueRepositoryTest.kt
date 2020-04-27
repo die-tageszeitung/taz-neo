@@ -43,6 +43,8 @@ class IssueRepositoryTest {
         sectionRepository.appDatabase = db
         val momentRepository = MomentRepository.createInstance(context)
         momentRepository.appDatabase = db
+        val imageRepository = ImageRepository.createInstance(context)
+        imageRepository.appDatabase = db
 
         issueRepository = IssueRepository.getInstance(context)
         issueRepository.appDatabase = db
