@@ -35,6 +35,9 @@ class PageRepositoryTest {
         val fileEntryRepository = FileEntryRepository.createInstance(context)
         fileEntryRepository.appDatabase = db
 
+        val imageRepository = ImageRepository.createInstance(context)
+        imageRepository.appDatabase = db
+
         pageRepository = PageRepository.getInstance(context)
         pageRepository.appDatabase = db
     }

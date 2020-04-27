@@ -7,22 +7,21 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Moment(
-    val imageList: List<FileEntry> = emptyList(),
+    val imageList: List<Image> = emptyList(),
     val creditList: List<Image> = emptyList()
 ): CacheableDownload {
     constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto): this(
         momentDto.imageList
-            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
-    private fun getImagesToDownload(): List<FileEntry> {
-        // TODO quickfix should be filtered by ImageResolution
-        return imageList.filter { it.name.contains(".high") }.distinct()
+    private fun getImagesToDownload(): List<Image> {
+        return imageList.filter { it.resolution == ImageResolution.high }.distinct()
     }
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<Image> {
         return getImagesToDownload()
     }
 
@@ -34,11 +33,11 @@ data class Moment(
         return if (creditList.isNotEmpty()) {
             creditList.first { it.resolution == ImageResolution.high }
         } else {
-            imageList.first { it.name.contains(".high.") }
+            imageList.first { it.resolution == ImageResolution.high }
         }
     }
 
-    fun getIssueStub(): IssueStub {
+    private fun getIssueStub(): IssueStub? {
         return IssueRepository.getInstance().getIssueStubForMoment(this)
     }
 
@@ -46,8 +45,9 @@ data class Moment(
         return getIssueStub()
     }
 
-    fun getMomentImage(): FileEntry {
-        // TODO quickfix filter by ImageResolution (and use high if device resolution requires it)
-        return imageList.first { it.name.contains(".high") }
+    fun getMomentImage(): Image? {
+        return imageList.firstOrNull { it.resolution == ImageResolution.high }
+            ?: imageList.firstOrNull { it.resolution == ImageResolution.normal }
+            ?: imageList.firstOrNull { it.resolution == ImageResolution.small }
     }
 }
