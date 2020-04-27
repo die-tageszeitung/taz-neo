@@ -10,7 +10,7 @@ abstract class ImageStubDao: BaseDao<ImageStub>() {
     @Query("SELECT * FROM Image WHERE fileEntryName == :name")
     abstract fun getByName(name: String): ImageStub?
 
-    @Query("SELECT * FROM Image WHERE fileEntryName in (:names)")
+    @Query("SELECT * FROM Image WHERE fileEntryName IN (:names)")
     abstract fun getByNames(names: List<String>): List<ImageStub>
 
 }
