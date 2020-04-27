@@ -7,6 +7,7 @@ import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -37,6 +38,9 @@ class SectionTest {
         val articleRepository = ArticleRepository.createInstance(context)
         articleRepository.appDatabase = db
 
+        val imageRepository = ImageRepository.createInstance(context)
+        imageRepository.appDatabase = db
+
         sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
     }
@@ -56,8 +60,7 @@ class SectionTest {
         assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
 
         section.imageList
-            // TODO Quickfix filter by ImageResolution instead of name
-            .filter { it.name.contains(".norm")  || it.name.contains(".quadrat") }
+            .filter { it.resolution == ImageResolution.normal }
             .forEach { fileEntry ->
                 assertTrue(fileList.filter { it == fileEntry }.size == 1)
             }
