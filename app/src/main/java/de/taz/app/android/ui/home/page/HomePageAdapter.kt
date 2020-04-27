@@ -13,11 +13,11 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
+import kotlinx.coroutines.launch
 
 
 /**
@@ -25,9 +25,8 @@ import de.taz.app.android.ui.moment.MomentView
  *  [ViewHolder] is used to recycle views
  */
 abstract class HomePageAdapter(
-    private val fragment: HomePageContract.View,
+    private val modelView: HomePagePresenter,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: HomePageContract.Presenter,
     private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
@@ -124,7 +123,7 @@ abstract class HomePageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(fragment.getContext()).inflate(
+            LayoutInflater.from(modelView.getContext()).inflate(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
@@ -142,9 +141,9 @@ abstract class HomePageAdapter(
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                fragment.getLifecycleOwner().lifecycleScope.launch {
+                modelView.viewLifecycleOwner.lifecycleScope.launch {
                     getItem(adapterPosition)?.let {
-                        presenter.onItemSelected(it)
+                        modelView.onItemSelected(it)
                     }
                 }
             }
@@ -152,8 +151,8 @@ abstract class HomePageAdapter(
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
                 getItem(adapterPosition)?.let { item ->
-                    fragment.getMainView()?.let { mainView ->
-                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
+                    modelView.getMainView()?.let { mainView ->
+                        modelView.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
                 true
