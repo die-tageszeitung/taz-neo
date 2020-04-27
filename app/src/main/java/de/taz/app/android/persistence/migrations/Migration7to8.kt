@@ -6,7 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 object Migration7to8 : Migration(7, 8) {
     override fun migrate(database: SupportSQLiteDatabase) {
 
-        database.execSQL("INSERT INTO FileEntry SELECT name, storageType, moTime, sha256, size, folder FROM Image")
+        database.execSQL("REPLACE INTO FileEntry SELECT name, storageType, moTime, sha256, size, folder FROM Image")
 
         database.execSQL("CREATE TABLE ImageStub (`fileEntryName` TEXT NOT NULL, `type` TEXT NOT NULL, `alpha` REAL NOT NULL, `resolution` TEXT NOT NULL, PRIMARY KEY(`fileEntryName`))")
         database.execSQL("INSERT INTO ImageStub (fileEntryName, type, alpha, resolution) SELECT name, type, alpha, resolution FROM Image")
