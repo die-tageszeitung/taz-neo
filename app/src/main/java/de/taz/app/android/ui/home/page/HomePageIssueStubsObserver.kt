@@ -9,11 +9,11 @@ import de.taz.app.android.api.models.IssueStub
  * It updates [HomePageAdapter]
  */
 class HomePageIssueStubsObserver(
-    private val homePagePresenter: HomePageContract.Presenter
+    private val homePagePresenter: HomePagePresenter
 ) : Observer<List<IssueStub>> {
 
     override fun onChanged(issueStubs: List<IssueStub>?) {
-        homePagePresenter.getView()?.apply {
+        homePagePresenter.apply {
             onDataSetChanged(issueStubs ?: emptyList())
         }
     }

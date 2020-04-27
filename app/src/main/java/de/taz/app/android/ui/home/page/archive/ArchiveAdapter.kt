@@ -10,10 +10,9 @@ import kotlinx.coroutines.launch
 
 
 class ArchiveAdapter(
-    private val fragment: ArchiveContract.View,
-    @LayoutRes private val itemLayoutRes: Int,
-    presenter: ArchiveContract.Presenter
-) : HomePageAdapter(fragment, itemLayoutRes, presenter) {
+    private val fragment: ArchiveFragment,
+    @LayoutRes private val itemLayoutRes: Int
+) : HomePageAdapter(fragment, itemLayoutRes) {
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->

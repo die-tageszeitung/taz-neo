@@ -26,7 +26,7 @@ class ArchiveOnScrollListener(
         if (lastVisibleItem > totalItemCount - 2 * visibleItemCount) {
             archiveFragment.archiveListAdapter.getItem(totalItemCount - 1)?.date?.let { date ->
                 archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
-                    archiveFragment.presenter.getNextIssueMoments(date)
+                    archiveFragment.getNextIssueMoments(date)
                 }
             }
         }

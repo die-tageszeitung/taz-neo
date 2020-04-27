@@ -10,11 +10,10 @@ import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.launch
 
 class CoverflowAdapter(
-    private val fragment: CoverflowContract.View,
+    private val fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    presenter: CoverflowContract.Presenter,
     dateOnClickListener: (() -> Unit)?
-) : HomePageAdapter(fragment, itemLayoutRes, presenter, dateOnClickListener) {
+) : HomePageAdapter(fragment, itemLayoutRes, dateOnClickListener) {
 
     override fun setIssueStubs(issues: List<IssueStub>) {
         val skipToLast = visibleIssueStubList.isEmpty()
