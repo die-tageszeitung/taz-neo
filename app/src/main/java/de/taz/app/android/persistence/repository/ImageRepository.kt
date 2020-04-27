@@ -6,7 +6,6 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.runIfNotNull
 
 @Mockable
 class ImageRepository private constructor(
