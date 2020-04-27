@@ -21,12 +21,22 @@ data class FileEntry(
 ): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
-        fileEntryDto.name,
-        fileEntryDto.storageType,
-        fileEntryDto.moTime,
-        fileEntryDto.sha256,
-        fileEntryDto.size,
-        FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder)
+        name = fileEntryDto.name,
+        storageType = fileEntryDto.storageType,
+        moTime = fileEntryDto.moTime,
+        sha256 = fileEntryDto.sha256,
+        size = fileEntryDto.size,
+        folder = FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder)
     )
+
+    constructor(image: Image): this(
+        name =image.name,
+        storageType = image.storageType,
+        moTime = image.moTime,
+        sha256 = image.sha256,
+        size = image.size,
+        folder = image.folder
+    )
+
 
 }
