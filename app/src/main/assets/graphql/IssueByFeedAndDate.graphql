@@ -20,6 +20,9 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         moTime
                         sha256
                         size
+                        resolution
+                        type
+                        alpha
                     }
                 }
                 key
@@ -51,6 +54,9 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         moTime
                         sha256
                         size
+                        resolution
+                        type
+                        alpha
                     }
                     authorList {
                         name
@@ -110,6 +116,9 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                             moTime
                             sha256
                             size
+                            resolution
+                            type
+                            alpha
                         }
                         authorList {
                             name
@@ -128,6 +137,9 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         moTime
                         sha256
                         size
+                        resolution
+                        type
+                        alpha
                     }
                 }
                 pageList {

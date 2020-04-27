@@ -2,6 +2,7 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.FileEntryOperations
 
 data class Article(
     val articleHtml: FileEntry,
@@ -12,7 +13,7 @@ data class Article(
     val onlineLink: String?,
     val audioFile: FileEntry?,
     val pageNameList: List<String> = emptyList(),
-    val imageList: List<FileEntry> = emptyList(),
+    val imageList: List<Image> = emptyList(),
     val authorList: List<Author> = emptyList(),
     override val articleType: ArticleType = ArticleType.STANDARD,
     val bookmarked: Boolean = false,
@@ -34,7 +35,7 @@ data class Article(
         articleDto.onlineLink,
         articleDto.audioFile?.let { FileEntry(it, "$issueFeedName/$issueDate") },
         articleDto.pageNameList ?: emptyList(),
-        articleDto.imageList?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+        articleDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
         articleType
     )
@@ -42,19 +43,17 @@ data class Article(
     override val key: String
         get() = articleHtml.name
 
-    override suspend fun getAllFiles(): List<FileEntry> {
-        val list = mutableListOf(articleHtml)
+    override suspend fun getAllFiles(): List<FileEntryOperations> {
+        val list = mutableListOf<FileEntryOperations>(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        // TODO quickfix filter by ImageResolution
-        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return list
     }
 
     override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(articleHtml)
+        val list = mutableListOf<FileEntryOperations>(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        // TODO quickfix filter by ImageResolution
-        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return list.map { it.name }.distinct()
     }
 

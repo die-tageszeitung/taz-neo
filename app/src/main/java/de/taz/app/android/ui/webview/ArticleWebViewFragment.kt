@@ -142,7 +142,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     @TargetApi(28)
-    private fun shareArticle(url: String, title: String?, image: FileEntry?) {
+    private fun shareArticle(url: String, title: String?, image: Image?) {
         lifecycleScope.launch(Dispatchers.IO) {
             view?.let { view ->
                 var imageUri: Uri? = null

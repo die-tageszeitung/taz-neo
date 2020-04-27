@@ -148,8 +148,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         return issueStubToIssue(getIssueStubForSection(sectionFileName))
     }
 
-    fun getIssueStubForMoment(moment: Moment): IssueStub {
-        return appDatabase.issueMomentJoinDao().getIssueStub(moment.getMomentImage().name)
+    fun getIssueStubForMoment(moment: Moment): IssueStub? {
+        return moment.getMomentImage()?.let {
+            appDatabase.issueMomentJoinDao().getIssueStub(it.name)
+        }
     }
 
     fun getAllStubsLiveData(): LiveData<List<IssueStub>> {

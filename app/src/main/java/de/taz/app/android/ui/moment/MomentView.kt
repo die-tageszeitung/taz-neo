@@ -236,15 +236,15 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun generateBitmapForMoment(moment: Moment): Bitmap? {
-        moment.getMomentImage().let {
+        return moment.getMomentImage()?.let {
             val file = FileHelper.getInstance().getFile(it)
             if (file.exists()) {
-                return BitmapFactory.decodeFile(file.absolutePath)
+                BitmapFactory.decodeFile(file.absolutePath)
             } else {
                 log.error("imgFile of $moment does not exist")
+                null
             }
         }
-        return null
     }
 }
 
