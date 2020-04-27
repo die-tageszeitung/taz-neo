@@ -97,7 +97,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        assertTrue(issueRepository.getLatestIssue() == issue2)
+        assertTrue(issueRepository.getLatestIssue() == issue)
     }
 
 
