@@ -25,7 +25,7 @@ object Migration7to8 : Migration(7, 8) {
             """
             INSERT INTO Image (fileEntryName, type, alpha, resolution)
             SELECT FileEntry.name, 'picture', '1.0', 'small'
-            From FileEntry WHERE FileEntry.name LIKE '%.small'
+            From FileEntry WHERE FileEntry.name LIKE '%.small.%'
             """
         )
 
@@ -33,7 +33,7 @@ object Migration7to8 : Migration(7, 8) {
             """
             INSERT INTO Image (fileEntryName, type, alpha, resolution)
             SELECT FileEntry.name, 'picture', '1.0', 'normal'
-            From FileEntry WHERE FileEntry.name LIKE '%.norm'
+            From FileEntry WHERE FileEntry.name LIKE '%.norm.%'
             """
         )
 
@@ -41,14 +41,14 @@ object Migration7to8 : Migration(7, 8) {
             """
             INSERT INTO Image (fileEntryName, type, alpha, resolution)
             SELECT FileEntry.name, 'picture', '1.0', 'normal'
-            From FileEntry WHERE FileEntry.name LIKE '%.quadrat'
+            From FileEntry WHERE FileEntry.name LIKE '%.quadrat.%'
             """
         )
         database.execSQL(
             """
             INSERT INTO Image (fileEntryName, type, alpha, resolution)
             SELECT FileEntry.name, 'picture', '1.0', 'high'
-            From FileEntry WHERE FileEntry.name LIKE '%.high'
+            From FileEntry WHERE FileEntry.name LIKE '%.high.%'
             """
         )
     }
