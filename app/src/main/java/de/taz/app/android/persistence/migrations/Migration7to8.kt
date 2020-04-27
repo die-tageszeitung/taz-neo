@@ -15,30 +15,30 @@ object Migration7to8 : Migration(6, 7) {
             """
             INSERT INTO ImageStub (fileEntryName, type, alpha, resolution)
             SELECT FileEntry.name, 'picture', '1.0', 'small'
-            From FileEntry WHERE IssueMomentJoin.momentFileName LIKE '%.small'
+            From FileEntry WHERE FileEntry.name LIKE '%.small'
             """
         )
 
         database.execSQL(
             """
             INSERT INTO ImageStub (fileEntryName, type, alpha, resolution)
-            SELECT IssueMomentJoin.momentFileName, 'picture', '1.0', 'normal'
-            From IssueMomentJoin WHERE IssueMomentJoin.momentFileName LIKE '%.norm'
+            SELECT FileEntry.name, 'picture', '1.0', 'normal'
+            From FileEntry WHERE FileEntry.name LIKE '%.norm'
             """
         )
 
         database.execSQL(
             """
             INSERT INTO ImageStub (fileEntryName, type, alpha, resolution)
-            SELECT IssueMomentJoin.momentFileName, 'picture', '1.0', 'normal'
-            From IssueMomentJoin WHERE IssueMomentJoin.momentFileName LIKE '%.quadrat'
+            SELECT FileEntry.name, 'picture', '1.0', 'normal'
+            From FileEntry WHERE FileEntry.name LIKE '%.quadrat'
             """
         )
         database.execSQL(
             """
             INSERT INTO ImageStub (fileEntryName, type, alpha, resolution)
-            SELECT IssueMomentJoin.momentFileName, 'picture', '1.0', 'high'
-            From IssueMomentJoin WHERE IssueMomentJoin.momentFileName LIKE '%.high'
+            SELECT FileEntry.name, 'picture', '1.0', 'high'
+            From FileEntry WHERE FileEntry.name LIKE '%.high'
             """
         )
     }
