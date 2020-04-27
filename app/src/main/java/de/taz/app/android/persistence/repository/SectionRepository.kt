@@ -36,7 +36,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 )
             }
         )
-        fileEntryRepository.save(section.imageList)
+        imageRepository.save(section.imageList)
         appDatabase.sectionImageJoinDao()
             .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
@@ -172,7 +172,7 @@ class SectionRepository private constructor(applicationContext: Context) :
     fun getPreviousSection(section: SectionOperations): Section? =
         getPreviousSection(section.key)
 
-    fun imagesForSectionStub(sectionFileName: String): List<FileEntry> {
+    fun imagesForSectionStub(sectionFileName: String): List<Image> {
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
     }
 
@@ -236,7 +236,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         section.imageList.forEach {
             try {
-                fileEntryRepository.delete(it)
+                imageRepository.delete(it)
                 log.debug("deleted FileEntry of image $it")
             } catch (e: SQLiteConstraintException) {
                 log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")

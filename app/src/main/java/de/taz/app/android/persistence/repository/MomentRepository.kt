@@ -12,11 +12,10 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
-    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        appDatabase.fileEntryDao().insertOrReplace(moment.imageList)
+        imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
         appDatabase.issueMomentJoinDao().insertOrReplace(
             moment.imageList.mapIndexed { index, fileEntry ->
@@ -60,7 +59,7 @@ class MomentRepository private constructor(applicationContext: Context) :
             }
         )
         try {
-            fileEntryRepository.delete(moment.imageList)
+            imageRepository.delete(moment.imageList)
             log.debug("deleted FileEntry of image ${moment.imageList}")
         } catch (e: SQLiteConstraintException) {
             log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")

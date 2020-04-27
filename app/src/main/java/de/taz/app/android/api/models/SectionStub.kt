@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.SectionType
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -30,19 +31,17 @@ data class SectionStub(
         section.extendedTitle
     )
 
-    override suspend fun getAllFiles(): List<FileEntry> = withContext(Dispatchers.IO) {
+    override suspend fun getAllFiles(): List<FileEntryOperations> = withContext(Dispatchers.IO) {
         val imageList = SectionRepository.getInstance().imagesForSectionStub(key)
-        val list = mutableListOf(FileEntryRepository.getInstance().getOrThrow(key))
-        // TODO quickfix filter by ImageResolution
-        list.addAll(imageList.filter { it.name.contains(".norm") || it.name.contains(".quadrat") })
+        val list = mutableListOf<FileEntryOperations>(FileEntryRepository.getInstance().getOrThrow(key))
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return@withContext list.distinct()
     }
 
     override fun getAllFileNames(): List<String> {
-        val list = SectionRepository.getInstance().imageNamesForSectionStub(
+        val list = SectionRepository.getInstance().imagesForSectionStub(
             key
-        // TODO quickfix filter by ImageResolution
-        ).filter { it.contains(".norm") || it.contains(".quadrat") }.toMutableList()
+        ).filter { it.resolution == ImageResolution.normal }.map { it.name }.toMutableList()
         list.add(key)
         return list.distinct()
     }

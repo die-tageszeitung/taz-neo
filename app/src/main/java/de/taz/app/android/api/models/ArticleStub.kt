@@ -47,12 +47,11 @@ data class ArticleStub(
 
         val list = mutableListOf(key)
         list.addAll(authorList)
-        // TODO filtering should be replaced by filtering ImageResolution
-        list.addAll(imageList.map { it.name }.filter { it.contains(".norm") || it.contains(".quadrat") })
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { it.name })
         return list.distinct()
     }
 
-    suspend fun getFirstImage(): FileEntry? = withContext(Dispatchers.IO) {
+    suspend fun getFirstImage(): Image? = withContext(Dispatchers.IO) {
         ArticleRepository.getInstance().getImagesForArticle(this@ArticleStub.key)
             .firstOrNull()
     }
