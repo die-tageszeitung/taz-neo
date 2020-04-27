@@ -6,7 +6,6 @@ import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import kotlinx.serialization.Serializable
 
-@Entity(tableName = "Image", primaryKeys = ["name", "storageType"])
 @Serializable
 data class Image(
     override val name: String,
@@ -30,6 +29,18 @@ data class Image(
         type = imageDto.type,
         alpha = imageDto.alpha,
         resolution = imageDto.resolution
+    )
+
+    constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
+        name = fileEntry.name,
+        storageType = fileEntry.storageType,
+        moTime = fileEntry.moTime,
+        sha256 = fileEntry.sha256,
+        size = fileEntry.size,
+        folder = fileEntry.folder,
+        type = imageStub.type,
+        alpha = imageStub.alpha,
+        resolution = imageStub.resolution
     )
 
 }

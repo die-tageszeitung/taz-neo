@@ -13,10 +13,11 @@ class MomentRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.fileEntryDao().insertOrReplace(moment.imageList)
-        appDatabase.imageDao().insertOrReplace(moment.creditList)
+        imageRepository.save(moment.creditList)
         appDatabase.issueMomentJoinDao().insertOrReplace(
             moment.imageList.mapIndexed { index, fileEntry ->
                 IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)

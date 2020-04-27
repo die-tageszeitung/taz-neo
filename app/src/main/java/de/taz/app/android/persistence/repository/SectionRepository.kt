@@ -21,6 +21,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
@@ -41,13 +42,12 @@ class SectionRepository private constructor(applicationContext: Context) :
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
 
-        appDatabase.imageDao().insertOrReplace(section.navButton)
+        imageRepository.save(section.navButton)
 
         appDatabase.sectionNavButtonJoinDao().insertOrReplace(
             SectionNavButtonJoin(
                 sectionFileName = section.sectionHtml.name,
-                navButtonFileName = section.navButton.name,
-                navButtonStorageType = section.navButton.storageType
+                navButtonFileName = section.navButton.name
             )
         )
 
@@ -247,13 +247,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionNavButtonJoinDao().delete(
             SectionNavButtonJoin(
                 section.sectionHtml.name,
-                section.navButton.name,
-                section.navButton.storageType
+                section.navButton.name
             )
         )
 
         try {
-            appDatabase.imageDao().delete(section.navButton)
+            imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
             log.warn("NavButton ${section.navButton} not deleted - pobably still used by another section")
         }
