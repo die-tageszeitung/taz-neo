@@ -15,12 +15,12 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_feed.*
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_feed) {
+class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
