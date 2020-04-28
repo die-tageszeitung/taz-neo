@@ -76,7 +76,6 @@ data class ResourceInfo(
                             }
                         }
 
-
                         // ensure resources are downloaded
                         DownloadService.getInstance().apply {
                             scheduleDownload(fromServer)
