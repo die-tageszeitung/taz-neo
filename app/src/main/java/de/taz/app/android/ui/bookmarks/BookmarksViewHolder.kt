@@ -49,7 +49,12 @@ class BookmarksViewHolder(
             if (article.imageList.isNotEmpty()) {
                 fileHelper.getFile(article.imageList.first()).apply {
                     if (exists()) {
-                        val myBitmap = BitmapFactory.decodeFile(absolutePath)
+
+                        val bitmapOptions = BitmapFactory.Options()
+                        bitmapOptions.inSampleSize =
+                            (4 / itemView.resources.displayMetrics.density).toInt()
+
+                        val myBitmap = BitmapFactory.decodeFile(absolutePath, bitmapOptions)
                         bookmarkImage?.apply {
                             setImageBitmap(myBitmap)
                             visibility = View.VISIBLE
