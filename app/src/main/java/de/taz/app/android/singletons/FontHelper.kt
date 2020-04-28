@@ -4,6 +4,8 @@ import android.graphics.Typeface
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.util.WoffConverter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -11,8 +13,10 @@ const val CONVERTED_FONT_FOLDER = "convertedFonts"
 
 object FontHelper {
 
-    private val fontFolder = FileHelper.getInstance().getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+    private val fontFolder =
+        FileHelper.getInstance().getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
     private val cache: MutableMap<String, Typeface?> = mutableMapOf()
+    private val mutex = Mutex()
 
     init {
         if (!fontFolder.exists()) {
@@ -21,10 +25,16 @@ object FontHelper {
     }
 
     suspend fun getTypeFace(fileName: String): Typeface? {
-        if (!cache.containsKey(fileName)) {
-            cache[fileName] = fromFile(fileName)
+        return if (cache.containsKey(fileName)) {
+            cache[fileName]
+        } else {
+            mutex.withLock {
+                if (!cache.containsKey(fileName)) {
+                    cache[fileName] = fromFile(fileName)
+                }
+                cache[fileName]
+            }
         }
-        return cache[fileName]
     }
 
     private suspend fun fromFile(fileName: String): Typeface? = withContext(Dispatchers.IO) {
