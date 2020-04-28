@@ -11,12 +11,14 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -45,7 +47,14 @@ class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
 
         coverflow_refresh_layout.setOnRefreshListener {
             lifecycleScope.launch {
+                val dateHelper = DateHelper.getInstance()
+                val start = dateHelper.now
                 onRefresh()
+                val end = dateHelper.now
+                // show animation at least 1000 ms so it looks smoother
+                if (end - start < 1000) {
+                    delay(1000 - (end - start) )
+                }
                 hideRefreshLoadingIcon()
             }
         }
