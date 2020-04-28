@@ -44,6 +44,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =
                                 FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+
+                            view?.findViewById<ImageView>(R.id.dotted_line)?.translationY = 0f
                         }
                     }
                 }
