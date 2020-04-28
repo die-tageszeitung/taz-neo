@@ -72,10 +72,10 @@ data class ResourceInfo(
                             fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
                                 if (oldFileEntry != newFileEntry) {
                                     oldFileEntry.deleteFile()
-                                    fileEntryRepository.delete(oldFileEntry)
                                 }
                             }
                         }
+
 
                         // ensure resources are downloaded
                         DownloadService.getInstance().apply {
