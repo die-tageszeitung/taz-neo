@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
@@ -17,6 +18,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
@@ -57,6 +59,19 @@ class CoverflowFragment :
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(
+                    recyclerView: RecyclerView,
+                    newState: Int
+                ) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollHorizontally(1)) {
+                        activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
+                            ?.setRefreshingWithCallback(true)
+                    }
+                }
+            })
 
             presenter.onViewCreated(savedInstanceState)
         }
