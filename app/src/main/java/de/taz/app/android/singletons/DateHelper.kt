@@ -18,6 +18,9 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
     companion object : SingletonHolder<DateHelper, Context>(::DateHelper)
 
+    val now
+        get() = Date().time
+
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
     // if we want to use devices Locale replace Locale.GERMAN with:
