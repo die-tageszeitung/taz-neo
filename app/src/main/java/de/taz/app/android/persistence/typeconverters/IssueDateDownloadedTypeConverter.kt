@@ -27,7 +27,7 @@ class IssueDateDownloadTypeConverter {
     fun toIssueDateDownload(value: String): Date? {
         val simpleDateFormat = SimpleDateFormat(FORMAT_STRING, Locale.US)
 
-        if (value == "") {
+        if (value == "" || value == "null") {
             return null
         }
         return try {
