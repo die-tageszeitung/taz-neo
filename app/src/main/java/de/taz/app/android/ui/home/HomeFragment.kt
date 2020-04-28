@@ -62,6 +62,7 @@ class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
     }
 
     private suspend fun onRefresh() {
+        log.debug("onRefresh")
         withContext(Dispatchers.IO) {
             try {
                 val apiService = ApiService.getInstance(activity?.applicationContext)
