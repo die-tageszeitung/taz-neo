@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         // test to ensure sentry is working as expected
         // TODO remove in next release
-        Sentry.capture("BOOOOM")
+        Sentry.capture("BOOOOM - DEBUG: ${BuildConfig.DEBUG}")
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
