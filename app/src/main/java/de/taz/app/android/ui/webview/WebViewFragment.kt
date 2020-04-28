@@ -159,7 +159,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             val isDownloadedLiveData = displayable.isDownloadedLiveData()
 
             withContext(Dispatchers.Main) {
-                isDownloadingLiveData.observe(
+                isDownloadingLiveData.observeDistinct(
                     this@WebViewFragment,
                     Observer { isDownloadedOrDownloading ->
                         if (!isDownloadedOrDownloading) {
@@ -170,7 +170,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         }
                     }
                 )
-                isDownloadedLiveData.observe(
+                isDownloadedLiveData.observeDistinct(
                     this@WebViewFragment,
                     Observer { isDownloaded ->
                         if (isDownloaded) {
@@ -215,7 +215,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                 }
             }
             withContext(Dispatchers.Main) {
-                isDisplayableLiveData.observe(
+                isDisplayableLiveData.observeDistinct(
                     this@WebViewFragment,
                     Observer { isDisplayable ->
                         if (isDisplayable) {
