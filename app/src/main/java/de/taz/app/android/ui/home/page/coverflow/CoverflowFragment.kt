@@ -61,15 +61,21 @@ class CoverflowFragment :
             }
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+                private var isDragEvent = false
+
                 override fun onScrollStateChanged(
                     recyclerView: RecyclerView,
                     newState: Int
                 ) {
                     super.onScrollStateChanged(recyclerView, newState)
-                    if (!recyclerView.canScrollHorizontally(1)) {
+                    if ( newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
+                        !recyclerView.canScrollHorizontally(1)
+                    ) {
                         activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
                             ?.setRefreshingWithCallback(true)
                     }
+                    isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
                 }
             })
 
