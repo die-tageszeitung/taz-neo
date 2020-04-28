@@ -13,3 +13,13 @@ fun SwipeRefreshLayout.reduceDragSensitivity(factor: Int = 8) {
     val touchSlop = touchSlopField.get(this) as Int
     touchSlopField.set(this, touchSlop * factor)
 }
+
+/**
+ * Monkey patching SwipeRefreshLayout adding a function to allow setting isRefreshing and calling the onRefreshListener
+ */
+fun SwipeRefreshLayout.setRefreshingWithCallback(isRefreshing: Boolean) {
+    setRefreshing(isRefreshing)
+    val listenerField = SwipeRefreshLayout::class.java.getDeclaredField("mListener")
+    listenerField.isAccessible = true
+    (listenerField[this] as? SwipeRefreshLayout.OnRefreshListener)?.onRefresh()
+}
