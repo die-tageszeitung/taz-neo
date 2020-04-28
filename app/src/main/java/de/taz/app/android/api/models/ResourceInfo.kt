@@ -57,8 +57,11 @@ data class ResourceInfo(
                         resourceInfoRepository.save(fromServer)
                         resourceInfoRepository.deleteAllButNewest()
 
+                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
                         // delete unused files
-                        local?.resourceList?.filter { it !in fromServer.resourceList }?.forEach {
+                        local?.resourceList?.filter { local ->
+                            local.name !in fromServerResourceListNames
+                        }?.forEach {
                             log.info("deleting ${it.name}")
                             it.deleteFile()
                             fileEntryRepository.delete(it)
