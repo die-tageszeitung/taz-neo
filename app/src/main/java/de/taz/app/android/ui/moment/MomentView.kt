@@ -91,7 +91,7 @@ class MomentView @JvmOverloads constructor(
             momentIsDownloadedObserver = viewModel.isMomentDownloadedLiveData
                 .observeDistinct(lifecycleOwner) { isDownloaded ->
                     if (isDownloaded) {
-                        viewModel.currentIssueOperationsLiveData.observeDistinctOnce(lifecycleOwner) { issueOperations ->
+                        viewModel.currentIssueOperationsLiveData.observeDistinct(lifecycleOwner) { issueOperations ->
                             if (issueOperations != null) {
                                 showMoment()
                             }
@@ -124,7 +124,13 @@ class MomentView @JvmOverloads constructor(
     private fun showMoment() {
         lifecycleOwner?.lifecycleScope?.launch {
             setDate(viewModel.date)
-            viewModel.moment?.let { showMomentImage(it) }
+            viewModel.momentLiveData.observeDistinct(lifecycleOwner!!) { moment ->
+                moment?.let {
+                    lifecycleOwner?.lifecycleScope?.launch {
+                        showMomentImage(it)
+                    }
+                }
+            }
             if (!shouldNotShowDownloadIcon) {
                 showDownloadIconObserver =
                     viewModel.isDownloadedLiveData.observeDistinct(lifecycleOwner!!) { isDownloaded ->
@@ -241,7 +247,7 @@ class MomentView @JvmOverloads constructor(
             if (file.exists()) {
                 // scale image to reduce memory costs
                 val bitmapOptions = BitmapFactory.Options()
-                bitmapOptions.inSampleSize = (4/resources.displayMetrics.density).toInt()
+                bitmapOptions.inSampleSize = (4 / resources.displayMetrics.density).toInt()
                 BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
             } else {
                 log.error("imgFile of $moment does not exist")
