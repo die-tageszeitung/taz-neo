@@ -6,13 +6,11 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.testIssues
-import de.taz.app.android.ui.home.page.archive.ArchiveContract
-import de.taz.app.android.ui.home.page.archive.ArchiveDataController
-import de.taz.app.android.ui.home.page.archive.ArchivePresenter
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.ui.home.page.archive.ArchiveFragment
+import de.taz.app.android.ui.home.page.archive.ArchiveViewModel
 import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -29,31 +27,26 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.text.SimpleDateFormat
 
-class ArchivePresenterTest {
+class HomePagePresenterTest {
 
     @kotlinx.coroutines.ObsoleteCoroutinesApi
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    private lateinit var presenter: ArchivePresenter
+    private lateinit var presenter: ArchiveFragment
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var archiveContractView: ArchiveContract.View
-    @Mock
     lateinit var mainContractView: MainActivity
     @Mock
-    lateinit var viewModel: ArchiveDataController
+    lateinit var viewModel: ArchiveViewModel
     @Mock
     lateinit var apiService: ApiService
     @Mock
     lateinit var issueRepository: IssueRepository
     @Mock
     lateinit var dateHelper: DateHelper
-    @Mock
-    lateinit var downloadService: DownloadService
-
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     private val lifecycleOwner = TestLifecycleOwner()
 
@@ -65,19 +58,10 @@ class ArchivePresenterTest {
         MockitoAnnotations.initMocks(this)
 
         apiService.simpleDateFormat = SimpleDateFormat()
-        presenter = ArchivePresenter(
-            apiService = apiService,
-            downloadService = downloadService,
-            issueRepository = issueRepository,
-            dateHelper = dateHelper
-        )
-        presenter.attach(archiveContractView)
+        presenter = ArchiveFragment()
 
-        Mockito.`when`(archiveContractView.getMainView()).thenReturn(mainContractView)
-
-        presenter.viewModel = viewModel
         Mockito.`when`(mainContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
-        Mockito.`when`(archiveContractView.getLifecycleOwner()).thenReturn(lifecycleOwner)
+        Mockito.`when`(presenter.getLifecycleOwner()).thenReturn(lifecycleOwner)
     }
 
     @After
