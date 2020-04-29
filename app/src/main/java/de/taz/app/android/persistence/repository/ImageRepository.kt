@@ -23,6 +23,10 @@ class ImageRepository private constructor(
         images.forEach { save(it) }
     }
 
+    fun saveStub(imageStub: ImageStub) {
+        appDatabase.imageStubDao().insertOrReplace(imageStub)
+    }
+
     fun get(imageName: String): Image? {
         return appDatabase.imageDao().getByName(imageName)
     }

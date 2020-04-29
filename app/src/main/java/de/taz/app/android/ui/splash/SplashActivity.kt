@@ -17,9 +17,7 @@ import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.QueryService
-import de.taz.app.android.api.models.AppInfo
-import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
@@ -61,6 +59,8 @@ class SplashActivity : AppCompatActivity() {
         deletePublicIssuesIfLoggedIn()
 
         ensurePushTokenSent()
+
+        cleanUpImages()
 
         if (isDataPolicyAccepted()) {
             if (isFirstTimeStart()) {
@@ -259,6 +259,57 @@ class SplashActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     ApiService.getInstance().sendNotificationInfo()
                 }
+            }
+        }
+    }
+
+    /**
+     * This fixes an eror introduced in 0.6.5 - TODO remove in 0.7 or so
+     */
+    private fun cleanUpImages() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val imageFileEntryNames =
+                FileEntryRepository.getInstance(applicationContext).getFileNamesContaining("%Media%").toMutableList()
+            imageFileEntryNames.addAll(
+                FileEntryRepository.getInstance(applicationContext).getFileNamesContaining("%Moment%")
+            )
+
+            val imageRepository = ImageRepository.getInstance(applicationContext)
+            val downloadRepository = DownloadRepository.getInstance(applicationContext)
+
+            val existingImageNames = imageRepository.get(imageFileEntryNames).map { it.name }
+            imageFileEntryNames.removeAll(existingImageNames)
+
+            imageFileEntryNames.forEach {
+                if (it.contains(".norm") || it.contains("quadrat")) {
+                    imageRepository.saveStub(
+                        ImageStub(
+                            it,
+                            ImageType.picture,
+                            1f,
+                            ImageResolution.normal
+                        )
+                    )
+                } else if (it.contains(".high")) {
+                    imageRepository.saveStub(
+                        ImageStub(
+                            it,
+                            ImageType.picture,
+                            1f,
+                            ImageResolution.high
+                        )
+                    )
+                } else {
+                    imageRepository.saveStub(
+                        ImageStub(
+                            it,
+                            ImageType.picture,
+                            1f,
+                            ImageResolution.small
+                        )
+                    )
+                }
+                downloadRepository.delete(it)
             }
         }
     }
