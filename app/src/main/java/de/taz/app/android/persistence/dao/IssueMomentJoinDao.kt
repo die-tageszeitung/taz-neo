@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.FileEntry
@@ -22,6 +23,18 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
         """
     )
     abstract fun getMomentFiles(feedName: String, date: String, status: IssueStatus): List<Image>
+
+
+    @Query(
+        """SELECT * FROM FileEntry INNER JOIN IssueMomentJoin
+        ON FileEntry.name == IssueMomentJoin.momentFileName
+        INNER JOIN Image ON Image.fileEntryName == IssueMomentJoin.momentFileName
+        WHERE  IssueMomentJoin.issueDate == :date AND IssueMomentJoin.issueFeedName == :feedName
+            AND IssueMomentJoin.issueStatus == :status
+        ORDER BY IssueMomentJoin.`index` ASC
+        """
+    )
+    abstract fun getMomentFilesLiveData(feedName: String, date: String, status: IssueStatus): LiveData<List<Image>>
 
 
     @Query(
