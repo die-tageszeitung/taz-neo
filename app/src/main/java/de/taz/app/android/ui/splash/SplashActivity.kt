@@ -269,47 +269,55 @@ class SplashActivity : AppCompatActivity() {
     private fun cleanUpImages() {
         CoroutineScope(Dispatchers.IO).launch {
             val imageFileEntryNames =
-                FileEntryRepository.getInstance(applicationContext).getFileNamesContaining("%Media%").toMutableList()
+                FileEntryRepository.getInstance(applicationContext)
+                    .getFileNamesContaining("%Media%").toMutableList()
             imageFileEntryNames.addAll(
-                FileEntryRepository.getInstance(applicationContext).getFileNamesContaining("%Moment%")
+                FileEntryRepository.getInstance(applicationContext)
+                    .getFileNamesContaining("%Moment%")
             )
 
             val imageRepository = ImageRepository.getInstance(applicationContext)
             val downloadRepository = DownloadRepository.getInstance(applicationContext)
 
-            val existingImageNames = imageRepository.get(imageFileEntryNames).map { it.name }
-            imageFileEntryNames.removeAll(existingImageNames)
 
             imageFileEntryNames.forEach {
-                if (it.contains(".norm") || it.contains("quadrat")) {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.normal
-                        )
-                    )
-                } else if (it.contains(".high")) {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.high
-                        )
-                    )
-                } else {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.small
-                        )
-                    )
-                }
                 downloadRepository.delete(it)
+
+                if (imageRepository.get(it) == null) {
+                    if (it.contains(".norm") || it.contains("quadrat")) {
+                        imageRepository.saveStub(
+                            ImageStub(
+                                it,
+                                ImageType.picture,
+                                1f,
+                                ImageResolution.normal
+                            )
+                        )
+                    } else if (it.contains(".high")) {
+                        imageRepository.saveStub(
+                            ImageStub(
+                                it,
+                                ImageType.picture,
+                                1f,
+                                ImageResolution.high
+                            )
+                        )
+                        if (it.startsWith("Moment")) {
+                            imageRepository.get(it)?.let {
+                                DownloadService.getInstance(applicationContext).download(it)
+                            }
+                        }
+                    } else {
+                        imageRepository.saveStub(
+                            ImageStub(
+                                it,
+                                ImageType.picture,
+                                1f,
+                                ImageResolution.small
+                            )
+                        )
+                    }
+                }
             }
         }
     }
