@@ -33,4 +33,15 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
         """
     )
     abstract fun getIssueStub(momentFileName: String): IssueStub
+
+    @Query(
+        """SELECT * FROM FileEntry INNER JOIN IssueMomentJoin
+        ON FileEntry.name == IssueMomentJoin.momentFileName
+        INNER JOIN Image ON Image.fileEntryName == IssueMomentJoin.momentFileName
+        WHERE  IssueMomentJoin.momentFileName == :imageName
+        ORDER BY IssueMomentJoin.`index` ASC
+        """
+    )
+    abstract fun getByImageName(imageName: String): List<Image>
+
 }
