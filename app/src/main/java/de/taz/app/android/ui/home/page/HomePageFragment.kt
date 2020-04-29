@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.ViewModelBaseMainFragment
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
@@ -20,14 +19,15 @@ import kotlinx.coroutines.withContext
 
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
-abstract class HomePagePresenter(
-    private val layoutID : Int,
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val dateHelper: DateHelper = DateHelper.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+abstract class HomePageFragment(
+    private val layoutID : Int
 ) : ViewModelBaseMainFragment(layoutID) {
 
     private val log by Log
+
+    private val apiService: ApiService = ApiService.getInstance()
+    private val dateHelper: DateHelper = DateHelper.getInstance()
+    private val issueRepository: IssueRepository = IssueRepository.getInstance()
 
     private var lastRequestedDate = ""
 
@@ -46,7 +46,7 @@ abstract class HomePagePresenter(
             issueStubsLiveData.observeDistinct(
                 viewLifecycleOwner,
                 HomePageIssueStubsObserver(
-                    this@HomePagePresenter
+                    this@HomePageFragment
                 )
             )
 

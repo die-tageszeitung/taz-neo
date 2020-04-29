@@ -10,13 +10,13 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.home.page.HomePageAdapter
-import de.taz.app.android.ui.home.page.HomePagePresenter
+import de.taz.app.android.ui.home.page.HomePageFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : HomePagePresenter(R.layout.fragment_archive) {
+class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
     val archiveListAdapter =
         ArchiveAdapter(

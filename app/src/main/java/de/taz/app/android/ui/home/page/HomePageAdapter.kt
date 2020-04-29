@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  *  [ViewHolder] is used to recycle views
  */
 abstract class HomePageAdapter(
-    private val modelView: HomePagePresenter,
+    private val modelView: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
     private val dateOnClickListenerFunction: (() -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
