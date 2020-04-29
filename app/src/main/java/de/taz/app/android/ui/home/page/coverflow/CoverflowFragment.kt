@@ -18,15 +18,14 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.ui.home.page.HomePagePresenter
+import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class CoverflowFragment :
-    HomePagePresenter(R.layout.fragment_coverflow) {
+class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
