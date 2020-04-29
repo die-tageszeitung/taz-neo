@@ -50,7 +50,9 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        FileEntry(image).deleteFile()
+        val fileEntry = FileEntry(image)
+        appDatabase.fileEntryDao().delete(fileEntry)
+        fileEntry.deleteFile()
         appDatabase.imageStubDao().delete(ImageStub(image))
     }
 
