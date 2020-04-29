@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -75,11 +76,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
             }
         }
 
-        view.findViewById<NestedScrollView>(nestedScrollViewId).setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-            viewModel.scrollPosition = scrollY
-        }
+        view.findViewById<NestedScrollView>(nestedScrollViewId)
+            .setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+                viewModel.scrollPosition = scrollY
+            }
 
-        savedInstanceState?.apply{
+        savedInstanceState?.apply {
             viewModel.scrollPosition = getInt(SCROLL_POSITION)
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
@@ -214,20 +216,30 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                     )
                 }
             }
+
+
             withContext(Dispatchers.Main) {
-                isDisplayableLiveData.observeDistinct(
+                isDisplayableLiveData.observe(
                     this@WebViewFragment,
-                    Observer { isDisplayable ->
-                        if (isDisplayable) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                displayable.getFile()?.let { file ->
-                                    log.debug("file ${file.absolutePath} exists: ${file.exists()}")
-                                    loadUrl("file://${file.absolutePath}")
-                                }
-                            }
-                        }
-                    }
+                    DisplayableObserver(displayable, isDisplayableLiveData)
                 )
+            }
+        }
+    }
+
+    inner class DisplayableObserver(
+        private val displayable: DISPLAYABLE,
+        private val isDisplayableLiveData: LiveData<Boolean>
+    ) : Observer<Boolean> {
+        override fun onChanged(isDisplayable: Boolean?) {
+            if (isDisplayable == true) {
+                isDisplayableLiveData.removeObserver(this@DisplayableObserver)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    displayable.getFile()?.let { file ->
+                        log.debug("file ${file.absolutePath} exists: ${file.exists()}")
+                        loadUrl("file://${file.absolutePath}")
+                    }
+                }
             }
         }
     }
