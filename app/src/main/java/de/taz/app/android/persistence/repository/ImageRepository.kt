@@ -31,6 +31,10 @@ class ImageRepository private constructor(
         return appDatabase.imageDao().getByName(imageName)
     }
 
+    fun returnExisting(imageNames: List<String>): List<String> {
+        return appDatabase.imageDao().getNames(imageNames)
+    }
+
     fun getStub(imageName: String): ImageStub? {
         return appDatabase.imageStubDao().getByName(imageName)
     }
