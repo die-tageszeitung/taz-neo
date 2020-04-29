@@ -267,7 +267,7 @@ class SplashActivity : AppCompatActivity() {
     /**
      * This fixes an error introduced in 0.6.5 - TODO remove in 0.7 or so
      */
-    private fun cleanUpImages() = runBlocking(Dispatchers.IO) {
+    private fun cleanUpImages() = CoroutineScope(Dispatchers.IO).launch {
         val imageFileEntryNames =
             FileEntryRepository.getInstance(applicationContext)
                 .getFileNamesContaining("%Media%").toMutableList()
@@ -304,10 +304,6 @@ class SplashActivity : AppCompatActivity() {
                             ImageResolution.high
                         )
                     )
-                    if (it.contains("Moment")) {
-                        MomentRepository.getInstance(applicationContext).getByImageName(it)
-                            ?.download()
-                    }
                 } else {
                     imageRepository.saveStub(
                         ImageStub(
@@ -317,6 +313,10 @@ class SplashActivity : AppCompatActivity() {
                             ImageResolution.small
                         )
                     )
+                }
+                if (it.contains("Moment")) {
+                    MomentRepository.getInstance(applicationContext).getByImageName(it)
+                        ?.download()
                 }
             }
         }

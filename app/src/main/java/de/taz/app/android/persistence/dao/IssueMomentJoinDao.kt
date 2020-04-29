@@ -38,7 +38,10 @@ abstract class IssueMomentJoinDao : BaseDao<IssueMomentJoin>() {
         """SELECT * FROM FileEntry INNER JOIN IssueMomentJoin
         ON FileEntry.name == IssueMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueMomentJoin.momentFileName
-        WHERE  IssueMomentJoin.momentFileName == :imageName
+        INNER JOIN IssueMomentJoin as IMJ2 ON IssueMomentJoin.issueDate == IMJ2.issueDate
+        AND IssueMomentJoin.issueFeedName == IMJ2.issueFeedName
+        AND IssueMomentJoin.issueStatus == IMJ2.issueStatus
+        WHERE IMJ2.momentFileName == :imageName
         ORDER BY IssueMomentJoin.`index` ASC
         """
     )
