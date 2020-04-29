@@ -108,12 +108,16 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun setStatus(download: DownloadOperations, downloadStatus: DownloadStatus) {
+    fun setStatus(fileName: String, downloadStatus: DownloadStatus) {
         try {
-            update(getWithoutFileOrThrow(download.fileName).copy(status = downloadStatus))
+            update(getWithoutFileOrThrow(fileName).copy(status = downloadStatus))
         } catch (e: NotFoundException) {
-            log.error("${e.message.toString()}: ${download.fileName}")
+            log.error("${e.message.toString()}: $fileName")
         }
+    }
+
+    fun setStatus(download: DownloadOperations, downloadStatus: DownloadStatus) {
+        setStatus(download.fileName, downloadStatus)
     }
 
     fun delete(fileName: String) {

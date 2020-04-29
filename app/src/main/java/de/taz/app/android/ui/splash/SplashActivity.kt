@@ -279,9 +279,8 @@ class SplashActivity : AppCompatActivity() {
             val imageRepository = ImageRepository.getInstance(applicationContext)
             val downloadRepository = DownloadRepository.getInstance(applicationContext)
 
-
             imageFileEntryNames.forEach {
-                downloadRepository.delete(it)
+                downloadRepository.setStatus(it, DownloadStatus.pending)
 
                 if (imageRepository.get(it) == null) {
                     if (it.contains(".norm") || it.contains("quadrat")) {
