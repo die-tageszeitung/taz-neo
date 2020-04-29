@@ -62,7 +62,8 @@ abstract class HomePageFragment(
         }
     }
 
-    fun onItemSelected(issueStub: IssueStub) {
+    override suspend fun onItemSelected(issueStub: IssueStub) {
+        getMainView()?.setDrawerIssue(issueStub)
         showIssue(issueStub)
     }
 
