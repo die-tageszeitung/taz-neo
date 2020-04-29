@@ -220,6 +220,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 )
             }
         )
+
         section.articleList.forEach { article ->
             if (!article.bookmarked) {
                 articleRepository.delete(article)
@@ -254,7 +255,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         try {
             imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
-            log.warn("NavButton ${section.navButton} not deleted - pobably still used by another section")
+            log.warn("NavButton ${section.navButton} not deleted - probably still used by another section")
         }
 
         appDatabase.sectionDao().delete(SectionStub(section))

@@ -23,8 +23,16 @@ class ImageRepository private constructor(
         images.forEach { save(it) }
     }
 
+    fun saveStub(imageStub: ImageStub) {
+        appDatabase.imageStubDao().insertOrReplace(imageStub)
+    }
+
     fun get(imageName: String): Image? {
         return appDatabase.imageDao().getByName(imageName)
+    }
+
+    fun returnExisting(imageNames: List<String>): List<String> {
+        return appDatabase.imageDao().getNames(imageNames)
     }
 
     fun getStub(imageName: String): ImageStub? {
@@ -50,7 +58,9 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        FileEntry(image).deleteFile()
+        val fileEntry = FileEntry(image)
+        appDatabase.fileEntryDao().delete(fileEntry)
+        fileEntry.deleteFile()
         appDatabase.imageStubDao().delete(ImageStub(image))
     }
 

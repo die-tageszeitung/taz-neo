@@ -23,4 +23,12 @@ abstract class ImageDao() {
     )
     abstract fun getByNames(names: List<String>): List<Image>
 
+    @Query(
+        """
+        SELECT Image.fileEntryName FROM Image
+         WHERE fileEntryName IN (:names)
+        """
+    )
+    abstract fun getNames(names: List<String>): List<String>
+
 }
