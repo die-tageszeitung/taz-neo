@@ -37,7 +37,7 @@ class MomentViewModel(
     val date: String?
         get() = currentIssueOperationsLiveData.value?.date
 
-    private val momentLiveData: LiveData<Moment?> =
+    val momentLiveData: LiveData<Moment?> =
         currentIssueOperationsLiveData.switchMap { issueOperations ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(issueOperations?.let { momentRepository.get(issueOperations) })
