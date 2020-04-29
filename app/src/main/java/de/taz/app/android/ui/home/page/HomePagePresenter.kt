@@ -24,7 +24,6 @@ abstract class HomePagePresenter(
     private val layoutID : Int,
     private val apiService: ApiService = ApiService.getInstance(),
     private val dateHelper: DateHelper = DateHelper.getInstance(),
-    private val downloadService: DownloadService = DownloadService.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance()
 ) : ViewModelBaseMainFragment(layoutID) {
 
