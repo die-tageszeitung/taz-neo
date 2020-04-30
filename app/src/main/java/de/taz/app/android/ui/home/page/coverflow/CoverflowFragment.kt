@@ -112,8 +112,15 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToEnd() {
         fragment_cover_flow_grid.apply {
-            scrollToPosition(adapter?.itemCount?.minus(1) ?: 0)
+            scrollToPosition(coverFlowPagerAdapter.itemCount.minus(1))
             smoothScrollBy(1, 0)
+        }
+    }
+
+    fun skipToItem(issueStub: IssueStub) {
+        val position = coverFlowPagerAdapter.getPosition(issueStub)
+        if (position > 0) {
+            skipToPosition(position)
         }
     }
 

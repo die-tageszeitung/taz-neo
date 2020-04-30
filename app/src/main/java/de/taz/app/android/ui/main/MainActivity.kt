@@ -38,6 +38,8 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
+import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
@@ -316,6 +318,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             R.id.drawer_menu_fragment_placeholder
         ) as? SectionDrawerFragment)?.apply {
             setIssueOperations(issueOperations)
+        }
+    }
+
+    fun setCoverFlowItem(issueStub: IssueStub) {
+        val homeFragment =
+            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+        val coverFlowFragment =
+            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
+        runOnUiThread {
+            coverFlowFragment?.skipToItem(issueStub)
         }
     }
 
