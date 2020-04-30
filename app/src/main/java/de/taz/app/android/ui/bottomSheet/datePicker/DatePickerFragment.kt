@@ -36,7 +36,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private val dateHelper = DateHelper.getInstance()
     private val apiService = ApiService.getInstance()
 
-    private var issueStub: IssueStub? = null
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
     private var feed : Feed? = null
 
