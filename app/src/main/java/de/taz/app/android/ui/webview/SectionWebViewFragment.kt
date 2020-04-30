@@ -110,7 +110,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                 }
             }
         }
-        // if not weekend and API below
+        // if not weekend and API below 26
         else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             view?.findViewById<TextView>(R.id.section)?.translationY = -3f
         }
