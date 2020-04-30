@@ -13,6 +13,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.AppTimeZone
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -68,8 +69,8 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
 
         //minDate and maxDate constraints. UX is somewhat whack..
-        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today()
-        log.debug("maxDate is ${dateHelper.longToString(dateHelper.today())}")
+        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today(AppTimeZone.Default)
+        log.debug("maxDate is ${dateHelper.longToString(dateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
             feed = FeedRepository.getInstance().get("taz")
             feed?.let { feed ->

@@ -14,6 +14,11 @@ enum class DateFormat {
     LongWithoutWeekDay
 }
 
+enum class AppTimeZone {
+    Default,
+    Berlin
+}
+
 @Mockable
 class DateHelper private constructor(applicationContext: Context): ViewModel() {
 
@@ -29,8 +34,11 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
     // ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
     private val deviceLocale = Locale.GERMAN
 
-    fun today(): Long {
-        return calDefaultTimeZone.timeInMillis
+    fun today(timeZone: AppTimeZone): Long {
+        return when (timeZone) {
+            AppTimeZone.Default -> calDefaultTimeZone.timeInMillis
+            AppTimeZone.Berlin -> cal.timeInMillis
+        }
     }
 
     private fun dateToString(date: Date) : String {
