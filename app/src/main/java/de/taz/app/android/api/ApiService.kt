@@ -202,7 +202,7 @@ class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
-        val tag = "getIssuesByFeedAndDate"
+        val tag = "getIssuesByDate"
         log.debug("$tag issueDate: $issueDate limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()

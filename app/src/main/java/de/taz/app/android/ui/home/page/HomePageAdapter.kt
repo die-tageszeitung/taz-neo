@@ -15,9 +15,11 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.util.Log
 import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 /**
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
 abstract class HomePageAdapter(
     private val modelView: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    private val dateOnClickListenerFunction: (() -> Unit)? = null
+    private val dateOnClickListenerFunction: ( (Date) -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private var allIssueStubList: List<IssueStub> = emptyList()
@@ -36,6 +38,8 @@ abstract class HomePageAdapter(
     private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
+
+    private val dateHelper = DateHelper.getInstance()
 
     private val log by Log
 
@@ -75,7 +79,7 @@ abstract class HomePageAdapter(
         }
     }
 
-    private fun filterIssueStubs(): List<IssueStub> {
+    fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
 
         // do not show public issues if logged in
@@ -164,7 +168,12 @@ abstract class HomePageAdapter(
 
             dateOnClickListenerFunction?.let{ dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
-                    dateOnClickListenerFunction()
+                    getItem(adapterPosition)?.let { issueStub ->
+                        val issueDate = dateHelper.stringToDate(issueStub.date)
+                        issueDate?.let {
+                            dateOnClickListenerFunction(issueDate)
+                        }
+                    }
                 }
             }
         }

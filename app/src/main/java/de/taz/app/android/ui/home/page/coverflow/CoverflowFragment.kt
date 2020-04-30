@@ -19,20 +19,26 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.home.page.HomePageFragment
+import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
-    private val coverFlowPagerAdapter = CoverflowAdapter(
+    private val openDatePicker : (Date) -> Unit =  { issueDate ->
+        showBottomSheet(DatePickerFragment.create(this, issueDate))
+    }
+
+    val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        null
+        openDatePicker
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
@@ -124,7 +130,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun skipToPosition(position: Int) {
+    fun skipToPosition(position: Int) = activity?.runOnUiThread {
         fragment_cover_flow_grid.apply {
             scrollToPosition(position)
             smoothScrollBy(1, 0)
