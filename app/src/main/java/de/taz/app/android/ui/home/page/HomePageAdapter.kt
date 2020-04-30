@@ -55,6 +55,10 @@ abstract class HomePageAdapter(
         return getItem(position).hashCode().toLong()
     }
 
+    fun getPosition(issueStub: IssueStub): Int {
+        return visibleIssueStubList.indexOf(issueStub)
+    }
+
     fun setAuthStatus(authStatus: AuthStatus) {
         if (this.authStatus != authStatus) {
             log.debug("setting authStatus to ${authStatus.name}")
