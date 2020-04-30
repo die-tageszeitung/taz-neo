@@ -4,16 +4,16 @@ import androidx.lifecycle.Observer
 import de.taz.app.android.api.models.IssueStub
 
 /**
- * HomePageIssuesObserver is used by [HomePagePresenter]
+ * HomePageIssuesObserver is used by [HomePageFragment]
  * to observe [HomePageDataController]'s issueStubList and bitmaps.
  * It updates [HomePageAdapter]
  */
 class HomePageIssueStubsObserver(
-    private val homePagePresenter: HomePageContract.Presenter
+    private val homePageFragment: HomePageFragment
 ) : Observer<List<IssueStub>> {
 
     override fun onChanged(issueStubs: List<IssueStub>?) {
-        homePagePresenter.getView()?.apply {
+        homePageFragment.apply {
             onDataSetChanged(issueStubs ?: emptyList())
         }
     }

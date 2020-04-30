@@ -17,35 +17,26 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class CoverflowFragment :
-    BaseMainFragment<CoverflowContract.Presenter>(R.layout.fragment_coverflow),
-    CoverflowContract.View {
-
-    override val presenter = CoverflowPresenter()
+class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
     private val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        presenter,
         null
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        presenter.attach(this)
-        presenter.onViewCreated(savedInstanceState)
-
 
         fragment_cover_flow_grid.apply {
             context?.let { context ->
@@ -79,7 +70,6 @@ class CoverflowFragment :
                 }
             })
 
-            presenter.onViewCreated(savedInstanceState)
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
@@ -97,41 +87,37 @@ class CoverflowFragment :
 
     override fun setAuthStatus(authStatus: AuthStatus) {
         coverFlowPagerAdapter.setAuthStatus(authStatus)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         coverFlowPagerAdapter.setInactiveFeedNames(inactiveFeedNames)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
-    override fun getLifecycleOwner(): LifecycleOwner {
+    fun getLifecycleOwner(): LifecycleOwner {
         return viewLifecycleOwner
     }
 
-    override fun getMainView(): MainActivity? {
-        return activity as? MainActivity
-    }
-
-    override fun skipToEnd() {
+    fun skipToEnd() {
         fragment_cover_flow_grid.apply {
             scrollToPosition(adapter?.itemCount?.minus(1) ?: 0)
             smoothScrollBy(1, 0)
         }
     }
 
-    override fun skipToPosition(position: Int) {
+    fun skipToPosition(position: Int) {
         fragment_cover_flow_grid.apply {
             scrollToPosition(position)
             smoothScrollBy(1, 0)
@@ -157,8 +143,8 @@ class CoverflowFragment :
                 }
             }
 
-            if (position >= 0 && position != presenter.getCurrentPosition()) {
-                presenter.setCurrentPosition(position)
+            if (position >= 0 && position != getCurrentPosition()) {
+                setCurrentPosition(position)
 
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
 
@@ -175,7 +161,7 @@ class CoverflowFragment :
 
                     if (position < 2 * visibleItemCount) {
                         coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
-                            presenter.getNextIssueMoments(requestDate)
+                            getNextIssueMoments(requestDate)
                         }
                     }
                 }
