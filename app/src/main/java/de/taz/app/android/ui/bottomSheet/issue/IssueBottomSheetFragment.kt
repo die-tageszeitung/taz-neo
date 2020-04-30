@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
@@ -98,14 +99,32 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 afterDelete = true
                 loading_screen?.visibility = View.VISIBLE
 
+                fragment_bottom_sheet_issue_read?.setOnClickListener(null)
+                fragment_bottom_sheet_issue_share?.setOnClickListener(null)
+                fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
+
                 preventDismissal()
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val issueRepository = IssueRepository.getInstance()
-                    issueRepository.getIssue(issueStub).delete()
-                    ApiService.getInstance().getIssueByFeedAndDate(
-                        issueStub.feedName, issueStub.date
-                    )?.let { issueRepository.save(it) }
+                    val deleteJob = launch {
+                        issueRepository.getIssue(issueStub).delete()
+                    }
+                    var issue: Issue? = null
+                    val retrievalJob = launch {
+                        ApiService.getInstance().getIssueByFeedAndDate(
+                            issueStub.feedName, issueStub.date
+                        )?.let { issue = it }
+                    }
+
+                    deleteJob.join()
+                    retrievalJob.join()
+
+                    issue?.let {
+                        issueRepository.save(it)
+                        (activity as? MainActivity)?.setCoverFlowItem(IssueStub(it))
+                    }
+
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }
