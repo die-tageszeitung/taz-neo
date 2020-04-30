@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
@@ -117,14 +118,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             val issueStub = issueRepository.getLatestIssueStubByDate(date)
             if (issueStub != null) {
-                val issue = issueRepository.getIssue(issueStub)
                 val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
                 coverFlowFragment?.get()?.let { coverFlowFragment ->
                     val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
                     coverFlowFragment.skipToPosition(issueStubPosition)
                     dismiss()
                 }
-                showIssue(issue)
+                showIssue(issueStub)
             }
             else {
                 issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
@@ -139,7 +139,9 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                         coverFlowFragment.skipToPosition(issueStubPosition)
                         dismiss()
                     }
-                    showIssue(newIssue)
+                    selectedIssueStub?.let {
+                        showIssue(it)
+                    }
 
                     val missingIssuesCount = dateHelper.dayDelta(date, earliestDate).toInt()
                     // we download missing issues in batches of 10, since API call has a upper limit
@@ -160,20 +162,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun showIssue(issue: Issue) {
+    private suspend fun showIssue(issueStub: IssueStub) {
         dismiss() //close datePicker
         getMainView()?.apply {
-            // start download if not yet downloaded
-            if (!issue.isDownloaded()) {
-                DownloadService.getInstance().download(issue)
-            }
-
             // set main issue
-            setDrawerIssue(issue)
+            setDrawerIssue(issueStub)
 
-            issue.sectionList.first().let { firstSection ->
-                showInWebView(firstSection.key)
-            }
+            showIssue(issueStub)
         }
     }
 }
