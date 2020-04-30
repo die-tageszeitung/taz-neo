@@ -73,7 +73,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             feed = FeedRepository.getInstance().get("taz")
             feed?.let { feed ->
-                log.debug("minDate is: ${feed.issueMinDate}")
+                log.debug("minDate is ${feed.issueMinDate}")
                 fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
             }
         }
@@ -87,7 +87,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             confirmButton.visibility = View.GONE
-            ToastHelper.getInstance().showToast("new date set: $day.$month.$year")
+            ToastHelper.getInstance().showToast("Neue Ausgabe wurde ausgewählt: $day.$month.$year")
             log.debug("new date set: $day.$month.$year")
 
             preventDismissal()
