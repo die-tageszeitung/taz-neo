@@ -3,33 +3,29 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.ui.home.page.HomePageAdapter
+import de.taz.app.android.ui.home.page.HomePageFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(R.layout.fragment_archive),
-    ArchiveContract.View {
+class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
-    override val presenter = ArchivePresenter()
     val archiveListAdapter =
         ArchiveAdapter(
             this,
-            R.layout.fragment_archive_item,
-            presenter
+            R.layout.fragment_archive_item
         )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        presenter.attach(this)
 
         context?.let { context ->
             fragment_archive_grid.layoutManager =
@@ -37,14 +33,16 @@ class ArchiveFragment : BaseMainFragment<ArchiveContract.Presenter>(R.layout.fra
         }
         fragment_archive_grid.adapter = archiveListAdapter
 
-        presenter.onViewCreated(savedInstanceState)
-
         fragment_archive_grid.addOnScrollListener(
             ArchiveOnScrollListener(
                 this
             )
         )
 
+    }
+
+    fun getLifecycleOwner(): LifecycleOwner {
+        return viewLifecycleOwner
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
