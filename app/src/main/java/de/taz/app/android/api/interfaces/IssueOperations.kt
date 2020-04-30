@@ -22,15 +22,8 @@ interface IssueOperations {
     val tag: String
         get() = "$feedName/$date"
 
-    fun getFeed(): Feed {
-        return FeedRepository.getInstance().get(feedName)
-    }
-
-    suspend fun getNavButton(): Image = withContext(Dispatchers.IO) {
-        val firstSection =
-            SectionRepository.getInstance().getSectionStubsForIssue(this@IssueOperations).first()
-        return@withContext SectionRepository.getInstance()
-            .getNavButton(firstSection.sectionFileName)
+    suspend fun getFeed(): Feed = withContext(Dispatchers.IO) {
+        FeedRepository.getInstance().get(feedName)
     }
 
 }
