@@ -88,7 +88,9 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             confirmButton.visibility = View.GONE
-            ToastHelper.getInstance().showToast("Neue Ausgabe wurde ausgewählt: $day.$month.$year")
+            ToastHelper.getInstance().showToast(
+                "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $day.$month.$year"
+            )
             log.debug("new date set: $day.$month.$year")
 
             preventDismissal()
