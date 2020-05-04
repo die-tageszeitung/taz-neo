@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
-import android.os.Build
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -41,7 +40,13 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
             lifecycleScope.launch(Dispatchers.IO) {
                 val issueOperations = displayable.getIssueOperations()
                 issueOperations.apply {
-                    layoutHeader(isWeekend)
+                    if (isWeekend) {
+                        withContext(Dispatchers.Main) {
+                            view?.findViewById<TextView>(R.id.section)?.typeface =
+                                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            view?.translationY = 18f
+                        }
+                    }
                 }
             }
 
@@ -97,22 +102,6 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
             val parentView = (parent as View)
             width = point.x - drawerLogoWidth - parentView.marginLeft - parentView.marginRight -
                     marginLeft - marginRight
-        }
-    }
-
-    private suspend fun layoutHeader(isWeekend: Boolean){
-        if (isWeekend) {
-            withContext(Dispatchers.Main) {
-                view?.findViewById<TextView>(R.id.section)?.apply {
-                    typeface =
-                        FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                    translationY = 8f
-                }
-            }
-        }
-        // if not weekend and API below 26
-        else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            view?.findViewById<TextView>(R.id.section)?.translationY = -3f
         }
     }
 
