@@ -13,7 +13,7 @@
         android:id="@+id/fragment_header_default_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:translationY="@dimen/fragment_header_title_y_translation"
+        android:translationY="@dimen/fragment_header_default_title_y_translation"
         android:layout_marginTop="@dimen/fragment_header_default_margin_top"
         android:text="@string/fragment_default_header_title"
         android:textAppearance="@style/TextAppearance.Fragment.Title"
