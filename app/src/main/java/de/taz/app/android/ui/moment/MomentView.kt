@@ -38,8 +38,13 @@ class MomentView @JvmOverloads constructor(
 
     private var issueOperations: IssueOperations? = null
     private var dateFormat: DateFormat? = null
-    private val dateHelper: DateHelper = DateHelper.getInstance()
     private var lifecycleOwner: LifecycleOwner? = context as? LifecycleOwner
+
+    private val dateHelper = DateHelper.getInstance(context.applicationContext)
+    private val downloadService = DownloadService.getInstance(context.applicationContext)
+    private val fileHelper = FileHelper.getInstance(context.applicationContext)
+    private val issueRepository = IssueRepository.getInstance(context.applicationContext)
+    private val momentRepository = MomentRepository.getInstance(context.applicationContext)
 
     private var shouldNotShowDownloadIcon: Boolean = false
 
@@ -101,7 +106,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     private suspend fun showMoment(issueOperations: IssueOperations) = withContext(Dispatchers.IO) {
-        val moment = MomentRepository.getInstance(context.applicationContext).get(issueOperations)
+        val moment = momentRepository.get(issueOperations)
         if (moment?.isDownloaded() == true) {
             showMomentImage(moment)
         } else {
@@ -125,7 +130,7 @@ class MomentView @JvmOverloads constructor(
     private fun hideOrShowDownloadIcon() {
         if (!shouldNotShowDownloadIcon) {
             issueOperations?.let { issueOperations ->
-                val issueStubLiveData = IssueRepository.getInstance().getStubLiveData(
+                val issueStubLiveData = issueRepository.getStubLiveData(
                     issueOperations.feedName, issueOperations.date, issueOperations.status
                 )
 
@@ -209,8 +214,8 @@ class MomentView @JvmOverloads constructor(
             setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
                     issueOperations?.let {
-                        IssueRepository.getInstance().getIssue(it)?.let { issue ->
-                            DownloadService.getInstance().download(issue)
+                        issueRepository.getIssue(it)?.let { issue ->
+                            downloadService.download(issue)
                         }
                     }
                 }
@@ -230,7 +235,7 @@ class MomentView @JvmOverloads constructor(
 
     private fun generateBitmapForMoment(moment: Moment): Bitmap? {
         return moment.getMomentImage()?.let {
-            val file = FileHelper.getInstance().getFile(it)
+            val file = fileHelper.getFile(it)
             if (file.exists()) {
                 // scale image to reduce memory costs
                 val bitmapOptions = BitmapFactory.Options()
