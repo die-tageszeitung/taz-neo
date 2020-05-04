@@ -12,9 +12,10 @@
         android:orientation="vertical"
         android:clipToPadding="false"
         android:clipChildren="false"
-        android:paddingTop="@dimen/drawer_margin_top"
+        android:paddingTop="@dimen/drawer_margin_vertical"
         android:paddingStart="@dimen/drawer_margin_horizontal"
-        android:paddingEnd="@dimen/drawer_margin_horizontal" >
+        android:paddingEnd="@dimen/drawer_margin_horizontal"
+        android:paddingBottom="@dimen/drawer_margin_vertical">
 
         <de.taz.app.android.ui.moment.MomentView
             android:id="@+id/fragment_drawer_sections_moment"
