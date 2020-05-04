@@ -30,6 +30,7 @@ class BookmarksViewHolder(
     private var bookmarkDate: TextView? = null
     private var bookmarkImage: ImageView? = null
     private var bookmarkShare: ImageView
+    private var bookmarkDelete: ImageView
     private val fileHelper = FileHelper.getInstance()
     private val dateHelper: DateHelper = DateHelper.getInstance()
 
@@ -39,6 +40,7 @@ class BookmarksViewHolder(
         bookmarkDate = itemView.findViewById(R.id.fragment_bookmark_date)
         bookmarkImage = itemView.findViewById(R.id.fragment_bookmark_image)
         bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share)
+        bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete)
     }
 
     fun bind(article: Article) {
@@ -70,6 +72,10 @@ class BookmarksViewHolder(
 
             bookmarkShare.setOnClickListener {
                 bookmarksPresenter.shareArticle(article.key)
+            }
+
+            bookmarkDelete.setOnClickListener {
+                bookmarksPresenter.debookmarkArticle(article.key)
             }
 
         }
