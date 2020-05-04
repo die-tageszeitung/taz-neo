@@ -11,7 +11,7 @@
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
 
-    <dimen name="drawer_margin_top">40dp</dimen>
+    <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">10dp</dimen>
     <dimen name="drawer_margin_bottom">16dp</dimen>
     <dimen name="drawer_date_margin_bottom">40dp</dimen>
