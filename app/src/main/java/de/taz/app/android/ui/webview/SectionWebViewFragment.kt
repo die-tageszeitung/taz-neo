@@ -100,8 +100,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
         activity?.windowManager?.defaultDisplay?.getSize(point)
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width = point.x - drawerLogoWidth - parentView.marginLeft - parentView.marginRight -
-                    marginLeft - marginRight
+            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight
         }
     }
 
