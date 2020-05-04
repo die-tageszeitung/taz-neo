@@ -69,6 +69,7 @@
     <dimen name="fragment_header_section_dotted_line_y_translation">-4dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">15.5dp</dimen>
     <dimen name="fragment_header_webview_margin_top">30dp</dimen>
+    <dimen name="fragment_header_webview_article_margin_top">40dp</dimen>
     <dimen name="fragment_header_settings_margin_bottom">38dp</dimen>
 
     <dimen name="fragment_archive_padding_top">72dp</dimen>
