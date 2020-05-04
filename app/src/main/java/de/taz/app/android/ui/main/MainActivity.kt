@@ -353,7 +353,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
-                defaultNavButton = ImageRepository.getInstance().get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                defaultNavButton = ImageRepository.getInstance(applicationContext)
+                    .get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
             val image: Image? = navButton ?: defaultNavButton
@@ -379,7 +380,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 // would be too big - the value is taken from experience rather than science
                 val scalingFactor = 1f / 3f
 
-                val file = FileHelper.getInstance().getFile(navButton)
+                val file = FileHelper.getInstance(applicationContext).getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,

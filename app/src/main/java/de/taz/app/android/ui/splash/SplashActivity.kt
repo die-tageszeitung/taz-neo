@@ -193,7 +193,7 @@ class SplashActivity : AppCompatActivity() {
             try {
                 AppInfo.update()?.let {
                     if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
-                        NotificationHelper.getInstance().showNotification(
+                        NotificationHelper.getInstance(applicationContext).showNotification(
                             R.string.notification_new_version_title,
                             R.string.notification_new_version_body,
                             CHANNEL_ID_NEW_VERSION,
