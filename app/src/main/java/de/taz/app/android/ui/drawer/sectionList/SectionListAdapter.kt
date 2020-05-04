@@ -25,9 +25,12 @@ class SectionListAdapter(
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
-    private val issueRepository = IssueRepository.getInstance()
-    private val momentRepository = MomentRepository.getInstance()
-    private val sectionRepository = SectionRepository.getInstance()
+    private val issueRepository =
+        IssueRepository.getInstance(fragment.context?.applicationContext)
+    private val momentRepository =
+        MomentRepository.getInstance(fragment.context?.applicationContext)
+    private val sectionRepository =
+        SectionRepository.getInstance(fragment.context?.applicationContext)
 
     private var moment: Moment? = null
     private val sectionList = mutableListOf<SectionStub>()
@@ -179,7 +182,7 @@ class SectionListAdapter(
     }
 
     private fun setMomentDate(issueOperations: IssueOperations) {
-        val dateHelper = DateHelper.getInstance()
+        val dateHelper = DateHelper.getInstance(fragment.context?.applicationContext)
         fragment.view?.findViewById<TextView>(
             R.id.fragment_drawer_sections_date
         )?.apply {

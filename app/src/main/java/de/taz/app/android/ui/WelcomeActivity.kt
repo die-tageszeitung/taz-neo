@@ -49,7 +49,7 @@ class WelcomeActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
+            val fileDir = FileHelper.getInstance(applicationContext).getFileDirectoryUrl(this.context)
             val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureResourceInfoIsDownloadedAndShow(file.path)
@@ -74,7 +74,7 @@ class WelcomeActivity : AppCompatActivity() {
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val isDownloadedLiveData =
-                ResourceInfoRepository.getInstance().get()?.isDownloadedLiveData()
+                ResourceInfoRepository.getInstance(applicationContext).get()?.isDownloadedLiveData()
 
             withContext(Dispatchers.Main) {
                 isDownloadedLiveData?.observeDistinct(
