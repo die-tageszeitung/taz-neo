@@ -43,9 +43,7 @@ class LoginViewModel(
     var backToArticle: Boolean = true
 
     init {
-        initialUsername?.let { username = it }
-        initialPassword?.let { password = it }
-        if (!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
+        if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
             login(initialUsername, initialPassword)
         }
     }
