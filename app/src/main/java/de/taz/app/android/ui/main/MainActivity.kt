@@ -32,6 +32,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.singletons.TazApiCssHelper
@@ -47,6 +48,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -314,9 +316,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     fun getMainView(): MainActivity? = this
 
     fun setDrawerIssue(issueOperations: IssueOperations) {
-        (supportFragmentManager.findFragmentById(
-            R.id.drawer_menu_fragment_placeholder
-        ) as? SectionDrawerFragment)?.apply {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
             setIssueOperations(issueOperations)
         }
     }
@@ -412,7 +412,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            showHome()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                SectionRepository.getInstance()
+                                    .getSectionStubForArticle(articleName)
+                                    ?.let { section ->
+                                        val issueOperations = section.getIssueOperations()
+                                        setCoverFlowItem(issueOperations)
+                                        setDrawerIssue(issueOperations)
+                                        changeDrawerIssue()
+                                    }
+                            }
                             showArticle(articleName)
                         }
                     }
