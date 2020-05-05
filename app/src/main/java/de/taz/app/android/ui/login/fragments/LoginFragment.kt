@@ -74,10 +74,10 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun showPasswordError(passwordErrorId: Int) {
-        fragment_login_password.error = getString(passwordErrorId)
+        fragment_login_password_layout.error = getString(passwordErrorId)
     }
 
     private fun showUserNameError(@StringRes usernameErrorId: Int) {
-        fragment_login_username.error = getString(usernameErrorId)
+        fragment_login_username_layout.error = getString(usernameErrorId)
     }
 }

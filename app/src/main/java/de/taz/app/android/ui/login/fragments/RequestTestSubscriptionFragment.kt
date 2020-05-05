@@ -52,19 +52,19 @@ class RequestTestSubscriptionFragment :
 
         if (passwordConfirm.isNotEmpty()) {
             if (password != passwordConfirm) {
-                fragment_login_request_test_subscription_password.error = getString(
+                fragment_login_request_test_subscription_password_layout.error = getString(
                     R.string.login_password_confirmation_error_match
                 )
                 return
             }
             if (firstName.isEmpty()) {
-                fragment_login_request_test_subscription_first_name.error = getString(
+                fragment_login_request_test_subscription_first_name_layout.error = getString(
                     R.string.login_first_name_error_empty
                 )
                 return
             }
             if (surName.isEmpty()) {
-                fragment_login_request_test_subscription_surname.error = getString(
+                fragment_login_request_test_subscription_surname_layout.error = getString(
                     R.string.login_surname_error_empty
                 )
                 return
@@ -72,13 +72,13 @@ class RequestTestSubscriptionFragment :
         }
 
         if (email.isEmpty()) {
-            fragment_login_request_test_subscription_email.error = getString(
+            fragment_login_request_test_subscription_email_layout.error = getString(
                 R.string.login_email_error_empty
             )
             return
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                fragment_login_request_test_subscription_email.error = getString(
+                fragment_login_request_test_subscription_email_layout.error = getString(
                     R.string.login_email_error_no_email
                 )
                 return
@@ -87,7 +87,7 @@ class RequestTestSubscriptionFragment :
 
         if (password.isEmpty()) {
             if (password.isEmpty()) {
-                fragment_login_request_test_subscription_password.error = getString(
+                fragment_login_request_test_subscription_password_layout.error = getString(
                     R.string.login_password_error_empty
                 )
             }
