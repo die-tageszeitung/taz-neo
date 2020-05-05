@@ -61,25 +61,22 @@ class LoginViewModel(
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
-        return initialUsername?.toIntOrNull()?.let {
-            subscriptionId = it
+        val initialSubscriptionId = initialUsername?.toIntOrNull()
+        return if (initialSubscriptionId != null) {
+            subscriptionId = initialSubscriptionId
             subscriptionPassword = initialPassword
 
-            runIfNotNull(
-                subscriptionId,
-                subscriptionPassword
-            ) { subscriptionId, subscriptionPassword ->
-                status.postValue(LoginViewModelState.LOADING)
-                if (subscriptionPassword.isNotBlank()) {
-                    ioScope.launch {
-                        handleSubscriptionIdLogin(subscriptionId, subscriptionPassword)
-                    }
-                } else {
-                    status.postValue(LoginViewModelState.PASSWORD_MISSING)
-                    null
+            status.postValue(LoginViewModelState.LOADING)
+            if (!initialPassword.isNullOrBlank()) {
+                ioScope.launch {
+                    handleSubscriptionIdLogin(initialSubscriptionId, initialPassword)
                 }
+            } else {
+                status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                null
             }
-        } ?: run {
+
+        } else {
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
@@ -299,7 +296,7 @@ class LoginViewModel(
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
                 tazId = this@LoginViewModel.username!!,
-                idPassword =  this@LoginViewModel.password!!,
+                idPassword = this@LoginViewModel.password!!,
                 subscriptionId = this@LoginViewModel.subscriptionId!!,
                 subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
                 firstname = firstName,
