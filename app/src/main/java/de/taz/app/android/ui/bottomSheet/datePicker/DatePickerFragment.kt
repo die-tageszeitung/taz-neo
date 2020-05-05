@@ -12,7 +12,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AppTimeZone
+import de.taz.app.android.singletons.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -35,7 +35,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private val issueRepository = IssueRepository.getInstance()
     private val dateHelper = DateHelper.getInstance()
     private val apiService = ApiService.getInstance()
-    private val toDownloadIssueHelper = ToDownloadIssueHelper()
 
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
     private var feed : Feed? = null
@@ -142,7 +141,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                     selectedIssueStub?.let {
                         showIssue(it)
                     }
-                    toDownloadIssueHelper.startMissingDownloads(date, earliestDate)
+                    ToDownloadIssueHelper.startMissingDownloads(date, earliestIssueStub.date)
                 }
             }
         }
