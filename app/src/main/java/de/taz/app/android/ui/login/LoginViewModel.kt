@@ -61,8 +61,9 @@ class LoginViewModel(
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
-        return initialUsername?.toIntOrNull()?.let {
-            subscriptionId = it
+        val initialSubscriptionId = initialUsername?.toIntOrNull()
+        return if(initialSubscriptionId != null) {
+            subscriptionId = initialSubscriptionId
             subscriptionPassword = initialPassword
 
             runIfNotNull(
@@ -79,7 +80,7 @@ class LoginViewModel(
                     null
                 }
             }
-        } ?: run {
+        } else {
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
