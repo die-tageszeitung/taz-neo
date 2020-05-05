@@ -4,7 +4,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 
-class ToDownloadIssueHelper {
+object ToDownloadIssueHelper {
 
     private val log by Log
     private val issueRepository = IssueRepository.getInstance()
@@ -16,7 +16,6 @@ class ToDownloadIssueHelper {
         val missingIssuesCount = dateHelper.dayDelta(fromDate, toDate).toInt()
         // we download missing issues in batches of 10, since API call has upper limit
         val necessaryNumberAPICalls = missingIssuesCount / 10 + 1
-        log.debug("SAVE THIS DAY IN DB: FIRST: $fromDate   AND LAST: $toDate")
         log.debug("necessary number of API calls: $necessaryNumberAPICalls")
         log.debug("toDate at the beginning: $toDate")
         for (i in 1..necessaryNumberAPICalls ) {
@@ -29,4 +28,5 @@ class ToDownloadIssueHelper {
             log.debug("reset earliestDate to $toDate")
         }
     }
+
 }
