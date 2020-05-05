@@ -333,15 +333,19 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug(tag)
 
         return FirebaseHelper.getInstance().firebaseToken?.let { notificationToken ->
-            transformExceptions(
-                {
-                    graphQlClient.query(
-                        QueryType.Notification,
-                        NotificationVariables(notificationToken, oldToken = oldToken)
-                    )?.notification
-                },
-                tag
-            )
+            if (notificationToken.isNotBlank()) {
+                transformExceptions(
+                    {
+                        graphQlClient.query(
+                            QueryType.Notification,
+                            NotificationVariables(notificationToken, oldToken = oldToken)
+                        )?.notification
+                    },
+                    tag
+                )
+            } else {
+                false
+            }
         }
     }
 
