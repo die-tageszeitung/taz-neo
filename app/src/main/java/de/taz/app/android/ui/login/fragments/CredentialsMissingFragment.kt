@@ -11,7 +11,7 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     private var invalidMail: Boolean = true
 
     companion object {
-        fun create(invalidMail: Boolean) : CredentialsMissingFragment {
+        fun create(invalidMail: Boolean): CredentialsMissingFragment {
             val fragment = CredentialsMissingFragment()
             fragment.invalidMail = invalidMail
             return fragment
@@ -52,7 +52,7 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
         val passwordConfirm =
             fragment_login_missing_credentials_password_confirmation.text.toString()
         val firstName = fragment_login_missing_credentials_first_name.text.toString()
-        val surName = fragment_login_missing_credentials_surname.text.toString()
+        val surname = fragment_login_missing_credentials_surname.text.toString()
 
         if (passwordConfirm.isNotEmpty()) {
             if (password != passwordConfirm) {
@@ -67,7 +67,7 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
                 )
                 return
             }
-            if (surName.isEmpty()) {
+            if (surname.isEmpty()) {
                 fragment_login_missing_credentials_surname.error = getString(
                     R.string.login_surname_error_empty
                 )
@@ -98,7 +98,12 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
             return
         }
 
-        viewModel.connect(email, password)
+        viewModel.connect(
+            username = email,
+            password = password,
+            firstName = firstName,
+            surname = surname
+        )
     }
 
 }
