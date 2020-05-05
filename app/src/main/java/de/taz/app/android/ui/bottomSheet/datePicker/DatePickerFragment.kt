@@ -8,14 +8,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AppTimeZone
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -36,6 +35,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private val issueRepository = IssueRepository.getInstance()
     private val dateHelper = DateHelper.getInstance()
     private val apiService = ApiService.getInstance()
+    private val toDownloadIssueHelper = ToDownloadIssueHelper()
 
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
     private var feed : Feed? = null
@@ -142,21 +142,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                     selectedIssueStub?.let {
                         showIssue(it)
                     }
-
-                    val missingIssuesCount = dateHelper.dayDelta(date, earliestDate).toInt()
-                    // we download missing issues in batches of 10, since API call has a upper limit
-                    val necessaryNumberAPICalls = missingIssuesCount / 10 + 1
-                    log.debug("necessary number of API calls: $necessaryNumberAPICalls")
-                    log.debug("earliestDate at the beginning: $earliestDate")
-                    for (i in 1..necessaryNumberAPICalls ) {
-                        log.debug("downloading $i batch of missing issues")
-                        val missingIssues = apiService.getIssuesByDate(earliestDate)
-                        missingIssues.forEach {
-                            issueRepository.save(it)
-                            earliestDate = it.date
-                        }
-                        log.debug("reset earliestDate to $earliestDate")
-                    }
+                    toDownloadIssueHelper.startMissingDownloads(date, earliestDate)
                 }
             }
         }
