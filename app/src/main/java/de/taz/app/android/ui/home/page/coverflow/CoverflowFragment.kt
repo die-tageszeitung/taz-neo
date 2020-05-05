@@ -85,6 +85,11 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        getMainView()?.setDrawerNavButton()
+    }
+
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
         coverFlowPagerAdapter.apply {
             setIssueStubs(issueStubs.reversed())
