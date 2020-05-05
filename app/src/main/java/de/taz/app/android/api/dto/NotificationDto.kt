@@ -7,6 +7,7 @@ data class NotificationDto(
     val perform: PerformDto? = null
 )
 
+@JsonClass(generateAdapter = false)
 enum class PerformDto {
     subscriptionPoll
 }
