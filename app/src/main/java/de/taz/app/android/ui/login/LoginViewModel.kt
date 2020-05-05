@@ -276,7 +276,9 @@ class LoginViewModel(
         username: String? = null,
         password: String? = null,
         subscriptionId: Int? = null,
-        subscriptionPassword: String? = null
+        subscriptionPassword: String? = null,
+        firstName: String? = null,
+        surname: String? = null
     ): Job {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
@@ -286,18 +288,22 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        return ioScope.launch { handleConnect(previousState) }
+        return ioScope.launch { handleConnect(previousState, firstName, surname) }
     }
 
     private suspend fun handleConnect(
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState?,
+        firstName: String?,
+        surname: String?
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
-                this@LoginViewModel.username!!,
-                this@LoginViewModel.password!!,
-                this@LoginViewModel.subscriptionId!!,
-                this@LoginViewModel.subscriptionPassword!!
+                tazId = this@LoginViewModel.username!!,
+                idPassword =  this@LoginViewModel.password!!,
+                subscriptionId = this@LoginViewModel.subscriptionId!!,
+                subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
+                firstname = firstName,
+                surname = surname
             )
 
             when (subscriptionInfo?.status) {
