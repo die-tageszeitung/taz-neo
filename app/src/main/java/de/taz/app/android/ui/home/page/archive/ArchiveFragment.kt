@@ -41,6 +41,11 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        getMainView()?.setDrawerNavButton()
+    }
+
     fun getLifecycleOwner(): LifecycleOwner {
         return viewLifecycleOwner
     }
