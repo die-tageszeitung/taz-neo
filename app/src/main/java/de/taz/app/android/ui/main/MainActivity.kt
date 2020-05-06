@@ -118,10 +118,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         super.onCreate(savedInstanceState)
 
-        // test to ensure sentry is working as expected
-        // TODO remove in next release
-        Sentry.capture("BOOOOM - DEBUG: ${BuildConfig.DEBUG}")
-
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
