@@ -12,13 +12,11 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.moment.MomentView
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -27,8 +25,6 @@ class SectionListAdapter(
     private val fragment: SectionDrawerFragment,
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
-
-    private val log by Log
 
     private val issueRepository =
         IssueRepository.getInstance(fragment.context?.applicationContext)
@@ -41,7 +37,6 @@ class SectionListAdapter(
         set(value) = run {
             val oldValue = field
             field = value
-            log.debug("setting position: $value")
             if (value > 0) {
                 notifyItemChanged(value)
                 if (oldValue >= 0) {
@@ -162,7 +157,6 @@ class SectionListAdapter(
         parent: ViewGroup,
         viewType: Int
     ): SectionListAdapterViewHolder {
-        log.debug("onCreateVH")
         // create a new view
         val textView = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
@@ -177,7 +171,6 @@ class SectionListAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        log.debug("onBindViewHolder")
         val sectionStub = sectionList[position]
         sectionStub.let {
 
@@ -215,7 +208,6 @@ class SectionListAdapter(
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
-        log.debug("onViewRecycled")
         super.onViewRecycled(holder)
         CoroutineScope(Dispatchers.Main).launch {
             holder.textView.typeface = if (issueOperations?.isWeekend == true) {
@@ -239,7 +231,4 @@ class SectionListAdapter(
         return sectionList.indexOfFirst { it.sectionFileName == sectionFileName }
     }
 
-    fun positionOf(sectionOperations: SectionOperations): Int {
-        return sectionList.indexOf(sectionOperations)
-    }
 }
