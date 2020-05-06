@@ -35,8 +35,6 @@ const val SECTION_KEY = "sectionKey"
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
 
-    private val log by Log
-
     val viewModel = SectionPagerViewModel()
 
     private var sectionAdapter: SectionPagerAdapter? = null
@@ -96,7 +94,6 @@ class SectionPagerFragment :
         sectionAdapter = sectionAdapter ?: SectionPagerAdapter(this)
 
         viewModel.currentPositionLiveData.observeDistinct(this) {
-            log.debug("currerntPostiion changed to $it")
             if (webview_pager_viewpager.currentItem != it) {
                 webview_pager_viewpager.setCurrentItem(it, false)
             }
