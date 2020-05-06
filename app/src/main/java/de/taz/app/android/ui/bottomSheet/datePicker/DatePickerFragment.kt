@@ -126,8 +126,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             }
             else {
                 issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
-                    var earliestDate = earliestIssueStub.date
-
                     val newIssue = apiService.getIssuesByDate(date, 1).first()
                     log.debug("newIssue is $newIssue")
                     issueRepository.save(newIssue)
