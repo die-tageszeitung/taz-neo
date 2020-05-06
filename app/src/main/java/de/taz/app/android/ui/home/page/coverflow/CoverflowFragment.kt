@@ -87,7 +87,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         super.onResume()
-        getMainView()?.setDrawerNavButton()
+        getMainView()?.apply {
+            setDrawerNavButton()
+            setActiveDrawerSection(RecyclerView.NO_POSITION)
+        }
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {

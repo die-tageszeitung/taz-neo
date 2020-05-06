@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -43,7 +44,10 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
     override fun onResume() {
         super.onResume()
-        getMainView()?.setDrawerNavButton()
+        getMainView()?.apply {
+            setDrawerNavButton()
+            setActiveDrawerSection(RecyclerView.NO_POSITION)
+        }
     }
 
     fun getLifecycleOwner(): LifecycleOwner {
