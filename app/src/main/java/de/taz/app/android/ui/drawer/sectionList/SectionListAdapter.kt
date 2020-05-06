@@ -37,7 +37,7 @@ class SectionListAdapter(
         set(value) = run {
             val oldValue = field
             field = value
-            if (value > 0) {
+            if (value >= 0) {
                 notifyItemChanged(value)
                 if (oldValue >= 0) {
                     notifyItemChanged(oldValue)
