@@ -1,9 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.CoroutineScope
@@ -56,12 +53,16 @@ class ArticlePagerViewModel : ViewModel() {
         }
     }
 
+    var sectionNameList: List<String?>? = null
+        private set
+
     private fun getBookmarkedArticles() {
         articleListLiveData.apply {
             CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
                 val bookmarkedArticles =
                     ArticleRepository.getInstance().getBookmarkedArticleStubList()
                 postValue(bookmarkedArticles)
+                sectionNameList = bookmarkedArticles.map { it.getSectionStub()?.key }
             }
         }
     }
@@ -70,10 +71,10 @@ class ArticlePagerViewModel : ViewModel() {
         articleListLiveData.apply {
             articleName?.let { articleName ->
                 CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
-                    postValue(
-                        ArticleRepository.getInstance()
-                            .getIssueArticleStubListByArticleName(articleName)
-                    )
+                    val articles = ArticleRepository.getInstance()
+                        .getIssueArticleStubListByArticleName(articleName)
+                    postValue(articles)
+                    sectionNameList = articles.map { it.getSectionStub()?.key }
                 }
             }
         }

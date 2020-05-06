@@ -5,17 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -25,12 +28,27 @@ class SectionListAdapter(
     private var issueOperations: IssueOperations? = null
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
+    private val log by Log
+
     private val issueRepository =
         IssueRepository.getInstance(fragment.context?.applicationContext)
     private val momentRepository =
         MomentRepository.getInstance(fragment.context?.applicationContext)
     private val sectionRepository =
         SectionRepository.getInstance(fragment.context?.applicationContext)
+
+    var activePosition = RecyclerView.NO_POSITION
+        set(value) = run {
+            val oldValue = field
+            field = value
+            log.debug("setting position: $value")
+            if (value > 0) {
+                notifyItemChanged(value)
+                if (oldValue >= 0) {
+                    notifyItemChanged(oldValue)
+                }
+            }
+        }
 
     private var moment: Moment? = null
     private val sectionList = mutableListOf<SectionStub>()
@@ -44,6 +62,8 @@ class SectionListAdapter(
             if (issueOperations?.tag != newIssueOperations?.tag) {
                 fragment.view?.alpha = 0f
                 this.issueOperations = newIssueOperations
+
+                activePosition = RecyclerView.NO_POSITION
 
                 sectionList.clear()
                 moment = null
@@ -142,6 +162,7 @@ class SectionListAdapter(
         parent: ViewGroup,
         viewType: Int
     ): SectionListAdapterViewHolder {
+        log.debug("onCreateVH")
         // create a new view
         val textView = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
@@ -156,23 +177,45 @@ class SectionListAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
+        log.debug("onBindViewHolder")
         val sectionStub = sectionList[position]
         sectionStub.let {
-            holder.textView.text = sectionStub.title
-            holder.textView.setOnClickListener {
-                fragment.getMainView()?.apply {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        showInWebView(sectionStub.key)
-                        withContext(Dispatchers.Main) {
-                            closeDrawer()
+
+            holder.textView.apply {
+                text = sectionStub.title
+                setOnClickListener {
+                    fragment.getMainView()?.apply {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            showInWebView(sectionStub.key)
+                            withContext(Dispatchers.Main) {
+                                closeDrawer()
+                            }
                         }
                     }
+                }
+                if (position == activePosition) {
+                    setTextColor(
+                        ResourcesCompat.getColor(
+                            resources,
+                            R.color.drawer_sections_item_highlighted,
+                            fragment.activity?.theme
+                        )
+                    )
+                } else {
+                    setTextColor(
+                        ResourcesCompat.getColor(
+                            resources,
+                            R.color.drawer_sections_item,
+                            fragment.activity?.theme
+                        )
+                    )
                 }
             }
         }
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
+        log.debug("onViewRecycled")
         super.onViewRecycled(holder)
         CoroutineScope(Dispatchers.Main).launch {
             holder.textView.typeface = if (issueOperations?.isWeekend == true) {
@@ -191,4 +234,12 @@ class SectionListAdapter(
     }
 
     override fun getItemCount() = sectionList.size
+
+    fun positionOf(sectionFileName: String): Int {
+        return sectionList.indexOfFirst { it.sectionFileName == sectionFileName }
+    }
+
+    fun positionOf(sectionOperations: SectionOperations): Int {
+        return sectionList.indexOf(sectionOperations)
+    }
 }
