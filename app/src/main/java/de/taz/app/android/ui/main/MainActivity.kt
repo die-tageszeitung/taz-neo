@@ -27,6 +27,7 @@ import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -318,6 +319,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     fun setDrawerIssue(issueOperations: IssueOperations) {
         (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
             setIssueOperations(issueOperations)
+        }
+    }
+
+    fun setActiveDrawerSection(activePosition: Int) {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
+            setActiveSection(activePosition)
+        }
+    }
+
+    fun setActiveDrawerSection(sectionFileName: String) {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
+            setActiveSection(sectionFileName)
         }
     }
 
