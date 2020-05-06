@@ -17,35 +17,32 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.home.page.HomePageFragment
+import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
-class CoverflowFragment :
-    BaseMainFragment<CoverflowContract.Presenter>(R.layout.fragment_coverflow),
-    CoverflowContract.View {
-
-    override val presenter = CoverflowPresenter()
+class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
-    private val coverFlowPagerAdapter = CoverflowAdapter(
+    private val openDatePicker : (Date) -> Unit =  { issueDate ->
+        showBottomSheet(DatePickerFragment.create(this, issueDate))
+    }
+
+    val coverFlowPagerAdapter = CoverflowAdapter(
         this@CoverflowFragment,
         R.layout.fragment_cover_flow_item,
-        presenter,
-        null
+        openDatePicker
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        presenter.attach(this)
-        presenter.onViewCreated(savedInstanceState)
-
 
         fragment_cover_flow_grid.apply {
             context?.let { context ->
@@ -79,13 +76,20 @@ class CoverflowFragment :
                 }
             })
 
-            presenter.onViewCreated(savedInstanceState)
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem += 1
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getMainView()?.apply {
+            setDrawerNavButton()
+            setActiveDrawerSection(RecyclerView.NO_POSITION)
         }
     }
 
@@ -97,41 +101,44 @@ class CoverflowFragment :
 
     override fun setAuthStatus(authStatus: AuthStatus) {
         coverFlowPagerAdapter.setAuthStatus(authStatus)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         coverFlowPagerAdapter.setInactiveFeedNames(inactiveFeedNames)
-        presenter.getCurrentPosition()?.let {
+        getCurrentPosition()?.let {
             skipToPosition(it)
         }
     }
 
-    override fun getLifecycleOwner(): LifecycleOwner {
+    fun getLifecycleOwner(): LifecycleOwner {
         return viewLifecycleOwner
     }
 
-    override fun getMainView(): MainActivity? {
-        return activity as? MainActivity
-    }
-
-    override fun skipToEnd() {
+    fun skipToEnd() {
         fragment_cover_flow_grid.apply {
-            scrollToPosition(adapter?.itemCount?.minus(1) ?: 0)
+            scrollToPosition(coverFlowPagerAdapter.itemCount.minus(1))
             smoothScrollBy(1, 0)
         }
     }
 
-    override fun skipToPosition(position: Int) {
+    fun skipToItem(issueStub: IssueStub) {
+        val position = coverFlowPagerAdapter.getPosition(issueStub)
+        if (position > 0) {
+            skipToPosition(position)
+        }
+    }
+
+    fun skipToPosition(position: Int) = activity?.runOnUiThread {
         fragment_cover_flow_grid.apply {
             scrollToPosition(position)
             smoothScrollBy(1, 0)
@@ -157,8 +164,8 @@ class CoverflowFragment :
                 }
             }
 
-            if (position >= 0 && position != presenter.getCurrentPosition()) {
-                presenter.setCurrentPosition(position)
+            if (position >= 0 && position != getCurrentPosition()) {
+                setCurrentPosition(position)
 
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
 
@@ -175,7 +182,7 @@ class CoverflowFragment :
 
                     if (position < 2 * visibleItemCount) {
                         coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
-                            presenter.getNextIssueMoments(requestDate)
+                            getNextIssueMoments(requestDate)
                         }
                     }
                 }

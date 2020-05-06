@@ -3,6 +3,7 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
+import de.taz.app.android.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_login_confirm_email.*
 
 class RegistrationSuccessfulFragment: BaseFragment(R.layout.fragment_login_registration_successful) {
@@ -19,7 +20,7 @@ class RegistrationSuccessfulFragment: BaseFragment(R.layout.fragment_login_regis
         }
 
         fragment_login_confirm_done.setOnClickListener {
-            activity?.finish()
+            (activity as? LoginActivity)?.done() ?: activity?.finish()
         }
     }
 }

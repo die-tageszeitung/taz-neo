@@ -118,6 +118,14 @@ class IssueRepository private constructor(applicationContext: Context) :
             .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
     }
 
+    fun getEarliestIssueStub(): IssueStub? {
+        return appDatabase.issueDao().getEarliest()
+    }
+
+    fun getEarliestIssue(): Issue? {
+        return getEarliestIssueStub()?.let { issueStubToIssue(it) }
+    }
+
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
@@ -128,6 +136,14 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
+    }
+
+    fun getLatestIssueStubByDate(date: String): IssueStub? {
+        return appDatabase.issueDao().getLatestByDate(date)
+    }
+
+    fun getLatestIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getLatestByFeedDateAndStatus(feedName, date, status)
     }
 
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {

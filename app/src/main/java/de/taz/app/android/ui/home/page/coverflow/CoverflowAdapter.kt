@@ -8,13 +8,13 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.launch
+import java.util.*
 
 class CoverflowAdapter(
-    private val fragment: CoverflowContract.View,
+    private val fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    presenter: CoverflowContract.Presenter,
-    dateOnClickListener: (() -> Unit)?
-) : HomePageAdapter(fragment, itemLayoutRes, presenter, dateOnClickListener) {
+    dateOnClickListener: ((Date) -> Unit)?
+) : HomePageAdapter(fragment, itemLayoutRes, dateOnClickListener) {
 
     override fun setIssueStubs(issues: List<IssueStub>) {
         val skipToLast = visibleIssueStubList.isEmpty()

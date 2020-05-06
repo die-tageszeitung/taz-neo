@@ -19,6 +19,7 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
@@ -147,6 +148,7 @@ class SectionPagerFragment :
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             viewModel.currentPosition = position
+            getMainView()?.setActiveDrawerSection(position)
             sectionAdapter?.getSectionStub(position)?.let {
                 lifecycleScope.launch {
                     val navButton = it.getNavButton()

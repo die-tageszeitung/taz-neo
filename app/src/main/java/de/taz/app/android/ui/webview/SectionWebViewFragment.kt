@@ -44,6 +44,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =
                                 FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            view?.translationY = 18f
                         }
                     }
                 }
@@ -99,8 +100,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
         activity?.windowManager?.defaultDisplay?.getSize(point)
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width = point.x - drawerLogoWidth - parentView.marginLeft - parentView.marginRight -
-                    marginLeft - marginRight
+            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight
         }
     }
 

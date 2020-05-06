@@ -13,11 +13,13 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.launch
 import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
+import kotlinx.coroutines.launch
+import java.util.*
 
 
 /**
@@ -25,10 +27,9 @@ import de.taz.app.android.ui.moment.MomentView
  *  [ViewHolder] is used to recycle views
  */
 abstract class HomePageAdapter(
-    private val fragment: HomePageContract.View,
+    private val modelView: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    private val presenter: HomePageContract.Presenter,
-    private val dateOnClickListenerFunction: (() -> Unit)? = null
+    private val dateOnClickListenerFunction: ( (Date) -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private var allIssueStubList: List<IssueStub> = emptyList()
@@ -37,6 +38,8 @@ abstract class HomePageAdapter(
     private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
+
+    private val dateHelper = DateHelper.getInstance()
 
     private val log by Log
 
@@ -56,6 +59,10 @@ abstract class HomePageAdapter(
         return getItem(position).hashCode().toLong()
     }
 
+    fun getPosition(issueStub: IssueStub): Int {
+        return visibleIssueStubList.indexOf(issueStub)
+    }
+
     fun setAuthStatus(authStatus: AuthStatus) {
         if (this.authStatus != authStatus) {
             log.debug("setting authStatus to ${authStatus.name}")
@@ -72,7 +79,7 @@ abstract class HomePageAdapter(
         }
     }
 
-    private fun filterIssueStubs(): List<IssueStub> {
+    fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
 
         // do not show public issues if logged in
@@ -124,7 +131,7 @@ abstract class HomePageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(fragment.getContext()).inflate(
+            LayoutInflater.from(modelView.getContext()).inflate(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
@@ -142,9 +149,9 @@ abstract class HomePageAdapter(
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                fragment.getLifecycleOwner().lifecycleScope.launch {
+                modelView.viewLifecycleOwner.lifecycleScope.launch {
                     getItem(adapterPosition)?.let {
-                        presenter.onItemSelected(it)
+                        modelView.onItemSelected(it, adapterPosition)
                     }
                 }
             }
@@ -152,8 +159,8 @@ abstract class HomePageAdapter(
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
                 getItem(adapterPosition)?.let { item ->
-                    fragment.getMainView()?.let { mainView ->
-                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
+                    modelView.getMainView()?.let { mainView ->
+                        modelView.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
                 true
@@ -161,7 +168,12 @@ abstract class HomePageAdapter(
 
             dateOnClickListenerFunction?.let{ dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
-                    dateOnClickListenerFunction()
+                    getItem(adapterPosition)?.let { issueStub ->
+                        val issueDate = dateHelper.stringToDate(issueStub.date)
+                        issueDate?.let {
+                            dateOnClickListenerFunction(issueDate)
+                        }
+                    }
                 }
             }
         }

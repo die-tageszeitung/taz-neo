@@ -12,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.ui.main.MainActivity
 
@@ -68,6 +69,10 @@ abstract class ViewModelBaseMainFragment(
                 }
             }
         }
+    }
+
+    fun getMainView() : MainActivity? {
+        return (activity as? MainActivity)
     }
 
     fun toggleMenuItem(itemId: Int) {
@@ -150,6 +155,10 @@ abstract class ViewModelBaseMainFragment(
 
     fun showNavButton(navButton: Image? = null) {
         (activity as? MainActivity)?.setDrawerNavButton(navButton)
+    }
+
+    fun showIssue(issueStub: IssueStub) {
+        (activity as? MainActivity)?.showIssue(issueStub)
     }
 
 }

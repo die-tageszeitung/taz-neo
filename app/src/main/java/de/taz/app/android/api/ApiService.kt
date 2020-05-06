@@ -202,7 +202,7 @@ class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): List<Issue> {
-        val tag = "getIssuesByFeedAndDate"
+        val tag = "getIssuesByDate"
         log.debug("$tag issueDate: $issueDate limit: $limit")
         return transformExceptions({
             val issues = mutableListOf<Issue>()
@@ -333,15 +333,19 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug(tag)
 
         return FirebaseHelper.getInstance().firebaseToken?.let { notificationToken ->
-            transformExceptions(
-                {
-                    graphQlClient.query(
-                        QueryType.Notification,
-                        NotificationVariables(notificationToken, oldToken = oldToken)
-                    )?.notification
-                },
-                tag
-            )
+            if (notificationToken.isNotBlank()) {
+                transformExceptions(
+                    {
+                        graphQlClient.query(
+                            QueryType.Notification,
+                            NotificationVariables(notificationToken, oldToken = oldToken)
+                        )?.notification
+                    },
+                    tag
+                )
+            } else {
+                false
+            }
         }
     }
 

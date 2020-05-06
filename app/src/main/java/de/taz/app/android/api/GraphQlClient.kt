@@ -50,7 +50,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     Request.Builder().url(url).post(body).build()
                 )::enqueue
             )
-
             val string = withContext(Dispatchers.IO) {
                 response.body?.string().toString()
             }
