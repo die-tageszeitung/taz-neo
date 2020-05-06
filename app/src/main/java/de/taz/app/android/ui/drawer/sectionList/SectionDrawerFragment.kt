@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.drawer.sectionList
 
 import android.os.Bundle
-import android.view.Gravity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
@@ -88,6 +87,15 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     fun showIssueStub() {
         recyclerAdapter.show()
+    }
+
+    fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
+        recyclerAdapter.activePosition = activePosition
+    }
+
+    fun setActiveSection(sectionFileName: String) {
+        val position = recyclerAdapter.positionOf(sectionFileName)
+        setActiveSection(position)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
