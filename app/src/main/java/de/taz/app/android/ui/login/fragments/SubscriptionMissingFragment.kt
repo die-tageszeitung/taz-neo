@@ -25,7 +25,7 @@ class SubscriptionMissingFragment : BaseFragment(R.layout.fragment_login_missing
         fragment_login_missing_subscription_password.setText(viewModel.subscriptionPassword ?: "")
 
         if (invalidId) {
-            fragment_login_missing_subscription.error = getString(
+            fragment_login_missing_subscription_layout.error = getString(
                 R.string.login_subscription_error_invalid
             )
         }
@@ -52,19 +52,19 @@ class SubscriptionMissingFragment : BaseFragment(R.layout.fragment_login_missing
         val subscriptionPassword = fragment_login_missing_subscription_password.text.toString()
 
         if (subscriptionId.isEmpty()) {
-            fragment_login_missing_subscription.error = getString(
+            fragment_login_missing_subscription_layout.error = getString(
                 R.string.login_subscription_error_empty
             )
             return
         } else if (subscriptionId.toIntOrNull() == null) {
-            fragment_login_missing_subscription.error = getString(
+            fragment_login_missing_subscription_layout.error = getString(
                 R.string.login_subscription_error_invalid
             )
             return
         }
 
         if (subscriptionPassword.isEmpty()) {
-            fragment_login_missing_subscription_password.error = getString(
+            fragment_login_missing_subscription_password_layout.error = getString(
                 R.string.login_password_error_empty
             )
             return

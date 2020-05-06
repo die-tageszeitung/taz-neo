@@ -22,7 +22,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val SHOW_BOOKMARKS = "showBookmarks"
 const val ARTICLE_NAME = "articleName"
@@ -112,6 +111,11 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
                 firstSwipe = false
             } else {
                 hasBeenSwiped = true
+                lifecycleScope.launch(Dispatchers.IO) {
+                    viewModel.sectionNameList?.get(position)?.let {
+                        getMainView()?.setActiveDrawerSection(it)
+                    }
+                }
             }
 
             viewModel.currentPosition = position
@@ -168,17 +172,9 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     private fun showSectionOrGoBack() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.articleList?.get(
-                viewModel.currentPosition ?: 0
-            )?.getSectionStub()?.key?.let {
-                withContext(Dispatchers.Main) {
-                    showInWebView(it)
-                }
-            } ?: withContext(Dispatchers.Main) {
-                parentFragmentManager.popBackStack()
-            }
-        }
+        viewModel.sectionNameList?.get(viewModel.currentPosition ?: 0)?.let {
+            showInWebView(it)
+        } ?: parentFragmentManager.popBackStack()
     }
 
     fun tryLoadArticle(articleFileName: String): Boolean {

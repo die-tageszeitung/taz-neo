@@ -27,17 +27,21 @@ import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
+import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
@@ -45,6 +49,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -113,10 +118,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
         super.onCreate(savedInstanceState)
-
-        // test to ensure sentry is working as expected
-        // TODO remove in next release
-        Sentry.capture("BOOOOM - DEBUG: ${BuildConfig.DEBUG}")
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -312,10 +313,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     fun getMainView(): MainActivity? = this
 
     fun setDrawerIssue(issueOperations: IssueOperations) {
-        (supportFragmentManager.findFragmentById(
-            R.id.drawer_menu_fragment_placeholder
-        ) as? SectionDrawerFragment)?.apply {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
             setIssueOperations(issueOperations)
+        }
+    }
+
+    fun setActiveDrawerSection(activePosition: Int) {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
+            setActiveSection(activePosition)
+        }
+    }
+
+    fun setActiveDrawerSection(sectionFileName: String) {
+        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
+            setActiveSection(sectionFileName)
+        }
+    }
+
+    fun setCoverFlowItem(issueStub: IssueStub) {
+        val homeFragment =
+            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+        val coverFlowFragment =
+            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
+        runOnUiThread {
+            coverFlowFragment?.skipToItem(issueStub)
         }
     }
 
@@ -341,7 +362,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
-                defaultNavButton = ImageRepository.getInstance().get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                defaultNavButton = ImageRepository.getInstance(applicationContext)
+                    .get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
             val image: Image? = navButton ?: defaultNavButton
@@ -367,7 +389,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 // would be too big - the value is taken from experience rather than science
                 val scalingFactor = 1f / 3f
 
-                val file = FileHelper.getInstance().getFile(navButton)
+                val file = FileHelper.getInstance(applicationContext).getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
@@ -400,7 +422,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            showHome()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                SectionRepository.getInstance()
+                                    .getSectionStubForArticle(articleName)
+                                    ?.let { section ->
+                                        val issueOperations = section.getIssueOperations()
+                                        setCoverFlowItem(issueOperations)
+                                        setDrawerIssue(issueOperations)
+                                        changeDrawerIssue()
+                                    }
+                            }
                             showArticle(articleName)
                         }
                     }

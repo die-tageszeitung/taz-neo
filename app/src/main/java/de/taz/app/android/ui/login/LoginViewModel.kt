@@ -43,9 +43,7 @@ class LoginViewModel(
     var backToArticle: Boolean = true
 
     init {
-        initialUsername?.let { username = it }
-        initialPassword?.let { password = it }
-        if (!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
+        if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
             login(initialUsername, initialPassword)
         }
     }
@@ -63,25 +61,22 @@ class LoginViewModel(
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
-        return initialUsername?.toIntOrNull()?.let {
-            subscriptionId = it
+        val initialSubscriptionId = initialUsername?.toIntOrNull()
+        return if (initialSubscriptionId != null) {
+            subscriptionId = initialSubscriptionId
             subscriptionPassword = initialPassword
 
-            runIfNotNull(
-                subscriptionId,
-                subscriptionPassword
-            ) { subscriptionId, subscriptionPassword ->
-                status.postValue(LoginViewModelState.LOADING)
-                if (subscriptionPassword.isNotBlank()) {
-                    ioScope.launch {
-                        handleSubscriptionIdLogin(subscriptionId, subscriptionPassword)
-                    }
-                } else {
-                    status.postValue(LoginViewModelState.PASSWORD_MISSING)
-                    null
+            status.postValue(LoginViewModelState.LOADING)
+            if (!initialPassword.isNullOrBlank()) {
+                ioScope.launch {
+                    handleSubscriptionIdLogin(initialSubscriptionId, initialPassword)
                 }
+            } else {
+                status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                null
             }
-        } ?: run {
+
+        } else {
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
@@ -278,7 +273,9 @@ class LoginViewModel(
         username: String? = null,
         password: String? = null,
         subscriptionId: Int? = null,
-        subscriptionPassword: String? = null
+        subscriptionPassword: String? = null,
+        firstName: String? = null,
+        surname: String? = null
     ): Job {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
@@ -288,18 +285,22 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        return ioScope.launch { handleConnect(previousState) }
+        return ioScope.launch { handleConnect(previousState, firstName, surname) }
     }
 
     private suspend fun handleConnect(
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState?,
+        firstName: String?,
+        surname: String?
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
-                this@LoginViewModel.username!!,
-                this@LoginViewModel.password!!,
-                this@LoginViewModel.subscriptionId!!,
-                this@LoginViewModel.subscriptionPassword!!
+                tazId = this@LoginViewModel.username!!,
+                idPassword = this@LoginViewModel.password!!,
+                subscriptionId = this@LoginViewModel.subscriptionId!!,
+                subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
+                firstname = firstName,
+                surname = surname
             )
 
             when (subscriptionInfo?.status) {

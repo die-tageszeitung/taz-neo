@@ -22,7 +22,7 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
         super.onViewCreated(view, savedInstanceState)
 
         if(invalidId) {
-            fragment_login_forgot_password_username.error = getString(
+            fragment_login_forgot_password_username_layout.error = getString(
                 R.string.login_forgot_password_error_invalid_id
             )
         }

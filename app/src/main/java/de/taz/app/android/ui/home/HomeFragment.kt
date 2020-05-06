@@ -47,7 +47,7 @@ class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
 
         coverflow_refresh_layout.setOnRefreshListener {
             lifecycleScope.launch {
-                val dateHelper = DateHelper.getInstance()
+                val dateHelper = DateHelper.getInstance(activity?.applicationContext)
                 val start = dateHelper.now
                 onRefresh()
                 val end = dateHelper.now
