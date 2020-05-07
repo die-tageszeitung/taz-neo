@@ -24,7 +24,9 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
@@ -260,31 +262,37 @@ class LoginActivity(
 
         val data = Intent()
         if (authHelper.isLoggedIn()) {
-            runBlocking(Dispatchers.IO) {
+            lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
-            }
-            deletePublicIssues()
+                deletePublicIssues()
 
-            article?.let {
-                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
-                data.putExtra(MAIN_EXTRA_ARTICLE, article)
-            } ?: run {
-                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+                article?.let {
+                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
+                    data.putExtra(MAIN_EXTRA_ARTICLE, article)
+                } ?: run {
+                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+                }
+
+                withContext(Dispatchers.Main) {
+                    setResult(Activity.RESULT_OK, data)
+                    finish()
+                }
             }
+        } else {
+            setResult(Activity.RESULT_OK, data)
+            finish()
         }
-        setResult(Activity.RESULT_OK, data)
-        finish()
     }
 
     private suspend fun downloadLatestIssueMoments() {
         val lastIssues = apiService.getLastIssues()
-        lastIssues.forEach { issueRepository.save(it) }
+        issueRepository.save(lastIssues)
 
         article?.let { article ->
             var lastDate = lastIssues.last().date
             while (articleRepository.get(article) == null) {
                 val issues = apiService.getIssuesByDate(lastDate)
-                issues.forEach { issueRepository.save(it) }
+                issueRepository.save(issues)
                 lastDate = issues.last().date
             }
         }
