@@ -87,9 +87,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             confirmButton.visibility = View.GONE
-            ToastHelper.getInstance().showToast(
-                "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $day.$month.$year"
-            )
             log.debug("new date set: $day.$month.$year")
 
             preventDismissal()
@@ -129,19 +126,33 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             }
             else {
                 issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
-                    val newIssue = apiService.getIssuesByDate(date, 1).first()
-                    log.debug("newIssue is $newIssue")
-                    issueRepository.save(newIssue)
-                    val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
-                    coverFlowFragment?.get()?.let { coverFlowFragment ->
-                        val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
-                        coverFlowFragment.skipToPosition(issueStubPosition)
+                    try {
+                        val newIssue = apiService.getIssuesByDate(date, 1).first()
+                        log.debug("newIssue is $newIssue")
+                        issueRepository.save(newIssue)
+
+                        val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
+                        coverFlowFragment?.get()?.let { coverFlowFragment ->
+                            val issueStubPosition =
+                                coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs()
+                                    .indexOf(selectedIssueStub)
+                            coverFlowFragment.skipToPosition(issueStubPosition)
+                            dismiss()
+                        }
+                        selectedIssueStub?.let {
+                            showIssue(it)
+                        }
+
+                        ToastHelper.getInstance().showToast(
+                            "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date"
+                        )
+                        ToDownloadIssueHelper.startMissingDownloads(date, earliestIssueStub.date)
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        ToastHelper.getInstance().showToast(
+                            getString(R.string.toast_no_internet)
+                        )
                         dismiss()
                     }
-                    selectedIssueStub?.let {
-                        showIssue(it)
-                    }
-                    ToDownloadIssueHelper.startMissingDownloads(date, earliestIssueStub.date)
                 }
             }
         }
