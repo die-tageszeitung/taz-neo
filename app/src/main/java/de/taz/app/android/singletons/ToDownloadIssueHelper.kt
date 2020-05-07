@@ -37,17 +37,21 @@ class ToDownloadIssueHelper(applicationContext: Context) {
         log.debug("toDate at the beginning: $toDate")
         for (i in 1..necessaryNumberAPICalls) {
             log.debug("downloading $i. batch of missing issues")
-            val missingIssues = apiService.getIssuesByDate(updatedToDate)
-            missingIssues.forEach {
-                issueRepository.save(it)
-                updatedToDate = it.date
+            try {
+                val missingIssues = apiService.getIssuesByDate(updatedToDate)
+                missingIssues.forEach {
+                    issueRepository.save(it)
+                    updatedToDate = it.date
 
-                editPrefs
-                    .putString(EARLIEST_DATE_TO_DOWNLOAD, updatedToDate)
-                    .apply()
+                    editPrefs
+                        .putString(EARLIEST_DATE_TO_DOWNLOAD, updatedToDate)
+                        .apply()
+                }
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                log.warn("$e")
+                break
             }
             log.debug("reset earliestDate to $updatedToDate")
         }
     }
-
 }
