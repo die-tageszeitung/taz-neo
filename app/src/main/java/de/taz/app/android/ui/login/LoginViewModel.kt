@@ -116,7 +116,7 @@ class LoginViewModel(
                 AuthStatus.tazIdNotLinked -> {
                     // this should never happen
                     Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
@@ -126,7 +126,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
                 }
                 AuthStatus.valid ->
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
                     noInternet.postValue(true)
@@ -179,7 +179,7 @@ class LoginViewModel(
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
+        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
 
     fun getTrialSubscriptionForNewCredentials(
@@ -249,7 +249,7 @@ class LoginViewModel(
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
                     Sentry.capture("trialSubscription returned tazIdNotValid")
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
@@ -298,7 +298,7 @@ class LoginViewModel(
         subscriptionPassword: String? = null,
         firstName: String? = null,
         surname: String? = null
-    ): Job {
+    ): Job? {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
 
@@ -307,7 +307,8 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        return ioScope.launch { handleConnect(previousState, firstName, surname) }
+        runBlocking(Dispatchers.IO) { handleConnect(previousState, firstName, surname) }
+        return null
     }
 
     private suspend fun handleConnect(
@@ -334,7 +335,8 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
                 }
                 SubscriptionStatus.invalidMail -> {
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
+                    resetCredentialsPassword()
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
                 }
                 SubscriptionStatus.waitForProc -> {
                     poll()
@@ -343,7 +345,8 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.tazIdNotValid -> {
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    resetCredentialsPassword()
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
                 }
                 SubscriptionStatus.invalidConnection -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
@@ -403,7 +406,7 @@ class LoginViewModel(
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
                     Sentry.capture("trialSubscription returned tazIdNotValid")
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING)
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     // should not happen
@@ -559,8 +562,10 @@ class LoginViewModel(
 enum class LoginViewModelState {
     INITIAL,
     CREDENTIALS_INVALID,
-    CREDENTIALS_MISSING,
-    CREDENTIALS_MISSING_INVALID_EMAIL,
+    CREDENTIALS_MISSING_LOGIN,
+    CREDENTIALS_MISSING_LOGIN_FAILED,
+    CREDENTIALS_MISSING_REGISTER,
+    CREDENTIALS_MISSING_REGISTER_FAILED,
     EMAIL_ALREADY_LINKED,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
