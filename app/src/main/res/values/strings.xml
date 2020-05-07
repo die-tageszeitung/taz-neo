@@ -41,7 +41,7 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
 
-    <string name="fragment_article_read_onreadon">Loggen Sie sich ein, um weiterzulesen.</string>
+    <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo ID und Passwort ein. Wenn Sie bereits über eine taz ID verfügen, loggen Sie sich bitte hier ein.</string>
 
     <string name="trial_subscription_title">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
     <string name="register_button">Registrieren</string>
@@ -138,7 +138,7 @@
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="login_email_error_no_email">Muss eine E-Mail-Adresse sein.</string>
 
-    <string name="login_username_hint">Nutzername</string>
+    <string name="login_username_hint">Nutzername oder Abo ID</string>
     <string name="login_username_error_empty">Darf nicht leer sein.</string>
     <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre tazId oder AboId.</string>
 
