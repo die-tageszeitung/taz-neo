@@ -13,9 +13,6 @@ import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
-import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.ToDownloadIssueHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -146,7 +143,12 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                         ToastHelper.getInstance().showToast(
                             "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date"
                         )
-                        ToDownloadIssueHelper.startMissingDownloads(date, earliestIssueStub.date)
+                        context?.let {
+                            ToDownloadIssueHelper(it).startMissingDownloads(
+                                date,
+                                earliestIssueStub.date
+                            )
+                        }
                     } catch (e: ApiService.ApiServiceException.NoInternetException) {
                         ToastHelper.getInstance().showToast(
                             getString(R.string.toast_no_internet)
