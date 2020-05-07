@@ -182,15 +182,28 @@ class LoginViewModel(
         register(LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL)
     }
 
-    fun getTrialSubscriptionForNewCredentials(username: String? = null, password: String? = null) {
-        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL, username, password)
+    fun getTrialSubscriptionForNewCredentials(
+        username: String? = null,
+        password: String? = null,
+        firstName: String? = null,
+        surname: String? = null
+    ) {
+        register(
+            LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL,
+            username,
+            password,
+            firstName,
+            surname
+        )
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
         invalidMailState: LoginViewModelState,
         username: String? = null,
-        password: String? = null
+        password: String? = null,
+        firstName: String? = null,
+        surname: String? = null
     ): Job? {
         username?.let { this.username = it }
         password?.let { this.password = it }
@@ -202,6 +215,8 @@ class LoginViewModel(
                 handleRegistration(
                     username1,
                     password1,
+                    firstName,
+                    surname,
                     invalidMailState,
                     previousState
                 )
@@ -212,11 +227,18 @@ class LoginViewModel(
     private suspend fun handleRegistration(
         username: String,
         password: String,
+        firstName: String?,
+        surname: String?,
         invalidMailState: LoginViewModelState,
         previousState: LoginViewModelState?
     ) {
         try {
-            val subscriptionInfo = apiService.trialSubscription(username, password)
+            val subscriptionInfo = apiService.trialSubscription(
+                tazId = username,
+                idPassword = password,
+                firstName = firstName,
+                surname = surname
+            )
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.subscriptionIdNotValid -> {
