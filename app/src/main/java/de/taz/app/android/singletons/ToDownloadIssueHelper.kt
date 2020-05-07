@@ -11,6 +11,9 @@ const val SHARED_PREFERENCES_GAP_TO_DOWNLOAD = "shared_preferences_gap_to_downlo
 const val EARLIEST_DATE_TO_DOWNLOAD = "shared_preferences_earliest_date_to_download"
 const val LATEST_DATE_TO_DOWNLOAD = "shared_preferences_latest_date_to_download"
 
+/**
+ * Singleton to keep track of issueStubs that needs to be downloaded.
+ */
 class ToDownloadIssueHelper(applicationContext: Context) {
 
     companion object : SingletonHolder<ToDownloadIssueHelper, Context>(::ToDownloadIssueHelper)
@@ -34,7 +37,7 @@ class ToDownloadIssueHelper(applicationContext: Context) {
         // we download missing issues in batches of 10, since API call has upper limit
         val necessaryNumberAPICalls = missingIssuesCount / 10 + 1
         log.debug("necessary number of API calls: $necessaryNumberAPICalls")
-        log.debug("toDate at the beginning: $toDate")
+        log.debug("loading issue between $fromDate and $toDate")
         for (i in 1..necessaryNumberAPICalls) {
             log.debug("downloading $i. batch of missing issues")
             try {
