@@ -21,23 +21,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
-import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
@@ -47,7 +42,6 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,6 +119,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         lockEndNavigationView()
 
+        checkIssuesToBeDownloaded()
+
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
@@ -144,6 +140,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
+    }
+
+    private fun checkIssuesToBeDownloaded() {
+        val earliestDate = getSharedPreferences(
+            SHARED_PREFERENCES_GAP_TO_DOWNLOAD,
+            Context.MODE_PRIVATE
+        ).getString(EARLIEST_DATE_TO_DOWNLOAD, "")
+        val latestDate = getSharedPreferences(
+            SHARED_PREFERENCES_GAP_TO_DOWNLOAD,
+            Context.MODE_PRIVATE
+        ).getString(LATEST_DATE_TO_DOWNLOAD, "")
+
+        if (latestDate != null && earliestDate != null && latestDate < earliestDate) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                ToDownloadIssueHelper.getInstance(applicationContext)
+                    .startMissingDownloads(latestDate, earliestDate)
+            }
+        }
     }
 
     override fun onResume() {
