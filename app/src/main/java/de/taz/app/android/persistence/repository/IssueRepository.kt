@@ -31,55 +31,57 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun save(issue: Issue) {
-        appDatabase.issueDao().insertOrReplace(
-            IssueStub(issue)
-        )
-
-        // save pages
-        pageRepository.save(issue.pageList)
-
-        // save page relation
-        appDatabase.issuePageJoinDao().insertOrReplace(
-            issue.pageList.mapIndexed { index, page ->
-                IssuePageJoin(
-                    issue.feedName,
-                    issue.date,
-                    issue.status,
-                    page.pagePdf.name,
-                    index
-                )
-            }
-        )
-
-        // save moment
-        momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
-
-        // save imprint
-        issue.imprint?.let { imprint ->
-            articleRepository.save(imprint)
-            appDatabase.issueImprintJoinDao().insertOrReplace(
-                IssueImprintJoin(
-                    issue.feedName,
-                    issue.date,
-                    issue.status,
-                    imprint.articleHtml.name
-                )
+        appDatabase.runInTransaction {
+            appDatabase.issueDao().insertOrReplace(
+                IssueStub(issue)
             )
-        }
 
-        // save sections
-        issue.sectionList.let { sectionList ->
-            sectionList.forEach { sectionRepository.save(it) }
-            appDatabase.issueSectionJoinDao()
-                .insertOrReplace(sectionList.mapIndexed { index, it ->
-                    IssueSectionJoin(
+            // save pages
+            pageRepository.save(issue.pageList)
+
+            // save page relation
+            appDatabase.issuePageJoinDao().insertOrReplace(
+                issue.pageList.mapIndexed { index, page ->
+                    IssuePageJoin(
                         issue.feedName,
                         issue.date,
                         issue.status,
-                        it.sectionHtml.name,
+                        page.pagePdf.name,
                         index
                     )
-                })
+                }
+            )
+
+            // save moment
+            momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
+
+            // save imprint
+            issue.imprint?.let { imprint ->
+                articleRepository.save(imprint)
+                appDatabase.issueImprintJoinDao().insertOrReplace(
+                    IssueImprintJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        imprint.articleHtml.name
+                    )
+                )
+            }
+
+            // save sections
+            issue.sectionList.let { sectionList ->
+                sectionList.forEach { sectionRepository.save(it) }
+                appDatabase.issueSectionJoinDao()
+                    .insertOrReplace(sectionList.mapIndexed { index, it ->
+                        IssueSectionJoin(
+                            issue.feedName,
+                            issue.date,
+                            issue.status,
+                            it.sectionHtml.name,
+                            index
+                        )
+                    })
+            }
         }
     }
 
