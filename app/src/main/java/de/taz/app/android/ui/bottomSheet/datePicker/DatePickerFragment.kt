@@ -116,7 +116,10 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
         withContext(Dispatchers.IO) {
 
             val issueStub = issueRepository.getLatestIssueStubByDate(date)
-            if (issueStub != null && dateHelper.dayDelta(issueStub.date, date) < 2 && issueStub.isWeekend) {
+            if (issueStub != null && (issueStub.date == date ||
+                dateHelper.dayDelta(issueStub.date, date).toInt() == 1 && issueStub.isWeekend)
+            ) {
+                log.debug("issue is already local")
                 coverFlowFragment?.get()?.let { coverFlowFragment ->
                     val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(issueStub)
                     coverFlowFragment.skipToPosition(issueStubPosition)
