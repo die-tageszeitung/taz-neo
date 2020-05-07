@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -47,6 +48,8 @@ class LoginActivity(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        view.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)?.replace("public.", "")
 
