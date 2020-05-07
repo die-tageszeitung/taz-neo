@@ -25,7 +25,6 @@ import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
@@ -98,11 +97,17 @@ class LoginActivity(
                 LoginViewModelState.CREDENTIALS_INVALID -> {
                     showCredentialsInvalid()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING -> {
-                    showMissingCredentials()
+                LoginViewModelState.CREDENTIALS_MISSING_LOGIN -> {
+                    showMissingCredentialsLogin()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL -> {
-                    showMissingCredentials(invalidMail = true)
+                LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED -> {
+                    showMissingCredentialsLogin(failed = true)
+                }
+                LoginViewModelState.CREDENTIALS_MISSING_REGISTER -> {
+                    showMissingCredentialsRegistration()
+                }
+                LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED -> {
+                    showMissingCredentialsRegistration(failed = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
@@ -215,9 +220,24 @@ class LoginActivity(
         showFragment(SubscriptionTakenFragment())
     }
 
-    private fun showMissingCredentials(invalidMail: Boolean = false) {
+    private fun showMissingCredentialsLogin(failed: Boolean = false) {
         log.debug("showMissingCredentials")
-        showFragment(CredentialsMissingFragment.create(invalidMail))
+        showFragment(
+            CredentialsMissingFragment.create(
+                registration = false,
+                failed = failed
+            )
+        )
+    }
+
+    private fun showMissingCredentialsRegistration(failed: Boolean = false) {
+        log.debug("showMissingCredentials")
+        showFragment(
+            CredentialsMissingFragment.create(
+                registration = true,
+                failed = failed
+            )
+        )
     }
 
     private fun showCredentialsInvalid() {
