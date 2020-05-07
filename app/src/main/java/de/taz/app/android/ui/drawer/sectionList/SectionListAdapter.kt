@@ -33,13 +33,13 @@ class SectionListAdapter(
     private val sectionRepository =
         SectionRepository.getInstance(fragment.context?.applicationContext)
 
-    var activePosition = RecyclerView.NO_POSITION
-        set(value) = run {
+    var activePosition = 0
+        set(value) {
             val oldValue = field
             field = value
-            if (value >= 0) {
+            if (value >= 0 && sectionList.size > value) {
                 notifyItemChanged(value)
-                if (oldValue >= 0) {
+                if (oldValue >= 0 && sectionList.size > value) {
                     notifyItemChanged(oldValue)
                 }
             }
