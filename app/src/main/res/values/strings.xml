@@ -154,7 +154,7 @@
     <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
     <string name="fragment_login_missing_credentials_header_registration">Sie haben noch keine taz-ID? Hier können Sie sich selbst eine neue taz-ID mit einer E-Mail-Adresse und Ihrem persönlichen Passwort aussuchen.</string>>
-    <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
+    <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
     <string name="login_forgot_password_button">Hier klicken</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
@@ -183,7 +183,7 @@
     <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
 
     <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
-    <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen) geben Sie hier bitte diese Daten an.</string>
+    <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
     <string name="fragment_login_request_test_subscription_terms_and_conditions">Ich akzeptiere die AGB sowie die Hinweise zum Widerruf und Datenschutz.</string>
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
