@@ -216,7 +216,7 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.1.5'
+    googleImplementation 'com.google.firebase:firebase-messaging:20.1.7'
 }
 
 sentry {
