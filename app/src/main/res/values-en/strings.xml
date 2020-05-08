@@ -198,5 +198,6 @@
     <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
 
     <string name="button_close_text">×</string>
+    <string name="issue_not_found">Issue not found.</string>
 
 </resources>

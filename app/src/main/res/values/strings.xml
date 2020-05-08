@@ -201,4 +201,5 @@
     <string name="button_close_text">×</string>
 
     <string name="fragment_date_picker_selected_issue_toast">Neue Ausgabe wurde ausgewählt</string>
+    <string name="issue_not_found">Ausgabe nicht auffindbar.</string>
 </resources>

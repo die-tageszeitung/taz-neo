@@ -137,6 +137,7 @@ class SplashActivity : AppCompatActivity() {
             ApiService.createInstance(it)
             DownloadService.createInstance(it)
             DownloadedIssueHelper.createInstance(it)
+            ToDownloadIssueHelper.createInstance(it)
 
             SubscriptionPollHelper.createInstance(it)
 
