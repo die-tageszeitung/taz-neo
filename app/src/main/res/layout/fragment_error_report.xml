@@ -5,6 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -45,7 +46,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/fragment_settings_padding_horizontal"
-            android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
+            android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <TextView
                 android:id="@+id/fragment_error_report_title"
@@ -153,12 +155,14 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/navigation_bottom_background"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation_bottom"
@@ -168,5 +172,5 @@
             app:labelVisibilityMode="unlabeled"
             app:menu="@menu/navigation_bottom_settings" />
 
-    </FrameLayout>
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
