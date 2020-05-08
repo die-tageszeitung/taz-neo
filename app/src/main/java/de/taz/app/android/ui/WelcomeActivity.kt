@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -91,7 +92,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            welcome_loading_screen.visibility = View.GONE
+            welcome_loading_screen?.visibility = View.GONE
         }
     }
 }

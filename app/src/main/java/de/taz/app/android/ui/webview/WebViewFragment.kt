@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -121,7 +122,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen?.animate()?.alpha(0f)?.duration = 100
+            loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 
