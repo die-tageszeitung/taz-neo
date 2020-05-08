@@ -260,6 +260,7 @@
         <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/tazRed</item>
+        <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
     </style>
 
     <style name="Button.Login" parent="Widget.AppCompat.Button">
