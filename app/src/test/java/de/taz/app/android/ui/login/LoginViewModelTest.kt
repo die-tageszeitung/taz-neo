@@ -579,10 +579,39 @@ class LoginViewModelTest {
     fun connectInvalidMail() = runBlocking {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
+        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
+        loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+    }
+
+    @Test
+    fun connectNewInvalidMail() = runBlocking {
+        doReturn(invalidMailSubscriptionInfo).`when`(apiService)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
+
+        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
 
+    @Test
+    fun connectInvalidTazID() = runBlocking {
+        doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
+        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
+        loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+    }
+
+    @Test
+    fun connectNewInvalidTazID() = runBlocking {
+        doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
+
+        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
+        loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+    }
     @Test
     fun connectNoPoll() = runBlocking {
         // Do not test as this should not happen and therefore there exists no defined way to proceed
@@ -594,14 +623,6 @@ class LoginViewModelTest {
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
-    }
-
-    @Test
-    fun connectTazIdNotValid() = runBlocking {
-        doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
-        loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
     }
 
     @Test
