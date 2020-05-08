@@ -12,7 +12,7 @@
     <string name="login_failed">Anmeldung fehlgeschlagen.</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
-    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer tazId ein.</string>
+    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer taz-ID ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
@@ -41,7 +41,7 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
 
-    <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo ID und Passwort ein. Wenn Sie bereits über eine taz ID verfügen, loggen Sie sich bitte hier ein.</string>
+    <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. Wenn Sie bereits über eine taz-ID verfügen, loggen Sie sich bitte hier ein.</string>
 
     <string name="trial_subscription_title">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
     <string name="register_button">Registrieren</string>
@@ -81,7 +81,7 @@
     <string name="settings_text_epaper">Immer als E-Paper lesen</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_text_tap_on_edge">Tippen am Rand</string>
-    <string name="settings_account_abo_id">Abo ID</string>
+    <string name="settings_account_abo_id">Abo-ID</string>
     <string name="settings_account_password">Passwort</string>
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">AbonnentIn</string>
@@ -120,7 +120,7 @@
     <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Melden Sie sich mit ihrer tazId und ihrem Passwort an.</string>
+    <string name="fragment_login_description">Melden Sie sich mit ihrer taz-ID und ihrem Passwort an.</string>
 
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
@@ -138,9 +138,9 @@
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="login_email_error_no_email">Muss eine E-Mail-Adresse sein.</string>
 
-    <string name="login_username_hint">Nutzername oder Abo ID</string>
+    <string name="login_username_hint">Nutzername oder Abo-ID</string>
     <string name="login_username_error_empty">Darf nicht leer sein.</string>
-    <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre tazId oder AboId.</string>
+    <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre taz-ID oder Abo-ID.</string>
 
     <string name="login_password_hint">Passwort</string>
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
@@ -153,14 +153,14 @@
     <string name="fragment_login_subscription_inactive_body">Bitte kontaktieren Sie unseren Service:</string>
     <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_missing_credentials_header_registration">Sie haben noch keine taz ID? Hier können Sie sich selbst eine neue taz ID mit einer E-Mail-Adresse und Ihrem persönlichen Passwort aussuchen.</string>>
+    <string name="fragment_login_missing_credentials_header_registration">Sie haben noch keine taz-ID? Hier können Sie sich selbst eine neue taz-ID mit einer E-Mail-Adresse und Ihrem persönlichen Passwort aussuchen.</string>>
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
     <string name="login_forgot_password_button">Hier klicken</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
     <string name="fragment_login_missing_credentials_login">Anmelden</string>
-    <string name="fragment_login_missing_credentials_switch_to_login">Ich habe schon eine tazId</string>
-    <string name="fragment_login_missing_credentials_switch_to_registration">Ich habe noch keine tazId</string>
+    <string name="fragment_login_missing_credentials_switch_to_login">Ich habe schon eine taz-ID</string>
+    <string name="fragment_login_missing_credentials_switch_to_registration">Ich habe noch keine taz-ID</string>
 
     <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_email_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
@@ -178,7 +178,7 @@
     <string name="fragment_login_success_login_back_article">Zurück zum Artikel</string>
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
 
-    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer tazId verknüpft.</string>
+    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer taz-ID verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
 
