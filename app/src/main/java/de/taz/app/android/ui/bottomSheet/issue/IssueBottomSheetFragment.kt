@@ -96,14 +96,13 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_delete?.setOnClickListener {
             issueStub?.let { issueStub ->
-                afterDelete = true
-                loading_screen?.visibility = View.VISIBLE
-
+                preventDismissal()
                 fragment_bottom_sheet_issue_read?.setOnClickListener(null)
                 fragment_bottom_sheet_issue_share?.setOnClickListener(null)
                 fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
 
-                preventDismissal()
+                afterDelete = true
+                loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val issueRepository = IssueRepository.getInstance()
