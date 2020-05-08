@@ -85,7 +85,15 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        super.deleteFiles()
+        val allFiles = getAllFiles()
+        val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
+            acc.addAll(
+                section.articleList.filter { it.bookmarked }.map { it.getAllFileNames() }.flatten()
+                    .distinct()
+            )
+            acc
+        })
+        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach { it.deleteFile() }
         IssueRepository.getInstance().resetDownloadDate(this)
     }
 
@@ -97,6 +105,7 @@ data class Issue(
     }
 
 }
+
 @JsonClass(generateAdapter = false)
 enum class IssueStatus {
     regular,
