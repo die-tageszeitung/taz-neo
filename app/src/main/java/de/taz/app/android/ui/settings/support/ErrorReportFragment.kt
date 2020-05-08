@@ -8,6 +8,7 @@ import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.ToastHelper
@@ -31,6 +32,8 @@ class ErrorReportFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.attach(this)
+
+        coordinator.moveContentBeneathStatusBar()
 
         view.apply {
             fragment_header_default_title.text =
