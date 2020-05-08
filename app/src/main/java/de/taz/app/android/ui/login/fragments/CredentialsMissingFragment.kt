@@ -28,14 +28,14 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (!registration) {
+        if (registration) {
+            fragment_login_missing_credentials_forgot_password_button.visibility = View.GONE
+            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
+        } else {
             fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
             fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
             fragment_login_missing_credentials_surname_layout.visibility = View.GONE
             fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
-        } else {
-            fragment_login_missing_credentials_forgot_password_button.visibility = View.GONE
-            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
         }
 
         fragment_login_missing_credentials_switch.setOnClickListener {
