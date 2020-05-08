@@ -222,7 +222,7 @@ class LoginActivity(
     }
 
     private fun showMissingCredentialsLogin(failed: Boolean = false) {
-        log.debug("showMissingCredentials")
+        log.debug("showMissingCredentialsLogin - failed: $failed")
         showFragment(
             CredentialsMissingFragment.create(
                 registration = false,
@@ -232,7 +232,7 @@ class LoginActivity(
     }
 
     private fun showMissingCredentialsRegistration(failed: Boolean = false) {
-        log.debug("showMissingCredentials")
+        log.debug("showMissingCredentialsRegistration - failed $failed")
         showFragment(
             CredentialsMissingFragment.create(
                 registration = true,
