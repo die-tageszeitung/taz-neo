@@ -124,7 +124,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                 }
                 showIssue(issueStub)
             } else {
-                issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
+                issueRepository.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
                     try {
                         val apiIssueList = apiService.getIssuesByDate(date, 1)
                         if (apiIssueList.isNotEmpty()) {
@@ -151,7 +151,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                             context?.let {
                                 ToDownloadIssueHelper(it).startMissingDownloads(
                                     date,
-                                    earliestIssueStub.date
+                                    lastDownloadedIssueStub.date
                                 )
                             }
                         } else {
