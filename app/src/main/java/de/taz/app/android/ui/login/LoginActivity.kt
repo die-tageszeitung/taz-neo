@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -79,7 +80,7 @@ class LoginActivity(
 
         viewModel.backToArticle = article != null
 
-        viewModel.status.observeDistinct(this) { loginViewModelState: LoginViewModelState? ->
+        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
@@ -162,7 +163,7 @@ class LoginActivity(
                     done()
                 }
             }
-        }
+        })
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
@@ -325,7 +326,7 @@ class LoginActivity(
     private fun showFragment(fragment: Fragment) {
         val fragmentClassName = fragment::class.java.name
 
-        supportFragmentManager.popBackStackImmediate(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.popBackStack(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.activity_login_fragment_placeholder, fragment)
             addToBackStack(fragmentClassName)
