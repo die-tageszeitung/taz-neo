@@ -170,6 +170,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             // set main issue
             setDrawerIssue(issueStub)
             changeDrawerIssue()
+            setCoverFlowItem(issueStub)
 
             showIssue(issueStub)
         }

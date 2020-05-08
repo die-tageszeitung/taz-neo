@@ -125,7 +125,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToItem(issueStub: IssueStub) {
         val position = coverFlowPagerAdapter.getPosition(issueStub)
-        if (position > 0) {
+        if (position >= 0) {
             skipToPosition(position)
         }
     }
