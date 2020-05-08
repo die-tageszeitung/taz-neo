@@ -43,6 +43,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
 
+    private var issueStubToSkipTo: IssueStub? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         fragment_cover_flow_grid.apply {
@@ -86,8 +88,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        coverFlowPagerAdapter.apply {
-            setIssueStubs(issueStubs.reversed())
+        coverFlowPagerAdapter.setIssueStubs(issueStubs.reversed())
+
+        issueStubToSkipTo?.let { issueStubToSkipTo ->
+            if (issueStubs.indexOfFirst { it.key == issueStubToSkipTo.key } >= 0) {
+                skipToItem(issueStubToSkipTo)
+            }
         }
     }
 
@@ -126,7 +132,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     fun skipToItem(issueStub: IssueStub) {
         val position = coverFlowPagerAdapter.getPosition(issueStub)
         if (position >= 0) {
+            issueStubToSkipTo = null
             skipToPosition(position)
+        } else {
+            issueStubToSkipTo = issueStub
         }
     }
 
@@ -161,7 +170,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             super.onScrolled(recyclerView, dx, dy)
 
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-            val position: Int = (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
+            val position: Int =
+                (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
 
             // transform the visible children visually
             (fragment_cover_flow_grid as? ViewGroup)?.apply {
@@ -176,7 +186,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             // persist position and download new issues if user is scrolling
             if (position >= 0) {
                 setCurrentPosition(position)
-
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
                     if (position < 2 * visibleItemCount) {
