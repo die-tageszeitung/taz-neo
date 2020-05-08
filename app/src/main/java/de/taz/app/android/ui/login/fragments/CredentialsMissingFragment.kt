@@ -2,18 +2,25 @@ package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
 class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_credentials) {
 
-    private var invalidMail: Boolean = true
+    private var failed: Boolean = false
+    private var registration: Boolean = true
 
     companion object {
-        fun create(invalidMail: Boolean): CredentialsMissingFragment {
+        fun create(
+            registration: Boolean,
+            failed: Boolean = false
+        ): CredentialsMissingFragment {
             val fragment = CredentialsMissingFragment()
-            fragment.invalidMail = invalidMail
+            fragment.failed = failed
+            fragment.registration = registration
             return fragment
         }
     }
@@ -21,13 +28,41 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (registration) {
+            fragment_login_missing_credentials_forgot_password_button.visibility = View.GONE
+            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
+        } else {
+            fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
+            fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
+            fragment_login_missing_credentials_surname_layout.visibility = View.GONE
+            fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
+        }
+
+        fragment_login_missing_credentials_switch.setOnClickListener {
+            viewModel.status.postValue(
+                if (registration) {
+                    LoginViewModelState.CREDENTIALS_MISSING_LOGIN
+                } else {
+                    LoginViewModelState.CREDENTIALS_MISSING_REGISTER
+                }
+            )
+        }
+
+        if (!registration) {
+            fragment_login_missing_credentials_switch.text =
+                getString(R.string.fragment_login_missing_credentials_switch_to_registration)
+
+            fragment_login_missing_credentials_header.text =
+                getString(R.string.fragment_login_missing_credentials_header_login)
+        }
+
         viewModel.username?.let {
             fragment_login_missing_credentials_email.setText(it)
         }
 
-        if (invalidMail) {
+        if (failed) {
             fragment_login_missing_credentials_email_layout.error = getString(
-                R.string.login_email_error_no_email
+                R.string.login_failed
             )
         }
 
@@ -43,6 +78,9 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
             OnEditorActionDoneListener(::connect)
         )
 
+        fragment_login_missing_credentials_password.setOnEditorActionListener(
+            OnEditorActionDoneListener(::connect)
+        )
     }
 
     private fun connect() {
@@ -90,11 +128,9 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
         }
 
         if (password.isEmpty()) {
-            if (password.isEmpty()) {
-                fragment_login_missing_credentials_password_layout.error = getString(
-                    R.string.login_password_error_empty
-                )
-            }
+            fragment_login_missing_credentials_password_layout.error = getString(
+                R.string.login_password_error_empty
+            )
             return
         }
 
