@@ -5,6 +5,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
@@ -31,6 +32,12 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
         if (registration) {
             fragment_login_missing_credentials_forgot_password_button.visibility = View.GONE
             fragment_login_missing_credentials_forgot_password.visibility = View.GONE
+
+            fragment_login_missing_credentials_email_layout.markRequired()
+            fragment_login_missing_credentials_password_layout.markRequired()
+            fragment_login_missing_credentials_password_confirmation_layout.markRequired()
+            fragment_login_missing_credentials_first_name_layout.markRequired()
+            fragment_login_missing_credentials_surname_layout.markRequired()
         } else {
             fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
             fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
