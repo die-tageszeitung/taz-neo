@@ -45,8 +45,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
         return queryService.get(queryType)?.let { query ->
             variables?.let { query.variables = variables }
 
-            log.debug(variables?.toJson().toString())
-
             val body = query.toJson().toRequestBody("application/json".toMediaType())
             val response = awaitCallback(
                 okHttpClient.newCall(
