@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.monkey.observeDistinct
@@ -332,7 +333,9 @@ class LoginActivity(
             addToBackStack(fragmentClassName)
             commit()
         }
+
         fragment.lifecycleScope.launchWhenResumed {
+            view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
             hideLoadingScreen()
         }
     }
