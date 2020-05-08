@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -24,7 +25,8 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
@@ -78,7 +80,7 @@ class LoginActivity(
 
         viewModel.backToArticle = article != null
 
-        viewModel.status.observeDistinct(this) { loginViewModelState: LoginViewModelState? ->
+        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
@@ -96,11 +98,17 @@ class LoginActivity(
                 LoginViewModelState.CREDENTIALS_INVALID -> {
                     showCredentialsInvalid()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING -> {
-                    showMissingCredentials()
+                LoginViewModelState.CREDENTIALS_MISSING_LOGIN -> {
+                    showMissingCredentialsLogin()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING_INVALID_EMAIL -> {
-                    showMissingCredentials(invalidMail = true)
+                LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED -> {
+                    showMissingCredentialsLogin(failed = true)
+                }
+                LoginViewModelState.CREDENTIALS_MISSING_REGISTER -> {
+                    showMissingCredentialsRegistration()
+                }
+                LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED -> {
+                    showMissingCredentialsRegistration(failed = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
@@ -155,7 +163,7 @@ class LoginActivity(
                     done()
                 }
             }
-        }
+        })
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
@@ -213,9 +221,24 @@ class LoginActivity(
         showFragment(SubscriptionTakenFragment())
     }
 
-    private fun showMissingCredentials(invalidMail: Boolean = false) {
-        log.debug("showMissingCredentials")
-        showFragment(CredentialsMissingFragment.create(invalidMail))
+    private fun showMissingCredentialsLogin(failed: Boolean = false) {
+        log.debug("showMissingCredentialsLogin - failed: $failed")
+        showFragment(
+            CredentialsMissingFragment.create(
+                registration = false,
+                failed = failed
+            )
+        )
+    }
+
+    private fun showMissingCredentialsRegistration(failed: Boolean = false) {
+        log.debug("showMissingCredentialsRegistration - failed $failed")
+        showFragment(
+            CredentialsMissingFragment.create(
+                registration = true,
+                failed = failed
+            )
+        )
     }
 
     private fun showCredentialsInvalid() {
@@ -260,31 +283,37 @@ class LoginActivity(
 
         val data = Intent()
         if (authHelper.isLoggedIn()) {
-            runBlocking(Dispatchers.IO) {
+            lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
-            }
-            deletePublicIssues()
+                deletePublicIssues()
 
-            article?.let {
-                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
-                data.putExtra(MAIN_EXTRA_ARTICLE, article)
-            } ?: run {
-                data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+                article?.let {
+                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
+                    data.putExtra(MAIN_EXTRA_ARTICLE, article)
+                } ?: run {
+                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
+                }
+
+                withContext(Dispatchers.Main) {
+                    setResult(Activity.RESULT_OK, data)
+                    finish()
+                }
             }
+        } else {
+            setResult(Activity.RESULT_OK, data)
+            finish()
         }
-        setResult(Activity.RESULT_OK, data)
-        finish()
     }
 
     private suspend fun downloadLatestIssueMoments() {
         val lastIssues = apiService.getLastIssues()
-        lastIssues.forEach { issueRepository.save(it) }
+        issueRepository.save(lastIssues)
 
         article?.let { article ->
             var lastDate = lastIssues.last().date
             while (articleRepository.get(article) == null) {
                 val issues = apiService.getIssuesByDate(lastDate)
-                issues.forEach { issueRepository.save(it) }
+                issueRepository.save(issues)
                 lastDate = issues.last().date
             }
         }
@@ -297,7 +326,7 @@ class LoginActivity(
     private fun showFragment(fragment: Fragment) {
         val fragmentClassName = fragment::class.java.name
 
-        supportFragmentManager.popBackStackImmediate(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.popBackStack(fragmentClassName, POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.activity_login_fragment_placeholder, fragment)
             addToBackStack(fragmentClassName)

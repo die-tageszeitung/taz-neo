@@ -44,6 +44,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     suspend fun query(queryType: QueryType, variables: Variables? = null): DataDto? {
         return queryService.get(queryType)?.let { query ->
             variables?.let { query.variables = variables }
+
             val body = query.toJson().toRequestBody("application/json".toMediaType())
             val response = awaitCallback(
                 okHttpClient.newCall(
