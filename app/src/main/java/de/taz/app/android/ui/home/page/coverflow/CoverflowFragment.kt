@@ -31,7 +31,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
-    private val openDatePicker : (Date) -> Unit =  { issueDate ->
+    private val openDatePicker: (Date) -> Unit = { issueDate ->
         showBottomSheet(DatePickerFragment.create(this, issueDate))
     }
 
@@ -41,6 +41,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         openDatePicker
     )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
+    private val onScrollListener = OnScrollListener()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -49,32 +50,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             }
             adapter = coverFlowPagerAdapter
-            addOnScrollListener(CoverFlowOnPageChangeCallback())
 
             snapHelper.apply {
                 attachToRecyclerView(fragment_cover_flow_grid)
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
-
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-                private var isDragEvent = false
-
-                override fun onScrollStateChanged(
-                    recyclerView: RecyclerView,
-                    newState: Int
-                ) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    if ( newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
-                        !recyclerView.canScrollHorizontally(1)
-                    ) {
-                        activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
-                            ?.setRefreshingWithCallback(true)
-                    }
-                    isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
-                }
-            })
 
         }
 
@@ -87,11 +68,21 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         super.onResume()
+        fragment_cover_flow_grid.apply {
+            addOnScrollListener(onScrollListener)
+        }
         getMainView()?.apply {
             setDrawerNavButton()
             setActiveDrawerSection(RecyclerView.NO_POSITION)
             changeDrawerIssue()
         }
+    }
+
+    override fun onPause() {
+        fragment_cover_flow_grid.apply {
+            removeOnScrollListener(onScrollListener)
+        }
+        super.onPause()
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
@@ -114,8 +105,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        coverFlowPagerAdapter.setInactiveFeedNames(inactiveFeedNames)
+    override fun setInactiveFeedNames(feedNames: Set<String>) {
+        coverFlowPagerAdapter.setInactiveFeedNames(feedNames)
         getCurrentPosition()?.let {
             skipToPosition(it)
         }
@@ -146,16 +137,33 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    inner class CoverFlowOnPageChangeCallback : RecyclerView.OnScrollListener() {
+    inner class OnScrollListener : RecyclerView.OnScrollListener() {
+
+        private var isDragEvent = false
+
+        override fun onScrollStateChanged(
+            recyclerView: RecyclerView,
+            newState: Int
+        ) {
+            // if user is dragging to left if no newer issue -> refresh
+            super.onScrollStateChanged(recyclerView, newState)
+            if (newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
+                !recyclerView.canScrollHorizontally(1)
+            ) {
+                activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
+                    ?.setRefreshingWithCallback(true)
+            }
+            isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
+        }
+
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-            val position: Int = (
-                    layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()
-                    ) / 2
+            val position: Int = (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
 
+            // transform the visible children visually
             (fragment_cover_flow_grid as? ViewGroup)?.apply {
                 children.forEach { child ->
                     val childPosition = (child.left + child.right) / 2f
@@ -165,25 +173,28 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 }
             }
 
-            if (position >= 0 && position != getCurrentPosition()) {
+            // persist position and download new issues if user is scrolling
+            if (position >= 0) {
                 setCurrentPosition(position)
 
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-
-                    getMainView()?.apply {
-                        coverFlowPagerAdapter.getItem(position)?.let {
-                            setDrawerIssue(it)
-                            if (getMainView()?.isDrawerVisible(Gravity.START) == true) {
-                                changeDrawerIssue()
-                            }
-                        }
-                    }
-
                     val visibleItemCount = 3
-
                     if (position < 2 * visibleItemCount) {
                         coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
                             getNextIssueMoments(requestDate)
+                        }
+                    }
+                }
+            }
+
+            // if user swiped update the drawer issue
+            if (dx != 0 || dy != 0) {
+                getMainView()?.apply {
+                    coverFlowPagerAdapter.getItem(position)?.let {
+                        setDrawerIssue(it)
+                        // if drawer is visible update UI
+                        if (getMainView()?.isDrawerVisible(Gravity.START) == true) {
+                            changeDrawerIssue()
                         }
                     }
                 }
