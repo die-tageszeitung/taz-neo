@@ -6,6 +6,9 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val SHARED_PREFERENCES_GAP_TO_DOWNLOAD = "shared_preferences_gap_to_download"
 const val EARLIEST_DATE_TO_DOWNLOAD = "shared_preferences_earliest_date_to_download"
@@ -26,6 +29,17 @@ class ToDownloadIssueHelper(applicationContext: Context) {
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
     )
     var editPrefs: SharedPreferences.Editor = prefs.edit()
+
+    init {
+        val earliestDate = prefs.getString(EARLIEST_DATE_TO_DOWNLOAD, "")
+        val latestDate = prefs.getString(LATEST_DATE_TO_DOWNLOAD, "")
+
+        if (latestDate != null && earliestDate != null && latestDate < earliestDate) {
+            CoroutineScope(Dispatchers.IO).launch {
+                startMissingDownloads(latestDate, earliestDate)
+            }
+        }
+    }
 
     suspend fun startMissingDownloads(fromDate: String, toDate: String) {
         editPrefs

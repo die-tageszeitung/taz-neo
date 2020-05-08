@@ -119,8 +119,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         lockEndNavigationView()
 
-        checkIssuesToBeDownloaded()
-
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
@@ -140,24 +138,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-    }
-
-    private fun checkIssuesToBeDownloaded() {
-        val earliestDate = getSharedPreferences(
-            SHARED_PREFERENCES_GAP_TO_DOWNLOAD,
-            Context.MODE_PRIVATE
-        ).getString(EARLIEST_DATE_TO_DOWNLOAD, "")
-        val latestDate = getSharedPreferences(
-            SHARED_PREFERENCES_GAP_TO_DOWNLOAD,
-            Context.MODE_PRIVATE
-        ).getString(LATEST_DATE_TO_DOWNLOAD, "")
-
-        if (latestDate != null && earliestDate != null && latestDate < earliestDate) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                ToDownloadIssueHelper.getInstance(applicationContext)
-                    .startMissingDownloads(latestDate, earliestDate)
-            }
-        }
     }
 
     override fun onResume() {
