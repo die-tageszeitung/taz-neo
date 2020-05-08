@@ -3,12 +3,12 @@ package de.taz.app.android.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -98,7 +98,7 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            data_policy_loading_screen?.visibility = View.GONE
+            data_policy_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }
