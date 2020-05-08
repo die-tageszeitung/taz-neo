@@ -298,7 +298,7 @@ class LoginViewModel(
         subscriptionPassword: String? = null,
         firstName: String? = null,
         surname: String? = null
-    ): Job? {
+    ): Job {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
 
@@ -307,8 +307,7 @@ class LoginViewModel(
         subscriptionId?.let { this.subscriptionId = it }
         subscriptionPassword?.let { this.subscriptionPassword = it }
 
-        runBlocking(Dispatchers.IO) { handleConnect(previousState, firstName, surname) }
-        return null
+        return ioScope.launch { handleConnect(previousState, firstName, surname) }
     }
 
     private suspend fun handleConnect(
@@ -336,7 +335,13 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+                    status.postValue(
+                        if (previousState == LoginViewModelState.CREDENTIALS_MISSING_LOGIN) {
+                            LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED
+                        } else {
+                            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+                        }
+                    )
                 }
                 SubscriptionStatus.waitForProc -> {
                     poll()
@@ -346,7 +351,13 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.tazIdNotValid -> {
                     resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+                    status.postValue(
+                        if (previousState == LoginViewModelState.CREDENTIALS_MISSING_LOGIN) {
+                            LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED
+                        } else {
+                            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+                        }
+                    )
                 }
                 SubscriptionStatus.invalidConnection -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
