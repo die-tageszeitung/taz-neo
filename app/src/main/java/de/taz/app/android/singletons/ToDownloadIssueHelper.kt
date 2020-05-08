@@ -31,10 +31,11 @@ class ToDownloadIssueHelper(applicationContext: Context) {
     var editPrefs: SharedPreferences.Editor = prefs.edit()
 
     init {
-        val lastDownloadedDate = prefs.getString(LAST_DOWNLOADED_DATE, "")
-        val dateToDownloadFrom = prefs.getString(DATE_TO_DOWNLOAD_FROM, "")
-
-        if (dateToDownloadFrom != null && lastDownloadedDate != null && dateToDownloadFrom < lastDownloadedDate) {
+        val lastDownloadedDate = prefs.getString(LAST_DOWNLOADED_DATE, "") ?: ""
+        val dateToDownloadFrom = prefs.getString(DATE_TO_DOWNLOAD_FROM, "") ?: ""
+        log.debug("initialized with $dateToDownloadFrom and $lastDownloadedDate")
+        if (dateToDownloadFrom != "" && lastDownloadedDate != "" && dateToDownloadFrom < lastDownloadedDate) {
+            log.debug("startMissingDownloads function because they were not finished: $dateToDownloadFrom until $lastDownloadedDate")
             CoroutineScope(Dispatchers.IO).launch {
                 startMissingDownloads(dateToDownloadFrom, lastDownloadedDate)
             }
@@ -42,13 +43,13 @@ class ToDownloadIssueHelper(applicationContext: Context) {
     }
 
     suspend fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
-        val prefsDateToDownloadFrom = prefs.getString(DATE_TO_DOWNLOAD_FROM,"")
-        val prefsLastDownloadedDate = prefs.getString(LAST_DOWNLOADED_DATE,"")
-        if (prefsDateToDownloadFrom == null || dateToDownloadFrom < prefsDateToDownloadFrom) {
+        val prefsDateToDownloadFrom = prefs.getString(DATE_TO_DOWNLOAD_FROM, "") ?: ""
+        val prefsLastDownloadedDate = prefs.getString(LAST_DOWNLOADED_DATE, "") ?: ""
+        if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
             editPrefs.putString(DATE_TO_DOWNLOAD_FROM, dateToDownloadFrom)
                 .apply()
         }
-        if (prefsLastDownloadedDate == null || latestDownloadedDate < prefsLastDownloadedDate) {
+        if (prefsLastDownloadedDate == "" || latestDownloadedDate < prefsLastDownloadedDate) {
             editPrefs.putString(LAST_DOWNLOADED_DATE, latestDownloadedDate)
                 .apply()
         }
