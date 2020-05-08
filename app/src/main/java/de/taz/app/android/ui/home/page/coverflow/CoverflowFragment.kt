@@ -90,6 +90,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         getMainView()?.apply {
             setDrawerNavButton()
             setActiveDrawerSection(RecyclerView.NO_POSITION)
+            changeDrawerIssue()
         }
     }
 
