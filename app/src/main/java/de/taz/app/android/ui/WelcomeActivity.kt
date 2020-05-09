@@ -92,7 +92,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            welcome_loading_screen?.visibility = View.GONE
+            welcome_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }
