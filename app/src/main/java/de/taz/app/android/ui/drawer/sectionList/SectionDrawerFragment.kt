@@ -86,7 +86,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    fun setIssueOperations(issueOperations: IssueOperations) {
+    fun setIssueOperations(issueOperations: IssueOperations) = activity?.runOnUiThread {
         if (issueOperations != this.issueOperations) {
             updated = true
             view?.alpha = 0f
