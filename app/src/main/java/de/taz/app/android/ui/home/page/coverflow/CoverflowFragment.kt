@@ -197,7 +197,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // if user swiped update the drawer issue
-            if (dx != 0 || dy != 0) {
+            if (dx != 0) {
                 getMainView()?.apply {
                     coverFlowPagerAdapter.getItem(position)?.let {
                         setDrawerIssue(it)
