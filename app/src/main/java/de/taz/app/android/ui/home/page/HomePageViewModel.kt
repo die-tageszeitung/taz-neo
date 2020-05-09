@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home.page
 
-import android.content.Context
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
@@ -11,17 +10,13 @@ import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
 import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.util.SharedPreferenceStringSetLiveData
 
-open class HomePageViewModel(applicationContext: Context) : ViewModel() {
+open class HomePageViewModel : ViewModel() {
 
     /**
      * issues to be shown
      */
     val issueStubsLiveData: LiveData<List<IssueStub>> =
         IssueRepository.getInstance().getAllStubsLiveData()
-
-    fun getIssueStubs(): List<IssueStub>? {
-        return issueStubsLiveData.value
-    }
 
     /**
      * authentication status
@@ -43,13 +38,5 @@ open class HomePageViewModel(applicationContext: Context) : ViewModel() {
         )
 
     val currentPositionLiveData = MutableLiveData<Int?>().apply { postValue(null) }
-
-    fun setCurrentPosition(position: Int) {
-        currentPositionLiveData.postValue(position)
-    }
-
-    fun getCurrentPosition(): Int? {
-        return currentPositionLiveData.value
-    }
 
 }

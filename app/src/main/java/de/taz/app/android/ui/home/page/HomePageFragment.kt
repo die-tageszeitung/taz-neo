@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
 abstract class HomePageFragment(
-    private val layoutID : Int
+    layoutID : Int
 ) : ViewModelBaseMainFragment(layoutID) {
 
     private val log by Log
@@ -40,7 +40,7 @@ abstract class HomePageFragment(
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = viewModel ?: HomePageViewModel(requireActivity().applicationContext)
+        viewModel = viewModel ?: HomePageViewModel()
 
         viewModel?.apply {
             issueStubsLiveData.observeDistinct(
@@ -63,8 +63,7 @@ abstract class HomePageFragment(
     }
 
     fun onItemSelected(issueStub: IssueStub, position: Int) {
-        viewModel?.setCurrentPosition(position)
-        getMainView()?.setDrawerIssue(issueStub)
+        setCurrentPosition(position)
         showIssue(issueStub)
     }
 
@@ -85,11 +84,11 @@ abstract class HomePageFragment(
     }
 
     fun getCurrentPosition(): Int? {
-        return viewModel?.getCurrentPosition()
+        return viewModel?.currentPositionLiveData?.value
     }
 
     fun setCurrentPosition(position: Int) {
-        viewModel?.setCurrentPosition(position)
+        viewModel?.currentPositionLiveData?.value = position
     }
 
     suspend fun downloadNextIssues(date: String, limit: Int) {
