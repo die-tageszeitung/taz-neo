@@ -134,13 +134,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                             issueRepository.save(newIssue)
 
                             val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
-                            coverFlowFragment?.get()?.let { coverFlowFragment ->
-                                val issueStubPosition =
-                                    coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs()
-                                        .indexOf(selectedIssueStub)
-                                coverFlowFragment.skipToPosition(issueStubPosition)
-                                dismiss()
-                            }
                             selectedIssueStub?.let {
                                 showIssue(it)
                             }
@@ -171,11 +164,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun showIssue(issueStub: IssueStub) {
+    private fun showIssue(issueStub: IssueStub) {
         dismiss() //close datePicker
         getMainView()?.apply {
             // set main issue
             setDrawerIssue(issueStub)
+            changeDrawerIssue()
+            setCoverFlowItem(issueStub)
 
             showIssue(issueStub)
         }
