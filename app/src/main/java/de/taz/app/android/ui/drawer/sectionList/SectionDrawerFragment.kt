@@ -168,11 +168,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                     closeDrawer()
                 }
             }
-            lifecycleScope.launch(Dispatchers.Main) {
-                typeface = if (issueOperations?.isWeekend == true) {
-                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
-            }
+            typeface = if (issueOperations?.isWeekend == true) {
+                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            visibility = View.VISIBLE
         }
     }
 
