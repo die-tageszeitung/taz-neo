@@ -33,6 +33,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var recyclerAdapter: SectionListAdapter
 
     private var issueOperations: IssueOperations? = null
+    private var issueDate: String? = null
+    private var issueFeed: String? = null
+    private var issueStatus: IssueStatus? = null
+
 
     private val dateHelper = DateHelper.getInstance()
     private val issueRepository = IssueRepository.getInstance()
@@ -72,6 +76,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 getString(ISSUE_DATE),
                 getString(ISSUE_STATUS)
             ) { issueFeed, issueDate, issueStatus ->
+                this@SectionDrawerFragment.issueDate = issueDate
+                this@SectionDrawerFragment.issueFeed = issueFeed
+                this@SectionDrawerFragment.issueStatus = IssueStatus.valueOf(issueStatus)
+
                 CoroutineScope(Dispatchers.IO).launch {
                     val issueOperations =
                         IssueRepository.getInstance(activity?.applicationContext)
@@ -79,7 +87,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                                 issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
                             )
                     activity?.runOnUiThread {
-                        issueOperations?.let { setIssueOperations(it) }
+                        issueOperations?.let {
+                            setIssueOperations(it)
+                            showIssueStub()
+                        }
                     }
                 }
             }
@@ -125,9 +136,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueOperations?.date)
-        outState.putString(ISSUE_FEED, issueOperations?.feedName)
-        outState.putString(ISSUE_STATUS, issueOperations?.status?.toString())
+        outState.putString(ISSUE_DATE, issueDate ?: issueOperations?.date)
+        outState.putString(ISSUE_FEED, issueFeed ?: issueOperations?.feedName)
+        outState.putString(
+            ISSUE_STATUS,
+            issueStatus?.toString() ?: issueOperations?.status?.toString()
+        )
         super.onSaveInstanceState(outState)
     }
 
