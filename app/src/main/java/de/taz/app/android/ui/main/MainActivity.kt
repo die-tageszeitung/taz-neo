@@ -188,6 +188,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun showIssue(issueStub: IssueStub) {
+        setDrawerIssue(issueStub)
+        changeDrawerIssue()
+
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
             showMainFragment(fragment, showFromBackStack = false)
