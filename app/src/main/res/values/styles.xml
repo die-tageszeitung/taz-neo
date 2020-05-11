@@ -218,7 +218,7 @@
         <item name="android:textSize">25sp</item>
     </style>
 
-    <style name="Settings.ManageAccount.Button" parent="Widget.AppCompat.Button">
+    <style name="Settings.Button" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">19sp</item>
         <item name="android:backgroundTint">@color/textColorAccent</item>
