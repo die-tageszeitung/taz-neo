@@ -47,7 +47,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 }
             }
 
-            findViewById<TextView>(R.id.fragment_settings_support_report_bug).apply {
+            findViewById<Button>(R.id.fragment_settings_support_report_bug).apply {
                 setOnClickListener {
                     reportBug()
                 }
