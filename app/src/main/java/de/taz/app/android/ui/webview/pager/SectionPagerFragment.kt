@@ -71,7 +71,9 @@ class SectionPagerFragment :
                 // do nothing issueStatus is null
             }
             sectionKey = getString(SECTION_KEY)
-            viewModel.currentPosition = getInt(POSITION, 0)
+            if (sectionKey == null) {
+                viewModel.currentPosition = getInt(POSITION, 0)
+            }
         }
     }
 
@@ -113,13 +115,6 @@ class SectionPagerFragment :
 
     override fun onStart() {
         setupViewPager()
-
-        viewModel.currentPosition?.let {
-            if (it != webview_pager_viewpager.currentItem) {
-                webview_pager_viewpager.setCurrentItem(it, false)
-            }
-        }
-
         super.onStart()
     }
 
