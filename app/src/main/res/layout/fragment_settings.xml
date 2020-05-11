@@ -95,11 +95,10 @@
 
             <Button
                 android:id="@+id/fragment_settings_account_manage_account"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_account_manage_account"
-                android:textAppearance="@style/Settings.Button"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
 
             <TextView
@@ -112,11 +111,10 @@
 
             <Button
                 android:id="@+id/fragment_settings_account_logout"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_account_logout"
-                android:textAppearance="@style/Settings.Button"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
@@ -130,11 +128,10 @@
 
             <Button
                 android:id="@+id/fragment_settings_support_report_bug"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_support_report_bug"
-                android:textAppearance="@style/Settings.Button"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
 
             <TextView
