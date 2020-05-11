@@ -106,6 +106,8 @@
     <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
     <dimen name="fragment_bookmarks_delete_icon_margin">29dp</dimen>
     <dimen name="fragment_bookmarks_line_bottom_margin">10dp</dimen>
+    <dimen name="fragment_bookmarks_delete_text_size">15dp</dimen>
+    <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
 
