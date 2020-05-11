@@ -107,7 +107,7 @@
     <string name="fragment_error_report_last_action_title">Letzte Interaktion</string>
     <string name="fragment_error_report_last_action_hint">Was war das letzte was Sie getan haben, als das Problem aufgetreten ist?</string>
     <string name="fragment_error_report_conditions_title">Zustand</string>
-    <string name="fragment_error_report_conditions_hint">Beschreiben Sie mögliche Außeneinflüsse hier: war WLAN an? ein Firewall? Benutzen Sie ein Proxy? Gabs gar kein Netz?</string>
+    <string name="fragment_error_report_conditions_hint">Beschreiben Sie mögliche Außeneinflüsse hier: War WLAN an? eine Firewall? Benutzen Sie einen Proxy? Gab es Netz?</string>
     <string name="fragment_error_report_send_button">Abschicken</string>
 
     <string name="notification_channel_new_version">Neue Version</string>
