@@ -30,6 +30,7 @@ const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
 const val ISSUE_STATUS = "issueStatus"
 const val POSITION = "position"
+const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment :
     ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
@@ -69,6 +70,7 @@ class SectionPagerFragment :
             } catch (e: IllegalArgumentException) {
                 // do nothing issueStatus is null
             }
+            sectionKey = getString(SECTION_KEY)
             viewModel.currentPosition = getInt(POSITION, 0)
         }
     }
@@ -199,6 +201,7 @@ class SectionPagerFragment :
         outState.putString(ISSUE_DATE, issueDate)
         outState.putString(ISSUE_FEED, issueFeedName)
         outState.putString(ISSUE_STATUS, issueStatus.toString())
+        outState.putString(SECTION_KEY, sectionKey)
         viewModel.currentPosition?.let {
             outState.putInt(POSITION, it)
         }
