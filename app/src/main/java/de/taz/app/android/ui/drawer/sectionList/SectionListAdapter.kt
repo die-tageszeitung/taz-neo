@@ -40,9 +40,9 @@ class SectionListAdapter(
             field = value
             if (value >= 0 && sectionList.size > value) {
                 notifyItemChanged(value)
-                if (oldValue >= 0 && sectionList.size > value) {
-                    notifyItemChanged(oldValue)
-                }
+            }
+            if (oldValue >= 0 && sectionList.size > value) {
+                notifyItemChanged(oldValue)
             }
         }
 
@@ -64,7 +64,8 @@ class SectionListAdapter(
             currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
 
                 issueOperations?.let { issueStub ->
-                    sectionListLiveData = sectionRepository.getSectionStubsLiveDataForIssueOperations(
+                    sectionListLiveData =
+                        sectionRepository.getSectionStubsLiveDataForIssueOperations(
                             issueStub
                         )
                     withContext(Dispatchers.Main) {
