@@ -25,6 +25,7 @@ abstract class HomePageFragment(
 
     private val log by Log
 
+    // TODO
     private val apiService: ApiService = ApiService.getInstance()
     private val dateHelper: DateHelper = DateHelper.getInstance()
     private val issueRepository: IssueRepository = IssueRepository.getInstance()
