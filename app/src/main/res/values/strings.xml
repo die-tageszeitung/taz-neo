@@ -66,10 +66,13 @@
     <string name="fragment_bookmarks_title">Leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
+    <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
+    <string name="fragment_bookmarks_undo">Rückgängig</string>
 
     <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">Meine Leseliste</string>
     <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Artikel zur Leseliste hinzufügen</string>
     <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Aus der Leseliste entfernen</string>
+
 
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
 
