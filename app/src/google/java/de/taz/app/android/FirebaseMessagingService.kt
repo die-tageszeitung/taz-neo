@@ -1,5 +1,6 @@
 package de.taz.app.android
 
+import android.content.Context
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
@@ -9,6 +10,8 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
+import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ENABLED
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -42,8 +45,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        log.debug("From: " + remoteMessage.from)
-
         Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
 
         // Check if message contains a data payload.
@@ -60,11 +61,19 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
                 when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                     REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
-                        log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val issue = apiService.getLastIssues(1).first()
-                            issueRepository.save(issue)
-                            downloadService.scheduleDownload(issue)
+                        val autoDownloadEnabled = applicationContext.getSharedPreferences(
+                            PREFERENCES_DOWNLOADS,
+                            Context.MODE_PRIVATE
+                        )?.getBoolean(
+                            SETTINGS_DOWNLOAD_ENABLED, true
+                        ) ?: true
+                        if (autoDownloadEnabled) {
+                            log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val issue = apiService.getLastIssues(1).first()
+                                issueRepository.save(issue)
+                                downloadService.scheduleDownload(issue)
+                            }
                         }
                     }
                 }

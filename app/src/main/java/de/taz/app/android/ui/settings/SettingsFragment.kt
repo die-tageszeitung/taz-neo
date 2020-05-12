@@ -87,11 +87,14 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
             fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
 
-            fragment_settings_auto_download_wifi_switch?.apply {
-                setOnCheckedChangeListener { _, isChecked ->
-                    setDownloadOnlyInWifi(isChecked)
-                }
+            fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
+                setDownloadOnlyInWifi(isChecked)
             }
+
+            fragment_settings_auto_download_switch?.setOnCheckedChangeListener { _, isChecked ->
+                setDownloadEnabled(isChecked)
+            }
+
         }
     }
 
@@ -113,6 +116,9 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
             }
             downloadOnlyWifiLiveData.observeDistinct(viewLifecycleOwner) { onlyWifi ->
                 showOnlyWifi(onlyWifi)
+            }
+            downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
+                showDownloadsEnabled(downloadsEnabled)
             }
         }
 
@@ -169,6 +175,14 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
+    }
+
+    private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
+        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
+            downloadsEnabled
+        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+            isEnabled = downloadsEnabled
+        }
     }
 
     private fun showTextSize(textSize: Int) {
@@ -241,6 +255,10 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
         viewModel?.downloadOnlyWifiLiveData?.postValue(onlyWifi)
+    }
+
+    private fun setDownloadEnabled(downloadEnabled: Boolean) {
+        viewModel?.downloadAutomaticallyLiveData?.postValue(downloadEnabled)
     }
 
     private fun logout() {
