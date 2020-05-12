@@ -97,7 +97,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
 
         mainActivity?.apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                if (url.endsWith(".html") && (url.startsWith("article") || url.startsWith("section"))) {
+                if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
                     showInWebView(url)
                 } else {
                     openExternally(url)
