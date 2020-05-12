@@ -8,6 +8,7 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SectionPagerViewModel : ViewModel() {
 
@@ -36,11 +37,11 @@ class SectionPagerViewModel : ViewModel() {
 
 
     val currentPositionLiveData = MutableLiveData(0)
-    var currentPosition
+    val currentPosition
         get() = currentPositionLiveData.value
-        set(value) = currentPositionLiveData.postValue(value)
 
-    val sectionStubListLiveData: LiveData<List<SectionStub>> = MediatorLiveData<List<SectionStub>>().apply {
+    val sectionStubListLiveData: LiveData<List<SectionStub>> =
+        MediatorLiveData<List<SectionStub>>().apply {
             addSource(sectionKeyLiveData) { getSectionListBySection(this) }
             addSource(issueDateLiveData) { getSectionListByIssue(this) }
             addSource(issueFeedNameLiveData) { getSectionListByIssue(this) }
@@ -55,9 +56,11 @@ class SectionPagerViewModel : ViewModel() {
             issueStatus
         ) { issueDate, issueFeedName, issueStatus ->
             CoroutineScope(Dispatchers.IO).launch {
-                mediatorLiveData.postValue(SectionRepository.getInstance().getSectionStubsForIssue(
-                    issueFeedName, issueDate, issueStatus
-                ))
+                mediatorLiveData.postValue(
+                    SectionRepository.getInstance().getSectionStubsForIssue(
+                        issueFeedName, issueDate, issueStatus
+                    )
+                )
             }
         }
     }
@@ -65,10 +68,11 @@ class SectionPagerViewModel : ViewModel() {
     private fun getSectionListBySection(mediatorLiveData: MediatorLiveData<List<SectionStub>>) {
         CoroutineScope(Dispatchers.IO).launch {
             sectionKey?.let { sectionKey ->
-                val sections = sectionStubList ?: SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionKey)
+                val sections = sectionStubList ?: SectionRepository.getInstance()
+                    .getAllSectionStubsForSectionName(sectionKey)
                 val index = sections.indexOfFirst { it.sectionFileName == sectionKey }
                 if (index > 0) {
-                    currentPosition = index
+                    currentPositionLiveData.postValue(index)
                 }
                 mediatorLiveData.postValue(sections)
             }

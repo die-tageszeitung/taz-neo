@@ -71,9 +71,7 @@ class SectionPagerFragment :
                 // do nothing issueStatus is null
             }
             sectionKey = getString(SECTION_KEY)
-            if (sectionKey == null) {
-                viewModel.currentPosition = getInt(POSITION, 0)
-            }
+            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
     }
 
@@ -143,7 +141,7 @@ class SectionPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            viewModel.currentPosition = position
+            viewModel.currentPositionLiveData.value = position
             getMainView()?.setActiveDrawerSection(position)
             sectionAdapter?.getSectionStub(position)?.let {
                 lifecycleScope.launch {
