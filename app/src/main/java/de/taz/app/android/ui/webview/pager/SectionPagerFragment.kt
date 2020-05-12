@@ -77,14 +77,13 @@ class SectionPagerFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sectionKey?.let {
-            viewModel.sectionKey = it
-            sectionKey = null
+            viewModel.sectionKeyLiveData.value = it
         }
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
             viewModel.apply {
-                issueFeedName = feedName
-                issueDate = date
-                issueStatus = status
+                issueFeedNameLiveData.value = feedName
+                issueDateLiveData.value = date
+                issueStatusLiveData.value = status
             }
         }
 
@@ -191,10 +190,13 @@ class SectionPagerFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate)
-        outState.putString(ISSUE_FEED, issueFeedName)
-        outState.putString(ISSUE_STATUS, issueStatus.toString())
-        outState.putString(SECTION_KEY, sectionKey)
+        outState.putString(ISSUE_DATE, issueDate ?: viewModel.issueDate)
+        outState.putString(ISSUE_FEED, issueFeedName ?: viewModel.issueFeedName)
+        outState.putString(
+            ISSUE_STATUS,
+            issueStatus?.toString() ?: viewModel.issueStatus?.toString()
+        )
+        outState.putString(SECTION_KEY, viewModel.sectionKey)
         viewModel.currentPosition?.let {
             outState.putInt(POSITION, it)
         }
