@@ -3,8 +3,10 @@ package de.taz.app.android.ui.bookmarks
 import android.graphics.Canvas
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -18,11 +20,19 @@ class BookmarksAdapter(
 ) :
     RecyclerView.Adapter<BookmarksViewHolder>() {
 
-    private var bookmarks: List<Article> = emptyList()
+    private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
-    fun setData(bookmarks: List<Article>) {
+    fun setData(bookmarks: MutableList<Article>) {
         this.bookmarks = bookmarks
         notifyDataSetChanged()
+    }
+
+    fun restoreBookmark(article: Article, position: Int) {
+        bookmarks.add(position, article)
+        CoroutineScope(Dispatchers.IO).launch {
+            ArticleRepository.getInstance().bookmarkArticle(article)
+        }
+        notifyItemInserted(position)
     }
 
     override fun onCreateViewHolder(
@@ -59,7 +69,28 @@ class BookmarksAdapter(
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
             val position = viewHolder.adapterPosition
             CoroutineScope(Dispatchers.IO).launch {
+                val removedBookmark = bookmarks[position]
                 ArticleRepository.getInstance().debookmarkArticle(bookmarks[position])
+                notifyItemRemoved(position)
+
+                // showing snack bar with Undo option
+                val undoBar = Snackbar
+                    .make(
+                        viewHolder.itemView,
+                        R.string.fragment_bookmarks_deleted,
+                        Snackbar.LENGTH_LONG
+                    )
+                undoBar.setAction(R.string.fragment_bookmarks_undo) {
+                    restoreBookmark(removedBookmark, position)
+                }
+                undoBar.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        viewHolder.itemView.resources,
+                        R.color.deleteRed,
+                        null
+                    )
+                )
+                undoBar.show()
             }
         }
 

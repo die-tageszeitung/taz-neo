@@ -63,6 +63,8 @@
     <string name="fragment_bookmarks_title">Bookmarks</string>
     <string name="fragment_bookmarks_delete">delete</string>
     <string name="fragment_bookmarks_share">share</string>
+    <string name="fragment_bookmarks_deleted">Bookmark removed</string>
+    <string name="fragment_bookmarks_undo">Undo</string>
 
     <string name="fragment_bottom_sheet_text_size_decrease">decrease text size</string>
     <string name="fragment_bottom_sheet_text_size_increase">increase text size</string>

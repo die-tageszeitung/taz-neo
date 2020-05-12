@@ -49,7 +49,7 @@ class BookmarksFragment :
     }
 
     override fun setBookmarks(bookmarks: List<Article>) {
-        recycleAdapter.setData(bookmarks)
+        recycleAdapter.setData(bookmarks.toMutableList())
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
