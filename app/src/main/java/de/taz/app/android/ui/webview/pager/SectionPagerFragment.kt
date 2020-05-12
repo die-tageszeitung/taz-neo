@@ -76,6 +76,7 @@ class SectionPagerFragment :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         sectionKey?.let {
             viewModel.sectionKeyLiveData.value = it
         }
@@ -131,7 +132,9 @@ class SectionPagerFragment :
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            adapter = sectionAdapter
+            if (adapter == null) {
+                adapter = sectionAdapter
+            }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
             offscreenPageLimit = 2
