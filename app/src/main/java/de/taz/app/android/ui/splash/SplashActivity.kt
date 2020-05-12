@@ -65,12 +65,18 @@ class SplashActivity : AppCompatActivity() {
 
         if (isDataPolicyAccepted()) {
             if (isFirstTimeStart()) {
-                startActivity(Intent(this, WelcomeActivity::class.java))
+                val intent = Intent(this, WelcomeActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION or Intent.FLAG_ACTIVITY_NO_HISTORY)
+                startActivity(intent)
             } else {
-                startActivity(Intent(this, MainActivity::class.java))
+                val intent = Intent(this, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                startActivity(intent)
             }
         } else {
-            startActivity(Intent(this, DataPolicyActivity::class.java))
+            val intent =Intent(this, DataPolicyActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION or Intent.FLAG_ACTIVITY_NO_HISTORY)
+            startActivity(intent)
         }
     }
 
