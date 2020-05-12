@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
@@ -17,17 +19,22 @@ import kotlinx.coroutines.*
 
 
 class SectionListAdapter(
-    private val fragment: SectionDrawerFragment,
-    private var issueOperations: IssueOperations? = null
+    private val fragment: SectionDrawerFragment
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
+
+    private var issueOperations: IssueOperations? = null
 
     private val sectionRepository =
         SectionRepository.getInstance(fragment.context?.applicationContext)
 
-    private val sectionList = mutableListOf<SectionStub>()
     private var currentJob: Job? = null
 
-    var activePosition = 0
+    private var sectionListObserver: Observer<List<SectionStub>>? = null
+    private var sectionListLiveData: LiveData<List<SectionStub>>? = null
+    val sectionList
+        get() = sectionListLiveData?.value ?: emptyList()
+
+    var activePosition = RecyclerView.NO_POSITION
         set(value) {
             val oldValue = field
             field = value
@@ -41,11 +48,9 @@ class SectionListAdapter(
 
     fun setIssueOperations(newIssueOperations: IssueOperations?) {
         if (issueOperations?.tag != newIssueOperations?.tag) {
+            sectionListObserver?.let { sectionListLiveData?.removeObserver(it) }
+            sectionListObserver = null
             this.issueOperations = newIssueOperations
-
-            activePosition = RecyclerView.NO_POSITION
-
-            sectionList.clear()
         }
     }
 
@@ -54,15 +59,24 @@ class SectionListAdapter(
     }
 
     fun show() {
-        if (sectionList.isEmpty()) {
+        if (sectionListObserver == null) {
             currentJob?.cancel()
             currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
+
                 issueOperations?.let { issueStub ->
-                    sectionList.addAll(
-                        sectionRepository.getSectionStubsForIssueOperations(
+                    sectionListLiveData = sectionRepository.getSectionStubsLiveDataForIssueOperations(
                             issueStub
                         )
-                    )
+                    withContext(Dispatchers.Main) {
+                        sectionListObserver = Observer<List<SectionStub>> {
+                            notifyDataSetChanged()
+                        }.also {
+                            sectionListLiveData?.observe(
+                                fragment.viewLifecycleOwner,
+                                it
+                            )
+                        }
+                    }
                 }
 
                 fragment.activity?.runOnUiThread {
@@ -139,7 +153,7 @@ class SectionListAdapter(
 
     override fun getItemCount() = sectionList.size
 
-    fun positionOf(sectionFileName: String): Int {
+    fun positionOf(sectionFileName: String): Int? {
         return sectionList.indexOfFirst { it.sectionFileName == sectionFileName }
     }
 

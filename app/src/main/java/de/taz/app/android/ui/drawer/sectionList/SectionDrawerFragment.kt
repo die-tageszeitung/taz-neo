@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
@@ -24,6 +25,8 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
 import java.util.*
+
+const val ACTIVE_POSITION = "active position"
 
 /**
  * Fragment used to display the list of sections in the navigation Drawer
@@ -79,6 +82,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private fun restore(savedInstanceState: Bundle?) {
         savedInstanceState?.apply {
+            recyclerAdapter?.activePosition = getInt(ACTIVE_POSITION, RecyclerView.NO_POSITION)
             runIfNotNull(
                 getString(ISSUE_FEED),
                 getString(ISSUE_DATE),
@@ -151,6 +155,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             ISSUE_STATUS,
             issueStatus?.toString() ?: issueOperations?.status?.toString()
         )
+        recyclerAdapter?.activePosition?.let {
+            outState.putInt(ACTIVE_POSITION, it)
+        }
         super.onSaveInstanceState(outState)
     }
 
