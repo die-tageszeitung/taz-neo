@@ -10,25 +10,17 @@ import kotlinx.coroutines.launch
 class ArticlePagerViewModel : ViewModel() {
 
     val articleNameLiveData = MutableLiveData<String?>(null)
-    var articleName: String?
+    val articleName: String?
         get() = articleNameLiveData.value
-        set(value) = articleNameLiveData.postValue(value)
-
-    val articlePosition: Int
-        get() = articleList?.indexOfFirst { it.key == articleName } ?: 0
 
     val showBookmarksLiveData = MutableLiveData(false)
-    var showBookmarks: Boolean
+    val showBookmarks: Boolean
         get() = showBookmarksLiveData.value ?: false
-        set(value) = showBookmarksLiveData.postValue(value)
 
 
     val currentPositionLiveData = MutableLiveData(0)
-    var currentPosition
-        get() = currentPositionLiveData.value
-        set(value) {
-            currentPositionLiveData.value = value
-        }
+    val currentPosition
+        get() = currentPositionLiveData.value ?: 0
 
     val articleList
         get() = articleListLiveData.value
@@ -73,8 +65,14 @@ class ArticlePagerViewModel : ViewModel() {
                 CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
                     val articles = ArticleRepository.getInstance()
                         .getIssueArticleStubListByArticleName(articleName)
-                    postValue(articles)
                     sectionNameList = articles.map { it.getSectionStub()?.key }
+                    // only set position of article if no position has been restored
+                    if (currentPosition <= 0) {
+                        currentPositionLiveData.postValue(
+                            articles.indexOfFirst { it.key == articleName }
+                        )
+                    }
+                    postValue(articles)
                 }
             }
         }
