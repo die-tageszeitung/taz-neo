@@ -13,6 +13,7 @@
     <color name="colorPrimaryDark">@color/tazRed</color>
 
     <color name="colorAccent">@color/tazRed</color>
+    <color name="deleteRed">#d50e2f</color>
 
     <color name="backgroundColor">@color/antifaGrey</color>
     <color name="textColor">@color/superLightGrey</color>
