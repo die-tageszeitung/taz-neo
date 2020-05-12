@@ -11,7 +11,7 @@ import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.Moment
+import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateHelper
@@ -30,7 +30,7 @@ import java.util.*
  */
 class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
-    private lateinit var recyclerAdapter: SectionListAdapter
+    private var recyclerAdapter: SectionListAdapter? = null
 
     private var issueOperations: IssueOperations? = null
     private var issueDate: String? = null
@@ -38,35 +38,43 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private var issueStatus: IssueStatus? = null
 
 
-    private val dateHelper = DateHelper.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
-    private val momentRepository = MomentRepository.getInstance()
-
-    private var moment: Moment? = null
-    private val momentDownloadedObserver = MomentDownloadedObserver()
+    private var dateHelper: DateHelper? = null
+    private var issueRepository: IssueRepository? = null
+    private var momentRepository: MomentRepository? = null
 
     private var updated: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recyclerAdapter = SectionListAdapter(this)
+        recyclerAdapter = recyclerAdapter ?: SectionListAdapter(this)
+
+        restore(savedInstanceState)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        dateHelper = dateHelper ?: DateHelper.getInstance(context?.applicationContext)
+        issueRepository =
+            issueRepository ?: IssueRepository.getInstance(context?.applicationContext)
+        momentRepository =
+            momentRepository ?: MomentRepository.getInstance(context?.applicationContext)
+
+        fragment_drawer_sections_list.apply {
+            setHasFixedSize(true)
+            if (layoutManager == null) {
+                layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
+            }
+            if (adapter == null) {
+                adapter = recyclerAdapter
+            }
+        }
 
         fragment_drawer_sections_moment.setOnClickListener {
             getMainView()?.showHome()
             getMainView()?.closeDrawer()
         }
 
-        fragment_drawer_sections_list.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
-            adapter = recyclerAdapter
-        }
-
-        restore(savedInstanceState)
     }
 
     private fun restore(savedInstanceState: Bundle?) {
@@ -104,7 +112,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
             this.issueOperations = issueOperations
 
-            recyclerAdapter.setIssueOperations(issueOperations)
+            recyclerAdapter?.setIssueOperations(issueOperations)
         }
     }
 
@@ -116,7 +124,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 setMomentDate()
                 val imprintJob = showImprint()
                 val momentJob = showMoment()
-                recyclerAdapter.show()
+                recyclerAdapter?.show()
 
                 imprintJob?.join()
                 momentJob?.join()
@@ -127,12 +135,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
-        recyclerAdapter.activePosition = activePosition
+        recyclerAdapter?.activePosition = activePosition
     }
 
     fun setActiveSection(sectionFileName: String) {
-        val position = recyclerAdapter.positionOf(sectionFileName)
-        setActiveSection(position)
+        recyclerAdapter?.positionOf(sectionFileName)?.let {
+            setActiveSection(it)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -151,15 +160,15 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private fun showMoment(): Job? = lifecycleScope.launch(Dispatchers.IO) {
         issueOperations?.let { issueOperations ->
-            moment = momentRepository.get(issueOperations)
+            val moment = momentRepository?.get(issueOperations)
             moment?.apply {
                 if (!isDownloaded()) {
                     download(context?.applicationContext)
                 }
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData().observe(
+                    isDownloadedLiveData().observeDistinctUntil(
                         viewLifecycleOwner,
-                        momentDownloadedObserver
+                        { momentIsDownloadedObservationCallback(it) }, { it }
                     )
                 }
             }
@@ -168,7 +177,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private fun showImprint(): Job? = lifecycleScope.launch(Dispatchers.IO) {
         issueOperations?.let { issueOperations ->
-            val imprint = issueRepository.getImprintStub(issueOperations)
+            val imprint = issueRepository?.getImprintStub(issueOperations)
             imprint?.let { showImprint(it) }
         }
     }
@@ -190,15 +199,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
 
-    inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
-        override fun onChanged(isDownloaded: Boolean?) {
-            if (isDownloaded == true) {
-                issueOperations?.let { issueOperations ->
-                    moment?.isDownloadedLiveData()?.removeObserver(this)
-                    fragment_drawer_sections_moment?.apply {
-                        displayIssue(issueOperations)
-                        visibility = View.VISIBLE
-                    }
+    private fun momentIsDownloadedObservationCallback(isDownloaded: Boolean?) {
+        if (isDownloaded == true) {
+            issueOperations?.let { issueOperations ->
+                fragment_drawer_sections_moment?.apply {
+                    displayIssue(issueOperations)
+                    visibility = View.VISIBLE
                 }
             }
         }
@@ -207,7 +213,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private fun setMomentDate() {
         issueOperations?.let { issueOperations ->
             fragment_drawer_sections_date?.text =
-                dateHelper.stringToLongLocalizedString(issueOperations.date)
+                dateHelper?.stringToLongLocalizedString(issueOperations.date)
         }
     }
 
