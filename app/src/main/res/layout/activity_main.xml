@@ -35,8 +35,7 @@
             android:elevation="10dp"
             android:focusable="true"
             android:translationX="275dp"
-            android:translationY="40dp"
-            app:srcCompat="@drawable/ic_taz_week_logo" />
+            android:translationY="40dp" />
 
         <LinearLayout
             android:id="@+id/nav_bar"
