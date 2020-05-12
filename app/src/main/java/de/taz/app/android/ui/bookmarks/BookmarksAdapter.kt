@@ -85,6 +85,12 @@ class BookmarksAdapter(
             )
         }
 
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            val foregroundView =
+                viewHolder.itemView.findViewById<RelativeLayout>(R.id.fragment_bookmark_foreground)
+            getDefaultUIUtil().clearView(foregroundView)
+        }
+
         override fun onChildDraw(
             c: Canvas,
             recyclerView: RecyclerView,
