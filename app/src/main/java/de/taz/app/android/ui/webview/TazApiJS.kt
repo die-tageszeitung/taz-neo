@@ -97,7 +97,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
 
         mainActivity?.apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                if (url.endsWith(".html") && (url.startsWith("article") || url.startsWith("section"))) {
+                if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
                     showInWebView(url)
                 } else {
                     openExternally(url)
@@ -114,7 +114,11 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
                     launchUrl(mainActivity, Uri.parse(url))
                 }
             } catch (e: ActivityNotFoundException) {
-                ToastHelper.getInstance().showToast(R.string.toast_no_email_client)
+                if (url.startsWith("mailto:")) {
+                    ToastHelper.getInstance().showToast(R.string.toast_no_email_client)
+                } else {
+                    ToastHelper.getInstance().showToast(R.string.toast_unknown_error)
+                }
             }
         }
     }
