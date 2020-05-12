@@ -57,11 +57,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        dateHelper = dateHelper ?: DateHelper.getInstance(context?.applicationContext)
-        issueRepository =
-            issueRepository ?: IssueRepository.getInstance(context?.applicationContext)
-        momentRepository =
-            momentRepository ?: MomentRepository.getInstance(context?.applicationContext)
+        dateHelper = DateHelper.getInstance(context?.applicationContext)
+        issueRepository = IssueRepository.getInstance(context?.applicationContext)
+        momentRepository = MomentRepository.getInstance(context?.applicationContext)
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
