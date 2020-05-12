@@ -15,6 +15,7 @@
     <color name="colorPrimaryDark">@color/tazRed</color>
 
     <color name="colorAccent">@color/tazRed</color>
+    <color name="deleteRed">#d50e2f</color>
 
     <color name="backgroundColor">@color/white</color>
     <color name="textColor">@color/black</color>
