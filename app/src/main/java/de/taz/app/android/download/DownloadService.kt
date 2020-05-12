@@ -152,6 +152,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         downloads: List<Download>,
         tag: String? = null
     ): Operation {
+        log.debug("enqueued ${downloads.size} downloads")
         val requests = downloads.map { createRequestAndUpdate(it, tag) }
         return WorkManager.getInstance(applicationContext).enqueue(requests)
     }
