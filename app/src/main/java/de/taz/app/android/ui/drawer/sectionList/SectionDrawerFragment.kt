@@ -113,6 +113,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             view?.alpha = 0f
 
             this.issueOperations = issueOperations
+            this.issueDate = issueOperations.date
+            this.issueStatus = issueOperations.status
+            this.issueFeed = issueOperations.feedName
 
             recyclerAdapter?.setIssueOperations(issueOperations)
         }
