@@ -9,6 +9,7 @@ import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.NotificationHelper
+import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ENABLED
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
@@ -73,7 +74,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val issue = apiService.getLastIssues(1).first()
                                 issueRepository.save(issue)
-                                downloadService.scheduleDownload(issue)
+                                val downloadPreferences = applicationContext.getSharedPreferences(
+                                    PREFERENCES_DOWNLOADS,
+                                    Context.MODE_PRIVATE
+                                )
+                                if (downloadPreferences.getBoolean(SETTINGS_DOWNLOAD_ENABLED, true)) {
+                                    downloadService.scheduleDownload(issue)
+                                }
                             }
                         }
                     }
