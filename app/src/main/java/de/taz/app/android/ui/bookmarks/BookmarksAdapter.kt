@@ -42,10 +42,11 @@ class BookmarksAdapter(
         notifyItemRemoved(position)
     }
 
-    fun removeBookmarkWithUndo(viewHolder: RecyclerView.ViewHolder, article: Article, position: Int) {
-        if (bookmarks.isEmpty()) {
-            notifyDataSetChanged()
+    fun removeBookmarkWithUndo(viewHolder: RecyclerView.ViewHolder, position: Int, bookmarkList: MutableList<Article>?) {
+        if (bookmarks.isEmpty() && bookmarkList != null) {
+            bookmarks = bookmarkList
         }
+        val article = bookmarks[position]
         removeBookmark(article, position)
         // showing snack bar with undo option
         val undoBar = Snackbar
@@ -75,6 +76,7 @@ class BookmarksAdapter(
 
     override fun onBindViewHolder(holder: BookmarksViewHolder, position: Int) {
         val article = bookmarks[position]
+        holder.setBookmarks(bookmarks)
         holder.bind(article)
     }
 
@@ -99,8 +101,7 @@ class BookmarksAdapter(
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
             val position = viewHolder.adapterPosition
-            val article = bookmarks[position]
-            removeBookmarkWithUndo(viewHolder, article,  position)
+            removeBookmarkWithUndo(viewHolder, position, null)
         }
 
         override fun onChildDrawOver(
