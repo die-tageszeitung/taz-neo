@@ -76,9 +76,7 @@ data class ResourceInfo(
                         resourceInfoRepository.deleteAllButNewest()
 
                         // ensure resources are downloaded
-                        DownloadService.getInstance().apply {
-                            download(fromServer)
-                        }
+                        DownloadService.getInstance().download(fromServer)
                         local?.let { log.debug("Initialized ResourceInfo") }
                             ?: log.debug("Updated ResourceInfo")
                     }
