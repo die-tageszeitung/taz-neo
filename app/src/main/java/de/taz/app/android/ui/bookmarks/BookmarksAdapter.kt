@@ -27,7 +27,7 @@ class BookmarksAdapter(
         notifyDataSetChanged()
     }
 
-    fun restoreBookmark(article: Article, position: Int) {
+    private fun restoreBookmark(article: Article, position: Int) {
         bookmarks.add(position, article)
         CoroutineScope(Dispatchers.IO).launch {
             ArticleRepository.getInstance().bookmarkArticle(article)
@@ -35,6 +35,37 @@ class BookmarksAdapter(
         notifyItemInserted(position)
     }
 
+    private fun removeBookmark(article: Article, position: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            ArticleRepository.getInstance().debookmarkArticle(article)
+        }
+        notifyItemRemoved(position)
+    }
+
+    fun removeBookmarkWithUndo(viewHolder: RecyclerView.ViewHolder, article: Article, position: Int) {
+        if (bookmarks.isEmpty()) {
+            notifyDataSetChanged()
+        }
+        removeBookmark(article, position)
+        // showing snack bar with undo option
+        val undoBar = Snackbar
+            .make(
+                viewHolder.itemView,
+                R.string.fragment_bookmarks_deleted,
+                Snackbar.LENGTH_LONG
+            )
+        undoBar.setAction(R.string.fragment_bookmarks_undo) {
+            restoreBookmark(article, position)
+        }
+        undoBar.setActionTextColor(
+            ResourcesCompat.getColor(
+                viewHolder.itemView.resources,
+                R.color.deleteRed,
+                null
+            )
+        )
+        undoBar.show()
+    }
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -68,30 +99,8 @@ class BookmarksAdapter(
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
             val position = viewHolder.adapterPosition
-            CoroutineScope(Dispatchers.IO).launch {
-                val removedBookmark = bookmarks[position]
-                ArticleRepository.getInstance().debookmarkArticle(bookmarks[position])
-                notifyItemRemoved(position)
-
-                // showing snack bar with Undo option
-                val undoBar = Snackbar
-                    .make(
-                        viewHolder.itemView,
-                        R.string.fragment_bookmarks_deleted,
-                        Snackbar.LENGTH_LONG
-                    )
-                undoBar.setAction(R.string.fragment_bookmarks_undo) {
-                    restoreBookmark(removedBookmark, position)
-                }
-                undoBar.setActionTextColor(
-                    ResourcesCompat.getColor(
-                        viewHolder.itemView.resources,
-                        R.color.deleteRed,
-                        null
-                    )
-                )
-                undoBar.show()
-            }
+            val article = bookmarks[position]
+            removeBookmarkWithUndo(viewHolder, article,  position)
         }
 
         override fun onChildDrawOver(
