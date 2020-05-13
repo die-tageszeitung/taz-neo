@@ -79,7 +79,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                                     Context.MODE_PRIVATE
                                 )
                                 if (downloadPreferences.getBoolean(SETTINGS_DOWNLOAD_ENABLED, true)) {
-                                    downloadService.scheduleDownload(issue)
+                                    downloadService.scheduleIssueDownload(issue)
                                 }
                             }
                         }

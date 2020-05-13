@@ -8,6 +8,7 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 /**
  * Interface every model has to implement which can be downloaded with [DownloadService]
