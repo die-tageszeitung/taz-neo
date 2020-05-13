@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.FontHelper
 import kotlinx.coroutines.*
@@ -72,7 +73,7 @@ class SectionListAdapter(
                         sectionListObserver = Observer<List<SectionStub>> {
                             notifyDataSetChanged()
                         }.also {
-                            sectionListLiveData?.observe(
+                            sectionListLiveData?.observeDistinct(
                                 fragment.viewLifecycleOwner,
                                 it
                             )
