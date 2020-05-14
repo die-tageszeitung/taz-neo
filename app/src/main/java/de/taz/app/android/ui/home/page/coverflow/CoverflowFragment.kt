@@ -14,13 +14,20 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
+import de.taz.app.android.ui.webview.pager.ISSUE_DATE
+import de.taz.app.android.ui.webview.pager.ISSUE_FEED
+import de.taz.app.android.ui.webview.pager.ISSUE_STATUS
+import de.taz.app.android.ui.webview.pager.POSITION
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,10 +50,28 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
 
-    private var issueStubToSkipTo: IssueStub? = null
+    private var issueDate: String? = null
+    private var issueStatus: IssueStatus? = null
+    private var issueFeedname: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.apply {
+            runIfNotNull(
+                getString(ISSUE_DATE),
+                getString(ISSUE_FEED),
+                getString(ISSUE_STATUS)
+            ) { date, feed, status ->
+                issueDate = date
+                issueFeedname = feed
+                issueStatus = IssueStatus.valueOf(status)
+            } ?: run {
+                setCurrentPosition(getInt(POSITION, RecyclerView.NO_POSITION))
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         fragment_cover_flow_grid.apply {
             context?.let { context ->
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -90,32 +115,24 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
         coverFlowPagerAdapter.setIssueStubs(issueStubs.reversed())
 
-        issueStubToSkipTo?.let { issueStubToSkipTo ->
-            if (issueStubs.indexOfFirst { it.key == issueStubToSkipTo.key } >= 0) {
-                skipToItem(issueStubToSkipTo)
-            }
+        runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
+            skipToItem(feed, date, status)
         }
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
         coverFlowPagerAdapter.setAuthStatus(authStatus)
-        getCurrentPosition()?.let {
-            skipToPosition(it)
-        }
+        skipToPosition(getCurrentPosition())
     }
 
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
-        getCurrentPosition()?.let {
-            skipToPosition(it)
-        }
+        skipToPosition(getCurrentPosition())
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
         coverFlowPagerAdapter.setInactiveFeedNames(feedNames)
-        getCurrentPosition()?.let {
-            skipToPosition(it)
-        }
+        skipToPosition(getCurrentPosition())
     }
 
     fun getLifecycleOwner(): LifecycleOwner {
@@ -129,15 +146,24 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun skipToItem(issueStub: IssueStub) {
-        val position = coverFlowPagerAdapter.getPosition(issueStub)
-        if (position >= 0) {
-            issueStubToSkipTo = null
-            skipToPosition(position)
-        } else {
-            issueStubToSkipTo = issueStub
+    fun skipToCurrentItem() {
+        runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
+            val position = coverFlowPagerAdapter.getPosition(feed, date, status)
+            if (position >= 0) {
+                skipToPosition(position)
+            }
         }
     }
+
+    fun skipToItem(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+        this.issueFeedname = issueFeedName
+        this.issueDate = issueDate
+        this.issueStatus = issueStatus
+        skipToCurrentItem()
+    }
+
+    fun skipToItem(issueStub: IssueStub) =
+        skipToItem(issueStub.feedName, issueStub.date, issueStub.status)
 
     fun skipToPosition(position: Int) = activity?.runOnUiThread {
         fragment_cover_flow_grid.apply {
@@ -185,7 +211,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
             // persist position and download new issues if user is scrolling
             if (position >= 0) {
-                setCurrentPosition(position)
+                setCurrentPosition(position, coverFlowPagerAdapter.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
                     if (position < 2 * visibleItemCount) {
@@ -210,4 +236,28 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
         }
     }
+
+    fun setCurrentPosition(position: Int, issueOperations: IssueOperations?) {
+        issueOperations?.let {
+            issueFeedname = issueOperations.feedName
+            issueStatus = issueOperations.status
+            issueDate = issueOperations.date
+        }
+        setCurrentPosition(position)
+    }
+
+    fun hasSetItem(): Boolean {
+        return runIfNotNull(issueFeedname, issueDate, issueStatus) { _, _, _ ->
+            true
+        } ?: false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(POSITION, getCurrentPosition())
+        outState.putString(ISSUE_FEED, issueFeedname)
+        outState.putString(ISSUE_STATUS, issueStatus?.toString())
+        outState.putString(ISSUE_DATE, issueDate)
+        super.onSaveInstanceState(outState)
+    }
+
 }
