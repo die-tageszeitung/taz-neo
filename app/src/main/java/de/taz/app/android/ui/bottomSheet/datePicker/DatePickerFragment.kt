@@ -115,13 +115,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                             .toInt() == 1 && issueStub.isWeekend)
             ) {
                 log.debug("issue is already local")
-                coverFlowFragment?.get()?.let { coverFlowFragment ->
-                    val issueStubPosition =
-                        coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs()
-                            .indexOf(issueStub)
-                    coverFlowFragment.skipToPosition(issueStubPosition)
-                    dismiss()
-                }
                 showIssue(issueStub)
             } else {
                 issueRepository.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
@@ -166,10 +159,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
     private fun showIssue(issueStub: IssueStub) {
         dismiss() //close datePicker
-        getMainView()?.apply {
-            // set main issue
-            setCoverFlowItem(issueStub)
-            showIssue(issueStub)
-        }
+        getMainView()?.showIssue(issueStub)
     }
 }

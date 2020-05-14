@@ -19,15 +19,19 @@ class CoverflowAdapter(
     override fun setIssueStubs(issues: List<IssueStub>) {
         val skipToLast = visibleIssueStubList.isEmpty()
         super.setIssueStubs(issues)
-        if(skipToLast) {
-            fragment.skipToEnd()
+        if (skipToLast) {
+            if (fragment.hasSetItem()) {
+                fragment.skipToCurrentItem()
+            } else {
+                fragment.skipToEnd()
+            }
         }
     }
 
     override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         val skipToLast = visibleIssueStubList.isEmpty()
         super.setInactiveFeedNames(inactiveFeedNames)
-        if(skipToLast) {
+        if (skipToLast) {
             fragment.skipToEnd()
         }
     }
@@ -35,8 +39,9 @@ class CoverflowAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->
             fragment.getLifecycleOwner().lifecycleScope.launch {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.displayIssue(issueStub, dateFormat=DateFormat.LongWithWeekDay)
+                val momentView =
+                    viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
+                momentView.displayIssue(issueStub, dateFormat = DateFormat.LongWithWeekDay)
             }
         }
     }

@@ -25,9 +25,9 @@ abstract class HomePageFragment(
 
     private val log by Log
 
-    private val apiService: ApiService = ApiService.getInstance()
-    private val dateHelper: DateHelper = DateHelper.getInstance()
-    private val issueRepository: IssueRepository = IssueRepository.getInstance()
+    private var apiService: ApiService? = null
+    private var dateHelper: DateHelper? = null
+    private var issueRepository: IssueRepository? = null
 
     private var lastRequestedDate = ""
 
@@ -41,6 +41,10 @@ abstract class HomePageFragment(
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = viewModel ?: HomePageViewModel()
+
+        apiService = ApiService.getInstance(context?.applicationContext)
+        dateHelper = DateHelper.getInstance(context?.applicationContext)
+        issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
         viewModel?.apply {
             issueStubsLiveData.observeDistinct(
@@ -62,15 +66,14 @@ abstract class HomePageFragment(
         }
     }
 
-    fun onItemSelected(issueStub: IssueStub, position: Int) {
-        setCurrentPosition(position)
+    fun onItemSelected(issueStub: IssueStub) {
         showIssue(issueStub)
     }
 
     suspend fun getNextIssueMoments(date: String) {
         if (lastRequestedDate.isEmpty() || date <= lastRequestedDate) {
             log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
-            lastRequestedDate = dateHelper.stringToStringWithDelta(
+            lastRequestedDate = dateHelper?.stringToStringWithDelta(
                 date, -NUMBER_OF_REQUESTED_MOMENTS
             ) ?: ""
 
@@ -83,19 +86,12 @@ abstract class HomePageFragment(
         }
     }
 
-    fun getCurrentPosition(): Int? {
-        return viewModel?.currentPositionLiveData?.value
-    }
-
-    fun setCurrentPosition(position: Int) {
-        viewModel?.currentPositionLiveData?.value = position
-    }
-
     suspend fun downloadNextIssues(date: String, limit: Int) {
         withContext(Dispatchers.IO) {
             try {
-                val issues = apiService.getIssuesByDate(issueDate = date, limit = limit)
-                issueRepository.save(issues)
+                apiService?.getIssuesByDate(issueDate = date, limit = limit)?.let {
+                    issueRepository?.save(it)
+                }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 ToastHelper.getInstance(activity?.applicationContext)
                     .showToast(R.string.toast_no_internet)

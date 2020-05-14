@@ -25,13 +25,14 @@ import kotlinx.coroutines.withContext
 class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        feed_archive_pager.adapter =
-            HomeFragmentPagerAdapter(
-                childFragmentManager,
-                lifecycle
-            )
+
+        feed_archive_pager.adapter = HomeFragmentPagerAdapter(
+            childFragmentManager,
+            lifecycle
+        )
 
         // reduce viewpager2 sensitivity to make the view less finnicky
         feed_archive_pager.reduceDragSensitivity(6)
@@ -53,7 +54,7 @@ class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
                 val end = dateHelper.now
                 // show animation at least 1000 ms so it looks smoother
                 if (end - start < 1000) {
-                    delay(1000 - (end - start) )
+                    delay(1000 - (end - start))
                 }
                 hideRefreshLoadingIcon()
             }
