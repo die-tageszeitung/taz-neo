@@ -189,6 +189,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     fun showIssue(issueStub: IssueStub) {
         setDrawerIssue(issueStub)
+        setCoverFlowItem(issueStub)
         changeDrawerIssue()
 
         runOnUiThread {
