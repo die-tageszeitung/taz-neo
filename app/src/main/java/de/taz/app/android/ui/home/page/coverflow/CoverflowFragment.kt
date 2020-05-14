@@ -166,6 +166,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     inner class OnScrollListener : RecyclerView.OnScrollListener() {
 
         private var isDragEvent = false
+        private var isIdleEvent = false
 
         override fun onScrollStateChanged(
             recyclerView: RecyclerView,
@@ -180,6 +181,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     ?.setRefreshingWithCallback(true)
             }
             isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
+            isIdleEvent = newState == RecyclerView.SCROLL_STATE_IDLE
         }
 
 
@@ -201,7 +203,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // persist position and download new issues if user is scrolling
-            if (position >= 0) {
+            if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(coverFlowPagerAdapter.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
