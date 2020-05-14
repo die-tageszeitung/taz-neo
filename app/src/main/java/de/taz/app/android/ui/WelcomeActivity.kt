@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
@@ -42,7 +41,9 @@ class WelcomeActivity : AppCompatActivity() {
         button_close.setOnClickListener {
             log.debug("welcome screen close clicked")
             setFirstTimeStart()
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+            startActivity(Intent(intent))
         }
 
         web_view_fullscreen_content.apply {
