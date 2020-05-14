@@ -15,7 +15,7 @@
     <color name="colorAccent">@color/tazRed</color>
     <color name="deleteRed">#d50e2f</color>
 
-    <color name="backgroundColor">@color/antifaGrey</color>
+    <color name="backgroundColor">@color/black</color>
     <color name="textColor">@color/superLightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
     <color name="textColorSection">@color/superLightGrey</color>

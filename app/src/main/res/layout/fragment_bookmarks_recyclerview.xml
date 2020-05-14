@@ -43,7 +43,7 @@
         android:id="@+id/fragment_bookmark_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:colorBackground"
+        android:background="@color/backgroundColor">
         android:paddingStart="@dimen/fragment_padding_horizontal"
         android:paddingEnd="@dimen/fragment_padding_horizontal">
 
