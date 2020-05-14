@@ -96,19 +96,19 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
-    fun getSectionStubsLiveDataForIssue(issueOperations: IssueOperations) =
-        getSectionStubsLiveDataForIssue(
+    fun getSectionStubsLiveDataForIssueOperations(issueOperations: IssueOperations) =
+        getSectionStubsLiveDataForIssueOperations(
             issueOperations.feedName,
             issueOperations.date,
             issueOperations.status
         )
 
-    fun getSectionStubsLiveDataForIssue(
+    fun getSectionStubsLiveDataForIssueOperations(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): List<SectionStub> {
-        return appDatabase.sectionDao().getSectionsForIssue(
+    ): LiveData<List<SectionStub>> {
+        return appDatabase.sectionDao().getSectionsLiveDataForIssue(
             issueFeedName, issueDate, issueStatus
         )
     }
