@@ -159,7 +159,7 @@ abstract class HomePageAdapter(
             itemView.setOnClickListener {
                 modelView.viewLifecycleOwner.lifecycleScope.launch {
                     getItem(adapterPosition)?.let {
-                        modelView.onItemSelected(it, adapterPosition)
+                        modelView.onItemSelected(it)
                     }
                 }
             }

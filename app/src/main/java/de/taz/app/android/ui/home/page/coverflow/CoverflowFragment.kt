@@ -25,7 +25,6 @@ import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.webview.pager.ISSUE_DATE
 import de.taz.app.android.ui.webview.pager.ISSUE_FEED
 import de.taz.app.android.ui.webview.pager.ISSUE_STATUS
-import de.taz.app.android.ui.webview.pager.POSITION
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
@@ -65,8 +64,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 issueDate = date
                 issueFeedname = feed
                 issueStatus = IssueStatus.valueOf(status)
-            } ?: run {
-                setCurrentPosition(getInt(POSITION, RecyclerView.NO_POSITION))
             }
         }
     }
@@ -204,8 +201,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // persist position and download new issues if user is scrolling
-            if (position >= 0 && isDragEvent) {
-                setCurrentPosition(position, coverFlowPagerAdapter.getItem(position))
+            if (position >= 0) {
+                setCurrentItem(coverFlowPagerAdapter.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
                     if (position < 2 * visibleItemCount) {
@@ -231,14 +228,11 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    private fun setCurrentPosition(position: Int, issueOperations: IssueOperations?) {
-        if (getCurrentPosition() != position) {
-            issueOperations?.let {
-                issueFeedname = issueOperations.feedName
-                issueStatus = issueOperations.status
-                issueDate = issueOperations.date
-            }
-            setCurrentPosition(position)
+    private fun setCurrentItem(issueOperations: IssueOperations?) {
+        issueOperations?.let {
+            issueFeedname = issueOperations.feedName
+            issueStatus = issueOperations.status
+            issueDate = issueOperations.date
         }
     }
 
@@ -249,7 +243,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(POSITION, getCurrentPosition())
         outState.putString(ISSUE_FEED, issueFeedname)
         outState.putString(ISSUE_STATUS, issueStatus?.toString())
         outState.putString(ISSUE_DATE, issueDate)
