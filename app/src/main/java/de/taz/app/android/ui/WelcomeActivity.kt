@@ -69,7 +69,9 @@ class WelcomeActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
-        startActivity(Intent(applicationContext, MainActivity::class.java))
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(intent)
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
