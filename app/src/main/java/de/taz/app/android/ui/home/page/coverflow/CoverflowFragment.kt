@@ -95,6 +95,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         super.onResume()
+        skipToCurrentItem()
         fragment_cover_flow_grid.apply {
             addOnScrollListener(onScrollListener)
         }
@@ -114,25 +115,18 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
         coverFlowPagerAdapter.setIssueStubs(issueStubs.reversed())
-
-        runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
-            skipToItem(feed, date, status)
-        }
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
         coverFlowPagerAdapter.setAuthStatus(authStatus)
-        skipToPosition(getCurrentPosition())
     }
 
     override fun setFeeds(feeds: List<Feed>) {
         coverFlowPagerAdapter.setFeeds(feeds)
-        skipToPosition(getCurrentPosition())
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
         coverFlowPagerAdapter.setInactiveFeedNames(feedNames)
-        skipToPosition(getCurrentPosition())
     }
 
     fun getLifecycleOwner(): LifecycleOwner {
@@ -210,7 +204,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // persist position and download new issues if user is scrolling
-            if (position >= 0) {
+            if (position >= 0 && isDragEvent) {
                 setCurrentPosition(position, coverFlowPagerAdapter.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
@@ -237,13 +231,15 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun setCurrentPosition(position: Int, issueOperations: IssueOperations?) {
-        issueOperations?.let {
-            issueFeedname = issueOperations.feedName
-            issueStatus = issueOperations.status
-            issueDate = issueOperations.date
+    private fun setCurrentPosition(position: Int, issueOperations: IssueOperations?) {
+        if (getCurrentPosition() != position) {
+            issueOperations?.let {
+                issueFeedname = issueOperations.feedName
+                issueStatus = issueOperations.status
+                issueDate = issueOperations.date
+            }
+            setCurrentPosition(position)
         }
-        setCurrentPosition(position)
     }
 
     fun hasSetItem(): Boolean {
