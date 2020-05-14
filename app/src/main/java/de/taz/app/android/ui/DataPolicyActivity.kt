@@ -42,10 +42,14 @@ class DataPolicyActivity : AppCompatActivity() {
             acceptDataPolicy()
             if (isFirstTimeStart()) {
                 log.debug("start welcome activity")
-                startActivity(Intent(this, WelcomeActivity::class.java))
+                val intent = Intent(applicationContext, WelcomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                startActivity(Intent(intent))
             } else {
                 log.debug("start main activity")
-                startActivity(Intent(this, MainActivity::class.java))
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                startActivity(Intent(intent))
             }
         }
 
