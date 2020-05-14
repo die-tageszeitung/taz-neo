@@ -25,19 +25,14 @@ import kotlinx.coroutines.withContext
 class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
-    private var homeFragmentPagerAdapter: HomeFragmentPagerAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (homeFragmentPagerAdapter == null) {
-            homeFragmentPagerAdapter = HomeFragmentPagerAdapter(
-                childFragmentManager,
-                lifecycle
-            )
-        }
-
-        feed_archive_pager.adapter = homeFragmentPagerAdapter
+        feed_archive_pager.adapter = HomeFragmentPagerAdapter(
+            childFragmentManager,
+            lifecycle
+        )
 
         // reduce viewpager2 sensitivity to make the view less finnicky
         feed_archive_pager.reduceDragSensitivity(6)
