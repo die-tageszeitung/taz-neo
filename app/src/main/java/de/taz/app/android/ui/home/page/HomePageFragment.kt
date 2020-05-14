@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
@@ -83,8 +84,8 @@ abstract class HomePageFragment(
         }
     }
 
-    fun getCurrentPosition(): Int? {
-        return viewModel?.currentPositionLiveData?.value
+    fun getCurrentPosition(): Int {
+        return viewModel?.currentPositionLiveData?.value ?: RecyclerView.NO_POSITION
     }
 
     fun setCurrentPosition(position: Int) {

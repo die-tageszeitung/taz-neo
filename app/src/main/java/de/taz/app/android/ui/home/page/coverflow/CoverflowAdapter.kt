@@ -20,7 +20,13 @@ class CoverflowAdapter(
         val skipToLast = visibleIssueStubList.isEmpty()
         super.setIssueStubs(issues)
         if(skipToLast) {
-            fragment.skipToEnd()
+            if (fragment.hasSetItem()) {
+                fragment.skipToCurrentItem()
+            } else if(fragment.getCurrentPosition() >= 0)  {
+                fragment.skipToPosition(fragment.getCurrentPosition())
+            } else            {
+                fragment.skipToEnd()
+            }
         }
     }
 
