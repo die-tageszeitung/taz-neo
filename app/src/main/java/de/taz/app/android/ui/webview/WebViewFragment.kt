@@ -198,7 +198,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                                 if (!isDownloadedOrDownloading) {
                                     lifecycleScope.launch(Dispatchers.IO) {
                                         log.info("starting download of resources")
-                                        DownloadService.getInstance().download(resourceInfo)
+                                        ResourceInfo.update()
                                     }
                                 }
                             }

@@ -54,9 +54,6 @@ data class ResourceInfo(
 
                 fromServer?.let {
                     if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                        resourceInfoRepository.save(fromServer)
-                        resourceInfoRepository.deleteAllButNewest()
-
                         val fromServerResourceListNames = fromServer.resourceList.map { it.name }
                         // delete unused files
                         local?.resourceList?.filter { local ->
@@ -64,7 +61,6 @@ data class ResourceInfo(
                         }?.forEach {
                             log.info("deleting ${it.name}")
                             it.deleteFile()
-                            fileEntryRepository.delete(it)
                         }
 
                         // delete modified files
@@ -75,6 +71,9 @@ data class ResourceInfo(
                                 }
                             }
                         }
+
+                        resourceInfoRepository.save(fromServer)
+                        resourceInfoRepository.deleteAllButNewest()
 
                         // ensure resources are downloaded
                         DownloadService.getInstance().apply {
