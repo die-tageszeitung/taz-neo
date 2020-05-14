@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingStart="@dimen/fragment_padding_horizontal"
-    android:paddingEnd="@dimen/fragment_padding_horizontal">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/fragment_bookmark_background"
@@ -45,7 +43,9 @@
         android:id="@+id/fragment_bookmark_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:colorBackground">
+        android:background="?android:colorBackground"
+        android:paddingStart="@dimen/fragment_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_padding_horizontal">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_bookmark"
