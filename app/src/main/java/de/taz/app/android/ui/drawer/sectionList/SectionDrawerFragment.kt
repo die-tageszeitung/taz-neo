@@ -36,6 +36,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private var recyclerAdapter: SectionListAdapter? = null
 
     private var issueOperations: IssueOperations? = null
+
+    // these variables exist only for recreation of the fragment
     private var issueDate: String? = null
     private var issueFeed: String? = null
     private var issueStatus: IssueStatus? = null
@@ -112,10 +114,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             updated = true
             view?.alpha = 0f
 
-            this.issueOperations = issueOperations
             this.issueDate = issueOperations.date
             this.issueStatus = issueOperations.status
             this.issueFeed = issueOperations.feedName
+            this.issueOperations = issueOperations
 
             recyclerAdapter?.setIssueOperations(issueOperations)
         }
@@ -150,12 +152,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate ?: issueOperations?.date)
-        outState.putString(ISSUE_FEED, issueFeed ?: issueOperations?.feedName)
-        outState.putString(
-            ISSUE_STATUS,
-            issueStatus?.toString() ?: issueOperations?.status?.toString()
-        )
+        outState.putString(ISSUE_DATE, issueDate)
+        outState.putString(ISSUE_FEED, issueFeed)
+        outState.putString(ISSUE_STATUS, issueStatus?.toString())
         recyclerAdapter?.activePosition?.let {
             outState.putInt(ACTIVE_POSITION, it)
         }
