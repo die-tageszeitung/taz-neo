@@ -2,7 +2,6 @@ package de.taz.app.android.ui.home.page
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
@@ -67,8 +66,7 @@ abstract class HomePageFragment(
         }
     }
 
-    fun onItemSelected(issueStub: IssueStub, position: Int) {
-        setCurrentPosition(position)
+    fun onItemSelected(issueStub: IssueStub) {
         showIssue(issueStub)
     }
 
@@ -86,14 +84,6 @@ abstract class HomePageFragment(
                 )
             }
         }
-    }
-
-    fun getCurrentPosition(): Int {
-        return viewModel?.currentPositionLiveData?.value ?: RecyclerView.NO_POSITION
-    }
-
-    fun setCurrentPosition(position: Int) {
-        viewModel?.currentPositionLiveData?.value = position
     }
 
     suspend fun downloadNextIssues(date: String, limit: Int) {
