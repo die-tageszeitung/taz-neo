@@ -173,9 +173,6 @@ class SplashActivity : AppCompatActivity() {
     private fun initLastIssues() {
         CoroutineScope(Dispatchers.IO).launch {
             initIssues(10)
-            IssueRepository.getInstance().getLatestIssue()?.let {
-                DownloadService.getInstance().scheduleIssueDownload(it)
-            }
         }
     }
 
