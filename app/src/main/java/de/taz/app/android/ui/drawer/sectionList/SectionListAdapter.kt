@@ -2,68 +2,56 @@ package de.taz.app.android.ui.drawer.sectionList
 
 import android.graphics.Typeface
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
-import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.*
-import java.util.*
 
 
 class SectionListAdapter(
-    private val fragment: SectionDrawerFragment,
-    private var issueOperations: IssueOperations? = null
+    private val fragment: SectionDrawerFragment
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
-    private val issueRepository =
-        IssueRepository.getInstance(fragment.context?.applicationContext)
-    private val momentRepository =
-        MomentRepository.getInstance(fragment.context?.applicationContext)
+    private var issueOperations: IssueOperations? = null
+
     private val sectionRepository =
         SectionRepository.getInstance(fragment.context?.applicationContext)
 
+    private var currentJob: Job? = null
+
+    private var sectionListObserver: Observer<List<SectionStub>>? = null
+    private var sectionListLiveData: LiveData<List<SectionStub>>? = null
+    val sectionList
+        get() = sectionListLiveData?.value ?: emptyList()
+
     var activePosition = RecyclerView.NO_POSITION
-        set(value) = run {
+        set(value) {
             val oldValue = field
             field = value
-            if (value >= 0) {
+            if (value >= 0 && sectionList.size > value) {
                 notifyItemChanged(value)
-                if (oldValue >= 0) {
-                    notifyItemChanged(oldValue)
-                }
+            }
+            if (oldValue >= 0 && sectionList.size > value) {
+                notifyItemChanged(oldValue)
             }
         }
 
-    private var moment: Moment? = null
-    private val sectionList = mutableListOf<SectionStub>()
-    private var imprint: ArticleStub? = null
-
-    private var currentJob: Job? = null
-    private val observer = MomentDownloadedObserver()
-
     fun setIssueOperations(newIssueOperations: IssueOperations?) {
-        fragment.activity?.runOnUiThread {
-            if (issueOperations?.tag != newIssueOperations?.tag) {
-                fragment.view?.alpha = 0f
-                this.issueOperations = newIssueOperations
-
-                activePosition = RecyclerView.NO_POSITION
-
-                sectionList.clear()
-                moment = null
-                imprint = null
-            }
+        if (issueOperations?.tag != newIssueOperations?.tag) {
+            sectionListObserver?.let { sectionListLiveData?.removeObserver(it) }
+            sectionListObserver = null
+            this.issueOperations = newIssueOperations
         }
     }
 
@@ -72,39 +60,27 @@ class SectionListAdapter(
     }
 
     fun show() {
-        fragment.activity?.runOnUiThread {
-            if (sectionList.isEmpty()) {
-                drawIssue()
-            }
+        if (sectionListObserver == null) {
+            currentJob?.cancel()
+            currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
 
-            fragment.view?.scrollY = 0
-            fragment.view?.animate()?.alpha(1f)?.duration = 500
-        }
-    }
-
-    private fun drawIssue() {
-        currentJob?.cancel()
-        currentJob = fragment.lifecycleScope.launch(Dispatchers.IO) {
-            issueOperations?.let { issueStub ->
-
-                moment = momentRepository.get(issueStub)
-                sectionList.addAll(
-                    sectionRepository.getSectionStubsForIssueOperations(
-                        issueStub
-                    )
-                )
-                imprint = issueRepository.getImprintStub(issueStub)
-            }
-
-            withContext(Dispatchers.Main) {
-                imprint?.let(::showImprint)
-
-                fragment.getMainView()?.apply {
-                    moment?.isDownloadedLiveData()?.observe(
-                        getLifecycleOwner(),
-                        observer
-                    )
+                issueOperations?.let { issueStub ->
+                    sectionListLiveData =
+                        sectionRepository.getSectionStubsLiveDataForIssueOperations(
+                            issueStub
+                        )
+                    withContext(Dispatchers.Main) {
+                        sectionListObserver = Observer<List<SectionStub>> {
+                            notifyDataSetChanged()
+                        }.also {
+                            sectionListLiveData?.observeDistinct(
+                                fragment.viewLifecycleOwner,
+                                it
+                            )
+                        }
+                    }
                 }
+
                 fragment.activity?.runOnUiThread {
                     notifyDataSetChanged()
                 }
@@ -112,46 +88,7 @@ class SectionListAdapter(
         }
     }
 
-    private fun showImprint(imprint: ArticleOperations) {
-        fragment.view?.findViewById<TextView>(
-            R.id.fragment_drawer_sections_imprint
-        )?.apply {
-            text = text.toString().toLowerCase(Locale.getDefault())
-            setOnClickListener {
-                fragment.getMainView()?.apply {
-                    showInWebView(imprint.key)
-                    closeDrawer()
-                }
-            }
-            visibility = View.VISIBLE
-            fragment.lifecycleScope.launch(Dispatchers.Main) {
-                typeface = if (issueOperations?.isWeekend == true) {
-                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
-            }
-        }
-    }
-
-
-    inner class MomentDownloadedObserver : androidx.lifecycle.Observer<Boolean> {
-        override fun onChanged(isDownloaded: Boolean?) {
-            if (isDownloaded == true) {
-                issueOperations?.let { issueOperations ->
-                    moment?.isDownloadedLiveData()?.removeObserver(this)
-                    fragment.view?.findViewById<MomentView>(
-                        R.id.fragment_drawer_sections_moment
-                    )?.apply {
-                        displayIssue(issueOperations)
-                        visibility = View.VISIBLE
-                    }
-                    setMomentDate(issueOperations)
-                }
-            }
-        }
-    }
-
-    class SectionListAdapterViewHolder(val textView: TextView) :
-        RecyclerView.ViewHolder(textView)
+    class SectionListAdapterViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -216,18 +153,9 @@ class SectionListAdapter(
         }
     }
 
-    private fun setMomentDate(issueOperations: IssueOperations) {
-        val dateHelper = DateHelper.getInstance(fragment.context?.applicationContext)
-        fragment.view?.findViewById<TextView>(
-            R.id.fragment_drawer_sections_date
-        )?.apply {
-            text = dateHelper.stringToLongLocalizedString(issueOperations.date)
-        }
-    }
-
     override fun getItemCount() = sectionList.size
 
-    fun positionOf(sectionFileName: String): Int {
+    fun positionOf(sectionFileName: String): Int? {
         return sectionList.indexOfFirst { it.sectionFileName == sectionFileName }
     }
 

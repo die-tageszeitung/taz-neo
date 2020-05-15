@@ -75,8 +75,8 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
        archiveListAdapter.setFeeds(feeds)
     }
 
-    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        archiveListAdapter.setInactiveFeedNames(inactiveFeedNames)
+    override fun setInactiveFeedNames(feedNames: Set<String>) {
+        archiveListAdapter.setInactiveFeedNames(feedNames)
     }
 
 }

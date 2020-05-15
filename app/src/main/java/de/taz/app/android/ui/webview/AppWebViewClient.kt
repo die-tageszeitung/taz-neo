@@ -157,7 +157,6 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebVie
     ): WebResourceResponse? {
         val newUrl = overrideInternalLinks(view, url)
         val data = File(newUrl.toString().removePrefix("file:///"))
-        log.debug("Intercepted Url is $url")
 
         return try {
             when {

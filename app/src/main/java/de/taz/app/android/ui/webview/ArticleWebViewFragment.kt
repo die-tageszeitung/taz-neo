@@ -60,8 +60,8 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             ).size
 
             // only the imprint should have no section
-            val title = displayable.getSectionStub()?.title ?: getString(R.string.imprint)
-            setHeaderForSection(index, count, title)
+            val sectionStub = displayable.getSectionStub()
+            setHeaderForSection(index, count, sectionStub)
 
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
@@ -77,14 +77,24 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
         }
     }
 
-    private fun setHeaderForSection(index: Int, count: Int, title: String) {
+    private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub?) {
+        val title = sectionStub?.title ?: getString(R.string.imprint)
         activity?.runOnUiThread {
             view?.findViewById<TextView>(R.id.section)?.text = title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
                 R.string.fragment_header_article, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                activity?.onBackPressed()
+                goBackToSection(sectionStub)
+            }
+        }
+    }
+
+    private fun goBackToSection(sectionStub: SectionStub?) {
+        sectionStub?.let{
+            CoroutineScope(Dispatchers.IO).launch {
+                showSectionInWebView(it.key, it.issueDate)
+                setDrawerIssue(it.getIssueOperations())
             }
         }
     }

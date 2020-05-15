@@ -17,6 +17,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okio.BufferedSource
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -29,8 +30,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 import org.mockito.Mockito.inOrder
+import java.io.BufferedReader
 import java.io.File
 import java.security.MessageDigest
+import javax.xml.transform.Source
 
 const val TEST_STRING = "bla"
 const val TEST_FILE_NAME = "bla"
@@ -89,7 +92,7 @@ class DownloadWorkerTest {
             .`when`(fileHelper).getFile(mockFileEntry)
 
         try {
-            runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
+            runBlocking { downloadWorker.startDownload(TEST_FILE_NAME).join() }
 
             inOrder(downloadRepository).apply {
                 verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.aborted)
@@ -128,7 +131,9 @@ class DownloadWorkerTest {
         doReturn(true)
             .`when`(fileHelper).createFileDirs(mockFileEntry)
 
-        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
+        doReturn(mockFileSha).`when`(fileHelper).writeFile(eq(mockFileEntry), any<BufferedSource>())
+
+        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME).join() }
 
         inOrder(downloadRepository).apply {
             verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.done)
@@ -161,7 +166,7 @@ class DownloadWorkerTest {
         doReturn(true)
             .`when`(fileHelper).createFileDirs(mockFileEntry)
 
-        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME) }
+        runBlocking { downloadWorker.startDownload(TEST_FILE_NAME).join() }
 
         inOrder(downloadRepository).apply {
             verify(downloadRepository).setStatus(mockDownloadStub, DownloadStatus.aborted)

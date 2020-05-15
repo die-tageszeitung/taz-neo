@@ -15,7 +15,7 @@
     <string name="toast_no_email_client">No configured e-mail client found.</string>
 
     <string name="toast_login_elapsed">Account no longer valid.</string>
-    <string name="toast_login_failed">Login failed.</string>
+    <string name="login_failed">Login failed.</string>
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_login_with_email">Please login with your email-address.</string>
@@ -63,6 +63,8 @@
     <string name="fragment_bookmarks_title">Bookmarks</string>
     <string name="fragment_bookmarks_delete">delete</string>
     <string name="fragment_bookmarks_share">share</string>
+    <string name="fragment_bookmarks_deleted">Bookmark removed</string>
+    <string name="fragment_bookmarks_undo">Undo</string>
 
     <string name="fragment_bottom_sheet_text_size_decrease">decrease text size</string>
     <string name="fragment_bottom_sheet_text_size_increase">increase text size</string>
@@ -152,12 +154,14 @@
     <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
     <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
-    <string name="fragment_login_missing_credentials_header">To use the new app you need to login with your email and a self-elected password.</string>
-    <string name="fragment_login_missing_credentials_existing_account">If you already have an account on taz.de please insert your credentials here.</string>
+    <string name="fragment_login_missing_credentials_header_registration">To use the new app you need to login with your email and a self-elected password.</string>
+    <string name="fragment_login_missing_credentials_header_login">If you already have an account on taz.de please insert your credentials here.</string>
     <string name="login_forgot_password">Did you forget your password?</string>
     <string name="login_forgot_password_button">Click here</string>
     <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
     <string name="fragment_login_missing_credentials_login">Login</string>
+    <string name="fragment_login_missing_credentials_switch_to_login">I already have an account</string>
+    <string name="fragment_login_missing_credentials_switch_to_registration">I don\'t have an account yet</string>
 
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
@@ -196,5 +200,6 @@
     <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
 
     <string name="button_close_text">×</string>
+    <string name="issue_not_found">Issue not found.</string>
 
 </resources>
