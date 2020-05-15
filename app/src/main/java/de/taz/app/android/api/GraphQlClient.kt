@@ -52,8 +52,9 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         Request.Builder().url(url).post(body).build()
                     )::enqueue
                 )
-                response.body?.source()?.let {
-                    val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(it)
+                response.body?.source()?.let { source ->
+                    val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)
+                    source.close()
                     if (wrapper?.data == null) {
                         val errorString = wrapper?.errors.toString()
                         log.error(errorString)

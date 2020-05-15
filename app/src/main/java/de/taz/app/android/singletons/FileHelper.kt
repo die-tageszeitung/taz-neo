@@ -68,6 +68,8 @@ class FileHelper private constructor(private val applicationContext: Context) {
             writeAll(source)
             close()
         }
+        file.close()
+        source.close()
         return hashingSink.hash.hex()
     }
 
