@@ -77,7 +77,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
                 DownloadWorker(applicationContext).startDownloads(
                     cacheableDownload.getAllFiles()
-                )
+                ).joinAll()
             }
 
             downloadJobs.add(job)

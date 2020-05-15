@@ -16,14 +16,10 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.util.okHttpClient
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.security.MessageDigest
 import java.util.*
 
 
@@ -59,24 +55,25 @@ class DownloadWorker(
         fileEntries: List<FileEntryOperations>? = null,
         fileNames: List<String>? = null,
         downloads: List<Download>? = null
-    ) {
-        fileNames?.forEach {
+    ): List<Job> {
+        val jobs = mutableListOf<Job>()
+        jobs.addAll(fileNames?.map {
             startDownload(it)
-        }
-        downloads?.forEach {
+        } ?: emptyList())
+        jobs.addAll(downloads?.map {
             startDownload(it.file.name)
-        }
-        fileEntries?.forEach {
+        } ?: emptyList())
+        jobs.addAll(fileEntries?.map {
             startDownload(it.name)
-        }
+        } ?: emptyList())
+        return  jobs
     }
 
     /**
      * start download
      * @param fileName - [FileEntryOperations.name] of [FileEntryOperations] to download
      */
-    suspend fun startDownload(fileName: String) {
-
+    suspend fun startDownload(fileName: String): Job = CoroutineScope(Dispatchers.IO).launch {
         fileEntryRepository.get(fileName)?.let { fileEntry ->
             downloadRepository.getStub(fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
@@ -97,16 +94,11 @@ class DownloadWorker(
                         )
 
                         if (response.code.toString().startsWith("2")) {
-                            val bytes = withContext(Dispatchers.IO) { response.body?.bytes() }
                             @Suppress("NAME_SHADOWING")
-                            bytes?.let { bytes ->
+                            response.body?.source()?.let { source ->
                                 // ensure folders are created
                                 fileHelper.createFileDirs(fileEntry)
-                                fileHelper.writeFile(fileEntry, bytes)
-
-                                // check sha256
-                                val sha256 = MessageDigest.getInstance("SHA-256").digest(bytes)
-                                    .fold("", { str, it -> str + "%02x".format(it) })
+                                val sha256 = fileHelper.writeFile(fileEntry, source)
                                 if (sha256 == fileEntry.sha256) {
                                     log.debug("sha256 matched for file ${fromDB.fileName}")
                                     downloadRepository.saveLastSha256(fromDB, sha256)

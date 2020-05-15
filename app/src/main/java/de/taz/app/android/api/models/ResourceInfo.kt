@@ -77,7 +77,6 @@ data class ResourceInfo(
 
                         // ensure resources are downloaded
                         DownloadService.getInstance().apply {
-                            scheduleDownload(fromServer)
                             download(fromServer)
                         }
                         local?.let { log.debug("Initialized ResourceInfo") }
