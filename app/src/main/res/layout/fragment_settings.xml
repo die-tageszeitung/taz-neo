@@ -6,6 +6,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
@@ -13,7 +14,7 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:colorBackground"
+        android:background="@color/backgroundColor"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -95,11 +96,10 @@
 
             <Button
                 android:id="@+id/fragment_settings_account_manage_account"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_account_manage_account"
-                android:textAppearance="@style/Settings.ManageAccount.Button"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
 
             <TextView
@@ -112,11 +112,10 @@
 
             <Button
                 android:id="@+id/fragment_settings_account_logout"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/lightGrey"
                 android:text="@string/settings_account_logout"
-                android:textAppearance="@style/Settings.ManageAccount.Button"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
@@ -128,9 +127,9 @@
                 android:text="@string/settings_category_support"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
 
-            <TextView
+            <Button
                 android:id="@+id/fragment_settings_support_report_bug"
-                style="@style/TextAppearance.Settings.Entry"
+                style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_support_report_bug"

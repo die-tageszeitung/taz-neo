@@ -10,6 +10,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.util.runIfNotNull
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         log.debug("From: " + remoteMessage.from)
+
+        Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
 
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {

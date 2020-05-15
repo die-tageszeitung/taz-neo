@@ -35,8 +35,8 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 30
-        versionName "0.6.6"
+        versionCode 32
+        versionName "0.6.6.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -216,7 +216,7 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.1.5'
+    googleImplementation 'com.google.firebase:firebase-messaging:20.1.7'
 }
 
 sentry {

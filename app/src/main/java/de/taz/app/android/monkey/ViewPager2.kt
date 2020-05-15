@@ -54,3 +54,23 @@ fun ViewPager2.moveContentBeneathStatusBar() {
 
     requestApplyInsets()
 }
+
+
+/**
+ * Monkey patching ViewPager2 so that the recyclerview is shown beneath the status bar
+ */
+fun ViewGroup.moveContentBeneathStatusBar() {
+    setOnApplyWindowInsetsListener { v, insets ->
+        (v.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
+            topMargin = 0
+            leftMargin = insets.systemWindowInsetLeft
+            rightMargin = insets.systemWindowInsetRight
+            bottomMargin = insets.systemWindowInsetBottom
+        }
+        // trigger for recyclerview as well
+        for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
+        insets.consumeSystemWindowInsets()
+    }
+
+    requestApplyInsets()
+}

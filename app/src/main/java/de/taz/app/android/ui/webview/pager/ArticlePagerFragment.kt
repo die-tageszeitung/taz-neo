@@ -3,8 +3,6 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -34,7 +32,6 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     val log by Log
 
     private var articlePagerAdapter: ArticlePagerAdapter? = null
-    private var articleListObserver: Observer<List<ArticleStub>>? = null
 
     private var showBookmarks: Boolean = false
     private var articleName: String? = null
@@ -53,16 +50,18 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         savedInstanceState?.apply {
             showBookmarks = getBoolean(SHOW_BOOKMARKS)
             articleName = getString(ARTICLE_NAME)
+            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
-        super.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.showBookmarks = showBookmarks
-        viewModel.articleName = articleName
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.showBookmarksLiveData.value = showBookmarks
+        viewModel.articleNameLiveData.value = articleName
 
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
@@ -70,26 +69,26 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         }
 
         articlePagerAdapter = articlePagerAdapter ?: ArticlePagerAdapter(this)
+
+        viewModel.articleListLiveData.observeDistinct(this) {
+            setArticles(it, viewModel.currentPosition)
+            loading_screen.visibility = View.GONE
+        }
+
+        viewModel.currentPositionLiveData.observeDistinct(this) {
+            if (webview_pager_viewpager.currentItem != it) {
+                webview_pager_viewpager.setCurrentItem(it, false)
+            }
+        }
     }
 
     override fun onStart() {
         setupViewPager()
-        articleListObserver = viewModel.articleListLiveData.observeDistinct(this) {
-            setArticles(it, viewModel.articlePosition)
-            loading_screen.visibility = View.GONE
-        }
-
-        viewModel.currentPosition?.let {
-            webview_pager_viewpager.currentItem = it
-        }
 
         super.onStart()
     }
 
     override fun onStop() {
-        articleListObserver?.let {
-            Transformations.distinctUntilChanged(viewModel.articleListLiveData).removeObserver(it)
-        }
         webview_pager_viewpager.adapter = null
         super.onStop()
     }
@@ -118,7 +117,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
                 }
             }
 
-            viewModel.currentPosition = position
+            viewModel.currentPositionLiveData.value = position
 
             lifecycleScope.launch {
                 articlePagerAdapter?.getArticleStub(position)?.getNavButton()?.let {
@@ -172,7 +171,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     private fun showSectionOrGoBack() {
-        viewModel.sectionNameList?.get(viewModel.currentPosition ?: 0)?.let {
+        viewModel.sectionNameList?.get(viewModel.currentPosition)?.let {
             showInWebView(it)
         } ?: parentFragmentManager.popBackStack()
     }
@@ -190,6 +189,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(SHOW_BOOKMARKS, showBookmarks)
         outState.putString(ARTICLE_NAME, articleName)
+        outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }
 

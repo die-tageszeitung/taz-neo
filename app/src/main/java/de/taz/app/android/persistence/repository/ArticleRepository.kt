@@ -22,30 +22,35 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun save(article: Article) {
-        val articleFileName = article.articleHtml.name
-        appDatabase.articleDao().insertOrReplace(ArticleStub(article))
+        var articleToSave = article
+        getStub(articleToSave.key)?.let {
+            articleToSave = articleToSave.copy(bookmarked = it.bookmarked)
+        }
+
+        val articleFileName = articleToSave.articleHtml.name
+        appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
 
         // save audioFile and relation
-        article.audioFile?.let { audioFile ->
+        articleToSave.audioFile?.let { audioFile ->
             fileEntryRepository.save(audioFile)
             appDatabase.articleAudioFileJoinDao().insertOrReplace(
-                ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
+                ArticleAudioFileJoin(articleToSave.articleHtml.name, audioFile.name)
             )
         }
 
         // save html file
-        fileEntryRepository.save(article.articleHtml)
+        fileEntryRepository.save(articleToSave.articleHtml)
 
         // save images and relations
-        imageRepository.save(article.imageList)
-        article.imageList.forEachIndexed { index, image ->
+        imageRepository.save(articleToSave.imageList)
+        articleToSave.imageList.forEachIndexed { index, image ->
             appDatabase.articleImageJoinDao().insertOrReplace(
                 ArticleImageJoin(articleFileName, image.name, index)
             )
         }
 
         // save authors
-        article.authorList.forEachIndexed { index, author ->
+        articleToSave.authorList.forEachIndexed { index, author ->
             author.imageAuthor?.let {
                 fileEntryRepository.save(it)
                 appDatabase.articleAuthorImageJoinDao().insertOrReplace(

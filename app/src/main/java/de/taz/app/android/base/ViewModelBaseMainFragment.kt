@@ -153,6 +153,14 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
     }
 
+    fun showSectionInWebView(webViewDisplayableKey: String, issueDate: String) {
+        (activity as? MainActivity)?.showSection(webViewDisplayableKey, issueDate)
+    }
+
+    fun setDrawerIssue(issueStub: IssueStub) {
+        (activity as? MainActivity)?.setDrawerIssue(issueStub)
+    }
+
     fun showNavButton(navButton: Image? = null) {
         (activity as? MainActivity)?.setDrawerNavButton(navButton)
     }

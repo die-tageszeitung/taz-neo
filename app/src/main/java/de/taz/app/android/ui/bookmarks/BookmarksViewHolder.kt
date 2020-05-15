@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.DateHelper
@@ -33,6 +35,8 @@ class BookmarksViewHolder(
     private var bookmarkDelete: ImageView
     private val fileHelper = FileHelper.getInstance()
     private val dateHelper: DateHelper = DateHelper.getInstance()
+    private val bookmarksAdapter = BookmarksAdapter(bookmarksPresenter)
+    private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {
         bookmarkBox = itemView.findViewById(R.id.fragment_bookmark)
@@ -75,9 +79,12 @@ class BookmarksViewHolder(
             }
 
             bookmarkDelete.setOnClickListener {
-                bookmarksPresenter.debookmarkArticle(article.key)
+                bookmarksAdapter.removeBookmarkWithUndo(this, adapterPosition, bookmarks)
             }
-
         }
+    }
+
+    fun setBookmarks(bookmarks: MutableList<Article>){
+        this.bookmarks = bookmarks
     }
 }

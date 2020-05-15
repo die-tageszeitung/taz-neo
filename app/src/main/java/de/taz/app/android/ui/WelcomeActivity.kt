@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -41,7 +41,9 @@ class WelcomeActivity : AppCompatActivity() {
         button_close.setOnClickListener {
             log.debug("welcome screen close clicked")
             setFirstTimeStart()
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+            startActivity(Intent(intent))
         }
 
         web_view_fullscreen_content.apply {
@@ -68,7 +70,9 @@ class WelcomeActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
-        startActivity(Intent(applicationContext, MainActivity::class.java))
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(intent)
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
@@ -91,7 +95,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            welcome_loading_screen.visibility = View.GONE
+            welcome_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }

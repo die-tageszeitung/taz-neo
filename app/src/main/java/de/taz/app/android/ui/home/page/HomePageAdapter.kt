@@ -29,7 +29,7 @@ import java.util.*
 abstract class HomePageAdapter(
     private val modelView: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    private val dateOnClickListenerFunction: ( (Date) -> Unit)? = null
+    private val dateOnClickListenerFunction: ((Date) -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
 
     private var allIssueStubList: List<IssueStub> = emptyList()
@@ -61,6 +61,14 @@ abstract class HomePageAdapter(
 
     fun getPosition(issueStub: IssueStub): Int {
         return visibleIssueStubList.indexOf(issueStub)
+    }
+
+    fun getPosition(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Int {
+        return visibleIssueStubList.indexOfFirst {
+            it.date == issueDate
+                    && it.status == issueStatus
+                    && it.feedName == issueFeedName
+        }
     }
 
     fun setAuthStatus(authStatus: AuthStatus) {
@@ -131,7 +139,7 @@ abstract class HomePageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(modelView.getContext()).inflate(
+            LayoutInflater.from(modelView.context).inflate(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
@@ -151,7 +159,7 @@ abstract class HomePageAdapter(
             itemView.setOnClickListener {
                 modelView.viewLifecycleOwner.lifecycleScope.launch {
                     getItem(adapterPosition)?.let {
-                        modelView.onItemSelected(it, adapterPosition)
+                        modelView.onItemSelected(it)
                     }
                 }
             }
@@ -166,7 +174,7 @@ abstract class HomePageAdapter(
                 true
             }
 
-            dateOnClickListenerFunction?.let{ dateOnClickListenerFunction ->
+            dateOnClickListenerFunction?.let { dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
                     getItem(adapterPosition)?.let { issueStub ->
                         val issueDate = dateHelper.stringToDate(issueStub.date)

@@ -13,9 +13,6 @@ import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
-import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.ToDownloadIssueHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -87,9 +84,6 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             confirmButton.visibility = View.GONE
-            ToastHelper.getInstance().showToast(
-                "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $day.$month.$year"
-            )
             log.debug("new date set: $day.$month.$year")
 
             preventDismissal()
@@ -111,46 +105,59 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
     }
 
-    private suspend fun setIssue(date: String){
+    private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
 
             val issueStub = issueRepository.getLatestIssueStubByDate(date)
-            if (issueStub != null && dateHelper.dayDelta(issueStub.date, date) < 2 && issueStub.isWeekend) {
-                coverFlowFragment?.get()?.let { coverFlowFragment ->
-                    val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(issueStub)
-                    coverFlowFragment.skipToPosition(issueStubPosition)
-                    dismiss()
-                }
+            if (issueStub != null && (issueStub.date == date ||
+                        dateHelper.dayDelta(issueStub.date, date)
+                            .toInt() == 1 && issueStub.isWeekend)
+            ) {
+                log.debug("issue is already local")
                 showIssue(issueStub)
-            }
-            else {
-                issueRepository.getEarliestIssueStub()?.let { earliestIssueStub ->
-                    val newIssue = apiService.getIssuesByDate(date, 1).first()
-                    log.debug("newIssue is $newIssue")
-                    issueRepository.save(newIssue)
-                    val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
-                    coverFlowFragment?.get()?.let { coverFlowFragment ->
-                        val issueStubPosition = coverFlowFragment.coverFlowPagerAdapter.filterIssueStubs().indexOf(selectedIssueStub)
-                        coverFlowFragment.skipToPosition(issueStubPosition)
+            } else {
+                issueRepository.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
+                    try {
+                        val apiIssueList = apiService.getIssuesByDate(date, 1)
+                        if (apiIssueList.isNotEmpty()) {
+                            val newIssue = apiIssueList.first()
+
+                            issueRepository.save(newIssue)
+
+                            val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
+                            selectedIssueStub?.let {
+                                showIssue(it)
+                            }
+
+                            ToastHelper.getInstance().showToast(
+                                "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date"
+                            )
+                            context?.let {
+                                ToDownloadIssueHelper(it).startMissingDownloads(
+                                    date,
+                                    lastDownloadedIssueStub.date
+                                )
+                            }
+                        } else {
+                            ToastHelper.getInstance().showToast(
+                                getString(R.string.issue_not_found)
+                            )
+                            dismiss()
+                        }
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        ToastHelper.getInstance().showToast(
+                            getString(R.string.toast_no_internet)
+                        )
                         dismiss()
                     }
-                    selectedIssueStub?.let {
-                        showIssue(it)
-                    }
-                    ToDownloadIssueHelper.startMissingDownloads(date, earliestIssueStub.date)
                 }
             }
         }
     }
 
-    private suspend fun showIssue(issueStub: IssueStub) {
+    private fun showIssue(issueStub: IssueStub) {
         dismiss() //close datePicker
-        getMainView()?.apply {
-            // set main issue
-            setDrawerIssue(issueStub)
-
-            showIssue(issueStub)
-        }
+        getMainView()?.showIssue(issueStub)
     }
 }

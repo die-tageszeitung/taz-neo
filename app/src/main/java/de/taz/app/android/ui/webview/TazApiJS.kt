@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.net.Uri
 import android.webkit.JavascriptInterface
@@ -9,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +97,7 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
 
         mainActivity?.apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                if (url.endsWith(".html") && (url.startsWith("article") || url.startsWith("section"))) {
+                if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
                     showInWebView(url)
                 } else {
                     openExternally(url)
@@ -107,8 +109,16 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
     private fun openExternally(url: String) {
         runIfNotNull(applicationContext, mainActivity) { applicationContext, mainActivity ->
             val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
-            CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
-                launchUrl(mainActivity, Uri.parse(url))
+            try {
+                CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
+                    launchUrl(mainActivity, Uri.parse(url))
+                }
+            } catch (e: ActivityNotFoundException) {
+                if (url.startsWith("mailto:")) {
+                    ToastHelper.getInstance().showToast(R.string.toast_no_email_client)
+                } else {
+                    ToastHelper.getInstance().showToast(R.string.toast_unknown_error)
+                }
             }
         }
     }

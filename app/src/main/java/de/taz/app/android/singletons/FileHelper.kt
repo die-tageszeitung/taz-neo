@@ -5,12 +5,14 @@ import android.os.Environment
 import androidx.core.content.ContextCompat
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
-import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.util.SingletonHolder
 import kotlinx.io.IOException
+import okio.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+
 
 @Mockable
 class FileHelper private constructor(private val applicationContext: Context) {
@@ -53,6 +55,22 @@ class FileHelper private constructor(private val applicationContext: Context) {
     fun writeFile(fileEntry: FileEntryOperations, byteArray: ByteArray) {
         val file = getFile(fileEntry)
         file.writeBytes(byteArray)
+    }
+
+    /**
+     * writes data from [source] to file of [fileEntry] and return sha265
+     */
+    fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
+        val file = getFile(fileEntry).sink()
+        val hashingSink = HashingSink.sha256(file)
+
+        hashingSink.buffer().apply {
+            writeAll(source)
+            close()
+        }
+        file.close()
+        source.close()
+        return hashingSink.hash.hex()
     }
 
     fun getFileByPath(filePath: String, internal: Boolean = false): File {
@@ -129,7 +147,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
                     areEqual = false
                     break
                 } else if (line != otherLine) {
-                    areEqual = false;
+                    areEqual = false
                     break
                 }
 

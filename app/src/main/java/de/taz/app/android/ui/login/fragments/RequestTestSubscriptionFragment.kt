@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.monkey.markRequired
 import kotlinx.android.synthetic.main.fragment_login_request_test_subscription.*
 
 class RequestTestSubscriptionFragment :
@@ -30,6 +31,12 @@ class RequestTestSubscriptionFragment :
         viewModel.password?.let {
             fragment_login_request_test_subscription_password.setText(it)
         }
+
+        fragment_login_request_test_subscription_email_layout.markRequired()
+        fragment_login_request_test_subscription_password_layout.markRequired()
+        fragment_login_request_test_subscription_password_confirmation_layout.markRequired()
+        fragment_login_request_test_subscription_first_name_layout.markRequired()
+        fragment_login_request_test_subscription_surname_layout.markRequired()
 
         fragment_login_request_test_subscription_login.setOnClickListener {
             requestSubscription()
@@ -95,7 +102,7 @@ class RequestTestSubscriptionFragment :
         }
 
         hideKeyBoard()
-        viewModel.getTrialSubscriptionForNewCredentials(email, password)
+        viewModel.getTrialSubscriptionForNewCredentials(email, password, firstName, surName)
     }
 
 }

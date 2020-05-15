@@ -19,7 +19,6 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
@@ -30,6 +29,7 @@ import kotlinx.coroutines.withContext
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
 const val ISSUE_STATUS = "issueStatus"
+const val POSITION = "position"
 const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment :
@@ -58,6 +58,14 @@ class SectionPagerFragment :
             fragment.issueStatus = issueStub.status
             return fragment
         }
+
+        fun createInstance(sectionFileName: String, issueDate: String): SectionPagerFragment {
+            val fragment = SectionPagerFragment()
+            fragment.issueDate = issueDate
+            fragment.sectionKey = sectionFileName
+            return fragment
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,19 +79,20 @@ class SectionPagerFragment :
                 // do nothing issueStatus is null
             }
             sectionKey = getString(SECTION_KEY)
+            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         sectionKey?.let {
-            viewModel.sectionKey = it
-            sectionKey = null
+            viewModel.sectionKeyLiveData.value = it
         }
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
             viewModel.apply {
-                issueFeedName = feedName
-                issueDate = date
-                issueStatus = status
+                issueFeedNameLiveData.value = feedName
+                issueDateLiveData.value = date
+                issueStatusLiveData.value = status
             }
         }
 
@@ -112,13 +121,6 @@ class SectionPagerFragment :
 
     override fun onStart() {
         setupViewPager()
-
-        viewModel.currentPosition?.let {
-            if (it != webview_pager_viewpager.currentItem) {
-                webview_pager_viewpager.setCurrentItem(it, false)
-            }
-        }
-
         super.onStart()
     }
 
@@ -138,7 +140,9 @@ class SectionPagerFragment :
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            adapter = sectionAdapter
+            if (adapter == null) {
+                adapter = sectionAdapter
+            }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
             offscreenPageLimit = 2
@@ -147,7 +151,7 @@ class SectionPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            viewModel.currentPosition = position
+            viewModel.currentPositionLiveData.value = position
             getMainView()?.setActiveDrawerSection(position)
             sectionAdapter?.getSectionStub(position)?.let {
                 lifecycleScope.launch {
@@ -197,10 +201,16 @@ class SectionPagerFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate)
-        outState.putString(ISSUE_FEED, issueFeedName)
-        outState.putString(ISSUE_STATUS, issueStatus.toString())
-        outState.putString(SECTION_KEY, sectionKey)
+        outState.putString(ISSUE_DATE, issueDate ?: viewModel.issueDate)
+        outState.putString(ISSUE_FEED, issueFeedName ?: viewModel.issueFeedName)
+        outState.putString(
+            ISSUE_STATUS,
+            issueStatus?.toString() ?: viewModel.issueStatus?.toString()
+        )
+        outState.putString(SECTION_KEY, viewModel.sectionKey)
+        viewModel.currentPosition?.let {
+            outState.putInt(POSITION, it)
+        }
         super.onSaveInstanceState(outState)
     }
 
@@ -208,4 +218,5 @@ class SectionPagerFragment :
         (activity as? MainActivity)?.showHome()
         return true
     }
+
 }
