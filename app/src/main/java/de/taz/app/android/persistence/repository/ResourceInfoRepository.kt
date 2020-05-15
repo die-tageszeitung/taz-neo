@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -89,6 +90,11 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                 ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
             }
         )
+        try {
+            appDatabase.fileEntryDao().delete(resourceInfo.resourceList)
+        } catch (e: SQLiteConstraintException) {
+           log.warn("Error occurred: $e")
+        }
 
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
