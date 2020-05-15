@@ -145,12 +145,15 @@ class IssueDownloadWorkManagerWorker(
     workerParameters: WorkerParameters
 ) : CoroutineWorker(applicationContext, workerParameters) {
 
+    private val log by Log
+
     override suspend fun doWork(): Result = coroutineScope {
 
         val issueFeedName = inputData.getString(DATA_ISSUE_FEEDNAME)
         val issueDate = inputData.getString(DATA_ISSUE_DATE)
         val issueStatus = inputData.getString(DATA_ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
 
+        log.debug("starting to download - issueDate: $issueDate")
 
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
             val downloadService = DownloadService.getInstance(applicationContext)
@@ -161,14 +164,19 @@ class IssueDownloadWorkManagerWorker(
                     issueRepository.getIssue(
                         feedName, date, status
                     )?.let { issue ->
-                        downloadService.download(issue)
+                        downloadService.download(issue).join()
+                        log.debug("successfully downloaded")
                         Result.success()
                     } ?: Result.failure()
                 } catch (e: Exception) {
                     Sentry.capture(e)
+                    log.debug("download failed")
                     Result.failure()
                 }
             }
-        }?.await() ?: Result.failure()
+        }?.await() ?: run {
+            log.debug("download failed")
+            Result.failure()
+        }
     }
 }

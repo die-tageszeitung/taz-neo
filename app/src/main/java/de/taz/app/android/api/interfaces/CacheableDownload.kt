@@ -8,7 +8,6 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.Serializable
 
 /**
  * Interface every model has to implement which can be downloaded with [DownloadService]
@@ -23,9 +22,8 @@ interface CacheableDownload {
         getAllFiles().forEach { it.deleteFile() }
     }
 
-    suspend fun download(applicationContext: Context? = null) = withContext(Dispatchers.IO) {
+    suspend fun download(applicationContext: Context? = null) =
         DownloadService.getInstance(applicationContext).download(this@CacheableDownload)
-    }
 
     fun isDownloadedLiveData(): LiveData<Boolean> {
         return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())

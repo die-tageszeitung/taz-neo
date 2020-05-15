@@ -212,7 +212,7 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_is_downloaded?.apply {
             visibility = View.VISIBLE
             setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
+                lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
                     issueOperations?.let {
                         issueRepository.getIssue(it)?.let { issue ->
                             downloadService.download(issue)

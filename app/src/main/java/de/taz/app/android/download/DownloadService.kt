@@ -45,66 +45,73 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    suspend fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null) {
+    suspend fun download(
+        cacheableDownload: CacheableDownload, baseUrl: String? = null
+    ): Job = withContext(Dispatchers.IO) {
+        launch {
 
-        if (appInfoRepository.get() == null) {
-            AppInfo.update()
-        }
-
-        var downloadId: String? = null
-        val start: Long = System.currentTimeMillis()
-        val issue = if (cacheableDownload is Issue) cacheableDownload else null
-
-        if (!cacheableDownload.isDownloadedOrDownloading()
-            && appInfoRepository.get() != null
-        ) {
-            issue?.let {
-                issueRepository.setDownloadDate(issue, Date())
+            if (appInfoRepository.get() == null) {
+                AppInfo.update()
             }
 
-            val job = ioScope.launch {
-                try {
-                    downloadId = issue?.let {
-                        apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
-                    }
-                } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                    this.cancel(CAUSE_NO_INTERNET, e)
+            var downloadId: String? = null
+            val start: Long = System.currentTimeMillis()
+            val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
+            if (!cacheableDownload.isDownloadedOrDownloading()
+                && appInfoRepository.get() != null
+            ) {
+                issue?.let {
+                    issueRepository.setDownloadDate(issue, Date())
                 }
 
-                createDownloadsForCacheableDownload(cacheableDownload, baseUrl)
+                val job = ioScope.launch {
+                    try {
+                        log.debug("issue is null: ${issue == null}")
+                        downloadId = issue?.let {
+                            apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                        }
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        this.cancel(CAUSE_NO_INTERNET, e)
+                    }
 
-                DownloadWorker(applicationContext).startDownloads(
-                    cacheableDownload.getAllFiles()
-                ).joinAll()
-            }
+                    createDownloadsForCacheableDownload(cacheableDownload, baseUrl)
 
-            downloadJobs.add(job)
+                    DownloadWorker(applicationContext).startDownloads(
+                        cacheableDownload.getAllFiles()
+                    ).joinAll()
+                }
 
-            job.invokeOnCompletion { cause ->
-                // remove the job
-                downloadJobs.remove(job)
+                downloadJobs.add(job)
 
-                // tell server we downloaded complete issue
-                if (cause == null && issue != null) {
-                    downloadId?.let { downloadId ->
-                        val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
-                        CoroutineScope(Dispatchers.IO).launch {
-                            try {
-                                apiService.notifyServerOfDownloadStop(
-                                    downloadId,
-                                    seconds
-                                )
-                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                // do not tell server we downloaded as we do not have internet
+                job.invokeOnCompletion { cause ->
+                    // remove the job
+                    downloadJobs.remove(job)
+
+                    // tell server we downloaded complete issue
+                    if (cause == null && issue != null) {
+                        downloadId?.let { downloadId ->
+                            val seconds =
+                                ((System.currentTimeMillis() - start) / 1000).toFloat()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    apiService.notifyServerOfDownloadStop(
+                                        downloadId,
+                                        seconds
+                                    )
+                                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                    // do not tell server we downloaded as we do not have internet
+                                }
                             }
                         }
-                    }
-                } else {
-                    if (cause is ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(applicationContext)
-                            .showToast(R.string.toast_no_internet)
+                    } else {
+                        if (cause is ApiService.ApiServiceException.NoInternetException) {
+                            ToastHelper.getInstance(applicationContext)
+                                .showToast(R.string.toast_no_internet)
+                        }
                     }
                 }
+                job.join()
             }
         }
     }
