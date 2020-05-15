@@ -58,6 +58,14 @@ class SectionPagerFragment :
             fragment.issueStatus = issueStub.status
             return fragment
         }
+
+        fun createInstance(sectionFileName: String, issueDate: String): SectionPagerFragment {
+            val fragment = SectionPagerFragment()
+            fragment.issueDate = issueDate
+            fragment.sectionKey = sectionFileName
+            return fragment
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
