@@ -9,6 +9,7 @@ import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
@@ -44,6 +45,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =
                                 FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY = 18f
                             view?.findViewById<AppWebView>(R.id.web_view)?.translationY = 18f
                         }
                     }
