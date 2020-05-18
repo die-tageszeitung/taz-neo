@@ -91,32 +91,34 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
     }
 
     private fun connect() {
-        val email = fragment_login_missing_credentials_email.text.toString()
+        val email = fragment_login_missing_credentials_email.text.toString().trim()
         val password = fragment_login_missing_credentials_password.text.toString()
 
         val passwordConfirm =
             fragment_login_missing_credentials_password_confirmation.text.toString()
-        val firstName = fragment_login_missing_credentials_first_name.text.toString()
-        val surname = fragment_login_missing_credentials_surname.text.toString()
+        val firstName = fragment_login_missing_credentials_first_name.text.toString().trim()
+        val surname = fragment_login_missing_credentials_surname.text.toString().trim()
+
+        var somethingWrong = false
 
         if (passwordConfirm.isNotEmpty()) {
             if (password != passwordConfirm) {
                 fragment_login_missing_credentials_password_layout.error = getString(
                     R.string.login_password_confirmation_error_match
                 )
-                return
+                somethingWrong = true
             }
             if (firstName.isEmpty()) {
                 fragment_login_missing_credentials_first_name_layout.error = getString(
                     R.string.login_first_name_error_empty
                 )
-                return
+                somethingWrong = true
             }
             if (surname.isEmpty()) {
                 fragment_login_missing_credentials_surname_layout.error = getString(
                     R.string.login_surname_error_empty
                 )
-                return
+                somethingWrong = true
             }
         }
 
@@ -124,13 +126,13 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
             fragment_login_missing_credentials_email_layout.error = getString(
                 R.string.login_email_error_empty
             )
-            return
+            somethingWrong = true
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 fragment_login_missing_credentials_email_layout.error = getString(
                     R.string.login_email_error_no_email
                 )
-                return
+                somethingWrong = true
             }
         }
 
@@ -138,15 +140,19 @@ class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_
             fragment_login_missing_credentials_password_layout.error = getString(
                 R.string.login_password_error_empty
             )
-            return
+            somethingWrong = true
         }
 
-        viewModel.connect(
-            username = email,
-            password = password,
-            firstName = firstName,
-            surname = surname
-        )
+        if (somethingWrong) {
+            return
+        } else {
+            viewModel.connect(
+                username = email,
+                password = password,
+                firstName = firstName,
+                surname = surname
+            )
+        }
     }
 
 }

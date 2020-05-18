@@ -38,7 +38,7 @@ class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_pass
     }
 
     private fun requestPasswordReset() {
-        val username = fragment_login_forgot_password_username.text.toString()
+        val username = fragment_login_forgot_password_username.text.toString().trim()
         if (username.isEmpty()) {
             fragment_login_forgot_password_username_layout.error =
                 getString(R.string.login_username_error_empty)

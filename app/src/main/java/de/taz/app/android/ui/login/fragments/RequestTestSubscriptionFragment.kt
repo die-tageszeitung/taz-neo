@@ -49,32 +49,34 @@ class RequestTestSubscriptionFragment :
     }
 
     private fun requestSubscription() {
-        val email = fragment_login_request_test_subscription_email.text.toString()
+        val email = fragment_login_request_test_subscription_email.text.toString().trim()
         val password = fragment_login_request_test_subscription_password.text.toString()
 
         val passwordConfirm =
             fragment_login_request_test_subscription_password_confirmation.text.toString()
-        val firstName = fragment_login_request_test_subscription_first_name.text.toString()
-        val surName = fragment_login_request_test_subscription_surname.text.toString()
+        val firstName = fragment_login_request_test_subscription_first_name.text.toString().trim()
+        val surName = fragment_login_request_test_subscription_surname.text.toString().trim()
+
+        var somethingWrong = false
 
         if (passwordConfirm.isNotEmpty()) {
             if (password != passwordConfirm) {
                 fragment_login_request_test_subscription_password_layout.error = getString(
                     R.string.login_password_confirmation_error_match
                 )
-                return
+                somethingWrong = true
             }
             if (firstName.isEmpty()) {
                 fragment_login_request_test_subscription_first_name_layout.error = getString(
                     R.string.login_first_name_error_empty
                 )
-                return
+                somethingWrong = true
             }
             if (surName.isEmpty()) {
                 fragment_login_request_test_subscription_surname_layout.error = getString(
                     R.string.login_surname_error_empty
                 )
-                return
+                somethingWrong = true
             }
         }
 
@@ -82,13 +84,13 @@ class RequestTestSubscriptionFragment :
             fragment_login_request_test_subscription_email_layout.error = getString(
                 R.string.login_email_error_empty
             )
-            return
+            somethingWrong = true
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 fragment_login_request_test_subscription_email_layout.error = getString(
                     R.string.login_email_error_no_email
                 )
-                return
+                somethingWrong = true
             }
         }
 
@@ -98,11 +100,14 @@ class RequestTestSubscriptionFragment :
                     R.string.login_password_error_empty
                 )
             }
-            return
+            somethingWrong = true
         }
-
-        hideKeyBoard()
-        viewModel.getTrialSubscriptionForNewCredentials(email, password, firstName, surName)
+        if (somethingWrong) {
+            return
+        } else {
+            hideKeyBoard()
+            viewModel.getTrialSubscriptionForNewCredentials(email, password, firstName, surName)
+        }
     }
 
 }

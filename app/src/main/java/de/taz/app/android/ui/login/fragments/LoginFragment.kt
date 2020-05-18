@@ -53,7 +53,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
         }
 
         fragment_login_register_button.setOnClickListener {
-            viewModel.requestSubscription(fragment_login_username.text.toString())
+            viewModel.requestSubscription(fragment_login_username.text.toString().trim())
         }
 
         fragment_login_forgot_password_button.setOnClickListener {
@@ -67,7 +67,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun login() {
-        val username = fragment_login_username.text.toString()
+        val username = fragment_login_username.text.toString().trim()
         val password = fragment_login_password.text.toString()
         viewModel.login(username, password)
         hideKeyBoard()
