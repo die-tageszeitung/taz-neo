@@ -1,6 +1,7 @@
 package de.taz.app.android.util
 
 import android.util.Log
+import de.taz.app.android.PREFERENCES_LOG_TRACE_LENGTH
 import de.taz.app.android.annotation.Mockable
 import io.sentry.Sentry
 import io.sentry.event.BreadcrumbBuilder
@@ -55,7 +56,7 @@ class Log(private val tag: String) {
     }
 
     /**
-    keep 50 lines of logs for attach to error reports;
+    keep [PREFERENCES_LOG_TRACE_LENGTH] lines of logs for attach to error reports;
     if a log line is longer than 200 chars, truncate it
      */
     private fun addToTrace(message: String) {
@@ -66,7 +67,7 @@ class Log(private val tag: String) {
         )
 
         val traceLine = "$time $tag: $truncateMessage\n"
-        if (trace.size < 50) {
+        if (trace.size < PREFERENCES_LOG_TRACE_LENGTH) {
             trace.add(traceLine)
         } else {
             trace.removeAt(0)
