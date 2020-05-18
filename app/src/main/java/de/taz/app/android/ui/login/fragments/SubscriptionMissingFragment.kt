@@ -48,33 +48,40 @@ class SubscriptionMissingFragment : BaseFragment(R.layout.fragment_login_missing
     }
 
     private fun connect() {
-        val subscriptionId = fragment_login_missing_subscription.text.toString()
+        val subscriptionId = fragment_login_missing_subscription.text.toString().trim()
         val subscriptionPassword = fragment_login_missing_subscription_password.text.toString()
+
+        var somethingWrong = false
 
         if (subscriptionId.isEmpty()) {
             fragment_login_missing_subscription_layout.error = getString(
                 R.string.login_subscription_error_empty
             )
-            return
+            somethingWrong = true
         } else if (subscriptionId.toIntOrNull() == null) {
             fragment_login_missing_subscription_layout.error = getString(
                 R.string.login_subscription_error_invalid
             )
-            return
+            somethingWrong = true
         }
 
         if (subscriptionPassword.isEmpty()) {
             fragment_login_missing_subscription_password_layout.error = getString(
                 R.string.login_password_error_empty
             )
-            return
+            somethingWrong = true
         }
 
-        hideKeyBoard()
-        viewModel.connect(
-            subscriptionId = subscriptionId.toIntOrNull(),
-            subscriptionPassword = subscriptionPassword
-        )
+        if (somethingWrong) {
+            return
+        } else {
+            hideKeyBoard()
+            viewModel.connect(
+                subscriptionId = subscriptionId.toIntOrNull(),
+                subscriptionPassword = subscriptionPassword
+            )
+
+        }
     }
 
 }
