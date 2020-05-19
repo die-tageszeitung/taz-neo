@@ -55,7 +55,7 @@ class RequestTestSubscriptionFragment :
         val passwordConfirm =
             fragment_login_request_test_subscription_password_confirmation.text.toString()
         val firstName = fragment_login_request_test_subscription_first_name.text.toString().trim()
-        val surName = fragment_login_request_test_subscription_surname.text.toString().trim()
+        val surname = fragment_login_request_test_subscription_surname.text.toString().trim()
 
         var somethingWrong = false
 
@@ -72,7 +72,7 @@ class RequestTestSubscriptionFragment :
                 )
                 somethingWrong = true
             }
-            if (surName.isEmpty()) {
+            if (surname.isEmpty()) {
                 fragment_login_request_test_subscription_surname_layout.error = getString(
                     R.string.login_surname_error_empty
                 )
@@ -106,7 +106,7 @@ class RequestTestSubscriptionFragment :
             return
         } else {
             hideKeyBoard()
-            viewModel.getTrialSubscriptionForNewCredentials(email, password, firstName, surName)
+            viewModel.getTrialSubscriptionForNewCredentials(email, password, firstName, surname)
         }
     }
 
