@@ -53,7 +53,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
         }
 
         fragment_login_register_button.setOnClickListener {
-            viewModel.requestSubscription(fragment_login_username.text.toString())
+            viewModel.requestSubscription(fragment_login_username.text.toString().trim())
         }
 
         fragment_login_forgot_password_button.setOnClickListener {
