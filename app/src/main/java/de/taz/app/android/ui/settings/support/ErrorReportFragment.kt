@@ -41,10 +41,10 @@ class ErrorReportFragment :
 
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
-                val email = fragment_error_report_email.text.toString()
-                val message = fragment_error_report_message.text.toString()
-                val lastAction = fragment_error_report_last_action.text.toString()
-                val conditions = fragment_error_report_conditions.text.toString()
+                val email = fragment_error_report_email.text.toString().trim()
+                val message = fragment_error_report_message.text.toString().trim()
+                val lastAction = fragment_error_report_last_action.text.toString().trim()
+                val conditions = fragment_error_report_conditions.text.toString().trim()
 
                 if (email.isNotEmpty() || message.isNotEmpty() || lastAction.isNotEmpty() || conditions.isNotEmpty()) {
                     sendErrorReport(email, message, lastAction, conditions)
