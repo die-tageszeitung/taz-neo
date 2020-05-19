@@ -67,7 +67,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login) {
     }
 
     private fun login() {
-        val username = fragment_login_username.text.toString()
+        val username = fragment_login_username.text.toString().trim()
         val password = fragment_login_password.text.toString()
         viewModel.login(username, password)
         hideKeyBoard()
