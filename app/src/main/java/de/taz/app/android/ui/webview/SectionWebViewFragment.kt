@@ -45,6 +45,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =
                                 FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            //following two lines align header/dotted line in weekend issues
+                            //with text in taz logo; TODO check whether we can get rid of them later
                             view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY = 18f
                             view?.findViewById<AppWebView>(R.id.web_view)?.translationY = 18f
                         }
