@@ -123,7 +123,7 @@
     <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Melden Sie sich mit ihrer taz-ID und ihrem Passwort an.</string>
+    <string name="fragment_login_description">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um. Geben Sie bitte zunächst Ihre bisherige Abo ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse (taz ID) und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt nur noch mit Ihrer taz ID anmelden. Wenn Sie bereits über eine taz ID verfügen, loggen Sie sich bitte hier ein.</string>
 
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>

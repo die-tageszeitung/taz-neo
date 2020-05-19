@@ -120,7 +120,7 @@
     <string name="percentage">%d%%</string>
 
     <string name="fragment_login_title">Login</string>
-    <string name="fragment_login_description">Login with your taz subscription id and your password.</string>
+    <string name="fragment_login_description">We would like to make it easier for you to access our digital products and are therefore changing our registration procedure in a two-stage process. First, please enter your current Subscription ID and password. In a second step you will be asked to log in with a valid e-mail address (taz ID) and a password of your choice. That\'s it! From now on you can only log in with your taz ID. If you already have a taz ID, please log in here.</string>
 
     <string name="login_error_unknown_credentials">Login failed</string>
 
