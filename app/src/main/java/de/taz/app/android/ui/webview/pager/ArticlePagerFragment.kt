@@ -20,6 +20,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 
 const val SHOW_BOOKMARKS = "showBookmarks"
 const val ARTICLE_NAME = "articleName"
@@ -89,16 +90,28 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onStop() {
-        webview_pager_viewpager.adapter = null
+        try {
+            webview_pager_viewpager.adapter = null
+        } catch (e: IllegalStateException) {
+            log.warn("something went wrong? section set?")
+            log.warn("$e")
+            getMainView()?.showHome()
+        }
         super.onStop()
     }
 
     private fun setupViewPager() {
-        webview_pager_viewpager?.apply {
-            adapter = articlePagerAdapter
-            orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            offscreenPageLimit = 2
-            registerOnPageChangeCallback(pageChangeListener)
+        try {
+            webview_pager_viewpager?.apply {
+                adapter = articlePagerAdapter
+                orientation = ViewPager2.ORIENTATION_HORIZONTAL
+                offscreenPageLimit = 2
+                registerOnPageChangeCallback(pageChangeListener)
+            }
+        } catch (e: IllegalStateException) {
+            log.warn("something went wrong? section set?")
+            log.warn("$e")
+            getMainView()?.showHome()
         }
     }
 
