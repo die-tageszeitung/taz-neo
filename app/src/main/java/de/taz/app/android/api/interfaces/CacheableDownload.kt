@@ -22,9 +22,8 @@ interface CacheableDownload {
         getAllFiles().forEach { it.deleteFile() }
     }
 
-    suspend fun download(applicationContext: Context? = null) = withContext(Dispatchers.IO) {
+    suspend fun download(applicationContext: Context? = null) =
         DownloadService.getInstance(applicationContext).download(this@CacheableDownload)
-    }
 
     fun isDownloadedLiveData(): LiveData<Boolean> {
         return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())

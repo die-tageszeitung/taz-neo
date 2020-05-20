@@ -8,10 +8,8 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.models.AppInfo
-import de.taz.app.android.api.models.Download
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.singletons.ToastHelper
@@ -20,9 +18,9 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
 
-const val DATA_DOWNLOAD_FILE_NAME = "extra.download.file.name"
-const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_DATE = "extra.issue.date"
+const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
+const val DATA_ISSUE_STATUS = "extra.issue.status"
 
 
 const val CAUSE_NO_INTERNET = "no internet"
@@ -47,91 +45,94 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param cacheableDownload - object implementing the [CacheableDownload] interface
      *                            it's files will be downloaded
      */
-    suspend fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null) {
+    suspend fun download(
+        cacheableDownload: CacheableDownload, baseUrl: String? = null
+    ): Job = withContext(Dispatchers.IO) {
+        launch {
 
-        if (appInfoRepository.get() == null) {
-            AppInfo.update()
-        }
-
-        var downloadId: String? = null
-        val start: Long = System.currentTimeMillis()
-        val issue = if (cacheableDownload is Issue) cacheableDownload else null
-
-        if (!cacheableDownload.isDownloadedOrDownloading()
-            && appInfoRepository.get() != null
-        ) {
-            issue?.let {
-                issueRepository.setDownloadDate(issue, Date())
+            if (appInfoRepository.get() == null) {
+                AppInfo.update()
             }
 
-            val job = ioScope.launch {
-                try {
-                    downloadId = issue?.let {
-                        apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
-                    }
-                } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                    this.cancel(CAUSE_NO_INTERNET, e)
+            var downloadId: String? = null
+            val start: Long = System.currentTimeMillis()
+            val issue = if (cacheableDownload is Issue) cacheableDownload else null
+
+            if (!cacheableDownload.isDownloadedOrDownloading()
+                && appInfoRepository.get() != null
+            ) {
+                issue?.let {
+                    issueRepository.setDownloadDate(issue, Date())
                 }
 
-                createDownloadsForCacheableDownload(cacheableDownload, baseUrl)
+                val job = ioScope.launch {
+                    try {
+                        log.debug("issue is null: ${issue == null}")
+                        downloadId = issue?.let {
+                            apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                        }
+                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                        this.cancel(CAUSE_NO_INTERNET, e)
+                    }
 
-                DownloadWorker(applicationContext).startDownloads(
-                    cacheableDownload.getAllFiles()
-                ).joinAll()
-            }
+                    createDownloadsForCacheableDownload(cacheableDownload, baseUrl)
 
-            downloadJobs.add(job)
+                    DownloadWorker(applicationContext).startDownloads(
+                        cacheableDownload.getAllFiles()
+                    ).joinAll()
+                }
 
-            job.invokeOnCompletion { cause ->
-                // remove the job
-                downloadJobs.remove(job)
+                downloadJobs.add(job)
 
-                // tell server we downloaded complete issue
-                if (cause == null && issue != null) {
-                    downloadId?.let { downloadId ->
-                        val seconds = ((System.currentTimeMillis() - start) / 1000).toFloat()
-                        CoroutineScope(Dispatchers.IO).launch {
-                            try {
-                            apiService.notifyServerOfDownloadStop(
-                                downloadId,
-                                seconds
-                            )
-                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                // do not tell server we downloaded as we do not have internet
+                job.invokeOnCompletion { cause ->
+                    // remove the job
+                    downloadJobs.remove(job)
+
+                    // tell server we downloaded complete issue
+                    if (cause == null && issue != null) {
+                        downloadId?.let { downloadId ->
+                            val seconds =
+                                ((System.currentTimeMillis() - start) / 1000).toFloat()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    apiService.notifyServerOfDownloadStop(
+                                        downloadId,
+                                        seconds
+                                    )
+                                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                    // do not tell server we downloaded as we do not have internet
+                                }
                             }
                         }
-                    }
-                } else {
-                    if (cause is ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(applicationContext).showToast(R.string.toast_no_internet)
+                    } else {
+                        if (cause is ApiService.ApiServiceException.NoInternetException) {
+                            ToastHelper.getInstance(applicationContext)
+                                .showToast(R.string.toast_no_internet)
+                        }
                     }
                 }
+                job.join()
             }
         }
     }
 
     /**
-     * use [WorkManager] to download in background
-     * @param cacheableDownload - object implementing [CacheableDownload] to download files of
+     * download issue in background
      */
-    fun scheduleDownload(cacheableDownload: CacheableDownload) {
-        val downloads = createDownloadsForCacheableDownload(cacheableDownload)
-        if (downloads.isNotEmpty()) {
-            enqueueDownloads(
-                downloads,
-                cacheableDownload.getDownloadTag()
-            )
-        }
-    }
+    fun scheduleIssueDownload(issueOperations: IssueOperations): Operation {
 
-    /**
-     * use [WorkManager] to get information about an issue and schedule downloads
-     * @param issueFeedName: name of the feed of the issue
-     * @param issueDate: date of the issue
-     */
-    fun scheduleDownload(issueFeedName: String, issueDate: String) {
-        WorkManager.getInstance(applicationContext)
-            .enqueue(createScheduleDownloadsRequest(issueFeedName, issueDate))
+        val data = Data.Builder()
+            .putString(DATA_ISSUE_STATUS, issueOperations.status.toString())
+            .putString(DATA_ISSUE_DATE, issueOperations.date)
+            .putString(DATA_ISSUE_FEEDNAME, issueOperations.feedName)
+            .build()
+
+        val requestBuilder = OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
+            .setInputData(data)
+            .setConstraints(getConstraints())
+            .addTag(issueOperations.tag)
+
+        return WorkManager.getInstance(applicationContext).enqueue(requestBuilder.build())
     }
 
     /**
@@ -141,19 +142,6 @@ class DownloadService private constructor(val applicationContext: Context) {
         downloadJobs.forEach {
             it.cancel()
         }
-    }
-
-    /**
-     * enqueue [Download]s with [WorkManager]
-     * @param downloads - downloads to enqueue
-     * @param tag - tag for the downloads (can be used to cancel downloads)
-     */
-    private fun enqueueDownloads(
-        downloads: List<Download>,
-        tag: String? = null
-    ): Operation {
-        val requests = downloads.map { createRequestAndUpdate(it, tag) }
-        return WorkManager.getInstance(applicationContext).enqueue(requests)
     }
 
     private fun createDownloadsForCacheableDownload(
@@ -168,7 +156,8 @@ class DownloadService private constructor(val applicationContext: Context) {
 
         // create single FileEntry downloads if baseUrl is given
         if (baseUrl != null &&
-            cacheableDownload is FileEntry) {
+            cacheableDownload is FileEntry
+        ) {
             downloads.addAll(
                 createAndSaveDownloads(
                     baseUrl,
@@ -176,8 +165,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     tag
                 )
             )
-        }
-        else {
+        } else {
             val globalFiles = allFiles.filter { it.storageType == StorageType.global }
             if (globalFiles.isNotEmpty()) {
                 appInfoRepository.get()?.let {
@@ -225,44 +213,14 @@ class DownloadService private constructor(val applicationContext: Context) {
 
 
     /**
-     * create [OneTimeWorkRequest] for [WorkManager] from [Download]
-     * @param download - Download to create Request from
-     * @param tag - tag for Download (can be used to cancel downloads)
-     * @return [OneTimeWorkRequest]
-     */
-    private fun createDownloadRequest(download: Download, tag: String? = null): OneTimeWorkRequest {
-        val data = Data.Builder()
-            .putString(DATA_DOWNLOAD_FILE_NAME, download.file.name)
-            .build()
-
-        val requestBuilder = OneTimeWorkRequest.Builder(WorkManagerDownloadWorker::class.java)
-            .setInputData(data)
-            .setConstraints(getConstraints())
-
-        tag?.let { requestBuilder.addTag(tag) }
-
-        return requestBuilder.build()
-    }
-
-    private fun createScheduleDownloadsRequest(feedName: String, date: String): OneTimeWorkRequest {
-        val data =
-            Data.Builder().putString(DATA_ISSUE_FEEDNAME, feedName).putString(DATA_ISSUE_DATE, date)
-                .build()
-
-        return OneTimeWorkRequest.Builder(ScheduleIssueDownloadWorkManagerWorker::class.java)
-            .setInputData(data)
-            .setConstraints(getConstraints())
-            .addTag("$feedName/$date")
-            .build()
-    }
-
-    /**
      * get Constraints for [WorkRequest] of [WorkManager]
      */
     private fun getConstraints(): Constraints {
-        val onlyWifi: Boolean = applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
-            SharedPreferenceBooleanLiveData(it, SETTINGS_DOWNLOAD_ONLY_WIFI, true).value
-        } ?: true
+        val onlyWifi: Boolean =
+            applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)
+                ?.let {
+                    SharedPreferenceBooleanLiveData(it, SETTINGS_DOWNLOAD_ONLY_WIFI, true).value
+                } ?: true
 
         return Constraints.Builder()
             .setRequiredNetworkType(if (onlyWifi) NetworkType.UNMETERED else NetworkType.CONNECTED)
@@ -270,21 +228,6 @@ class DownloadService private constructor(val applicationContext: Context) {
             .build()
     }
 
-
-    /**
-     * create [OneTimeWorkRequest] for [WorkManager] from  [Download] and save requestId
-     * @param download - Download to create request from and update with requestId
-     * @param tag - tag for Download (can be used to cancel downloads)
-     * @return [OneTimeWorkRequest]
-     */
-    private fun createRequestAndUpdate(
-        download: Download,
-        tag: String? = null
-    ): OneTimeWorkRequest {
-        val request = createDownloadRequest(download, tag)
-        downloadRepository.setWorkerId(download.file.name, request.id)
-        return request
-    }
 
     /**
      * create [Download]s for [FileEntry]s and persist them in DB
