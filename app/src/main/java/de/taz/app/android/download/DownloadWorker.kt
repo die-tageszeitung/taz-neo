@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -15,12 +15,11 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.util.okHttpClient
+import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.IOException
-import java.util.*
 
 
 /**
@@ -141,63 +140,43 @@ class DownloadWorker(
     }
 }
 
-/**
- * [CoroutineWorker] to be used with [androidx.work.WorkManager]
- */
-class WorkManagerDownloadWorker(
-    private val appContext: Context,
-    workerParameters: WorkerParameters
-) : CoroutineWorker(appContext, workerParameters) {
-
-    private val log by Log
-
-    override suspend fun doWork(): Result = coroutineScope {
-        inputData.getString(DATA_DOWNLOAD_FILE_NAME)?.let { fileName ->
-            async {
-                try {
-                    DownloadWorker(appContext).startDownload(fileName)
-                    log.debug("download of $fileName succeeded")
-                    Result.success()
-                } catch (ioe: IOException) {
-                    log.error("download of $fileName failed", ioe)
-                    Result.failure()
-                }
-            }
-        }?.await() ?: Result.failure()
-    }
-}
-
-class ScheduleIssueDownloadWorkManagerWorker(
+class IssueDownloadWorkManagerWorker(
     applicationContext: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(applicationContext, workerParameters) {
 
+    private val log by Log
+
     override suspend fun doWork(): Result = coroutineScope {
 
-        val downloadService = DownloadService.getInstance(applicationContext)
-        val issueRepository = IssueRepository.getInstance(applicationContext)
+        val issueFeedName = inputData.getString(DATA_ISSUE_FEEDNAME)
+        val issueDate = inputData.getString(DATA_ISSUE_DATE)
+        val issueStatus = inputData.getString(DATA_ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
 
-        inputData.getString(DATA_ISSUE_FEEDNAME)?.let { feedName ->
-            inputData.getString(DATA_ISSUE_DATE)?.let { date ->
-                async {
-                    try {
-                        ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
-                            feedName,
-                            date
-                        )?.let { issue ->
-                            issueRepository.apply {
-                                save(issue)
-                                setDownloadDate(issue, Date())
-                            }
-                            downloadService.scheduleDownload(issue)
-                            Result.success()
-                        } ?: Result.failure()
-                    } catch (e: Exception) {
-                        Sentry.capture(e)
-                        Result.failure()
-                    }
+        log.debug("starting to download - issueDate: $issueDate")
+
+        runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
+            val downloadService = DownloadService.getInstance(applicationContext)
+            val issueRepository = IssueRepository.getInstance(applicationContext)
+
+            return@runIfNotNull async {
+                try {
+                    issueRepository.getIssue(
+                        feedName, date, status
+                    )?.let { issue ->
+                        downloadService.download(issue).join()
+                        log.debug("successfully downloaded")
+                        Result.success()
+                    } ?: Result.failure()
+                } catch (e: Exception) {
+                    Sentry.capture(e)
+                    log.debug("download failed")
+                    Result.failure()
                 }
             }
-        }?.await() ?: Result.failure()
+        }?.await() ?: run {
+            log.debug("download failed")
+            Result.failure()
+        }
     }
 }

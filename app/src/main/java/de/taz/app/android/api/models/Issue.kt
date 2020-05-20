@@ -59,16 +59,12 @@ data class Issue(
     }
 
     suspend fun downloadMoment(applicationContext: Context? = null) {
-        withContext(Dispatchers.IO) {
-            DownloadService.getInstance(applicationContext).download(moment)
-        }
+        DownloadService.getInstance(applicationContext).download(moment)
     }
 
     suspend fun downloadPages(applicationContext: Context? = null) {
-        withContext(Dispatchers.IO) {
-            pageList.forEach {
-                DownloadService.getInstance(applicationContext).download(it)
-            }
+        pageList.forEach {
+            DownloadService.getInstance(applicationContext).download(it)
         }
     }
 

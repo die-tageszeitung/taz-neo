@@ -1,5 +1,6 @@
 package de.taz.app.android
 
+import android.content.Context
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
@@ -7,8 +8,9 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.NotificationHelper
+import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ENABLED
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +33,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private lateinit var issueRepository: IssueRepository
     private lateinit var notificationHelper: NotificationHelper
 
+    private val messageTimestamps: MutableList<Long> = mutableListOf()
+
     override fun onCreate() {
         super.onCreate()
         apiService = ApiService.getInstance(applicationContext)
@@ -42,40 +46,53 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        log.debug("From: " + remoteMessage.from)
 
-        Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
+        // sometimes messages are sent multiple times - only execute once
+        val sentTime = remoteMessage.sentTime
+        if (sentTime !in messageTimestamps) {
+            messageTimestamps.add(sentTime)
 
-        // Check if message contains a data payload.
-        if (remoteMessage.data.isNotEmpty()) {
-            log.debug("Message data payload: " + remoteMessage.data)
-            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFORM_KEY)) {
-                when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
-                    REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
-                        log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
-                        authHelper.isPolling = true
+            log.debug("From: " + remoteMessage.from)
+
+            Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
+
+            // Check if message contains a data payload.
+            if (remoteMessage.data.isNotEmpty()) {
+                log.debug("Message data payload: " + remoteMessage.data)
+                if (remoteMessage.data.containsKey(REMOTE_MESSAGE_PERFORM_KEY)) {
+                    when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
+                        REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
+                            log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
+                            authHelper.isPolling = true
+                        }
                     }
                 }
-            }
-            if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
-                when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
-                    REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
-                        log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val issue = apiService.getLastIssues(1).first()
-                            issueRepository.save(issue)
-                            downloadService.scheduleDownload(issue)
+                if (remoteMessage.data.containsKey(REMOTE_MESSAGE_REFRESH_KEY)) {
+                    when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
+                        REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
+                            log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val issue = apiService.getLastIssues(1).first()
+                                issueRepository.save(issue)
+                                val downloadPreferences = applicationContext.getSharedPreferences(
+                                    PREFERENCES_DOWNLOADS,
+                                    Context.MODE_PRIVATE
+                                )
+                                if (downloadPreferences.getBoolean(SETTINGS_DOWNLOAD_ENABLED, true)) {
+                                    downloadService.scheduleIssueDownload(issue)
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Check if message contains a notification payload.
-        val notification = remoteMessage.notification
-        if (notification != null) {
-            log.info("Notification data title: ${notification.title} body: ${notification.body}")
-            showNotification(notification)
+            // Check if message contains a notification payload.
+            val notification = remoteMessage.notification
+            if (notification != null) {
+                log.info("Notification data title: ${notification.title} body: ${notification.body}")
+                showNotification(notification)
+            }
         }
     }
 
