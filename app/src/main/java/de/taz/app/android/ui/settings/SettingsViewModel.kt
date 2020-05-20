@@ -15,6 +15,7 @@ class SettingsViewModel(applicationContext: Context) : ViewModel() {
     lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
     lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
     lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
+    lateinit var downloadAutomaticallyLiveData: SharedPreferenceBooleanLiveData
 
     init {
         applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
@@ -43,6 +44,13 @@ class SettingsViewModel(applicationContext: Context) : ViewModel() {
                 SharedPreferenceBooleanLiveData(
                     it,
                     SETTINGS_DOWNLOAD_ONLY_WIFI,
+                    true
+                )
+
+            downloadAutomaticallyLiveData =
+                SharedPreferenceBooleanLiveData(
+                    it,
+                    SETTINGS_DOWNLOAD_ENABLED,
                     true
                 )
         }
