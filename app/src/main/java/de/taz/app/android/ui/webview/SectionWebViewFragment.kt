@@ -15,12 +15,9 @@ import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.Exception
-import java.lang.NullPointerException
 
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
@@ -41,25 +38,18 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
 
             lifecycleScope.launch(Dispatchers.IO) {
                 val issueOperations = displayable.getIssueOperations()
-                try {
-                    issueOperations.apply {
-                        if (isWeekend) {
-                            withContext(Dispatchers.Main) {
-                                view?.findViewById<TextView>(R.id.section)?.typeface =
-                                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                                //following two lines align header/dotted line in weekend issues
-                                //with text in taz logo; TODO check whether we can get rid of them later
-                                view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY =
-                                    18f
-                                view?.findViewById<AppWebView>(R.id.web_view)?.translationY = 18f
-                            }
+                issueOperations?.apply {
+                    if (isWeekend) {
+                        withContext(Dispatchers.Main) {
+                            view?.findViewById<TextView>(R.id.section)?.typeface =
+                                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            //following two lines align header/dotted line in weekend issues
+                            //with text in taz logo; TODO check whether we can get rid of them later
+                            view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY =
+                                18f
+                            view?.findViewById<AppWebView>(R.id.web_view)?.translationY = 18f
                         }
                     }
-                } catch (e: NullPointerException){
-                    // TODO set sections correctly after login from article
-                    log.warn("something went wrong. section set?")
-                    log.warn("$e")
-                    getMainView()?.showHome()
                 }
             }
 

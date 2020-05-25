@@ -53,7 +53,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     override fun setHeader(displayable: ArticleStub) {
-        activity?.lifecycleScope?.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             val index = displayable.getIndexInSection() ?: 0
             val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
                 displayable.key
@@ -92,9 +92,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
     private fun goBackToSection(sectionStub: SectionStub?) {
         sectionStub?.let{
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 showSectionInWebView(it.key, it.issueDate)
-                setDrawerIssue(it.getIssueOperations())
+                it.getIssueOperations()?.let { setDrawerIssue(it) }
             }
         }
     }
