@@ -16,7 +16,6 @@ import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 
@@ -176,7 +175,8 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         if (viewModel.showBookmarks) {
             showMainFragment(BookmarksFragment())
         } else {
-            if (hasBeenSwiped) {
+            // if there is no other fragment than the HomeFragment show Sections
+            if (hasBeenSwiped || parentFragmentManager.backStackEntryCount == 1) {
                 showSectionOrGoBack()
             } else {
                 parentFragmentManager.popBackStack()
