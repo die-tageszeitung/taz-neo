@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    tools:context="de.taz.app.android.ui.main.MainActivity">
+    tools:context="de.taz.app.android.ui.login.LoginActivity">
 
     <TextView
         android:id="@+id/fragment_login_title"
