@@ -80,6 +80,7 @@
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     app:layout_constraintEnd_toStartOf="@+id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
+                    android:text="ASDF"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
@@ -87,6 +88,7 @@
                     style="@style/TextAppearance.Bookmarks.Entry.Date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="bla nwzhtwe"
                     android:layout_gravity="top|start"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_bookmark_title" />
