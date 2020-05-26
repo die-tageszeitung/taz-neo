@@ -2,7 +2,7 @@ package de.taz.app.android.ui.bookmarks
 
 import android.graphics.Canvas
 import android.view.ViewGroup
-import android.widget.RelativeLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -42,7 +42,11 @@ class BookmarksAdapter(
         notifyItemRemoved(position)
     }
 
-    fun removeBookmarkWithUndo(viewHolder: RecyclerView.ViewHolder, position: Int, bookmarkList: MutableList<Article>?) {
+    fun removeBookmarkWithUndo(
+        viewHolder: RecyclerView.ViewHolder,
+        position: Int,
+        bookmarkList: MutableList<Article>?
+    ) {
         if (bookmarks.isEmpty() && bookmarkList != null) {
             bookmarks = bookmarkList
         }
@@ -67,6 +71,7 @@ class BookmarksAdapter(
         )
         undoBar.show()
     }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -114,7 +119,7 @@ class BookmarksAdapter(
             isCurrentlyActive: Boolean
         ) {
             val foregroundView =
-                viewHolder?.itemView?.findViewById<RelativeLayout>(R.id.fragment_bookmark_foreground)
+                viewHolder?.itemView?.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
             getDefaultUIUtil().onDrawOver(
                 c,
                 recyclerView,
@@ -128,7 +133,7 @@ class BookmarksAdapter(
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             val foregroundView =
-                viewHolder.itemView.findViewById<RelativeLayout>(R.id.fragment_bookmark_foreground)
+                viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
             getDefaultUIUtil().clearView(foregroundView)
         }
 
@@ -142,7 +147,7 @@ class BookmarksAdapter(
             isCurrentlyActive: Boolean
         ) {
             val foregroundView =
-                viewHolder.itemView.findViewById<RelativeLayout>(R.id.fragment_bookmark_foreground)
+                viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
 
             getDefaultUIUtil().onDraw(
                 c,
