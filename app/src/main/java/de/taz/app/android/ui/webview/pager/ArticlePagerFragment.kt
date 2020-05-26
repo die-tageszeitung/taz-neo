@@ -17,7 +17,6 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 
 const val SHOW_BOOKMARKS = "showBookmarks"
 const val ARTICLE_NAME = "articleName"
@@ -66,8 +65,6 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             moveContentBeneathStatusBar()
         }
 
-        articlePagerAdapter = articlePagerAdapter ?: ArticlePagerAdapter(this)
-
         viewModel.articleListLiveData.observeDistinct(this) {
             setArticles(it, viewModel.currentPosition)
             loading_screen.visibility = View.GONE
@@ -81,34 +78,20 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onStart() {
-        setupViewPager()
-
         super.onStart()
+        setupViewPager()
     }
 
-    override fun onStop() {
-        try {
-            webview_pager_viewpager.adapter = null
-        } catch (e: IllegalStateException) {
-            log.warn("something went wrong? section set?")
-            log.warn("$e")
-            getMainView()?.showHome()
-        }
-        super.onStop()
-    }
 
     private fun setupViewPager() {
-        try {
-            webview_pager_viewpager?.apply {
+        webview_pager_viewpager?.apply {
+            if (adapter == null) {
+                articlePagerAdapter = ArticlePagerAdapter(this@ArticlePagerFragment)
                 adapter = articlePagerAdapter
-                orientation = ViewPager2.ORIENTATION_HORIZONTAL
-                offscreenPageLimit = 2
-                registerOnPageChangeCallback(pageChangeListener)
             }
-        } catch (e: IllegalStateException) {
-            log.warn("something went wrong? section set?")
-            log.warn("$e")
-            getMainView()?.showHome()
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            offscreenPageLimit = 2
+            registerOnPageChangeCallback(pageChangeListener)
         }
     }
 
@@ -207,5 +190,4 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }
-
 }
