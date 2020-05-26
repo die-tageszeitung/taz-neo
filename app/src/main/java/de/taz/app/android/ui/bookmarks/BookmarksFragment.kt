@@ -36,9 +36,9 @@ class BookmarksFragment : ViewModelBaseMainFragment(R.layout.fragment_bookmarks)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-            viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
-                recycleAdapter.setData((bookmarks ?: emptyList()).toMutableList())
-            })
+        viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
+            recycleAdapter.setData((bookmarks ?: emptyList()).toMutableList())
+        })
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(

@@ -82,7 +82,7 @@ class BookmarksViewHolder(
         }
     }
 
-    fun setBookmarks(bookmarks: MutableList<Article>){
+    fun setBookmarks(bookmarks: MutableList<Article>) {
         this.bookmarks = bookmarks
     }
 }
