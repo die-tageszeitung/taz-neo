@@ -1,28 +1,34 @@
 package de.taz.app.android.ui.login
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +55,58 @@ class LoginActivity(
 
     private var article: String? = null
 
+    private lateinit var tazApiCssPreferences: SharedPreferences
+
+    private val tazApiCssPrefListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            log.debug("Shared pref changed: $key")
+            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
+                "$RESOURCE_FOLDER/tazApi.css"
+            )
+            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+
+            cssFile.writeText(cssString)
+
+            if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                setThemeAndReCreate(sharedPreferences, true)
+            }
+        }
+
+    private fun setThemeAndReCreate(
+        sharedPreferences: SharedPreferences,
+        isReCreateFlagSet: Boolean = false
+    ) {
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            log.debug("setTheme to NIGHT")
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            log.debug("setTheme to DAY")
+        }
+        if (isReCreateFlagSet) {
+            recreate()
+        }
+    }
+
+    private fun isDarkTheme(): Boolean {
+        return this.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        tazApiCssPreferences =
+            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+
+        // if "text_night_mode" is not set in shared preferences -> set it now
+        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
+            SharedPreferenceBooleanLiveData(
+                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
+            ).postValue(isDarkTheme())
+        }
+
+        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
+            setThemeAndReCreate(tazApiCssPreferences, false)
+        }
         super.onCreate(savedInstanceState)
 
         view.moveContentBeneathStatusBar()
@@ -338,6 +395,16 @@ class LoginActivity(
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
             hideLoadingScreen()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun onBackPressed() {
