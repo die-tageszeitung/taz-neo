@@ -100,7 +100,6 @@ class SectionPagerFragment :
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
-        sectionAdapter = sectionAdapter ?: SectionPagerAdapter(this)
 
         viewModel.currentPositionLiveData.observeDistinct(this) {
             if (webview_pager_viewpager.currentItem != it) {
@@ -120,8 +119,8 @@ class SectionPagerFragment :
     }
 
     override fun onStart() {
-        setupViewPager()
         super.onStart()
+        setupViewPager()
     }
 
     fun tryLoadSection(sectionFileName: String): Boolean {
@@ -141,6 +140,7 @@ class SectionPagerFragment :
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             if (adapter == null) {
+                sectionAdapter = SectionPagerAdapter(this@SectionPagerFragment)
                 adapter = sectionAdapter
             }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -170,7 +170,6 @@ class SectionPagerFragment :
     }
 
     override fun onStop() {
-        webview_pager_viewpager?.adapter = null
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
