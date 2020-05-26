@@ -10,15 +10,12 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.ViewModelBaseMainFragment
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 
@@ -123,11 +120,15 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
                 firstSwipe = false
             } else {
                 hasBeenSwiped = true
-                lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.sectionNameList?.get(position)?.let {
-                        getMainView()?.setActiveDrawerSection(it)
-                    }
-                }
+                viewModel.sectionNameListLiveData.observeDistinctUntil(
+                    viewLifecycleOwner, {
+                        if (it.isNotEmpty()) {
+                            it[position]?.let { sectionName ->
+                                getMainView()?.setActiveDrawerSection(sectionName)
+                            }
+                        }
+                    }, { it.isNotEmpty() }
+                )
             }
 
             viewModel.currentPositionLiveData.value = position
@@ -174,7 +175,8 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         if (viewModel.showBookmarks) {
             showMainFragment(BookmarksFragment())
         } else {
-            if (hasBeenSwiped) {
+            // if there is no other fragment than the HomeFragment show Sections
+            if (hasBeenSwiped || parentFragmentManager.backStackEntryCount == 1) {
                 showSectionOrGoBack()
             } else {
                 parentFragmentManager.popBackStack()
@@ -184,7 +186,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     private fun showSectionOrGoBack() {
-        viewModel.sectionNameList?.get(viewModel.currentPosition)?.let {
+        viewModel.sectionNameListLiveData.value?.getOrNull(viewModel.currentPosition)?.let {
             showInWebView(it)
         } ?: parentFragmentManager.popBackStack()
     }

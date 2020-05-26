@@ -422,14 +422,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 SectionRepository.getInstance()
-                                    .getSectionStubForArticle(articleName)
-                                    ?.let { section ->
-                                        val issueOperations = section.getIssueOperations()
-                                        setCoverFlowItem(issueOperations)
-                                        setDrawerIssue(issueOperations)
-                                        changeDrawerIssue()
+                                    .getSectionStubForArticle(articleName)?.let { section ->
+                                        section.getIssueOperations()?.let { issueOperations ->
+                                            setCoverFlowItem(issueOperations)
+                                            setDrawerIssue(issueOperations)
+                                            changeDrawerIssue()
+                                        }
                                     }
                             }
+                            // clear fragment backstack before showing article
+                            supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                             showArticle(articleName)
                         }
                     }

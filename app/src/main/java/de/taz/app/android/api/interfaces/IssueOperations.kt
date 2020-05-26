@@ -20,7 +20,7 @@ interface IssueOperations {
     val isWeekend: Boolean
 
     val tag: String
-        get() = "$feedName/$date"
+        get() = "$feedName/$date/$status"
 
     suspend fun getFeed(): Feed = withContext(Dispatchers.IO) {
         FeedRepository.getInstance().get(feedName)
