@@ -8,9 +8,9 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +47,7 @@ class LoginActivity(
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
     private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : FragmentActivity(R.layout.activity_login) {
+) : AppCompatActivity(R.layout.activity_login) {
 
     private val log by Log
 
