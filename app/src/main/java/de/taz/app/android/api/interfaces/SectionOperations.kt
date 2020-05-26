@@ -16,7 +16,7 @@ interface SectionOperations : WebViewDisplayable {
     val extendedTitle: String?
     val title: String
 
-    val issueStub: IssueStub
+    val issueStub: IssueStub?
         get() = IssueRepository.getInstance().getIssueStubForSection(this.key)
 
     fun nextSectionStub(): SectionStub? {

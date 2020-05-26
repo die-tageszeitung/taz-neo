@@ -45,8 +45,7 @@ class ArticlePagerViewModel : ViewModel() {
         }
     }
 
-    var sectionNameList: List<String?>? = null
-        private set
+    var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
 
     private fun getBookmarkedArticles() {
         articleListLiveData.apply {
@@ -54,7 +53,7 @@ class ArticlePagerViewModel : ViewModel() {
                 val bookmarkedArticles =
                     ArticleRepository.getInstance().getBookmarkedArticleStubList()
                 postValue(bookmarkedArticles)
-                sectionNameList = bookmarkedArticles.map { it.getSectionStub()?.key }
+                sectionNameListLiveData.postValue(bookmarkedArticles.map { it.getSectionStub()?.key })
             }
         }
     }
@@ -65,7 +64,7 @@ class ArticlePagerViewModel : ViewModel() {
                 CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
                     val articles = ArticleRepository.getInstance()
                         .getIssueArticleStubListByArticleName(articleName)
-                    sectionNameList = articles.map { it.getSectionStub()?.key }
+                    sectionNameListLiveData.postValue(articles.map { it.getSectionStub()?.key })
                     // only set position of article if no position has been restored
                     if (currentPosition <= 0) {
                         currentPositionLiveData.postValue(
