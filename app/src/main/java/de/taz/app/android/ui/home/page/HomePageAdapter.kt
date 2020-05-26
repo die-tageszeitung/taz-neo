@@ -39,7 +39,7 @@ abstract class HomePageAdapter(
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
 
-    private val dateHelper = DateHelper.getInstance()
+    private val dateHelper = DateHelper.getInstance(modelView?.activity?.applicationContext)
 
     private val log by Log
 
