@@ -218,9 +218,4 @@ class SectionPagerFragment :
         return true
     }
 
-    override fun onDestroy() {
-        webview_pager_viewpager?.adapter = null
-        super.onDestroy()
-    }
-
 }
