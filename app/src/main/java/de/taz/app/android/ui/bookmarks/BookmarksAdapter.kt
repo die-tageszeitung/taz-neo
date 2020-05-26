@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 
 class BookmarksAdapter(
-    private val bookmarksPresenter: BookmarksContract.Presenter
+    private val bookmarksFragment: BookmarksFragment
 ) :
     RecyclerView.Adapter<BookmarksViewHolder>() {
 
@@ -53,30 +54,30 @@ class BookmarksAdapter(
         val article = bookmarks[position]
         removeBookmark(article, position)
         // showing snack bar with undo option
-        val undoBar = Snackbar
-            .make(
-                viewHolder.itemView,
-                R.string.fragment_bookmarks_deleted,
-                Snackbar.LENGTH_LONG
+        Snackbar.make(
+            viewHolder.itemView,
+            R.string.fragment_bookmarks_deleted,
+            Snackbar.LENGTH_LONG
+        ).apply {
+            setAction(R.string.fragment_bookmarks_undo) {
+                restoreBookmark(article, position)
+            }
+            setActionTextColor(
+                ResourcesCompat.getColor(
+                    viewHolder.itemView.resources,
+                    R.color.deleteRed,
+                    null
+                )
             )
-        undoBar.setAction(R.string.fragment_bookmarks_undo) {
-            restoreBookmark(article, position)
+            show()
         }
-        undoBar.setActionTextColor(
-            ResourcesCompat.getColor(
-                viewHolder.itemView.resources,
-                R.color.deleteRed,
-                null
-            )
-        )
-        undoBar.show()
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): BookmarksViewHolder {
-        return BookmarksViewHolder(bookmarksPresenter, parent)
+        return BookmarksViewHolder(bookmarksFragment, parent)
     }
 
     override fun onBindViewHolder(holder: BookmarksViewHolder, position: Int) {
