@@ -92,9 +92,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
     private fun goBackToSection(sectionStub: SectionStub?) {
         sectionStub?.let{
+            showInWebView(it.key)
             lifecycleScope.launch(Dispatchers.IO) {
-                showSectionInWebView(it.key, it.issueDate)
-                it.getIssueOperations()?.let { setDrawerIssue(it) }
+                it.getIssueOperations()?.let { issueOperations -> setDrawerIssue(issueOperations) }
             }
         }
     }

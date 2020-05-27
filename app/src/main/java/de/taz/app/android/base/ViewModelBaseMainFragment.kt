@@ -156,10 +156,6 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
     }
 
-    fun showSectionInWebView(webViewDisplayableKey: String, issueDate: String) {
-        (activity as? MainActivity)?.showSection(webViewDisplayableKey, issueDate)
-    }
-
     fun setDrawerIssue(issueStub: IssueStub) {
         (activity as? MainActivity)?.setDrawerIssue(issueStub)
     }
