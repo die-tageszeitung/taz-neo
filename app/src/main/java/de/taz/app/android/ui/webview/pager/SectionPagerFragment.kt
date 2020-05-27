@@ -103,8 +103,11 @@ class SectionPagerFragment :
             runIfNotNull(
                 sectionStubList,
                 viewModel.currentPosition
-            ) { sectionStubs, currentPosition ->
-                setSections(sectionStubs, currentPosition)
+            ) { _, currentPosition ->
+                webview_pager_viewpager.apply {
+                    adapter?.notifyDataSetChanged()
+                    setCurrentItem(currentPosition, false)
+                }
                 loading_screen?.visibility = View.GONE
             }
         }
@@ -132,7 +135,7 @@ class SectionPagerFragment :
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             if (adapter == null) {
-                sectionAdapter = SectionPagerAdapter(this@SectionPagerFragment)
+                sectionAdapter = SectionPagerAdapter()
                 adapter = sectionAdapter
             }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -154,40 +157,25 @@ class SectionPagerFragment :
         }
     }
 
-    private fun setSections(sections: List<SectionStub>, currentPosition: Int) {
-        webview_pager_viewpager.apply {
-            (adapter as SectionPagerAdapter?)?.submitList(sections)
-            setCurrentItem(currentPosition, false)
-        }
-    }
-
     override fun onStop() {
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
 
-    private inner class SectionPagerAdapter(
-        fragment: Fragment
-    ) : FragmentStateAdapter(fragment) {
+    private inner class SectionPagerAdapter : FragmentStateAdapter(this@SectionPagerFragment) {
 
-        private var sectionStubs = viewModel.sectionStubListLiveData.value
+        private val sectionStubs: List<SectionStub>
+            get() = viewModel.sectionStubListLiveData.value ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
-            val section = sectionStubs!![position]
+            val section = sectionStubs[position]
             return SectionWebViewFragment.createInstance(section)
         }
 
-        override fun getItemCount(): Int = sectionStubs?.size ?: 0
-
-        fun submitList(newSections: List<SectionStub>) {
-            if (sectionStubs != newSections) {
-                sectionStubs = newSections
-                notifyDataSetChanged()
-            }
-        }
+        override fun getItemCount(): Int = sectionStubs.size ?: 0
 
         fun getSectionStub(position: Int): SectionStub {
-            return sectionStubs!![position]
+            return sectionStubs[position]
         }
     }
 
