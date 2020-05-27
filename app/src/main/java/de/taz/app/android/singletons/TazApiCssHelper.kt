@@ -44,8 +44,6 @@ object TazApiCssHelper {
         """.trimIndent()
     }
 
-
-
     val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
            log.debug("Shared pref changed: $key")
@@ -57,14 +55,12 @@ object TazApiCssHelper {
             cssFile.writeText(cssString)
 
             if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setThemeAndReCreate(sharedPreferences, activity, true)
+                setThemeAndReCreate(sharedPreferences)
             }
         }
 
     private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences,
-        activity: Activity,
-        isReCreateFlagSet: Boolean = false
+        sharedPreferences: SharedPreferences
     ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -72,9 +68,6 @@ object TazApiCssHelper {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
-        }
-        if (isReCreateFlagSet) {
-            activity.recreate()
         }
     }
 
@@ -92,7 +85,7 @@ object TazApiCssHelper {
         }
 
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
-            setThemeAndReCreate(tazApiCssPreferences, activity, false)
+            setThemeAndReCreate(tazApiCssPreferences)
         }
 
     }
