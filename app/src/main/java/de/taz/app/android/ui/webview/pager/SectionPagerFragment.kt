@@ -172,7 +172,7 @@ class SectionPagerFragment :
             return SectionWebViewFragment.createInstance(section)
         }
 
-        override fun getItemCount(): Int = sectionStubs.size ?: 0
+        override fun getItemCount(): Int = sectionStubs.size
 
         fun getSectionStub(position: Int): SectionStub {
             return sectionStubs[position]
