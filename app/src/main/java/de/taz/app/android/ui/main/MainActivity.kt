@@ -61,21 +61,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private val tazApiCssPrefListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            log.debug("Shared pref changed: $key")
-            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
-                "$RESOURCE_FOLDER/tazApi.css"
-            )
-            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
-
-            cssFile.writeText(cssString)
-
-            if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setThemeAndReCreate(sharedPreferences, true)
-            }
-        }
-
     private fun setThemeAndReCreate(
         sharedPreferences: SharedPreferences,
         isReCreateFlagSet: Boolean = false
@@ -101,16 +86,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
-        // if "text_night_mode" is not set in shared preferences -> set it now
-        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
-            SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
-            ).postValue(isDarkTheme())
-        }
-
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
-        }
+        TazApiCssHelper.initializeNightModePrefs(tazApiCssPreferences, this)
 
         super.onCreate(savedInstanceState)
 
@@ -143,12 +119,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onResume() {
         super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     override fun onPause() {
         super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     fun showInWebView(
