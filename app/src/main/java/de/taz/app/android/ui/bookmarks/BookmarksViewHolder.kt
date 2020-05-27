@@ -7,16 +7,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 
 class BookmarksViewHolder(
-    private val bookmarksPresenter: BookmarksContract.Presenter,
+    private val bookmarksPresenter: BookmarksFragment,
     parent: ViewGroup
 ) :
     RecyclerView.ViewHolder(
@@ -71,7 +69,7 @@ class BookmarksViewHolder(
 
             bookmarkTitle?.text = article.title
             bookmarkBox?.setOnClickListener {
-                bookmarksPresenter.openArticle(article.key)
+                bookmarksPresenter.showInWebView(article.key, bookmarksArticle = true)
             }
 
             bookmarkShare.setOnClickListener {
@@ -84,7 +82,7 @@ class BookmarksViewHolder(
         }
     }
 
-    fun setBookmarks(bookmarks: MutableList<Article>){
+    fun setBookmarks(bookmarks: MutableList<Article>) {
         this.bookmarks = bookmarks
     }
 }

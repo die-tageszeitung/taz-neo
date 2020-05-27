@@ -54,6 +54,11 @@ class ArticlePagerViewModel : ViewModel() {
                     ArticleRepository.getInstance().getBookmarkedArticleStubList()
                 postValue(bookmarkedArticles)
                 sectionNameListLiveData.postValue(bookmarkedArticles.map { it.getSectionStub()?.key })
+                if (currentPosition <= 0) {
+                    currentPositionLiveData.postValue(
+                        bookmarkedArticles.indexOfFirst { it.key == articleName }
+                    )
+                }
             }
         }
     }

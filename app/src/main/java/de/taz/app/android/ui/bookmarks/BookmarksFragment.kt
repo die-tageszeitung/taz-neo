@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import kotlinx.coroutines.Dispatchers
@@ -17,13 +17,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class BookmarksFragment :
-    BaseMainFragment<BookmarksPresenter>(R.layout.fragment_bookmarks),
-    BookmarksContract.View {
+class BookmarksFragment : ViewModelBaseMainFragment(R.layout.fragment_bookmarks) {
 
-    override val presenter: BookmarksPresenter = BookmarksPresenter()
+    private val viewModel = BookmarksViewModel()
 
-    private val recycleAdapter = BookmarksAdapter(presenter)
+    private val recycleAdapter = BookmarksAdapter(this)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -38,8 +36,9 @@ class BookmarksFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        presenter.attach(this)
-        presenter.onViewCreated(savedInstanceState)
+        viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
+            recycleAdapter.setData((bookmarks ?: emptyList()).toMutableList())
+        })
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
@@ -48,15 +47,14 @@ class BookmarksFragment :
         }
     }
 
-    override fun setBookmarks(bookmarks: List<Article>) {
-        recycleAdapter.setData(bookmarks.toMutableList())
-    }
-
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home ->
+                showHome()
+        }
     }
 
-    override fun shareArticle(articleFileName: String) {
+    fun shareArticle(articleFileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val article = ArticleRepository.getInstance().getStub(articleFileName)
             val sendIntent: Intent = Intent().apply {
@@ -66,7 +64,7 @@ class BookmarksFragment :
             }
             withContext(Dispatchers.Main) {
                 val shareIntent = Intent.createChooser(sendIntent, null)
-                    startActivity(shareIntent)
+                startActivity(shareIntent)
             }
         }
     }
