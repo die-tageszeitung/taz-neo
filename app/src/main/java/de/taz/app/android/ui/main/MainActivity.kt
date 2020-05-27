@@ -61,27 +61,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences,
-        isReCreateFlagSet: Boolean = false
-    ) {
-        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            log.debug("setTheme to NIGHT")
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            log.debug("setTheme to DAY")
-        }
-        if (isReCreateFlagSet) {
-            recreate()
-        }
-    }
-
-    private fun isDarkTheme(): Boolean {
-        return this.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)

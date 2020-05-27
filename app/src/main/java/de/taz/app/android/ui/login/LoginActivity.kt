@@ -57,56 +57,12 @@ class LoginActivity(
 
     private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private val tazApiCssPrefListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            log.debug("Shared pref changed: $key")
-            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
-                "$RESOURCE_FOLDER/tazApi.css"
-            )
-            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
-
-            cssFile.writeText(cssString)
-
-            if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setThemeAndReCreate(sharedPreferences, true)
-            }
-        }
-
-    private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences,
-        isReCreateFlagSet: Boolean = false
-    ) {
-        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            log.debug("setTheme to NIGHT")
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            log.debug("setTheme to DAY")
-        }
-        if (isReCreateFlagSet) {
-            recreate()
-        }
-    }
-
-    private fun isDarkTheme(): Boolean {
-        return this.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         tazApiCssPreferences =
             applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
-        // if "text_night_mode" is not set in shared preferences -> set it now
-        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
-            SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
-            ).postValue(isDarkTheme())
-        }
+        TazApiCssHelper.initializeNightModePrefs(tazApiCssPreferences, this)
 
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
-        }
         super.onCreate(savedInstanceState)
 
         view.moveContentBeneathStatusBar()
@@ -399,12 +355,12 @@ class LoginActivity(
 
     override fun onResume() {
         super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     override fun onPause() {
         super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     override fun onBackPressed() {
