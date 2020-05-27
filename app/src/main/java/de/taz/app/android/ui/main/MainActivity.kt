@@ -178,10 +178,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    fun showSection(sectionFileName: String, issueDate: String = "") {
+    private fun showSection(sectionFileName: String) {
         runOnUiThread {
             if (!tryShowExistingSection(sectionFileName)) {
-                val fragment = SectionPagerFragment.createInstance(sectionFileName, issueDate)
+                val fragment = SectionPagerFragment.createInstance(sectionFileName)
                 showMainFragment(fragment, false)
             }
         }
