@@ -4,12 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
@@ -18,7 +16,7 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -28,7 +26,7 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import de.taz.app.android.util.NightModeHelper
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +45,7 @@ class LoginActivity(
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
     private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : AppCompatActivity(R.layout.activity_login) {
+) : BaseActivity(R.layout.activity_login) {
 
     private val log by Log
 
@@ -55,14 +53,7 @@ class LoginActivity(
 
     private var article: String? = null
 
-    private lateinit var tazApiCssPreferences: SharedPreferences
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
-        TazApiCssHelper.initializeNightModePrefs(tazApiCssPreferences, this)
-
         super.onCreate(savedInstanceState)
 
         view.moveContentBeneathStatusBar()
@@ -351,16 +342,6 @@ class LoginActivity(
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
             hideLoadingScreen()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     override fun onBackPressed() {
