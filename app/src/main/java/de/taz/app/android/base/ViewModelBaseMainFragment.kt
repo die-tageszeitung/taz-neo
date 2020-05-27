@@ -71,7 +71,7 @@ abstract class ViewModelBaseMainFragment(
         }
     }
 
-    fun getMainView() : MainActivity? {
+    fun getMainView(): MainActivity? {
         return (activity as? MainActivity)
     }
 
@@ -149,8 +149,11 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showHome()
     }
 
-    fun showInWebView(webViewDisplayableKey: String) {
-        (activity as? MainActivity)?.showInWebView(webViewDisplayableKey)
+    fun showInWebView(
+        webViewDisplayableKey: String,
+        bookmarksArticle: Boolean = false
+    ) {
+        (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
     }
 
     fun showSectionInWebView(webViewDisplayableKey: String, issueDate: String) {
