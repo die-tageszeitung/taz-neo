@@ -170,14 +170,14 @@ class SectionPagerFragment :
         fragment: Fragment
     ) : FragmentStateAdapter(fragment) {
 
-        private var sectionStubs = emptyList<SectionStub>()
+        private var sectionStubs = viewModel.sectionStubListLiveData.value
 
         override fun createFragment(position: Int): Fragment {
-            val section = sectionStubs[position]
+            val section = sectionStubs!![position]
             return SectionWebViewFragment.createInstance(section)
         }
 
-        override fun getItemCount(): Int = sectionStubs.size
+        override fun getItemCount(): Int = sectionStubs?.size ?: 0
 
         fun submitList(newSections: List<SectionStub>) {
             if (sectionStubs != newSections) {
@@ -187,7 +187,7 @@ class SectionPagerFragment :
         }
 
         fun getSectionStub(position: Int): SectionStub {
-            return sectionStubs[position]
+            return sectionStubs!![position]
         }
     }
 
