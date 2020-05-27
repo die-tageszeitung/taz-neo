@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -14,7 +13,6 @@ import android.webkit.WebView
 import android.widget.ImageView
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -28,7 +26,7 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -42,7 +40,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import de.taz.app.android.util.NightModeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,18 +53,11 @@ const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : BaseActivity(R.layout.activity_main) {
 
     private val log by Log
 
-    private lateinit var tazApiCssPreferences: SharedPreferences
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
-        TazApiCssHelper.initializeNightModePrefs(tazApiCssPreferences, this)
-
         super.onCreate(savedInstanceState)
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
@@ -94,16 +85,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(TazApiCssHelper.tazApiCssPrefListener)
     }
 
     fun showInWebView(
