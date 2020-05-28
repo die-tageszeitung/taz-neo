@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
@@ -156,8 +157,8 @@ abstract class ViewModelBaseMainFragment(
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
     }
 
-    fun setDrawerIssue(issueStub: IssueStub) {
-        (activity as? MainActivity)?.setDrawerIssue(issueStub)
+    fun setDrawerIssue(issueOperations: IssueOperations) {
+        (activity as? MainActivity)?.setDrawerIssue(issueOperations)
     }
 
     fun showNavButton(navButton: Image? = null) {

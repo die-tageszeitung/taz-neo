@@ -11,29 +11,27 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.*
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.launch
 
-const val ARTICLE_NAME = "articleName"
+class BookmarkPagerFragment: ViewModelBaseMainFragment(R.layout.fragment_webview_pager) {
 
-class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager),
-    BackFragment {
-
-    val viewModel = ArticlePagerViewModel()
+    val viewModel = BookmarkPagerViewModel()
 
     val log by Log
 
-    private var articlePagerAdapter: ArticlePagerAdapter? = null
+    private var articlePagerAdapter: BookmarkPagerAdapter? = null
 
     private var articleName: String? = null
     private var hasBeenSwiped: Boolean = false
 
     companion object {
-        fun createInstance(articleName: String        ): ArticlePagerFragment {
-            val fragment = ArticlePagerFragment()
+        fun createInstance(
+            articleName: String
+        ): BookmarkPagerFragment {
+            val fragment = BookmarkPagerFragment()
             fragment.articleName = articleName
             return fragment
         }
@@ -58,7 +56,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
 
         viewModel.articleListLiveData.observeDistinct(this) {
             webview_pager_viewpager.apply {
-                (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
+                (adapter as BookmarkPagerAdapter?)?.notifyDataSetChanged()
                 setCurrentItem(viewModel.currentPosition, false)
             }
             loading_screen.visibility = View.GONE
@@ -80,7 +78,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             if (adapter == null) {
-                articlePagerAdapter = ArticlePagerAdapter()
+                articlePagerAdapter = BookmarkPagerAdapter()
                 adapter = articlePagerAdapter
             }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -118,7 +116,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         }
     }
 
-    private inner class ArticlePagerAdapter : FragmentStateAdapter(this@ArticlePagerFragment) {
+    private inner class BookmarkPagerAdapter : FragmentStateAdapter(this@BookmarkPagerFragment) {
 
         private val articleStubs
             get() = viewModel.articleList
@@ -134,22 +132,6 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
             return articleStubs[position]
         }
 
-    }
-
-    override fun onBackPressed(): Boolean {
-        // if there is no other fragment than the HomeFragment show Sections
-        if (hasBeenSwiped || parentFragmentManager.backStackEntryCount == 1) {
-            showSectionOrGoBack()
-        } else {
-           parentFragmentManager.popBackStack()
-        }
-        return true
-    }
-
-    private fun showSectionOrGoBack() {
-        viewModel.sectionNameListLiveData.value?.getOrNull(viewModel.currentPosition)?.let {
-            showInWebView(it)
-        } ?: parentFragmentManager.popBackStack()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
