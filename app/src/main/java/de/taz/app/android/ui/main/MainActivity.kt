@@ -169,12 +169,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         bookmarksArticle: Boolean = false
     ) {
         runOnUiThread {
-            if (bookmarksArticle || !tryShowExistingArticle(articleName)) {
-                val fragment = ArticlePagerFragment.createInstance(
-                    articleName, showBookmarks = bookmarksArticle
-                )
-                showMainFragment(fragment, false)
-            }
+            val fragment = ArticlePagerFragment.createInstance(
+                articleName, showBookmarks = bookmarksArticle
+            )
+            showMainFragment(fragment, false)
         }
     }
 
