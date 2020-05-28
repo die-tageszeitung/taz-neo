@@ -137,8 +137,12 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onBackPressed(): Boolean {
-        // if there is no other fragment than the HomeFragment show Sections
-        if (hasBeenSwiped || parentFragmentManager.backStackEntryCount == 1) {
+        val noSectionParent =  parentFragmentManager.backStackEntryCount == 1
+
+        if (hasBeenSwiped || noSectionParent) {
+            if (noSectionParent) {
+                parentFragmentManager.popBackStack()
+            }
             showSectionOrGoBack()
         } else {
             parentFragmentManager.popBackStack()

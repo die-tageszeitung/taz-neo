@@ -115,9 +115,11 @@ class SectionPagerFragment :
 
     fun tryLoadSection(sectionFileName: String): Boolean {
         viewModel.sectionStubListLiveData.value?.indexOfFirst { it.key == sectionFileName }?.let {
-            if (it > 0) {
-                lifecycleScope.launchWhenResumed {
-                    webview_pager_viewpager.setCurrentItem(it, false)
+            if (it >= 0) {
+                if (viewModel.currentPosition != it) {
+                    lifecycleScope.launchWhenResumed {
+                        webview_pager_viewpager.setCurrentItem(it, false)
+                    }
                 }
                 return true
             }
