@@ -106,6 +106,10 @@ class SectionPagerFragment :
                 loading_screen?.visibility = View.GONE
             }
         }
+
+        viewModel.issueOperationsLiveData.observeDistinct(this) { issueOperations ->
+            issueOperations?.let { setDrawerIssue(it) }
+        }
     }
 
     override fun onStart() {
