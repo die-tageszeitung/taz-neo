@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ArticlePagerViewModel : ViewModel() {
+class BookmarkPagerViewModel : ViewModel() {
 
     val articleNameLiveData = MutableLiveData<String?>(null)
     val articleName: String?
@@ -22,27 +22,24 @@ class ArticlePagerViewModel : ViewModel() {
     val articleListLiveData = MediatorLiveData<List<ArticleStub>>().apply {
         addSource(articleNameLiveData) {
             it?.let {
-                getIssueArticleList()
+                getBookmarkedArticles()
             }
         }
     }
 
     var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
 
-    private fun getIssueArticleList() {
+    private fun getBookmarkedArticles() {
         articleListLiveData.apply {
-            articleName?.let { articleName ->
-                CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
-                    val articles = ArticleRepository.getInstance()
-                        .getIssueArticleStubListByArticleName(articleName)
-                    sectionNameListLiveData.postValue(articles.map { it.getSectionStub()?.key })
-                    // only set position of article if no position has been restored
-                    if (currentPosition <= 0) {
-                        currentPositionLiveData.postValue(
-                            articles.indexOfFirst { it.key == articleName }
-                        )
-                    }
-                    postValue(articles)
+            CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
+                val bookmarkedArticles =
+                    ArticleRepository.getInstance().getBookmarkedArticleStubList()
+                postValue(bookmarkedArticles)
+                sectionNameListLiveData.postValue(bookmarkedArticles.map { it.getSectionStub()?.key })
+                if (currentPosition <= 0) {
+                    currentPositionLiveData.postValue(
+                        bookmarkedArticles.indexOfFirst { it.key == articleName }
+                    )
                 }
             }
         }
