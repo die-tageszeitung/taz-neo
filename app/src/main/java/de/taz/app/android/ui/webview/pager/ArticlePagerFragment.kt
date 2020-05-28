@@ -32,7 +32,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     private var hasBeenSwiped: Boolean = false
 
     companion object {
-        fun createInstance(articleName: String        ): ArticlePagerFragment {
+        fun createInstance(articleName: String): ArticlePagerFragment {
             val fragment = ArticlePagerFragment()
             fragment.articleName = articleName
             return fragment
@@ -141,7 +141,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
         if (hasBeenSwiped || parentFragmentManager.backStackEntryCount == 1) {
             showSectionOrGoBack()
         } else {
-           parentFragmentManager.popBackStack()
+            parentFragmentManager.popBackStack()
         }
         return true
     }
