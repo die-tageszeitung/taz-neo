@@ -15,16 +15,11 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -33,7 +28,7 @@ const val POSITION = "position"
 const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment :
-    ViewModelBaseMainFragment(R.layout.fragment_webview_pager), BackFragment {
+    ViewModelBaseMainFragment(R.layout.fragment_webview_pager) {
 
     val viewModel = SectionPagerViewModel()
 
@@ -103,8 +98,11 @@ class SectionPagerFragment :
             runIfNotNull(
                 sectionStubList,
                 viewModel.currentPosition
-            ) { sectionStubs, currentPosition ->
-                setSections(sectionStubs, currentPosition)
+            ) { _, currentPosition ->
+                webview_pager_viewpager.apply {
+                    adapter?.notifyDataSetChanged()
+                    setCurrentItem(currentPosition, false)
+                }
                 loading_screen?.visibility = View.GONE
             }
         }
@@ -116,23 +114,23 @@ class SectionPagerFragment :
     }
 
     fun tryLoadSection(sectionFileName: String): Boolean {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val sectionStubs =
-                SectionRepository.getInstance().getAllSectionStubsForSectionName(sectionFileName)
-
-            withContext(Dispatchers.Main) {
-                webview_pager_viewpager.setCurrentItem(
-                    sectionStubs.indexOfFirst { it.key == sectionFileName }, false
-                )
+        viewModel.sectionStubListLiveData.value?.indexOfFirst { it.key == sectionFileName }?.let {
+            if (it >= 0) {
+                if (viewModel.currentPosition != it) {
+                    lifecycleScope.launchWhenResumed {
+                        webview_pager_viewpager.setCurrentItem(it, false)
+                    }
+                }
+                return true
             }
         }
-        return true
+        return false
     }
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             if (adapter == null) {
-                sectionAdapter = SectionPagerAdapter(this@SectionPagerFragment)
+                sectionAdapter = SectionPagerAdapter()
                 adapter = sectionAdapter
             }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
@@ -154,23 +152,15 @@ class SectionPagerFragment :
         }
     }
 
-    private fun setSections(sections: List<SectionStub>, currentPosition: Int) {
-        webview_pager_viewpager.apply {
-            (adapter as SectionPagerAdapter?)?.submitList(sections)
-            setCurrentItem(currentPosition, false)
-        }
-    }
-
     override fun onStop() {
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
 
-    private inner class SectionPagerAdapter(
-        fragment: Fragment
-    ) : FragmentStateAdapter(fragment) {
+    private inner class SectionPagerAdapter : FragmentStateAdapter(this@SectionPagerFragment) {
 
-        private var sectionStubs = emptyList<SectionStub>()
+        private val sectionStubs: List<SectionStub>
+            get() = viewModel.sectionStubListLiveData.value ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
             val section = sectionStubs[position]
@@ -178,13 +168,6 @@ class SectionPagerFragment :
         }
 
         override fun getItemCount(): Int = sectionStubs.size
-
-        fun submitList(newSections: List<SectionStub>) {
-            if (sectionStubs != newSections) {
-                sectionStubs = newSections
-                notifyDataSetChanged()
-            }
-        }
 
         fun getSectionStub(position: Int): SectionStub {
             return sectionStubs[position]
@@ -203,11 +186,6 @@ class SectionPagerFragment :
             outState.putInt(POSITION, it)
         }
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onBackPressed(): Boolean {
-        (activity as? MainActivity)?.showHome()
-        return true
     }
 
 }

@@ -39,6 +39,7 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
@@ -155,26 +156,27 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         bookmarksArticle: Boolean = false
     ) {
         if (webViewDisplayableKey.startsWith("art")) {
-            showArticle(
-                webViewDisplayableKey,
-                bookmarksArticle
-            )
+            if (bookmarksArticle) {
+                showBookmark(webViewDisplayableKey)
+            } else {
+                showArticle(webViewDisplayableKey)
+            }
         } else {
             showSection(webViewDisplayableKey)
         }
     }
 
-    private fun showArticle(
-        articleName: String,
-        bookmarksArticle: Boolean = false
-    ) {
+    private fun showArticle(articleName: String) {
         runOnUiThread {
-            if (bookmarksArticle || !tryShowExistingArticle(articleName)) {
-                val fragment = ArticlePagerFragment.createInstance(
-                    articleName, showBookmarks = bookmarksArticle
-                )
-                showMainFragment(fragment, false)
-            }
+            val fragment = ArticlePagerFragment.createInstance(articleName)
+            showMainFragment(fragment)
+        }
+    }
+
+    private fun showBookmark(articleName: String) {
+        runOnUiThread {
+            val fragment = BookmarkPagerFragment.createInstance(articleName)
+            showMainFragment(fragment)
         }
     }
 
@@ -182,7 +184,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         runOnUiThread {
             if (!tryShowExistingSection(sectionFileName)) {
                 val fragment = SectionPagerFragment.createInstance(sectionFileName)
-                showMainFragment(fragment, false)
+                showMainFragment(fragment)
             }
         }
     }
@@ -194,49 +196,39 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
-            showMainFragment(fragment, showFromBackStack = false)
+            showMainFragment(fragment)
         }
     }
 
     @MainThread
     private fun tryShowExistingSection(sectionFileName: String): Boolean {
-        supportFragmentManager.popBackStackImmediate(SectionPagerFragment::class.java.name, 0)
-        val sectionPagerFragment =
-            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
-        if (sectionPagerFragment is SectionPagerFragment) {
-            return sectionPagerFragment.tryLoadSection(sectionFileName)
+        supportFragmentManager.apply {
+            val currentTag = (backStackEntryCount - 1).toString()
+            val currentFragment = findFragmentByTag(currentTag)
+            if (currentFragment is SectionPagerFragment) {
+                return currentFragment.tryLoadSection(sectionFileName)
+            }
+            val lastTag = (backStackEntryCount - 2).toString()
+            val lastFragment = findFragmentByTag(lastTag)
+            if (lastFragment is SectionPagerFragment) {
+                popBackStackImmediate(lastTag, 0)
+                return lastFragment.tryLoadSection(sectionFileName)
+            }
+            return false
         }
-        return false
     }
 
-    @MainThread
-    private fun tryShowExistingArticle(articleFileName: String): Boolean {
-        supportFragmentManager.popBackStackImmediate(ArticlePagerFragment::class.java.name, 0)
-        val articlePagerFragment =
-            supportFragmentManager.findFragmentById(R.id.main_content_fragment_placeholder)
-        if (articlePagerFragment is ArticlePagerFragment) {
-            return articlePagerFragment.tryLoadArticle(articleFileName)
-        }
-        return false
-    }
-
-    fun showMainFragment(
-        fragment: Fragment,
-        showFromBackStack: Boolean = true
-    ) {
+    fun showMainFragment(fragment: Fragment) {
         runOnUiThread {
-            val fragmentClassName = fragment::class.java.name
-
-            if (!showFromBackStack || !supportFragmentManager.popBackStackImmediate(
-                    fragmentClassName,
-                    0
-                )
-            ) {
-                supportFragmentManager.beginTransaction().apply {
-                    replace(R.id.main_content_fragment_placeholder, fragment)
-                    addToBackStack(fragmentClassName)
-                    commit()
-                }
+            supportFragmentManager.apply {
+                beginTransaction()
+                    .replace(
+                        R.id.main_content_fragment_placeholder,
+                        fragment,
+                        backStackEntryCount.toString()
+                    )
+                    .addToBackStack(backStackEntryCount.toString())
+                    .commit()
             }
         }
     }
@@ -251,14 +243,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     fun isDrawerVisible(gravity: Int): Boolean {
         return drawer_layout.isDrawerVisible(gravity)
-    }
-
-    fun openDrawer() {
-        openDrawer(GravityCompat.START)
-    }
-
-    fun openDrawer(gravity: Int) {
-        drawer_layout.openDrawer(gravity)
     }
 
     fun closeDrawer() {
@@ -431,7 +415,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                     }
                             }
                             // clear fragment backstack before showing article
-                            supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                            supportFragmentManager.popBackStackImmediate(
+                                null,
+                                FragmentManager.POP_BACK_STACK_INCLUSIVE
+                            )
                             showArticle(articleName)
                         }
                     }
