@@ -69,6 +69,10 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
                 webview_pager_viewpager.setCurrentItem(it, false)
             }
         }
+
+        viewModel.issueOperationsLiveData.observeDistinct(this) { issueOperations ->
+            issueOperations?.let { setDrawerIssue(it) }
+        }
     }
 
     override fun onStart() {

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
 import androidx.lifecycle.*
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -24,11 +25,11 @@ class SectionPagerViewModel : ViewModel() {
     val issueDate
         get() = issueDateLiveData.value
 
-
     val issueStatusLiveData = MutableLiveData<IssueStatus?>(null)
     val issueStatus
         get() = issueStatusLiveData.value
 
+    val issueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
 
     val currentPositionLiveData = MutableLiveData(0)
     val currentPosition
@@ -59,6 +60,15 @@ class SectionPagerViewModel : ViewModel() {
                         currentPositionLiveData.postValue(index)
                     }
                 }
+
+                if (issueOperationsLiveData.value == null) {
+                    issueOperationsLiveData.postValue(
+                        IssueRepository.getInstance().getStub(
+                            issueFeedName, issueDate, issueStatus
+                        )
+                    )
+                }
+
                 mediatorLiveData.postValue(sections)
             }
         }

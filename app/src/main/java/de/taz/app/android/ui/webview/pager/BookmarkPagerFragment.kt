@@ -91,6 +91,9 @@ class BookmarkPagerFragment: ViewModelBaseMainFragment(R.layout.fragment_webview
         var firstSwipe = true
 
         override fun onPageSelected(position: Int) {
+            viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
+                setDrawerIssue(it)
+            }
             if (firstSwipe) {
                 firstSwipe = false
             } else {

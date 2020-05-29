@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
 import androidx.lifecycle.*
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,8 @@ class ArticlePagerViewModel : ViewModel() {
 
     var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
 
+    var issueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
+
     private fun getIssueArticleList() {
         articleListLiveData.apply {
             articleName?.let { articleName ->
@@ -43,6 +46,7 @@ class ArticlePagerViewModel : ViewModel() {
                         )
                     }
                     postValue(articles)
+                    issueOperationsLiveData.postValue(articles.first().getIssueOperations())
                 }
             }
         }
