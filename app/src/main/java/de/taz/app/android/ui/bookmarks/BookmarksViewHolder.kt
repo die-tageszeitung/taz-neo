@@ -14,7 +14,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 
 class BookmarksViewHolder(
-    private val bookmarksPresenter: BookmarksFragment,
+    private val bookmarksFragment: BookmarksFragment,
     parent: ViewGroup
 ) :
     RecyclerView.ViewHolder(
@@ -33,7 +33,7 @@ class BookmarksViewHolder(
     private var bookmarkDelete: ImageView
     private val fileHelper = FileHelper.getInstance()
     private val dateHelper: DateHelper = DateHelper.getInstance()
-    private val bookmarksAdapter = BookmarksAdapter(bookmarksPresenter)
+    private val bookmarksAdapter = BookmarksAdapter(bookmarksFragment)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {
@@ -69,11 +69,11 @@ class BookmarksViewHolder(
 
             bookmarkTitle?.text = article.title
             bookmarkBox?.setOnClickListener {
-                bookmarksPresenter.showInWebView(article.key, bookmarksArticle = true)
+                bookmarksFragment.showInWebView(article.key, bookmarksArticle = true)
             }
 
             bookmarkShare.setOnClickListener {
-                bookmarksPresenter.shareArticle(article.key)
+                bookmarksFragment.shareArticle(article.key)
             }
 
             bookmarkDelete.setOnClickListener {

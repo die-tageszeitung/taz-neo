@@ -67,7 +67,8 @@ class SectionPagerViewModel : ViewModel() {
     private fun getSectionListBySection() {
         CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
             sectionKeyLiveData.value?.let { sectionFileName ->
-                val issueStub = IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
+                val issueStub =
+                    IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
                 issueFeedNameLiveData.postValue(issueStub.feedName)
                 issueStatusLiveData.postValue(issueStub.status)
                 issueDateLiveData.postValue(issueStub.date)
