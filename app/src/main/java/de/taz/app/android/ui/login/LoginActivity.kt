@@ -6,20 +6,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
@@ -41,7 +40,7 @@ class LoginActivity(
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
     private val issueRepository: IssueRepository = IssueRepository.getInstance(),
     private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : FragmentActivity(R.layout.activity_login) {
+) : BaseActivity(R.layout.activity_login) {
 
     private val log by Log
 
