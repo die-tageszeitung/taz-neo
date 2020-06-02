@@ -1,15 +1,7 @@
 package de.taz.app.android.singletons
 
-import android.app.Activity
-import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatDelegate
-import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.util.Log
-import de.taz.app.android.util.NightModeHelper
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 
 const val SETTINGS_DATA_POLICY_ACCEPTED = "data_policy_accepted"
 const val SETTINGS_FIRST_TIME_APP_STARTS = "first_time_app_starts"
@@ -21,7 +13,6 @@ const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
 object TazApiCssHelper {
 
     private val fileHelper = FileHelper.getInstance()
-    private val log by Log
 
     /**
      * Computes an actual font size using the default font size and the display percentage

@@ -1,8 +1,6 @@
 package de.taz.app.android.ui.main
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,7 +10,6 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
 import androidx.annotation.MainThread
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -20,7 +17,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
-import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -40,7 +36,6 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.NightModeHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
