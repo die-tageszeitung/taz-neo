@@ -93,8 +93,8 @@
     <string name="settings_account_password">Password</string>
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">Subscriber</string>
-    <string name="settings_account_manage_account">manage account</string>
-    <string name="settings_account_logout">Logout</string>
+    <string name="settings_account_manage_account"><u>manage account</u></string>
+    <string name="settings_account_logout"><u>Logout</u></string>
     <string name="settings_decrease_font_size">Decrease font size</string>
     <string name="settings_increase_font_size">Increase font size</string>
     <string name="settings_general_keep_number_issues">Keep last &lt;u>%s&lt;/u> issues</string>
