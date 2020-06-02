@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import de.taz.app.android.TestLifecycleOwner
 import de.taz.app.android.testFeed
 import de.taz.app.android.ui.home.feedFilter.FeedFilterContract
-import de.taz.app.android.ui.home.feedFilter.FeedFilterDataController
+import de.taz.app.android.ui.home.feedFilter.FeedFilterViewModel
 import de.taz.app.android.ui.home.feedFilter.FeedFilterPresenter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.FeedHelper
@@ -37,7 +37,7 @@ class ArchiveEndNavigationPresenterTest {
     @Mock
     lateinit var mainContractView: MainActivity
     @Mock
-    lateinit var viewModel: FeedFilterDataController
+    lateinit var viewModel: FeedFilterViewModel
     @Mock
     lateinit var feedHelper: FeedHelper
 
