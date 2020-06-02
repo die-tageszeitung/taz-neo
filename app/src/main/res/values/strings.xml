@@ -100,7 +100,7 @@
     <string name="settings_auto_downloads">Automatische Downloads</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
-    <string name="settings_version_number">Version</string>
+    <string name="settings_version_number">Version %s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
