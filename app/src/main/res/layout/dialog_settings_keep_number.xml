@@ -11,7 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/settings_general_keep_number_issue_title"
-            style="@style/TextAppearance.Fragment.Title"
+            style="@style/TextAppearance.Settings.Entry"
             app:layout_constraintTop_toTopOf="parent"
             android:labelFor="@id/dialog_settings_keep_number"
         />
