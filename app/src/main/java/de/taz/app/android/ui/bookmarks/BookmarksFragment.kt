@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
-import de.taz.app.android.base.ViewModelFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 class BookmarksFragment :
-    ViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
+    BaseViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
 
     private val recycleAdapter = BookmarksAdapter(this)
 

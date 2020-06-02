@@ -9,7 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.base.ViewModelFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 const val ARTICLE_NAME = "articleName"
 
 class ArticlePagerFragment :
-    ViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
+    BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
     BackFragment {
 
     val log by Log

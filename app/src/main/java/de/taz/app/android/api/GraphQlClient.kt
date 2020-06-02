@@ -82,9 +82,7 @@ class AcceptHeaderInterceptor : Interceptor {
 /**
  * set authentication header if authenticated
  */
-class AuthenticationHeaderInterceptor(
-    private val authHelper: AuthHelper = AuthHelper.getInstance()
-) : Interceptor {
+class AuthenticationHeaderInterceptor(private val authHelper: AuthHelper) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = authHelper.token

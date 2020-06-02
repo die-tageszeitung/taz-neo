@@ -5,7 +5,7 @@ import android.view.View
 import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.base.ViewModelFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookmarkSheetFragment :
-    ViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
+    BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
 
     private val articleRepository = ArticleRepository.getInstance(activity?.applicationContext)
 
