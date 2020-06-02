@@ -11,15 +11,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.base.BaseFragment
+import de.taz.app.android.base.ViewModelFragment
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.FeedHelper
 import kotlinx.android.synthetic.main.fragment_archive_end_navigation.*
 
 class FeedFilterFragment :
-    BaseFragment<FeedFilterContract.Presenter>(R.layout.fragment_archive_end_navigation),
-    FeedFilterContract.View {
+    ViewModelFragment<FeedFilterViewModel>(R.layout.fragment_archive_end_navigation) {
 
-    override val presenter =
-        FeedFilterPresenter()
     internal val adapter = FeedAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,11 +30,15 @@ class FeedFilterFragment :
             fragment_archive_navigation_end_feed_list.layoutManager =
                 LinearLayoutManager(context)
         }
-        presenter.attach(this)
-        presenter.onViewCreated(savedInstanceState)
+        viewModel.feedsLiveData.observeDistinct(this) { feeds ->
+            setFeeds(feeds)
+        }
+        viewModel.inactiveFeedNameLiveData.observeDistinct(this) { inactiveFeedNames ->
+            setInactiveFeedNames(inactiveFeedNames)
+        }
     }
 
-    override fun setFeeds(feeds: List<Feed>) {
+    fun setFeeds(feeds: List<Feed>) {
         feeds.forEach { feed ->
             if (feed !in adapter.feedList) {
                 adapter.feedList.add(feed)
@@ -44,7 +47,7 @@ class FeedFilterFragment :
         adapter.notifyDataSetChanged()
     }
 
-    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
+    fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
         if (adapter.inactiveFeedList != inactiveFeedNames) {
             adapter.inactiveFeedList = inactiveFeedNames.toMutableList()
             adapter.notifyDataSetChanged()
@@ -109,7 +112,7 @@ class FeedFilterFragment :
             init {
                 itemView.setOnClickListener {
                     val feed = feedList[adapterPosition]
-                    presenter.onFeedClicked(feed)
+                    onFeedClicked(feed)
                     if (feed.name !in inactiveFeedList) {
                         setImageInactive(imageView)
                     } else {
@@ -120,4 +123,13 @@ class FeedFilterFragment :
         }
     }
 
+    private fun onFeedClicked(feed: Feed) {
+        val feedHelper = FeedHelper.getInstance(context?.applicationContext)
+        val inactiveFeedNames = viewModel.getInactiveFeedNames()
+        if (feed.name !in inactiveFeedNames) {
+            feedHelper.deactivateFeed(feed)
+        } else {
+            feedHelper.activateFeed(feed)
+        }
+    }
 }
