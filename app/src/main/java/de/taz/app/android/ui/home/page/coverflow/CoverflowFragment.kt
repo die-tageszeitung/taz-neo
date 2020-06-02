@@ -131,9 +131,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     fun skipToEnd() {
-        fragment_cover_flow_grid.apply {
-            scrollToPosition(coverFlowPagerAdapter.itemCount.minus(1))
-            smoothScrollBy(1, 0)
+        if (coverFlowPagerAdapter.itemCount > 0) {
+            fragment_cover_flow_grid?.scrollToPosition(coverFlowPagerAdapter.itemCount.minus(1))
         }
     }
 
@@ -141,7 +140,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
             val position = coverFlowPagerAdapter.getPosition(feed, date, status)
             if (position >= 0) {
-                skipToPosition(position)
+                snapHelper.scrollToPosition(position)
             }
         }
     }
@@ -155,13 +154,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToItem(issueStub: IssueStub) =
         skipToItem(issueStub.feedName, issueStub.date, issueStub.status)
-
-    fun skipToPosition(position: Int) = activity?.runOnUiThread {
-        fragment_cover_flow_grid.apply {
-            scrollToPosition(position)
-            smoothScrollBy(1, 0)
-        }
-    }
 
     inner class OnScrollListener : RecyclerView.OnScrollListener() {
 
@@ -191,6 +183,11 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             val position: Int =
                 (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
+
+            // snap first time the position is set by the fragment
+            if (dx == 0 && dy == 0 && !isDragEvent) {
+                snapHelper.scrollToPosition(position)
+            }
 
             // transform the visible children visually
             (fragment_cover_flow_grid as? ViewGroup)?.apply {
