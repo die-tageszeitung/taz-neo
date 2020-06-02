@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
@@ -172,7 +173,10 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun showStoredIssueNumber(number: String) {
         storedIssueNumber = number
-        val text = getString(R.string.settings_general_keep_number_issues, number)
+        val text = HtmlCompat.fromHtml(
+            getString(R.string.settings_general_keep_number_issues, number),
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 
