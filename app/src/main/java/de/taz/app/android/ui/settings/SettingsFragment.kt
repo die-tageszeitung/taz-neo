@@ -19,7 +19,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.settings.support.ErrorReportFragmentOld
+import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
@@ -246,7 +246,7 @@ class SettingsFragment : ViewModelBaseMainFragment<SettingsViewModel>(R.layout.f
     }
 
     private fun reportBug() {
-        showMainFragment(ErrorReportFragmentOld())
+        showMainFragment(ErrorReportFragment())
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {

@@ -7,7 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.base.OldBaseMainFragment
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
@@ -20,16 +20,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-class ErrorReportFragmentOld :
-    OldBaseMainFragment<ErrorReportContract.Presenter>(R.layout.fragment_error_report),
-    ErrorReportContract.View {
+class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
-    override val presenter = ErrorReportPresenter()
     private val log by Log
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.attach(this)
 
         coordinator.moveContentBeneathStatusBar()
 
@@ -52,10 +48,9 @@ class ErrorReportFragmentOld :
             }
         }
 
-        presenter.onViewCreated(savedInstanceState)
     }
 
-    override fun sendErrorReport(
+    private fun sendErrorReport(
         email: String?,
         message: String?,
         lastAction: String?,
@@ -95,6 +90,9 @@ class ErrorReportFragmentOld :
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
+            log.debug("Show home clicked")
+            showHome()
+        }
     }
 }
