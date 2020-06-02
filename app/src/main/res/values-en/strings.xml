@@ -104,7 +104,7 @@
     <string name="settings_auto_downloads">automatic downloads</string>
     <string name="settings_auto_downloads_switch">Download next issue automatically</string>
     <string name="settings_auto_downloads_wifi_switch">Download only with wifi</string>
-    <string name="settings_version_number">version</string>
+    <string name="settings_version_number">version %s</string>
     <string name="settings_download_issue">Download issue</string>
 
     <string name="fragment_error_report_title">Report a bug</string>

@@ -93,8 +93,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
             fragment_settings_account_logout.setOnClickListener {
                 logout()
             }
-//TODO HERE!!!!!!!!
-           // fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
+
             fragment_settings_version_number?.text = getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
