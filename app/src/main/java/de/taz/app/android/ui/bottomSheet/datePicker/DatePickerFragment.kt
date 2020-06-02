@@ -25,21 +25,17 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 
-class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
+class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
 
     private val log by Log
 
-    private val issueRepository = IssueRepository.getInstance()
-    private val dateHelper = DateHelper.getInstance()
-    private val apiService = ApiService.getInstance()
-
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
-    private var feed : Feed? = null
+    private var feed: Feed? = null
 
     companion object {
         fun create(
             coverFlowFragment: CoverflowFragment?,
-            date : Date
+            date: Date
         ): DatePickerFragment {
             val fragment = DatePickerFragment(date)
             fragment.coverFlowFragment = WeakReference(coverFlowFragment)
@@ -65,13 +61,15 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
 
 
         //minDate and maxDate constraints. UX is somewhat whack..
+        val dateHelper = DateHelper.getInstance(context?.applicationContext)
         fragment_bottom_sheet_date_picker.maxDate = dateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${dateHelper.longToString(dateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            feed = FeedRepository.getInstance().get("taz")
+            feed = FeedRepository.getInstance(context?.applicationContext).get("taz")
             feed?.let { feed ->
                 log.debug("minDate is ${feed.issueMinDate}")
-                fragment_bottom_sheet_date_picker.minDate = dateHelper.stringToLong(feed.issueMinDate)
+                fragment_bottom_sheet_date_picker.minDate =
+                    dateHelper.stringToLong(feed.issueMinDate)
             }
         }
 
@@ -79,7 +77,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
             val year = fragment_bottom_sheet_date_picker.year
             val monthShort = fragment_bottom_sheet_date_picker.month + 1
-            val month= if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
+            val month = if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
             loading_screen?.visibility = View.VISIBLE
@@ -108,7 +106,8 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-
+            val dateHelper = DateHelper.getInstance(context?.applicationContext)
+            val issueRepository = IssueRepository.getInstance(context?.applicationContext)
             val issueStub = issueRepository.getLatestIssueStubByDate(date)
             if (issueStub != null && (issueStub.date == date ||
                         dateHelper.dayDelta(issueStub.date, date)
@@ -119,7 +118,8 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
             } else {
                 issueRepository.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
                     try {
-                        val apiIssueList = apiService.getIssuesByDate(date, 1)
+                        val apiIssueList = ApiService.getInstance(context?.applicationContext)
+                            .getIssuesByDate(date, 1)
                         if (apiIssueList.isNotEmpty()) {
                             val newIssue = apiIssueList.first()
 
@@ -130,7 +130,7 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                                 showIssue(it)
                             }
 
-                            ToastHelper.getInstance().showToast(
+                            ToastHelper.getInstance(context?.applicationContext).showToast(
                                 "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date"
                             )
                             context?.let {
@@ -140,13 +140,13 @@ class DatePickerFragment (val date: Date) : BottomSheetDialogFragment() {
                                 )
                             }
                         } else {
-                            ToastHelper.getInstance().showToast(
+                            ToastHelper.getInstance(context?.applicationContext).showToast(
                                 getString(R.string.issue_not_found)
                             )
                             dismiss()
                         }
                     } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance().showToast(
+                        ToastHelper.getInstance(context?.applicationContext).showToast(
                             getString(R.string.toast_no_internet)
                         )
                         dismiss()

@@ -199,7 +199,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 }
             }
             typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                FontHelper.getInstance(context?.applicationContext)
+                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
             } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
             visibility = View.VISIBLE
         }

@@ -1,7 +1,10 @@
 package de.taz.app.android.singletons
 
+import android.content.Context
 import android.graphics.Typeface
+import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.WoffConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -11,10 +14,13 @@ import java.io.File
 
 const val CONVERTED_FONT_FOLDER = "convertedFonts"
 
-object FontHelper {
+class FontHelper private constructor(applicationContext: Context) : ViewModel() {
+
+    companion object : SingletonHolder<FontHelper, Context>(::FontHelper)
 
     private val fontFolder =
-        FileHelper.getInstance().getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+        FileHelper.getInstance(applicationContext)
+            .getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
     private val cache: MutableMap<String, Typeface?> = mutableMapOf()
     private val mutex = Mutex()
 

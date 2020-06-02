@@ -27,10 +27,9 @@ const val ISSUE_STATUS = "issueStatus"
 const val POSITION = "position"
 const val SECTION_KEY = "sectionKey"
 
-class SectionPagerFragment :
-    ViewModelBaseMainFragment(R.layout.fragment_webview_pager) {
-
-    val viewModel = SectionPagerViewModel()
+class SectionPagerFragment : ViewModelBaseMainFragment<SectionPagerViewModel>(
+    R.layout.fragment_webview_pager
+) {
 
     private var sectionAdapter: SectionPagerAdapter? = null
 

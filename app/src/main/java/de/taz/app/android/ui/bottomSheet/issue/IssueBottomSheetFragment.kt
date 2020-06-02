@@ -64,14 +64,14 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             issueStub?.let { issueStub ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val issue = IssueRepository.getInstance().getIssue(issueStub)
+                    val issue = IssueRepository.getInstance(context?.applicationContext).getIssue(issueStub)
                     issue.moment.getMomentFileToShare().let { image ->
-                        FileEntryRepository.getInstance().get(
+                        FileEntryRepository.getInstance(context?.applicationContext).get(
                             image.name
                         )?.let {
-                            DownloadService.getInstance().download(it, issue.baseUrl)
+                            DownloadService.getInstance(context?.applicationContext).download(it, issue.baseUrl)
                         }
-                        val imageAsFile = FileHelper.getInstance().getFile(image)
+                        val imageAsFile = FileHelper.getInstance(context?.applicationContext).getFile(image)
                         val applicationId = view.context.packageName
                         val imageUriNew = FileProvider.getUriForFile(
                             view.context,
@@ -105,13 +105,13 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val issueRepository = IssueRepository.getInstance()
+                    val issueRepository = IssueRepository.getInstance(context?.applicationContext)
                     val deleteJob = launch {
                         issueRepository.getIssue(issueStub).delete()
                     }
                     var issue: Issue? = null
                     val retrievalJob = launch {
-                        ApiService.getInstance().getIssueByFeedAndDate(
+                        ApiService.getInstance(context?.applicationContext).getIssueByFeedAndDate(
                             issueStub.feedName, issueStub.date
                         )?.let { issue = it }
                     }

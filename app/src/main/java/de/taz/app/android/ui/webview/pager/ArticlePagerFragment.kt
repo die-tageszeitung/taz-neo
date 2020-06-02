@@ -19,10 +19,9 @@ import kotlinx.coroutines.launch
 
 const val ARTICLE_NAME = "articleName"
 
-class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview_pager),
+class ArticlePagerFragment :
+    ViewModelBaseMainFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
     BackFragment {
-
-    val viewModel = ArticlePagerViewModel()
 
     val log by Log
 
@@ -141,7 +140,7 @@ class ArticlePagerFragment : ViewModelBaseMainFragment(R.layout.fragment_webview
     }
 
     override fun onBackPressed(): Boolean {
-        val noSectionParent =  parentFragmentManager.backStackEntryCount == 1
+        val noSectionParent = parentFragmentManager.backStackEntryCount == 1
 
         if (hasBeenSwiped || noSectionParent) {
             if (noSectionParent) {

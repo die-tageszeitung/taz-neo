@@ -18,7 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -36,7 +36,7 @@ const val SCROLL_POSITION = "scrollPosition"
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     @LayoutRes layoutResourceId: Int
-) : ViewModelBaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
+) : BaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
 
     protected val log by Log
 
@@ -152,7 +152,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
 
         val resourceInfo = if (isResourceInfoUpToDate) {
-            ResourceInfoRepository.getInstance().get()
+            ResourceInfoRepository.getInstance(activity?.applicationContext).get()
         } else {
             tryGetResourceInfo()
         }
@@ -168,7 +168,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         if (!isDownloadedOrDownloading) {
                             lifecycleScope.launch(Dispatchers.IO) {
                                 log.debug("starting download of displayable")
-                                DownloadService.getInstance().download(displayable)
+                                DownloadService.getInstance(activity?.applicationContext).download(displayable)
                             }
                         }
                     }
@@ -255,8 +255,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
         return try {
-            ApiService.getInstance().getResourceInfo()?.let {
-                ResourceInfoRepository.getInstance().save(it)
+            ApiService.getInstance(activity?.applicationContext).getResourceInfo()?.let {
+                ResourceInfoRepository.getInstance(activity?.applicationContext).save(it)
                 it
             } ?: run {
                 getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
@@ -276,7 +276,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
         val issueOperations = viewModel.displayable?.getIssueOperations()
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
         val currentResourceVersion =
-            ResourceInfoRepository.getInstance().get()?.resourceVersion ?: 0
+            ResourceInfoRepository.getInstance(activity?.applicationContext).get()?.resourceVersion
+                ?: 0
 
         return minResourceVersion <= currentResourceVersion
     }

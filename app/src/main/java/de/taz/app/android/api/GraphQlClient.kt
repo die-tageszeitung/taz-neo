@@ -23,12 +23,13 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * class to get DTOs from the [GRAPHQL_ENDPOINT]
  */
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val okHttpClient: OkHttpClient = okHttpClient(),
-    private val url: String = GRAPHQL_ENDPOINT,
-    private val queryService: QueryService = QueryService.getInstance()
+    private val okHttpClient: OkHttpClient,
+    private val url: String,
+    private val queryService: QueryService
 ) {
     private constructor(applicationContext: Context) : this(
         okHttpClient = okHttpClient(applicationContext),
+        url =  GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext)
     )
 

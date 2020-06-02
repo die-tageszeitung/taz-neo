@@ -30,8 +30,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
 
     var observer: Observer<Boolean>? = null
 
-    private val fileHelper = FileHelper.getInstance()
-
     companion object {
         fun createInstance(article: ArticleStub): ArticleWebViewFragment {
             val fragment = ArticleWebViewFragment()
@@ -55,7 +53,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     override fun setHeader(displayable: ArticleStub) {
         lifecycleScope.launch(Dispatchers.IO) {
             val index = displayable.getIndexInSection() ?: 0
-            val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
+            val count = ArticleRepository.getInstance(
+                context?.applicationContext
+            ).getSectionArticleStubListByArticleName(
                 displayable.key
             ).size
 
@@ -66,7 +66,8 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
                 if (isWeekend) {
-                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
+                    FontHelper.getInstance(context?.applicationContext)
+                        .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface = typeface
                             view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
@@ -91,7 +92,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     private fun goBackToSection(sectionStub: SectionStub?) {
-        sectionStub?.let{
+        sectionStub?.let {
             showInWebView(it.key)
         }
     }
@@ -155,7 +156,8 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                 var imageUri: Uri? = null
                 val applicationId = view.context.packageName
                 image?.let {
-                    val imageAsFile = fileHelper.getFile(image)
+                    val imageAsFile =
+                        FileHelper.getInstance(context?.applicationContext).getFile(image)
                     imageUri = FileProvider.getUriForFile(
                         view.context,
                         "${applicationId}.contentProvider",
