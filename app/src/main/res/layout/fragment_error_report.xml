@@ -1,176 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinator"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    app:statusBarBackground="@android:color/transparent"
-    tools:context="de.taz.app.android.ui.main.MainActivity">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
-        app:elevation="0dp">
-
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:expandedTitleGravity="top"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:scrimAnimationDuration="0">
-
-            <include
-                android:id="@+id/settings_header"
-                layout="@layout/fragment_header_default" />
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <include
-        android:id="@+id/loading_screen"
-        layout="@layout/include_loading_screen"
-        android:visibility="gone" />
-
-    <androidx.core.widget.NestedScrollView
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:statusBarBackground="@android:color/transparent"
+    >
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundColor"
+        tools:context="de.taz.app.android.ui.main.MainActivity">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_wrapper"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/fragment_settings_padding_horizontal"
-            android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+            android:background="@color/backgroundColor"
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:expandedTitleGravity="top"
+                app:layout_scrollFlags="scroll|enterAlways|snap"
+                app:scrimAnimationDuration="0">
+
+                <include
+                    android:id="@+id/settings_header"
+                    layout="@layout/fragment_header_default" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <TextView
-                android:id="@+id/fragment_error_report_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
-                android:text="@string/fragment_error_report_title"
-                android:textAppearance="@style/TextAppearance.Settings.Category"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/fragment_error_report_description"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/web_view_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_login_text_margin_top"
-                android:text="@string/fragment_error_report_description"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
+                android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+                android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <TextView
-                android:id="@+id/fragment_error_report_email_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
-                android:labelFor="@+id/fragment_error_report_email"
-                android:text="@string/fragment_error_report_email_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_description" />
+                <TextView
+                    android:id="@+id/fragment_error_report_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
+                    android:text="@string/fragment_error_report_title"
+                    android:textAppearance="@style/TextAppearance.Settings.Category"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/fragment_error_report_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionNext"
-                android:inputType="textEmailAddress"
-                android:nextFocusForward="@id/fragment_error_report_message"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_email_title" />
+                <TextView
+                    android:id="@+id/fragment_error_report_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_login_text_margin_top"
+                    android:text="@string/fragment_error_report_description"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
 
-            <TextView
-                android:id="@+id/fragment_error_report_message_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/fragment_error_report_message"
-                android:text="@string/fragment_error_report_message_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_email" />
+                <TextView
+                    android:id="@+id/fragment_error_report_email_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
+                    android:labelFor="@+id/fragment_error_report_email"
+                    android:text="@string/fragment_error_report_email_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_description" />
 
-            <EditText
-                android:id="@+id/fragment_error_report_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/fragment_error_report_message_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textMultiLine"
-                android:nextFocusForward="@id/fragment_error_report_last_action"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_message_title" />
+                <EditText
+                    android:id="@+id/fragment_error_report_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:nextFocusForward="@id/fragment_error_report_message"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_email_title" />
 
-            <TextView
-                android:id="@+id/fragment_error_report_last_action_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/fragment_error_report_last_action"
-                android:text="@string/fragment_error_report_last_action_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_message" />
+                <TextView
+                    android:id="@+id/fragment_error_report_message_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/fragment_error_report_message"
+                    android:text="@string/fragment_error_report_message_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_email" />
 
-            <EditText
-                android:id="@+id/fragment_error_report_last_action"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/fragment_error_report_last_action_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textMultiLine"
-                android:nextFocusForward="@id/fragment_error_report_conditions"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_last_action_title" />
+                <EditText
+                    android:id="@+id/fragment_error_report_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/fragment_error_report_message_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="textMultiLine"
+                    android:nextFocusForward="@id/fragment_error_report_last_action"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_message_title" />
 
-            <TextView
-                android:id="@+id/fragment_error_report_conditions_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/fragment_error_report_conditions"
-                android:text="@string/fragment_error_report_conditions_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action" />
+                <TextView
+                    android:id="@+id/fragment_error_report_last_action_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/fragment_error_report_last_action"
+                    android:text="@string/fragment_error_report_last_action_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_message" />
 
-            <EditText
-                android:id="@+id/fragment_error_report_conditions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/fragment_error_report_conditions_hint"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions_title" />
+                <EditText
+                    android:id="@+id/fragment_error_report_last_action"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/fragment_error_report_last_action_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="textMultiLine"
+                    android:nextFocusForward="@id/fragment_error_report_conditions"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_last_action_title" />
 
-            <Button
-                android:id="@+id/fragment_error_report_send_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_button_margin_top"
-                android:text="@string/fragment_error_report_send_button"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
+                <TextView
+                    android:id="@+id/fragment_error_report_conditions_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/fragment_error_report_conditions"
+                    android:text="@string/fragment_error_report_conditions_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <EditText
+                    android:id="@+id/fragment_error_report_conditions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/fragment_error_report_conditions_hint"
+                    android:imeOptions="actionDone"
+                    android:inputType="textMultiLine"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions_title" />
 
-    </androidx.core.widget.NestedScrollView>
+                <Button
+                    android:id="@+id/fragment_error_report_send_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/login_button_margin_top"
+                    android:text="@string/fragment_error_report_send_button"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/navigation_bottom_background"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
+        </androidx.core.widget.NestedScrollView>
+
+        <include
+                android:id="@+id/loading_screen"
+                layout="@layout/include_loading_screen"
+                android:visibility="gone" />
+
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/nav_bottom_height"
-            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-            app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/navigation_bottom_settings" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/navigation_bottom_background"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
-    </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/nav_bottom_height"
+                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+                app:labelVisibilityMode="unlabeled"
+                app:menu="@menu/navigation_bottom_settings" />
+
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
