@@ -18,9 +18,9 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
 
     companion object : SingletonHolder<FontHelper, Context>(::FontHelper)
 
-    private val fontFolder =
-        FileHelper.getInstance(applicationContext)
-            .getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+    private val fileHelper = FileHelper.getInstance(applicationContext)
+    private val fontFolder = fileHelper.getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+
     private val cache: MutableMap<String, Typeface?> = mutableMapOf()
     private val mutex = Mutex()
 
@@ -44,7 +44,7 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
     }
 
     private suspend fun fromFile(fileName: String): Typeface? = withContext(Dispatchers.IO) {
-        return@withContext FileHelper.getInstance().getFile(fileName)?.let {
+        return@withContext fileHelper.getFile(fileName)?.let {
             val ttfFile = File("${fontFolder}/${it.name.replace(".woff", ".ttf")}")
             if (!ttfFile.exists()) {
                 ttfFile.createNewFile()

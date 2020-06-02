@@ -12,13 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.base.ViewModelFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.FeedHelper
 import kotlinx.android.synthetic.main.fragment_archive_end_navigation.*
 
 class FeedFilterFragment :
-    ViewModelFragment<FeedFilterViewModel>(R.layout.fragment_archive_end_navigation) {
+    BaseViewModelFragment<FeedFilterViewModel>(R.layout.fragment_archive_end_navigation) {
 
     internal val adapter = FeedAdapter()
 

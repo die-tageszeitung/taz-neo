@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import java.lang.reflect.ParameterizedType
 
-abstract class ViewModelFragment<VIEW_MODEL : ViewModel>(
+abstract class BaseViewModelFragment<VIEW_MODEL : ViewModel>(
     @LayoutRes layoutResourceId: Int
 ) : BaseMainFragment(layoutResourceId) {
 

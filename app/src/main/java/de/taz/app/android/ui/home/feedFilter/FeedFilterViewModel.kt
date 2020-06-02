@@ -24,7 +24,9 @@ class FeedFilterViewModel(application: Application) : AndroidViewModel(applicati
      */
     val inactiveFeedNameLiveData =
         SharedPreferenceStringSetLiveData(
-            FeedHelper.getInstance().feedPreferences, PREFERENCES_FEEDS_INACTIVE, emptySet()
+            FeedHelper.getInstance(application).feedPreferences,
+            PREFERENCES_FEEDS_INACTIVE,
+            emptySet()
         )
 
     fun getInactiveFeedNames(): Set<String> {
