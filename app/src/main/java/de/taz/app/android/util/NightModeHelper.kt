@@ -1,16 +1,10 @@
 package de.taz.app.android.util
 
 import android.app.Activity
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.ViewModel
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
 
 object NightModeHelper {
@@ -18,23 +12,27 @@ object NightModeHelper {
     private val fileHelper = FileHelper.getInstance()
     private val log by Log
 
-    val tazApiCssPrefListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            log.debug("Shared pref changed: $key")
-            val cssFile = fileHelper.getFileByPath(
-                "$RESOURCE_FOLDER/tazApi.css"
-            )
-            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+    class PrefListener(activity: Activity) {
+        val tazApiCssPrefListener =
+            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+                log.debug("Shared pref changed: $key")
+                val cssFile = fileHelper.getFileByPath(
+                    "$RESOURCE_FOLDER/tazApi.css"
+                )
+                val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
 
-            cssFile.writeText(cssString)
+                cssFile.writeText(cssString)
 
-            if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setThemeAndReCreate(sharedPreferences)
+                if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                    setThemeAndReCreate(sharedPreferences, activity, true)
+                }
             }
-        }
+    }
 
     private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences
+        sharedPreferences: SharedPreferences,
+        activity: Activity,
+        isRecreateFlagSet: Boolean = false
     ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -42,6 +40,9 @@ object NightModeHelper {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
+        }
+        if (isRecreateFlagSet) {
+            activity.recreate()
         }
     }
 
@@ -59,7 +60,7 @@ object NightModeHelper {
         }
 
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
-            setThemeAndReCreate(tazApiCssPreferences)
+            setThemeAndReCreate(tazApiCssPreferences, activity, false)
         }
 
     }

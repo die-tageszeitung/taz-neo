@@ -4,20 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NightModeHelper
 
 abstract class BaseActivity(layoutID: Int): AppCompatActivity(layoutID) {
 
-    //override fun getLifecycleOwner(): LifecycleOwner = this
-
-    //override fun getMainView(): MainActivity? = null
     private val log by Log
 
     private lateinit var tazApiCssPreferences: SharedPreferences
+
+    private lateinit var tazApiCssPrefListener : SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         tazApiCssPreferences =
@@ -25,17 +22,19 @@ abstract class BaseActivity(layoutID: Int): AppCompatActivity(layoutID) {
 
         NightModeHelper.initializeNightModePrefs(tazApiCssPreferences, this)
 
+        tazApiCssPrefListener = NightModeHelper.PrefListener(this).tazApiCssPrefListener
+
         super.onCreate(savedInstanceState)
     }
 
     override fun onResume() {
         super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(NightModeHelper.tazApiCssPrefListener)
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     override fun onPause() {
         super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(NightModeHelper.tazApiCssPrefListener)
+        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
 }
