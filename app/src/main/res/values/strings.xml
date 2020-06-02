@@ -94,8 +94,10 @@
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
     <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
-    <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
+    <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
     <string name="settings_category_support">Support</string>
+    <string name="settings_faq"><u>FAQ</u></string>
+    <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads">Automatische Downloads</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>

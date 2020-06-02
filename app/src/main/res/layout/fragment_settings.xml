@@ -110,13 +110,30 @@
                 android:text="@string/settings_category_support"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_night_mode" />
 
+            <TextView
+                android:id="@+id/fragment_settings_faq"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_faq"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
+
+            <TextView
+                android:id="@+id/fragment_settings_welcome_slides"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_welcome_slides"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_faq" />
+
             <Button
                 android:id="@+id/fragment_settings_support_report_bug"
                 style="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_support_report_bug"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_welcome_slides" />
 
             <TextView
                 android:id="@+id/fragment_settings_category_account"
