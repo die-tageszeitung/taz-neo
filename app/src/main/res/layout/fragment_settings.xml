@@ -126,9 +126,9 @@
                 android:text="@string/settings_category_account"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_support_report_bug" />
 
-            <Button
+            <TextView
                 android:id="@+id/fragment_settings_account_manage_account"
-                style="@style/Settings.Button"
+                style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_account_manage_account"
@@ -142,9 +142,9 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
 
-            <Button
+            <TextView
                 android:id="@+id/fragment_settings_account_logout"
-                style="@style/Settings.Button"
+                style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_account_logout"

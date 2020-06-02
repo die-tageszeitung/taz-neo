@@ -62,7 +62,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 }
             }
 
-            findViewById<Button>(R.id.fragment_settings_account_manage_account)
+            findViewById<TextView>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
                     activity?.startActivityForResult(
                         Intent(activity, LoginActivity::class.java),
