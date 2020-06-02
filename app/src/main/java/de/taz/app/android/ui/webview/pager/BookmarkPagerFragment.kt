@@ -9,7 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.ViewModelFragment
 import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
-    ViewModelBaseMainFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
+    ViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 
     val log by Log
 

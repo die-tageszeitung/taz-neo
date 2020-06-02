@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,9 @@ class FeedFilterFragment :
     ViewModelFragment<FeedFilterViewModel>(R.layout.fragment_archive_end_navigation) {
 
     internal val adapter = FeedAdapter()
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    lateinit var feedHelper: FeedHelper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,6 +40,8 @@ class FeedFilterFragment :
         viewModel.inactiveFeedNameLiveData.observeDistinct(this) { inactiveFeedNames ->
             setInactiveFeedNames(inactiveFeedNames)
         }
+
+        feedHelper = FeedHelper.getInstance(context?.applicationContext)
     }
 
     fun setFeeds(feeds: List<Feed>) {
@@ -123,8 +129,8 @@ class FeedFilterFragment :
         }
     }
 
-    private fun onFeedClicked(feed: Feed) {
-        val feedHelper = FeedHelper.getInstance(context?.applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun onFeedClicked(feed: Feed) {
         val inactiveFeedNames = viewModel.getInactiveFeedNames()
         if (feed.name !in inactiveFeedNames) {
             feedHelper.deactivateFeed(feed)

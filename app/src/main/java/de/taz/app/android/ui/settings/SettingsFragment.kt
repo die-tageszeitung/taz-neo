@@ -11,7 +11,7 @@ import android.widget.TextView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.ViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
@@ -24,7 +24,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
-class SettingsFragment : ViewModelBaseMainFragment<SettingsViewModel>(R.layout.fragment_settings) {
+class SettingsFragment : ViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
 
     private val log by Log
 
