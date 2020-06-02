@@ -21,7 +21,6 @@ import kotlinx.coroutines.withContext
 
 class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
 
-    private val dateHelper: DateHelper = DateHelper.getInstance()
     override val viewModel = WebViewViewModel<SectionStub>()
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
@@ -42,7 +41,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                     if (isWeekend) {
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =
-                                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                                FontHelper.getInstance(context?.applicationContext)
+                                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
                             //following two lines align header/dotted line in weekend issues
                             //with text in taz logo; TODO check whether we can get rid of them later
                             view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY =
@@ -57,7 +57,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_we
                 view?.findViewById<TextView>(R.id.section)?.apply {
                     text = displayable.getHeaderTitle()
                 }
-                dateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
+                DateHelper.getInstance(applicationContext)
+                    .dateToLowerCaseString(displayable.issueDate)?.let {
                     view?.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = it
                     }

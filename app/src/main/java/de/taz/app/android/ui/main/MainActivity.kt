@@ -336,7 +336,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                SectionRepository.getInstance()
+                                SectionRepository.getInstance(applicationContext)
                                     .getSectionStubForArticle(articleName)?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
                                             setCoverFlowItem(issueOperations)

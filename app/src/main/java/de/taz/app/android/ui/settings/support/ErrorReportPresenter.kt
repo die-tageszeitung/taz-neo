@@ -6,7 +6,7 @@ import de.taz.app.android.base.BasePresenter
 import de.taz.app.android.util.Log
 
 class ErrorReportPresenter:
-    BasePresenter<ErrorReportFragment, ErrorReportDataController>(ErrorReportDataController::class.java),
+    BasePresenter<ErrorReportFragmentOld, ErrorReportDataController>(ErrorReportDataController::class.java),
     ErrorReportContract.Presenter {
 
     private val log by Log

@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.login
 
+import android.app.Application
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
@@ -17,13 +19,14 @@ import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class LoginViewModel(
+    application: Application,
     initialUsername: String? = null,
     initialPassword: String? = null,
     register: Boolean = false,
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance(),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : ViewModel() {
+    private val apiService: ApiService = ApiService.getInstance(application),
+    private val authHelper: AuthHelper = AuthHelper.getInstance(application),
+    private val toastHelper: ToastHelper = ToastHelper.getInstance(application)
+) : AndroidViewModel(application) {
 
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)

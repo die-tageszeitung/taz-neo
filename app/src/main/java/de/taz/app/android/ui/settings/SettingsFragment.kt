@@ -19,18 +19,16 @@ import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.settings.support.ErrorReportFragment
+import de.taz.app.android.ui.settings.support.ErrorReportFragmentOld
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
-class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
+class SettingsFragment : ViewModelBaseMainFragment<SettingsViewModel>(R.layout.fragment_settings) {
 
     private val log by Log
 
     private var storedIssueNumber: String? = null
-
-    private var viewModel: SettingsViewModel? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -100,9 +98,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = viewModel ?: SettingsViewModel(requireActivity().applicationContext)
-
-        viewModel?.apply {
+        viewModel.apply {
             textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showTextSize(textSizeInt)
@@ -211,22 +207,22 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun setStoredIssueNumber(number: Int) {
         log.debug("setKeepNumber: $number")
-        viewModel?.storedIssueNumberLiveData?.postValue(number.toString())
+        viewModel.storedIssueNumberLiveData.postValue(number.toString())
     }
 
     private fun disableNightMode() {
         log.debug("disableNightMode")
-        viewModel?.nightModeLiveData?.postValue(false)
+        viewModel.nightModeLiveData.postValue(false)
     }
 
     private fun enableNightMode() {
         log.debug("enableNightMode")
-        viewModel?.nightModeLiveData?.postValue(true)
+        viewModel.nightModeLiveData.postValue(true)
     }
 
 
     private fun decreaseTextSize() {
-        viewModel?.apply {
+        viewModel.apply {
             val newSize = getTextSizePercent().toInt() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 textSizeLiveData.postValue(newSize.toString())
@@ -236,7 +232,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun increaseTextSize() {
         log.debug("increaseTextSize")
-        viewModel?.apply {
+        viewModel.apply {
             val newSize = getTextSizePercent().toInt() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 textSizeLiveData.postValue(newSize.toString())
@@ -246,19 +242,19 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun resetTextSize() {
         log.debug("resetTextSize")
-        viewModel?.textSizeLiveData?.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
+        viewModel.textSizeLiveData.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
     }
 
     private fun reportBug() {
-        showMainFragment(ErrorReportFragment())
+        showMainFragment(ErrorReportFragmentOld())
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
-        viewModel?.downloadOnlyWifiLiveData?.postValue(onlyWifi)
+        viewModel.downloadOnlyWifiLiveData.postValue(onlyWifi)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
-        viewModel?.downloadAutomaticallyLiveData?.postValue(downloadEnabled)
+        viewModel.downloadAutomaticallyLiveData.postValue(downloadEnabled)
     }
 
     private fun logout() {
@@ -268,6 +264,6 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
     }
 
     private fun getTextSizePercent(): String {
-        return viewModel?.textSizeLiveData?.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        return viewModel.textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
     }
 }

@@ -34,13 +34,7 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
-class LoginActivity(
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance(),
-    private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : BaseActivity(R.layout.activity_login) {
+class LoginActivity : BaseActivity(R.layout.activity_login) {
 
     private val log by Log
 
@@ -76,7 +70,9 @@ class LoginActivity(
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
-        viewModel = getViewModel { LoginViewModel(username, password, register) }
+        val toastHelper = ToastHelper.getInstance(applicationContext)
+
+        viewModel = getViewModel { LoginViewModel(application, username, password, register) }
 
         viewModel.backToArticle = article != null
 
@@ -282,7 +278,7 @@ class LoginActivity(
         showLoadingScreen()
 
         val data = Intent()
-        if (authHelper.isLoggedIn()) {
+        if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
                 deletePublicIssues()
@@ -306,9 +302,12 @@ class LoginActivity(
     }
 
     private suspend fun downloadLatestIssueMoments() {
+        val apiService = ApiService.getInstance(applicationContext)
+        val issueRepository = IssueRepository.getInstance(applicationContext)
+        val articleRepository = ArticleRepository.getInstance(applicationContext)
+
         val lastIssues = apiService.getLastIssues()
         issueRepository.save(lastIssues)
-
         article?.let { article ->
             var lastDate = lastIssues.last().date
             while (articleRepository.get(article) == null) {
@@ -320,7 +319,7 @@ class LoginActivity(
     }
 
     private fun deletePublicIssues() {
-        issueRepository.deletePublicIssues()
+        IssueRepository.getInstance(applicationContext).deletePublicIssues()
     }
 
     private fun showFragment(fragment: Fragment) {

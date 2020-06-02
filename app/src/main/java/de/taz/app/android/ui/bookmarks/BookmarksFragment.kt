@@ -17,9 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class BookmarksFragment : ViewModelBaseMainFragment(R.layout.fragment_bookmarks) {
-
-    private val viewModel = BookmarksViewModel()
+class BookmarksFragment :
+    ViewModelBaseMainFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
 
     private val recycleAdapter = BookmarksAdapter(this)
 
@@ -56,7 +55,8 @@ class BookmarksFragment : ViewModelBaseMainFragment(R.layout.fragment_bookmarks)
 
     fun shareArticle(articleFileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val article = ArticleRepository.getInstance().getStub(articleFileName)
+            val article =
+                ArticleRepository.getInstance(activity?.applicationContext).getStub(articleFileName)
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, article?.onlineLink)

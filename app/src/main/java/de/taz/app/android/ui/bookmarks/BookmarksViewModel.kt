@@ -1,8 +1,9 @@
 package de.taz.app.android.ui.bookmarks
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import de.taz.app.android.persistence.repository.ArticleRepository
 
-class BookmarksViewModel : ViewModel() {
-    val bookmarkedArticles = ArticleRepository.getInstance().getBookmarkedArticles()
+class BookmarksViewModel(application: Application) : AndroidViewModel(application) {
+    val bookmarkedArticles = ArticleRepository.getInstance(getApplication()).getBookmarkedArticles()
 }

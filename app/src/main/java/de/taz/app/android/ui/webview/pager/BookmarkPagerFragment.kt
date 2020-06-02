@@ -16,9 +16,8 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.launch
 
-class BookmarkPagerFragment: ViewModelBaseMainFragment(R.layout.fragment_webview_pager) {
-
-    val viewModel = BookmarkPagerViewModel()
+class BookmarkPagerFragment :
+    ViewModelBaseMainFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 
     val log by Log
 

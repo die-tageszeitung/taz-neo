@@ -20,8 +20,8 @@ import kotlinx.coroutines.withContext
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
 abstract class HomePageFragment(
-    layoutID : Int
-) : ViewModelBaseMainFragment(layoutID) {
+    layoutID: Int
+) : ViewModelBaseMainFragment<HomePageViewModel>(layoutID) {
 
     private val log by Log
 
@@ -31,8 +31,6 @@ abstract class HomePageFragment(
 
     private var lastRequestedDate = ""
 
-    private var viewModel : HomePageViewModel? = null
-
     abstract fun setFeeds(feeds: List<Feed>)
     abstract fun setInactiveFeedNames(feedNames: Set<String>)
     abstract fun setAuthStatus(authStatus: AuthStatus)
@@ -40,13 +38,12 @@ abstract class HomePageFragment(
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = viewModel ?: HomePageViewModel()
 
         apiService = ApiService.getInstance(context?.applicationContext)
         dateHelper = DateHelper.getInstance(context?.applicationContext)
         issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
-        viewModel?.apply {
+        viewModel.apply {
             issueStubsLiveData.observeDistinct(
                 viewLifecycleOwner,
                 HomePageIssueStubsObserver(

@@ -7,7 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.base.OldBaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
@@ -20,14 +20,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-class ErrorReportFragment :
-    BaseMainFragment<ErrorReportContract.Presenter>(R.layout.fragment_error_report),
+class ErrorReportFragmentOld :
+    OldBaseMainFragment<ErrorReportContract.Presenter>(R.layout.fragment_error_report),
     ErrorReportContract.View {
 
     override val presenter = ErrorReportPresenter()
-    private val fileHelper = FileHelper.getInstance()
     private val log by Log
-    val apiService = ApiService.getInstance()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,18 +62,21 @@ class ErrorReportFragment :
         conditions: String?
     ) {
         context?.let { context ->
-            val storageType = fileHelper.getFilesDir(context)
+            val storageType =
+                FileHelper.getInstance(activity?.applicationContext).getFilesDir(context)
             val errorProtocol = Log.trace.toString()
 
-            val activityManager = this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val activityManager =
+                this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val memoryInfo = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
 
-            val totalRam = "%.2f GB".format(memoryInfo.totalMem/ 1073741824f)
-            val usedRam = "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem)/ 1073741824f)
+            val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
+            val usedRam =
+                "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
-                apiService.sendErrorReport(
+                ApiService.getInstance(activity?.applicationContext).sendErrorReport(
                     email,
                     message,
                     lastAction,
@@ -87,7 +88,8 @@ class ErrorReportFragment :
                 )
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance().showToast(R.string.toast_error_report_sent)
+            ToastHelper.getInstance(activity?.applicationContext)
+                .showToast(R.string.toast_error_report_sent)
             parentFragmentManager.popBackStack()
         }
     }

@@ -114,10 +114,12 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
                     launchUrl(mainActivity, Uri.parse(url))
                 }
             } catch (e: ActivityNotFoundException) {
+                val toastHelper =
+                    ToastHelper.getInstance(webViewFragment?.context?.applicationContext)
                 if (url.startsWith("mailto:")) {
-                    ToastHelper.getInstance().showToast(R.string.toast_no_email_client)
+                    toastHelper.showToast(R.string.toast_no_email_client)
                 } else {
-                    ToastHelper.getInstance().showToast(R.string.toast_unknown_error)
+                    toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
         }

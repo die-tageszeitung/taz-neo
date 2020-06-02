@@ -1,14 +1,14 @@
 package de.taz.app.android.ui.bottomSheet.bookmarks
 
+import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 
-class BookmarkSheetViewModel(
-    private val articleRepository: ArticleRepository = ArticleRepository.getInstance()
-) : ViewModel() {
+class BookmarkSheetViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
 
     var articleFileName

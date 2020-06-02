@@ -7,7 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -22,9 +22,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeFragment : ViewModelBaseMainFragment(R.layout.fragment_home) {
+class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

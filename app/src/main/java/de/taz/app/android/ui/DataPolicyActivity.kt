@@ -57,7 +57,7 @@ class DataPolicyActivity : AppCompatActivity() {
             webViewClient = WebViewClient()
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-            val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
+            val fileDir = FileHelper.getInstance(applicationContext).getFileDirectoryUrl(this.context)
             val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureResourceInfoIsDownloadedAndShow(file.path)
@@ -83,7 +83,7 @@ class DataPolicyActivity : AppCompatActivity() {
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val isDownloadedLiveData =
-                DownloadRepository.getInstance().isDownloadedLiveData(
+                DownloadRepository.getInstance(applicationContext).isDownloadedLiveData(
                     dataPolicyPage
                 )
 

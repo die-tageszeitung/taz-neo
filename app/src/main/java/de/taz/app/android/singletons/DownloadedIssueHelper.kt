@@ -18,7 +18,7 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<DownloadedIssueHelper, Context>(::DownloadedIssueHelper)
 
-    private val issueRepository = IssueRepository.getInstance()
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     private val generalSettings = applicationContext.getSharedPreferences(
         PREFERENCES_GENERAL, Context.MODE_PRIVATE
