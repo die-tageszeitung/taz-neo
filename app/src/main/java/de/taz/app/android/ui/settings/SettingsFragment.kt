@@ -40,6 +40,14 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
                 )
+            findViewById<TextView>(R.id.fragment_settings_category_general).text =
+                getString(R.string.settings_category_general).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_text).text =
+                getString(R.string.settings_category_text).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_account).text =
+                getString(R.string.settings_category_account).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_support).text =
+                getString(R.string.settings_category_support).toLowerCase(Locale.GERMAN)
 
             findViewById<TextView>(R.id.fragment_settings_general_keep_issues).apply {
                 setOnClickListener {
