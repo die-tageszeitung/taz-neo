@@ -23,9 +23,12 @@ import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
+class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewModel>(R.layout.fragment_webview_article) {
 
-    override val viewModel = ArticleWebViewViewModel()
+    override val viewModel: ArticleWebViewViewModel by lazy {
+        ArticleWebViewViewModel()
+    }
+
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
     var observer: Observer<Boolean>? = null

@@ -18,7 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -34,15 +34,17 @@ import kotlinx.coroutines.withContext
 
 const val SCROLL_POSITION = "scrollPosition"
 
-abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
+abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
     @LayoutRes layoutResourceId: Int
-) : BaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
+) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
+    AppWebViewClientCallBack {
 
     protected val log by Log
 
     protected var displayable: DISPLAYABLE? = null
 
-    abstract val viewModel: WebViewViewModel<DISPLAYABLE>
+    abstract override val viewModel: VIEW_MODEL
+
     abstract val nestedScrollViewId: Int
 
     private lateinit var tazApiCssPreferences: SharedPreferences
@@ -68,10 +70,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayable = displayable
+        if (displayable != null) {
+            viewModel.displayable = displayable
+        }
 
         configureWebView()
-        displayable?.let { displayable ->
+        viewModel.displayable?.let { displayable ->
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureDownloadedAndShow(displayable)
             }
@@ -91,7 +95,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onStart() {
         super.onStart()
-        displayable?.let { displayable ->
+        viewModel.displayable?.let { displayable ->
             setHeader(displayable)
         }
     }
@@ -168,7 +172,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         if (!isDownloadedOrDownloading) {
                             lifecycleScope.launch(Dispatchers.IO) {
                                 log.debug("starting download of displayable")
-                                DownloadService.getInstance(activity?.applicationContext).download(displayable)
+                                DownloadService.getInstance(activity?.applicationContext)
+                                    .download(displayable)
                             }
                         }
                     }

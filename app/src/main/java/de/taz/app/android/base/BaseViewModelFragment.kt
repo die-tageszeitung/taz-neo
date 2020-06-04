@@ -9,7 +9,7 @@ abstract class BaseViewModelFragment<VIEW_MODEL : ViewModel>(
     @LayoutRes layoutResourceId: Int
 ) : BaseMainFragment(layoutResourceId) {
 
-    val viewModel: VIEW_MODEL by lazy {
+    open val viewModel: VIEW_MODEL by lazy {
         ViewModelProvider(this).get(getViewModelClassByReflection())
     }
 
