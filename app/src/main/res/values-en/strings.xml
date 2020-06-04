@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">taz neo</string>
     <string name="accept_button">accept</string>
-    <string name="cancel_button">Cancel</string>
+    <string name="cancel_button">cancel</string>
 
     <string name="notification_channel_new_version">New version</string>
     <string name="notification_channel_new_version_description">Notification if a new version exists</string>
@@ -156,7 +156,6 @@
 
     <string name="fragment_login_subscription_inactive_header">Your subscription is currently inactive (e.g. because it expired).</string>
     <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
-    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
     <string name="fragment_login_missing_credentials_header_registration">To use the new app you need to login with your email and a self-elected password.</string>
     <string name="fragment_login_missing_credentials_header_login">If you already have an account on taz.de please insert your credentials here.</string>
@@ -170,7 +169,6 @@
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
     <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
-    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
     <string name="fragment_login_forgot_password_send">Send and request link</string>
@@ -198,10 +196,10 @@
     <string name="fragment_login_subscription_taken_header">Your subscription is already connected to another account.</string>
     <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
     <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
-    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">We were not able to send you an email. Please write to our support:</string>
-    <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
 
     <string name="button_close_text">×</string>
     <string name="issue_not_found">Issue not found.</string>
