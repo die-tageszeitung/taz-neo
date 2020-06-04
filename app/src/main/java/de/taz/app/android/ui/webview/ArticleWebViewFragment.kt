@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
@@ -26,7 +27,7 @@ import kotlinx.coroutines.*
 class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewModel>(R.layout.fragment_webview_article) {
 
     override val viewModel: ArticleWebViewViewModel by lazy {
-        ArticleWebViewViewModel()
+        ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
     }
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
