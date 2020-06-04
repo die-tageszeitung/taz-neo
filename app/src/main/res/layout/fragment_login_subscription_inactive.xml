@@ -10,6 +10,7 @@
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
         android:text="@string/fragment_login_subscription_inactive_header"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -18,15 +19,18 @@
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
         android:text="@string/fragment_login_subscription_inactive_body"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_inactive_header" />
 
     <TextView
         android:id="@+id/fragment_login_subscription_inactive_email"
-        style="@style/TextAppearance.Login.Link"
+        style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_subscription_inactive_email"
+        android:layout_marginTop="0dp"
+        android:textAlignment="viewStart"
+        android:text="@string/fragment_login_digiabo_mail_underlined"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_inactive_body" />
 
 
