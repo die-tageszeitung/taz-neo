@@ -172,7 +172,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 if (!isDownloaded()) {
                     download(context?.applicationContext)
                 }
-                withContext(Dispatchers.Main) {
+                lifecycleScope.launchWhenResumed {
                     isDownloadedLiveData().observeDistinctUntil(
                         viewLifecycleOwner,
                         { momentIsDownloadedObservationCallback(it) }, { it }
