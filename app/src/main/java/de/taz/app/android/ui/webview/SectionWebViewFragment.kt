@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
@@ -19,9 +20,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SectionWebViewFragment : WebViewFragment<SectionStub>(R.layout.fragment_webview_section) {
+class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
 
-    override val viewModel = WebViewViewModel<SectionStub>()
+class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
+
+    override val viewModel by lazy {
+        ViewModelProvider(this).get(SectionWebViewViewModel::class.java)
+    }
+
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
     companion object {

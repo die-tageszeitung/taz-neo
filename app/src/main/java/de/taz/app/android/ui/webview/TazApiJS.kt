@@ -8,6 +8,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
@@ -20,7 +21,7 @@ import java.lang.ref.WeakReference
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
-class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
+class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
 
     private val log by Log
 
