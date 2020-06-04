@@ -19,21 +19,20 @@ class BookmarkSheetFragment :
     BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
 
     private val articleRepository = ArticleRepository.getInstance(activity?.applicationContext)
+    private var articleFileName: String? = null
 
     companion object {
         fun create(articleFileName: String): BookmarkSheetFragment {
             val fragment = BookmarkSheetFragment()
-            fragment.setArticleFileName(articleFileName)
+            fragment.articleFileName = articleFileName
             return fragment
         }
     }
 
-    fun setArticleFileName(articleFileName: String) {
-        viewModel.articleFileName = articleFileName
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setArticleFileName()
 
         fragment_bottom_sheet_bookmarks_add?.setOnClickListener {
             toggleBookmark()
@@ -53,6 +52,10 @@ class BookmarkSheetFragment :
                     R.string.fragment_bottom_sheet_bookmarks_add_bookmark
             )
         }
+    }
+
+    fun setArticleFileName() {
+        viewModel.articleFileName = this.articleFileName
     }
 
     private fun toggleBookmark() {

@@ -69,7 +69,7 @@ class SectionListAdapter(
                         sectionRepository.getSectionStubsLiveDataForIssueOperations(
                             issueStub
                         )
-                    withContext(Dispatchers.Main) {
+                    fragment.lifecycleScope.launchWhenResumed {
                         sectionListObserver = Observer<List<SectionStub>> {
                             notifyDataSetChanged()
                         }.also {
