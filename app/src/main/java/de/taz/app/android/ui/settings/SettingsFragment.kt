@@ -16,6 +16,7 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -67,6 +68,13 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                     activity?.startActivityForResult(
                         Intent(activity, LoginActivity::class.java),
                         ACTIVITY_LOGIN_REQUEST_CODE
+                    )
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_welcome_slides)
+                .setOnClickListener {
+                    activity?.startActivity(
+                        Intent(activity, WelcomeActivity::class.java)
                     )
                 }
 
@@ -157,7 +165,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                         dialog.hide()
                     }
                 }
-                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                 }
                 .create()
