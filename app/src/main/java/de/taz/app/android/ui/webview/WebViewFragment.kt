@@ -70,7 +70,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (displayable != null) {
+        if (viewModel.displayable == null) {
             viewModel.displayable = displayable
         }
 
