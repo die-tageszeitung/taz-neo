@@ -40,12 +40,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val openDatePicker: (Date) -> Unit = { issueDate ->
         showBottomSheet(DatePickerFragment.create(this, issueDate))
     }
+    var coverflowAdapter: CoverflowAdapter? = null
 
-    val coverFlowPagerAdapter = CoverflowAdapter(
-        this@CoverflowFragment,
-        R.layout.fragment_cover_flow_item,
-        openDatePicker
-    )
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
 
@@ -55,6 +51,13 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        coverflowAdapter = coverflowAdapter ?: CoverflowAdapter(
+            this,
+            R.layout.fragment_cover_flow_item,
+            openDatePicker
+        )
+
         savedInstanceState?.apply {
             runIfNotNull(
                 getString(ISSUE_DATE),
@@ -73,7 +76,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             context?.let { context ->
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             }
-            adapter = coverFlowPagerAdapter
+            adapter = coverflowAdapter
 
             snapHelper.apply {
                 attachToRecyclerView(fragment_cover_flow_grid)
@@ -111,19 +114,19 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        coverFlowPagerAdapter.setIssueStubs(issueStubs.reversed())
+        coverflowAdapter?.setIssueStubs(issueStubs.reversed())
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
-        coverFlowPagerAdapter.setAuthStatus(authStatus)
+        coverflowAdapter?.setAuthStatus(authStatus)
     }
 
     override fun setFeeds(feeds: List<Feed>) {
-        coverFlowPagerAdapter.setFeeds(feeds)
+        coverflowAdapter?.setFeeds(feeds)
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
-        coverFlowPagerAdapter.setInactiveFeedNames(feedNames)
+        coverflowAdapter?.setInactiveFeedNames(feedNames)
     }
 
     fun getLifecycleOwner(): LifecycleOwner {
@@ -131,14 +134,15 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     fun skipToEnd() {
-        if (coverFlowPagerAdapter.itemCount > 0) {
-            fragment_cover_flow_grid?.scrollToPosition(coverFlowPagerAdapter.itemCount.minus(1))
+        val itemCount = coverflowAdapter?.itemCount ?: -1
+        if (itemCount > 0) {
+            fragment_cover_flow_grid?.scrollToPosition(itemCount.minus(1))
         }
     }
 
     fun skipToCurrentItem() {
         runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
-            val position = coverFlowPagerAdapter.getPosition(feed, date, status)
+            val position = coverflowAdapter?.getPosition(feed, date, status) ?: -1
             if (position >= 0) {
                 snapHelper.scrollToPosition(position)
             }
@@ -201,11 +205,11 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
             // persist position and download new issues if user is scrolling
             if (position >= 0 && !isIdleEvent) {
-                setCurrentItem(coverFlowPagerAdapter.getItem(position))
+                setCurrentItem(coverflowAdapter?.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 3
                     if (position < 2 * visibleItemCount) {
-                        coverFlowPagerAdapter.getItem(0)?.date?.let { requestDate ->
+                        coverflowAdapter?.getItem(0)?.date?.let { requestDate ->
                             getNextIssueMoments(requestDate)
                         }
                     }
@@ -215,7 +219,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             // if user swiped update the drawer issue
             if (dx != 0) {
                 getMainView()?.apply {
-                    coverFlowPagerAdapter.getItem(position)?.let {
+                    coverflowAdapter?.getItem(position)?.let {
                         setDrawerIssue(it)
                         // if drawer is visible update UI
                         if (getMainView()?.isDrawerVisible(Gravity.START) == true) {
