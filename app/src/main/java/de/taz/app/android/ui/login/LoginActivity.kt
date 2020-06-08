@@ -277,8 +277,9 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
         log.debug("done")
         showLoadingScreen()
 
+        val authHelper = AuthHelper.getInstance(applicationContext)
         val data = Intent()
-        if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
+        if (authHelper.isLoggedIn()) {
             lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
                 deletePublicIssues()
