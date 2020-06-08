@@ -83,7 +83,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
-
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
@@ -94,16 +93,17 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onResume() {
-        super.onResume()
         skipToCurrentItem()
         fragment_cover_flow_grid.apply {
             addOnScrollListener(onScrollListener)
         }
+        applyZoomPageTranformer()
         getMainView()?.apply {
             setDrawerNavButton()
             setActiveDrawerSection(RecyclerView.NO_POSITION)
             changeDrawerIssue()
         }
+        super.onResume()
     }
 
     override fun onPause() {
@@ -194,14 +194,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // transform the visible children visually
-            (fragment_cover_flow_grid as? ViewGroup)?.apply {
-                children.forEach { child ->
-                    val childPosition = (child.left + child.right) / 2f
-                    val center = width / 2
-
-                    ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
-                }
-            }
+            applyZoomPageTranformer()
 
             // persist position and download new issues if user is scrolling
             if (position >= 0 && !isIdleEvent) {
@@ -250,6 +243,17 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         outState.putString(ISSUE_STATUS, issueStatus?.toString())
         outState.putString(ISSUE_DATE, issueDate)
         super.onSaveInstanceState(outState)
+    }
+
+    private fun applyZoomPageTranformer() {
+        (fragment_cover_flow_grid as? ViewGroup)?.apply {
+            children.forEach { child ->
+                val childPosition = (child.left + child.right) / 2f
+                val center = width / 2
+
+                ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
+            }
+        }
     }
 
 }
