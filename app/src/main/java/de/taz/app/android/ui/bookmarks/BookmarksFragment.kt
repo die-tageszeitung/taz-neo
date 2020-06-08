@@ -20,7 +20,7 @@ import java.util.*
 class BookmarksFragment :
     BaseViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
 
-    private val recycleAdapter = BookmarksAdapter(this)
+    private var recycleAdapter: BookmarksAdapter? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -30,6 +30,11 @@ class BookmarksFragment :
             layoutManager = LinearLayoutManager(this.context)
             adapter = recycleAdapter
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        recycleAdapter = recycleAdapter ?: BookmarksAdapter(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
