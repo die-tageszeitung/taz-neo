@@ -42,6 +42,21 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
 
     private var article: String? = null
 
+    private var apiService: ApiService? = null
+    private var articleRepository: ArticleRepository? = null
+    private var authHelper: AuthHelper? = null
+    private var issueRepository: IssueRepository? = null
+    private var toastHelper: ToastHelper? = null
+
+    override fun onAttachFragment(fragment: Fragment) {
+        super.onAttachFragment(fragment)
+        apiService = ApiService.getInstance(applicationContext)
+        articleRepository = ArticleRepository.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -69,8 +84,6 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
         val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
-
-        val toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewModel = getViewModel { LoginViewModel(application, username, password, register) }
 
@@ -143,7 +156,7 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
                     showPasswordRequest(invalidId = true)
                 }
                 LoginViewModelState.POLLING_FAILED -> {
-                    toastHelper.showToast(R.string.something_went_wrong_try_later)
+                    toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
@@ -163,7 +176,7 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
-                toastHelper.showNoConnectionToast()
+                toastHelper?.showNoConnectionToast()
             }
         }
 
@@ -277,9 +290,8 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
         log.debug("done")
         showLoadingScreen()
 
-        val authHelper = AuthHelper.getInstance(applicationContext)
         val data = Intent()
-        if (authHelper.isLoggedIn()) {
+        if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
                 deletePublicIssues()
@@ -303,24 +315,22 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        val apiService = ApiService.getInstance(applicationContext)
-        val issueRepository = IssueRepository.getInstance(applicationContext)
-        val articleRepository = ArticleRepository.getInstance(applicationContext)
-
-        val lastIssues = apiService.getLastIssues()
-        issueRepository.save(lastIssues)
-        article?.let { article ->
-            var lastDate = lastIssues.last().date
-            while (articleRepository.get(article) == null) {
-                val issues = apiService.getIssuesByDate(lastDate)
-                issueRepository.save(issues)
-                lastDate = issues.last().date
+        apiService?.getLastIssues()?.let { lastIssues ->
+            issueRepository?.save(lastIssues)
+            article?.let { article ->
+                var lastDate = lastIssues.last().date
+                while (articleRepository?.get(article) == null) {
+                    apiService?.getIssuesByDate(lastDate)?.let { issues ->
+                        issueRepository?.save(issues)
+                        lastDate = issues.last().date
+                    }
+                }
             }
         }
     }
 
     private fun deletePublicIssues() {
-        IssueRepository.getInstance(applicationContext).deletePublicIssues()
+        issueRepository?.deletePublicIssues()
     }
 
     private fun showFragment(fragment: Fragment) {

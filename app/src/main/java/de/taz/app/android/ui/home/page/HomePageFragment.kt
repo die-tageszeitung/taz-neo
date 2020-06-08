@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -36,12 +37,15 @@ abstract class HomePageFragment(
     abstract fun setAuthStatus(authStatus: AuthStatus)
     abstract fun onDataSetChanged(issueStubs: List<IssueStub>)
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context.applicationContext)
+        dateHelper = DateHelper.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        apiService = ApiService.getInstance(context?.applicationContext)
-        dateHelper = DateHelper.getInstance(context?.applicationContext)
-        issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
         viewModel.apply {
             issueStubsLiveData.observeDistinct(
