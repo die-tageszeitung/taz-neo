@@ -27,7 +27,7 @@ import java.util.*
  *  [ViewHolder] is used to recycle views
  */
 abstract class HomePageAdapter(
-    private val modelView: HomePageFragment,
+    private val fragment: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
     private val dateOnClickListenerFunction: ((Date) -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
@@ -38,6 +38,8 @@ abstract class HomePageAdapter(
     private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
+
+    private val dateHelper = DateHelper.getInstance(fragment.activity?.applicationContext)
 
     private val log by Log
 
@@ -110,7 +112,7 @@ abstract class HomePageAdapter(
         return mutableFilteredIssueList
     }
 
-    private fun filterAndSetIssues() {
+    protected fun filterAndSetIssues() {
         val filteredIssueStubs = filterIssueStubs()
         log.debug("after filtering ${filteredIssueStubs.size} remain")
         val diffResult = DiffUtil.calculateDiff(
@@ -121,6 +123,7 @@ abstract class HomePageAdapter(
         )
         visibleIssueStubList = filteredIssueStubs
         diffResult.dispatchUpdatesTo(this)
+        fragment.afterSettingIssues()
     }
 
     fun setFeeds(feeds: List<Feed>) {
@@ -137,7 +140,7 @@ abstract class HomePageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(modelView.context).inflate(
+            LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
@@ -155,9 +158,9 @@ abstract class HomePageAdapter(
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                modelView.viewLifecycleOwner.lifecycleScope.launch {
+                fragment.viewLifecycleOwner.lifecycleScope.launch {
                     getItem(adapterPosition)?.let {
-                        modelView.onItemSelected(it)
+                        fragment.onItemSelected(it)
                     }
                 }
             }
@@ -165,8 +168,8 @@ abstract class HomePageAdapter(
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
                 getItem(adapterPosition)?.let { item ->
-                    modelView.getMainView()?.let { mainView ->
-                        modelView.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
+                    fragment.getMainView()?.let { mainView ->
+                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
                 true
@@ -175,9 +178,8 @@ abstract class HomePageAdapter(
             dateOnClickListenerFunction?.let { dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
                     getItem(adapterPosition)?.let { issueStub ->
-                        DateHelper.getInstance(
-                            modelView.context?.applicationContext
-                        ).stringToDate(issueStub.date)?.let { issueDate ->
+                        val issueDate = dateHelper.stringToDate(issueStub.date)
+                        issueDate?.let {
                             dateOnClickListenerFunction(issueDate)
                         }
                     }

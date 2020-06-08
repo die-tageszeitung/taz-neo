@@ -100,4 +100,7 @@ abstract class HomePageFragment(
         }
     }
 
+    // callback which will be called after issues have been set
+    open fun afterSettingIssues() = Unit
+
 }
