@@ -41,7 +41,7 @@ class BookmarksFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
-            recycleAdapter.setData((bookmarks ?: emptyList()).toMutableList())
+            recycleAdapter?.setData((bookmarks ?: emptyList()).toMutableList())
         })
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
