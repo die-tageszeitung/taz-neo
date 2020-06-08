@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
@@ -15,6 +16,7 @@ import de.taz.app.android.base.ViewModelBaseMainFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -40,6 +42,14 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
                 )
+            findViewById<TextView>(R.id.fragment_settings_category_general).text =
+                getString(R.string.settings_category_general).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_text).text =
+                getString(R.string.settings_category_text).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_account).text =
+                getString(R.string.settings_category_account).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_support).text =
+                getString(R.string.settings_category_support).toLowerCase(Locale.GERMAN)
 
             findViewById<TextView>(R.id.fragment_settings_general_keep_issues).apply {
                 setOnClickListener {
@@ -53,11 +63,18 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 }
             }
 
-            findViewById<Button>(R.id.fragment_settings_account_manage_account)
+            findViewById<TextView>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
                     activity?.startActivityForResult(
                         Intent(activity, LoginActivity::class.java),
                         ACTIVITY_LOGIN_REQUEST_CODE
+                    )
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_welcome_slides)
+                .setOnClickListener {
+                    activity?.startActivity(
+                        Intent(activity, WelcomeActivity::class.java)
                     )
                 }
 
@@ -85,7 +102,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 logout()
             }
 
-            fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
+            fragment_settings_version_number?.text = getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -148,7 +165,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                         dialog.hide()
                     }
                 }
-                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                 }
                 .create()
@@ -164,7 +181,10 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun showStoredIssueNumber(number: String) {
         storedIssueNumber = number
-        val text = getString(R.string.settings_general_keep_number_issues, number)
+        val text = HtmlCompat.fromHtml(
+            getString(R.string.settings_general_keep_number_issues, number),
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 

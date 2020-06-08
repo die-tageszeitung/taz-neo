@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">taz neo</string>
     <string name="accept_button">Akzeptieren</string>
+    <string name="cancel_button">Abbrechen</string>
 
     <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
 
@@ -78,8 +79,8 @@
 
     <string name="settings_header">Einstellungen</string>
     <string name="settings_category_general">Allgemein</string>
-    <string name="settings_category_text">Text</string>
-    <string name="settings_category_account">Konto</string>
+    <string name="settings_category_text">Darstellung</string>
+    <string name="settings_category_account">Abo</string>
     <string name="settings_text_font_size">Textgröße</string>
     <string name="settings_text_epaper">Immer als E-Paper lesen</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
@@ -88,19 +89,21 @@
     <string name="settings_account_password">Passwort</string>
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">AbonnentIn</string>
-    <string name="settings_account_manage_account">Konto verwalten</string>
-    <string name="settings_account_logout">Logout</string>
+    <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
+    <string name="settings_account_logout"><u>Logout</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
-    <string name="settings_general_keep_number_issues">Die letzten %s Ausgaben speichern</string>
-    <string name="settings_general_keep_number_issue_title">Ausgabenanzahl behalten</string>
+    <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
+    <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
     <string name="settings_category_support">Support</string>
+    <string name="settings_faq"><u>FAQ</u></string>
+    <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads">Automatische Downloads</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
-    <string name="settings_version_number">Version</string>
+    <string name="settings_version_number">Version %s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
@@ -155,7 +158,6 @@
 
     <string name="fragment_login_subscription_inactive_header">Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).</string>
     <string name="fragment_login_subscription_inactive_body">Bitte kontaktieren Sie unseren Service:</string>
-    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
     <string name="fragment_login_missing_credentials_header_registration">Sie haben noch keine taz-ID? Hier können Sie sich selbst eine neue taz-ID mit einer E-Mail-Adresse und Ihrem persönlichen Passwort aussuchen.</string>>
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
@@ -169,7 +171,6 @@
     <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_email_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
     <string name="fragment_login_email_already_taken_contact_support">Oder wenden Sie sich an unseren Service unter</string>
-    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse oder Abo-ID an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
@@ -197,10 +198,10 @@
     <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
     <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
-    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden. Bitte wenden Sie sich an den Support:</string>
-    <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
 
     <string name="button_close_text">×</string>
 
