@@ -52,8 +52,18 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
     private val log by Log
 
+    private var fileHelper: FileHelper? = null
+    private var imageRepository: ImageRepository? = null
+    private var sectionRepository: SectionRepository? = null
+    private var toastHelper: ToastHelper? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fileHelper = FileHelper.getInstance(applicationContext)
+        imageRepository = ImageRepository.getInstance(applicationContext)
+        sectionRepository = SectionRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -214,11 +224,11 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
     }
 
     fun showToast(stringId: Int) {
-        ToastHelper.getInstance(applicationContext).showToast(stringId)
+        toastHelper?.showToast(stringId)
     }
 
     fun showToast(string: String) {
-        ToastHelper.getInstance(applicationContext).showToast(string)
+        toastHelper?.showToast(string)
     }
 
     fun getLifecycleOwner(): LifecycleOwner = this
@@ -275,8 +285,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
-                defaultNavButton = ImageRepository.getInstance(applicationContext)
-                    .get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                defaultNavButton = imageRepository?.get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
             val image: Image? = navButton ?: defaultNavButton
@@ -302,8 +311,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                 // would be too big - the value is taken from experience rather than science
                 val scalingFactor = 1f / 3f
 
-                val file = FileHelper.getInstance(applicationContext).getFile(navButton)
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                val file = fileHelper?.getFile(navButton)
+                val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
                     (TypedValue.applyDimension(
@@ -336,8 +345,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                SectionRepository.getInstance(applicationContext)
-                                    .getSectionStubForArticle(articleName)?.let { section ->
+                                sectionRepository?.getSectionStubForArticle(articleName)
+                                    ?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
                                             setCoverFlowItem(issueOperations)
                                             setDrawerIssue(issueOperations)

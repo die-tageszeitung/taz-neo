@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bottomSheet.datePicker
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +33,12 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
     private var feed: Feed? = null
 
+    private var apiService: ApiService? = null
+    private var dateHelper: DateHelper? = null
+    private var feedRepository: FeedRepository? = null
+    private var issueRepository: IssueRepository? = null
+    private var toastHelper: ToastHelper? = null
+
     companion object {
         fun create(
             coverFlowFragment: CoverflowFragment?,
@@ -41,6 +48,15 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
             fragment.coverFlowFragment = WeakReference(coverFlowFragment)
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context.applicationContext)
+        dateHelper = DateHelper.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -61,15 +77,16 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
 
 
         //minDate and maxDate constraints. UX is somewhat whack..
-        val dateHelper = DateHelper.getInstance(context?.applicationContext)
-        fragment_bottom_sheet_date_picker.maxDate = dateHelper.today(AppTimeZone.Default)
-        log.debug("maxDate is ${dateHelper.longToString(dateHelper.today(AppTimeZone.Default))}")
-        lifecycleScope.launch(Dispatchers.IO) {
-            feed = FeedRepository.getInstance(context?.applicationContext).get("taz")
-            feed?.let { feed ->
-                log.debug("minDate is ${feed.issueMinDate}")
-                fragment_bottom_sheet_date_picker.minDate =
-                    dateHelper.stringToLong(feed.issueMinDate)
+        dateHelper?.let { dateHelper ->
+            fragment_bottom_sheet_date_picker.maxDate = dateHelper.today(AppTimeZone.Default)
+            log.debug("maxDate is ${dateHelper.longToString(dateHelper.today(AppTimeZone.Default))}")
+            lifecycleScope.launch(Dispatchers.IO) {
+                feed = feedRepository?.get("taz")
+                feed?.let { feed ->
+                    log.debug("minDate is ${feed.issueMinDate}")
+                    fragment_bottom_sheet_date_picker.minDate =
+                        dateHelper.stringToLong(feed.issueMinDate)
+                }
             }
         }
 
@@ -106,33 +123,28 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            val dateHelper = DateHelper.getInstance(context?.applicationContext)
-            val issueRepository = IssueRepository.getInstance(context?.applicationContext)
-            val issueStub = issueRepository.getLatestIssueStubByDate(date)
+            val issueStub = issueRepository?.getLatestIssueStubByDate(date)
             if (issueStub != null && (issueStub.date == date ||
-                        dateHelper.dayDelta(issueStub.date, date)
-                            .toInt() == 1 && issueStub.isWeekend)
+                        dateHelper?.dayDelta(issueStub.date, date)?.toInt() == 1 &&
+                        issueStub.isWeekend)
             ) {
                 log.debug("issue is already local")
                 showIssue(issueStub)
             } else {
-                issueRepository.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
+                issueRepository?.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
                     try {
-                        val apiIssueList = ApiService.getInstance(context?.applicationContext)
-                            .getIssuesByDate(date, 1)
-                        if (apiIssueList.isNotEmpty()) {
-                            val newIssue = apiIssueList.first()
+                        val apiIssueList = apiService?.getIssuesByDate(date, 1)
+                        if (apiIssueList?.isNullOrEmpty() == false) {
+                            apiIssueList.first().let {
+                                issueRepository?.save(it)
+                            }
 
-                            issueRepository.save(newIssue)
-
-                            val selectedIssueStub = issueRepository.getLatestIssueStubByDate(date)
+                            val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
                             selectedIssueStub?.let {
                                 showIssue(it)
                             }
 
-                            ToastHelper.getInstance(context?.applicationContext).showToast(
-                                "${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date"
-                            )
+                            toastHelper?.showToast("${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date")
                             context?.let {
                                 ToDownloadIssueHelper(it).startMissingDownloads(
                                     date,
@@ -140,15 +152,11 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                                 )
                             }
                         } else {
-                            ToastHelper.getInstance(context?.applicationContext).showToast(
-                                getString(R.string.issue_not_found)
-                            )
+                            toastHelper?.showToast(getString(R.string.issue_not_found))
                             dismiss()
                         }
                     } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        ToastHelper.getInstance(context?.applicationContext).showToast(
-                            getString(R.string.toast_no_internet)
-                        )
+                        toastHelper?.showToast(getString(R.string.toast_no_internet))
                         dismiss()
                     }
                 }

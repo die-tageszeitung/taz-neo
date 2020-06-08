@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bottomSheet.issue
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,6 +32,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private var issueStub: IssueStub? = null
     private var weakActivityReference: WeakReference<MainActivity>? = null
 
+    private var apiService: ApiService? = null
+    private var fileEntryRepository: FileEntryRepository? = null
+    private var fileHelper: FileHelper? = null
+    private var downloadService: DownloadService? = null
+    private var issueRepository: IssueRepository? = null
+
     companion object {
         fun create(
             mainActivity: MainActivity,
@@ -41,6 +48,15 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             fragment.issueStub = issueStub
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
+        fileHelper = FileHelper.getInstance(context.applicationContext)
+        downloadService = DownloadService.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -64,30 +80,31 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             issueStub?.let { issueStub ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val issue = IssueRepository.getInstance(context?.applicationContext).getIssue(issueStub)
-                    issue.moment.getMomentFileToShare().let { image ->
-                        FileEntryRepository.getInstance(context?.applicationContext).get(
+                    val issue = issueRepository?.getIssue(issueStub)
+                    issue?.moment?.getMomentFileToShare()?.let { image ->
+                        fileEntryRepository?.get(
                             image.name
                         )?.let {
-                            DownloadService.getInstance(context?.applicationContext).download(it, issue.baseUrl)
+                            downloadService?.download(it, issue.baseUrl)
                         }
-                        val imageAsFile = FileHelper.getInstance(context?.applicationContext).getFile(image)
-                        val applicationId = view.context.packageName
-                        val imageUriNew = FileProvider.getUriForFile(
-                            view.context,
-                            "${applicationId}.contentProvider",
-                            imageAsFile
-                        )
+                        fileHelper?.getFile(image)?.let { imageAsFile ->
+                            val applicationId = view.context.packageName
+                            val imageUriNew = FileProvider.getUriForFile(
+                                view.context,
+                                "${applicationId}.contentProvider",
+                                imageAsFile
+                            )
 
-                        log.debug("imageUriNew: $imageUriNew")
-                        log.debug("imageAsFile: $imageAsFile")
-                        val sendIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                            type = "image/jpg"
+                            log.debug("imageUriNew: $imageUriNew")
+                            log.debug("imageAsFile: $imageAsFile")
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                                type = "image/jpg"
+                            }
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            view.context.startActivity(shareIntent)
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        view.context.startActivity(shareIntent)
                     }
                 }
             }
@@ -105,13 +122,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val issueRepository = IssueRepository.getInstance(context?.applicationContext)
                     val deleteJob = launch {
-                        issueRepository.getIssue(issueStub).delete()
+                        issueRepository?.getIssue(issueStub)?.delete()
                     }
                     var issue: Issue? = null
                     val retrievalJob = launch {
-                        ApiService.getInstance(context?.applicationContext).getIssueByFeedAndDate(
+                        apiService?.getIssueByFeedAndDate(
                             issueStub.feedName, issueStub.date
                         )?.let { issue = it }
                     }
@@ -120,7 +136,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     retrievalJob.join()
 
                     issue?.let {
-                        issueRepository.save(it)
+                        issueRepository?.save(it)
                         (activity as? MainActivity)?.setCoverFlowItem(IssueStub(it))
                     }
 

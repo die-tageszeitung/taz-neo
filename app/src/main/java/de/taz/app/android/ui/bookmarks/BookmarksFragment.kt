@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bookmarks
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -21,6 +22,13 @@ class BookmarksFragment :
     BaseViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
 
     private var recycleAdapter: BookmarksAdapter? = null
+
+    private var articleRepository: ArticleRepository? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -60,8 +68,7 @@ class BookmarksFragment :
 
     fun shareArticle(articleFileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val article =
-                ArticleRepository.getInstance(activity?.applicationContext).getStub(articleFileName)
+            val article = articleRepository?.getStub(articleFileName)
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, article?.onlineLink)

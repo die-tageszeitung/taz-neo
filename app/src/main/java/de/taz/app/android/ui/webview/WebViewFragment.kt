@@ -39,15 +39,17 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 ) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
     AppWebViewClientCallBack {
 
-    protected val log by Log
-
     protected var displayable: DISPLAYABLE? = null
-
     abstract override val viewModel: VIEW_MODEL
 
-    abstract val nestedScrollViewId: Int
+    protected val log by Log
 
+    abstract val nestedScrollViewId: Int
     private lateinit var tazApiCssPreferences: SharedPreferences
+
+    private var apiService: ApiService? = null
+    private var downloadService: DownloadService? = null
+    private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
@@ -56,6 +58,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 web_view?.injectCss(sharedPreferences)
             }
         }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context?.applicationContext)
+        downloadService = DownloadService.getInstance(context?.applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context?.applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,7 +165,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
 
         val resourceInfo = if (isResourceInfoUpToDate) {
-            ResourceInfoRepository.getInstance(activity?.applicationContext).get()
+            resourceInfoRepository?.get()
         } else {
             tryGetResourceInfo()
         }
@@ -172,8 +181,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                         if (!isDownloadedOrDownloading) {
                             lifecycleScope.launch(Dispatchers.IO) {
                                 log.debug("starting download of displayable")
-                                DownloadService.getInstance(activity?.applicationContext)
-                                    .download(displayable)
+                                downloadService?.download(displayable)
                             }
                         }
                     }
@@ -260,8 +268,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
         return try {
-            ApiService.getInstance(activity?.applicationContext).getResourceInfo()?.let {
-                ResourceInfoRepository.getInstance(activity?.applicationContext).save(it)
+            apiService?.getResourceInfo()?.let {
+                resourceInfoRepository?.save(it)
                 it
             } ?: run {
                 getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
@@ -280,9 +288,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = viewModel.displayable?.getIssueOperations()
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-        val currentResourceVersion =
-            ResourceInfoRepository.getInstance(activity?.applicationContext).get()?.resourceVersion
-                ?: 0
+        val currentResourceVersion = resourceInfoRepository?.get()?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
     }

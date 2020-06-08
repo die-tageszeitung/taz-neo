@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +26,13 @@ import kotlinx.coroutines.withContext
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
+    var dateHelper: DateHelper? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dateHelper = DateHelper.getInstance(context.applicationContext)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,13 +55,14 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
 
         coverflow_refresh_layout.setOnRefreshListener {
             lifecycleScope.launch {
-                val dateHelper = DateHelper.getInstance(activity?.applicationContext)
-                val start = dateHelper.now
-                onRefresh()
-                val end = dateHelper.now
-                // show animation at least 1000 ms so it looks smoother
-                if (end - start < 1000) {
-                    delay(1000 - (end - start))
+                dateHelper?.let { dateHelper ->
+                    val start = dateHelper.now
+                    onRefresh()
+                    val end = dateHelper.now
+                    // show animation at least 1000 ms so it looks smoother
+                    if (end - start < 1000) {
+                        delay(1000 - (end - start))
+                    }
                 }
                 hideRefreshLoadingIcon()
             }

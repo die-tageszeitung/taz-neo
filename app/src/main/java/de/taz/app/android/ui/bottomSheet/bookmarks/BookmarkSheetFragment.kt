@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bottomSheet.bookmarks
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.DialogFragment
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 class BookmarkSheetFragment :
     BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
 
-    private val articleRepository = ArticleRepository.getInstance(activity?.applicationContext)
+    private var articleRepository: ArticleRepository? = null
     private var articleFileName: String? = null
 
     companion object {
@@ -27,6 +28,11 @@ class BookmarkSheetFragment :
             fragment.articleFileName = articleFileName
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,9 +68,9 @@ class BookmarkSheetFragment :
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.articleStub?.let { articleStub: ArticleStub ->
                 if (articleStub.bookmarked) {
-                    articleRepository.debookmarkArticle(articleStub)
+                    articleRepository?.debookmarkArticle(articleStub)
                 } else {
-                    articleRepository.bookmarkArticle(articleStub)
+                    articleRepository?.bookmarkArticle(articleStub)
                 }
             }
         }
