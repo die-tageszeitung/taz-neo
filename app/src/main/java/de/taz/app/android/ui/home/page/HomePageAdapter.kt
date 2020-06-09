@@ -59,10 +59,6 @@ abstract class HomePageAdapter(
         return getItem(position).hashCode().toLong()
     }
 
-    fun getPosition(issueStub: IssueStub): Int {
-        return visibleIssueStubList.indexOf(issueStub)
-    }
-
     fun getPosition(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Int {
         return visibleIssueStubList.indexOfFirst {
             it.date == issueDate
@@ -112,7 +108,7 @@ abstract class HomePageAdapter(
         return mutableFilteredIssueList
     }
 
-    protected fun filterAndSetIssues() {
+    private fun filterAndSetIssues() {
         val filteredIssueStubs = filterIssueStubs()
         log.debug("after filtering ${filteredIssueStubs.size} remain")
         val diffResult = DiffUtil.calculateDiff(
@@ -123,7 +119,7 @@ abstract class HomePageAdapter(
         )
         visibleIssueStubList = filteredIssueStubs
         diffResult.dispatchUpdatesTo(this)
-        fragment.afterSettingIssues()
+        fragment.callbackWhenIssueIsSet()
     }
 
     fun setFeeds(feeds: List<Feed>) {
