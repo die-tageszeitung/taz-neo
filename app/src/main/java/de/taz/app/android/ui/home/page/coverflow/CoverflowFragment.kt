@@ -256,7 +256,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    override fun afterSettingIssues() {
+    override fun callbackWhenIssueIsSet() {
         applyZoomPageTranformer()
     }
 
