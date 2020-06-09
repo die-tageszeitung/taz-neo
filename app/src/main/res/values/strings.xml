@@ -182,6 +182,7 @@
     <string name="fragment_login_success_login_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
     <string name="fragment_login_success_login_back_article">Zurück zum Artikel</string>
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
+    <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
 
     <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer taz-ID verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
