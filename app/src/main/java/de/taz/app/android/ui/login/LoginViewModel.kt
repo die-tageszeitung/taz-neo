@@ -182,7 +182,11 @@ class LoginViewModel(
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        register(
+            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
+            firstName = "willBeOverWritten",
+            surname = "willBeOverWrittenToo"
+        )
     }
 
     fun getTrialSubscriptionForNewCredentials(
