@@ -73,13 +73,13 @@ data class ResourceInfo(
                         }
 
                         resourceInfoRepository.save(fromServer)
-                        resourceInfoRepository.deleteAllButNewest()
 
                         // ensure resources are downloaded
                         DownloadService.getInstance().download(fromServer)
                         local?.let { log.debug("Initialized ResourceInfo") }
                             ?: log.debug("Updated ResourceInfo")
                     }
+                    resourceInfoRepository.deleteAllButNewest()
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 log.warn("Initializing ResourceInfo failed")
