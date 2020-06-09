@@ -31,8 +31,8 @@ class BookmarksViewHolder(
     private var bookmarkImage: ImageView? = null
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
-    private val fileHelper = FileHelper.getInstance()
-    private val dateHelper: DateHelper = DateHelper.getInstance()
+    private val fileHelper = FileHelper.getInstance(parent.context.applicationContext)
+    private val dateHelper: DateHelper = DateHelper.getInstance(parent.context.applicationContext)
     private val bookmarksAdapter = BookmarksAdapter(bookmarksFragment)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 

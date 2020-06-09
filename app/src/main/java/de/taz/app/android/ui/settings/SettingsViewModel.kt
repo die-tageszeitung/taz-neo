@@ -1,7 +1,8 @@
 package de.taz.app.android.ui.settings
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -9,7 +10,7 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 
-class SettingsViewModel(applicationContext: Context) : ViewModel() {
+class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     lateinit var textSizeLiveData: SharedPreferenceStringLiveData
     lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
@@ -18,7 +19,7 @@ class SettingsViewModel(applicationContext: Context) : ViewModel() {
     lateinit var downloadAutomaticallyLiveData: SharedPreferenceBooleanLiveData
 
     init {
-        applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
+        application.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
 
             textSizeLiveData =
                 SharedPreferenceStringLiveData(
@@ -30,7 +31,7 @@ class SettingsViewModel(applicationContext: Context) : ViewModel() {
                 SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_NIGHT_MODE, false)
         }
 
-        applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)?.let {
+        application.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)?.let {
             storedIssueNumberLiveData =
                 SharedPreferenceStringLiveData(
                     it,
@@ -39,7 +40,7 @@ class SettingsViewModel(applicationContext: Context) : ViewModel() {
                 )
         }
 
-        applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
+        application.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
             downloadOnlyWifiLiveData =
                 SharedPreferenceBooleanLiveData(
                     it,

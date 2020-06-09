@@ -34,19 +34,28 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
-class LoginActivity(
-    private val apiService: ApiService = ApiService.getInstance(),
-    private val authHelper: AuthHelper = AuthHelper.getInstance(),
-    private val articleRepository: ArticleRepository = ArticleRepository.getInstance(),
-    private val issueRepository: IssueRepository = IssueRepository.getInstance(),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance()
-) : BaseActivity(R.layout.activity_login) {
+class LoginActivity : BaseActivity(R.layout.activity_login) {
 
     private val log by Log
 
     private lateinit var viewModel: LoginViewModel
 
     private var article: String? = null
+
+    private var apiService: ApiService? = null
+    private var articleRepository: ArticleRepository? = null
+    private var authHelper: AuthHelper? = null
+    private var issueRepository: IssueRepository? = null
+    private var toastHelper: ToastHelper? = null
+
+    override fun onAttachFragment(fragment: Fragment) {
+        super.onAttachFragment(fragment)
+        apiService = ApiService.getInstance(applicationContext)
+        articleRepository = ArticleRepository.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +85,7 @@ class LoginActivity(
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
-        viewModel = getViewModel { LoginViewModel(username, password, register) }
+        viewModel = getViewModel { LoginViewModel(application, username, password, register) }
 
         viewModel.backToArticle = article != null
 
@@ -147,7 +156,7 @@ class LoginActivity(
                     showPasswordRequest(invalidId = true)
                 }
                 LoginViewModelState.POLLING_FAILED -> {
-                    toastHelper.showToast(R.string.something_went_wrong_try_later)
+                    toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
@@ -167,7 +176,7 @@ class LoginActivity(
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
-                toastHelper.showNoConnectionToast()
+                toastHelper?.showNoConnectionToast()
             }
         }
 
@@ -282,7 +291,7 @@ class LoginActivity(
         showLoadingScreen()
 
         val data = Intent()
-        if (authHelper.isLoggedIn()) {
+        if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 downloadLatestIssueMoments()
                 deletePublicIssues()
@@ -306,21 +315,22 @@ class LoginActivity(
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        val lastIssues = apiService.getLastIssues()
-        issueRepository.save(lastIssues)
-
-        article?.let { article ->
-            var lastDate = lastIssues.last().date
-            while (articleRepository.get(article) == null) {
-                val issues = apiService.getIssuesByDate(lastDate)
-                issueRepository.save(issues)
-                lastDate = issues.last().date
+        apiService?.getLastIssues()?.let { lastIssues ->
+            issueRepository?.save(lastIssues)
+            article?.let { article ->
+                var lastDate = lastIssues.last().date
+                while (articleRepository?.get(article) == null) {
+                    apiService?.getIssuesByDate(lastDate)?.let { issues ->
+                        issueRepository?.save(issues)
+                        lastDate = issues.last().date
+                    }
+                }
             }
         }
     }
 
     private fun deletePublicIssues() {
-        issueRepository.deletePublicIssues()
+        issueRepository?.deletePublicIssues()
     }
 
     private fun showFragment(fragment: Fragment) {

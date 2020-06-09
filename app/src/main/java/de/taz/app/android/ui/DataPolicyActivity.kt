@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -33,9 +34,15 @@ class DataPolicyActivity : AppCompatActivity() {
     fun getLifecycleOwner(): LifecycleOwner = this
     private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private var downloadRepository: DownloadRepository? = null
+    private var fileHelper: FileHelper? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        downloadRepository = DownloadRepository.getInstance(applicationContext)
+        fileHelper = FileHelper.getInstance(applicationContext)
+
         setContentView(R.layout.activity_data_policy)
 
         data_policy_accept_button?.setOnClickListener {
@@ -57,10 +64,11 @@ class DataPolicyActivity : AppCompatActivity() {
             webViewClient = WebViewClient()
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-            val fileDir = FileHelper.getInstance().getFileDirectoryUrl(this.context)
-            val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
-            lifecycleScope.launch(Dispatchers.IO) {
-                ensureResourceInfoIsDownloadedAndShow(file.path)
+            fileHelper?.getFileDirectoryUrl(this.context)?.let { fileDir ->
+                val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
+                lifecycleScope.launch(Dispatchers.IO) {
+                    ensureResourceInfoIsDownloadedAndShow(file.path)
+                }
             }
         }
     }
@@ -82,13 +90,10 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData =
-                DownloadRepository.getInstance().isDownloadedLiveData(
-                    dataPolicyPage
-                )
+            val isDownloadedLiveData = downloadRepository?.isDownloadedLiveData(dataPolicyPage)
 
             withContext(Dispatchers.Main) {
-                isDownloadedLiveData.observeDistinct(
+                isDownloadedLiveData?.observeDistinct(
                     getLifecycleOwner(),
                     Observer { isDownloaded ->
                         if (isDownloaded) {
@@ -102,7 +107,8 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            data_policy_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            data_policy_loading_screen?.animate()?.alpha(0f)?.duration =
+                LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }

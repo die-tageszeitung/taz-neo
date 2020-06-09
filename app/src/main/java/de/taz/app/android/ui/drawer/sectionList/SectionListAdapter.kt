@@ -69,7 +69,7 @@ class SectionListAdapter(
                         sectionRepository.getSectionStubsLiveDataForIssueOperations(
                             issueStub
                         )
-                    withContext(Dispatchers.Main) {
+                    fragment.lifecycleScope.launchWhenResumed {
                         sectionListObserver = Observer<List<SectionStub>> {
                             notifyDataSetChanged()
                         }.also {
@@ -99,7 +99,8 @@ class SectionListAdapter(
             .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
         CoroutineScope(Dispatchers.Main).launch {
             textView.typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                FontHelper.getInstance(fragment.context?.applicationContext)
+                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
             } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
         }
         return SectionListAdapterViewHolder(
@@ -148,7 +149,8 @@ class SectionListAdapter(
         super.onViewRecycled(holder)
         CoroutineScope(Dispatchers.Main).launch {
             holder.textView.typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                FontHelper.getInstance(fragment.context?.applicationContext)
+                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
             } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
         }
     }

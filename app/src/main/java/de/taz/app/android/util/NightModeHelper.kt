@@ -9,14 +9,13 @@ import de.taz.app.android.singletons.*
 
 object NightModeHelper {
 
-    private val fileHelper = FileHelper.getInstance()
     private val log by Log
 
     class PrefListener(activity: Activity) {
         val tazApiCssPrefListener =
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
                 log.debug("Shared pref changed: $key")
-                val cssFile = fileHelper.getFileByPath(
+                val cssFile = FileHelper.getInstance(activity.application).getFileByPath(
                     "$RESOURCE_FOLDER/tazApi.css"
                 )
                 val cssString = TazApiCssHelper.generateCssString(sharedPreferences)

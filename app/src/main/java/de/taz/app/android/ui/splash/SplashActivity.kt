@@ -254,18 +254,18 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
-        if (AuthHelper.getInstance().isLoggedIn()) {
+        if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")
-            IssueRepository.getInstance().deletePublicIssues()
+            IssueRepository.getInstance(applicationContext).deletePublicIssues()
         }
     }
 
     private fun ensurePushTokenSent() {
-        val firebaseHelper = FirebaseHelper.getInstance()
+        val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         if (!firebaseHelper.hasTokenBeenSent) {
             if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance().sendNotificationInfo()
+                    ApiService.getInstance(applicationContext).sendNotificationInfo()
                 }
             }
         }

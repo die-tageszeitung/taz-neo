@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -7,7 +8,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
@@ -20,8 +21,8 @@ import kotlinx.coroutines.withContext
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
 abstract class HomePageFragment(
-    layoutID : Int
-) : ViewModelBaseMainFragment(layoutID) {
+    layoutID: Int
+) : BaseViewModelFragment<HomePageViewModel>(layoutID) {
 
     private val log by Log
 
@@ -31,22 +32,22 @@ abstract class HomePageFragment(
 
     private var lastRequestedDate = ""
 
-    private var viewModel : HomePageViewModel? = null
-
     abstract fun setFeeds(feeds: List<Feed>)
     abstract fun setInactiveFeedNames(feedNames: Set<String>)
     abstract fun setAuthStatus(authStatus: AuthStatus)
     abstract fun onDataSetChanged(issueStubs: List<IssueStub>)
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context.applicationContext)
+        dateHelper = DateHelper.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = viewModel ?: HomePageViewModel()
 
-        apiService = ApiService.getInstance(context?.applicationContext)
-        dateHelper = DateHelper.getInstance(context?.applicationContext)
-        issueRepository = IssueRepository.getInstance(context?.applicationContext)
-
-        viewModel?.apply {
+        viewModel.apply {
             issueStubsLiveData.observeDistinct(
                 viewLifecycleOwner,
                 HomePageIssueStubsObserver(
