@@ -34,6 +34,8 @@ class ApiService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
 
+    private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
+
     /**
      * function to connect subscriptionId to tazId
      * @param tazId
@@ -332,7 +334,7 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "sendNotificationInfo"
         log.debug(tag)
 
-        return FirebaseHelper.getInstance().firebaseToken?.let { notificationToken ->
+        return firebaseHelper.firebaseToken?.let { notificationToken ->
             if (notificationToken.isNotBlank()) {
                 transformExceptions(
                     {

@@ -22,9 +22,9 @@ class ToDownloadIssueHelper(applicationContext: Context) {
     companion object : SingletonHolder<ToDownloadIssueHelper, Context>(::ToDownloadIssueHelper)
 
     private val log by Log
-    private val issueRepository = IssueRepository.getInstance()
-    private val dateHelper = DateHelper.getInstance()
-    private val apiService = ApiService.getInstance()
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val dateHelper = DateHelper.getInstance(applicationContext)
+    private val apiService = ApiService.getInstance(applicationContext)
     var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
     )

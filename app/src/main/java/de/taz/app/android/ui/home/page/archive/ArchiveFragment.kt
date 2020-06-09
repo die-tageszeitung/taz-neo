@@ -19,11 +19,15 @@ import kotlinx.android.synthetic.main.fragment_archive.*
  */
 class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
-    val archiveListAdapter =
-        ArchiveAdapter(
+    var archiveAdapter: ArchiveAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        archiveAdapter = archiveAdapter ?: ArchiveAdapter(
             this,
             R.layout.fragment_archive_item
         )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,7 +36,7 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             fragment_archive_grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns(context))
         }
-        fragment_archive_grid.adapter = archiveListAdapter
+        fragment_archive_grid.adapter = archiveAdapter
 
         fragment_archive_grid.addOnScrollListener(
             ArchiveOnScrollListener(
@@ -68,15 +72,15 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
-        archiveListAdapter.setAuthStatus(authStatus)
+        archiveAdapter?.setAuthStatus(authStatus)
     }
 
     override fun setFeeds(feeds: List<Feed>) {
-       archiveListAdapter.setFeeds(feeds)
+        archiveAdapter?.setFeeds(feeds)
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
-        archiveListAdapter.setInactiveFeedNames(feedNames)
+        archiveAdapter?.setInactiveFeedNames(feedNames)
     }
 
 }

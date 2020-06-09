@@ -10,65 +10,20 @@ import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
+import de.taz.app.android.ui.main.MainActivity
 
-abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
+abstract class BaseMainFragment (
     @LayoutRes layoutResourceId: Int
-) : BaseFragment<PRESENTER>(layoutResourceId),
-    BaseContract.View {
+) : Fragment(layoutResourceId) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configBottomNavigation()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setEndNavigation()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        removeEndNavigationView()
-    }
-
-    /**
-     * endNavigationFragment - the fragment to be shown in the
-     * [NavigationView] at [Gravitiy.End]
-     * if null NavigationView will not be openable
-     */
-    open val endNavigationFragment: Fragment? = null
-
-    /**
-     * show [endNavigationFragment]
-     */
-    private fun setEndNavigation() {
-        endNavigationFragment?.let { endNavigationFragment ->
-            activity?.apply {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_view_end_fragment_placeholder, endNavigationFragment)
-                    .commit()
-                getMainView()?.unlockEndNavigationView()
-            }
-        }
-    }
-
-    /**
-     * ensure endNavigationView can not be opened if another fragment doesn't have it
-     */
-    private fun removeEndNavigationView() {
-        endNavigationFragment?.let { endNavigationFragment ->
-            activity?.apply {
-                findViewById<NavigationView>(R.id.nav_view_end)?.apply {
-                    supportFragmentManager.beginTransaction()
-                        .remove(endNavigationFragment)
-                        .commit()
-                }
-            }
-            getMainView()?.lockEndNavigationView()
-        }
     }
 
     /**
@@ -115,6 +70,10 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
                 }
             }
         }
+    }
+
+    fun getMainView(): MainActivity? {
+        return (activity as? MainActivity)
     }
 
     fun toggleMenuItem(itemId: Int) {
@@ -173,7 +132,7 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
      * show bottomSheet
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
-    override fun showBottomSheet(fragment: Fragment) {
+    fun showBottomSheet(fragment: Fragment) {
         val addBottomSheet =
             if (fragment is BottomSheetDialogFragment) {
                 fragment
@@ -181,6 +140,33 @@ abstract class BaseMainFragment<out PRESENTER : BaseContract.Presenter>(
                 AddBottomSheetDialog.newInstance(fragment)
             }
         addBottomSheet.show(childFragmentManager, null)
+    }
+
+    fun showMainFragment(fragment: Fragment) {
+        (activity as? MainActivity)?.showMainFragment(fragment)
+    }
+
+    fun showHome() {
+        (activity as? MainActivity)?.showHome()
+    }
+
+    fun showInWebView(
+        webViewDisplayableKey: String,
+        bookmarksArticle: Boolean = false
+    ) {
+        (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
+    }
+
+    fun setDrawerIssue(issueOperations: IssueOperations) {
+        (activity as? MainActivity)?.setDrawerIssue(issueOperations)
+    }
+
+    fun showNavButton(navButton: Image? = null) {
+        (activity as? MainActivity)?.setDrawerNavButton(navButton)
+    }
+
+    fun showIssue(issueStub: IssueStub) {
+        (activity as? MainActivity)?.showIssue(issueStub)
     }
 
 }

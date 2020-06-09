@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.drawer.sectionList
 
+import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
@@ -44,10 +45,20 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
 
     private var dateHelper: DateHelper? = null
+    private var fontHelper: FontHelper? = null
     private var issueRepository: IssueRepository? = null
     private var momentRepository: MomentRepository? = null
 
     private var updated: Boolean = false
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dateHelper = DateHelper.getInstance(context.applicationContext)
+        fontHelper = FontHelper.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+        momentRepository = MomentRepository.getInstance(context.applicationContext)
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +69,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        dateHelper = DateHelper.getInstance(context?.applicationContext)
-        issueRepository = IssueRepository.getInstance(context?.applicationContext)
-        momentRepository = MomentRepository.getInstance(context?.applicationContext)
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
@@ -94,10 +101,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val issueOperations =
-                        IssueRepository.getInstance(activity?.applicationContext)
-                            .getIssueStubByFeedAndDate(
-                                issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
-                            )
+                        issueRepository?.getIssueStubByFeedAndDate(
+                            issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
+                        )
                     activity?.runOnUiThread {
                         issueOperations?.let {
                             setIssueOperations(it)
@@ -172,7 +178,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 if (!isDownloaded()) {
                     download(context?.applicationContext)
                 }
-                withContext(Dispatchers.Main) {
+                lifecycleScope.launchWhenResumed {
                     isDownloadedLiveData().observeDistinctUntil(
                         viewLifecycleOwner,
                         { momentIsDownloadedObservationCallback(it) }, { it }
@@ -199,7 +205,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 }
             }
             typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
             } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
             visibility = View.VISIBLE
         }

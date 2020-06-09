@@ -1,11 +1,12 @@
 package de.taz.app.android.ui.bottomSheet.bookmarks
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
@@ -15,26 +16,29 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BookmarkSheetFragment : Fragment(R.layout.fragment_bottom_sheet_bookmarks) {
+class BookmarkSheetFragment :
+    BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
 
-    private val articleRepository = ArticleRepository.getInstance(activity?.applicationContext)
+    private var articleRepository: ArticleRepository? = null
+    private var articleFileName: String? = null
 
     companion object {
         fun create(articleFileName: String): BookmarkSheetFragment {
             val fragment = BookmarkSheetFragment()
-            fragment.setArticleFileName(articleFileName)
+            fragment.articleFileName = articleFileName
             return fragment
         }
     }
 
-    fun setArticleFileName(articleFileName: String) {
-        viewModel.articleFileName = articleFileName
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
     }
-
-    val viewModel = BookmarkSheetViewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setArticleFileName()
 
         fragment_bottom_sheet_bookmarks_add?.setOnClickListener {
             toggleBookmark()
@@ -56,13 +60,17 @@ class BookmarkSheetFragment : Fragment(R.layout.fragment_bottom_sheet_bookmarks)
         }
     }
 
+    fun setArticleFileName() {
+        viewModel.articleFileName = this.articleFileName
+    }
+
     private fun toggleBookmark() {
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.articleStub?.let { articleStub: ArticleStub ->
                 if (articleStub.bookmarked) {
-                    articleRepository.debookmarkArticle(articleStub)
+                    articleRepository?.debookmarkArticle(articleStub)
                 } else {
-                    articleRepository.bookmarkArticle(articleStub)
+                    articleRepository?.bookmarkArticle(articleStub)
                 }
             }
         }
