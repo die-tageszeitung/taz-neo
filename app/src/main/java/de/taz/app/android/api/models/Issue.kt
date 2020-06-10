@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -55,6 +56,16 @@ data class Issue(
 
     override fun getDownloadTag(): String? {
         return tag
+    }
+
+    suspend fun downloadMoment(applicationContext: Context? = null) {
+        DownloadService.getInstance(applicationContext).download(moment)
+    }
+
+    suspend fun downloadPages(applicationContext: Context? = null) {
+        pageList.forEach {
+            DownloadService.getInstance(applicationContext).download(it)
+        }
     }
 
     override fun getIssueOperations(): IssueOperations? {

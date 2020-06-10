@@ -40,6 +40,7 @@ abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivit
     override fun onResume() {
         super.onResume()
         createSingletons()
+        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     private fun createSingletons() {

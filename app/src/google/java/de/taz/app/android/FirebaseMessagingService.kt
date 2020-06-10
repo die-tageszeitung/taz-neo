@@ -26,14 +26,24 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private val apiService = ApiService.getInstance()
-    private val authHelper = AuthHelper.getInstance()
-    private val downloadService = DownloadService.getInstance()
-    private val firebaseHelper = FirebaseHelper.getInstance()
-    private val issueRepository = IssueRepository.getInstance()
-    private val notificationHelper = NotificationHelper.getInstance()
+    private lateinit var apiService: ApiService
+    private lateinit var authHelper: AuthHelper
+    private lateinit var downloadService: DownloadService
+    private lateinit var firebaseHelper: FirebaseHelper
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var notificationHelper: NotificationHelper
 
     private val messageTimestamps: MutableList<Long> = mutableListOf()
+
+    override fun onCreate() {
+        super.onCreate()
+        apiService = ApiService.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        downloadService = DownloadService.getInstance(applicationContext)
+        firebaseHelper = FirebaseHelper.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        notificationHelper = NotificationHelper.getInstance(applicationContext)
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 

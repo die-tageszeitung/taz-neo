@@ -35,6 +35,7 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,13 +50,20 @@ const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 @Mockable
 class MainActivity : BaseActivity(R.layout.activity_main) {
 
-    private val fileHelper = FileHelper.getInstance()
-    private val imageRepository = ImageRepository.getInstance()
-    private val sectionRepository = SectionRepository.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
+    private val log by Log
+
+    private var fileHelper: FileHelper? = null
+    private var imageRepository: ImageRepository? = null
+    private var sectionRepository: SectionRepository? = null
+    private var toastHelper: ToastHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fileHelper = FileHelper.getInstance(applicationContext)
+        imageRepository = ImageRepository.getInstance(applicationContext)
+        sectionRepository = SectionRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -216,11 +224,11 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
     }
 
     fun showToast(stringId: Int) {
-        toastHelper.showToast(stringId)
+        toastHelper?.showToast(stringId)
     }
 
     fun showToast(string: String) {
-        toastHelper.showToast(string)
+        toastHelper?.showToast(string)
     }
 
     fun getLifecycleOwner(): LifecycleOwner = this
@@ -277,7 +285,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
-                defaultNavButton = imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                defaultNavButton = imageRepository?.get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
             val image: Image? = navButton ?: defaultNavButton
@@ -303,8 +311,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                 // would be too big - the value is taken from experience rather than science
                 val scalingFactor = 1f / 3f
 
-                val file = fileHelper.getFile(navButton)
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                val file = fileHelper?.getFile(navButton)
+                val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
                     (TypedValue.applyDimension(
@@ -337,7 +345,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                sectionRepository.getSectionStubForArticle(articleName)
+                                sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
                                             setCoverFlowItem(issueOperations)

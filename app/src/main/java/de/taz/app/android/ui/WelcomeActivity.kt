@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -30,13 +32,15 @@ class WelcomeActivity : AppCompatActivity() {
 
     private val log by Log
 
-    private val fileHelper = FileHelper.getInstance()
-    private val resourceInfoRepository = ResourceInfoRepository.getInstance()
-
+    private var fileHelper: FileHelper? = null
+    private var resourceInfoRepository: ResourceInfoRepository? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fileHelper = FileHelper.getInstance(applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
         setContentView(R.layout.activity_welcome)
 
@@ -53,7 +57,7 @@ class WelcomeActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            val fileDir = fileHelper.getFileDirectoryUrl(this.context)
+            val fileDir = fileHelper?.getFileDirectoryUrl(this.context)
             val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureResourceInfoIsDownloadedAndShow(file.path)
@@ -79,7 +83,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = resourceInfoRepository.get()?.isDownloadedLiveData()
+            val isDownloadedLiveData = resourceInfoRepository?.get()?.isDownloadedLiveData()
 
             withContext(Dispatchers.Main) {
                 isDownloadedLiveData?.observeDistinct(
