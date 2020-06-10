@@ -133,7 +133,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         if (updated) {
             updated = false
 
-            lifecycleScope.launch {
+            lifecycleScope.launchWhenResumed {
                 setMomentDate()
                 val imprintJob = showImprint()
                 val momentJob = showMoment()

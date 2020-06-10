@@ -54,7 +54,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         })
 
         coverflow_refresh_layout.setOnRefreshListener {
-            lifecycleScope.launch {
+            lifecycleScope.launchWhenResumed {
                 dateHelper?.let { dateHelper ->
                     val start = dateHelper.now
                     onRefresh()

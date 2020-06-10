@@ -48,17 +48,14 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
 
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         apiService = ApiService.getInstance(applicationContext)
         articleRepository = ArticleRepository.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
         view.moveContentBeneathStatusBar()
 
