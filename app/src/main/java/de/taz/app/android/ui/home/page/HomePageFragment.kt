@@ -100,4 +100,10 @@ abstract class HomePageFragment(
         }
     }
 
+    /**
+     * callback function to be used by CoverFlow to apply ZoomTransformations so issues at the left
+     * and right are smaller
+     */
+    open fun callbackWhenIssueIsSet() = Unit
+
 }
