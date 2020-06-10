@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
@@ -23,6 +24,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -56,6 +58,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             log.debug("WebViewFragment: shared pref changed: $key")
             if (key == SETTINGS_TEXT_FONT_SIZE) {
                 web_view?.injectCss(sharedPreferences)
+            } else if (
+                key == SETTINGS_TEXT_NIGHT_MODE &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
+            ) {
+                web_view?.reload()
             }
         }
 
