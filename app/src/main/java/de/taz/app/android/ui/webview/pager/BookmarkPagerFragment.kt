@@ -110,7 +110,7 @@ class BookmarkPagerFragment :
 
             viewModel.currentPositionLiveData.value = position
 
-            lifecycleScope.launch {
+            lifecycleScope.launchWhenResumed {
                 articlePagerAdapter?.getArticleStub(position)?.getNavButton()?.let {
                     showNavButton(it)
                 }

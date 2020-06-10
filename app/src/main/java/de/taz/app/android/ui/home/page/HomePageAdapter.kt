@@ -154,7 +154,7 @@ abstract class HomePageAdapter(
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                fragment.viewLifecycleOwner.lifecycleScope.launch {
+                fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                     getItem(adapterPosition)?.let {
                         fragment.onItemSelected(it)
                     }
