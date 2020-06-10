@@ -42,20 +42,12 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
 
     private var article: String? = null
 
-    private var apiService: ApiService? = null
-    private var articleRepository: ArticleRepository? = null
-    private var authHelper: AuthHelper? = null
-    private var issueRepository: IssueRepository? = null
-    private var toastHelper: ToastHelper? = null
 
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-        apiService = ApiService.getInstance(applicationContext)
-        articleRepository = ArticleRepository.getInstance(applicationContext)
-        authHelper = AuthHelper.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
-    }
+    private val apiService = ApiService.getInstance()
+    private val articleRepository = ArticleRepository.getInstance()
+    private val authHelper = AuthHelper.getInstance()
+    private val issueRepository = IssueRepository.getInstance()
+    private val toastHelper = ToastHelper.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

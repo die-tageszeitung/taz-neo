@@ -14,7 +14,7 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
-    private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance()
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         imageRepository.save(moment.imageList)

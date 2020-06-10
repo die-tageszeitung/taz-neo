@@ -10,24 +10,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.QueryService
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.util.SubscriptionPollHelper
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
@@ -37,7 +33,7 @@ import java.util.*
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
 
     private val log by Log
 
@@ -49,8 +45,6 @@ class SplashActivity : AppCompatActivity() {
 
         generateInstallationId()
         generateNotificationChannels()
-
-        createSingletons()
 
         initLastIssues()
         initFeedInformation()
@@ -119,39 +113,6 @@ class SplashActivity : AppCompatActivity() {
             .build()
     }
 
-    private fun createSingletons() {
-        log.info("creating singletons")
-        applicationContext.let {
-            AppDatabase.createInstance(it)
-
-            AppInfoRepository.createInstance(it)
-            ArticleRepository.createInstance(it)
-            DownloadRepository.createInstance(it)
-            FileEntryRepository.createInstance(it)
-            IssueRepository.createInstance(it)
-            PageRepository.createInstance(it)
-            ResourceInfoRepository.createInstance(it)
-            SectionRepository.createInstance(it)
-
-            AuthHelper.createInstance(it)
-            DateHelper.createInstance(it)
-            FileHelper.createInstance(it)
-            FeedHelper.createInstance(it)
-            QueryService.createInstance(it)
-            ToastHelper.createInstance(it)
-
-            ApiService.createInstance(it)
-            DownloadService.createInstance(it)
-            DownloadedIssueHelper.createInstance(it)
-            ToDownloadIssueHelper.createInstance(it)
-
-            SubscriptionPollHelper.createInstance(it)
-
-            FirebaseHelper.createInstance(it)
-            NotificationHelper.createInstance(it)
-        }
-        log.debug("Singletons initialized")
-    }
 
     private fun initFeedInformation() {
         val apiService = ApiService.getInstance(applicationContext)

@@ -147,7 +147,7 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
             viewModel.currentPositionLiveData.value = position
             getMainView()?.setActiveDrawerSection(position)
             sectionAdapter?.getSectionStub(position)?.let {
-                lifecycleScope.launch {
+                lifecycleScope.launchWhenResumed {
                     val navButton = it.getNavButton()
                     showNavButton(navButton)
                 }

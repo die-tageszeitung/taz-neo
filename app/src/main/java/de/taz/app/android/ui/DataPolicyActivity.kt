@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -31,17 +29,14 @@ import java.io.File
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
-    fun getLifecycleOwner(): LifecycleOwner = this
     private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
 
-    private var downloadRepository: DownloadRepository? = null
-    private var fileHelper: FileHelper? = null
+    private val downloadRepository = DownloadRepository.getInstance()
+    private val fileHelper = FileHelper.getInstance()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        downloadRepository = DownloadRepository.getInstance(applicationContext)
-        fileHelper = FileHelper.getInstance(applicationContext)
 
         setContentView(R.layout.activity_data_policy)
 
@@ -64,7 +59,7 @@ class DataPolicyActivity : AppCompatActivity() {
             webViewClient = WebViewClient()
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-            fileHelper?.getFileDirectoryUrl(this.context)?.let { fileDir ->
+            fileHelper.getFileDirectoryUrl(this.context).let { fileDir ->
                 val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
                 lifecycleScope.launch(Dispatchers.IO) {
                     ensureResourceInfoIsDownloadedAndShow(file.path)
@@ -90,11 +85,11 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = downloadRepository?.isDownloadedLiveData(dataPolicyPage)
+            val isDownloadedLiveData = downloadRepository.isDownloadedLiveData(dataPolicyPage)
 
             withContext(Dispatchers.Main) {
-                isDownloadedLiveData?.observeDistinct(
-                    getLifecycleOwner(),
+                isDownloadedLiveData.observeDistinct(
+                    this@DataPolicyActivity,
                     Observer { isDownloaded ->
                         if (isDownloaded) {
                             data_policy_fullscreen_content.loadUrl(filePath)
