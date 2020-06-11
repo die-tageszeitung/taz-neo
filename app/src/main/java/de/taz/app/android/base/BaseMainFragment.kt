@@ -1,9 +1,11 @@
 package de.taz.app.android.base
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.iterator
@@ -168,5 +170,17 @@ abstract class BaseMainFragment (
     fun showIssue(issueStub: IssueStub) {
         (activity as? MainActivity)?.showIssue(issueStub)
     }
+    protected fun hideKeyBoard() {
+        activity?.apply {
+            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
+                val view = activity?.currentFocus ?: View(activity)
+                hideSoftInputFromWindow(view.windowToken, 0)
+            }
+        }
+    }
 
+    override fun onDetach() {
+        hideKeyBoard()
+        super.onDetach()
+    }
 }
