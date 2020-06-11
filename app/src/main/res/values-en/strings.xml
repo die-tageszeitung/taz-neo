@@ -180,6 +180,7 @@
     <string name="fragment_login_success_login_header">Login successful. </string>
     <string name="fragment_login_success_login_back_article">Back to the article</string>
     <string name="fragment_login_success_login_back_settings">Back to the settings</string>
+    <string name="fragment_login_success_login_back_coverflow">Back to the issues</string>
 
     <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
