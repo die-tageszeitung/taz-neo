@@ -20,18 +20,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 
-class ErrorReportFragment :
-    BaseMainFragment<ErrorReportContract.Presenter>(R.layout.fragment_error_report),
-    ErrorReportContract.View {
+class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
-    override val presenter = ErrorReportPresenter()
-    private val fileHelper = FileHelper.getInstance()
     private val log by Log
-    val apiService = ApiService.getInstance()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.attach(this)
 
         coordinator.moveContentBeneathStatusBar()
 
@@ -54,28 +48,30 @@ class ErrorReportFragment :
             }
         }
 
-        presenter.onViewCreated(savedInstanceState)
     }
 
-    override fun sendErrorReport(
+    private fun sendErrorReport(
         email: String?,
         message: String?,
         lastAction: String?,
         conditions: String?
     ) {
         context?.let { context ->
-            val storageType = fileHelper.getFilesDir(context)
+            val storageType =
+                FileHelper.getInstance(activity?.applicationContext).getFilesDir(context)
             val errorProtocol = Log.trace.toString()
 
-            val activityManager = this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val activityManager =
+                this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val memoryInfo = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
 
-            val totalRam = "%.2f GB".format(memoryInfo.totalMem/ 1073741824f)
-            val usedRam = "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem)/ 1073741824f)
+            val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
+            val usedRam =
+                "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
-                apiService.sendErrorReport(
+                ApiService.getInstance(activity?.applicationContext).sendErrorReport(
                     email,
                     message,
                     lastAction,
@@ -87,12 +83,16 @@ class ErrorReportFragment :
                 )
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance().showToast(R.string.toast_error_report_sent)
+            ToastHelper.getInstance(activity?.applicationContext)
+                .showToast(R.string.toast_error_report_sent)
             parentFragmentManager.popBackStack()
         }
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        presenter.onBottomNavigationItemClicked(menuItem)
+        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
+            log.debug("Show home clicked")
+            showHome()
+        }
     }
 }

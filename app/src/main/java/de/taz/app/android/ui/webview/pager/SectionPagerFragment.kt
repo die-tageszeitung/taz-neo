@@ -11,7 +11,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -27,10 +27,9 @@ const val ISSUE_STATUS = "issueStatus"
 const val POSITION = "position"
 const val SECTION_KEY = "sectionKey"
 
-class SectionPagerFragment :
-    ViewModelBaseMainFragment(R.layout.fragment_webview_pager) {
-
-    val viewModel = SectionPagerViewModel()
+class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
+    R.layout.fragment_webview_pager
+) {
 
     private var sectionAdapter: SectionPagerAdapter? = null
 
@@ -148,7 +147,7 @@ class SectionPagerFragment :
             viewModel.currentPositionLiveData.value = position
             getMainView()?.setActiveDrawerSection(position)
             sectionAdapter?.getSectionStub(position)?.let {
-                lifecycleScope.launch {
+                lifecycleScope.launchWhenResumed {
                     val navButton = it.getNavButton()
                     showNavButton(navButton)
                 }

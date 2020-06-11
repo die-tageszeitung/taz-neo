@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">taz neo</string>
     <string name="accept_button">accept</string>
+    <string name="cancel_button">cancel</string>
 
     <string name="notification_channel_new_version">New version</string>
     <string name="notification_channel_new_version_description">Notification if a new version exists</string>
@@ -83,7 +84,7 @@
 
     <string name="settings_header">settings</string>
     <string name="settings_category_general">general</string>
-    <string name="settings_category_text">text</string>
+    <string name="settings_category_text">display</string>
     <string name="settings_category_account">account</string>
     <string name="settings_text_font_size">Font size</string>
     <string name="settings_text_night_mode">Night mode</string>
@@ -93,18 +94,20 @@
     <string name="settings_account_password">Password</string>
     <string name="settings_account_status">Status</string>
     <string name="settings_account_status_subscriber">Subscriber</string>
-    <string name="settings_account_manage_account">manage account</string>
-    <string name="settings_account_logout">Logout</string>
+    <string name="settings_account_manage_account"><u>manage account</u></string>
+    <string name="settings_account_logout"><u>Logout</u></string>
     <string name="settings_decrease_font_size">Decrease font size</string>
     <string name="settings_increase_font_size">Increase font size</string>
-    <string name="settings_general_keep_number_issues">Keep last %s issues</string>
+    <string name="settings_general_keep_number_issues">Keep last &lt;u>%s&lt;/u> issues</string>
     <string name="settings_general_keep_number_issue_title">Number of issues to keep</string>
     <string name="settings_category_support">support</string>
+    <string name="settings_faq"><u>FAQ</u></string>
+    <string name="settings_welcome_slides"><u>first steps</u></string>
     <string name="settings_support_report_bug">Report a bug</string>
     <string name="settings_auto_downloads">automatic downloads</string>
     <string name="settings_auto_downloads_switch">Download next issue automatically</string>
     <string name="settings_auto_downloads_wifi_switch">Download only with wifi</string>
-    <string name="settings_version_number">version</string>
+    <string name="settings_version_number">version %s</string>
     <string name="settings_download_issue">Download issue</string>
 
     <string name="fragment_error_report_title">Report a bug</string>
@@ -153,7 +156,6 @@
 
     <string name="fragment_login_subscription_inactive_header">Your subscription is currently inactive (e.g. because it expired).</string>
     <string name="fragment_login_subscription_inactive_body">Please contact our service:</string>
-    <string name="fragment_login_subscription_inactive_email">digiabo@taz.de</string>
 
     <string name="fragment_login_missing_credentials_header_registration">To use the new app you need to login with your email and a self-elected password.</string>
     <string name="fragment_login_missing_credentials_header_login">If you already have an account on taz.de please insert your credentials here.</string>
@@ -167,7 +169,6 @@
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
     <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
-    <string name="fragment_login_email_already_taken_contact_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
     <string name="fragment_login_forgot_password_send">Send and request link</string>
@@ -179,6 +180,7 @@
     <string name="fragment_login_success_login_header">Login successful. </string>
     <string name="fragment_login_success_login_back_article">Back to the article</string>
     <string name="fragment_login_success_login_back_settings">Back to the settings</string>
+    <string name="fragment_login_success_login_back_coverflow">Back to the issues</string>
 
     <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
@@ -195,10 +197,10 @@
     <string name="fragment_login_subscription_taken_header">Your subscription is already connected to another account.</string>
     <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
     <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
-    <string name="fragment_login_subscription_taken_email">digiabo@taz.de</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">We were not able to send you an email. Please write to our support:</string>
-    <string name="fragment_login_forgot_password_no_mail_email">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
+    <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
 
     <string name="button_close_text">×</string>
     <string name="issue_not_found">Issue not found.</string>

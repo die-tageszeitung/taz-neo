@@ -1,11 +1,13 @@
 package de.taz.app.android.ui.login
 
+import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.nhaarman.mockitokotlin2.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.singletons.ToastHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
@@ -81,6 +83,10 @@ class LoginViewModelTest {
     lateinit var authHelper: AuthHelper
     @Mock
     lateinit var toastHelper: ToastHelper
+    @Mock
+    lateinit var application: Application
+    @Mock
+    lateinit var feedHelper: FeedHelper
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -94,6 +100,7 @@ class LoginViewModelTest {
         authHelper.authStatusLiveData = MutableLiveData()
 
         loginViewModel = LoginViewModel(
+            application = application,
             apiService = apiService,
             authHelper = authHelper,
             toastHelper = toastHelper
@@ -612,6 +619,7 @@ class LoginViewModelTest {
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
+
     @Test
     fun connectNoPoll() = runBlocking {
         // Do not test as this should not happen and therefore there exists no defined way to proceed

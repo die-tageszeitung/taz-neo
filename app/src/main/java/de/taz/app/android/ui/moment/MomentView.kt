@@ -93,7 +93,7 @@ class MomentView @JvmOverloads constructor(
         this.dateFormat = dateFormat
         this.issueOperations = issueOperations
 
-        displayJob = lifecycleOwner?.lifecycleScope?.launch {
+        displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
             launch { setDimension(issueOperations.getFeed()) }
 
             launch { setDate(issueOperations.date) }
@@ -101,7 +101,6 @@ class MomentView @JvmOverloads constructor(
             launch { hideOrShowDownloadIcon() }
 
             launch { showMoment(issueOperations) }
-
         }
     }
 

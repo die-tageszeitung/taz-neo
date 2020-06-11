@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
@@ -23,14 +24,15 @@ import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_webview_article) {
+class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewModel>(R.layout.fragment_webview_article) {
 
-    override val viewModel = ArticleWebViewViewModel()
+    override val viewModel: ArticleWebViewViewModel by lazy {
+        ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
+    }
+
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
     var observer: Observer<Boolean>? = null
-
-    private val fileHelper = FileHelper.getInstance()
 
     companion object {
         fun createInstance(article: ArticleStub): ArticleWebViewFragment {
@@ -55,7 +57,9 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     override fun setHeader(displayable: ArticleStub) {
         lifecycleScope.launch(Dispatchers.IO) {
             val index = displayable.getIndexInSection() ?: 0
-            val count = ArticleRepository.getInstance().getSectionArticleStubListByArticleName(
+            val count = ArticleRepository.getInstance(
+                context?.applicationContext
+            ).getSectionArticleStubListByArticleName(
                 displayable.key
             ).size
 
@@ -66,7 +70,8 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
             val issueOperations = displayable.getIssueOperations()
             issueOperations?.apply {
                 if (isWeekend) {
-                    FontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
+                    FontHelper.getInstance(context?.applicationContext)
+                        .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface = typeface
                             view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
@@ -91,7 +96,7 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
     }
 
     private fun goBackToSection(sectionStub: SectionStub?) {
-        sectionStub?.let{
+        sectionStub?.let {
             showInWebView(it.key)
         }
     }
@@ -155,7 +160,8 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub>(R.layout.fragment_we
                 var imageUri: Uri? = null
                 val applicationId = view.context.packageName
                 image?.let {
-                    val imageAsFile = fileHelper.getFile(image)
+                    val imageAsFile =
+                        FileHelper.getInstance(context?.applicationContext).getFile(image)
                     imageUri = FileProvider.getUriForFile(
                         view.context,
                         "${applicationId}.contentProvider",
