@@ -23,15 +23,14 @@ object NightModeHelper {
                 cssFile.writeText(cssString)
 
                 if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                    setThemeAndReCreate(sharedPreferences, activity, true)
+                    setThemeAndReCreate(sharedPreferences, activity)
                 }
             }
     }
 
     private fun setThemeAndReCreate(
         sharedPreferences: SharedPreferences,
-        activity: Activity,
-        isRecreateFlagSet: Boolean = false
+        activity: Activity
     ) {
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -40,9 +39,7 @@ object NightModeHelper {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
         }
-        if (isRecreateFlagSet) {
-            activity.recreate()
-        }
+        activity.recreate()
     }
 
     private fun isDarkTheme(activity: Activity): Boolean {
@@ -59,7 +56,7 @@ object NightModeHelper {
         }
 
         if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
-            setThemeAndReCreate(tazApiCssPreferences, activity, false)
+            setThemeAndReCreate(tazApiCssPreferences, activity)
         }
 
     }
