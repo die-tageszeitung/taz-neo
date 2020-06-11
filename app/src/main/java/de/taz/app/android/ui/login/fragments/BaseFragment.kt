@@ -33,5 +33,9 @@ abstract class BaseFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
         startActivity(Intent.createChooser(email, null))
     }
 
+    override fun onDetach() {
+        hideKeyBoard()
+        super.onDetach()
+    }
 
 }

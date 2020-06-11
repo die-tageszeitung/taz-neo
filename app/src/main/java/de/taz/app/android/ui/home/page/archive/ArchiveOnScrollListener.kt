@@ -24,7 +24,7 @@ class ArchiveOnScrollListener(
         val totalItemCount = layoutManager.itemCount
 
         if (lastVisibleItem > totalItemCount - 2 * visibleItemCount) {
-            archiveFragment.archiveListAdapter.getItem(totalItemCount - 1)?.date?.let { date ->
+            archiveFragment.archiveAdapter?.getItem(totalItemCount - 1)?.date?.let { date ->
                 archiveFragment.getLifecycleOwner().lifecycleScope.launch(Dispatchers.IO) {
                     archiveFragment.getNextIssueMoments(date)
                 }

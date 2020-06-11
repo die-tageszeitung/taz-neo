@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
@@ -18,11 +19,12 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -34,26 +36,42 @@ import kotlinx.coroutines.withContext
 
 const val SCROLL_POSITION = "scrollPosition"
 
-abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
+abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
     @LayoutRes layoutResourceId: Int
-) : ViewModelBaseMainFragment(layoutResourceId), AppWebViewCallback, AppWebViewClientCallBack {
+) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
+    AppWebViewClientCallBack {
+
+    protected var displayable: DISPLAYABLE? = null
+    abstract override val viewModel: VIEW_MODEL
 
     protected val log by Log
 
-    protected var displayable: DISPLAYABLE? = null
-
-    abstract val viewModel: WebViewViewModel<DISPLAYABLE>
     abstract val nestedScrollViewId: Int
-
     private lateinit var tazApiCssPreferences: SharedPreferences
+
+    private var apiService: ApiService? = null
+    private var downloadService: DownloadService? = null
+    private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("WebViewFragment: shared pref changed: $key")
             if (key == SETTINGS_TEXT_FONT_SIZE) {
                 web_view?.injectCss(sharedPreferences)
+            } else if (
+                key == SETTINGS_TEXT_NIGHT_MODE &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
+            ) {
+                web_view?.reload()
             }
         }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        apiService = ApiService.getInstance(context?.applicationContext)
+        downloadService = DownloadService.getInstance(context?.applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context?.applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +86,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayable = displayable
+        if (viewModel.displayable == null) {
+            viewModel.displayable = displayable
+        }
 
         configureWebView()
-        displayable?.let { displayable ->
+        viewModel.displayable?.let { displayable ->
             lifecycleScope.launch(Dispatchers.IO) {
                 ensureDownloadedAndShow(displayable)
             }
@@ -91,7 +111,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
 
     override fun onStart() {
         super.onStart()
-        displayable?.let { displayable ->
+        viewModel.displayable?.let { displayable ->
             setHeader(displayable)
         }
     }
@@ -149,10 +169,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
         val isDisplayableLiveData = MutableLiveData<Boolean>()
 
+        // Ensure only one resourceVersion exists by deleting all but newest:
+        ResourceInfoRepository.getInstance(activity?.applicationContext).deleteAllButNewest()
+
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
 
         val resourceInfo = if (isResourceInfoUpToDate) {
-            ResourceInfoRepository.getInstance().get()
+            resourceInfoRepository?.get()
         } else {
             tryGetResourceInfo()
         }
@@ -168,7 +191,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
                         if (!isDownloadedOrDownloading) {
                             lifecycleScope.launch(Dispatchers.IO) {
                                 log.debug("starting download of displayable")
-                                DownloadService.getInstance().download(displayable)
+                                downloadService?.download(displayable)
                             }
                         }
                     }
@@ -255,8 +278,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
         return try {
-            ApiService.getInstance().getResourceInfo()?.let {
-                ResourceInfoRepository.getInstance().save(it)
+            apiService?.getResourceInfo()?.let {
+                resourceInfoRepository?.save(it)
                 it
             } ?: run {
                 getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
@@ -275,8 +298,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable>(
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = viewModel.displayable?.getIssueOperations()
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-        val currentResourceVersion =
-            ResourceInfoRepository.getInstance().get()?.resourceVersion ?: 0
+        val currentResourceVersion = resourceInfoRepository?.get()?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
     }

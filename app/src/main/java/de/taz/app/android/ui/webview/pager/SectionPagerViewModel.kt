@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
@@ -11,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SectionPagerViewModel : ViewModel() {
+class SectionPagerViewModel(application: Application) : AndroidViewModel(application) {
 
     val sectionKeyLiveData = MutableLiveData<String?>(null)
     val sectionKey
@@ -50,9 +51,10 @@ class SectionPagerViewModel : ViewModel() {
             issueStatus
         ) { issueDate, issueFeedName, issueStatus ->
             CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
-                val sections = SectionRepository.getInstance().getSectionStubsForIssue(
-                    issueFeedName, issueDate, issueStatus
-                )
+                val sections =
+                    SectionRepository.getInstance(getApplication()).getSectionStubsForIssue(
+                        issueFeedName, issueDate, issueStatus
+                    )
                 sectionKeyLiveData.value?.let { sectionFileName ->
                     sectionKeyLiveData.postValue(null)
                     val index = sections.indexOfFirst { it.sectionFileName == sectionFileName }
@@ -63,7 +65,7 @@ class SectionPagerViewModel : ViewModel() {
 
                 if (issueOperationsLiveData.value == null) {
                     issueOperationsLiveData.postValue(
-                        IssueRepository.getInstance().getStub(
+                        IssueRepository.getInstance(getApplication()).getStub(
                             issueFeedName, issueDate, issueStatus
                         )
                     )
@@ -78,7 +80,8 @@ class SectionPagerViewModel : ViewModel() {
         CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
             sectionKeyLiveData.value?.let { sectionFileName ->
                 val issueStub =
-                    IssueRepository.getInstance().getIssueStubForSection(sectionFileName)
+                    IssueRepository.getInstance(getApplication())
+                        .getIssueStubForSection(sectionFileName)
                 issueFeedNameLiveData.postValue(issueStub.feedName)
                 issueStatusLiveData.postValue(issueStub.status)
                 issueDateLiveData.postValue(issueStub.date)

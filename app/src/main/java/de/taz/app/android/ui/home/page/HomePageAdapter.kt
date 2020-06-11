@@ -27,7 +27,7 @@ import java.util.*
  *  [ViewHolder] is used to recycle views
  */
 abstract class HomePageAdapter(
-    private val modelView: HomePageFragment,
+    private val fragment: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
     private val dateOnClickListenerFunction: ((Date) -> Unit)? = null
 ) : RecyclerView.Adapter<HomePageAdapter.ViewHolder>() {
@@ -39,7 +39,7 @@ abstract class HomePageAdapter(
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
 
-    private val dateHelper = DateHelper.getInstance(modelView?.activity?.applicationContext)
+    private val dateHelper = DateHelper.getInstance(fragment.activity?.applicationContext)
 
     private val log by Log
 
@@ -57,10 +57,6 @@ abstract class HomePageAdapter(
 
     override fun getItemId(position: Int): Long {
         return getItem(position).hashCode().toLong()
-    }
-
-    fun getPosition(issueStub: IssueStub): Int {
-        return visibleIssueStubList.indexOf(issueStub)
     }
 
     fun getPosition(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Int {
@@ -123,6 +119,7 @@ abstract class HomePageAdapter(
         )
         visibleIssueStubList = filteredIssueStubs
         diffResult.dispatchUpdatesTo(this)
+        fragment.callbackWhenIssueIsSet()
     }
 
     fun setFeeds(feeds: List<Feed>) {
@@ -139,7 +136,7 @@ abstract class HomePageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(modelView.context).inflate(
+            LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
@@ -157,9 +154,9 @@ abstract class HomePageAdapter(
         RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
-                modelView.viewLifecycleOwner.lifecycleScope.launch {
+                fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                     getItem(adapterPosition)?.let {
-                        modelView.onItemSelected(it)
+                        fragment.onItemSelected(it)
                     }
                 }
             }
@@ -167,8 +164,8 @@ abstract class HomePageAdapter(
             itemView.setOnLongClickListener { view ->
                 log.debug("onLongClickListener triggered for view: $view!")
                 getItem(adapterPosition)?.let { item ->
-                    modelView.getMainView()?.let { mainView ->
-                        modelView.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
+                    fragment.getMainView()?.let { mainView ->
+                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
                     }
                 }
                 true

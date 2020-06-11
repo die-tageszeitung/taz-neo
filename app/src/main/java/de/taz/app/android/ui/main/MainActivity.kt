@@ -1,10 +1,7 @@
 package de.taz.app.android.ui.main
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -13,8 +10,6 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
 import androidx.annotation.MainThread
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -22,13 +17,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
-import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -42,7 +36,6 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,64 +48,22 @@ const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : BaseActivity(R.layout.activity_main) {
 
     private val log by Log
 
-    private lateinit var tazApiCssPreferences: SharedPreferences
-
-    private val tazApiCssPrefListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            log.debug("Shared pref changed: $key")
-            val cssFile = FileHelper.getInstance(applicationContext).getFileByPath(
-                "$RESOURCE_FOLDER/tazApi.css"
-            )
-            val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
-
-            cssFile.writeText(cssString)
-
-            if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                setThemeAndReCreate(sharedPreferences, true)
-            }
-        }
-
-    private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences,
-        isReCreateFlagSet: Boolean = false
-    ) {
-        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            log.debug("setTheme to NIGHT")
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            log.debug("setTheme to DAY")
-        }
-        if (isReCreateFlagSet) {
-            recreate()
-        }
-    }
-
-    private fun isDarkTheme(): Boolean {
-        return this.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-    }
+    private var fileHelper: FileHelper? = null
+    private var imageRepository: ImageRepository? = null
+    private var sectionRepository: SectionRepository? = null
+    private var toastHelper: ToastHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
-        // if "text_night_mode" is not set in shared preferences -> set it now
-        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
-            SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme()
-            ).postValue(isDarkTheme())
-        }
-
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme()) {
-            setThemeAndReCreate(tazApiCssPreferences, false)
-        }
-
         super.onCreate(savedInstanceState)
+
+        fileHelper = FileHelper.getInstance(applicationContext)
+        imageRepository = ImageRepository.getInstance(applicationContext)
+        sectionRepository = SectionRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -139,16 +90,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     fun showInWebView(
@@ -283,11 +224,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun showToast(stringId: Int) {
-        ToastHelper.getInstance(applicationContext).showToast(stringId)
+        toastHelper?.showToast(stringId)
     }
 
     fun showToast(string: String) {
-        ToastHelper.getInstance(applicationContext).showToast(string)
+        toastHelper?.showToast(string)
     }
 
     fun getLifecycleOwner(): LifecycleOwner = this
@@ -344,8 +285,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         withContext(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
-                defaultNavButton = ImageRepository.getInstance(applicationContext)
-                    .get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                defaultNavButton = imageRepository?.get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
 
             val image: Image? = navButton ?: defaultNavButton
@@ -371,8 +311,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 // would be too big - the value is taken from experience rather than science
                 val scalingFactor = 1f / 3f
 
-                val file = FileHelper.getInstance(applicationContext).getFile(navButton)
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                val file = fileHelper?.getFile(navButton)
+                val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
                 val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
                     (TypedValue.applyDimension(
@@ -405,8 +345,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
                             CoroutineScope(Dispatchers.IO).launch {
-                                SectionRepository.getInstance()
-                                    .getSectionStubForArticle(articleName)?.let { section ->
+                                sectionRepository?.getSectionStubForArticle(articleName)
+                                    ?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
                                             setCoverFlowItem(issueOperations)
                                             setDrawerIssue(issueOperations)

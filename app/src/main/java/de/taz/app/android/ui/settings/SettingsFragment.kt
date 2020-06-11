@@ -8,13 +8,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.base.ViewModelBaseMainFragment
+import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -24,13 +26,11 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
-class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
+class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
 
     private val log by Log
 
     private var storedIssueNumber: String? = null
-
-    private var viewModel: SettingsViewModel? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,6 +40,14 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN
                 )
+            findViewById<TextView>(R.id.fragment_settings_category_general).text =
+                getString(R.string.settings_category_general).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_text).text =
+                getString(R.string.settings_category_text).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_account).text =
+                getString(R.string.settings_category_account).toLowerCase(Locale.GERMAN)
+            findViewById<TextView>(R.id.fragment_settings_category_support).text =
+                getString(R.string.settings_category_support).toLowerCase(Locale.GERMAN)
 
             findViewById<TextView>(R.id.fragment_settings_general_keep_issues).apply {
                 setOnClickListener {
@@ -53,11 +61,18 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 }
             }
 
-            findViewById<Button>(R.id.fragment_settings_account_manage_account)
+            findViewById<TextView>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
                     activity?.startActivityForResult(
                         Intent(activity, LoginActivity::class.java),
                         ACTIVITY_LOGIN_REQUEST_CODE
+                    )
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_welcome_slides)
+                .setOnClickListener {
+                    activity?.startActivity(
+                        Intent(activity, WelcomeActivity::class.java)
                     )
                 }
 
@@ -85,7 +100,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                 logout()
             }
 
-            fragment_settings_version_number?.text = BuildConfig.VERSION_NAME
+            fragment_settings_version_number?.text = getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -100,9 +115,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = viewModel ?: SettingsViewModel(requireActivity().applicationContext)
-
-        viewModel?.apply {
+        viewModel.apply {
             textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showTextSize(textSizeInt)
@@ -148,7 +161,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
                         dialog.hide()
                     }
                 }
-                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                 }
                 .create()
@@ -164,7 +177,10 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun showStoredIssueNumber(number: String) {
         storedIssueNumber = number
-        val text = getString(R.string.settings_general_keep_number_issues, number)
+        val text = HtmlCompat.fromHtml(
+            getString(R.string.settings_general_keep_number_issues, number),
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 
@@ -211,22 +227,22 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun setStoredIssueNumber(number: Int) {
         log.debug("setKeepNumber: $number")
-        viewModel?.storedIssueNumberLiveData?.postValue(number.toString())
+        viewModel.storedIssueNumberLiveData.postValue(number.toString())
     }
 
     private fun disableNightMode() {
         log.debug("disableNightMode")
-        viewModel?.nightModeLiveData?.postValue(false)
+        viewModel.nightModeLiveData.postValue(false)
     }
 
     private fun enableNightMode() {
         log.debug("enableNightMode")
-        viewModel?.nightModeLiveData?.postValue(true)
+        viewModel.nightModeLiveData.postValue(true)
     }
 
 
     private fun decreaseTextSize() {
-        viewModel?.apply {
+        viewModel.apply {
             val newSize = getTextSizePercent().toInt() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 textSizeLiveData.postValue(newSize.toString())
@@ -236,7 +252,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun increaseTextSize() {
         log.debug("increaseTextSize")
-        viewModel?.apply {
+        viewModel.apply {
             val newSize = getTextSizePercent().toInt() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 textSizeLiveData.postValue(newSize.toString())
@@ -246,7 +262,7 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
 
     private fun resetTextSize() {
         log.debug("resetTextSize")
-        viewModel?.textSizeLiveData?.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
+        viewModel.textSizeLiveData.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
     }
 
     private fun reportBug() {
@@ -254,11 +270,11 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
-        viewModel?.downloadOnlyWifiLiveData?.postValue(onlyWifi)
+        viewModel.downloadOnlyWifiLiveData.postValue(onlyWifi)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
-        viewModel?.downloadAutomaticallyLiveData?.postValue(downloadEnabled)
+        viewModel.downloadAutomaticallyLiveData.postValue(downloadEnabled)
     }
 
     private fun logout() {
@@ -268,6 +284,6 @@ class SettingsFragment : ViewModelBaseMainFragment(R.layout.fragment_settings) {
     }
 
     private fun getTextSizePercent(): String {
-        return viewModel?.textSizeLiveData?.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        return viewModel.textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
     }
 }

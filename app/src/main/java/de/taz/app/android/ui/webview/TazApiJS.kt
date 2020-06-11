@@ -8,6 +8,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
@@ -20,7 +21,7 @@ import java.lang.ref.WeakReference
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 
-class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
+class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
 
     private val log by Log
 
@@ -114,10 +115,12 @@ class TazApiJS constructor(webViewFragment: WebViewFragment<*>) {
                     launchUrl(mainActivity, Uri.parse(url))
                 }
             } catch (e: ActivityNotFoundException) {
+                val toastHelper =
+                    ToastHelper.getInstance(webViewFragment?.context?.applicationContext)
                 if (url.startsWith("mailto:")) {
-                    ToastHelper.getInstance().showToast(R.string.toast_no_email_client)
+                    toastHelper.showToast(R.string.toast_no_email_client)
                 } else {
-                    ToastHelper.getInstance().showToast(R.string.toast_unknown_error)
+                    toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
         }
