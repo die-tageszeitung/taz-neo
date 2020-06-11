@@ -182,7 +182,9 @@ class LoginViewModel(
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        register(
+            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+        )
     }
 
     fun getTrialSubscriptionForNewCredentials(
@@ -284,7 +286,7 @@ class LoginViewModel(
                 }
                 null -> {
                     status.postValue(previousState)
-                    noInternet.postValue(true)
+                    toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {

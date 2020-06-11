@@ -15,7 +15,7 @@ class RegistrationSuccessfulFragment: BaseFragment(R.layout.fragment_login_regis
 
         if (!viewModel.backToArticle) {
             fragment_login_confirm_done.text = getString(
-                R.string.fragment_login_success_login_back_settings
+                R.string.fragment_login_success_login_back_coverflow
             )
         }
 
