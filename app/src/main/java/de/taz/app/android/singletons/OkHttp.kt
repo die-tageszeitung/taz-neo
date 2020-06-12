@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.AcceptHeaderInterceptor
 import de.taz.app.android.api.AuthenticationHeaderInterceptor
+import de.taz.app.android.download.CONCURRENT_DOWNLOAD_LIMIT
 import de.taz.app.android.util.*
+import okhttp3.Dispatcher
 import java.util.concurrent.TimeUnit
 
 @Mockable
@@ -20,6 +22,7 @@ class OkHttp private constructor(applicationContext: Context) : ViewModel() {
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
+        .dispatcher(Dispatcher().also { it.maxRequestsPerHost = CONCURRENT_DOWNLOAD_LIMIT })
         .build()
 
 
