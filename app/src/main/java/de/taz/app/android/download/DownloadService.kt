@@ -31,7 +31,7 @@ const val DATA_ISSUE_STATUS = "extra.issue.status"
 
 const val CAUSE_NO_INTERNET = "no internet"
 
-const val CONCURRENT_DOWNLOAD_LIMIT = 10
+const val CONCURRENT_DOWNLOAD_LIMIT = 60
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
