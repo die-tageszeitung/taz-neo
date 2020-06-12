@@ -28,13 +28,18 @@ class DownloadRepository private constructor(applicationContext: Context) :
         } ?: throw NotFoundException()
     }
 
-    fun saveIfNotExists(download: Download) {
+    /**
+     * @return Boolean indicating whether the download has been saved or not
+     */
+    fun saveIfNotExists(download: Download): Boolean {
         appDatabase.fileEntryDao().getByName(download.file.name)?.let {
             val downloadStub = DownloadStub(download)
             try {
                 appDatabase.downloadDao().insertOrAbort(downloadStub)
+                return true
             } catch (_: SQLiteConstraintException) {
                 // do nothing as already exists
+                return false
             }
         } ?: throw NotFoundException()
     }
@@ -99,6 +104,9 @@ class DownloadRepository private constructor(applicationContext: Context) :
             update(downloadStub)
         }
     }
+
+    fun saveLastSha256(download: Download, sha256: String) =
+        saveLastSha256(DownloadStub(download), sha256)
 
     fun saveLastSha256(downloadStub: DownloadStub, sha256: String) {
         try {

@@ -23,8 +23,10 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
@@ -134,6 +136,12 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         setDrawerIssue(issueStub)
         setCoverFlowItem(issueStub)
         changeDrawerIssue()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            DownloadService.getInstance(applicationContext).download(
+                IssueRepository.getInstance(applicationContext).getIssue(issueStub)
+            )
+        }
 
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)

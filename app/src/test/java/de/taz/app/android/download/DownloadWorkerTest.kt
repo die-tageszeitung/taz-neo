@@ -59,7 +59,6 @@ class DownloadWorkerTest {
         downloadWorker = DownloadWorker(
             OkHttpClient(),
             downloadRepository,
-            fileEntryRepository,
             fileHelper,
             workManager
         )

@@ -10,13 +10,13 @@ import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import de.taz.app.android.util.okHttpClient
 import de.taz.app.android.singletons.*
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
@@ -28,7 +28,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val queryService: QueryService
 ) {
     private constructor(applicationContext: Context) : this(
-        okHttpClient = okHttpClient(applicationContext),
+        okHttpClient = OkHttp.getInstance(applicationContext).client,
         url =  GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext)
     )
