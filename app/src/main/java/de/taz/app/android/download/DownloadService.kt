@@ -46,8 +46,9 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-    private val appInfo = appInfoRepository.get()
-    private val resourceInfo = resourceInfoRepository.get()
+    private val appInfo = runBlocking(Dispatchers.IO) { appInfoRepository.get() }
+    private val resourceInfo = runBlocking(Dispatchers.IO) { resourceInfoRepository.get() }
+
 
     private val httpClient = OkHttp.getInstance(applicationContext).client
     private val workManager = WorkManager.getInstance(applicationContext)
