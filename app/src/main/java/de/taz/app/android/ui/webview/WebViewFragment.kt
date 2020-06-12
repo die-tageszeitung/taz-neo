@@ -68,9 +68,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        apiService = ApiService.getInstance(context?.applicationContext)
-        downloadService = DownloadService.getInstance(context?.applicationContext)
-        resourceInfoRepository = ResourceInfoRepository.getInstance(context?.applicationContext)
+        apiService = ApiService.getInstance(context.applicationContext)
+        downloadService = DownloadService.getInstance(context.applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -181,21 +181,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         resourceInfo?.let {
-            val isDownloadingLiveData = displayable.isDownloadedOrDownloadingLiveData()
             val isDownloadedLiveData = displayable.isDownloadedLiveData()
 
             withContext(Dispatchers.Main) {
-                isDownloadingLiveData.observeDistinct(
-                    this@WebViewFragment,
-                    Observer { isDownloadedOrDownloading ->
-                        if (!isDownloadedOrDownloading) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                log.debug("starting download of displayable")
-                                downloadService?.download(displayable)
-                            }
-                        }
-                    }
-                )
                 isDownloadedLiveData.observeDistinct(
                     this@WebViewFragment,
                     Observer { isDownloaded ->
@@ -204,28 +192,18 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                                 log.info("displayable is ready")
                                 isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
                             }
+                        } else {
+                            downloadService?.download(displayable)
                         }
                     }
                 )
 
-                val resourceInfoIsDownloadingLiveData =
-                    resourceInfo.isDownloadedOrDownloadingLiveData()
                 val resourceInfoIsDownloadedLiveData =
                     resourceInfo.isDownloadedLiveData()
 
                 withContext(Dispatchers.Main) {
                     if (!isResourceInfoUpToDate) {
-                        resourceInfoIsDownloadingLiveData.observeDistinct(
-                            this@WebViewFragment,
-                            Observer { isDownloadedOrDownloading ->
-                                if (!isDownloadedOrDownloading) {
-                                    lifecycleScope.launch(Dispatchers.IO) {
-                                        log.info("starting download of resources")
-                                        ResourceInfo.update()
-                                    }
-                                }
-                            }
-                        )
+                        ResourceInfo.update()
                     }
                     resourceInfoIsDownloadedLiveData.observeDistinct(
                         this@WebViewFragment,

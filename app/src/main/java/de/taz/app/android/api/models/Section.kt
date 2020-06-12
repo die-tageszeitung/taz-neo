@@ -16,14 +16,17 @@ data class Section(
     val imageList: List<Image> = emptyList(),
     override val extendedTitle: String? = null
 ) : SectionOperations, CacheableDownload {
+
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
         sectionHtml = FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
         issueDate = issueDate,
         title = sectionDto.title,
         type = sectionDto.type,
         navButton = Image(sectionDto.navButton, "$issueFeedName/$issueDate"),
-        articleList = sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) } ?: listOf(),
-        imageList = sectionDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") } ?: listOf(),
+        articleList = sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) }
+            ?: listOf(),
+        imageList = sectionDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") }
+            ?: listOf(),
         extendedTitle = sectionDto.extendedTitle
     )
 

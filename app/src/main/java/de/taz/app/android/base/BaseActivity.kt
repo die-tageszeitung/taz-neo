@@ -14,7 +14,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NightModeHelper
-import de.taz.app.android.util.SubscriptionPollHelper
+import de.taz.app.android.singletons.SubscriptionPollHelper
 
 abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivity() {
 
@@ -59,20 +59,23 @@ abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivit
 
             AuthHelper.createInstance(it)
             DateHelper.createInstance(it)
-            FileHelper.createInstance(it)
+            DownloadedIssueHelper.createInstance(it)
             FeedHelper.createInstance(it)
+            FileHelper.createInstance(it)
+            NotificationHelper.createInstance(it)
+            OkHttp.createInstance(it)
+            SubscriptionPollHelper.createInstance(it)
+            ToastHelper.createInstance(it)
+            ToDownloadIssueHelper.createInstance(it)
+
             QueryService.createInstance(it)
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
-            DownloadService.createInstance(it)
-            DownloadedIssueHelper.createInstance(it)
-            ToDownloadIssueHelper.createInstance(it)
 
-            SubscriptionPollHelper.createInstance(it)
+            DownloadService.createInstance(it)
 
             FirebaseHelper.createInstance(it)
-            NotificationHelper.createInstance(it)
         }
         log.debug("Singletons initialized")
     }
