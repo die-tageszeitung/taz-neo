@@ -111,26 +111,25 @@ class DownloadService private constructor(val applicationContext: Context) {
 
 
     private suspend fun startDownloads() {
-        while (currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
-            val downloadNames = downloadList.fold("downloadNames: ") { acc, elem ->
-                acc + " ${elem.fileName}"
-            }
-            log.debug(downloadNames)
-
-            downloadList.pollFirst()?.let { download ->
-                currentDownloads.incrementAndGet()
-                startDownload(download).invokeOnCompletion { _ ->
-                    currentDownloads.decrementAndGet()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        startDownloads()
+        withContext(Dispatchers.IO) {
+            while (currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+                downloadList.pollFirst()?.let { download ->
+                    currentDownloads.incrementAndGet()
+                    launch {
+                        startDownload(download)
+                    }.invokeOnCompletion {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            startDownloads()
+                        }
+                        currentDownloads.decrementAndGet()
                     }
                 }
             }
         }
     }
 
-    private suspend fun startDownload(download: Download): Job =
-        CoroutineScope(Dispatchers.IO).launch {
+    private suspend fun startDownload(download: Download) {
+        withContext(Dispatchers.IO) {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
@@ -164,6 +163,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 }
             }
         }
+    }
 
     private fun handleResponse(response: Response, download: Download) {
         log.debug("handling response for ${download.fileName}")
