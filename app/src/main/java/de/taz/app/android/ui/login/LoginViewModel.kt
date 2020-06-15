@@ -181,9 +181,11 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials() {
+    fun getTrialSubscriptionForExistingCredentials(firstName: String? = null, surname: String? = null) {
         register(
-            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
+            firstName = firstName,
+            surname = surname
         )
     }
 
