@@ -168,6 +168,9 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
                 LoginViewModelState.DONE -> {
                     done()
                 }
+                LoginViewModelState.NAME_MISSING -> {
+                    showNamesMissing()
+                }
             }
         })
 
@@ -283,6 +286,10 @@ class LoginActivity : BaseActivity(R.layout.activity_login) {
         showFragment(PasswordRequestNoMailFragment())
     }
 
+    private fun showNamesMissing() {
+        log.debug("showNamesMissing")
+        showFragment(NamesMissingFragment())
+    }
     fun done() {
         log.debug("done")
         showLoadingScreen()
