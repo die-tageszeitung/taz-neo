@@ -90,7 +90,7 @@ abstract class HomePageFragment(
     suspend fun downloadNextIssues(date: String, limit: Int) {
         withContext(Dispatchers.IO) {
             try {
-                apiService?.getIssuesByDate(issueDate = date, limit = limit)?.let {
+                apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()?.let {
                     issueRepository?.save(it)
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {

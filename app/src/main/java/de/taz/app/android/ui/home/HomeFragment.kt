@@ -20,7 +20,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
@@ -74,9 +73,9 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         withContext(Dispatchers.IO) {
             try {
                 val apiService = ApiService.getInstance(activity?.applicationContext)
-                FeedRepository.getInstance(activity?.applicationContext).save(apiService.getFeeds())
+                FeedRepository.getInstance(activity?.applicationContext).save(apiService.getFeedsAsync().await())
                 IssueRepository.getInstance(activity?.applicationContext)
-                    .saveIfDoNotExist(apiService.getLastIssues())
+                    .saveIfDoNotExist(apiService.getLastIssuesAsync().await())
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 ToastHelper.getInstance(activity?.applicationContext)
                     .showToast(R.string.toast_no_internet)

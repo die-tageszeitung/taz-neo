@@ -256,7 +256,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
         return try {
-            apiService?.getResourceInfo()?.let {
+            apiService?.getResourceInfoAsync()?.await()?.let {
                 resourceInfoRepository?.save(it)
                 it
             } ?: run {

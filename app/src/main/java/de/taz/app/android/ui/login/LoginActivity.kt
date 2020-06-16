@@ -319,12 +319,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        apiService?.getLastIssues()?.let { lastIssues ->
+        apiService?.getLastIssuesAsync()?.await()?.let { lastIssues ->
             issueRepository?.save(lastIssues)
             article?.let { article ->
                 var lastDate = lastIssues.last().date
                 while (articleRepository?.get(article) == null) {
-                    apiService?.getIssuesByDate(lastDate)?.let { issues ->
+                    apiService?.getIssuesByDateAsync(lastDate)?.await()?.let { issues ->
                         issueRepository?.save(issues)
                         lastDate = issues.last().date
                     }
