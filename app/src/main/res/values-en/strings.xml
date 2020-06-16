@@ -166,6 +166,8 @@
     <string name="fragment_login_missing_credentials_switch_to_login">I already have an account</string>
     <string name="fragment_login_missing_credentials_switch_to_registration">I don\'t have an account yet</string>
 
+    <string name="fragment_login_missing__names_header">There is no surname and family name registered to your taz id. Please add that to get a subscription test.</string>
+
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
     <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
