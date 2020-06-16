@@ -2,21 +2,25 @@ package de.taz.app.android.ui.webview
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+
 
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
@@ -126,4 +130,30 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: Web
         }
     }
 
+    @JavascriptInterface
+    fun openImage(name: String) {
+        log.debug("openImage $name")
+
+        val fileHelper = FileHelper.getInstance(applicationContext)
+        applicationContext?.let {context ->
+
+            fileHelper.getFile(name)?.let {file ->
+                val applicationId = context.packageName
+                val imageAsUri = FileProvider.getUriForFile(
+                    context,
+                    "${applicationId}.contentProvider",
+                    file
+                )
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(
+                    imageAsUri,
+                    "image/*"
+                ) // The Mime type can actually be determined from the file
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                mainActivity?.startActivity(intent)
+            }
+        }
+
+    }
 }
