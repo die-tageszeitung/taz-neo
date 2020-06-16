@@ -22,6 +22,7 @@ class InternetHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<InternetHelper, Context>(::InternetHelper)
 
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.getInstance(applicationContext).client
 
     val canReachDownloadServerLiveData = MutableLiveData(false)
@@ -46,6 +47,7 @@ class InternetHelper private constructor(applicationContext: Context) {
         Transformations.distinctUntilChanged(canReachDownloadServerLiveData)
             .observeForever { isConnected ->
                 if (isConnected == false) {
+                    toastHelper.showNoConnectionToast()
                     checkDownloadServer()
                 }
             }
@@ -61,8 +63,8 @@ class InternetHelper private constructor(applicationContext: Context) {
                     )::enqueue
                 )
                 val bool = result.code.toString().startsWith("2")
-                log.error("inet check: ${result.code}")
                 if (bool) {
+                    log.debug("downloadserver reached")
                     canReachDownloadServerLiveData.postValue(bool)
                     canReachDownloadServerLastChanged = Date().time
                 }
