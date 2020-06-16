@@ -1,7 +1,6 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.work.*
@@ -59,7 +58,6 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = LinkedBlockingDeque<Download>()
-    private val downloadListSizeLiveData = MutableLiveData(0)
 
     private val currentDownloads = AtomicInteger(0)
 
@@ -67,14 +65,9 @@ class DownloadService private constructor(val applicationContext: Context) {
         Transformations.distinctUntilChanged(internetHelper.canReachDownloadServerLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
-                    startDownloads()
+                    startDownloadsIfCapacity()
                 }
             }
-        downloadListSizeLiveData.observeForever {
-            if (internetHelper.canReachDownloadServer) {
-                startDownloads()
-            }
-        }
     }
 
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
@@ -136,7 +129,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
 
 
-    private fun startDownloads() {
+    private fun startDownloadsIfCapacity() {
         CoroutineScope(Dispatchers.IO).launch {
             while (internetHelper.canReachDownloadServer && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
@@ -145,9 +138,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         getFromServer(download)
                     }.invokeOnCompletion {
                         currentDownloads.decrementAndGet()
-                        CoroutineScope(Dispatchers.IO).launch {
-                            startDownloads()
-                        }
+                        startDownloadsIfCapacity()
                     }
                 }
             }
@@ -322,13 +313,13 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private fun appendToDownloadList(download: Download) {
         if (downloadList.offerLast(download)) {
-            downloadListSizeLiveData.postValue(downloadList.size)
+            startDownloadsIfCapacity()
         }
     }
 
     private fun prependToDownloadList(download: Download) {
         if (downloadList.offerFirst(download)) {
-            downloadListSizeLiveData.postValue(downloadList.size)
+            startDownloadsIfCapacity()
         }
     }
 
