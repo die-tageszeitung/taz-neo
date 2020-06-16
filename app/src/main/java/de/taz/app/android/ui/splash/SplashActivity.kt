@@ -121,7 +121,7 @@ class SplashActivity : BaseActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val feeds = apiService.getFeeds()
+                val feeds = apiService.getFeedsAsync().await()
                 feedRepository.save(feeds)
                 log.debug("Initialized Feeds")
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
@@ -143,7 +143,7 @@ class SplashActivity : BaseActivity() {
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
         try {
-            val issues = apiService.getLastIssues(number)
+            val issues = apiService.getLastIssuesAsync(number).await()
             issueRepository.saveIfDoNotExist(issues)
             log.debug("Initialized Issues: ${issues.size}")
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
@@ -226,7 +226,7 @@ class SplashActivity : BaseActivity() {
         if (!firebaseHelper.hasTokenBeenSent) {
             if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance(applicationContext).sendNotificationInfo()
+                    ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                 }
             }
         }

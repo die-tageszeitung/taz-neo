@@ -2,21 +2,27 @@ package de.taz.app.android.api
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.Transformations
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.InternetHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
+import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.NoSuchElementException
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Service class to get Models from GraphQl
@@ -29,12 +35,25 @@ class ApiService private constructor(applicationContext: Context) {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
 
+    private var internetHelper = InternetHelper.getInstance(applicationContext)
+    private var waitInternetList = mutableListOf<Continuation<Unit>>()
+
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
+
+    init {
+        Transformations.distinctUntilChanged(internetHelper.canReachDownloadServerLiveData).observeForever { canReach ->
+            if(canReach) {
+                waitInternetList.forEach { it.resume(Unit) }
+            }
+        }
+    }
 
     /**
      * function to connect subscriptionId to tazId
@@ -47,15 +66,15 @@ class ApiService private constructor(applicationContext: Context) {
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun subscriptionId2TazId(
+    suspend fun subscriptionId2TazIdAsnc(
         tazId: String,
         idPassword: String,
         subscriptionId: Int,
         subscriptionPassword: String,
         surname: String? = null,
         firstname: String? = null
-    ): SubscriptionInfo? {
-        return transformExceptions({
+    ): Deferred<SubscriptionInfo?> = CoroutineScope(Dispatchers.IO).async {
+        transformExceptions({
             graphQlClient.query(
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
@@ -71,16 +90,16 @@ class ApiService private constructor(applicationContext: Context) {
     }
 
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun subscriptionPoll(): SubscriptionInfo? {
-        val tag = "subscriptionPoll"
-        log.debug(tag)
-        return transformExceptions({
-            graphQlClient.query(
+    suspend fun subscriptionPollAsync(): Deferred<SubscriptionInfo?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "subscriptionPoll"
+            log.debug(tag)
+            getDataDto(
+                tag,
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
-            )?.subscriptionPoll
-        }, tag)
-    }
+            ).subscriptionPoll
+        }
 
     /**
      * function to authenticate with the backend
@@ -89,16 +108,16 @@ class ApiService private constructor(applicationContext: Context) {
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
-        val tag = "authenticate"
-        log.debug("$tag username: $user")
-        return transformExceptions({
-            graphQlClient.query(
+    suspend fun authenticateAsync(user: String, password: String): Deferred<AuthTokenInfo?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "authenticate"
+            log.debug("$tag username: $user")
+            getDataDto(
+                tag,
                 QueryType.Authentication,
                 AuthenticationVariables(user, password)
-            )?.authentificationToken
-        }, tag)
-    }
+            ).authentificationToken
+        }
 
     /**
      * function to verify if an subscriptionId password combination is valid
@@ -107,13 +126,16 @@ class ApiService private constructor(applicationContext: Context) {
      * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun checkSubscriptionId(subscriptionId: Int, password: String): AuthInfo? {
-        return transformExceptions({
-            graphQlClient.query(
-                QueryType.CheckSubscriptionId,
-                CheckSubscriptionIdVariables(subscriptionId, password)
-            )?.checkSubscriptionId
-        }, "checkSubscriptionId")
+    suspend fun checkSubscriptionIdAsync(
+        subscriptionId: Int,
+        password: String
+    ): Deferred<AuthInfo?> = CoroutineScope(Dispatchers.IO).async {
+        val tag = "checkSubscriptionId"
+        getDataDto(
+            tag,
+            QueryType.CheckSubscriptionId,
+            CheckSubscriptionIdVariables(subscriptionId, password)
+        ).checkSubscriptionId
     }
 
 
@@ -124,16 +146,9 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun getAppInfo(): AppInfo? {
+    suspend fun getAppInfoAsync(): Deferred<AppInfo?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getAppInfo"
-        log.debug(tag)
-        return transformExceptions(
-            {
-                updateAuthStatus(
-                    graphQlClient.query(QueryType.AppInfo)?.product
-                )?.let { AppInfo(it) }
-            }, tag
-        )
+        getDataDto(tag, QueryType.AppInfo).product?.let { AppInfo(it) }
     }
 
     /**
@@ -141,14 +156,10 @@ class ApiService private constructor(applicationContext: Context) {
      * @return List of [Feed]s
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun getFeeds(): List<Feed> {
+    suspend fun getFeedsAsync(): Deferred<List<Feed>> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getFeeds"
         log.debug(tag)
-        return transformExceptions({
-            updateAuthStatus(graphQlClient.query(QueryType.Feed)?.product)?.feedList?.map {
-                Feed(it)
-            }
-        }, tag) ?: emptyList()
+        getDataDto(tag, QueryType.Feed).product?.feedList?.map { Feed(it) } ?: emptyList()
     }
 
     /**
@@ -158,38 +169,31 @@ class ApiService private constructor(applicationContext: Context) {
      * @return [Issue] of the feed at given date
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun getIssueByFeedAndDate(
+    suspend fun getIssueByFeedAndDateAsync(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
-    ): Issue? {
+    ): Deferred<Issue?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getIssueByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate")
-        return transformExceptions({
-            try {
-                getIssuesByFeedAndDate(feedName, issueDate, 1).first()
-            } catch (e: NoSuchElementException) {
-                null
-            }
-        }, tag)
+        val issueList = getIssuesByFeedAndDateAsync(feedName, issueDate, 1).await()
+        issueList.first()
     }
 
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun getLastIssues(limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
-        log.debug("$tag limit: $limit")
-        return transformExceptions({
+    suspend fun getLastIssuesAsync(limit: Int = 10): Deferred<List<Issue>> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "getLastIssues"
+            log.debug("$tag limit: $limit")
             val issues = mutableListOf<Issue>()
-            updateAuthStatus(
-                graphQlClient.query(
-                    QueryType.LastIssues,
-                    IssueVariables(limit = limit)
-                )?.product
-            )?.feedList?.forEach { feed ->
+            getDataDto(
+                tag,
+                QueryType.LastIssues,
+                IssueVariables(limit = limit)
+            ).product?.feedList?.forEach { feed ->
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues
-        }, tag) ?: emptyList()
-    }
+        }
 
     /**
      * function to get [Issue]s by date
@@ -200,24 +204,21 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun getIssuesByDate(
+    suspend fun getIssuesByDateAsync(
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
-    ): List<Issue> {
+    ): Deferred<List<Issue>> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getIssuesByDate"
         log.debug("$tag issueDate: $issueDate limit: $limit")
-        return transformExceptions({
-            val issues = mutableListOf<Issue>()
-            updateAuthStatus(
-                graphQlClient.query(
-                    QueryType.IssueByFeedAndDate,
-                    IssueVariables(issueDate = issueDate, limit = limit)
-                )?.product
-            )?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
-            }
-            issues
-        }, tag) ?: emptyList()
+        val issues = mutableListOf<Issue>()
+        getDataDto(
+            tag,
+            QueryType.LastIssues,
+            IssueVariables(issueDate = issueDate, limit = limit)
+        ).product?.feedList?.forEach { feed ->
+            issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+        }
+        issues
     }
 
     /**
@@ -230,21 +231,18 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun getIssuesByFeedAndDate(
+    suspend fun getIssuesByFeedAndDateAsync(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 2
-    ): List<Issue> {
+    ): Deferred<List<Issue>> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getIssuesByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
-        return transformExceptions({
-            updateAuthStatus(
-                graphQlClient.query(
-                    QueryType.IssueByFeedAndDate,
-                    IssueVariables(feedName, issueDate, limit)
-                )?.product
-            )?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
-        }, tag) ?: emptyList()
+        getDataDto(
+            tag,
+            QueryType.IssueByFeedAndDate,
+            IssueVariables(feedName, issueDate, limit)
+        ).product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
     }
 
     /**
@@ -254,20 +252,12 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun getResourceInfo(): ResourceInfo? {
-        val tag = "getResourceInfo"
-        log.debug(tag)
-        return transformExceptions(
-            {
-                updateAuthStatus(graphQlClient.query(QueryType.ResourceInfo)?.product)?.let {
-                    ResourceInfo(
-                        it
-                    )
-                }
-            },
-            tag
-        )
-    }
+    suspend fun getResourceInfoAsync(): Deferred<ResourceInfo?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "getResourceInfo"
+            log.debug(tag)
+            getDataDto(tag, QueryType.ResourceInfo).product?.let { ResourceInfo(it) }
+        }
 
     /**
      * function to inform server of started download
@@ -278,49 +268,41 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun notifyServerOfDownloadStart(
+    suspend fun notifyServerOfDownloadStartAsync(
         feedName: String,
         issueDate: String
-    ): String? {
-        return transformExceptions(
-            {
-                graphQlClient.query(
-                    QueryType.DownloadStart,
-                    DownloadStartVariables(
-                        feedName,
-                        issueDate
-                    )
-                )?.downloadStart?.let { id ->
-                    log.debug("Notified server that download started. ID: $id")
-                    id
-                }
-            },
-            "notifyServerOfDownloadStart"
-        )
+    ): Deferred<String?> = CoroutineScope(Dispatchers.IO).async {
+        val tag = "notifyServerOfDownloadStart"
+        getDataDto(
+            tag,
+            QueryType.DownloadStart,
+            DownloadStartVariables(
+                feedName,
+                issueDate
+            )
+        ).downloadStart?.let { id ->
+            log.debug("Notified server that download started. ID: $id")
+            id
+        }
     }
 
     /**
      * function to inform server of finished download
-     * @param id the id of the download received via [notifyServerOfDownloadStart]
+     * @param id the id of the download received via [notifyServerOfDownloadStartAsync]
      * @param time time in seconds needed for the download
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun notifyServerOfDownloadStop(
+    suspend fun notifyServerOfDownloadStopAsync(
         id: String,
         time: Float
-    ): Boolean? {
+    ): Deferred<Boolean?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "notifyServerOfDownloadStop"
         log.debug("$tag downloadId: $id time: $time")
-        return transformExceptions(
-            {
-                log.debug("Notifying server that download complete. ID: $id")
-                graphQlClient.query(
-                    QueryType.DownloadStop,
-                    DownloadStopVariables(id, time)
-                )?.downloadStop
-            },
-            tag
-        )
+        getDataDto(
+            tag,
+            QueryType.DownloadStop,
+            DownloadStopVariables(id, time)
+        ).downloadStop
     }
 
     /**
@@ -330,26 +312,23 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun sendNotificationInfo(oldToken: String? = null): Boolean? {
-        val tag = "sendNotificationInfo"
-        log.debug(tag)
+    suspend fun sendNotificationInfoAsync(oldToken: String? = null): Deferred<Boolean?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "sendNotificationInfo"
+            log.debug(tag)
 
-        return firebaseHelper.firebaseToken?.let { notificationToken ->
-            if (notificationToken.isNotBlank()) {
-                transformExceptions(
-                    {
-                        graphQlClient.query(
-                            QueryType.Notification,
-                            NotificationVariables(notificationToken, oldToken = oldToken)
-                        )?.notification
-                    },
-                    tag
-                )
-            } else {
-                false
+            firebaseHelper.firebaseToken?.let { notificationToken ->
+                if (notificationToken.isNotBlank()) {
+                    getDataDto(
+                        tag,
+                        QueryType.Notification,
+                        NotificationVariables(notificationToken, oldToken = oldToken)
+                    ).notification
+                } else {
+                    false
+                }
             }
         }
-    }
 
     /**
      * function to request a trial subscription
@@ -361,26 +340,25 @@ class ApiService private constructor(applicationContext: Context) {
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun trialSubscription(
+    suspend fun trialSubscriptionAsync(
         tazId: String,
         idPassword: String,
         surname: String? = null,
         firstName: String? = null
-    ): SubscriptionInfo? {
+    ): Deferred<SubscriptionInfo?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
-        return transformExceptions({
-            graphQlClient.query(
-                QueryType.TrialSubscription,
-                TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
-            )?.trialSubscription
-        }, tag)
+        getDataDto(
+            tag,
+            QueryType.TrialSubscription,
+            TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
+        ).trialSubscription
     }
 
     @Throws(
         ApiServiceException.NoInternetException::class
     )
-    suspend fun sendErrorReport(
+    suspend fun sendErrorReportAsync(
         email: String?,
         message: String?,
         lastAction: String?,
@@ -389,28 +367,24 @@ class ApiService private constructor(applicationContext: Context) {
         errorProtocol: String?,
         ramUsed: String?,
         ramAvailable: String?
-    ): Boolean? {
+    ): Deferred<Boolean?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "sendErrorReport"
         log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
 
-        return transformExceptions(
-            {
-                graphQlClient.query(
-                    QueryType.ErrorReport,
-                    ErrorReportVariables(
-                        email,
-                        message,
-                        lastAction,
-                        conditions,
-                        storageType,
-                        errorProtocol,
-                        ramUsed = ramUsed,
-                        ramAvailable = ramAvailable
-                    )
-                )?.errorReport
-            },
-            tag
-        )
+        getDataDto(
+            tag,
+            QueryType.ErrorReport,
+            ErrorReportVariables(
+                email,
+                message,
+                lastAction,
+                conditions,
+                storageType,
+                errorProtocol,
+                ramUsed = ramUsed,
+                ramAvailable = ramAvailable
+            )
+        ).errorReport
     }
 
     /**
@@ -438,21 +412,6 @@ class ApiService private constructor(applicationContext: Context) {
             },
             tag
         )
-    }
-
-    /**
-     * function to request an email with the subscription password
-     * @param subscriptionId the if of the subscription
-     * @return
-     */
-    /**
-     * if product returns authStatus update it in the authHelper
-     */
-    private fun updateAuthStatus(product: ProductDto?): ProductDto? {
-        product?.authInfo?.let {
-            authHelper.authStatus = it.status
-        }
-        return product
     }
 
     @Throws(
@@ -498,6 +457,50 @@ class ApiService private constructor(applicationContext: Context) {
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
         }
         return null
+    }
+
+    private suspend fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
+        if (internetHelper.canReachDownloadServer) {
+            continuation.resume(Unit)
+            log.debug("ApiCall $tag waiting")
+        } else {
+            waitInternetList.add(continuation)
+        }
+    }
+
+    private suspend fun getDataDto(
+        tag: String,
+        queryType: QueryType,
+        variables: Variables? = null
+    ): DataDto {
+        log.debug(tag)
+        var result: DataDto? = null
+        while (result == null) {
+            waitForInternet(tag)
+            result = transformExceptions(
+                {
+                    val data = graphQlClient.query(queryType, variables)
+                    updateAuthStatus(data?.product)
+                    data
+                }, tag
+            )
+        }
+        return result
+    }
+
+    /**
+     * function to request an email with the subscription password
+     * @param subscriptionId the if of the subscription
+     * @return
+     */
+    /**
+     * if product returns authStatus update it in the authHelper
+     */
+    private fun updateAuthStatus(product: ProductDto?): ProductDto? {
+        product?.authInfo?.let {
+            authHelper.authStatus = it.status
+        }
+        return product
     }
 
     object ApiServiceException {

@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
@@ -105,10 +104,10 @@ class LoginViewModel(
         subscriptionPassword: String
     ) {
         try {
-            val subscriptionAuthInfo = apiService.checkSubscriptionId(
+            val subscriptionAuthInfo = apiService.checkSubscriptionIdAsync(
                 subscriptionId,
                 subscriptionPassword
-            )
+            ).await()
 
             when (subscriptionAuthInfo?.status) {
                 AuthStatus.alreadyLinked -> {
@@ -143,7 +142,7 @@ class LoginViewModel(
 
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
-            val authTokenInfo = apiService.authenticate(username, password)
+            val authTokenInfo = apiService.authenticateAsync(username, password).await()
 
             when (authTokenInfo?.authInfo?.status) {
                 AuthStatus.valid -> {
@@ -240,12 +239,12 @@ class LoginViewModel(
         previousState: LoginViewModelState?
     ) {
         try {
-            val subscriptionInfo = apiService.trialSubscription(
+            val subscriptionInfo = apiService.trialSubscriptionAsync(
                 tazId = username,
                 idPassword = password,
                 firstName = firstName,
                 surname = surname
-            )
+            ).await()
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.subscriptionIdNotValid -> {
@@ -326,14 +325,14 @@ class LoginViewModel(
         surname: String?
     ) {
         try {
-            val subscriptionInfo = apiService.subscriptionId2TazId(
+            val subscriptionInfo = apiService.subscriptionId2TazIdAsnc(
                 tazId = this@LoginViewModel.username!!,
                 idPassword = this@LoginViewModel.password!!,
                 subscriptionId = this@LoginViewModel.subscriptionId!!,
                 subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
                 firstname = firstName,
                 surname = surname
-            )
+            ).await()
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
@@ -416,7 +415,7 @@ class LoginViewModel(
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ) {
         try {
-            val subscriptionInfo = apiService.subscriptionPoll()
+            val subscriptionInfo = apiService.subscriptionPollAsync().await()
             log.debug("poll subscriptionPoll: $subscriptionInfo")
 
             when (subscriptionInfo?.status) {

@@ -49,7 +49,7 @@ data class ResourceInfo(
             val resourceInfoRepository = ResourceInfoRepository.getInstance()
 
             try {
-                val fromServer = apiService.getResourceInfo()
+                val fromServer = apiService.getResourceInfoAsync().await()
                 val local = resourceInfoRepository.get()
 
                 fromServer?.let {
