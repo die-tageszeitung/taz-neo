@@ -14,5 +14,7 @@ enum class SubscriptionStatus {
     alreadyLinked,
     waitForMail,
     waitForProc,
-    noPollEntry
+    noPollEntry,
+    noSurname,
+    noFirstName
 }
