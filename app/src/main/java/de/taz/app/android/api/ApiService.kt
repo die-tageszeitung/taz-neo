@@ -48,7 +48,7 @@ class ApiService private constructor(applicationContext: Context) {
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(internetHelper.canReachDownloadServerLiveData).observeForever { canReach ->
+        Transformations.distinctUntilChanged(internetHelper.isConnectedLiveData).observeForever { canReach ->
             if(canReach) {
                 waitInternetList.forEach { it.resume(Unit) }
             }
@@ -460,7 +460,7 @@ class ApiService private constructor(applicationContext: Context) {
     }
 
     private suspend fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
-        if (internetHelper.canReachDownloadServer) {
+        if (internetHelper.isConnected) {
             continuation.resume(Unit)
             log.debug("ApiCall $tag waiting")
         } else {

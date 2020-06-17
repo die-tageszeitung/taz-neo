@@ -70,7 +70,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(internetHelper.canReachDownloadServerLiveData)
+        Transformations.distinctUntilChanged(internetHelper.isConnectedLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -141,7 +141,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (internetHelper.canReachDownloadServer && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+            while (internetHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
@@ -197,7 +197,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                internetHelper.canReachDownloadServer = false
+                                internetHelper.isConnected = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
