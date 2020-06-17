@@ -78,7 +78,8 @@ class DownloadWorker(
                 // download only if not already downloaded or downloading
                 if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
                         DownloadStatus.done,
-                        DownloadStatus.started
+                        DownloadStatus.started,
+                        DownloadStatus.takeOld
                     )
                 ) {
                     log.debug("starting download of ${fromDB.fileName}")
@@ -104,9 +105,14 @@ class DownloadWorker(
                                     downloadRepository.setStatus(fromDB, DownloadStatus.done)
                                     log.debug("finished download of ${fromDB.fileName}")
                                 } else {
-                                    // TODO how to reload this?!
-                                    log.warn("sha256 did NOT match the one of ${fromDB.fileName}")
-                                    downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                                    val m = "sha256 did NOT match the one of ${fromDB.fileName}"
+                                    log.warn(m)
+                                    Sentry.capture(m)
+                                    if (fileHelper.getFile(fileName)!!.exists()) {
+                                        downloadRepository.setStatus(fromDB, DownloadStatus.takeOld)
+                                    } else {
+                                        downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                                    }
                                 }
                             } ?: run {
                                 log.debug("aborted download of ${fromDB.fileName} - file is empty")
