@@ -20,6 +20,10 @@ class FileEntryRepository private constructor(
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
+    fun saveOrReplace(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+    }
+
     fun save(fileEntries: List<FileEntry>) {
         fileEntries.forEach { save(it) }
     }
