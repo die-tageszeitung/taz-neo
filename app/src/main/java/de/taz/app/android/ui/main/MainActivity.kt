@@ -22,7 +22,7 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -50,7 +50,7 @@ const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
-class MainActivity : BaseActivity(R.layout.activity_main) {
+class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     private val log by Log
 
