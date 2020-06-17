@@ -27,26 +27,26 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.getInstance(applicationContext).client
 
-    val canReachDownloadServerLiveData = MutableLiveData(true)
+    val isConnectedLiveData = MutableLiveData(true)
 
-    var canReachDownloadServer: Boolean
-        get() = canReachDownloadServerLiveData.value ?: true
+    var isConnected: Boolean
+        get() = isConnectedLiveData.value ?: true
         set(value) {
             if (!value) {
-                if (canReachDownloadServerLiveData.value != value
-                    && canReachDownloadServerLastChanged < Date().time - CONNECTION_CHECK_INTERVAL
+                if (isConnectedLiveData.value != value
+                    && isConnectedLastChanged < Date().time - CONNECTION_CHECK_INTERVAL
                 ) {
-                    canReachDownloadServerLiveData.postValue(value)
+                    isConnectedLiveData.postValue(value)
                 }
             } else {
-                canReachDownloadServerLiveData.postValue(value)
+                isConnectedLiveData.postValue(value)
             }
         }
 
-    private var canReachDownloadServerLastChanged: Long = 0L
+    private var isConnectedLastChanged: Long = 0L
 
     init {
-        Transformations.distinctUntilChanged(canReachDownloadServerLiveData)
+        Transformations.distinctUntilChanged(isConnectedLiveData)
             .observeForever { isConnected ->
                 if (isConnected == false) {
                     toastHelper.showNoConnectionToast()
@@ -56,7 +56,7 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     }
 
     private fun checkDownloadServer() = CoroutineScope(Dispatchers.IO).launch {
-        while (!this@ServerConnectionHelper.canReachDownloadServer) {
+        while (!this@ServerConnectionHelper.isConnected) {
             delay(1000)
             try {
                 val result = awaitCallback(
@@ -67,8 +67,8 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                 val bool = result.code.toString().startsWith("2")
                 if (bool) {
                     log.debug("downloadserver reached")
-                    canReachDownloadServerLiveData.postValue(bool)
-                    canReachDownloadServerLastChanged = Date().time
+                    isConnectedLiveData.postValue(bool)
+                    isConnectedLastChanged = Date().time
                 }
             } catch (ce: ConnectionException) {
                 log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
