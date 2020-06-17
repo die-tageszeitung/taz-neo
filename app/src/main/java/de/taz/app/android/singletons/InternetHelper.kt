@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.GRAPHQL_ENDPOINT
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.connection.ConnectionException
@@ -18,6 +19,7 @@ import java.util.*
 
 const val CONNECTION_CHECK_INTERVAL = 1000
 
+@Mockable
 class InternetHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<InternetHelper, Context>(::InternetHelper)

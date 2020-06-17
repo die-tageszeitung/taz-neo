@@ -1,6 +1,7 @@
 package de.taz.app.android.download
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.work.*
@@ -52,7 +53,6 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val appInfo = runBlocking(Dispatchers.IO) { appInfoRepository.get() }
     private val resourceInfo = runBlocking(Dispatchers.IO) { resourceInfoRepository.get() }
-
 
     private val httpClient = OkHttp.getInstance(applicationContext).client
     private val workManager = WorkManager.getInstance(applicationContext)
@@ -134,9 +134,7 @@ class DownloadService private constructor(val applicationContext: Context) {
             while (internetHelper.canReachDownloadServer && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
-                    launch {
-                        getFromServer(download)
-                    }.invokeOnCompletion {
+                    getFromServer(download).invokeOnCompletion {
                         currentDownloads.decrementAndGet()
                         startDownloadsIfCapacity()
                     }
@@ -145,8 +143,18 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
     }
 
-    private suspend fun getFromServer(download: Download) {
-        withContext(Dispatchers.IO) {
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun getFromServer(fileName: String) = runBlocking {
+        downloadRepository.get(fileName)?.let {
+            getFromServer(it, true).join()
+        }
+    }
+
+    private suspend fun getFromServer(
+        download: Download,
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) waitForResponseHandling: Boolean = false
+    ): Job =
+        CoroutineScope(Dispatchers.IO).launch {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
@@ -168,7 +176,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         log.debug("finished http call of ${fromDB.fileName}")
 
-                        handleResponse(response, download)
+                        val responseJob = handleResponse(response, download)
+                        if (waitForResponseHandling) {
+                            responseJob.join()
+                        }
                     } catch (e: Exception) {
                         when (e) {
                             is UnknownHostException,
@@ -191,7 +202,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                 }
             }
         }
-    }
 
     private fun handleResponse(response: Response, download: Download) =
         // handle response in in anther job so we offer our httpConnection to next download
@@ -206,7 +216,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     if (sha256 == fileEntry.sha256) {
                         log.debug("sha256 matched for file ${download.fileName}")
                         download.workerManagerId?.let {
-                            workManager.cancelWorkById(it)
+                            workManager?.cancelWorkById(it)
                             log.info("canceling WorkerManagerRequest for ${download.fileName}")
                         }
                         val newDownload = download.copy(
@@ -241,7 +251,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * download issue in background
      */
-    fun scheduleIssueDownload(issueOperations: IssueOperations): Operation {
+    fun scheduleIssueDownload(issueOperations: IssueOperations): Operation? {
         val data = Data.Builder()
             .putString(DATA_ISSUE_STATUS, issueOperations.status.toString())
             .putString(DATA_ISSUE_DATE, issueOperations.date)
