@@ -10,13 +10,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
-import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.persistence.repository.*
@@ -33,7 +33,7 @@ import java.util.*
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 
-class SplashActivity : BaseActivity() {
+class SplashActivity : AppCompatActivity() {
 
     private val log by Log
 
@@ -46,10 +46,10 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initLastIssues()
-        initFeedInformation()
         initAppInfoAndCheckAndroidVersion()
         initResources()
+        initFeedInformation()
+        initLastIssues()
 
         deletePublicIssuesIfLoggedIn()
 

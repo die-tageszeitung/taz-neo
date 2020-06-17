@@ -34,12 +34,12 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun saveIfNotExists(download: Download): Boolean {
         appDatabase.fileEntryDao().getByName(download.file.name)?.let {
             val downloadStub = DownloadStub(download)
-            try {
+            return try {
                 appDatabase.downloadDao().insertOrAbort(downloadStub)
-                return true
+                true
             } catch (_: SQLiteConstraintException) {
                 // do nothing as already exists
-                return false
+                false
             }
         } ?: throw NotFoundException()
     }

@@ -20,17 +20,17 @@ import java.util.*
 const val CONNECTION_CHECK_INTERVAL = 1000
 
 @Mockable
-class InternetHelper private constructor(applicationContext: Context) {
+class ServerConnectionHelper private constructor(applicationContext: Context) {
 
-    companion object : SingletonHolder<InternetHelper, Context>(::InternetHelper)
+    companion object : SingletonHolder<ServerConnectionHelper, Context>(::ServerConnectionHelper)
 
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.getInstance(applicationContext).client
 
-    val canReachDownloadServerLiveData = MutableLiveData(false)
+    val canReachDownloadServerLiveData = MutableLiveData(true)
 
     var canReachDownloadServer: Boolean
-        get() = canReachDownloadServerLiveData.value ?: false
+        get() = canReachDownloadServerLiveData.value ?: true
         set(value) {
             if (!value) {
                 if (canReachDownloadServerLiveData.value != value
@@ -56,7 +56,7 @@ class InternetHelper private constructor(applicationContext: Context) {
     }
 
     private fun checkDownloadServer() = CoroutineScope(Dispatchers.IO).launch {
-        while (!this@InternetHelper.canReachDownloadServer) {
+        while (!this@ServerConnectionHelper.canReachDownloadServer) {
             delay(1000)
             try {
                 val result = awaitCallback(

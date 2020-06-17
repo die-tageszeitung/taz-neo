@@ -14,7 +14,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.InternetHelper
+import de.taz.app.android.singletons.ServerConnectionHelper
 import de.taz.app.android.singletons.OkHttp
 import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
@@ -54,13 +54,13 @@ class DownloadService private constructor(val applicationContext: Context) {
     val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val fileHelper = FileHelper.getInstance(applicationContext)
     val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val internetHelper = InternetHelper.getInstance(applicationContext)
+    private val internetHelper = ServerConnectionHelper.getInstance(applicationContext)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-    private val appInfo = runBlocking(Dispatchers.IO) { appInfoRepository.get() }
-    private val resourceInfo = runBlocking(Dispatchers.IO) { resourceInfoRepository.get() }
+    private var appInfo: AppInfo? = null
+    private var resourceInfo: ResourceInfo? = null
 
     private val httpClient = OkHttp.getInstance(applicationContext).client
     private val workManager = WorkManager.getInstance(applicationContext)
@@ -138,6 +138,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
 
     private fun startDownloadsIfCapacity() {
+        log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
             while (internetHelper.canReachDownloadServer && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
@@ -296,22 +297,25 @@ class DownloadService private constructor(val applicationContext: Context) {
 
         cacheableDownload.getAllFileNames().forEach {
             fileEntryRepository.get(it)?.let { fileEntry ->
-                var download: Download? = null
-                if (baseUrl != null && cacheableDownload is FileEntry) {
-                    download = createAndSaveDownload(baseUrl, fileEntry, tag)
+                val download: Download? = if (baseUrl != null && cacheableDownload is FileEntry) {
+                    createAndSaveDownload(baseUrl, fileEntry, tag)
                 } else {
                     when (fileEntry.storageType) {
-                        StorageType.global ->
+                        StorageType.global -> {
+                            ensureAppInfo()
                             appInfo?.globalBaseUrl?.let { globalBaseUrl ->
-                                download = createAndSaveDownload(globalBaseUrl, fileEntry, tag)
+                                createAndSaveDownload(globalBaseUrl, fileEntry, tag)
                             }
-                        StorageType.resource ->
+                        }
+                        StorageType.resource -> {
+                            ensureResourceInfo()
                             resourceInfo?.resourceBaseUrl?.let { resourceBaseUrl ->
-                                download = createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
+                                createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
                             }
+                        }
                         StorageType.issue -> {
                             issueOperations?.baseUrl?.let { baseUrl ->
-                                download = createAndSaveDownload(baseUrl, fileEntry, tag)
+                                createAndSaveDownload(baseUrl, fileEntry, tag)
                             }
                         }
                         StorageType.public ->
@@ -326,19 +330,35 @@ class DownloadService private constructor(val applicationContext: Context) {
                     } else {
                         prependToDownloadList(it)
                     }
-                }
+                } ?: log.debug("creating download returned null")
             }
         }
     }
 
+    private suspend fun ensureAppInfo() {
+        if(appInfo == null) {
+            AppInfo.update()
+            appInfo = appInfoRepository.get()
+        }
+    }
+
+    private suspend fun ensureResourceInfo() {
+        if (resourceInfo == null) {
+            ResourceInfo.update()
+            resourceInfo = resourceInfoRepository.get()
+        }
+    }
+
     private fun appendToDownloadList(download: Download) {
-        downloadList.offerLast(download)
-        startDownloadsIfCapacity()
+        if (downloadList.offerLast(download)) {
+            startDownloadsIfCapacity()
+        }
     }
 
     private fun prependToDownloadList(download: Download) {
-        downloadList.addFirst(download)
-        startDownloadsIfCapacity()
+        if (downloadList.offerFirst(download)) {
+            startDownloadsIfCapacity()
+        }
     }
 
     /**
