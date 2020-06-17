@@ -332,15 +332,13 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun appendToDownloadList(download: Download) {
-        if (downloadList.offerLast(download)) {
-            startDownloadsIfCapacity()
-        }
+        downloadList.offerLast(download)
+        startDownloadsIfCapacity()
     }
 
     private fun prependToDownloadList(download: Download) {
-        if (downloadList.offerFirst(download)) {
-            startDownloadsIfCapacity()
-        }
+        downloadList.addFirst(download)
+        startDownloadsIfCapacity()
     }
 
     /**
