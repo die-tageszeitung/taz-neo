@@ -11,7 +11,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.InternetHelper
+import de.taz.app.android.singletons.ServerConnectionHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -42,7 +42,7 @@ class ApiService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
 
-    private var internetHelper = InternetHelper.getInstance(applicationContext)
+    private var internetHelper = ServerConnectionHelper.getInstance(applicationContext)
     private var waitInternetList = mutableListOf<Continuation<Unit>>()
 
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
