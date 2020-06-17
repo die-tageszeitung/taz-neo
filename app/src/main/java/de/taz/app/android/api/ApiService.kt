@@ -42,13 +42,13 @@ class ApiService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
 
-    private var internetHelper = ServerConnectionHelper.getInstance(applicationContext)
+    private var serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
     private var waitInternetList = mutableListOf<Continuation<Unit>>()
 
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(internetHelper.isConnectedLiveData).observeForever { canReach ->
+        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData).observeForever { canReach ->
             if(canReach) {
                 waitInternetList.forEach { it.resume(Unit) }
             }
@@ -460,7 +460,7 @@ class ApiService private constructor(applicationContext: Context) {
     }
 
     private suspend fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
-        if (internetHelper.isConnected) {
+        if (serverConnectionHelper.isConnected) {
             continuation.resume(Unit)
             log.debug("ApiCall $tag waiting")
         } else {

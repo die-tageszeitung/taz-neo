@@ -54,7 +54,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val fileHelper = FileHelper.getInstance(applicationContext)
     val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val internetHelper = ServerConnectionHelper.getInstance(applicationContext)
+    private val serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
@@ -70,7 +70,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(internetHelper.isConnectedLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -141,7 +141,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (internetHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+            while (serverConnectionHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
@@ -197,7 +197,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                internetHelper.isConnected = false
+                                serverConnectionHelper.isConnected = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
