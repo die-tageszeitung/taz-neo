@@ -196,7 +196,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             -> {
                                 downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                                 internetHelper.canReachDownloadServer = false
-                                prependToDownloadList(download)
+                                appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
                             else -> {
@@ -224,7 +224,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     if (sha256 == fileEntry.sha256) {
                         log.debug("sha256 matched for file ${download.fileName}")
                         download.workerManagerId?.let {
-                            workManager?.cancelWorkById(it)
+                            workManager.cancelWorkById(it)
                             log.info("canceling WorkerManagerRequest for ${download.fileName}")
                         }
                         val newDownload = download.copy(
