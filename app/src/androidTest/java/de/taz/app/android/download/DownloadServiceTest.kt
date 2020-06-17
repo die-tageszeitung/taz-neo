@@ -2,12 +2,14 @@ package de.taz.app.android.download
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.Download
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import junit.framework.TestCase.assertEquals
@@ -25,7 +27,7 @@ const val TEST_FILE_NAME = "bla"
 
 @RunWith(AndroidJUnit4::class)
 class DownloadServiceTest {
-    
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -38,9 +40,22 @@ class DownloadServiceTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+        val db = Room.inMemoryDatabaseBuilder(
+            context, AppDatabase::class.java
+        ).build()
+
         downloadService = DownloadService.getInstance(context)
+
+        downloadService.appInfoRepository.appDatabase = db
+        downloadService.downloadRepository.appDatabase = db
+        downloadService.fileEntryRepository.appDatabase = db
+        downloadService.issueRepository.appDatabase = db
+        downloadService.resourceInfoRepository.appDatabase = db
+
         downloadRepository = DownloadRepository.getInstance(context)
+        downloadRepository.appDatabase = db
         fileEntryRepository = FileEntryRepository.getInstance(context)
+        fileEntryRepository.appDatabase = db
 
         mockServer.protocols = listOf(Protocol.HTTP_1_1, Protocol.HTTP_2)
         mockServer.start()
