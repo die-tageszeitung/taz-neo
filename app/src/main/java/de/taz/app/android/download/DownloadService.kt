@@ -43,15 +43,19 @@ class DownloadService private constructor(val applicationContext: Context) {
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
     private val apiService = ApiService.getInstance(applicationContext)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val downloadRepository = DownloadRepository.getInstance(applicationContext)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val fileHelper = FileHelper.getInstance(applicationContext)
     val issueRepository = IssueRepository.getInstance(applicationContext)
     private val internetHelper = InternetHelper.getInstance(applicationContext)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
@@ -292,21 +296,22 @@ class DownloadService private constructor(val applicationContext: Context) {
 
         cacheableDownload.getAllFileNames().forEach {
             fileEntryRepository.get(it)?.let { fileEntry ->
-                val download: Download? = if (baseUrl != null && cacheableDownload is FileEntry) {
-                    createAndSaveDownload(baseUrl, fileEntry, tag)
+                var download: Download? = null
+                if (baseUrl != null && cacheableDownload is FileEntry) {
+                    download = createAndSaveDownload(baseUrl, fileEntry, tag)
                 } else {
                     when (fileEntry.storageType) {
                         StorageType.global ->
                             appInfo?.globalBaseUrl?.let { globalBaseUrl ->
-                                createAndSaveDownload(globalBaseUrl, fileEntry, tag)
+                                download = createAndSaveDownload(globalBaseUrl, fileEntry, tag)
                             }
                         StorageType.resource ->
                             resourceInfo?.resourceBaseUrl?.let { resourceBaseUrl ->
-                                createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
+                                download = createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
                             }
                         StorageType.issue -> {
                             issueOperations?.baseUrl?.let { baseUrl ->
-                                createAndSaveDownload(baseUrl, fileEntry, tag)
+                                download = createAndSaveDownload(baseUrl, fileEntry, tag)
                             }
                         }
                         StorageType.public ->
@@ -315,10 +320,11 @@ class DownloadService private constructor(val applicationContext: Context) {
                     }
                 }
                 download?.let {
+                    log.debug("adding download ${it.fileName} to downloadList")
                     if (cacheableDownload is Issue) {
-                        appendToDownloadList(download)
+                        appendToDownloadList(it)
                     } else {
-                        prependToDownloadList(download)
+                        prependToDownloadList(it)
                     }
                 }
             }
