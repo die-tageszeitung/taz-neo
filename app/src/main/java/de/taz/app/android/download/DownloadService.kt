@@ -43,13 +43,17 @@ class DownloadService private constructor(val applicationContext: Context) {
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
     private val apiService = ApiService.getInstance(applicationContext)
-    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
-    private val downloadRepository = DownloadRepository.getInstance(applicationContext)
-    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val downloadRepository = DownloadRepository.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val fileHelper = FileHelper.getInstance(applicationContext)
-    private val issueRepository = IssueRepository.getInstance(applicationContext)
+    val issueRepository = IssueRepository.getInstance(applicationContext)
     private val internetHelper = InternetHelper.getInstance(applicationContext)
-    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
     private val appInfo = runBlocking(Dispatchers.IO) { appInfoRepository.get() }
     private val resourceInfo = runBlocking(Dispatchers.IO) { resourceInfoRepository.get() }
