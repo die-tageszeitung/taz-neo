@@ -46,10 +46,10 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initLastIssues()
-        initFeedInformation()
         initAppInfoAndCheckAndroidVersion()
         initResources()
+        initFeedInformation()
+        initLastIssues()
 
         deletePublicIssuesIfLoggedIn()
 

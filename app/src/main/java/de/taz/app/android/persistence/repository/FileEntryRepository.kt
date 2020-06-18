@@ -20,6 +20,10 @@ class FileEntryRepository private constructor(
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
+    fun saveOrReplace(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+    }
+
     fun save(fileEntries: List<FileEntry>) {
         fileEntries.forEach { save(it) }
     }
@@ -44,6 +48,10 @@ class FileEntryRepository private constructor(
     @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
         return fileEntryNames.map { getOrThrow(it) }
+    }
+
+    fun delete(fileEntryName: String) {
+        get(fileEntryName)?.let { delete(it) }
     }
 
     fun delete(fileEntry: FileEntry) {

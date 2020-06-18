@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
