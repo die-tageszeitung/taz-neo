@@ -1,11 +1,9 @@
 package de.taz.app.android.ui.drawer.sectionList
 
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.marginBottom
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
