@@ -185,24 +185,23 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         log.debug("finished http call of ${fromDB.fileName}")
 
-                        val responseJob = handleResponse(response, download)
+                        val responseJob = handleResponse(response, download, waitForResponseHandling)
                         if (waitForResponseHandling) {
                             responseJob.join()
                         }
                     } catch (e: Exception) {
+                        downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                         when (e) {
                             is UnknownHostException,
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                                 internetHelper.canReachDownloadServer = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
                             else -> {
-                                downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
-                                log.warn("unknown error occured")
+                                log.warn("unknown error occurred")
                                 Sentry.capture(e)
                                 throw e
                             }
@@ -214,7 +213,10 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
-    private fun handleResponse(response: Response, download: Download) =
+    private fun handleResponse(
+        response: Response, download: Download,
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
+    ) =
         // handle response in in anther job so we offer our httpConnection to next download
         CoroutineScope(Dispatchers.IO).launch {
             log.debug("handling response for ${download.fileName}")
@@ -238,7 +240,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                         downloadRepository.update(newDownload)
                         log.debug("finished download of ${download.fileName}")
                     } else {
-                        // TODO how to reload this?!
+                        // TODO get new metadata for cacheableDownload and restart download
+                        val m = "sha256 did NOT match the one of ${download.fileName}")
+                        log.warn(m)
+                        Sentry.capture(m)
                         if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
                             downloadRepository.setStatus(download, DownloadStatus.takeOld)
                         } else {
@@ -248,13 +253,19 @@ class DownloadService private constructor(val applicationContext: Context) {
                 } ?: run {
                     log.debug("aborted download of ${download.fileName} - file is empty")
                     downloadRepository.setStatus(download, DownloadStatus.aborted)
-                    prependToDownloadList(download)
+                    if(!doNotRestartDownload) {
+                        prependToDownloadList(download)
+                    }
                 }
             } else {
+                // TODO handle 40x like wrong SHA sum
+                // TODO handle 50x by "backing off" and trying again later
                 log.warn("Download was not successful ${response.code}")
                 downloadRepository.setStatus(download, DownloadStatus.aborted)
                 Sentry.capture(response.message)
-                prependToDownloadList(download)
+                if (!doNotRestartDownload) {
+                    prependToDownloadList(download)
+                }
             }
             log.debug("finished handling response of ${download.fileName}")
         }
