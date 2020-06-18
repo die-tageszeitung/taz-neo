@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.marginBottom
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -101,7 +102,9 @@ class SectionListAdapter(
             textView.typeface = if (issueOperations?.isWeekend == true) {
                 FontHelper.getInstance(fragment.context?.applicationContext)
                     .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            } else {
+                fragment.defaultTypeface
+            }
         }
         return SectionListAdapterViewHolder(
             textView
@@ -151,7 +154,9 @@ class SectionListAdapter(
             holder.textView.typeface = if (issueOperations?.isWeekend == true) {
                 FontHelper.getInstance(fragment.context?.applicationContext)
                     .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            } else {
+                fragment.defaultTypeface
+            }
         }
     }
 
