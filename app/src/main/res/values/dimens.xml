@@ -111,6 +111,7 @@
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
+    <dimen name="fragment_drawer_sections_item_height">27dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">40dp</dimen>

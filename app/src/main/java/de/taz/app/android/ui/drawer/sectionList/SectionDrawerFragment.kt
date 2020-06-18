@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +53,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private var updated: Boolean = false
 
+    var defaultTypeface : Typeface? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         dateHelper = DateHelper.getInstance(context.applicationContext)
@@ -63,6 +67,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recyclerAdapter = recyclerAdapter ?: SectionListAdapter(this)
+        defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.aktiv_grotesk_bold)
 
         restore(savedInstanceState)
     }
@@ -206,7 +211,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             }
             typeface = if (issueOperations?.isWeekend == true) {
                 fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            } else {
+                defaultTypeface
+            }
             visibility = View.VISIBLE
         }
     }
