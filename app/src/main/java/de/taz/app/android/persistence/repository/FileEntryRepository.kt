@@ -50,6 +50,10 @@ class FileEntryRepository private constructor(
         return fileEntryNames.map { getOrThrow(it) }
     }
 
+    fun delete(fileEntryName: String) {
+        get(fileEntryName)?.let { delete(it) }
+    }
+
     fun delete(fileEntry: FileEntry) {
         appDatabase.downloadDao().apply {
             get(fileEntry.name)?.let {

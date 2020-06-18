@@ -60,6 +60,9 @@ class DownloadServiceTest {
         mockServer.protocols = listOf(Protocol.HTTP_1_1, Protocol.HTTP_2)
         mockServer.start()
         mockServer.url("bla")
+
+        fileEntryRepository.delete(TEST_FILE_NAME)
+        downloadRepository.delete(TEST_FILE_NAME)
     }
 
 

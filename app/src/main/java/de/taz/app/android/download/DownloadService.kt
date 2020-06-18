@@ -159,7 +159,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
     }
 
-    private suspend fun getFromServer(
+    private fun getFromServer(
         download: Download,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) waitForResponseHandling: Boolean = false
     ): Job =
@@ -201,6 +201,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
                             else -> {
+                                downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                                log.warn("unknown error occured")
                                 Sentry.capture(e)
                                 throw e
                             }
@@ -336,7 +338,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private suspend fun ensureAppInfo() {
-        if(appInfo == null) {
+        if (appInfo == null) {
             AppInfo.update()
             appInfo = appInfoRepository.get()
         }
