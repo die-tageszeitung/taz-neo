@@ -83,7 +83,7 @@ class DownloadServiceTest {
         try {
             runBlocking { downloadService.getFromServer(TEST_FILE_NAME) }
 
-            assertEquals(downloadRepository.get(TEST_FILE_NAME)?.status, DownloadStatus.aborted)
+            assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
         } catch (e: Exception) {
             fail("Test should not have thrown an exception")
         }
@@ -107,7 +107,7 @@ class DownloadServiceTest {
 
         runBlocking { downloadService.getFromServer(TEST_FILE_NAME) }
 
-        assertEquals(downloadRepository.get(TEST_FILE_NAME)?.status, DownloadStatus.done)
+        assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
     }
 
     @Test
@@ -127,7 +127,7 @@ class DownloadServiceTest {
 
         downloadService.getFromServer(TEST_FILE_NAME)
 
-        assertEquals(downloadRepository.get(TEST_FILE_NAME)?.status, DownloadStatus.aborted)
+        assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
     }
 
 }
