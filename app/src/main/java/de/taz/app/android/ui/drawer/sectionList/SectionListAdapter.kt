@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.drawer.sectionList
 
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -101,7 +100,9 @@ class SectionListAdapter(
             textView.typeface = if (issueOperations?.isWeekend == true) {
                 FontHelper.getInstance(fragment.context?.applicationContext)
                     .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            } else {
+                fragment.defaultTypeface
+            }
         }
         return SectionListAdapterViewHolder(
             textView
@@ -151,7 +152,9 @@ class SectionListAdapter(
             holder.textView.typeface = if (issueOperations?.isWeekend == true) {
                 FontHelper.getInstance(fragment.context?.applicationContext)
                     .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else Typeface.create("aktiv_grotesk_bold", Typeface.BOLD)
+            } else {
+                fragment.defaultTypeface
+            }
         }
     }
 
