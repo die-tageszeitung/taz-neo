@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -34,7 +34,7 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
-class LoginActivity : BaseActivity(R.layout.activity_login) {
+class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private val log by Log
 

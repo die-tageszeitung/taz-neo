@@ -1,4 +1,4 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -10,8 +10,7 @@ import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 

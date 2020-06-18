@@ -8,14 +8,16 @@ data class Download(
     val file: FileEntry,
     override var status: DownloadStatus = DownloadStatus.pending,
     override var workerManagerId: UUID? = null,
-    val tag: String? = null
+    val tag: String? = null,
+    var lastSha256: String? = null
 ): DownloadOperations {
     constructor(downloadStub: DownloadStub, file: FileEntry, tag: String? = null): this(
         baseUrl = downloadStub.baseUrl,
         file = file,
         status = downloadStub.status,
         workerManagerId = downloadStub.workerManagerId,
-        tag = tag
+        tag = tag,
+        lastSha256 = downloadStub.lastSha256
     )
 
     override val fileName: String
