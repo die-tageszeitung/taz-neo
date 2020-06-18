@@ -36,10 +36,9 @@ class OkHttp private constructor(applicationContext: Context) : ViewModel() {
             .writeTimeout(30, TimeUnit.SECONDS)
             .dispatcher(Dispatcher().also { it.maxRequestsPerHost = CONCURRENT_DOWNLOAD_LIMIT })
 
-        // allow cleartext connections for testing, but not when a user uses it
+        // disallow cleartext connections if not testing
         try {
             Class.forName("org.junit.Test")
-            builder.connectionSpecs(listOf(ConnectionSpec.CLEARTEXT))
         } catch (e: ClassNotFoundException) {
             builder.connectionSpecs(listOf(ConnectionSpec.MODERN_TLS))
         }
