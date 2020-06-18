@@ -241,7 +241,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         log.debug("finished download of ${download.fileName}")
                     } else {
                         // TODO get new metadata for cacheableDownload and restart download
-                        val m = "sha256 did NOT match the one of ${download.fileName}")
+                        val m = "sha256 did NOT match the one of ${download.fileName}"
                         log.warn(m)
                         Sentry.capture(m)
                         if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
