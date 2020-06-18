@@ -12,6 +12,7 @@ import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ServerConnectionHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -42,17 +43,23 @@ class ApiService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
 
-    private var serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
-    private var waitInternetList = mutableListOf<Continuation<Unit>>()
+    private val serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val waitInternetList = mutableListOf<Continuation<Unit>>()
 
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData).observeForever { canReach ->
-            if(canReach) {
-                waitInternetList.forEach { it.resume(Unit) }
+        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData)
+            .observeForever { canReach ->
+                if (canReach) {
+                    try {
+                        waitInternetList.forEach { it.resume(Unit) }
+                    } catch (ise: IllegalStateException) {
+                        // already resumed
+                    }
+                }
             }
-        }
     }
 
     /**
@@ -65,7 +72,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param firstname - firstname of the user
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun subscriptionId2TazIdAsnc(
         tazId: String,
         idPassword: String,
@@ -74,22 +80,21 @@ class ApiService private constructor(applicationContext: Context) {
         surname: String? = null,
         firstname: String? = null
     ): Deferred<SubscriptionInfo?> = CoroutineScope(Dispatchers.IO).async {
-        transformExceptions({
-            graphQlClient.query(
-                QueryType.SubscriptionId2TazId,
-                SubscriptionId2TazIdVariables(
-                    tazId,
-                    idPassword,
-                    subscriptionId,
-                    subscriptionPassword,
-                    surname,
-                    firstname
-                )
-            )?.subscriptionId2tazId
-        }, "subscriptionId2TazId")
+        val tag = "subscriptionId2TazId"
+        getDataDto(
+            tag,
+            QueryType.SubscriptionId2TazId,
+            SubscriptionId2TazIdVariables(
+                tazId,
+                idPassword,
+                subscriptionId,
+                subscriptionPassword,
+                surname,
+                firstname
+            )
+        ).subscriptionId2tazId
     }
 
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun subscriptionPollAsync(): Deferred<SubscriptionInfo?> =
         CoroutineScope(Dispatchers.IO).async {
             val tag = "subscriptionPoll"
@@ -107,7 +112,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun authenticateAsync(user: String, password: String): Deferred<AuthTokenInfo?> =
         CoroutineScope(Dispatchers.IO).async {
             val tag = "authenticate"
@@ -125,7 +129,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
      */
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun checkSubscriptionIdAsync(
         subscriptionId: Int,
         password: String
@@ -143,12 +146,20 @@ class ApiService private constructor(applicationContext: Context) {
      * function to get the app info
      * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun getAppInfoAsync(): Deferred<AppInfo?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getAppInfo"
         getDataDto(tag, QueryType.AppInfo).product?.let { AppInfo(it) }
+    }
+
+    /**
+     * function to asynchronously get available feeds
+     * @return List of [Feed]s
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun getFeedsAsync(): Deferred<List<Feed>> = CoroutineScope(Dispatchers.IO).async {
+        val tag = "getFeedsAsync"
+        log.debug(tag)
+        getDataDto(tag, QueryType.Feed).product?.feedList?.map { Feed(it) } ?: emptyList()
     }
 
     /**
@@ -156,19 +167,20 @@ class ApiService private constructor(applicationContext: Context) {
      * @return List of [Feed]s
      */
     @Throws(ApiServiceException.NoInternetException::class)
-    suspend fun getFeedsAsync(): Deferred<List<Feed>> = CoroutineScope(Dispatchers.IO).async {
+    suspend fun getFeeds(): List<Feed> {
         val tag = "getFeeds"
         log.debug(tag)
-        getDataDto(tag, QueryType.Feed).product?.feedList?.map { Feed(it) } ?: emptyList()
+        return transformExceptions({
+            graphQlClient.query(QueryType.Feed)?.product?.feedList?.map { Feed(it) }
+        }, tag) ?: emptyList()
     }
 
     /**
-     * function to get an [Issue] by feedName and date
+     * function to asynchronously get an [Issue] by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - the date of the issue
      * @return [Issue] of the feed at given date
      */
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun getIssueByFeedAndDateAsync(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
@@ -179,7 +191,31 @@ class ApiService private constructor(applicationContext: Context) {
         issueList.first()
     }
 
+    /**
+     * function to get the last [Issue]s
+     * @param limit - number of issues to get
+     * @return [List]<[Issue]>
+     */
     @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun getLastIssues(limit: Int = 10): List<Issue> {
+        val tag = "getLastIssues"
+        val issues = mutableListOf<Issue>()
+        transformExceptions({
+            graphQlClient.query(
+                QueryType.LastIssues,
+                IssueVariables(limit = limit)
+            )?.product?.feedList?.forEach { feed ->
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+            }
+        }, tag)
+        return issues
+    }
+
+    /**
+     * function to asynchronously get the last [Issue]s
+     * @param limit - number of issues to get
+     * @return [Deferred]<[List]<[Issue]>>
+     */
     suspend fun getLastIssuesAsync(limit: Int = 10): Deferred<List<Issue>> =
         CoroutineScope(Dispatchers.IO).async {
             val tag = "getLastIssues"
@@ -201,9 +237,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun getIssuesByDateAsync(
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
@@ -228,9 +261,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [Issue] of the feed at given date
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun getIssuesByFeedAndDateAsync(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date()),
@@ -249,9 +279,6 @@ class ApiService private constructor(applicationContext: Context) {
      * function to get information about the current resources
      * @return [ResourceInfo] with the current [ResourceInfo.resourceVersion] and the information needed to download it
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun getResourceInfoAsync(): Deferred<ResourceInfo?> =
         CoroutineScope(Dispatchers.IO).async {
             val tag = "getResourceInfo"
@@ -265,9 +292,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param issueDate the date of the issue that is being downloaded
      * @return [String] the id of the download
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun notifyServerOfDownloadStartAsync(
         feedName: String,
         issueDate: String
@@ -291,7 +315,6 @@ class ApiService private constructor(applicationContext: Context) {
      * @param id the id of the download received via [notifyServerOfDownloadStartAsync]
      * @param time time in seconds needed for the download
      */
-    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun notifyServerOfDownloadStopAsync(
         id: String,
         time: Float
@@ -309,9 +332,6 @@ class ApiService private constructor(applicationContext: Context) {
      * function to inform server the notification token
      * @param oldToken the old token of the string if any - will be removed on the server
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun sendNotificationInfoAsync(oldToken: String? = null): Deferred<Boolean?> =
         CoroutineScope(Dispatchers.IO).async {
             val tag = "sendNotificationInfo"
@@ -337,27 +357,24 @@ class ApiService private constructor(applicationContext: Context) {
      * @param surname surname of the requesting person
      * @param firstName firstName of the requesting person
      */
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
-    suspend fun trialSubscriptionAsync(
+    suspend fun trialSubscription(
         tazId: String,
         idPassword: String,
         surname: String? = null,
         firstName: String? = null
-    ): Deferred<SubscriptionInfo?> = CoroutineScope(Dispatchers.IO).async {
+    ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
-        getDataDto(
-            tag,
-            QueryType.TrialSubscription,
-            TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
-        ).trialSubscription
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.TrialSubscription,
+                    TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
+                )?.trialSubscription
+            }, tag
+        )
     }
 
-    @Throws(
-        ApiServiceException.NoInternetException::class
-    )
     suspend fun sendErrorReportAsync(
         email: String?,
         message: String?,
@@ -401,17 +418,14 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "resetPassword"
         log.debug("$tag email: $email")
 
-        return transformExceptions(
-            {
-                graphQlClient.query(
-                    QueryType.PasswordReset,
-                    PasswordResetVariables(
-                        email
-                    )
-                )?.passwordReset
-            },
-            tag
-        )
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.PasswordReset,
+                PasswordResetVariables(
+                    email
+                )
+            )?.passwordReset
+        }, tag)
     }
 
     @Throws(
@@ -452,14 +466,42 @@ class ApiService private constructor(applicationContext: Context) {
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
             Sentry.capture(ApiServiceException.WrongDataException())
+            toastHelper.showSomethingWentWrongToast()
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
+            toastHelper.showSomethingWentWrongToast()
         }
         return null
     }
 
-    private suspend fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
+    private suspend
+    fun <T> catchExceptions(block: suspend () -> T, tag: String): T? {
+        try {
+            return block()
+        } catch (uhe: UnknownHostException) {
+            log.debug("UnknownHostException ${uhe.localizedMessage}")
+            serverConnectionHelper.isConnected = false
+        } catch (ce: ConnectException) {
+            log.debug("ConnectException ${ce.localizedMessage}")
+            serverConnectionHelper.isConnected = false
+        } catch (ste: SocketTimeoutException) {
+            log.debug("SocketTimeoutException ${ste.localizedMessage}")
+            serverConnectionHelper.isConnected = false
+        } catch (jee: JsonEncodingException) {
+            // inform sentry of malformed JSON response
+            Sentry.capture(ApiServiceException.WrongDataException())
+            toastHelper.showSomethingWentWrongToast()
+        } catch (npe: NullPointerException) {
+            // inform sentry of missing data in response
+            Sentry.capture(ApiServiceException.InsufficientDataException(tag))
+            toastHelper.showSomethingWentWrongToast()
+        }
+        return null
+    }
+
+    private suspend
+    fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
         if (serverConnectionHelper.isConnected) {
             continuation.resume(Unit)
             log.debug("ApiCall $tag waiting")
@@ -468,7 +510,8 @@ class ApiService private constructor(applicationContext: Context) {
         }
     }
 
-    private suspend fun getDataDto(
+    private suspend
+    fun getDataDto(
         tag: String,
         queryType: QueryType,
         variables: Variables? = null
@@ -477,7 +520,7 @@ class ApiService private constructor(applicationContext: Context) {
         var result: DataDto? = null
         while (result == null) {
             waitForInternet(tag)
-            result = transformExceptions(
+            result = catchExceptions(
                 {
                     val data = graphQlClient.query(queryType, variables)
                     updateAuthStatus(data?.product)

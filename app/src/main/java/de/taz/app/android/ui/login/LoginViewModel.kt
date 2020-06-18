@@ -239,12 +239,12 @@ class LoginViewModel(
         previousState: LoginViewModelState?
     ) {
         try {
-            val subscriptionInfo = apiService.trialSubscriptionAsync(
+            val subscriptionInfo = apiService.trialSubscription(
                 tazId = username,
                 idPassword = password,
                 firstName = firstName,
                 surname = surname
-            ).await()
+            )
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.subscriptionIdNotValid -> {

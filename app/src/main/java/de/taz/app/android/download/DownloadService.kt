@@ -91,13 +91,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                 val start = System.currentTimeMillis()
 
                 issue?.let {
-                    try {
-                        downloadId =
-                            apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
-                                .await()
-                    } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-                        // TODO catch in ApiService and redeploy call?
-                    }
+                    downloadId =
+                        apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
+                            .await()
                 }
 
                 val isDownloadedLiveData = cacheableDownload.isDownloadedLiveData()
@@ -117,14 +113,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 val seconds =
                                     ((System.currentTimeMillis() - start) / 1000).toFloat()
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    try {
-                                        apiService.notifyServerOfDownloadStopAsync(
-                                            downloadId,
-                                            seconds
-                                        ).await()
-                                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                        // do not tell server we downloaded as we do not have internet
-                                    }
+                                    apiService.notifyServerOfDownloadStopAsync(
+                                        downloadId,
+                                        seconds
+                                    ).await()
                                 }
                             }
                         }
