@@ -181,9 +181,11 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials() {
+    fun getTrialSubscriptionForExistingCredentials(firstName: String? = null, surname: String? = null) {
         register(
-            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
+            firstName = firstName,
+            surname = surname
         )
     }
 
@@ -284,7 +286,10 @@ class LoginViewModel(
                 SubscriptionStatus.waitForProc -> {
                     poll()
                 }
-                null -> {
+                SubscriptionStatus.noFirstName, SubscriptionStatus.noSurname -> {
+                    status.postValue(LoginViewModelState.NAME_MISSING)
+                }
+                else -> {
                     status.postValue(previousState)
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
@@ -600,5 +605,6 @@ enum class LoginViewModelState {
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,
     USERNAME_MISSING,
+    NAME_MISSING,
     DONE
 }
