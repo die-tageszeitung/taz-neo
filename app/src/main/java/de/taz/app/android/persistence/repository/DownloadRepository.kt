@@ -135,14 +135,18 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun isDownloaded(fileNames: List<String>): Boolean {
         val downloads = getStub(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
-            download?.status != DownloadStatus.done
+            !arrayOf(DownloadStatus.done, DownloadStatus.takeOld).contains(
+                download?.status
+            )
         } == null
     }
 
     fun isDownloadedOrDownloading(fileNames: List<String>): Boolean {
         val downloads = getStub(fileNames)
         return downloads.size == fileNames.size && downloads.firstOrNull { download ->
-            !arrayOf(DownloadStatus.done, DownloadStatus.started).contains(download?.status)
+            !arrayOf(DownloadStatus.done, DownloadStatus.started, DownloadStatus.takeOld).contains(
+                download?.status
+            )
         } == null
     }
 
