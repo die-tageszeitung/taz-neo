@@ -29,13 +29,22 @@ class ToastHelper private constructor(private val applicationContext: Context) {
         }
     }
 
-    private var lastConnectionError = Date().time
+    private var lastConnectionError = 0L
 
     fun showNoConnectionToast() {
         val now = Date().time
         if (now > lastConnectionError + 10000) {
             lastConnectionError = now
             showToast(R.string.toast_no_internet)
+        }
+    }
+
+    private var lastSomethingWentWrontToast = 0L
+    fun showSomethingWentWrongToast() {
+        val now = Date().time
+        if (now > lastSomethingWentWrontToast+ 10000) {
+            lastSomethingWentWrontToast = now
+            showToast(R.string.something_went_wrong_try_later)
         }
     }
 

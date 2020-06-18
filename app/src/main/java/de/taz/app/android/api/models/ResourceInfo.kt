@@ -48,41 +48,37 @@ data class ResourceInfo(
             val fileEntryRepository = FileEntryRepository.getInstance()
             val resourceInfoRepository = ResourceInfoRepository.getInstance()
 
-            try {
-                val fromServer = apiService.getResourceInfoAsync().await()
-                val local = resourceInfoRepository.get()
+            val fromServer = apiService.getResourceInfoAsync().await()
+            val local = resourceInfoRepository.get()
 
-                fromServer?.let {
-                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
-                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
-                        // delete unused files
-                        local?.resourceList?.filter { local ->
-                            local.name !in fromServerResourceListNames
-                        }?.forEach {
-                            log.info("deleting ${it.name}")
-                            it.deleteFile()
-                        }
+            fromServer?.let {
+                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
+                    val fromServerResourceListNames = fromServer.resourceList.map { it.name }
+                    // delete unused files
+                    local?.resourceList?.filter { local ->
+                        local.name !in fromServerResourceListNames
+                    }?.forEach {
+                        log.info("deleting ${it.name}")
+                        it.deleteFile()
+                    }
 
-                        // delete modified files
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                if (oldFileEntry != newFileEntry) {
-                                    oldFileEntry.deleteFile()
-                                }
+                    // delete modified files
+                    fromServer.resourceList.forEach { newFileEntry ->
+                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                            if (oldFileEntry != newFileEntry) {
+                                oldFileEntry.deleteFile()
                             }
                         }
-
-                        resourceInfoRepository.save(fromServer)
-
-                        // ensure resources are downloaded
-                        DownloadService.getInstance().download(fromServer)
-                        local?.let { log.debug("Initialized ResourceInfo") }
-                            ?: log.debug("Updated ResourceInfo")
                     }
-                    resourceInfoRepository.deleteAllButNewest()
+
+                    resourceInfoRepository.save(fromServer)
+
+                    // ensure resources are downloaded
+                    DownloadService.getInstance().download(fromServer)
+                    local?.let { log.debug("Initialized ResourceInfo") }
+                        ?: log.debug("Updated ResourceInfo")
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                log.warn("Initializing ResourceInfo failed")
+                resourceInfoRepository.deleteAllButNewest()
             }
         }
 

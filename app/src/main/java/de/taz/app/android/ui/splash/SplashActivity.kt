@@ -68,7 +68,7 @@ class SplashActivity : BaseActivity() {
                 startActivity(intent)
             }
         } else {
-            val intent =Intent(this, DataPolicyActivity::class.java)
+            val intent = Intent(this, DataPolicyActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(intent)
         }
@@ -120,14 +120,9 @@ class SplashActivity : BaseActivity() {
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val feeds = apiService.getFeedsAsync().await()
-                feedRepository.save(feeds)
-                log.debug("Initialized Feeds")
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                toastHelper.showNoConnectionToast()
-                log.debug("Initializing Feeds failed")
-            }
+            val feeds = apiService.getFeedsAsync().await()
+            feedRepository.save(feeds)
+            log.debug("Initialized Feeds")
         }
     }
 
@@ -142,14 +137,9 @@ class SplashActivity : BaseActivity() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toastHelper = ToastHelper.getInstance(applicationContext)
 
-        try {
-            val issues = apiService.getLastIssuesAsync(number).await()
-            issueRepository.saveIfDoNotExist(issues)
-            log.debug("Initialized Issues: ${issues.size}")
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
-            toastHelper.showNoConnectionToast()
-            log.warn("Initializing Issues failed")
-        }
+        val issues = apiService.getLastIssuesAsync(number).await()
+        issueRepository.saveIfDoNotExist(issues)
+        log.debug("Initialized Issues: ${issues.size}")
     }
 
 
@@ -158,24 +148,20 @@ class SplashActivity : BaseActivity() {
      */
     private fun initAppInfoAndCheckAndroidVersion() {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                AppInfo.update()?.let {
-                    if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
-                        NotificationHelper.getInstance(applicationContext).showNotification(
-                            R.string.notification_new_version_title,
-                            R.string.notification_new_version_body,
-                            CHANNEL_ID_NEW_VERSION,
-                            pendingIntent = PendingIntent.getActivity(
-                                applicationContext,
-                                NEW_VERSION_REQUEST_CODE,
-                                downloadFromServerIntent(),
-                                FLAG_CANCEL_CURRENT
-                            )
+            AppInfo.update()?.let {
+                if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
+                    NotificationHelper.getInstance(applicationContext).showNotification(
+                        R.string.notification_new_version_title,
+                        R.string.notification_new_version_body,
+                        CHANNEL_ID_NEW_VERSION,
+                        pendingIntent = PendingIntent.getActivity(
+                            applicationContext,
+                            NEW_VERSION_REQUEST_CODE,
+                            downloadFromServerIntent(),
+                            FLAG_CANCEL_CURRENT
                         )
-                    }
+                    )
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                log.warn("Initializing AppInfo failed")
             }
         }
     }

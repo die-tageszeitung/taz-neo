@@ -264,7 +264,7 @@ class LoginViewModelTest {
 
     @Test
     fun registerSuccessful() = runBlocking {
-        doReturn(validSubscriptionInfo).`when`(apiService).trialSubscriptionAsync(username, password)
+        doReturn(validSubscriptionInfo).`when`(apiService).trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_SUCCESSFUL)
     }
@@ -272,14 +272,14 @@ class LoginViewModelTest {
     @Test
     fun registerAlreadyLinked() = runBlocking {
         doReturn(alreadyLinkedSubscriptionInfo).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.EMAIL_ALREADY_LINKED)
     }
 
     @Test
     fun registerElapsed() = runBlocking {
-        doReturn(elapsedSubscriptionInfo).`when`(apiService).trialSubscriptionAsync(username, password)
+        doReturn(elapsedSubscriptionInfo).`when`(apiService).trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
@@ -287,7 +287,7 @@ class LoginViewModelTest {
     @Test
     fun registerInvalidConnection() = runBlocking {
         doReturn(invalidConnectionSubscriptionInfo).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_TAKEN)
     }
@@ -295,7 +295,7 @@ class LoginViewModelTest {
     @Test
     fun registerInvalidMail() = runBlocking {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
@@ -318,7 +318,7 @@ class LoginViewModelTest {
     @Test
     fun registerWaitForMail() = runBlocking {
         doReturn(waitForMailSubscriptionInfo).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
@@ -326,7 +326,7 @@ class LoginViewModelTest {
     @Test
     fun registerWaitForProc() = runBlocking {
         doReturn(waitForProcSubscriptionInfo).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.LOADING)
         // polling logic tested separately
@@ -335,7 +335,7 @@ class LoginViewModelTest {
     @Test
     fun registerNull() = runBlocking {
         val status = loginViewModel.status.value
-        doReturn(null).`when`(apiService).trialSubscriptionAsync(username, password)
+        doReturn(null).`when`(apiService).trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == status)
     }
@@ -344,7 +344,7 @@ class LoginViewModelTest {
     fun registerNoInternet() = runBlocking {
         val status = loginViewModel.status.value
         doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService)
-            .trialSubscriptionAsync(username, password)
+            .trialSubscription(username, password)
         loginViewModel.register(viewModelState, username, password)?.join()
         assertTrue(loginViewModel.status.value == status)
         assertTrue(loginViewModel.noInternet.value == true)
