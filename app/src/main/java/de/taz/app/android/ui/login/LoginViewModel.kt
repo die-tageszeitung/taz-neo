@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
@@ -159,9 +158,13 @@ class LoginViewModel(
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 AuthStatus.alreadyLinked -> {
-                    // this should never happen
-                    Sentry.capture("authenticate returned alreadyLinked")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                }
+                AuthStatus.notValidMail -> {
+                    // this should never happen
+                    Sentry.capture("handleCredentials returned notValidMail")
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(LoginViewModelState.INITIAL)
                 }
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
@@ -181,7 +184,10 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(firstName: String? = null, surname: String? = null) {
+    fun getTrialSubscriptionForExistingCredentials(
+        firstName: String? = null,
+        surname: String? = null
+    ) {
         register(
             LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
             firstName = firstName,
@@ -331,7 +337,7 @@ class LoginViewModel(
                 idPassword = this@LoginViewModel.password!!,
                 subscriptionId = this@LoginViewModel.subscriptionId!!,
                 subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
-                firstname = firstName,
+                firstName = firstName,
                 surname = surname
             )
 
@@ -343,6 +349,8 @@ class LoginViewModel(
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
                 }
+                SubscriptionStatus.noFirstName,
+                SubscriptionStatus.noSurname,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
                     status.postValue(
@@ -464,6 +472,10 @@ class LoginViewModel(
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.POLLING_FAILED)
+                }
+                SubscriptionStatus.noSurname,
+                SubscriptionStatus.noFirstName -> {
+                    status.postValue(LoginViewModelState.NAME_MISSING)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {

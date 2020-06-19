@@ -89,13 +89,8 @@ abstract class HomePageFragment(
 
     suspend fun downloadNextIssues(date: String, limit: Int) {
         withContext(Dispatchers.IO) {
-            try {
-                apiService?.getIssuesByDate(issueDate = date, limit = limit)?.let {
-                    issueRepository?.save(it)
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                ToastHelper.getInstance(activity?.applicationContext)
-                    .showToast(R.string.toast_no_internet)
+            apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()?.let {
+                issueRepository?.save(it)
             }
         }
     }

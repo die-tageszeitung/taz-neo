@@ -127,9 +127,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     }
                     var issue: Issue? = null
                     val retrievalJob = launch {
-                        apiService?.getIssueByFeedAndDate(
+                        apiService?.getIssueByFeedAndDateAsync(
                             issueStub.feedName, issueStub.date
-                        )?.let { issue = it }
+                        )?.await()?.let { issue = it }
                     }
 
                     deleteJob.join()
