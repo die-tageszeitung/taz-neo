@@ -54,7 +54,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val fileHelper = FileHelper.getInstance(applicationContext)
     val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val internetHelper = ServerConnectionHelper.getInstance(applicationContext)
+    private val serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
@@ -70,7 +70,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(internetHelper.canReachDownloadServerLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -91,12 +91,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                 val start = System.currentTimeMillis()
 
                 issue?.let {
-                    try {
-                        downloadId =
-                            apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
-                    } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-                        // TODO catch in ApiService and redeploy call?
-                    }
+                    downloadId =
+                        apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
+                            .await()
                 }
 
                 val isDownloadedLiveData = cacheableDownload.isDownloadedLiveData()
@@ -116,14 +113,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 val seconds =
                                     ((System.currentTimeMillis() - start) / 1000).toFloat()
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    try {
-                                        apiService.notifyServerOfDownloadStop(
-                                            downloadId,
-                                            seconds
-                                        )
-                                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                                        // do not tell server we downloaded as we do not have internet
-                                    }
+                                    apiService.notifyServerOfDownloadStopAsync(
+                                        downloadId,
+                                        seconds
+                                    ).await()
                                 }
                             }
                         }
@@ -140,7 +133,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (internetHelper.canReachDownloadServer && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+            while (serverConnectionHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
@@ -196,7 +189,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                internetHelper.canReachDownloadServer = false
+                                serverConnectionHelper.isConnected = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }

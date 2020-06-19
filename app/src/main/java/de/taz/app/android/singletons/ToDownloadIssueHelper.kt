@@ -62,7 +62,7 @@ class ToDownloadIssueHelper(applicationContext: Context) {
         for (i in 1..necessaryNumberAPICalls) {
             log.debug("downloading $i. batch of missing issues")
             try {
-                val missingIssues = apiService.getIssuesByDate(newLatestDownloadedDate)
+                val missingIssues = apiService.getIssuesByDateAsync(newLatestDownloadedDate).await()
                 missingIssues.forEach {
                     issueRepository.save(it)
                     newLatestDownloadedDate = it.date

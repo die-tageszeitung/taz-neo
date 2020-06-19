@@ -255,16 +255,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * @return ResourceInfo or null
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
-        return try {
-            apiService?.getResourceInfo()?.let {
-                resourceInfoRepository?.save(it)
-                it
-            } ?: run {
-                getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
-                null
-            }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
-            getMainActivity()?.showToast(R.string.toast_no_internet)
+        return apiService?.getResourceInfoAsync()?.await()?.let {
+            resourceInfoRepository?.save(it)
+            it
+        } ?: run {
+            getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
             null
         }
     }

@@ -47,7 +47,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         CoroutineScope(Dispatchers.Main).launch {
                             authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
-                                    issueRepository.save(apiService.getLastIssues())
+                                    issueRepository.save(apiService.getLastIssuesAsync().await())
                                 }
                             }
                         }
@@ -57,6 +57,8 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     SubscriptionStatus.subscriptionIdNotValid,
                     SubscriptionStatus.elapsed,
                     SubscriptionStatus.invalidConnection,
+                    SubscriptionStatus.noFirstName,
+                    SubscriptionStatus.noSurname,
                     SubscriptionStatus.invalidMail,
                     SubscriptionStatus.alreadyLinked -> {
                         // should never happen
