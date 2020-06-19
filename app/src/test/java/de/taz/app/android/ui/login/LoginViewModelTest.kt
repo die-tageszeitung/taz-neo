@@ -168,28 +168,28 @@ class LoginViewModelTest {
 
     @Test
     fun loginCredentialsSuccessful() = runBlocking {
-        doReturn(validAuthTokenInfo).`when`(apiService).authenticateAsync(username, password)
+        doReturn(validAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.DONE)
     }
 
     @Test
     fun loginCredentialsElapsed() = runBlocking {
-        doReturn(elapsedAuthTokenInfo).`when`(apiService).authenticateAsync(username, password)
+        doReturn(elapsedAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
 
     @Test
     fun loginCredentialsNotValid() = runBlocking {
-        doReturn(invalidAuthTokenInfo).`when`(apiService).authenticateAsync(username, password)
+        doReturn(invalidAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_INVALID)
     }
 
     @Test
     fun loginCredentialsNoSubscriptionId() = runBlocking {
-        doReturn(idNotLinkedAuthTokenInfo).`when`(apiService).authenticateAsync(username, password)
+        doReturn(idNotLinkedAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_MISSING)
     }
@@ -201,7 +201,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginSubscriptionValid() = runBlocking {
-        doReturn(validAuthInfo).`when`(apiService).checkSubscriptionIdAsync(
+        doReturn(validAuthInfo).`when`(apiService).checkSubscriptionId(
             subscriptionId,
             subscriptionPassword
         )
@@ -211,7 +211,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginSubscriptionElapsed() = runBlocking {
-        doReturn(elapsedAuthInfo).`when`(apiService).checkSubscriptionIdAsync(
+        doReturn(elapsedAuthInfo).`when`(apiService).checkSubscriptionId(
             subscriptionId,
             subscriptionPassword
         )
@@ -221,7 +221,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginSubscriptionNotValid() = runBlocking {
-        doReturn(invalidAuthInfo).`when`(apiService).checkSubscriptionIdAsync(
+        doReturn(invalidAuthInfo).`when`(apiService).checkSubscriptionId(
             subscriptionId,
             subscriptionPassword
         )
@@ -236,7 +236,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginSubscriptionAlreadyLinked() = runBlocking {
-        doReturn(alreadyLinkedAuthInfo).`when`(apiService).checkSubscriptionIdAsync(
+        doReturn(alreadyLinkedAuthInfo).`when`(apiService).checkSubscriptionId(
             subscriptionId,
             subscriptionPassword
         )
@@ -247,7 +247,7 @@ class LoginViewModelTest {
 
     @Test
     fun loginNull() = runBlocking {
-        doReturn(null).`when`(apiService).checkSubscriptionIdAsync(
+        doReturn(null).`when`(apiService).checkSubscriptionId(
             subscriptionId,
             subscriptionPassword
         )
@@ -357,7 +357,7 @@ class LoginViewModelTest {
 
     @Test
     fun pollNoPollEntry() = runBlocking {
-        doReturn(noPollEntrySubscriptionInfo).`when`(apiService).subscriptionPollAsync()
+        doReturn(noPollEntrySubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(0).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.POLLING_FAILED)
     }
@@ -374,7 +374,7 @@ class LoginViewModelTest {
 
     @Test
     fun pollWaitForMail() = runBlocking {
-        doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPollAsync()
+        doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(0).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
@@ -382,18 +382,18 @@ class LoginViewModelTest {
     @Test
     fun pollWaitForProc() = runBlocking {
         doReturn(waitForProcSubscriptionInfo).doReturn(waitForProcSubscriptionInfo)
-            .doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPollAsync()
+            .doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(0, runBlocking = true).join()
 
-        verify(apiService, times(3)).subscriptionPollAsync()
+        verify(apiService, times(3)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
 
     @Test
     fun pollNull() = runBlocking {
-        doReturn(null).doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPollAsync()
+        doReturn(null).doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(0, runBlocking = true).join()
-        verify(apiService, times(2)).subscriptionPollAsync()
+        verify(apiService, times(2)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
 
@@ -401,9 +401,9 @@ class LoginViewModelTest {
     fun pollNoInternet() = runBlocking {
         doThrow(ApiService.ApiServiceException.NoInternetException()).doReturn(
             waitForMailSubscriptionInfo
-        ).`when`(apiService).subscriptionPollAsync()
+        ).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(0, runBlocking = true).join()
-        verify(apiService, times(2)).subscriptionPollAsync()
+        verify(apiService, times(2)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
         assertTrue(loginViewModel.noInternet.value == true)
     }
@@ -553,7 +553,7 @@ class LoginViewModelTest {
     @Test
     fun connectValid() = runBlocking {
         doReturn(validSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_SUCCESSFUL)
     }
@@ -561,7 +561,7 @@ class LoginViewModelTest {
     @Test
     fun connectAlreadyLinked() = runBlocking {
         doReturn(alreadyLinkedSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.EMAIL_ALREADY_LINKED)
     }
@@ -569,7 +569,7 @@ class LoginViewModelTest {
     @Test
     fun connectElapsed() = runBlocking {
         doReturn(elapsedSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
@@ -577,7 +577,7 @@ class LoginViewModelTest {
     @Test
     fun connectInvalidConnection() = runBlocking {
         doReturn(invalidConnectionSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_TAKEN)
     }
@@ -585,7 +585,7 @@ class LoginViewModelTest {
     @Test
     fun connectInvalidMail() = runBlocking {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
@@ -594,7 +594,7 @@ class LoginViewModelTest {
     @Test
     fun connectNewInvalidMail() = runBlocking {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
 
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
@@ -604,7 +604,7 @@ class LoginViewModelTest {
     @Test
     fun connectInvalidTazID() = runBlocking {
         doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
@@ -613,7 +613,7 @@ class LoginViewModelTest {
     @Test
     fun connectNewInvalidTazID() = runBlocking {
         doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
 
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
@@ -628,7 +628,7 @@ class LoginViewModelTest {
     @Test
     fun connectSubscriptionIdInvalid() = runBlocking {
         doReturn(subscriptionIdNotValidSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
     }
@@ -636,7 +636,7 @@ class LoginViewModelTest {
     @Test
     fun connectWaitForMail() = runBlocking {
         doReturn(waitForMailSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
@@ -644,7 +644,7 @@ class LoginViewModelTest {
     @Test
     fun connectWaitForProc() = runBlocking {
         doReturn(waitForProcSubscriptionInfo).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.LOADING)
     }
@@ -653,7 +653,7 @@ class LoginViewModelTest {
     fun connectNull() = runBlocking {
         val status = loginViewModel.status.value
         doReturn(null).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == status)
     }
@@ -662,7 +662,7 @@ class LoginViewModelTest {
     fun connectNoInternet() = runBlocking {
         val status = loginViewModel.status.value
         doThrow(ApiService.ApiServiceException.NoInternetException()).`when`(apiService)
-            .subscriptionId2TazIdAsnc(email, password, subscriptionId, subscriptionPassword)
+            .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
         assertTrue(loginViewModel.status.value == status)
         assertTrue(loginViewModel.noInternet.value == true)

@@ -36,7 +36,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
             delay(timeoutMillis)
 
             try {
-                val subscriptionInfo = apiService.subscriptionPollAsync().await()
+                val subscriptionInfo = apiService.subscriptionPoll()
                 log.debug("poll subscriptionPoll: $subscriptionInfo")
 
                 when (subscriptionInfo?.status) {
@@ -57,6 +57,8 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     SubscriptionStatus.subscriptionIdNotValid,
                     SubscriptionStatus.elapsed,
                     SubscriptionStatus.invalidConnection,
+                    SubscriptionStatus.noFirstName,
+                    SubscriptionStatus.noSurname,
                     SubscriptionStatus.invalidMail,
                     SubscriptionStatus.alreadyLinked -> {
                         // should never happen

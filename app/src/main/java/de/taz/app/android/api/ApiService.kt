@@ -69,42 +69,46 @@ class ApiService private constructor(applicationContext: Context) {
      * @param subscriptionId - id of the subscription
      * @param subscriptionPassword - password for the subscriptionId
      * @param surname - surname of the user
-     * @param firstname - firstname of the user
+     * @param firstName - firstname of the user
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
-    suspend fun subscriptionId2TazIdAsnc(
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun subscriptionId2TazId(
         tazId: String,
         idPassword: String,
         subscriptionId: Int,
         subscriptionPassword: String,
         surname: String? = null,
-        firstname: String? = null
-    ): Deferred<SubscriptionInfo?> = CoroutineScope(Dispatchers.IO).async {
+        firstName: String? = null
+    ): SubscriptionInfo? {
         val tag = "subscriptionId2TazId"
-        getDataDto(
-            tag,
-            QueryType.SubscriptionId2TazId,
-            SubscriptionId2TazIdVariables(
-                tazId,
-                idPassword,
-                subscriptionId,
-                subscriptionPassword,
-                surname,
-                firstname
-            )
-        ).subscriptionId2tazId
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.SubscriptionId2TazId,
+                SubscriptionId2TazIdVariables(
+                    tazId,
+                    idPassword,
+                    subscriptionId,
+                    subscriptionPassword,
+                    surname,
+                    firstName
+                )
+            )?.subscriptionId2tazId
+        }, tag)
     }
 
-    suspend fun subscriptionPollAsync(): Deferred<SubscriptionInfo?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val tag = "subscriptionPoll"
-            log.debug(tag)
-            getDataDto(
-                tag,
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun subscriptionPoll(): SubscriptionInfo? {
+        val tag = "subscriptionPoll"
+        log.debug(tag)
+        return transformExceptions({
+            graphQlClient.query(
+
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
-            ).subscriptionPoll
-        }
+            )?.subscriptionPoll
+        }, tag)
+    }
 
     /**
      * function to authenticate with the backend
@@ -112,16 +116,16 @@ class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
-    suspend fun authenticateAsync(user: String, password: String): Deferred<AuthTokenInfo?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val tag = "authenticate"
-            log.debug("$tag username: $user")
-            getDataDto(
-                tag,
+    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
+        val tag = "authenticate"
+        log.debug("$tag username: $user")
+        return transformExceptions({
+            graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(user, password)
-            ).authentificationToken
-        }
+            )?.authentificationToken
+        }, tag)
+    }
 
     /**
      * function to verify if an subscriptionId password combination is valid
@@ -129,16 +133,20 @@ class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
      */
-    suspend fun checkSubscriptionIdAsync(
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun checkSubscriptionId(
         subscriptionId: Int,
         password: String
-    ): Deferred<AuthInfo?> = CoroutineScope(Dispatchers.IO).async {
+    ): AuthInfo? {
         val tag = "checkSubscriptionId"
-        getDataDto(
-            tag,
-            QueryType.CheckSubscriptionId,
-            CheckSubscriptionIdVariables(subscriptionId, password)
-        ).checkSubscriptionId
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.CheckSubscriptionId,
+                    CheckSubscriptionIdVariables(subscriptionId, password)
+                )?.checkSubscriptionId
+            }, tag
+        )
     }
 
 
@@ -357,6 +365,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param surname surname of the requesting person
      * @param firstName firstName of the requesting person
      */
+    @Throws(ApiServiceException.NoInternetException::class)
     suspend fun trialSubscription(
         tazId: String,
         idPassword: String,
