@@ -104,10 +104,10 @@ class LoginViewModel(
         subscriptionPassword: String
     ) {
         try {
-            val subscriptionAuthInfo = apiService.checkSubscriptionIdAsync(
+            val subscriptionAuthInfo = apiService.checkSubscriptionId(
                 subscriptionId,
                 subscriptionPassword
-            ).await()
+            )
 
             when (subscriptionAuthInfo?.status) {
                 AuthStatus.alreadyLinked -> {
@@ -142,7 +142,7 @@ class LoginViewModel(
 
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
-            val authTokenInfo = apiService.authenticateAsync(username, password).await()
+            val authTokenInfo = apiService.authenticate(username, password)
 
             when (authTokenInfo?.authInfo?.status) {
                 AuthStatus.valid -> {
@@ -180,7 +180,10 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(firstName: String? = null, surname: String? = null) {
+    fun getTrialSubscriptionForExistingCredentials(
+        firstName: String? = null,
+        surname: String? = null
+    ) {
         register(
             LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
             firstName = firstName,
@@ -325,14 +328,14 @@ class LoginViewModel(
         surname: String?
     ) {
         try {
-            val subscriptionInfo = apiService.subscriptionId2TazIdAsnc(
+            val subscriptionInfo = apiService.subscriptionId2TazId(
                 tazId = this@LoginViewModel.username!!,
                 idPassword = this@LoginViewModel.password!!,
                 subscriptionId = this@LoginViewModel.subscriptionId!!,
                 subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
-                firstname = firstName,
+                firstName = firstName,
                 surname = surname
-            ).await()
+            )
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
@@ -415,7 +418,7 @@ class LoginViewModel(
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ) {
         try {
-            val subscriptionInfo = apiService.subscriptionPollAsync().await()
+            val subscriptionInfo = apiService.subscriptionPoll()
             log.debug("poll subscriptionPoll: $subscriptionInfo")
 
             when (subscriptionInfo?.status) {
@@ -463,6 +466,10 @@ class LoginViewModel(
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.POLLING_FAILED)
+                }
+                SubscriptionStatus.noSurname,
+                SubscriptionStatus.noFirstName -> {
+                    status.postValue(LoginViewModelState.NAME_MISSING)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
