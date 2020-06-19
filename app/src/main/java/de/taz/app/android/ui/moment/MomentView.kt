@@ -18,6 +18,7 @@ import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateFormat
@@ -42,6 +43,7 @@ class MomentView @JvmOverloads constructor(
 
     private val dateHelper = DateHelper.getInstance(context.applicationContext)
     private val downloadService = DownloadService.getInstance(context.applicationContext)
+    private val feedRepository = FeedRepository.getInstance(context.applicationContext)
     private val fileHelper = FileHelper.getInstance(context.applicationContext)
     private val issueRepository = IssueRepository.getInstance(context.applicationContext)
     private val momentRepository = MomentRepository.getInstance(context.applicationContext)
@@ -94,7 +96,7 @@ class MomentView @JvmOverloads constructor(
         this.issueOperations = issueOperations
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
-            launch { setDimension(issueOperations.getFeed()) }
+            launch { setDimension(feedRepository.get(issueOperations.feedName)) }
 
             launch { setDate(issueOperations.date) }
 
