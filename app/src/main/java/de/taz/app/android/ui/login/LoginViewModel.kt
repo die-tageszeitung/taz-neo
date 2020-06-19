@@ -158,9 +158,13 @@ class LoginViewModel(
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 AuthStatus.alreadyLinked -> {
-                    // this should never happen
-                    Sentry.capture("authenticate returned alreadyLinked")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                }
+                AuthStatus.notValidMail -> {
+                    // this should never happen
+                    Sentry.capture("handleCredentials returned notValidMail")
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(LoginViewModelState.INITIAL)
                 }
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
@@ -345,6 +349,8 @@ class LoginViewModel(
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
                 }
+                SubscriptionStatus.noFirstName,
+                SubscriptionStatus.noSurname,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
                     status.postValue(
