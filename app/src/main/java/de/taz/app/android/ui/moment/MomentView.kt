@@ -96,7 +96,11 @@ class MomentView @JvmOverloads constructor(
         this.issueOperations = issueOperations
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
-            launch { setDimension(feedRepository.get(issueOperations.feedName)) }
+            launch {
+                var feed: Feed? = null
+                withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName)}
+                setDimension(feed)
+            }
 
             launch { setDate(issueOperations.date) }
 
