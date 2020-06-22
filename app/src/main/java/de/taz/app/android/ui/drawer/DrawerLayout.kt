@@ -14,7 +14,7 @@ class DrawerLayout @JvmOverloads constructor(
 ) : DrawerLayout(context, attributeSet, defStyle) {
 
     private val log by Log
-    private var drawerLogoBoundingBox: Rect? = null
+    var drawerLogoBoundingBox: Rect? = null
 
     fun updateDrawerLogoBoundingBox(width: Int, height: Int) {
         drawerLogoBoundingBox = Rect(

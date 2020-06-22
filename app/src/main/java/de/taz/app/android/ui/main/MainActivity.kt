@@ -74,7 +74,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float)  {
+                (drawerView.parent as? View)?.let { parentView ->
+                    val drawerWidth = drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    if (parentView.width < drawerWidth) {
+                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                    }
+                }
+            }
+
 
             override fun onDrawerOpened(drawerView: View) {
                 opened = true
