@@ -84,8 +84,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // disable harware acceleratio for this view as it may lead to white pages in the webview
-        view.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         super.onViewCreated(view, savedInstanceState)
 
         if (viewModel.displayable == null) {
@@ -109,6 +107,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
 
+        // disable harware acceleratio for this view as it may lead to white pages in the webview
+        view.findViewById<NestedScrollView>(nestedScrollViewId).setLayerType(View.LAYER_TYPE_SOFTWARE, null)
     }
 
     override fun onStart() {
