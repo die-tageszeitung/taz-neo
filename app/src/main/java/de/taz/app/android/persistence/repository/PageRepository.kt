@@ -12,6 +12,10 @@ class PageRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
+    fun update(pageStub: PageStub) {
+        appDatabase.pageDao().update(pageStub)
+    }
+
     fun save(page: Page) {
         appDatabase.pageDao().insertOrReplace(
             PageStub(
@@ -19,7 +23,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.title,
                 page.pagina,
                 page.type,
-                page.frameList
+                page.frameList,
+                page.downloadedField
             )
         )
         fileEntryRepository.save(page.pagePdf)
@@ -46,7 +51,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 pageStub.title,
                 pageStub.pagina,
                 pageStub.type,
-                pageStub.frameList
+                pageStub.frameList,
+                pageStub.downloadedField
             )
         } ?: throw NotFoundException()
     }

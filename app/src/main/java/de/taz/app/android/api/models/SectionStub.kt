@@ -17,7 +17,8 @@ data class SectionStub(
     val issueDate: String,
     override val title: String,
     val type: SectionType,
-    override val extendedTitle: String? = null
+    override val extendedTitle: String? = null,
+    override val downloadedField: Boolean?
 ) : SectionOperations {
 
     @Ignore
@@ -28,7 +29,8 @@ data class SectionStub(
         section.issueDate,
         section.title,
         section.type,
-        section.extendedTitle
+        section.extendedTitle,
+        section.downloadedField
     )
 
     override suspend fun getAllFiles(): List<FileEntryOperations> = withContext(Dispatchers.IO) {
@@ -45,6 +47,10 @@ data class SectionStub(
         ).filter { it.resolution == ImageResolution.normal }.map { it.name }.toMutableList()
         list.add(key)
         return list.distinct()
+    }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        SectionRepository.getInstance().update(this.copy(downloadedField = downloaded))
     }
 
 }

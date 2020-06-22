@@ -12,6 +12,10 @@ class FileEntryRepository private constructor(
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
+    fun update(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().update(fileEntry)
+    }
+
     fun save(fileEntry: FileEntry) {
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
         fromDB?.let {

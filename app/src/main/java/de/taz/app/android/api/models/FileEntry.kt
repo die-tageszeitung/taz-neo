@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.serialization.Serializable
 
 const val GLOBAL_FOLDER = "global"
@@ -17,7 +18,8 @@ data class FileEntry(
     override val moTime: Long,
     override val sha256: String,
     override val size: Long,
-    override val folder: String
+    override val folder: String,
+    override val downloadedField: Boolean? = false
 ): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
@@ -35,8 +37,12 @@ data class FileEntry(
         moTime = image.moTime,
         sha256 = image.sha256,
         size = image.size,
-        folder = image.folder
+        folder = image.folder,
+        downloadedField = image.downloadedField
     )
 
+    override fun setIsDownloaded(downloaded: Boolean) {
+        FileEntryRepository.getInstance().update(this.copy(downloadedField = downloaded))
+    }
 
 }
