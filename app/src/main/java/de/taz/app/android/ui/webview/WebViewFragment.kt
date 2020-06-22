@@ -97,18 +97,20 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
 
-        view.findViewById<NestedScrollView>(nestedScrollViewId)
-            .setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+        view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
+            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
                 viewModel.scrollPosition = scrollY
             }
+
+            // disable hardware acceleration as it may lead to white pages in the webview
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
 
         savedInstanceState?.apply {
             viewModel.scrollPosition = getInt(SCROLL_POSITION)
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
-
-        // disable harware acceleratio for this view as it may lead to white pages in the webview
-        view.findViewById<NestedScrollView>(nestedScrollViewId).setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        view.findViewById<NestedScrollView>(nestedScrollViewId)
     }
 
     override fun onStart() {
