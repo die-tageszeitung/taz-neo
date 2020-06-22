@@ -134,7 +134,7 @@ class MomentView @JvmOverloads constructor(
                 )
 
                 issueStubLiveData.observeDistinct(lifecycleOwner!!) { issueStub ->
-                    if (issueStub?.dateDownload != null) {
+                    if (issueStub?.downloadedField == true) {
                         hideDownloadIcon()
                     } else {
                         showDownloadIcon()

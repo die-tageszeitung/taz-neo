@@ -2,9 +2,9 @@ package de.taz.app.android.api.models
 
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.persistence.repository.SectionRepository
 
 data class Section(
     val sectionHtml: FileEntry,
@@ -14,8 +14,9 @@ data class Section(
     val navButton: Image,
     val articleList: List<Article> = emptyList(),
     val imageList: List<Image> = emptyList(),
-    override val extendedTitle: String? = null
-) : SectionOperations, CacheableDownload {
+    override val extendedTitle: String? = null,
+    override val downloadedField: Boolean? = false
+) : SectionOperations {
 
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
         sectionHtml = FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
@@ -44,5 +45,10 @@ data class Section(
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { it.name })
         return list.distinct()
     }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        SectionRepository.getInstance().update(SectionStub(this).copy(downloadedField = downloaded))
+    }
+
 }
 

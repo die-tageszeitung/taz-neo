@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
