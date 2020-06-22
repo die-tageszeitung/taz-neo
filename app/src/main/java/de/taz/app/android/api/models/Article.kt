@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.persistence.repository.ArticleRepository
 
 data class Article(
     val articleHtml: FileEntry,
@@ -18,7 +19,8 @@ data class Article(
     override val articleType: ArticleType = ArticleType.STANDARD,
     val bookmarked: Boolean = false,
     val position: Int = 0,
-    val percentage: Int = 0
+    val percentage: Int = 0,
+    override val downloadedField: Boolean? = false
 ) : ArticleOperations {
 
     constructor(
@@ -55,6 +57,10 @@ data class Article(
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return list.map { it.name }.distinct()
+    }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        ArticleRepository.getInstance().update(ArticleStub(this).copy(downloadedField = downloaded))
     }
 
 }

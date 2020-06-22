@@ -22,7 +22,8 @@ data class Issue(
     override val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
-    override val dateDownload: Date? = null
+    override val dateDownload: Date? = null,
+    override val downloadedField: Boolean? = false
 ) : IssueOperations, CacheableDownload {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -70,6 +71,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
+        this.setIsDownloaded(false)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -87,6 +89,19 @@ data class Issue(
         moment.deleteFiles()
         deleteFiles()
         IssueRepository.getInstance().delete(this@Issue)
+    }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedField = downloaded))
+        sectionList.forEach { section ->
+            section.setIsDownloaded(downloaded)
+            section.articleList.forEach { article ->
+                article.setIsDownloaded(downloaded)
+            }
+        }
+        imprint?.setIsDownloaded(downloaded)
+        pageList.forEach { it.setIsDownloaded(downloaded) }
+        moment.setIsDownloaded(downloaded)
     }
 
 }

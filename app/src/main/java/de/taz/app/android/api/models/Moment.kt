@@ -4,18 +4,25 @@ import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Moment(
     val imageList: List<Image> = emptyList(),
     val creditList: List<Image> = emptyList()
-): CacheableDownload {
-    constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto): this(
+) : CacheableDownload {
+    constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto) : this(
         momentDto.imageList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
+
+    override val downloadedField: Boolean?
+        get() = getImagesToDownload().fold(true) { acc, image ->
+            acc && image.downloadedField ?: false
+        }
 
     private fun getImagesToDownload(): List<Image> {
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
@@ -49,5 +56,12 @@ data class Moment(
         return imageList.firstOrNull { it.resolution == ImageResolution.high }
             ?: imageList.firstOrNull { it.resolution == ImageResolution.normal }
             ?: imageList.firstOrNull { it.resolution == ImageResolution.small }
+    }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        getImagesToDownload().forEach {
+            FileEntryRepository.getInstance()
+                .update(FileEntry(it).copy(downloadedField = downloaded))
+        }
     }
 }

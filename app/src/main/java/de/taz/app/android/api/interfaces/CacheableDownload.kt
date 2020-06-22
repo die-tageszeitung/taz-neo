@@ -6,19 +6,20 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Interface every model has to implement which can be downloaded with [DownloadService]
  */
 interface CacheableDownload {
 
+    val downloadedField: Boolean?
+
     /**
      * remove all downloaded files
      * metadata will be kepts
      */
     suspend fun deleteFiles() {
+        setIsDownloaded(false)
         getAllFiles().forEach { it.deleteFile() }
     }
 
@@ -30,6 +31,16 @@ interface CacheableDownload {
     }
 
     fun isDownloaded(): Boolean {
+        return downloadedField ?: run {
+            val downloadedInDb = isDownloadedInDb()
+            setIsDownloaded(downloadedInDb)
+            downloadedInDb
+        }
+    }
+
+    fun setIsDownloaded(downloaded: Boolean)
+
+    private fun isDownloadedInDb(): Boolean {
         return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
     }
 

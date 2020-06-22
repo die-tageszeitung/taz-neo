@@ -21,6 +21,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
+    fun update(articleStub: ArticleStub) {
+        appDatabase.articleDao().update(articleStub)
+    }
+
     fun save(article: Article) {
         var articleToSave = article
         getStub(articleToSave.key)?.let {
@@ -195,7 +199,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.articleType,
             articleStub.bookmarked,
             articleStub.position,
-            articleStub.percentage
+            articleStub.percentage,
+            articleStub.downloadedField
         )
     }
 
