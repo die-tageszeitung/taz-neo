@@ -21,7 +21,7 @@ data class IssueStub(
     override val minResourceVersion: Int,
     @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
     override val dateDownload: Date? = null,
-    val downloadedField: Boolean?
+    val downloadedField: Boolean? = false
 ): IssueOperations {
 
     constructor(issue: Issue): this (
