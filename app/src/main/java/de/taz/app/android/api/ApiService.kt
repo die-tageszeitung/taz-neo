@@ -254,7 +254,7 @@ class ApiService private constructor(applicationContext: Context) {
         val issues = mutableListOf<Issue>()
         getDataDto(
             tag,
-            QueryType.LastIssues,
+            QueryType.IssueByFeedAndDate,
             IssueVariables(issueDate = issueDate, limit = limit)
         ).product?.feedList?.forEach { feed ->
             issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
