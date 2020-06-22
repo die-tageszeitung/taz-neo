@@ -288,7 +288,8 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.isWeekend,
             sections,
             pageList,
-            issueStub.dateDownload
+            issueStub.dateDownload,
+            issueStub.downloadedField
         )
 
     }

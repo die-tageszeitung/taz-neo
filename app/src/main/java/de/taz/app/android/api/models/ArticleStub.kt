@@ -20,7 +20,8 @@ data class ArticleStub(
     val bookmarked: Boolean = false,
     override val articleType: ArticleType = ArticleType.STANDARD,
     val position: Int = 0,
-    val percentage: Int = 0
+    val percentage: Int = 0,
+    override val downloadedField: Boolean?
 ) : ArticleOperations {
 
     constructor(article: Article) : this(
@@ -34,7 +35,8 @@ data class ArticleStub(
         article.bookmarked,
         article.articleType,
         article.position,
-        article.percentage
+        article.percentage,
+        article.downloadedField
     )
 
     @Ignore
@@ -54,6 +56,10 @@ data class ArticleStub(
     suspend fun getFirstImage(): Image? = withContext(Dispatchers.IO) {
         ArticleRepository.getInstance().getImagesForArticle(this@ArticleStub.key)
             .firstOrNull()
+    }
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        ArticleRepository.getInstance().update(this.copy(downloadedField = downloaded))
     }
 
 }

@@ -1,9 +1,9 @@
 package de.taz.app.android.api.models
 
-import androidx.room.Entity
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,7 +16,8 @@ data class Image(
     override val folder: String,
     val type: ImageType,
     val alpha: Float,
-    val resolution: ImageResolution
+    val resolution: ImageResolution,
+    override val downloadedField: Boolean? = false
 ):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -40,8 +41,13 @@ data class Image(
         folder = fileEntry.folder,
         type = imageStub.type,
         alpha = imageStub.alpha,
-        resolution = imageStub.resolution
+        resolution = imageStub.resolution,
+        downloadedField = fileEntry.downloadedField
     )
+
+    override fun setIsDownloaded(downloaded: Boolean) {
+        FileEntryRepository.getInstance().update(FileEntry(this))
+    }
 
 }
 

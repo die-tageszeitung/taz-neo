@@ -7,11 +7,13 @@ import androidx.room.PrimaryKey
 data class ResourceInfoStub(
     @PrimaryKey val resourceVersion: Int,
     val resourceBaseUrl: String,
-    val resourceZip: String
+    val resourceZip: String,
+    val downloadedField: Boolean?
 ) {
     constructor(resourceInfo: ResourceInfo) : this(
         resourceInfo.resourceVersion,
         resourceInfo.resourceBaseUrl,
-        resourceInfo.resourceZip
+        resourceInfo.resourceZip,
+        resourceInfo.downloadedField
     )
 }

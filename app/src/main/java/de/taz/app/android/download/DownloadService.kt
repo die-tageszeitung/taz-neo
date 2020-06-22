@@ -119,6 +119,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                                     ).await()
                                 }
                             }
+                            CoroutineScope(Dispatchers.IO).launch {
+                                cacheableDownload.setIsDownloaded(true)
+                            }
                         }
                     }
                 }
