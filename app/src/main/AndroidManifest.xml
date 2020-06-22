@@ -27,6 +27,9 @@
             android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.ImagePagerActivity"
+            android:noHistory="true"/>
+        <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />
         <activity

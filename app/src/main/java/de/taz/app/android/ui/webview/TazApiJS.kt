@@ -7,14 +7,14 @@ import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.ImagePagerActivity
+import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
@@ -134,26 +134,11 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: Web
     fun openImage(name: String) {
         log.debug("openImage $name")
 
-        val fileHelper = FileHelper.getInstance(applicationContext)
-        applicationContext?.let {context ->
+        val intent = Intent(mainActivity, ImagePagerActivity::class.java)
+        intent.putExtra(ARTICLE_NAME, displayable?.key)
 
-            fileHelper.getFile(name)?.let {file ->
-                val applicationId = context.packageName
-                val imageAsUri = FileProvider.getUriForFile(
-                    context,
-                    "${applicationId}.contentProvider",
-                    file
-                )
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(
-                    imageAsUri,
-                    "image/*"
-                ) // The Mime type can actually be determined from the file
-                intent.flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                mainActivity?.startActivity(intent)
-            }
-        }
-
+        mainActivity?.startActivity(
+            intent
+        )
     }
 }
