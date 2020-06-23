@@ -135,7 +135,6 @@ class SplashActivity : BaseActivity() {
     private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
 
         val issues = apiService.getLastIssuesAsync(number).await()
         issueRepository.saveIfDoNotExist(issues)
