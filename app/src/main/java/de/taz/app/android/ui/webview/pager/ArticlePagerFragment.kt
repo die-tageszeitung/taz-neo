@@ -191,12 +191,6 @@ class ArticlePagerFragment :
         } ?: parentFragmentManager.popBackStack()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ARTICLE_NAME, articleName)
-        outState.putInt(POSITION, viewModel.currentPosition)
-        super.onSaveInstanceState(outState)
-    }
-
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
@@ -204,7 +198,9 @@ class ArticlePagerFragment :
             }
 
             R.id.bottom_navigation_action_bookmark -> {
-                showBookmarkBottomSheet()
+                articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.key?.let {
+                    showBottomSheet(BookmarkSheetFragment.create(it))
+                }
             }
 
             R.id.bottom_navigation_action_share ->
@@ -215,11 +211,6 @@ class ArticlePagerFragment :
             }
         }
     }
-
-    private fun showBookmarkBottomSheet() =
-        articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.key?.let {
-            showBottomSheet(BookmarkSheetFragment.create(it))
-        }
 
     fun share() {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -291,6 +282,12 @@ class ArticlePagerFragment :
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ARTICLE_NAME, articleName)
+        outState.putInt(POSITION, viewModel.currentPosition)
+        super.onSaveInstanceState(outState)
     }
 
 }

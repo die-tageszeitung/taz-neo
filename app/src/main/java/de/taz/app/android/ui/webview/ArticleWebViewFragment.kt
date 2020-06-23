@@ -1,8 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.widget.TextView
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -13,15 +11,14 @@ import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewModel>(R.layout.fragment_webview_article) {
+class ArticleWebViewFragment :
+    WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_article) {
 
     override val viewModel: ArticleWebViewViewModel by lazy {
         ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
     }
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
-
-    var observer: Observer<Boolean>? = null
 
     companion object {
         fun createInstance(article: ArticleStub): ArticleWebViewFragment {
@@ -49,11 +46,11 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewMo
                 if (isWeekend) {
                     FontHelper.getInstance(context?.applicationContext)
                         .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
-                        withContext(Dispatchers.Main) {
-                            view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                            view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                            withContext(Dispatchers.Main) {
+                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                                view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                            }
                         }
-                    }
                 }
             }
         }
@@ -98,13 +95,6 @@ class ArticleWebViewFragment : WebViewFragment<ArticleStub, ArticleWebViewViewMo
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        observer?.let {
-            Transformations.distinctUntilChanged(viewModel.isBookmarkedLiveData).removeObserver(it)
-        }
-        super.onDestroy()
     }
 }
 
