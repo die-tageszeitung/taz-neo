@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 
 class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
 
+const val PADDING_RIGHT_OF_LOGO = 20
+
 class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
     override val viewModel by lazy {
@@ -109,7 +111,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
         activity?.windowManager?.defaultDisplay?.getSize(point)
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight
+            val paddingInPixel = (PADDING_RIGHT_OF_LOGO / resources.displayMetrics.density).toInt()
+            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight - paddingInPixel
         }
     }
 }
