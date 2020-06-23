@@ -11,8 +11,14 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.singletons.FileHelper
 
+class ImageFragment : Fragment() {
+    var image: Image? = null
 
-class ImageFragment(val image: Image?) : Fragment() {
+    fun newInstance(image: Image?): ImageFragment {
+        val fragment = ImageFragment()
+        fragment.image = image
+        return fragment
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,4 +39,5 @@ class ImageFragment(val image: Image?) : Fragment() {
         }
         return view
     }
+
 }

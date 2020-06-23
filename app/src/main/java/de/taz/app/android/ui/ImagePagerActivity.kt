@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
@@ -18,11 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
+class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
 
     private lateinit var mPager: ViewPager2
     val log by Log
-    var articleName: String? = null
+    private var articleName: String? = null
+    var imageName: String? = null
     var imageList: List<Image>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,11 +32,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
         setContentView(R.layout.fragment_image_pager)
 
         articleName = intent.extras?.getString(ARTICLE_NAME)
+        imageName = intent.extras?.getString(IMAGE_NAME)
+
         lifecycleScope.launch(Dispatchers.IO) {
             imageList = getImageList(articleName)
-            /* imageList?.forEach {
-                DownloadService.getInstance(applicationContext).download(it, "https://dl.taz.de/data/tApp/taz/content/2020/2020-06-22")
-             }*/
         }
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -43,18 +44,9 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
         // The pager adapter, which provides the pages to the view pager widget.
         val pagerAdapter = ImagePagerAdapter(this)
         mPager.adapter = pagerAdapter
+
+        mPager.currentItem = getPosition(imageName)
     }
-/*
-    override fun onBackPressed() {
-        if (mPager.currentItem == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
-            super.onBackPressed()
-        } else {
-            // Otherwise, select the previous step.
-            mPager.currentItem = mPager.currentItem - 1
-        }
-    }*/
 
     private suspend fun getImageList(articleName: String?): List<Image>? =
         withContext(Dispatchers.IO) {
@@ -64,6 +56,16 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
             }
         }
 
+    private fun getPosition(imageName: String?): Int {
+        return imageList?.let { list ->
+            list.indexOf(
+                list.find {
+                    it.name == imageName
+                }
+            )
+        } ?: 0
+    }
+
     /**
      * A simple pager adapter that represents ImageFragment objects, in
      * sequence.
@@ -71,7 +73,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
     private inner class ImagePagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
 
         override fun createFragment(position: Int): Fragment {
-            return ImageFragment(imageList?.get(position))
+            return ImageFragment().newInstance(imageList?.get(position))
         }
 
         override fun getItemCount(): Int {
