@@ -52,8 +52,6 @@ const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 @Mockable
 class MainActivity : NightModeActivity(R.layout.activity_main) {
 
-    private val log by Log
-
     private var fileHelper: FileHelper? = null
     private var imageRepository: ImageRepository? = null
     private var sectionRepository: SectionRepository? = null
@@ -76,7 +74,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float)  {
+                (drawerView.parent as? View)?.let { parentView ->
+                    val drawerWidth = drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    if (parentView.width < drawerWidth) {
+                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                    }
+                }
+            }
+
 
             override fun onDrawerOpened(drawerView: View) {
                 opened = true
@@ -339,6 +345,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
                     setImageBitmap(scaledBitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
+                    drawer_layout.updateDrawerLogoBoundingBox(scaledBitmap.width, scaledBitmap.height)
                 }
             }
         }

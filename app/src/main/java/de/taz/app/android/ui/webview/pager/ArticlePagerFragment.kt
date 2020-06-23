@@ -15,7 +15,6 @@ import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
-import kotlinx.coroutines.launch
 
 const val ARTICLE_NAME = "articleName"
 
