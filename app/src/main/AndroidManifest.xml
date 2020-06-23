@@ -28,6 +28,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ImagePagerActivity"
+            android:configChanges="orientation|screenSize"
             android:noHistory="true"/>
         <activity
             android:name=".ui.main.MainActivity"
