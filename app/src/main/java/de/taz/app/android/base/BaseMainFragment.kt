@@ -8,6 +8,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.MenuRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -18,10 +19,14 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.ui.main.MainActivity
+import java.lang.IndexOutOfBoundsException
 
 abstract class BaseMainFragment (
     @LayoutRes layoutResourceId: Int
 ) : Fragment(layoutResourceId) {
+
+    @MenuRes
+    open val bottomNavigationMenuRes: Int? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,12 +54,21 @@ abstract class BaseMainFragment (
 
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
 
+            bottomNavigationMenuRes?.let {
+                menu.clear()
+                inflateMenu(it)
+            }
+
             itemIconTintList = null
 
             deactivateAllItems(menu)
 
             // hack to not auto select first item
-            menu.getItem(0).isCheckable = false
+            try {
+                menu.getItem(0).isCheckable = false
+            } catch (ioobe: IndexOutOfBoundsException) {
+                // do nothing no items exist
+            }
 
             // hack to make items de- and selectable
             setOnNavigationItemSelectedListener { menuItem ->
