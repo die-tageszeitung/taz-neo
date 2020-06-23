@@ -24,6 +24,7 @@ import java.lang.ref.WeakReference
 
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
+const val IMAGE_NAME = "image_name"
 
 class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
 
@@ -136,6 +137,7 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: Web
 
         val intent = Intent(mainActivity, ImagePagerActivity::class.java)
         intent.putExtra(ARTICLE_NAME, displayable?.key)
+        intent.putExtra(IMAGE_NAME, name)
 
         mainActivity?.startActivity(
             intent
