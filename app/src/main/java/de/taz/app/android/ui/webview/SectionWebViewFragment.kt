@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
-import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -111,17 +110,6 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
             width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight
-        }
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> {
-                showHome()
-            }
-            R.id.bottom_navigation_action_size -> {
-                showFontSettingBottomSheet()
-            }
         }
     }
 }
