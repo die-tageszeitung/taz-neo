@@ -45,7 +45,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
         val pagerAdapter = ImagePagerAdapter(this)
         mPager.adapter = pagerAdapter
 
-        mPager.currentItem = getPosition(imageName)
+        mPager.setCurrentItem(getPosition(imageName), false)
     }
 
     private suspend fun getImageList(articleName: String?): List<Image>? =
