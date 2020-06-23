@@ -9,14 +9,16 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
+import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.webview.ImageFragment
+import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImagePagerActivity : FragmentActivity() {
+class ImagePagerActivity : NightModeActivity(R.layout.activity_login)  {
 
     private lateinit var mPager: ViewPager2
     val log by Log
@@ -27,7 +29,7 @@ class ImagePagerActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_image_pager)
 
-        articleName = intent.extras?.getString("ARTICLE_FILENAME")
+        articleName = intent.extras?.getString(ARTICLE_NAME)
         lifecycleScope.launch(Dispatchers.IO) {
             imageList = getImageList(articleName)
             /* imageList?.forEach {
