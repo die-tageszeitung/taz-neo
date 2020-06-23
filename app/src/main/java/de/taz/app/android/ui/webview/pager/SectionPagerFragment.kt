@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -15,11 +16,11 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
-import kotlinx.coroutines.launch
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -37,6 +38,8 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     private var issueFeedName: String? = null
     private var issueDate: String? = null
     private var issueStatus: IssueStatus? = null
+
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
 
     companion object {
         fun createInstance(sectionFileName: String): SectionPagerFragment {
@@ -191,4 +194,14 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         super.onSaveInstanceState(outState)
     }
 
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                showHome()
+            }
+            R.id.bottom_navigation_action_size -> {
+                showBottomSheet(TextSettingsFragment())
+            }
+        }
+    }
 }

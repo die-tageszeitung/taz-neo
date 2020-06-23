@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<de.taz.app.android.util.NestedCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
@@ -69,22 +69,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/navigation_bottom_background"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/nav_bottom_height"
-            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-            app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/navigation_bottom_article" />
-
-    </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</de.taz.app.android.util.NestedCoordinatorLayout>

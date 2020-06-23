@@ -160,10 +160,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         return activity as? MainActivity
     }
 
-    fun showFontSettingBottomSheet() {
-        showBottomSheet(TextSettingsFragment())
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         web_view?.destroy()
