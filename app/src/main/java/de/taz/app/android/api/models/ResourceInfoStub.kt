@@ -8,12 +8,12 @@ data class ResourceInfoStub(
     @PrimaryKey val resourceVersion: Int,
     val resourceBaseUrl: String,
     val resourceZip: String,
-    val downloadedField: Boolean?
+    val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) {
     constructor(resourceInfo: ResourceInfo) : this(
         resourceInfo.resourceVersion,
         resourceInfo.resourceBaseUrl,
         resourceInfo.resourceZip,
-        resourceInfo.downloadedField
+        resourceInfo.downloadedStatus
     )
 }

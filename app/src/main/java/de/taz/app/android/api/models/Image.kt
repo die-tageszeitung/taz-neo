@@ -17,7 +17,7 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -42,11 +42,13 @@ data class Image(
         type = imageStub.type,
         alpha = imageStub.alpha,
         resolution = imageStub.resolution,
-        downloadedField = fileEntry.downloadedField
+        downloadedStatus = fileEntry.downloadedStatus
     )
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        FileEntryRepository.getInstance().update(FileEntry(this))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        FileEntryRepository.getInstance().update(FileEntry(
+            this.copy(downloadedStatus = downloadedStatus))
+        )
     }
 
 }

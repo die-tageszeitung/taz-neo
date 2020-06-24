@@ -2,6 +2,7 @@ package de.taz.app.android.api.interfaces
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
@@ -12,14 +13,14 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
  */
 interface CacheableDownload {
 
-    val downloadedField: Boolean?
+    val downloadedStatus: DownloadStatus?
 
     /**
      * remove all downloaded files
      * metadata will be kepts
      */
     suspend fun deleteFiles() {
-        setIsDownloaded(false)
+        setDownloadStatus(DownloadStatus.pending)
         getAllFiles().forEach { it.deleteFile() }
     }
 
@@ -31,14 +32,15 @@ interface CacheableDownload {
     }
 
     fun isDownloaded(): Boolean {
-        return downloadedField ?: run {
-            val downloadedInDb = isDownloadedInDb()
-            setIsDownloaded(downloadedInDb)
-            downloadedInDb
+        return downloadedStatus?.equals(DownloadStatus.done) ?: run {
+            val isDownloadedInDb = isDownloadedInDb()
+            val downloadedStatusFromDb = if (isDownloadedInDb) DownloadStatus.done else DownloadStatus.pending
+            setDownloadStatus(downloadedStatusFromDb)
+            isDownloadedInDb
         }
     }
 
-    fun setIsDownloaded(downloaded: Boolean)
+    fun setDownloadStatus(downloadStatus: DownloadStatus)
 
     private fun isDownloadedInDb(): Boolean {
         return DownloadRepository.getInstance().isDownloaded(getAllFileNames())

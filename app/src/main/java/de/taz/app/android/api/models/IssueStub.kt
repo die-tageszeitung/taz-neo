@@ -21,12 +21,12 @@ data class IssueStub(
     override val minResourceVersion: Int,
     @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
     override val dateDownload: Date? = null,
-    val downloadedField: Boolean? = false
+    val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ): IssueOperations {
 
     constructor(issue: Issue): this (
         issue.feedName, issue.date, issue.key, issue.baseUrl, issue.status,
-        issue.minResourceVersion, issue.isWeekend, issue.dateDownload, issue.downloadedField
+        issue.minResourceVersion, issue.isWeekend, issue.dateDownload, issue.downloadedStatus
     )
 
     suspend fun getIssue(): Issue {

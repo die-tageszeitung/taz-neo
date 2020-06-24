@@ -19,7 +19,7 @@ data class FileEntry(
     override val sha256: String,
     override val size: Long,
     override val folder: String,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
@@ -38,11 +38,11 @@ data class FileEntry(
         sha256 = image.sha256,
         size = image.size,
         folder = image.folder,
-        downloadedField = image.downloadedField
+        downloadedStatus = image.downloadedStatus
     )
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        FileEntryRepository.getInstance().update(this.copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        FileEntryRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
     }
 
 }
