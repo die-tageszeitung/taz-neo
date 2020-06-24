@@ -11,12 +11,12 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,8 +51,13 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
     private suspend fun getImageList(articleName: String?): List<Image>? =
         withContext(Dispatchers.IO) {
             articleName?.let {
-                ArticleRepository.getInstance().getImagesForArticle(it)
-                    .filter { image -> image.resolution == ImageResolution.normal }
+                if (it.startsWith("section.")) {
+                    SectionRepository.getInstance().imagesForSectionStub(it)
+                        .filter { image -> image.resolution == ImageResolution.normal }
+                } else {
+                    ArticleRepository.getInstance().getImagesForArticle(it)
+                        .filter { image -> image.resolution == ImageResolution.normal }
+                }
             }
         }
 
