@@ -53,7 +53,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
             articleName?.let {
                 if (it.startsWith("section.")) {
                     SectionRepository.getInstance().imagesForSectionStub(it)
-                        .filter { image -> image.resolution == ImageResolution.normal }
+                        .filter { image -> image.name == imageName}
                 } else {
                     ArticleRepository.getInstance().getImagesForArticle(it)
                         .filter { image -> image.resolution == ImageResolution.normal }
