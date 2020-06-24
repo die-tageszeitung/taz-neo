@@ -181,23 +181,30 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         resourceInfo?.let {
-            val isDownloadedLiveData = displayable.isDownloadedLiveData()
+            val displayableDownloaded = displayable.isDownloaded()
+            val resourceInfoIsDownloaded = resourceInfo.isDownloaded()
 
-            withContext(Dispatchers.Main) {
-                isDownloadedLiveData.observeDistinct(
-                    this@WebViewFragment,
-                    Observer { isDownloaded ->
-                        if (isDownloaded) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                log.info("displayable is ready")
-                                isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+            if (!displayableDownloaded) {
+                val isDownloadedLiveData = displayable.isDownloadedLiveData()
+                withContext(Dispatchers.Main) {
+                    isDownloadedLiveData.observeDistinct(
+                        this@WebViewFragment,
+                        Observer { isDownloaded ->
+                            if (isDownloaded) {
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    log.info("displayable is ready")
+                                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+                                }
+                            } else {
+                                downloadService?.download(displayable)
                             }
-                        } else {
-                            downloadService?.download(displayable)
                         }
-                    }
-                )
-
+                    )
+                }
+            } else {
+                isDisplayableLiveData.postValue(resourceInfoIsDownloaded)
+            }
+            if (!resourceInfoIsDownloaded) {
                 val resourceInfoIsDownloadedLiveData =
                     resourceInfo.isDownloadedLiveData()
 
@@ -217,6 +224,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                         }
                     )
                 }
+            } else {
+                isDisplayableLiveData.postValue(displayableDownloaded)
             }
 
 

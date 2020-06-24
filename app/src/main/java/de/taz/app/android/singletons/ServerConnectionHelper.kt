@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.connection.ConnectionException
@@ -27,36 +28,62 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.getInstance(applicationContext).client
 
-    val isConnectedLiveData = MutableLiveData(true)
+    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
 
-    var isConnected: Boolean
-        get() = isConnectedLiveData.value ?: true
+    val isGraphQlServerReachableLiveData = MutableLiveData(true)
+    private var isGraphQlServerReachableLastChecked: Long = 0L
+
+    var isGraphQlServerReachable: Boolean
+        get() = isGraphQlServerReachableLiveData.value ?: true
         set(value) {
             if (!value) {
-                if (isConnectedLiveData.value != value
-                    && isConnectedLastChanged < Date().time - CONNECTION_CHECK_INTERVAL
+                if (isGraphQlServerReachableLiveData.value != value
+                    && isGraphQlServerReachableLastChecked < Date().time - CONNECTION_CHECK_INTERVAL
                 ) {
-                    isConnectedLiveData.postValue(value)
+                    isGraphQlServerReachableLiveData.postValue(value)
                 }
             } else {
-                isConnectedLiveData.postValue(value)
+                isGraphQlServerReachableLiveData.postValue(value)
             }
         }
 
-    private var isConnectedLastChanged: Long = 0L
+
+    val isDownloadServerServerReachableLiveData = MutableLiveData(true)
+    private var isDownloadServerServerReachableLastChecked: Long = 0L
+
+    var isDownloadServerServerReachable: Boolean
+        get() = isDownloadServerServerReachableLiveData.value ?: true
+        set(value) {
+            if (!value) {
+                if (isDownloadServerServerReachableLiveData.value != value
+                    && isDownloadServerServerReachableLastChecked < Date().time - CONNECTION_CHECK_INTERVAL
+                ) {
+                    isDownloadServerServerReachableLiveData.postValue(value)
+                }
+            } else {
+                isDownloadServerServerReachableLiveData.postValue(value)
+            }
+        }
 
     init {
-        Transformations.distinctUntilChanged(isConnectedLiveData)
+        Transformations.distinctUntilChanged(isGraphQlServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected == false) {
                     toastHelper.showNoConnectionToast()
-                    checkDownloadServer()
+                    checkGraphQlServer()
+                }
+            }
+        Transformations.distinctUntilChanged(isDownloadServerServerReachableLiveData)
+            .observeForever { isConnected ->
+                if (isConnected == false) {
+                    toastHelper.showNoConnectionToast()
+                    checkDownloadServerServer()
                 }
             }
     }
 
-    private fun checkDownloadServer() = CoroutineScope(Dispatchers.IO).launch {
-        while (!this@ServerConnectionHelper.isConnected) {
+    private fun checkGraphQlServer() = CoroutineScope(Dispatchers.IO).launch {
+        while (!this@ServerConnectionHelper.isGraphQlServerReachable) {
             delay(1000)
             try {
                 val result = awaitCallback(
@@ -67,8 +94,35 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                 val bool = result.code.toString().startsWith("2")
                 if (bool) {
                     log.debug("downloadserver reached")
-                    isConnectedLiveData.postValue(bool)
-                    isConnectedLastChanged = Date().time
+                    isGraphQlServerReachableLiveData.postValue(bool)
+                    isGraphQlServerReachableLastChecked = Date().time
+                }
+            } catch (ce: ConnectionException) {
+                log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
+            } catch (ste: SocketTimeoutException) {
+                log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
+            } catch (uhe: UnknownHostException) {
+                log.debug("could not reach download server - UnknownHostException: ${uhe.localizedMessage}")
+            }
+        }
+    }
+
+    private fun checkDownloadServerServer() = CoroutineScope(Dispatchers.IO).launch {
+        while (!this@ServerConnectionHelper.isDownloadServerServerReachable) {
+            delay(1000)
+            try {
+                appInfoRepository.get()?.let {
+                    val result = awaitCallback(
+                        okHttpClient.newCall(
+                            Request.Builder().url(it.globalBaseUrl).build()
+                        )::enqueue
+                    )
+                    val bool = result.code.toString().startsWith("2")
+                    if (bool) {
+                        log.debug("downloadserver reached")
+                        isDownloadServerServerReachableLiveData.postValue(bool)
+                        isDownloadServerServerReachableLastChecked = Date().time
+                    }
                 }
             } catch (ce: ConnectionException) {
                 log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
