@@ -27,7 +27,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                 resourceInfo.resourceVersion,
                 resourceInfo.resourceBaseUrl,
                 resourceInfo.resourceZip,
-                resourceInfo.downloadedField
+                resourceInfo.downloadedStatus
             )
         )
         // save file resourceList
@@ -75,10 +75,10 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                     it.sha256,
                     it.size,
                     RESOURCE_FOLDER,
-                    it.downloadedField
+                    it.downloadedStatus
                 )
             },
-            resourceInfoStub.downloadedField
+            resourceInfoStub.downloadedStatus
         )
     }
 

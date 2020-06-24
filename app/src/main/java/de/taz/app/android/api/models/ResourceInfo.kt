@@ -18,7 +18,7 @@ data class ResourceInfo(
     val resourceBaseUrl: String,
     val resourceZip: String,
     val resourceList: List<FileEntry>,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : CacheableDownload {
     constructor(productDto: ProductDto) : this(
         productDto.resourceVersion!!,
@@ -39,9 +39,9 @@ data class ResourceInfo(
         return RESOURCE_TAG
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ResourceInfoRepository.getInstance()
-            .update(ResourceInfoStub(this).copy(downloadedField = downloaded))
+            .update(ResourceInfoStub(this).copy(downloadedStatus = downloadStatus))
     }
 
     companion object {

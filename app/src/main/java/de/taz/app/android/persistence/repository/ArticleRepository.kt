@@ -200,7 +200,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.bookmarked,
             articleStub.position,
             articleStub.percentage,
-            articleStub.downloadedField
+            articleStub.downloadedStatus
         )
     }
 
