@@ -3,6 +3,7 @@ package de.taz.app.android.api.interfaces
 import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.DownloadStatus
+import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
@@ -28,7 +29,7 @@ interface CacheableDownload {
         DownloadService.getInstance(applicationContext).download(this@CacheableDownload)
 
     fun isDownloadedLiveData(): LiveData<Boolean> {
-        return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())
+        return Transformations.distinctUntilChanged(DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames()))
     }
 
     fun isDownloaded(): Boolean {

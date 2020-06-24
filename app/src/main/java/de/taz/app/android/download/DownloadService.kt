@@ -28,7 +28,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
-import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicInteger
 
 const val DATA_ISSUE_DATE = "extra.issue.date"
@@ -65,12 +65,12 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val httpClient = OkHttp.getInstance(applicationContext).client
     private val workManager = WorkManager.getInstance(applicationContext)
 
-    private val downloadList = LinkedBlockingDeque<Download>()
+    private val downloadList = ConcurrentLinkedDeque<Download>()
 
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -133,14 +133,14 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (serverConnectionHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+            while (serverConnectionHelper.isDownloadServerServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
                         currentDownloads.decrementAndGet()
                         startDownloadsIfCapacity()
                     }
-                }
+                } ?: break
             }
         }
     }
@@ -178,7 +178,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         log.debug("finished http call of ${fromDB.fileName}")
 
-                        val responseJob = handleResponse(response, download, waitForResponseHandling)
+                        val responseJob =
+                            handleResponse(response, download, waitForResponseHandling)
                         if (waitForResponseHandling) {
                             responseJob.join()
                         }
@@ -189,7 +190,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                serverConnectionHelper.isConnected = false
+                                serverConnectionHelper.isDownloadServerServerReachable = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
@@ -246,7 +247,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 } ?: run {
                     log.debug("aborted download of ${download.fileName} - file is empty")
                     downloadRepository.setStatus(download, DownloadStatus.aborted)
-                    if(!doNotRestartDownload) {
+                    if (!doNotRestartDownload) {
                         prependToDownloadList(download)
                     }
                 }
