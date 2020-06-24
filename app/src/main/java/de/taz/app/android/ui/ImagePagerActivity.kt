@@ -16,6 +16,7 @@ import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -34,10 +35,6 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
         articleName = intent.extras?.getString(ARTICLE_NAME)
         imageName = intent.extras?.getString(IMAGE_NAME)
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            imageList = getImageList(articleName)
-        }
-
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = findViewById(R.id.fragment_image_pager)
 
@@ -45,7 +42,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_login) {
         val pagerAdapter = ImagePagerAdapter(this)
         mPager.adapter = pagerAdapter
 
-        mPager.setCurrentItem(getPosition(imageName), false)
+        lifecycleScope.launch(Dispatchers.IO) {
+            imageList = getImageList(articleName)
+            mPager.setCurrentItem(getPosition(imageName), false)
+        }
     }
 
     private suspend fun getImageList(articleName: String?): List<Image>? =
