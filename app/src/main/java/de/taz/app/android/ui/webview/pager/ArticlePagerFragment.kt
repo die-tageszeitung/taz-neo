@@ -217,12 +217,7 @@ class ArticlePagerFragment :
             articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {
-                    val title = articleStub.title
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        shareArticle(url, title, articleStub.getFirstImage())
-                    } else {
-                        shareArticle(url, title)
-                    }
+                    shareArticle(url, articleStub.title)
                 }
             }
         }
@@ -240,48 +235,6 @@ class ArticlePagerFragment :
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
-    }
-
-    @TargetApi(28)
-    private fun shareArticle(url: String, title: String?, image: Image?) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            view?.let { view ->
-                var imageUri: Uri? = null
-                val applicationId = view.context.packageName
-                image?.let {
-                    val imageAsFile =
-                        FileHelper.getInstance(context?.applicationContext).getFile(image)
-                    imageUri = FileProvider.getUriForFile(
-                        view.context,
-                        "${applicationId}.contentProvider",
-                        imageAsFile
-                    )
-                }
-                log.debug("image is: $image")
-                log.debug("imageUri is: $imageUri")
-
-                val sendIntent: Intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, url)
-
-                    putExtra(Intent.EXTRA_STREAM, imageUri)
-                    type = "image/jpg"
-
-                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-                    title?.let {
-                        putExtra(Intent.EXTRA_SUBJECT, title)
-                    }
-                    // add rich content for android 10+
-                    putExtra(Intent.EXTRA_TITLE, title ?: url)
-                    data = imageUri
-                }
-                withContext(Dispatchers.Main) {
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    startActivity(shareIntent)
-                }
-            }
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
