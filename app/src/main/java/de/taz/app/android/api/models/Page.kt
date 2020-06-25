@@ -14,7 +14,7 @@ data class Page (
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val downloadedStatus: DownloadStatus?
 ) : CacheableDownload {
 
     constructor(issueFeedName: String, issueDate: String, pageDto: PageDto): this (
@@ -22,7 +22,8 @@ data class Page (
         pageDto.title,
         pageDto.pagina,
         pageDto.type,
-        pageDto.frameList
+        pageDto.frameList,
+        DownloadStatus.pending
     )
 
     override suspend fun getAllFiles(): List<FileEntry> {

@@ -22,7 +22,7 @@ data class FileEntry(
     override val size: Long,
     override val folder: String,
     override val downloadedStatus: DownloadStatus?
-): FileEntryOperations {
+) : FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
         name = fileEntryDto.name,
@@ -34,8 +34,8 @@ data class FileEntry(
         downloadedStatus = DownloadStatus.pending
     )
 
-    constructor(image: Image): this(
-        name =image.name,
+    constructor(image: Image) : this(
+        name = image.name,
         storageType = image.storageType,
         moTime = image.moTime,
         sha256 = image.sha256,

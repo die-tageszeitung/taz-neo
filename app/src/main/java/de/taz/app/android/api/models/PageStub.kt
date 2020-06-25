@@ -10,7 +10,7 @@ data class PageStub(
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    val downloadedStatus: DownloadStatus?
 ) {
     constructor(page: Page) : this(
         page.pagePdf.name,

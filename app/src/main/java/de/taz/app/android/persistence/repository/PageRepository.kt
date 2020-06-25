@@ -73,7 +73,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.title,
                 page.pagina,
                 page.type,
-                page.frameList
+                page.frameList,
+                page.downloadedStatus
             )
         )
         fileEntryRepository.delete(page.pagePdf)

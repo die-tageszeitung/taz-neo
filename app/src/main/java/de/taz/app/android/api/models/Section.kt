@@ -12,8 +12,8 @@ data class Section(
     override val title: String,
     val type: SectionType,
     val navButton: Image,
-    val articleList: List<Article> = emptyList(),
-    val imageList: List<Image> = emptyList(),
+    val articleList: List<Article>,
+    val imageList: List<Image>,
     override val extendedTitle: String?,
     override val downloadedStatus: DownloadStatus?
 ) : SectionOperations {

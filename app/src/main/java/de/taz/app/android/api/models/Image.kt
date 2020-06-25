@@ -19,7 +19,7 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val downloadedStatus: DownloadStatus?
 ):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -31,7 +31,8 @@ data class Image(
         folder = FileEntryOperations.getStorageFolder(imageDto.storageType, folder),
         type = imageDto.type,
         alpha = imageDto.alpha,
-        resolution = imageDto.resolution
+        resolution = imageDto.resolution,
+        downloadedStatus = DownloadStatus.pending
     )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
