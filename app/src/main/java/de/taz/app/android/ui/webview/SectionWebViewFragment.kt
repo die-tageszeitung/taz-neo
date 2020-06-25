@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
 
 const val PADDING_RIGHT_OF_LOGO = 20
+const val BIG_HEADER_TEXT_SIZE = 26f
 
 class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
@@ -70,6 +71,14 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
                         text = it
                     }
                 }
+
+                // On first section "die tageszeitung" the header should be bigger:
+                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                    view?.findViewById<TextView>(R.id.section)?.apply {
+                        textSize = BIG_HEADER_TEXT_SIZE
+                    }
+                }
+
                 activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
                     resizeHeaderSectionTitle(it.width)
                 }

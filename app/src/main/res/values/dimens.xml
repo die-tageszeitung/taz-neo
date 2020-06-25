@@ -66,10 +66,10 @@
     <dimen name="fragment_header_date_margin_bottom">50dp</dimen>
     <dimen name="fragment_header_section_margin_top">5dp</dimen>
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
-    <dimen name="fragment_header_section_text_size">30dp</dimen>
+    <dimen name="fragment_header_section_text_size">20dp</dimen>
     <dimen name="fragment_header_section_title_height">40dp</dimen>
     <dimen name="fragment_header_section_dotted_line_y_translation">-4dp</dimen>
-    <dimen name="fragment_header_issue_date_text_size">15.5dp</dimen>
+    <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
     <dimen name="fragment_header_webview_margin_top">30dp</dimen>
     <dimen name="fragment_header_webview_article_margin_top">40dp</dimen>
     <dimen name="fragment_header_settings_margin_bottom">38dp</dimen>
