@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -18,7 +19,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun update(resourceInfoStub: ResourceInfoStub) {
-        appDatabase.resourceInfoDao().update(resourceInfoStub)
+        appDatabase.resourceInfoDao().insertOrReplace(resourceInfoStub)
     }
 
     fun save(resourceInfo: ResourceInfo) {
@@ -110,5 +111,9 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().getAllButNewest().forEach { resourceInfo ->
             delete(resourceInfoStubToResourceInfo(resourceInfo))
         }
+    }
+
+    fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean> {
+        return appDatabase.resourceInfoDao().isDownloadedLiveData(resourceVersion)
     }
 }

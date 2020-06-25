@@ -13,7 +13,8 @@ val testImage = Image(
     "Ⓐ",
     ImageType.picture,
     alpha = 1f,
-    resolution = ImageResolution.high
+    resolution = ImageResolution.high,
+    downloadedStatus = DownloadStatus.pending
 )
 
 val testFileEntry = FileEntry(
@@ -22,7 +23,8 @@ val testFileEntry = FileEntry(
     161L,
     "sha256",
     0L,
-    "folder"
+    "folder",
+    DownloadStatus.pending
 )
 
 
@@ -33,14 +35,17 @@ val testSection = Section(
         1337L,
         "?",
         0,
-        "folder"
+        "folder",
+        DownloadStatus.pending
     ),
     "1313-12-13",
     "a section",
     SectionType.articles,
     testImage,
     emptyList(),
-    emptyList()
+    emptyList(),
+    null,
+    DownloadStatus.pending
 )
 
 val testIssue = Issue(
@@ -54,7 +59,9 @@ val testIssue = Issue(
     imprint = null,
     sectionList = listOf(testSection),
     isWeekend = false,
-    pageList = emptyList()
+    pageList = emptyList(),
+    dateDownload = null,
+    downloadedStatus = DownloadStatus.pending
 )
 val testIssues = listOf(testIssue)
 
@@ -65,7 +72,9 @@ val testIssueStub = IssueStub(
     baseUrl = "https://example.com",
     status = IssueStatus.regular,
     minResourceVersion = 1312,
-    isWeekend = false
+    isWeekend = false,
+    dateDownload = null,
+    downloadedStatus = DownloadStatus.pending
 )
 
 val testArticle = Article(
@@ -75,5 +84,13 @@ val testArticle = Article(
     "super Artikel",
     "hervorragender artikel …",
     "https://example.com",
-    null
+    null,
+    emptyList(),
+    emptyList(),
+    emptyList(),
+    ArticleType.STANDARD,
+    false,
+    0,
+    0,
+    DownloadStatus.pending
 )

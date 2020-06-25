@@ -13,14 +13,14 @@ data class Article(
     val teaser: String?,
     val onlineLink: String?,
     val audioFile: FileEntry?,
-    val pageNameList: List<String> = emptyList(),
-    val imageList: List<Image> = emptyList(),
-    val authorList: List<Author> = emptyList(),
-    override val articleType: ArticleType = ArticleType.STANDARD,
-    val bookmarked: Boolean = false,
-    val position: Int = 0,
-    val percentage: Int = 0,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    val pageNameList: List<String>,
+    val imageList: List<Image>,
+    val authorList: List<Author>,
+    override val articleType: ArticleType,
+    val bookmarked: Boolean,
+    val position: Int,
+    val percentage: Int,
+    override val downloadedStatus: DownloadStatus?
 ) : ArticleOperations {
 
     constructor(
@@ -39,7 +39,11 @@ data class Article(
         articleDto.pageNameList ?: emptyList(),
         articleDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
-        articleType
+        articleType,
+        false,
+        0,
+        0,
+        DownloadStatus.pending
     )
 
     override val key: String

@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -22,8 +24,8 @@ data class Issue(
     override val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
-    override val dateDownload: Date? = null,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val dateDownload: Date?,
+    override val downloadedStatus: DownloadStatus?
 ) : IssueOperations, CacheableDownload {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -37,7 +39,9 @@ data class Issue(
         issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList()
+        issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList(),
+        null,
+        DownloadStatus.pending
     )
 
     override fun getAllFileNames(): List<String> {
@@ -60,6 +64,10 @@ data class Issue(
 
     override fun getIssueOperations(): IssueOperations? {
         return this
+    }
+
+    override fun isDownloadedLiveData(applicatonContext: Context?): LiveData<Boolean> {
+        return IssueRepository.getInstance(applicatonContext).isDownloadedLiveData(this)
     }
 
     fun getArticleList(): List<Article> {

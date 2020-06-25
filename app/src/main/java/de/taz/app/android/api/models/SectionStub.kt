@@ -17,8 +17,8 @@ data class SectionStub(
     val issueDate: String,
     override val title: String,
     val type: SectionType,
-    override val extendedTitle: String? = null,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val extendedTitle: String?,
+    override val downloadedStatus: DownloadStatus?
 ) : SectionOperations {
 
     @Ignore

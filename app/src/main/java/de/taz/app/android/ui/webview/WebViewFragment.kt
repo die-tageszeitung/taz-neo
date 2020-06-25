@@ -25,7 +25,6 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
@@ -181,29 +180,38 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         resourceInfo?.let {
-            val isDownloadedLiveData = displayable.isDownloadedLiveData()
+            val displayableDownloaded = displayable.isDownloaded(context?.applicationContext)
+            val resourceInfoIsDownloaded = resourceInfo.isDownloaded(context?.applicationContext)
 
-            withContext(Dispatchers.Main) {
-                isDownloadedLiveData.observeDistinct(
-                    this@WebViewFragment,
-                    Observer { isDownloaded ->
-                        if (isDownloaded) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                log.info("displayable is ready")
-                                isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
+            if (!displayableDownloaded) {
+                val isDownloadedLiveData = displayable.isDownloadedLiveData(context?.applicationContext)
+                withContext(Dispatchers.Main) {
+                    isDownloadedLiveData.observeDistinct(
+                        this@WebViewFragment,
+                        Observer { isDownloaded ->
+                            if (isDownloaded) {
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    log.info("displayable is ready")
+                                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded(
+                                        context?.applicationContext
+                                    ))
+                                }
+                            } else {
+                                downloadService?.download(displayable)
                             }
-                        } else {
-                            downloadService?.download(displayable)
                         }
-                    }
-                )
-
+                    )
+                }
+            } else {
+                isDisplayableLiveData.postValue(resourceInfoIsDownloaded)
+            }
+            if (!resourceInfoIsDownloaded) {
                 val resourceInfoIsDownloadedLiveData =
-                    resourceInfo.isDownloadedLiveData()
+                    resourceInfo.isDownloadedLiveData(context?.applicationContext)
 
                 withContext(Dispatchers.Main) {
                     if (!isResourceInfoUpToDate) {
-                        ResourceInfo.update()
+                        ResourceInfo.update(context?.applicationContext)
                     }
                     resourceInfoIsDownloadedLiveData.observeDistinct(
                         this@WebViewFragment,
@@ -211,12 +219,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("resources are ready")
-                                    isDisplayableLiveData.postValue(displayable.isDownloaded())
+                                    isDisplayableLiveData.postValue(displayable.isDownloaded(
+                                        context?.applicationContext
+                                    ))
                                 }
                             }
                         }
                     )
                 }
+            } else {
+                isDisplayableLiveData.postValue(displayableDownloaded)
             }
 
 

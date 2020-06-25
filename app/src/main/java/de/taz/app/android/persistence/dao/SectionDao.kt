@@ -84,4 +84,7 @@ abstract class SectionDao : BaseDao<SectionStub>() {
     )
     abstract fun getNext(sectionFileName: String): SectionStub?
 
+    @Query("SELECT EXISTS(SELECT * FROM Section WHERE sectionFileName == :sectionFileName AND downloadedStatus == 'done')")
+    abstract fun isDownloadedLiveData(sectionFileName: String): LiveData<Boolean>
+
 }

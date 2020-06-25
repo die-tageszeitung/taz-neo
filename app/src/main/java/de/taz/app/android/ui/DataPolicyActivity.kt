@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +30,7 @@ import java.io.File
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
-    fun getLifecycleOwner(): LifecycleOwner = this
+    private fun getLifecycleOwner(): LifecycleOwner = this
     private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
 
     private var downloadRepository: DownloadRepository? = null
