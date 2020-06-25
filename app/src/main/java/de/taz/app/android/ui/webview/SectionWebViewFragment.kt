@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -75,7 +76,7 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
                 // On first section "die tageszeitung" the header should be bigger:
                 if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
                     view?.findViewById<TextView>(R.id.section)?.apply {
-                        textSize = BIG_HEADER_TEXT_SIZE
+                        setTextSize(COMPLEX_UNIT_DIP, BIG_HEADER_TEXT_SIZE)
                     }
                 }
 
