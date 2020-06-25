@@ -76,6 +76,7 @@
 
 
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
+    <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
     <string name="settings_header">Einstellungen</string>
     <string name="settings_category_general">Allgemein</string>

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -43,7 +44,11 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
                 this
             )
         )
-
+        fragment_archive_to_cover_flow.setOnClickListener {
+            activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
+                currentItem -= 1
+            }
+        }
     }
 
     override fun onResume() {
