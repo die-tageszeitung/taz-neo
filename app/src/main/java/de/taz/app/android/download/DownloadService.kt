@@ -28,14 +28,14 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
-import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicInteger
 
 const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_STATUS = "extra.issue.status"
 
-const val CONCURRENT_DOWNLOAD_LIMIT = 30
+const val CONCURRENT_DOWNLOAD_LIMIT = 50
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
@@ -65,12 +65,12 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val httpClient = OkHttp.getInstance(applicationContext).client
     private val workManager = WorkManager.getInstance(applicationContext)
 
-    private val downloadList = LinkedBlockingDeque<Download>()
+    private val downloadList = ConcurrentLinkedDeque<Download>()
 
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isConnectedLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -80,7 +80,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            if (!cacheableDownload.isDownloaded()) {
+            if (!cacheableDownload.isDownloaded(applicationContext)) {
                 // get AppInfo if not already there
                 if (appInfoRepository.get() == null) {
                     AppInfo.update()
@@ -99,10 +99,16 @@ class DownloadService private constructor(val applicationContext: Context) {
 
                 cacheableDownload.setDownloadStatus(DownloadStatus.started)
 
-                val isDownloadedLiveData = cacheableDownload.isDownloadedLiveData()
+                val isDownloadedLiveData = Transformations.distinctUntilChanged(
+                    DownloadRepository.getInstance()
+                        .isDownloadedLiveData(cacheableDownload.getAllFileNames())
+                )
                 val observer = object : Observer<Boolean> {
                     override fun onChanged(t: Boolean?) {
                         if (t == true) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                cacheableDownload.setDownloadStatus(DownloadStatus.done)
+                            }
                             isDownloadedLiveData.removeObserver(this)
                             log.debug("downloaded ${cacheableDownload.javaClass.name}")
 
@@ -115,9 +121,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                                         seconds
                                     ).await()
                                 }
-                            }
-                            CoroutineScope(Dispatchers.IO).launch {
-                                cacheableDownload.setDownloadStatus(DownloadStatus.done)
                             }
                         }
                     }
@@ -133,14 +136,14 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (serverConnectionHelper.isConnected && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
+            while (serverConnectionHelper.isDownloadServerServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
                         currentDownloads.decrementAndGet()
                         startDownloadsIfCapacity()
                     }
-                }
+                } ?: break
             }
         }
     }
@@ -178,7 +181,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         log.debug("finished http call of ${fromDB.fileName}")
 
-                        val responseJob = handleResponse(response, download, waitForResponseHandling)
+                        val responseJob =
+                            handleResponse(response, download, waitForResponseHandling)
                         if (waitForResponseHandling) {
                             responseJob.join()
                         }
@@ -189,7 +193,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                serverConnectionHelper.isConnected = false
+                                serverConnectionHelper.isDownloadServerServerReachable = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
@@ -231,6 +235,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             workerManagerId = null
                         )
                         downloadRepository.update(newDownload)
+                        fileEntry.setDownloadStatus(DownloadStatus.done)
                         log.debug("finished download of ${download.fileName}")
                     } else {
                         // TODO get new metadata for cacheableDownload and restart download
@@ -238,15 +243,18 @@ class DownloadService private constructor(val applicationContext: Context) {
                         log.warn(m)
                         Sentry.capture(m)
                         if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
+                            fileEntry.setDownloadStatus(DownloadStatus.takeOld)
                             downloadRepository.setStatus(download, DownloadStatus.takeOld)
                         } else {
+                            fileEntry.setDownloadStatus(DownloadStatus.aborted)
                             downloadRepository.setStatus(download, DownloadStatus.aborted)
                         }
                     }
                 } ?: run {
                     log.debug("aborted download of ${download.fileName} - file is empty")
+                    fileEntry.setDownloadStatus(DownloadStatus.aborted)
                     downloadRepository.setStatus(download, DownloadStatus.aborted)
-                    if(!doNotRestartDownload) {
+                    if (!doNotRestartDownload) {
                         prependToDownloadList(download)
                     }
                 }
@@ -254,6 +262,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 // TODO handle 40x like wrong SHA sum
                 // TODO handle 50x by "backing off" and trying again later
                 log.warn("Download was not successful ${response.code}")
+                fileEntry.setDownloadStatus(DownloadStatus.aborted)
                 downloadRepository.setStatus(download, DownloadStatus.aborted)
                 Sentry.capture(response.message)
                 if (!doNotRestartDownload) {
@@ -350,7 +359,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private suspend fun ensureResourceInfo() {
         if (resourceInfo == null) {
-            ResourceInfo.update()
+            ResourceInfo.update(applicationContext)
             resourceInfo = resourceInfoRepository.get()
         }
     }

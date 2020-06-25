@@ -68,4 +68,4 @@ class FileEntryTest {
     }
 }
 
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "fodlr")
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "fodlr", downloadedStatus = DownloadStatus.pending)

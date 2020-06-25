@@ -73,7 +73,7 @@ class DownloadServiceTest {
 
     @Test
     fun abortDownloadOn400Response() {
-        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla", DownloadStatus.pending)
         val mockDownload =
             Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
 
@@ -87,6 +87,7 @@ class DownloadServiceTest {
             runBlocking { downloadService.getFromServer(TEST_FILE_NAME) }
 
             assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
+            assertEquals(DownloadStatus.aborted, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
         } catch (e: Exception) {
             fail("Test should not have thrown an exception")
         }
@@ -95,7 +96,7 @@ class DownloadServiceTest {
     @Test
     fun successDownloadOn200Response() {
         val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
-        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, mockFileSha, 0, "bla")
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, mockFileSha, 0, "bla", DownloadStatus.pending)
         val mockDownload =
             Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
 
@@ -111,11 +112,12 @@ class DownloadServiceTest {
         runBlocking { downloadService.getFromServer(TEST_FILE_NAME) }
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
     }
 
     @Test
     fun abortDownloadOnDivergingShaSums() {
-        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla")
+        val mockFileEntry = FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla", DownloadStatus.pending)
         val mockDownload =
             Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
 

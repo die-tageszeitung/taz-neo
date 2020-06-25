@@ -37,7 +37,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -304,12 +303,16 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             val image: Image? = navButton ?: defaultNavButton
             image?.let {
-                // if image exists wait for it to be downloaded and show it
-                val isDownloadedLiveData = image.isDownloadedLiveData()
-                withContext(Dispatchers.Main) {
-                    isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
-                        if (isDownloaded) {
-                            showNavButton(image)
+                if (image.isDownloaded(applicationContext)) {
+                    showNavButton(image)
+                } else {
+                    // if image exists wait for it to be downloaded and show it
+                    val isDownloadedLiveData = image.isDownloadedLiveData(applicationContext)
+                    withContext(Dispatchers.Main) {
+                        isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
+                            if (isDownloaded) {
+                                showNavButton(image)
+                            }
                         }
                     }
                 }

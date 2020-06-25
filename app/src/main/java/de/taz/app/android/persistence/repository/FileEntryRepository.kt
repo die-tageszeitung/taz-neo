@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
@@ -71,4 +72,9 @@ class FileEntryRepository private constructor(
         fileEntries.map { delete(it) }
     }
 
+    fun isDownloadedLiveData(fileEntry: FileEntry) = isDownloadedLiveData(fileEntry.name)
+
+    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
+        return appDatabase.fileEntryDao().isDownloadedLiveData(fileName)
+    }
 }

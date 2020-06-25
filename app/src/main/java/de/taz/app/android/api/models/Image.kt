@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
@@ -17,7 +19,7 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val downloadedStatus: DownloadStatus?
 ):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -29,7 +31,8 @@ data class Image(
         folder = FileEntryOperations.getStorageFolder(imageDto.storageType, folder),
         type = imageDto.type,
         alpha = imageDto.alpha,
-        resolution = imageDto.resolution
+        resolution = imageDto.resolution,
+        downloadedStatus = DownloadStatus.pending
     )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
@@ -49,6 +52,10 @@ data class Image(
         FileEntryRepository.getInstance().update(FileEntry(
             this.copy(downloadedStatus = downloadedStatus))
         )
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
     }
 
 }

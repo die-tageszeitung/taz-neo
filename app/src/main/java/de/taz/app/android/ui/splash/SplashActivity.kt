@@ -119,7 +119,6 @@ class SplashActivity : BaseActivity() {
     private fun initFeedInformation() {
         val apiService = ApiService.getInstance(applicationContext)
         val feedRepository = FeedRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
             val feeds = apiService.getFeedsAsync().await()
@@ -179,7 +178,7 @@ class SplashActivity : BaseActivity() {
         val fileHelper = FileHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
-            ResourceInfo.update()
+            ResourceInfo.update(applicationContext)
         }
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()

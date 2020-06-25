@@ -12,10 +12,10 @@ data class Section(
     override val title: String,
     val type: SectionType,
     val navButton: Image,
-    val articleList: List<Article> = emptyList(),
-    val imageList: List<Image> = emptyList(),
-    override val extendedTitle: String? = null,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    val articleList: List<Article>,
+    val imageList: List<Image>,
+    override val extendedTitle: String?,
+    override val downloadedStatus: DownloadStatus?
 ) : SectionOperations {
 
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
@@ -28,7 +28,8 @@ data class Section(
             ?: listOf(),
         imageList = sectionDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") }
             ?: listOf(),
-        extendedTitle = sectionDto.extendedTitle
+        extendedTitle = sectionDto.extendedTitle,
+        downloadedStatus = DownloadStatus.pending
     )
 
     override val key: String

@@ -270,5 +270,9 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
     }
 
+    fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
+        return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)
+    }
+
 }
 
