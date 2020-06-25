@@ -179,11 +179,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         issueOperations?.let { issueOperations ->
             val moment = momentRepository?.get(issueOperations)
             moment?.apply {
-                if (!isDownloaded()) {
+                if (!isDownloaded(context?.applicationContext)) {
                     download(context?.applicationContext)
                 }
                 lifecycleScope.launchWhenResumed {
-                    isDownloadedLiveData().observeDistinctUntil(
+                    isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
                         viewLifecycleOwner,
                         { momentIsDownloadedObservationCallback(it) }, { it }
                     )

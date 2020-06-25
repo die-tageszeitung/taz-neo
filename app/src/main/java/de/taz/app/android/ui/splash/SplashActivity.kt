@@ -179,7 +179,7 @@ class SplashActivity : BaseActivity() {
         val fileHelper = FileHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
-            ResourceInfo.update()
+            ResourceInfo.update(applicationContext)
         }
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()

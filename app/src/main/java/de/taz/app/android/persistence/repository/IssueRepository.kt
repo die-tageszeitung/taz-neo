@@ -402,4 +402,14 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getDownloadStartedIssues().map { issueStubToIssue(it) }
     }
 
+    fun isDownloadedLiveData(issueOperations: IssueOperations) = isDownloadedLiveData(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status
+    )
+
+    fun isDownloadedLiveData(feedName: String, date: String, status: IssueStatus): LiveData<Boolean> {
+        return appDatabase.issueDao().isDownloadedLiveData(feedName, date, status)
+    }
+
 }

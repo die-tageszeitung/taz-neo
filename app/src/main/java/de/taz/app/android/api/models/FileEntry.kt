@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
@@ -19,7 +21,7 @@ data class FileEntry(
     override val sha256: String,
     override val size: Long,
     override val folder: String,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val downloadedStatus: DownloadStatus?
 ): FileEntryOperations {
 
     constructor(fileEntryDto: FileEntryDto, folder: String) : this(
@@ -28,7 +30,8 @@ data class FileEntry(
         moTime = fileEntryDto.moTime,
         sha256 = fileEntryDto.sha256,
         size = fileEntryDto.size,
-        folder = FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder)
+        folder = FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder),
+        downloadedStatus = DownloadStatus.pending
     )
 
     constructor(image: Image): this(
@@ -43,6 +46,10 @@ data class FileEntry(
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         FileEntryRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
 }

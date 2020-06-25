@@ -113,13 +113,13 @@ class MomentView @JvmOverloads constructor(
 
     private suspend fun showMoment(issueOperations: IssueOperations) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueOperations)
-        if (moment?.isDownloaded() == true) {
+        if (moment?.isDownloaded(context.applicationContext) == true) {
             showMomentImage(moment)
         } else {
             moment?.apply {
                 download(context.applicationContext)
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData().observeDistinctUntil(
+                    isDownloadedLiveData(context.applicationContext).observeDistinctUntil(
                         lifecycleOwner = lifecycleOwner!!,
                         observationCallback = { isDownloaded ->
                             if (isDownloaded) {

@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.util.SingletonHolder
@@ -80,5 +81,11 @@ class PageRepository private constructor(applicationContext: Context) :
 
     fun delete(pages: List<Page>) {
         pages.map { delete(it) }
+    }
+
+    fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)
+
+    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
+        return appDatabase.pageDao().isDownloadedLiveData(fileName)
     }
 }
