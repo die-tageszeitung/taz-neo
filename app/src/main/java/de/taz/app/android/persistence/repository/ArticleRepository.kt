@@ -22,7 +22,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun update(articleStub: ArticleStub) {
-        appDatabase.articleDao().update(articleStub)
+        appDatabase.articleDao().insertOrReplace(articleStub)
     }
 
     fun save(article: Article) {
@@ -210,7 +210,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun bookmarkArticle(articleStub: ArticleStub) {
         log.debug("bookmarked from article ${articleStub.articleFileName}")
-        appDatabase.articleDao().update(articleStub.copy(bookmarked = true))
+        appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = true))
     }
 
     @Throws(NotFoundException::class)
@@ -229,7 +229,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun debookmarkArticle(articleStub: ArticleStub) {
         log.debug("removed bookmark from article ${articleStub.articleFileName}")
-        appDatabase.articleDao().update(articleStub.copy(bookmarked = false))
+        appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = false))
     }
 
     fun getBookmarkedArticles(): LiveData<List<Article>> =
@@ -344,4 +344,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             }
         }
     }
+
+    fun isDownloadedLiveData(articleOperations: ArticleOperations) =
+        isDownloadedLiveData(articleOperations.key)
+
+    fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
+        return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
+    }
+
 }

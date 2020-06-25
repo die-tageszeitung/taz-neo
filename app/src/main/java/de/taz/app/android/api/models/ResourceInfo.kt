@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -18,13 +20,14 @@ data class ResourceInfo(
     val resourceBaseUrl: String,
     val resourceZip: String,
     val resourceList: List<FileEntry>,
-    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val downloadedStatus: DownloadStatus?
 ) : CacheableDownload {
     constructor(productDto: ProductDto) : this(
         productDto.resourceVersion!!,
         productDto.resourceBaseUrl!!,
         productDto.resourceZip!!,
-        productDto.resourceList!!.map { FileEntry(it, RESOURCE_FOLDER) }
+        productDto.resourceList!!.map { FileEntry(it, RESOURCE_FOLDER) },
+        DownloadStatus.pending
     )
 
     override suspend fun getAllFiles(): List<FileEntry> {
@@ -39,6 +42,11 @@ data class ResourceInfo(
         return RESOURCE_TAG
     }
 
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return ResourceInfoRepository.getInstance(applicationContext)
+            .isDownloadedLiveData(this.resourceVersion)
+    }
+
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ResourceInfoRepository.getInstance()
             .update(ResourceInfoStub(this).copy(downloadedStatus = downloadStatus))
@@ -48,17 +56,20 @@ data class ResourceInfo(
 
         private val log by Log
 
-        suspend fun update() = withContext(Dispatchers.IO) {
+        suspend fun update(applicationContext: Context?) = withContext(Dispatchers.IO) {
             log.info("ResourceInfo.update called")
-            val apiService = ApiService.getInstance()
-            val fileEntryRepository = FileEntryRepository.getInstance()
-            val resourceInfoRepository = ResourceInfoRepository.getInstance()
+            val apiService = ApiService.getInstance(applicationContext)
+            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+            val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
             val fromServer = apiService.getResourceInfoAsync().await()
             val local = resourceInfoRepository.get()
 
             fromServer?.let {
-                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloadedOrDownloading()) {
+                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
+                        applicationContext
+                    )
+                ) {
                     val fromServerResourceListNames = fromServer.resourceList.map { it.name }
                     // delete unused files
                     local?.resourceList?.filter { local ->

@@ -1,5 +1,7 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -60,6 +62,10 @@ data class Issue(
 
     override fun getIssueOperations(): IssueOperations? {
         return this
+    }
+
+    override fun isDownloadedLiveData(applicatonContext: Context?): LiveData<Boolean> {
+        return IssueRepository.getInstance(applicatonContext).isDownloadedLiveData(this)
     }
 
     fun getArticleList(): List<Article> {

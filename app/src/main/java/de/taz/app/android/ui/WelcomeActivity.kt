@@ -81,7 +81,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = resourceInfoRepository?.get()?.isDownloadedLiveData()
+            val isDownloadedLiveData = resourceInfoRepository?.get()?.isDownloadedLiveData(applicationContext)
 
             withContext(Dispatchers.Main) {
                 isDownloadedLiveData?.observeDistinct(

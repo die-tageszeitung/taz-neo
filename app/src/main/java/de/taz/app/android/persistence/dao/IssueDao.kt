@@ -54,4 +54,6 @@ abstract class IssueDao: BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE downloadedStatus == 'started'")
     abstract fun getDownloadStartedIssues(): List<IssueStub>
 
+    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE downloadedStatus == 'done' AND feedName == :feedName AND date == :date AND status == :status)")
+    abstract fun isDownloadedLiveData(feedName: String, date: String, status: IssueStatus): LiveData<Boolean>
 }
