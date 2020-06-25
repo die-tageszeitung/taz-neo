@@ -37,7 +37,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
