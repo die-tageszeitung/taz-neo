@@ -23,8 +23,8 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var mPager: ViewPager2
     private var articleName: String? = null
-    var imageName: String? = null
-    var imageList: List<Image>? = null
+    private var imageName: String? = null
+    private var imageList: List<Image>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
