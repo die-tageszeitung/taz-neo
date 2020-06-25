@@ -20,8 +20,8 @@ data class IssueStub(
     override val status: IssueStatus,
     override val minResourceVersion: Int,
     @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
-    override val dateDownload: Date? = null,
-    val downloadedStatus: DownloadStatus? = DownloadStatus.pending
+    override val dateDownload: Date?,
+    val downloadedStatus: DownloadStatus?
 ): IssueOperations {
 
     constructor(issue: Issue): this (

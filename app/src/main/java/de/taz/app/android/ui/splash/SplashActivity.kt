@@ -119,7 +119,6 @@ class SplashActivity : BaseActivity() {
     private fun initFeedInformation() {
         val apiService = ApiService.getInstance(applicationContext)
         val feedRepository = FeedRepository.getInstance(applicationContext)
-        val toastHelper = ToastHelper.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
             val feeds = apiService.getFeedsAsync().await()
