@@ -37,6 +37,7 @@ object Migration9to10 : Migration(9, 10) {
             execSQL("""DROP TABLE FileEntry """)
             execSQL("""ALTER TABLE TmpFileEntry RENAME TO FileEntry """)
 
+            execSQL("UPDATE FileEntry SET downloadedStatus = (SELECT downloadStatus FROM Download WHERE Download.fileName == FileEntry.fileName)")
 
             execSQL("""CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON `SectionNavButtonJoin` (`sectionFileName`)""")
         }
