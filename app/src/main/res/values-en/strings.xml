@@ -81,6 +81,7 @@
     <string name="fragment_bottom_sheet_issue_delete">delete issue</string>
 
     <string name="fragment_cover_flow_to_archive">To archive</string>
+    <string name="fragment_archive_to_cover_flow">To carousel</string>
 
     <string name="settings_header">settings</string>
     <string name="settings_category_general">general</string>
