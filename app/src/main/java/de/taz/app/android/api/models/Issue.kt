@@ -23,7 +23,7 @@ data class Issue(
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val dateDownload: Date? = null,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : IssueOperations, CacheableDownload {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -71,7 +71,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        this.setIsDownloaded(false)
+        this.setDownloadStatus(DownloadStatus.pending)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -91,17 +91,17 @@ data class Issue(
         IssueRepository.getInstance().delete(this@Issue)
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
         sectionList.forEach { section ->
-            section.setIsDownloaded(downloaded)
+            section.setDownloadStatus(downloadStatus)
             section.articleList.forEach { article ->
-                article.setIsDownloaded(downloaded)
+                article.setDownloadStatus(downloadStatus)
             }
         }
-        imprint?.setIsDownloaded(downloaded)
-        pageList.forEach { it.setIsDownloaded(downloaded) }
-        moment.setIsDownloaded(downloaded)
+        imprint?.setDownloadStatus(downloadStatus)
+        pageList.forEach { it.setDownloadStatus(downloadStatus) }
+        moment.setDownloadStatus(downloadStatus)
     }
 
 }

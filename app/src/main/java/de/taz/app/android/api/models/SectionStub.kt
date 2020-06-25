@@ -18,7 +18,7 @@ data class SectionStub(
     override val title: String,
     val type: SectionType,
     override val extendedTitle: String? = null,
-    override val downloadedField: Boolean?
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : SectionOperations {
 
     @Ignore
@@ -30,7 +30,7 @@ data class SectionStub(
         section.title,
         section.type,
         section.extendedTitle,
-        section.downloadedField
+        section.downloadedStatus
     )
 
     override suspend fun getAllFiles(): List<FileEntryOperations> = withContext(Dispatchers.IO) {
@@ -49,8 +49,8 @@ data class SectionStub(
         return list.distinct()
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        SectionRepository.getInstance().update(this.copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        SectionRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
     }
 
 }

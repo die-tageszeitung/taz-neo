@@ -57,6 +57,8 @@ class SplashActivity : BaseActivity() {
 
         cleanUpImages()
 
+        startNotDownloadedIssues()
+
         if (isDataPolicyAccepted()) {
             if (isFirstTimeStart()) {
                 val intent = Intent(this, WelcomeActivity::class.java)
@@ -326,6 +328,14 @@ class SplashActivity : BaseActivity() {
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun startNotDownloadedIssues() {
+        CoroutineScope(Dispatchers.IO).launch {
+            IssueRepository.getInstance(applicationContext).getDownloadStartedIssues().forEach {
+                it.download(applicationContext)
+            }
+        }
     }
 
 }

@@ -210,7 +210,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 articleList = articles,
                 imageList = images,
                 extendedTitle = sectionStub.extendedTitle,
-                downloadedField = sectionStub.downloadedField
+                downloadedStatus = sectionStub.downloadedStatus
             )
         }
     }

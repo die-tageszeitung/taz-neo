@@ -24,7 +24,7 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.pagina,
                 page.type,
                 page.frameList,
-                page.downloadedField
+                page.downloadedStatus
             )
         )
         fileEntryRepository.save(page.pagePdf)
@@ -52,7 +52,7 @@ class PageRepository private constructor(applicationContext: Context) :
                 pageStub.pagina,
                 pageStub.type,
                 pageStub.frameList,
-                pageStub.downloadedField
+                pageStub.downloadedStatus
             )
         } ?: throw NotFoundException()
     }

@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Moment(
@@ -19,9 +18,22 @@ data class Moment(
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList()
     )
 
-    override val downloadedField: Boolean?
-        get() = getImagesToDownload().fold(true) { acc, image ->
-            acc && image.downloadedField ?: false
+    override val downloadedStatus: DownloadStatus?
+        get() {
+            val imagesToDownload = getImagesToDownload()
+            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.aborted } != null) {
+                return DownloadStatus.aborted
+            }
+            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.started } != null) {
+                return DownloadStatus.started
+            }
+            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.pending } != null) {
+                return DownloadStatus.pending
+            }
+            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.takeOld } != null) {
+                return DownloadStatus.takeOld
+            }
+            return DownloadStatus.done
         }
 
     private fun getImagesToDownload(): List<Image> {
@@ -58,10 +70,12 @@ data class Moment(
             ?: imageList.firstOrNull { it.resolution == ImageResolution.small }
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         getImagesToDownload().forEach {
-            FileEntryRepository.getInstance()
-                .update(FileEntry(it).copy(downloadedField = downloaded))
+            FileEntryRepository.getInstance().update(
+                FileEntry(it).copy(downloadedStatus = downloadStatus)
+            )
         }
     }
+
 }

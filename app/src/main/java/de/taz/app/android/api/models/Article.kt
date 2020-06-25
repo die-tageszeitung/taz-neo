@@ -20,7 +20,7 @@ data class Article(
     val bookmarked: Boolean = false,
     val position: Int = 0,
     val percentage: Int = 0,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : ArticleOperations {
 
     constructor(
@@ -59,8 +59,9 @@ data class Article(
         return list.map { it.name }.distinct()
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        ArticleRepository.getInstance().update(ArticleStub(this).copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        ArticleRepository.getInstance()
+            .update(ArticleStub(this).copy(downloadedStatus = downloadedStatus))
     }
 
 }
