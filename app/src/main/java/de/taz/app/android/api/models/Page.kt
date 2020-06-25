@@ -12,7 +12,7 @@ data class Page (
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : CacheableDownload {
 
     constructor(issueFeedName: String, issueDate: String, pageDto: PageDto): this (
@@ -31,8 +31,8 @@ data class Page (
         return listOf(pagePdf).map { it.name }.distinct()
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        PageRepository.getInstance().update(PageStub(this).copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        PageRepository.getInstance().update(PageStub(this).copy(downloadedStatus = downloadStatus))
     }
 }
 

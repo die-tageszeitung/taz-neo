@@ -35,7 +35,7 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_STATUS = "extra.issue.status"
 
-const val CONCURRENT_DOWNLOAD_LIMIT = 50
+const val CONCURRENT_DOWNLOAD_LIMIT = 30
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
@@ -94,7 +94,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                     downloadId =
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
                             .await()
+                    issueRepository.setDownloadDate(it, Date())
                 }
+
+                cacheableDownload.setDownloadStatus(DownloadStatus.started)
 
                 val isDownloadedLiveData = cacheableDownload.isDownloadedLiveData()
                 val observer = object : Observer<Boolean> {
@@ -103,12 +106,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                             isDownloadedLiveData.removeObserver(this)
                             log.debug("downloaded ${cacheableDownload.javaClass.name}")
 
-                            issue?.let {
-                                // set Issue download date
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    issueRepository.setDownloadDate(it, Date())
-                                }
-                            }
                             downloadId?.let { downloadId ->
                                 val seconds =
                                     ((System.currentTimeMillis() - start) / 1000).toFloat()
@@ -120,7 +117,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 }
                             }
                             CoroutineScope(Dispatchers.IO).launch {
-                                cacheableDownload.setIsDownloaded(true)
+                                cacheableDownload.setDownloadStatus(DownloadStatus.done)
                             }
                         }
                     }

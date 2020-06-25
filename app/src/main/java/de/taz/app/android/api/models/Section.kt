@@ -15,7 +15,7 @@ data class Section(
     val articleList: List<Article> = emptyList(),
     val imageList: List<Image> = emptyList(),
     override val extendedTitle: String? = null,
-    override val downloadedField: Boolean? = false
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : SectionOperations {
 
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
@@ -46,8 +46,8 @@ data class Section(
         return list.distinct()
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        SectionRepository.getInstance().update(SectionStub(this).copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        SectionRepository.getInstance().update(SectionStub(this).copy(downloadedStatus = downloadStatus))
     }
 
 }

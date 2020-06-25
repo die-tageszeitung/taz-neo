@@ -1,11 +1,10 @@
 package de.taz.app.android.api.interfaces
 
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.GLOBAL_FOLDER
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.FileHelper
 
 interface FileEntryOperations: CacheableDownload {
@@ -15,7 +14,7 @@ interface FileEntryOperations: CacheableDownload {
     val sha256: String
     val size: Long
     val folder: String
-    override val downloadedField: Boolean?
+    override val downloadedStatus: DownloadStatus?
 
     val path
         get() = "$folder/$name"
@@ -24,7 +23,7 @@ interface FileEntryOperations: CacheableDownload {
         val fileHelper = FileHelper.getInstance()
         fileHelper.deleteFile(name)
         DownloadRepository.getInstance().delete(name)
-        this.setIsDownloaded(false)
+        this.setDownloadStatus(DownloadStatus.pending)
     }
 
     companion object {

@@ -21,7 +21,7 @@ data class ArticleStub(
     override val articleType: ArticleType = ArticleType.STANDARD,
     val position: Int = 0,
     val percentage: Int = 0,
-    override val downloadedField: Boolean?
+    override val downloadedStatus: DownloadStatus? = DownloadStatus.pending
 ) : ArticleOperations {
 
     constructor(article: Article) : this(
@@ -36,7 +36,7 @@ data class ArticleStub(
         article.articleType,
         article.position,
         article.percentage,
-        article.downloadedField
+        article.downloadedStatus
     )
 
     @Ignore
@@ -58,8 +58,8 @@ data class ArticleStub(
             .firstOrNull()
     }
 
-    override fun setIsDownloaded(downloaded: Boolean) {
-        ArticleRepository.getInstance().update(this.copy(downloadedField = downloaded))
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        ArticleRepository.getInstance().update(this.copy(downloadedStatus = downloadedStatus))
     }
 
 }

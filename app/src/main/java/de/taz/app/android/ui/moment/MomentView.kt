@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
@@ -140,7 +141,7 @@ class MomentView @JvmOverloads constructor(
                 )
 
                 issueStubLiveData.observeDistinct(lifecycleOwner!!) { issueStub ->
-                    if (issueStub?.downloadedField == true) {
+                    if (issueStub?.downloadedStatus == DownloadStatus.done) {
                         hideDownloadIcon()
                     } else {
                         showDownloadIcon()
