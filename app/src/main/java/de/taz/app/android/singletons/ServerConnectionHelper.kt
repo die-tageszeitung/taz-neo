@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.connection.ConnectionException
@@ -28,7 +29,7 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.getInstance(applicationContext).client
 
-    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
     val isGraphQlServerReachableLiveData = MutableLiveData(true)
     private var isGraphQlServerReachableLastChecked: Long = 0L
@@ -111,17 +112,21 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
         while (!this@ServerConnectionHelper.isDownloadServerServerReachable) {
             delay(1000)
             try {
-                appInfoRepository.get()?.let {
-                    val result = awaitCallback(
-                        okHttpClient.newCall(
-                            Request.Builder().url(it.globalBaseUrl).build()
-                        )::enqueue
-                    )
-                    val bool = result.code.toString().startsWith("2")
-                    if (bool) {
-                        log.debug("downloadserver reached")
-                        isDownloadServerServerReachableLiveData.postValue(bool)
-                        isDownloadServerServerReachableLastChecked = Date().time
+                resourceInfoRepository.get()?.let { resourceInfo ->
+                    resourceInfo.resourceList.firstOrNull()?.let { resource ->
+                        val result = awaitCallback(
+                            okHttpClient.newCall(
+                                Request.Builder().url(
+                                    "${resourceInfo.resourceBaseUrl}/${resource.name}"
+                                ).build()
+                            )::enqueue
+                        )
+                        val bool = result.code.toString().firstOrNull() in listOf('2', '3')
+                        if (bool) {
+                            log.debug("downloadserver reached")
+                            isDownloadServerServerReachableLiveData.postValue(bool)
+                            isDownloadServerServerReachableLastChecked = Date().time
+                        }
                     }
                 }
             } catch (ce: ConnectionException) {
