@@ -71,11 +71,16 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
 
     private suspend fun onRefresh() {
         withContext(Dispatchers.IO) {
-            val apiService = ApiService.getInstance(activity?.applicationContext)
-            FeedRepository.getInstance(activity?.applicationContext)
-                .save(apiService.getFeeds())
-            IssueRepository.getInstance(activity?.applicationContext)
-                .saveIfDoNotExist(apiService.getLastIssues())
+            try {
+                val apiService = ApiService.getInstance(activity?.applicationContext)
+                FeedRepository.getInstance(activity?.applicationContext)
+                    .save(apiService.getFeeds())
+                IssueRepository.getInstance(activity?.applicationContext)
+                    .saveIfDoNotExist(apiService.getLastIssues())
+            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                ToastHelper.getInstance(context?.applicationContext)
+                    .showToast(R.string.toast_no_internet)
+            }
         }
     }
 
