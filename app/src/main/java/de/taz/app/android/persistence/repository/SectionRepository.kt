@@ -53,6 +53,10 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     }
 
+    fun update(sectionStub: SectionStub) {
+        appDatabase.sectionDao().update(sectionStub)
+    }
+
     fun getStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
@@ -205,7 +209,8 @@ class SectionRepository private constructor(applicationContext: Context) :
                 navButton = navButton,
                 articleList = articles,
                 imageList = images,
-                extendedTitle = sectionStub.extendedTitle
+                extendedTitle = sectionStub.extendedTitle,
+                downloadedStatus = sectionStub.downloadedStatus
             )
         }
     }
@@ -263,6 +268,10 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     fun getNavButton(sectionFileName: String): Image {
         return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
+    }
+
+    fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
+        return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)
     }
 
 }

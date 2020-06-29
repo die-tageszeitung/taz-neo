@@ -144,7 +144,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getLatestByDate(date)
     }
 
-    fun getLatestIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
+    fun getLatestIssueStubByFeedAndDate(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): IssueStub? {
         return appDatabase.issueDao().getLatestByFeedDateAndStatus(feedName, date, status)
     }
 
@@ -288,7 +292,8 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.isWeekend,
             sections,
             pageList,
-            issueStub.dateDownload
+            issueStub.dateDownload,
+            issueStub.downloadedStatus
         )
 
     }
@@ -321,6 +326,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                 } ?: emit(null)
             }
         }
+
     fun getIssue(issueStub: IssueStub): Issue {
         return issueStubToIssue(issueStub)
     }
@@ -390,6 +396,20 @@ class IssueRepository private constructor(applicationContext: Context) :
                 delete(issueStubToIssue(it))
             }
         }
+    }
+
+    fun getDownloadStartedIssues(): List<Issue> {
+        return appDatabase.issueDao().getDownloadStartedIssues().map { issueStubToIssue(it) }
+    }
+
+    fun isDownloadedLiveData(issueOperations: IssueOperations) = isDownloadedLiveData(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status
+    )
+
+    fun isDownloadedLiveData(feedName: String, date: String, status: IssueStatus): LiveData<Boolean> {
+        return appDatabase.issueDao().isDownloadedLiveData(feedName, date, status)
     }
 
 }

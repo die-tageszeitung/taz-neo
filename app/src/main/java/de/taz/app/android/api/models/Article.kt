@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.persistence.repository.ArticleRepository
 
 data class Article(
     val articleHtml: FileEntry,
@@ -12,13 +13,14 @@ data class Article(
     val teaser: String?,
     val onlineLink: String?,
     val audioFile: FileEntry?,
-    val pageNameList: List<String> = emptyList(),
-    val imageList: List<Image> = emptyList(),
-    val authorList: List<Author> = emptyList(),
-    override val articleType: ArticleType = ArticleType.STANDARD,
-    val bookmarked: Boolean = false,
-    val position: Int = 0,
-    val percentage: Int = 0
+    val pageNameList: List<String>,
+    val imageList: List<Image>,
+    val authorList: List<Author>,
+    override val articleType: ArticleType,
+    val bookmarked: Boolean,
+    val position: Int,
+    val percentage: Int,
+    override val downloadedStatus: DownloadStatus?
 ) : ArticleOperations {
 
     constructor(
@@ -37,7 +39,11 @@ data class Article(
         articleDto.pageNameList ?: emptyList(),
         articleDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
-        articleType
+        articleType,
+        false,
+        0,
+        0,
+        DownloadStatus.pending
     )
 
     override val key: String
@@ -55,6 +61,11 @@ data class Article(
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return list.map { it.name }.distinct()
+    }
+
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        ArticleRepository.getInstance()
+            .update(ArticleStub(this).copy(downloadedStatus = downloadedStatus))
     }
 
 }

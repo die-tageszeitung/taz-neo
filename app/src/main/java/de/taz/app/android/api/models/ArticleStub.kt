@@ -16,11 +16,12 @@ data class ArticleStub(
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
-    val pageNameList: List<String> = emptyList(),
+    val pageNameList: List<String>,
     val bookmarked: Boolean = false,
-    override val articleType: ArticleType = ArticleType.STANDARD,
-    val position: Int = 0,
-    val percentage: Int = 0
+    override val articleType: ArticleType,
+    val position: Int,
+    val percentage: Int,
+    override val downloadedStatus: DownloadStatus?
 ) : ArticleOperations {
 
     constructor(article: Article) : this(
@@ -34,7 +35,8 @@ data class ArticleStub(
         article.bookmarked,
         article.articleType,
         article.position,
-        article.percentage
+        article.percentage,
+        article.downloadedStatus
     )
 
     @Ignore
@@ -54,6 +56,10 @@ data class ArticleStub(
     suspend fun getFirstImage(): Image? = withContext(Dispatchers.IO) {
         ArticleRepository.getInstance().getImagesForArticle(this@ArticleStub.key)
             .firstOrNull()
+    }
+
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        ArticleRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
     }
 
 }

@@ -22,9 +22,11 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
@@ -35,7 +37,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,9 +49,7 @@ const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
-class MainActivity : BaseActivity(R.layout.activity_main) {
-
-    private val log by Log
+class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     private var fileHelper: FileHelper? = null
     private var imageRepository: ImageRepository? = null
@@ -74,7 +73,15 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float)  {
+                (drawerView.parent as? View)?.let { parentView ->
+                    val drawerWidth = drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    if (parentView.width < drawerWidth) {
+                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                    }
+                }
+            }
+
 
             override fun onDrawerOpened(drawerView: View) {
                 opened = true
@@ -134,6 +141,12 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         setDrawerIssue(issueStub)
         setCoverFlowItem(issueStub)
         changeDrawerIssue()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            DownloadService.getInstance(applicationContext).download(
+                IssueRepository.getInstance(applicationContext).getIssue(issueStub)
+            )
+        }
 
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
@@ -290,12 +303,17 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
             val image: Image? = navButton ?: defaultNavButton
             image?.let {
-                // if image exists wait for it to be downloaded and show it
-                val isDownloadedLiveData = image.isDownloadedLiveData()
-                withContext(Dispatchers.Main) {
-                    isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
-                        if (isDownloaded) {
-                            showNavButton(image)
+                if (image.isDownloaded(applicationContext)) {
+                    showNavButton(image)
+                } else {
+                    // if image exists wait for it to be downloaded and show it
+                    image.download(applicationContext)
+                    val isDownloadedLiveData = image.isDownloadedLiveData(applicationContext)
+                    withContext(Dispatchers.Main) {
+                        isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
+                            if (isDownloaded) {
+                                showNavButton(image)
+                            }
                         }
                     }
                 }
@@ -331,6 +349,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
                     setImageBitmap(scaledBitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
+                    drawer_layout.updateDrawerLogoBoundingBox(scaledBitmap.width, scaledBitmap.height)
                 }
             }
         }

@@ -2,43 +2,50 @@ package de.taz.app.android.api.interfaces
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Interface every model has to implement which can be downloaded with [DownloadService]
  */
 interface CacheableDownload {
 
+    val downloadedStatus: DownloadStatus?
+
     /**
      * remove all downloaded files
      * metadata will be kepts
      */
     suspend fun deleteFiles() {
+        setDownloadStatus(DownloadStatus.pending)
         getAllFiles().forEach { it.deleteFile() }
     }
 
-    suspend fun download(applicationContext: Context? = null) =
+    fun download(applicationContext: Context? = null) =
         DownloadService.getInstance(applicationContext).download(this@CacheableDownload)
 
-    fun isDownloadedLiveData(): LiveData<Boolean> {
-        return DownloadRepository.getInstance().isDownloadedLiveData(getAllFileNames())
+    fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean>
+
+    fun isDownloaded(applicationContext: Context?): Boolean {
+        return downloadedStatus?.equals(DownloadStatus.done) ?: run {
+            val isDownloadedInDb = isDownloadedInDb(applicationContext)
+            val downloadedStatusFromDb = if (isDownloadedInDb) DownloadStatus.done else DownloadStatus.pending
+            setDownloadStatus(downloadedStatusFromDb)
+            isDownloadedInDb
+        }
     }
 
-    fun isDownloaded(): Boolean {
-        return DownloadRepository.getInstance().isDownloaded(getAllFileNames())
+    fun setDownloadStatus(downloadStatus: DownloadStatus)
+
+    private fun isDownloadedInDb(applicationContext: Context?): Boolean {
+        return DownloadRepository.getInstance(applicationContext).isDownloaded(getAllFileNames())
     }
 
     fun isDownloadedOrDownloading(): Boolean {
-        return DownloadRepository.getInstance().isDownloadedOrDownloading(getAllFileNames())
-    }
-
-    fun isDownloadedOrDownloadingLiveData(): LiveData<Boolean> {
-        return DownloadRepository.getInstance().isDownloadingOrDownloadedLiveData(getAllFileNames())
+        return downloadedStatus in listOf(DownloadStatus.done, DownloadStatus.started)
     }
 
     fun getAllFileNames(): List<String>

@@ -72,7 +72,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                         REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
                             CoroutineScope(Dispatchers.IO).launch {
-                                val issue = apiService.getLastIssues(1).first()
+                                val issue = apiService.getLastIssuesAsync(1).await().first()
                                 issueRepository.save(issue)
                                 val downloadPreferences = applicationContext.getSharedPreferences(
                                     PREFERENCES_DOWNLOADS,
@@ -102,7 +102,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         val oldToken = firebaseHelper.firebaseToken
         firebaseHelper.firebaseToken = token
         CoroutineScope(Dispatchers.IO).launch {
-            firebaseHelper.hasTokenBeenSent = apiService.sendNotificationInfo(oldToken) ?: false
+            firebaseHelper.hasTokenBeenSent = apiService.sendNotificationInfoAsync(oldToken).await() ?: false
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }

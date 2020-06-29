@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabsIntent
@@ -12,14 +13,18 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.ImagePagerActivity
+import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
+
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
+const val IMAGE_NAME = "image_name"
 
 class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
 
@@ -126,4 +131,16 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: Web
         }
     }
 
+    @JavascriptInterface
+    fun openImage(name: String) {
+        log.debug("openImage $name")
+
+        val intent = Intent(mainActivity, ImagePagerActivity::class.java)
+        intent.putExtra(ARTICLE_NAME, displayable?.key)
+        intent.putExtra(IMAGE_NAME, name)
+
+        mainActivity?.startActivity(
+            intent
+        )
+    }
 }

@@ -71,7 +71,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
-                ApiService.getInstance(activity?.applicationContext).sendErrorReport(
+                ApiService.getInstance(activity?.applicationContext).sendErrorReportAsync(
                     email,
                     message,
                     lastAction,

@@ -1,9 +1,11 @@
 package de.taz.app.android.api.models
 
-import androidx.room.Entity
+import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,7 +18,8 @@ data class Image(
     override val folder: String,
     val type: ImageType,
     val alpha: Float,
-    val resolution: ImageResolution
+    val resolution: ImageResolution,
+    override val downloadedStatus: DownloadStatus?
 ):  FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -28,7 +31,8 @@ data class Image(
         folder = FileEntryOperations.getStorageFolder(imageDto.storageType, folder),
         type = imageDto.type,
         alpha = imageDto.alpha,
-        resolution = imageDto.resolution
+        resolution = imageDto.resolution,
+        downloadedStatus = DownloadStatus.pending
     )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
@@ -40,8 +44,19 @@ data class Image(
         folder = fileEntry.folder,
         type = imageStub.type,
         alpha = imageStub.alpha,
-        resolution = imageStub.resolution
+        resolution = imageStub.resolution,
+        downloadedStatus = fileEntry.downloadedStatus
     )
+
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        FileEntryRepository.getInstance().update(FileEntry(
+            this).copy(downloadedStatus = downloadedStatus)
+        )
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
+    }
 
 }
 

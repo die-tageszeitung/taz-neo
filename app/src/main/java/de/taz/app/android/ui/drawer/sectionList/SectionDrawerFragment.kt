@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -180,11 +179,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         issueOperations?.let { issueOperations ->
             val moment = momentRepository?.get(issueOperations)
             moment?.apply {
-                if (!isDownloaded()) {
+                if (!isDownloaded(context?.applicationContext)) {
                     download(context?.applicationContext)
                 }
                 lifecycleScope.launchWhenResumed {
-                    isDownloadedLiveData().observeDistinctUntil(
+                    isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
                         viewLifecycleOwner,
                         { momentIsDownloadedObservationCallback(it) }, { it }
                     )

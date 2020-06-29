@@ -83,6 +83,11 @@ var tazApi = (function() {
 			ANDROIDAPI.openUrl(url);
 		}
 
+		function openImage(name) {
+            console.log("openImage "+name);
+			ANDROIDAPI.openImage(name);
+		}
+
         function injectCss(encodedCssContent) {
             var parent = document.getElementsByTagName('head').item(0);
 
@@ -116,7 +121,8 @@ var tazApi = (function() {
 			nextArticle : nextArticle,
 			previousArticle : previousArticle,
 			openUrl : openUrl,
-			injectCss: injectCss
+			injectCss: injectCss,
+			openImage : openImage
 		};
 	}());
 }());

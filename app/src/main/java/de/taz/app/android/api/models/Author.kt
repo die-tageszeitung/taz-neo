@@ -6,18 +6,10 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 data class Author(
     val name: String? = null,
     val imageAuthor: FileEntry? = null
-) : CacheableDownload {
+) {
 
     constructor(authorDto: AuthorDto) : this(
         authorDto.name,
         authorDto.imageAuthor?.let { FileEntry(it, GLOBAL_FOLDER) }
     )
-
-    override suspend fun getAllFiles(): List<FileEntry> {
-        return imageAuthor?.let { listOf(it) } ?: emptyList()
-    }
-
-    override fun getAllFileNames(): List<String> {
-        return imageAuthor?.let { listOf(it.name) }?.distinct() ?: emptyList()
-    }
 }

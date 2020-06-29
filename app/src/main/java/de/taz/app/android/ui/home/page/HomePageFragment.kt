@@ -3,7 +3,6 @@ package de.taz.app.android.ui.home.page
 import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -12,7 +11,6 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -89,13 +87,8 @@ abstract class HomePageFragment(
 
     suspend fun downloadNextIssues(date: String, limit: Int) {
         withContext(Dispatchers.IO) {
-            try {
-                apiService?.getIssuesByDate(issueDate = date, limit = limit)?.let {
-                    issueRepository?.save(it)
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                ToastHelper.getInstance(activity?.applicationContext)
-                    .showToast(R.string.toast_no_internet)
+            apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()?.let {
+                issueRepository?.save(it)
             }
         }
     }

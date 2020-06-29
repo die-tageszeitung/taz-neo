@@ -13,11 +13,13 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateFormat
@@ -42,6 +44,7 @@ class MomentView @JvmOverloads constructor(
 
     private val dateHelper = DateHelper.getInstance(context.applicationContext)
     private val downloadService = DownloadService.getInstance(context.applicationContext)
+    private val feedRepository = FeedRepository.getInstance(context.applicationContext)
     private val fileHelper = FileHelper.getInstance(context.applicationContext)
     private val issueRepository = IssueRepository.getInstance(context.applicationContext)
     private val momentRepository = MomentRepository.getInstance(context.applicationContext)
@@ -94,7 +97,11 @@ class MomentView @JvmOverloads constructor(
         this.issueOperations = issueOperations
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
-            launch { setDimension(issueOperations.getFeed()) }
+            launch {
+                var feed: Feed? = null
+                withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName)}
+                setDimension(feed)
+            }
 
             launch { setDate(issueOperations.date) }
 
@@ -106,13 +113,13 @@ class MomentView @JvmOverloads constructor(
 
     private suspend fun showMoment(issueOperations: IssueOperations) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueOperations)
-        if (moment?.isDownloaded() == true) {
+        if (moment?.isDownloaded(context.applicationContext) == true) {
             showMomentImage(moment)
         } else {
             moment?.apply {
                 download(context.applicationContext)
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData().observeDistinctUntil(
+                    isDownloadedLiveData(context.applicationContext).observeDistinctUntil(
                         lifecycleOwner = lifecycleOwner!!,
                         observationCallback = { isDownloaded ->
                             if (isDownloaded) {
@@ -134,7 +141,7 @@ class MomentView @JvmOverloads constructor(
                 )
 
                 issueStubLiveData.observeDistinct(lifecycleOwner!!) { issueStub ->
-                    if (issueStub?.dateDownload != null) {
+                    if (issueStub?.downloadedStatus == DownloadStatus.done) {
                         hideDownloadIcon()
                     } else {
                         showDownloadIcon()
@@ -242,6 +249,10 @@ class MomentView @JvmOverloads constructor(
                 BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
             } else {
                 log.error("imgFile of $moment does not exist")
+                CoroutineScope(Dispatchers.IO).launch {
+                    moment.deleteFiles()
+                    moment.download(context?.applicationContext)
+                }
                 null
             }
         }
