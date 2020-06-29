@@ -25,7 +25,6 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
@@ -68,9 +67,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        apiService = ApiService.getInstance(context?.applicationContext)
-        downloadService = DownloadService.getInstance(context?.applicationContext)
-        resourceInfoRepository = ResourceInfoRepository.getInstance(context?.applicationContext)
+        apiService = ApiService.getInstance(context.applicationContext)
+        downloadService = DownloadService.getInstance(context.applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,16 +96,20 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
 
-        view.findViewById<NestedScrollView>(nestedScrollViewId)
-            .setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+        view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
+            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
                 viewModel.scrollPosition = scrollY
             }
+
+            // disable hardware acceleration as it may lead to white pages in the webview
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        }
 
         savedInstanceState?.apply {
             viewModel.scrollPosition = getInt(SCROLL_POSITION)
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
-
+        view.findViewById<NestedScrollView>(nestedScrollViewId)
     }
 
     override fun onStart() {
@@ -156,10 +159,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         return activity as? MainActivity
     }
 
-    fun showFontSettingBottomSheet() {
-        showBottomSheet(TextSettingsFragment())
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         web_view?.destroy()
@@ -181,51 +180,38 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         resourceInfo?.let {
-            val isDownloadingLiveData = displayable.isDownloadedOrDownloadingLiveData()
-            val isDownloadedLiveData = displayable.isDownloadedLiveData()
+            val displayableDownloaded = displayable.isDownloaded(context?.applicationContext)
+            val resourceInfoIsDownloaded = resourceInfo.isDownloaded(context?.applicationContext)
 
-            withContext(Dispatchers.Main) {
-                isDownloadingLiveData.observeDistinct(
-                    this@WebViewFragment,
-                    Observer { isDownloadedOrDownloading ->
-                        if (!isDownloadedOrDownloading) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                log.debug("starting download of displayable")
+            if (!displayableDownloaded) {
+                val isDownloadedLiveData = displayable.isDownloadedLiveData(context?.applicationContext)
+                withContext(Dispatchers.Main) {
+                    isDownloadedLiveData.observeDistinct(
+                        this@WebViewFragment,
+                        Observer { isDownloaded ->
+                            if (isDownloaded) {
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    log.info("displayable is ready")
+                                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded(
+                                        context?.applicationContext
+                                    ))
+                                }
+                            } else {
                                 downloadService?.download(displayable)
                             }
                         }
-                    }
-                )
-                isDownloadedLiveData.observeDistinct(
-                    this@WebViewFragment,
-                    Observer { isDownloaded ->
-                        if (isDownloaded) {
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                log.info("displayable is ready")
-                                isDisplayableLiveData.postValue(resourceInfo.isDownloaded())
-                            }
-                        }
-                    }
-                )
-
-                val resourceInfoIsDownloadingLiveData =
-                    resourceInfo.isDownloadedOrDownloadingLiveData()
+                    )
+                }
+            } else {
+                isDisplayableLiveData.postValue(resourceInfoIsDownloaded)
+            }
+            if (!resourceInfoIsDownloaded) {
                 val resourceInfoIsDownloadedLiveData =
-                    resourceInfo.isDownloadedLiveData()
+                    resourceInfo.isDownloadedLiveData(context?.applicationContext)
 
                 withContext(Dispatchers.Main) {
                     if (!isResourceInfoUpToDate) {
-                        resourceInfoIsDownloadingLiveData.observeDistinct(
-                            this@WebViewFragment,
-                            Observer { isDownloadedOrDownloading ->
-                                if (!isDownloadedOrDownloading) {
-                                    lifecycleScope.launch(Dispatchers.IO) {
-                                        log.info("starting download of resources")
-                                        ResourceInfo.update()
-                                    }
-                                }
-                            }
-                        )
+                        ResourceInfo.update(context?.applicationContext)
                     }
                     resourceInfoIsDownloadedLiveData.observeDistinct(
                         this@WebViewFragment,
@@ -233,12 +219,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("resources are ready")
-                                    isDisplayableLiveData.postValue(displayable.isDownloaded())
+                                    isDisplayableLiveData.postValue(displayable.isDownloaded(
+                                        context?.applicationContext
+                                    ))
                                 }
                             }
                         }
                     )
                 }
+            } else {
+                isDisplayableLiveData.postValue(displayableDownloaded)
             }
 
 
@@ -277,16 +267,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * @return ResourceInfo or null
      */
     private suspend fun tryGetResourceInfo(): ResourceInfo? {
-        return try {
-            apiService?.getResourceInfo()?.let {
-                resourceInfoRepository?.save(it)
-                it
-            } ?: run {
-                getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
-                null
-            }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
-            getMainActivity()?.showToast(R.string.toast_no_internet)
+        return apiService?.getResourceInfoAsync()?.await()?.let {
+            resourceInfoRepository?.save(it)
+            it
+        } ?: run {
+            getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
             null
         }
     }

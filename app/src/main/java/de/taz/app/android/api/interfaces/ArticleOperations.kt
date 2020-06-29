@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -64,6 +65,10 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
 
     suspend fun getNavButton(): Image? = withContext(Dispatchers.IO){
         return@withContext this@ArticleOperations.getSectionStub()?.getNavButton()
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return ArticleRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
 }

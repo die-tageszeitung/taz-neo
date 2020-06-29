@@ -1,7 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
-import android.view.MenuItem
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -21,6 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
+
+const val PADDING_RIGHT_OF_LOGO = 20
+const val BIG_HEADER_TEXT_SIZE = 26f
 
 class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
@@ -69,6 +72,14 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
                         text = it
                     }
                 }
+
+                // On first section "die tageszeitung" the header should be bigger:
+                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                    view?.findViewById<TextView>(R.id.section)?.apply {
+                        setTextSize(COMPLEX_UNIT_DIP, BIG_HEADER_TEXT_SIZE)
+                    }
+                }
+
                 activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
                     resizeHeaderSectionTitle(it.width)
                 }
@@ -110,18 +121,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
         activity?.windowManager?.defaultDisplay?.getSize(point)
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
-            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight
-        }
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> {
-                showHome()
-            }
-            R.id.bottom_navigation_action_size -> {
-                showFontSettingBottomSheet()
-            }
+            val paddingInPixel = (PADDING_RIGHT_OF_LOGO / resources.displayMetrics.density).toInt()
+            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight - paddingInPixel
         }
     }
 }

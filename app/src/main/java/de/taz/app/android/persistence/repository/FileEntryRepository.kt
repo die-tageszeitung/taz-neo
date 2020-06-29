@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
@@ -12,12 +13,20 @@ class FileEntryRepository private constructor(
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
+    fun update(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().update(fileEntry)
+    }
+
     fun save(fileEntry: FileEntry) {
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
         fromDB?.let {
             if (fromDB.moTime < fileEntry.moTime)
                 appDatabase.fileEntryDao().insertOrReplace(fileEntry)
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+    }
+
+    fun saveOrReplace(fileEntry: FileEntry) {
+        appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
     fun save(fileEntries: List<FileEntry>) {
@@ -46,6 +55,10 @@ class FileEntryRepository private constructor(
         return fileEntryNames.map { getOrThrow(it) }
     }
 
+    fun delete(fileEntryName: String) {
+        get(fileEntryName)?.let { delete(it) }
+    }
+
     fun delete(fileEntry: FileEntry) {
         appDatabase.downloadDao().apply {
             get(fileEntry.name)?.let {
@@ -59,4 +72,9 @@ class FileEntryRepository private constructor(
         fileEntries.map { delete(it) }
     }
 
+    fun isDownloadedLiveData(fileEntry: FileEntry) = isDownloadedLiveData(fileEntry.name)
+
+    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
+        return appDatabase.fileEntryDao().isDownloadedLiveData(fileName)
+    }
 }

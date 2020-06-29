@@ -89,7 +89,7 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
                 }
                 if (authStatus == AuthStatus.valid) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        ApiService.getInstance(applicationContext).sendNotificationInfo()
+                        ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }
                 }
             }

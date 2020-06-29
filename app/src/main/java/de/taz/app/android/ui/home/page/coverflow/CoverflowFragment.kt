@@ -97,7 +97,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         fragment_cover_flow_grid.apply {
             addOnScrollListener(onScrollListener)
         }
-        applyZoomPageTranformer()
+        applyZoomPageTransformer()
         getMainView()?.apply {
             setDrawerNavButton()
             setActiveDrawerSection(RecyclerView.NO_POSITION)
@@ -194,7 +194,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
 
             // transform the visible children visually
-            applyZoomPageTranformer()
+            applyZoomPageTransformer()
 
             // persist position and download new issues if user is scrolling
             if (position >= 0 && !isIdleEvent) {
@@ -245,7 +245,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         super.onSaveInstanceState(outState)
     }
 
-    private fun applyZoomPageTranformer() {
+    private fun applyZoomPageTransformer() {
         (fragment_cover_flow_grid as? ViewGroup)?.apply {
             children.forEach { child ->
                 val childPosition = (child.left + child.right) / 2f
@@ -257,7 +257,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun callbackWhenIssueIsSet() {
-        applyZoomPageTranformer()
+        applyZoomPageTransformer()
     }
 
 }

@@ -1,5 +1,7 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
@@ -47,6 +49,10 @@ interface SectionOperations : WebViewDisplayable {
 
     suspend fun getNavButton(): Image = withContext(Dispatchers.IO) {
         return@withContext SectionRepository.getInstance().getNavButton(this@SectionOperations.key)
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return SectionRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
 }
