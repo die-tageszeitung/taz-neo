@@ -307,6 +307,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     showNavButton(image)
                 } else {
                     // if image exists wait for it to be downloaded and show it
+                    image.download(applicationContext)
                     val isDownloadedLiveData = image.isDownloadedLiveData(applicationContext)
                     withContext(Dispatchers.Main) {
                         isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
