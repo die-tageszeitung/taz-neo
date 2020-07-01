@@ -197,7 +197,7 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome()
+                showHome(skipToActualIssue = true)
             }
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
