@@ -232,8 +232,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome() {
+    fun showHome(skipToActualIssue: Boolean = false) {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        if (skipToActualIssue) showMainFragment(HomeFragment())
     }
 
     fun showToast(stringId: Int) {

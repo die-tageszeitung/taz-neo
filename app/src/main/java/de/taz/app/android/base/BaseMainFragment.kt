@@ -162,8 +162,8 @@ abstract class BaseMainFragment (
         (activity as? MainActivity)?.showMainFragment(fragment)
     }
 
-    fun showHome() {
-        (activity as? MainActivity)?.showHome()
+    fun showHome(skipToActualIssue: Boolean = false) {
+        (activity as? MainActivity)?.showHome(skipToActualIssue)
     }
 
     fun showInWebView(
