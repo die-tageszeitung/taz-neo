@@ -27,11 +27,10 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val SCROLL_POSITION = "scrollPosition"
 
@@ -51,6 +50,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private var apiService: ApiService? = null
     private var downloadService: DownloadService? = null
     private var resourceInfoRepository: ResourceInfoRepository? = null
+
+    private var isRendered = false
 
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
@@ -119,6 +120,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(isRendered) hideLoadingScreen()
+    }
+
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
         web_view?.apply {
@@ -132,6 +138,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     abstract fun setHeader(displayable: DISPLAYABLE)
 
     private fun onPageRendered() {
+        isRendered = true
         val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         viewModel.scrollPosition?.let {
             nestedScrollView?.scrollY = it
@@ -184,7 +191,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             val resourceInfoIsDownloaded = resourceInfo.isDownloaded(context?.applicationContext)
 
             if (!displayableDownloaded) {
-                val isDownloadedLiveData = displayable.isDownloadedLiveData(context?.applicationContext)
+                val isDownloadedLiveData =
+                    displayable.isDownloadedLiveData(context?.applicationContext)
                 withContext(Dispatchers.Main) {
                     isDownloadedLiveData.observeDistinct(
                         this@WebViewFragment,
@@ -192,9 +200,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("displayable is ready")
-                                    isDisplayableLiveData.postValue(resourceInfo.isDownloaded(
-                                        context?.applicationContext
-                                    ))
+                                    isDisplayableLiveData.postValue(
+                                        resourceInfo.isDownloaded(
+                                            context?.applicationContext
+                                        )
+                                    )
                                 }
                             } else {
                                 downloadService?.download(displayable)
@@ -219,9 +229,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("resources are ready")
-                                    isDisplayableLiveData.postValue(displayable.isDownloaded(
-                                        context?.applicationContext
-                                    ))
+                                    isDisplayableLiveData.postValue(
+                                        displayable.isDownloaded(
+                                            context?.applicationContext
+                                        )
+                                    )
                                 }
                             }
                         }
