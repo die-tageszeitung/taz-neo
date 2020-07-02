@@ -6,7 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import kotlinx.android.synthetic.main.fragment_login_forgot_password.*
 
-class PasswordRequestFragment : BaseFragment(R.layout.fragment_login_forgot_password) {
+class PasswordRequestFragment : LoginBaseFragment(R.layout.fragment_login_forgot_password) {
 
     private var invalidId: Boolean = false
 
