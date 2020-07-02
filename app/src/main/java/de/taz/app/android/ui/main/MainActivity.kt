@@ -4,9 +4,9 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
@@ -346,7 +346,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
                 val file = fileHelper?.getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
-                val scaledBitmap = Bitmap.createScaledBitmap(
+                val scaledBitmap =  Bitmap.createScaledBitmap(
                     bitmap,
                     (TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
@@ -361,9 +361,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     false
                 )
                 this.navButtonBitmap = scaledBitmap
-                this.navButtonAlpha = navButton.alpha * 255
+                this.navButtonAlpha = navButton.alpha
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    setImageBitmap(scaledBitmap)
+                    background = BitmapDrawable(resources, scaledBitmap)
+                    alpha = navButton.alpha
                     imageAlpha = (navButton.alpha * 255).toInt()
                     drawer_layout.updateDrawerLogoBoundingBox(scaledBitmap.width, scaledBitmap.height)
                 }

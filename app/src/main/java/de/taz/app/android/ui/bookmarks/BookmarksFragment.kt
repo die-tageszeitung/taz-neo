@@ -56,7 +56,7 @@ class BookmarksFragment :
             navButtonBitmap?.let {
                 findViewById<ImageView>(R.id.fragment_header_logo).apply {
                     setImageBitmap(it)
-                    imageAlpha = (navButtonAlpha).toInt()
+                    imageAlpha = (navButtonAlpha * 255).toInt()
                 }
             }
         }
