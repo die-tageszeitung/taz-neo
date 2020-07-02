@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
@@ -68,7 +69,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
-        lockEndNavigationView()
+        lockNavigationView(GravityCompat.END)
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
@@ -187,12 +188,23 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun lockEndNavigationView() {
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
+    fun lockNavigationView(gravity: Int) {
+        if (gravity == GravityCompat.START) {
+            nav_view?.forceVisibility(View.GONE)
+        }
+        drawer_layout?.apply{
+            closeDrawer(gravity)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, gravity)
+        }
     }
 
-    fun unlockEndNavigationView() {
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
+    fun unlockNavigationView(gravity: Int) {
+        if (gravity == GravityCompat.START) {
+            nav_view?.forceVisibility(View.VISIBLE)
+        }
+        drawer_layout?.apply {
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, gravity)
+        }
     }
 
     fun isDrawerVisible(gravity: Int): Boolean {

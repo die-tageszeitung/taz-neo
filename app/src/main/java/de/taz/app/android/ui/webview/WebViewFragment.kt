@@ -38,6 +38,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 ) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
     AppWebViewClientCallBack {
 
+    override val enableSideBar: Boolean = true
+
     protected var displayable: DISPLAYABLE? = null
     abstract override val viewModel: VIEW_MODEL
 
