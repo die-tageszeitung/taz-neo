@@ -136,7 +136,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     fun skipToEnd() {
         val itemCount = coverflowAdapter?.itemCount ?: -1
         if (itemCount > 0) {
-            fragment_cover_flow_grid?.scrollToPosition(itemCount.minus(1))
+            fragment_cover_flow_grid?.apply {
+                scrollToPosition(itemCount.minus(1))
+                addOnScrollListener(onScrollListener)
+            }
         }
     }
 
