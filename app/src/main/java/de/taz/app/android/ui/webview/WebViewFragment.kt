@@ -27,7 +27,6 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
@@ -101,9 +100,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
                 viewModel.scrollPosition = scrollY
             }
-
-            // disable hardware acceleration as it may lead to white pages in the webview
-            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
         }
 
         savedInstanceState?.apply {
