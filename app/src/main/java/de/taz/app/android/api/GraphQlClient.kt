@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.GRAPHQL_ENDPOINT
-import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
@@ -31,7 +30,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 ) {
     private constructor(applicationContext: Context) : this(
         okHttpClient = OkHttp.getInstance(applicationContext).client,
-        url =  GRAPHQL_ENDPOINT,
+        url = GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext)
     )
 
@@ -67,38 +66,4 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 }
             }
         }
-
-}
-
-/**
- * set ACCEPT headers needed by backend
- */
-class AcceptHeaderInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        return chain.proceed(
-            chain.request().newBuilder().addHeader("Accept", "application/json, */*").build()
-        )
-    }
-}
-
-/**
- * set authentication header if authenticated
- */
-class AuthenticationHeaderInterceptor(private val authHelper: AuthHelper) : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val token = authHelper.token
-        val originalRequest = chain.request()
-        val request =
-            if (originalRequest.url.toString() == GRAPHQL_ENDPOINT && token.isNotEmpty()) {
-                chain.request().newBuilder().addHeader(
-                    TAZ_AUTH_HEADER,
-                    token
-                ).build()
-            } else {
-                originalRequest
-            }
-
-        return chain.proceed(request)
-    }
 }
