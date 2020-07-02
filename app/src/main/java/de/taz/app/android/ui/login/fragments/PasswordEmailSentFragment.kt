@@ -6,7 +6,7 @@ import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_login_forgot_password_email_sent.*
 
 
-class PasswordEmailSentFragment: BaseFragment(R.layout.fragment_login_forgot_password_email_sent) {
+class PasswordEmailSentFragment: LoginBaseFragment(R.layout.fragment_login_forgot_password_email_sent) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

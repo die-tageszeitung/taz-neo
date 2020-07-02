@@ -11,7 +11,7 @@ import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
 import de.taz.app.android.ui.login.LoginViewModel
 
 
-abstract class BaseFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
+abstract class LoginBaseFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
     protected val viewModel
         get() = activityViewModels<LoginViewModel>().value
 

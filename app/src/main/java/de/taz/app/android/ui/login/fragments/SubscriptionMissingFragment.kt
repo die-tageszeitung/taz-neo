@@ -6,7 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import kotlinx.android.synthetic.main.fragment_login_missing_subscription.*
 
-class SubscriptionMissingFragment : BaseFragment(R.layout.fragment_login_missing_subscription) {
+class SubscriptionMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_subscription) {
 
     private var invalidId: Boolean = false
 
