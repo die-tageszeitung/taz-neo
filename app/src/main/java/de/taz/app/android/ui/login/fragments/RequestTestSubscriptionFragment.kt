@@ -8,7 +8,7 @@ import de.taz.app.android.monkey.markRequired
 import kotlinx.android.synthetic.main.fragment_login_request_test_subscription.*
 
 class RequestTestSubscriptionFragment :
-    BaseFragment(R.layout.fragment_login_request_test_subscription) {
+    LoginBaseFragment(R.layout.fragment_login_request_test_subscription) {
 
     private var invalidMail: Boolean = false
 

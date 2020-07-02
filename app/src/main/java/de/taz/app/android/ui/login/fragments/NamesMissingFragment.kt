@@ -6,7 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.monkey.markRequired
 import kotlinx.android.synthetic.main.fragment_login_missing_names.*
 
-class NamesMissingFragment : BaseFragment(R.layout.fragment_login_missing_names) {
+class NamesMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_names) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

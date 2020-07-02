@@ -6,7 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_login_confirm_email.*
 
-class RegistrationSuccessfulFragment: BaseFragment(R.layout.fragment_login_registration_successful) {
+class RegistrationSuccessfulFragment: LoginBaseFragment(R.layout.fragment_login_registration_successful) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
