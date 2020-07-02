@@ -9,7 +9,7 @@ import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
-class CredentialsMissingFragment : BaseFragment(R.layout.fragment_login_missing_credentials) {
+class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_credentials) {
 
     private var failed: Boolean = false
     private var registration: Boolean = true
