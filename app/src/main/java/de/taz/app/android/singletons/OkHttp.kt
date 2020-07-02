@@ -20,7 +20,6 @@ class OkHttp private constructor(applicationContext: Context) : ViewModel() {
     val client: OkHttpClient
 
     init {
-
         val builder = OkHttpClient
             .Builder()
             .addInterceptor(AcceptHeaderInterceptor())
@@ -44,7 +43,6 @@ class OkHttp private constructor(applicationContext: Context) : ViewModel() {
         }
 
         client = builder.build()
-
     }
 
 }
