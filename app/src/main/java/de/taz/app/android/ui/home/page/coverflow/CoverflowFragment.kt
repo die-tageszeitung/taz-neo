@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -215,7 +216,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     coverflowAdapter?.getItem(position)?.let {
                         setDrawerIssue(it)
                         // if drawer is visible update UI
-                        if (getMainView()?.isDrawerVisible(Gravity.START) == true) {
+                        if (getMainView()?.isDrawerVisible(GravityCompat.START) == true) {
                             changeDrawerIssue()
                         }
                     }

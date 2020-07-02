@@ -16,4 +16,11 @@ class NavigationView @JvmOverloads constructor(
         super.setVisibility(View.VISIBLE)
     }
 
+    /**
+     * use this function to set the visibilty
+     */
+    fun forceVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+    }
+
 }
