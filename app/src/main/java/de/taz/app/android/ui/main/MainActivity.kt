@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
@@ -233,8 +234,19 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showHome(skipToActualIssue: Boolean = false) {
-        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        if (skipToActualIssue) showMainFragment(HomeFragment())
+        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        if (skipToActualIssue) {
+            val homeFragment =
+                supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+            val coverFlowFragment =
+                homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
+            runOnUiThread {
+                this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
+                    currentItem -= 1
+                }
+                coverFlowFragment?.skipToEnd()
+            }
+        }
     }
 
     fun showToast(stringId: Int) {
