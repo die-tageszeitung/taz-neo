@@ -5,10 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
-    android:layout_marginTop="@dimen/fragment_header_section_margin_top"
     android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
     android:paddingBottom="@dimen/fragment_header_section_margin_bottom"
     app:layout_constraintTop_toTopOf="parent">
+
+    <ImageView
+        android:id="@+id/dotted_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rotation="180"
+        android:layout_marginTop="@dimen/fragment_header_dotted_line_margin_top"
+        android:src="@drawable/ic_dotted_line"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textColor"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/section"
@@ -18,26 +28,16 @@
         android:layout_marginTop="@dimen/fragment_header_webview_margin_top"
         android:maxLines="1"
         android:gravity="bottom|end"
+        android:translationY="@dimen/fragment_header_section_title_y_translation"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/dotted_line"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:rotation="180"
-        android:translationY="@dimen/fragment_header_section_dotted_line_y_translation"
-        android:src="@drawable/ic_dotted_line"
-        app:layout_constraintTop_toBottomOf="@id/section"
-        app:tint="@color/textColor"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintBottom_toTopOf="@+id/dotted_line" />
 
     <TextView
         android:id="@+id/issue_date"
         style="@style/TextAppearance.Header.Date"
         android:layout_width="wrap_content"
         android:layout_height="16dp"
-        android:translationY="@dimen/fragment_header_section_dotted_line_y_translation"
+        android:translationY="@dimen/fragment_header_issue_date_y_translation"
         android:layout_marginBottom="@dimen/fragment_header_date_margin_bottom"
         android:textAlignment="viewEnd"
         app:layout_constraintRight_toRightOf="parent"

@@ -198,8 +198,8 @@ abstract class BaseMainFragment (
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         if(enableSideBar) {
             getMainView()?.unlockNavigationView(GravityCompat.START)
         } else {

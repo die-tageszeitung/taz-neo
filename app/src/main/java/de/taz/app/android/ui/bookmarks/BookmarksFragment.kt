@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -51,6 +52,14 @@ class BookmarksFragment :
         viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
             recycleAdapter?.setData((bookmarks ?: emptyList()).toMutableList())
         })
+        getMainView()?.apply {
+            navButtonBitmap?.let {
+                findViewById<ImageView>(R.id.fragment_header_logo).apply {
+                    setImageBitmap(it)
+                    imageAlpha = (navButtonAlpha).toInt()
+                }
+            }
+        }
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(

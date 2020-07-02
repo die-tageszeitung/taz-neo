@@ -14,6 +14,8 @@ const val MAX_TEST_SIZE = 200
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel>(R.layout.fragment_bottom_sheet_text_size) {
 
+    override val enableSideBar: Boolean = true
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

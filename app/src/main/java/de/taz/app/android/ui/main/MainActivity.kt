@@ -299,6 +299,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     private var navButton: Image? = null
+    var navButtonBitmap: Bitmap? = null
+    var navButtonAlpha = 255f
+
     private var defaultNavButton: Image? = null
     fun setDrawerNavButton(navButton: Image? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -357,7 +360,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     ) * scalingFactor).toInt(),
                     false
                 )
-
+                this.navButtonBitmap = scaledBitmap
+                this.navButtonAlpha = navButton.alpha * 255
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
                     setImageBitmap(scaledBitmap)
                     imageAlpha = (navButton.alpha * 255).toInt()
