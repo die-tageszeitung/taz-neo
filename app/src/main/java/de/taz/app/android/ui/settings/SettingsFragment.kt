@@ -30,19 +30,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private var storedIssueNumber: String? = null
 
+    override val enableSideBar: Boolean = true
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         view.apply {
-            getMainView()?.apply {
-                navButtonBitmap?.let {
-                    findViewById<ImageView>(R.id.fragment_header_logo).apply {
-                        setImageBitmap(it)
-                        imageAlpha = (navButtonAlpha * 255).toInt()
-                    }
-                }
-            }
-
             findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).toLowerCase(
                     Locale.GERMAN

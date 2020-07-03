@@ -22,6 +22,8 @@ import java.util.*
 class BookmarksFragment :
     BaseViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
 
+    override val enableSideBar: Boolean = true
+
     private var recycleAdapter: BookmarksAdapter? = null
 
     private var articleRepository: ArticleRepository? = null
@@ -52,14 +54,6 @@ class BookmarksFragment :
         viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
             recycleAdapter?.setData((bookmarks ?: emptyList()).toMutableList())
         })
-        getMainView()?.apply {
-            navButtonBitmap?.let {
-                findViewById<ImageView>(R.id.fragment_header_logo).apply {
-                    setImageBitmap(it)
-                    imageAlpha = (navButtonAlpha * 255).toInt()
-                }
-            }
-        }
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
