@@ -8,9 +8,11 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.OkHttp
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
