@@ -61,7 +61,7 @@
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
-    <string name="fragment_bottom_sheet_issue_share">Moment teilen</string>
+    <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
 
     <string name="fragment_bookmarks_title">Leseliste</string>
