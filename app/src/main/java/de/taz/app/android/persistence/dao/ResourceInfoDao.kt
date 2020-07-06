@@ -11,6 +11,9 @@ abstract class ResourceInfoDao: BaseDao<ResourceInfoStub>() {
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
     abstract fun get(): ResourceInfoStub
 
+    @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
+    abstract fun getLiveData(): LiveData<ResourceInfoStub?>
+
     @Query("SELECT * FROM ResourceInfo WHERE resourceVersion NOT IN (SELECT resourceVersion from ResourceInfo ORDER BY resourceVersion DESC LIMIT 1)")
     abstract fun getAllButNewest(): List<ResourceInfoStub>
 

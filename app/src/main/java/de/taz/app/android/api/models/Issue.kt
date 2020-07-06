@@ -66,8 +66,12 @@ data class Issue(
         return this
     }
 
-    override fun isDownloadedLiveData(applicatonContext: Context?): LiveData<Boolean> {
-        return IssueRepository.getInstance(applicatonContext).isDownloadedLiveData(this)
+    override fun getLiveData(applicationContext: Context?): LiveData<Issue?> {
+        return IssueRepository.getInstance(applicationContext).getIssueLiveData(this.feedName, this.date, this.status)
+    }
+
+    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
+        return IssueRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
     fun getArticleList(): List<Article> {
