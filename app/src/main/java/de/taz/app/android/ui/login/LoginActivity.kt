@@ -13,6 +13,7 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -297,6 +298,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val data = Intent()
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
+                DownloadService.getInstance(applicationContext).cancelDownloads()
                 downloadLatestIssueMoments()
                 deletePublicIssues()
 
