@@ -42,6 +42,10 @@ data class Page (
         return PageRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
+    override fun getLiveData(applicationContext: Context?): LiveData<Page?> {
+        return PageRepository.getInstance(applicationContext).getLiveData(pagePdf.name)
+    }
+
 }
 
 @JsonClass(generateAdapter = false)

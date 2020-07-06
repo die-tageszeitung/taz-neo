@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.serialization.Serializable
@@ -50,6 +51,10 @@ data class FileEntry(
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
         return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this)
+    }
+
+    override fun getLiveData(applicationContext: Context?): LiveData<FileEntry?> {
+        return FileEntryRepository.getInstance(applicationContext).getLiveData(name)
     }
 
 }

@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -58,6 +59,12 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
         return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().get())
+    }
+
+    fun getLiveData(): LiveData<ResourceInfo?> {
+        return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
+            it?.let { resourceInfoStubToResourceInfo(it) }
+        }
     }
 
     fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {

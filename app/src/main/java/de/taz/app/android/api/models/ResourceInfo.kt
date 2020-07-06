@@ -42,6 +42,10 @@ data class ResourceInfo(
         return RESOURCE_TAG
     }
 
+    override fun getLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
+        return ResourceInfoRepository.getInstance(applicationContext).getLiveData()
+    }
+
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
         return ResourceInfoRepository.getInstance(applicationContext)
             .isDownloadedLiveData(this.resourceVersion)

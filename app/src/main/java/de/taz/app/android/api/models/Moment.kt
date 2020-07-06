@@ -2,6 +2,7 @@ package de.taz.app.android.api.models
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.CacheableDownload
@@ -10,6 +11,8 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentRepository
+import io.sentry.Sentry
 
 data class Moment(
     val imageList: List<Image> = emptyList(),
@@ -87,6 +90,15 @@ data class Moment(
             DownloadRepository.getInstance(applicationContext)
                 .isDownloadedLiveData(getAllFileNames())
         )
+    }
+
+    override fun getLiveData(applicationContext: Context?): LiveData<Moment?> {
+        return this.getIssueOperations()?.let {
+            MomentRepository.getInstance(applicationContext).getLiveData(it)
+        } ?: run {
+            Sentry.capture("Could not get IssueOperations for Moment: $this")
+            MutableLiveData<Moment?>(null)
+        }
     }
 
 }
