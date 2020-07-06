@@ -294,8 +294,10 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * cancel all running download jobs
      */
-    fun cancelAllDownloads() {
-        downloadList.clear()
+    fun cancelDownloads(tag: String? = null) {
+        tag?.let {
+            downloadList.removeAll (downloadList.filter { it.tag == tag })
+        } ?: downloadList.clear()
     }
 
     /**
