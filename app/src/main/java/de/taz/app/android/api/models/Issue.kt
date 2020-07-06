@@ -93,7 +93,7 @@ data class Issue(
     }
 
     suspend fun delete() = withContext(Dispatchers.Default) {
-        DownloadService.getInstance().cancelAllDownloads()
+        DownloadService.getInstance().cancelDownloads(tag)
         moment.deleteFiles()
         deleteFiles()
         IssueRepository.getInstance().delete(this@Issue)
