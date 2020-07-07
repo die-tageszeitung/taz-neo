@@ -91,6 +91,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             override fun onDrawerClosed(drawerView: View) {
                 opened = false
+                drawer_logo.translationX = 0f
             }
 
             override fun onDrawerStateChanged(newState: Int) {
@@ -190,21 +191,21 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun lockNavigationView(gravity: Int) {
-        if (gravity == GravityCompat.START) {
-            nav_view?.forceVisibility(View.GONE)
-        }
         drawer_layout?.apply {
             closeDrawer(gravity)
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, gravity)
         }
+        if (gravity == GravityCompat.START) {
+            drawer_logo.visibility = View.GONE
+        }
     }
 
     fun unlockNavigationView(gravity: Int) {
-        if (gravity == GravityCompat.START) {
-            nav_view?.forceVisibility(View.VISIBLE)
-        }
         drawer_layout?.apply {
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, gravity)
+        }
+        if (gravity == GravityCompat.START) {
+            drawer_logo.visibility = View.VISIBLE
         }
     }
 
