@@ -27,12 +27,14 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val okHttpClient: OkHttpClient,
     private val url: String,
-    private val queryService: QueryService
+    private val queryService: QueryService,
+    private val authHelper: AuthHelper
 ) {
     private constructor(applicationContext: Context) : this(
         okHttpClient = OkHttp.getInstance(applicationContext).client,
-        url =  GRAPHQL_ENDPOINT,
-        queryService = QueryService.getInstance(applicationContext)
+        url = GRAPHQL_ENDPOINT,
+        queryService = QueryService.getInstance(applicationContext),
+        authHelper = AuthHelper.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
@@ -50,11 +52,15 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 variables?.let { query.variables = variables }
 
                 val body = query.toJson().toRequestBody("application/json".toMediaType())
-                val response = awaitCallback(
-                    okHttpClient.newCall(
-                        Request.Builder().url(url).post(body).build()
-                    )::enqueue
-                )
+
+                // build request
+                val requestBuilder = Request.Builder()
+                if (authHelper.token.isNotEmpty()) {
+                    requestBuilder.addHeader(TAZ_AUTH_HEADER, authHelper.token)
+                }
+                requestBuilder.addHeader("Accept", "application/json, */*").url(url).post(body)
+
+                val response = awaitCallback(okHttpClient.newCall(requestBuilder.build())::enqueue)
                 response.body?.source()?.let { source ->
                     val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)
                     source.close()
@@ -67,38 +73,4 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                 }
             }
         }
-
-}
-
-/**
- * set ACCEPT headers needed by backend
- */
-class AcceptHeaderInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        return chain.proceed(
-            chain.request().newBuilder().addHeader("Accept", "application/json, */*").build()
-        )
-    }
-}
-
-/**
- * set authentication header if authenticated
- */
-class AuthenticationHeaderInterceptor(private val authHelper: AuthHelper) : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val token = authHelper.token
-        val originalRequest = chain.request()
-        val request =
-            if (originalRequest.url.toString() == GRAPHQL_ENDPOINT && token.isNotEmpty()) {
-                chain.request().newBuilder().addHeader(
-                    TAZ_AUTH_HEADER,
-                    token
-                ).build()
-            } else {
-                originalRequest
-            }
-
-        return chain.proceed(request)
-    }
 }
