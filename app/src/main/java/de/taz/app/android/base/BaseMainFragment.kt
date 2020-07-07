@@ -1,7 +1,9 @@
 package de.taz.app.android.base
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -9,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.MenuRes
+import androidx.core.view.GravityCompat
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -27,6 +30,8 @@ abstract class BaseMainFragment (
 
     @MenuRes
     open val bottomNavigationMenuRes: Int? = null
+
+    open val enableSideBar = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -190,6 +195,15 @@ abstract class BaseMainFragment (
                 val view = activity?.currentFocus ?: View(activity)
                 hideSoftInputFromWindow(view.windowToken, 0)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(enableSideBar) {
+            getMainView()?.unlockNavigationView(GravityCompat.START)
+        } else {
+            getMainView()?.lockNavigationView(GravityCompat.START)
         }
     }
 

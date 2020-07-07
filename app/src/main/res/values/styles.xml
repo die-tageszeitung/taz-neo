@@ -108,7 +108,7 @@
         <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
         <item name="android:maxLines">1</item>
-        <item name="android:includeFontPadding">false</item>
+        <item name="android:includeFontPadding">true</item>
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">

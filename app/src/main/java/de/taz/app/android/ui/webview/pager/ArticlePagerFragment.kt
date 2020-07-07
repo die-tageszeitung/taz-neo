@@ -1,13 +1,9 @@
 package de.taz.app.android.ui.webview.pager
 
-import android.annotation.TargetApi
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -17,10 +13,8 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.*
-import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -29,7 +23,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val ARTICLE_NAME = "articleName"
 
@@ -38,6 +31,7 @@ class ArticlePagerFragment :
     BackFragment {
 
     val log by Log
+    override val enableSideBar: Boolean = true
 
     private var articlePagerAdapter: ArticlePagerAdapter? = null
 

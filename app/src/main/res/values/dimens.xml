@@ -58,6 +58,7 @@
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
     <dimen name="fragment_header_default_margin_bottom">20dp</dimen>
     <dimen name="fragment_header_default_title_y_translation">5dp</dimen>
+    <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
     <dimen name="fragment_header_article_margin_top">14dp</dimen>
     <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
@@ -68,11 +69,10 @@
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_section_text_size">20dp</dimen>
     <dimen name="fragment_header_section_title_height">40dp</dimen>
-    <dimen name="fragment_header_section_dotted_line_y_translation">-4dp</dimen>
+    <dimen name="fragment_header_section_title_y_translation">4dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
+    <dimen name="fragment_header_issue_date_y_translation">-4dp</dimen>
     <dimen name="fragment_header_webview_margin_top">30dp</dimen>
-    <dimen name="fragment_header_webview_article_margin_top">40dp</dimen>
-    <dimen name="fragment_header_settings_margin_bottom">38dp</dimen>
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_header_height">150dp</dimen>

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -68,14 +69,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
-        lockEndNavigationView()
+        lockNavigationView(GravityCompat.END)
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float)  {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 (drawerView.parent as? View)?.let { parentView ->
-                    val drawerWidth = drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    val drawerWidth =
+                        drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
                         drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
                     }
@@ -187,12 +189,23 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun lockEndNavigationView() {
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END)
+    fun lockNavigationView(gravity: Int) {
+        if (gravity == GravityCompat.START) {
+            nav_view?.forceVisibility(View.GONE)
+        }
+        drawer_layout?.apply {
+            closeDrawer(gravity)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, gravity)
+        }
     }
 
-    fun unlockEndNavigationView() {
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
+    fun unlockNavigationView(gravity: Int) {
+        if (gravity == GravityCompat.START) {
+            nav_view?.forceVisibility(View.VISIBLE)
+        }
+        drawer_layout?.apply {
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, gravity)
+        }
     }
 
     fun isDrawerVisible(gravity: Int): Boolean {
@@ -287,6 +300,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     private var navButton: Image? = null
+    var navButtonBitmap: Bitmap? = null
+    var navButtonAlpha = 255f
+
     private var defaultNavButton: Image? = null
     fun setDrawerNavButton(navButton: Image? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -345,11 +361,16 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     ) * scalingFactor).toInt(),
                     false
                 )
-
+                this.navButtonBitmap = scaledBitmap
+                this.navButtonAlpha = navButton.alpha
                 findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    setImageBitmap(scaledBitmap)
+                    background = BitmapDrawable(resources, scaledBitmap)
+                    alpha = navButton.alpha
                     imageAlpha = (navButton.alpha * 255).toInt()
-                    drawer_layout.updateDrawerLogoBoundingBox(scaledBitmap.width, scaledBitmap.height)
+                    drawer_layout.updateDrawerLogoBoundingBox(
+                        scaledBitmap.width,
+                        scaledBitmap.height
+                    )
                 }
             }
         }

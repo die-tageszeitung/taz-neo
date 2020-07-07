@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +21,8 @@ import java.util.*
 
 class BookmarksFragment :
     BaseViewModelFragment<BookmarksViewModel>(R.layout.fragment_bookmarks) {
+
+    override val enableSideBar: Boolean = true
 
     private var recycleAdapter: BookmarksAdapter? = null
 
