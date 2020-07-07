@@ -4,23 +4,31 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -70,6 +78,20 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
             sectionKey = getString(SECTION_KEY)
             viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
+        viewModel.issueOperationsLiveData.observe(this, object : Observer<IssueOperations?> {
+            override fun onChanged(t: IssueOperations?) {
+                t?.let {
+                    viewModel.issueOperationsLiveData.removeObserver(this)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        IssueRepository.getInstance(context?.applicationContext)
+                            .getIssue(t)?.let {
+                                DownloadService.getInstance(context?.applicationContext)
+                                    .download(it)
+                            }
+                    }
+                }
+            }
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
