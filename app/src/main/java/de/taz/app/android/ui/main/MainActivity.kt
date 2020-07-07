@@ -144,12 +144,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         setCoverFlowItem(issueStub)
         changeDrawerIssue()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            DownloadService.getInstance(applicationContext).download(
-                IssueRepository.getInstance(applicationContext).getIssue(issueStub)
-            )
-        }
-
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
             showMainFragment(fragment)
