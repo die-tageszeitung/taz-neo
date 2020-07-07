@@ -140,6 +140,7 @@ class SplashActivity : BaseActivity() {
         val issues = apiService.getLastIssuesAsync(number).await()
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")
+        issues.forEach { it.moment.download(applicationContext) }
     }
 
 
