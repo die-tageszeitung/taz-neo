@@ -70,20 +70,22 @@ data class ResourceInfo(
                         applicationContext
                     )
                 ) {
-                    val fromServerResourceListNames = fromServer.resourceList.map { it.name }
-                    // delete unused files
-                    local?.resourceList?.filter { local ->
-                        local.name !in fromServerResourceListNames
-                    }?.forEach {
-                        log.info("deleting ${it.name}")
-                        it.deleteFile()
-                    }
+                    if (local != null) {
+                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
+                        // delete unused files
+                        local.resourceList.filter { local ->
+                            local.name !in fromServerResourceListNames
+                        }.forEach {
+                            log.info("deleting ${it.name}")
+                            it.deleteFile()
+                        }
 
-                    // delete modified files
-                    fromServer.resourceList.forEach { newFileEntry ->
-                        fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                            if (oldFileEntry != newFileEntry) {
-                                oldFileEntry.deleteFile()
+                        // delete modified files
+                        fromServer.resourceList.forEach { newFileEntry ->
+                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                                if (oldFileEntry != newFileEntry) {
+                                    oldFileEntry.deleteFile()
+                                }
                             }
                         }
                     }

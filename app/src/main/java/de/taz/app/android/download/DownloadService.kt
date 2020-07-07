@@ -107,7 +107,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                     override fun onChanged(t: Boolean?) {
                         if (t == true) {
                             CoroutineScope(Dispatchers.IO).launch {
-                                cacheableDownload.setDownloadStatus(DownloadStatus.done)
+                                issue?.setDownloadStatusIncludingChildren(DownloadStatus.done) ?: run {
+                                    cacheableDownload.setDownloadStatus(DownloadStatus.done)
+                                }
                             }
                             isDownloadedLiveData.removeObserver(this)
                             log.debug("downloaded ${cacheableDownload.javaClass.name}")
@@ -138,10 +140,13 @@ class DownloadService private constructor(val applicationContext: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isDownloadServerServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
-                    currentDownloads.incrementAndGet()
-                    getFromServer(download).invokeOnCompletion {
-                        currentDownloads.decrementAndGet()
-                        startDownloadsIfCapacity()
+                    downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
+                    if (!download.file.isDownloaded(applicationContext)) {
+                        currentDownloads.incrementAndGet()
+                        getFromServer(download).invokeOnCompletion {
+                            currentDownloads.decrementAndGet()
+                            startDownloadsIfCapacity()
+                        }
                     }
                 } ?: break
             }
@@ -290,7 +295,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     fun cancelDownloads(tag: String? = null) {
         tag?.let {
-            downloadList.removeAll (downloadList.filter { it.tag == tag })
+            downloadList.removeAll(downloadList.filter { it.tag == tag })
         } ?: downloadList.clear()
     }
 
