@@ -74,9 +74,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float)  {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 (drawerView.parent as? View)?.let { parentView ->
-                    val drawerWidth = drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    val drawerWidth =
+                        drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
                         drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
                     }
@@ -192,7 +193,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         if (gravity == GravityCompat.START) {
             nav_view?.forceVisibility(View.GONE)
         }
-        drawer_layout?.apply{
+        drawer_layout?.apply {
             closeDrawer(gravity)
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, gravity)
         }
@@ -346,7 +347,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
                 val file = fileHelper?.getFile(navButton)
                 val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
-                val scaledBitmap =  Bitmap.createScaledBitmap(
+                val scaledBitmap = Bitmap.createScaledBitmap(
                     bitmap,
                     (TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
@@ -366,7 +367,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     background = BitmapDrawable(resources, scaledBitmap)
                     alpha = navButton.alpha
                     imageAlpha = (navButton.alpha * 255).toInt()
-                    drawer_layout.updateDrawerLogoBoundingBox(scaledBitmap.width, scaledBitmap.height)
+                    drawer_layout.updateDrawerLogoBoundingBox(
+                        scaledBitmap.width,
+                        scaledBitmap.height
+                    )
                 }
             }
         }
