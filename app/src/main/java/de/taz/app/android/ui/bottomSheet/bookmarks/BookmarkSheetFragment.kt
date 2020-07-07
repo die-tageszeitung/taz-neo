@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 class BookmarkSheetFragment :
     BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
 
+    override val enableSideBar: Boolean = true
+
     private var articleRepository: ArticleRepository? = null
     private var articleFileName: String? = null
 

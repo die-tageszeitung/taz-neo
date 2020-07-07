@@ -31,6 +31,7 @@ const val SECTION_KEY = "sectionKey"
 class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     R.layout.fragment_webview_pager
 ) {
+    override val enableSideBar: Boolean = true
 
     private var sectionAdapter: SectionPagerAdapter? = null
 

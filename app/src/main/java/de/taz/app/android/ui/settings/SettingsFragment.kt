@@ -4,10 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Switch
-import android.widget.TextView
+import android.widget.*
 import androidx.core.text.HtmlCompat
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -23,6 +20,7 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
@@ -31,6 +29,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private val log by Log
 
     private var storedIssueNumber: String? = null
+
+    override val enableSideBar: Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

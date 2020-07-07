@@ -4,10 +4,12 @@ import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 class DrawerLayout @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyle: Int = 0
@@ -31,7 +33,7 @@ class DrawerLayout @JvmOverloads constructor(
      */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         ev?.let {
-            if (!isDrawerOpen(GravityCompat.START)) {
+            if (!isDrawerOpen(GravityCompat.START) && nav_view?.visibility == View.VISIBLE) {
                 if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
                     log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
                     openDrawer(GravityCompat.START)
