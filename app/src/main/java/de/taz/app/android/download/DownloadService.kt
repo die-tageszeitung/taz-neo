@@ -78,18 +78,22 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
     }
 
+    /**
+     * start download for cacheableDownload
+     * @param cacheableDownload - [CacheableDownload] to download
+     * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
+     *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
+     */
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
         CoroutineScope(Dispatchers.IO).launch {
             if (!cacheableDownload.isDownloaded(applicationContext)) {
-                // get AppInfo if not already there
-                if (appInfoRepository.get() == null) {
-                    AppInfo.update()
-                }
+                ensureAppInfo()
 
                 val issue = cacheableDownload as? Issue
                 var downloadId: String? = null
                 val start = System.currentTimeMillis()
 
+                // if we download an issue tell the server we start downloading it
                 issue?.let {
                     downloadId =
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
@@ -99,6 +103,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
                 cacheableDownload.setDownloadStatus(DownloadStatus.started)
 
+                // wait for [CacheableDownload]'s files to be downloaded
                 val isDownloadedLiveData = Transformations.distinctUntilChanged(
                     DownloadRepository.getInstance()
                         .isDownloadedLiveData(cacheableDownload.getAllFileNames())
@@ -107,6 +112,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     override fun onChanged(t: Boolean?) {
                         if (t == true) {
                             CoroutineScope(Dispatchers.IO).launch {
+                                // mark download as downloaded - if it is an issue including articles etc
                                 issue?.setDownloadStatusIncludingChildren(DownloadStatus.done) ?: run {
                                     cacheableDownload.setDownloadStatus(DownloadStatus.done)
                                 }
@@ -114,6 +120,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             isDownloadedLiveData.removeObserver(this)
                             log.debug("downloaded ${cacheableDownload.javaClass.name}")
 
+                            // notify server of completed download
                             downloadId?.let { downloadId ->
                                 val seconds =
                                     ((System.currentTimeMillis() - start) / 1000).toFloat()
@@ -130,23 +137,25 @@ class DownloadService private constructor(val applicationContext: Context) {
                 withContext(Dispatchers.Main) { isDownloadedLiveData.observeForever(observer) }
 
                 log.debug("starting download of ${cacheableDownload.javaClass.name}")
+                // create Downloads
                 addDownloadsToDownloadList(cacheableDownload, baseUrl)
             }
         }
 
 
+    /**
+     * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
+     * and the server is reachable
+     */
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isDownloadServerServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
-                    downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
-                    if (!download.file.isDownloaded(applicationContext)) {
-                        currentDownloads.incrementAndGet()
-                        getFromServer(download).invokeOnCompletion {
-                            currentDownloads.decrementAndGet()
-                            startDownloadsIfCapacity()
-                        }
+                    currentDownloads.incrementAndGet()
+                    getFromServer(download).invokeOnCompletion {
+                        currentDownloads.decrementAndGet()
+                        startDownloadsIfCapacity()
                     }
                 } ?: break
             }
@@ -160,9 +169,12 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
     }
 
+    /**
+     * call server to get response
+     */
     private fun getFromServer(
         download: Download,
-        @VisibleForTesting(otherwise = VisibleForTesting.NONE) waitForResponseHandling: Boolean = false
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
     ): Job =
         CoroutineScope(Dispatchers.IO).launch {
             val fileEntry = download.file
@@ -170,8 +182,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 // download only if not already downloaded or downloading
                 if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
                         DownloadStatus.done,
-                        DownloadStatus.started,
-                        DownloadStatus.takeOld
+                        DownloadStatus.started
                     )
                 ) {
                     log.debug("starting httpCall of ${fromDB.fileName}")
@@ -186,7 +197,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         log.debug("finished http call of ${fromDB.fileName}")
 
-                        handleResponse(response, download, waitForResponseHandling)
+                        handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
                         when (e) {
@@ -211,6 +222,9 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
+    /**
+     * save server response to file, calculate sha and compare
+     */
     private fun handleResponse(
         response: Response, download: Download,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
@@ -301,7 +315,9 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     /**
      * create downloads, add them to the downloadList and start downloading
-     * @param cacheableDownload to create Downloads from
+     * @param cacheableDownload [CacheableDownload] to create Downloads from
+     * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
+     *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
      */
     private suspend fun addDownloadsToDownloadList(
         cacheableDownload: CacheableDownload,
@@ -311,42 +327,47 @@ class DownloadService private constructor(val applicationContext: Context) {
         val tag = cacheableDownload.getDownloadTag()
         val issueOperations = cacheableDownload.getIssueOperations()
 
+        // create Downloads and save them in the database
         cacheableDownload.getAllFileNames().forEach {
             fileEntryRepository.get(it)?.let { fileEntry ->
-                val download: Download? = if (baseUrl != null && cacheableDownload is FileEntry) {
-                    createAndSaveDownload(baseUrl, fileEntry, tag)
-                } else {
-                    when (fileEntry.storageType) {
-                        StorageType.global -> {
-                            ensureAppInfo()
-                            appInfo?.globalBaseUrl?.let { globalBaseUrl ->
-                                createAndSaveDownload(globalBaseUrl, fileEntry, tag)
+                if (fileEntry.downloadedStatus != DownloadStatus.done) {
+                    val download: Download? =
+                        if (baseUrl != null && cacheableDownload is FileEntry) {
+                            createAndSaveDownload(baseUrl, fileEntry, tag)
+                        } else {
+                            when (fileEntry.storageType) {
+                                StorageType.global -> {
+                                    ensureAppInfo()
+                                    appInfo?.globalBaseUrl?.let { globalBaseUrl ->
+                                        createAndSaveDownload(globalBaseUrl, fileEntry, tag)
+                                    }
+                                }
+                                StorageType.resource -> {
+                                    ensureResourceInfo()
+                                    resourceInfo?.resourceBaseUrl?.let { resourceBaseUrl ->
+                                        createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
+                                    }
+                                }
+                                StorageType.issue -> {
+                                    issueOperations?.baseUrl?.let { baseUrl ->
+                                        createAndSaveDownload(baseUrl, fileEntry, tag)
+                                    }
+                                }
+                                StorageType.public ->
+                                    // TODO?
+                                    null
                             }
                         }
-                        StorageType.resource -> {
-                            ensureResourceInfo()
-                            resourceInfo?.resourceBaseUrl?.let { resourceBaseUrl ->
-                                createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
-                            }
+                    download?.let {
+                        log.debug("adding download ${download.fileName} to downloadList")
+                        // issues are not shown immediately - so download other downloads like articles first
+                        if (cacheableDownload is Issue) {
+                            appendToDownloadList(download)
+                        } else {
+                            prependToDownloadList(download)
                         }
-                        StorageType.issue -> {
-                            issueOperations?.baseUrl?.let { baseUrl ->
-                                createAndSaveDownload(baseUrl, fileEntry, tag)
-                            }
-                        }
-                        StorageType.public ->
-                            // TODO?
-                            null
-                    }
+                    } ?: log.debug("creating download returned null")
                 }
-                download?.let {
-                    log.debug("adding download ${it.fileName} to downloadList")
-                    if (cacheableDownload is Issue) {
-                        appendToDownloadList(it)
-                    } else {
-                        prependToDownloadList(it)
-                    }
-                } ?: log.debug("creating download returned null")
             }
         }
     }
@@ -372,6 +393,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun prependToDownloadList(download: Download) {
+        downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
         if (downloadList.offerFirst(download)) {
             startDownloadsIfCapacity()
         }
