@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
     android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+    android:paddingBottom="@dimen/fragment_header_article_margin_bottom"
     android:background="@color/backgroundColor"
     app:layout_constraintTop_toTopOf="parent">
 
