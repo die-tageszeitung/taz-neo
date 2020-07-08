@@ -97,7 +97,7 @@ data class ResourceInfo(
                     resourceInfoRepository.save(fromServer)
 
                     // ensure resources are downloaded
-                    DownloadService.getInstance().download(fromServer)
+                    DownloadService.getInstance(applicationContext).download(fromServer)
                     local?.let { log.debug("Initialized ResourceInfo") }
                         ?: log.debug("Updated ResourceInfo")
                 }

@@ -47,7 +47,6 @@ abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivit
             FeedHelper.createInstance(it)
             FileHelper.createInstance(it)
             NotificationHelper.createInstance(it)
-            OkHttp.createInstance(it)
             SubscriptionPollHelper.createInstance(it)
             ToastHelper.createInstance(it)
             ToDownloadIssueHelper.createInstance(it)
