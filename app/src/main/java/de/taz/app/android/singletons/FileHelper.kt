@@ -61,14 +61,15 @@ class FileHelper private constructor(private val applicationContext: Context) {
      * writes data from [source] to file of [fileEntry] and return sha265
      */
     fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
-        val file = getFile(fileEntry).sink()
-        val hashingSink = HashingSink.sha256(file)
+        val fileSink = getFile(fileEntry).sink()
+        val hashingSink = HashingSink.sha256(fileSink)
 
         hashingSink.buffer().apply {
             writeAll(source)
             close()
         }
-        file.close()
+        fileSink.flush()
+        fileSink.close()
         source.close()
         return hashingSink.hash.hex()
     }
