@@ -62,7 +62,7 @@ class BookmarksFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home ->
-                showHome(skipToActualIssue = true)
+                showHome(skipToNewestIssue = true)
         }
     }
 
