@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.ApiService
@@ -28,7 +29,11 @@ data class AppInfo (
     companion object {
         private val log by Log
 
-        suspend fun update(): AppInfo? = withContext(Dispatchers.IO) {
+        suspend fun get(applicationContext: Context): AppInfo? {
+            return AppInfoRepository.getInstance(applicationContext).get() ?: update(applicationContext)
+        }
+
+        suspend fun update(applicationContext: Context): AppInfo? = withContext(Dispatchers.IO) {
             try {
                 ApiService.getInstance().getAppInfoAsync().await()?.let {
                     AppInfoRepository.getInstance().save(it)

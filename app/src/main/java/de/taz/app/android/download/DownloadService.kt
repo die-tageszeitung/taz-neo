@@ -392,15 +392,14 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private suspend fun ensureAppInfo() {
         if (appInfo == null) {
-            AppInfo.update()
+            AppInfo.get(applicationContext)
             appInfo = appInfoRepository.get()
         }
     }
 
     private suspend fun ensureResourceInfo() {
         if (resourceInfo == null) {
-            ResourceInfo.update(applicationContext)
-            resourceInfo = resourceInfoRepository.get()
+            resourceInfo = ResourceInfo.get(applicationContext)
         }
     }
 
