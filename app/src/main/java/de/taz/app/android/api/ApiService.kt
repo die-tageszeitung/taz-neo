@@ -50,7 +50,7 @@ class ApiService private constructor(applicationContext: Context) {
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerServerReachableLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { canReach ->
                 if (canReach) {
                     try {
@@ -490,13 +490,13 @@ class ApiService private constructor(applicationContext: Context) {
             return block()
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
-            serverConnectionHelper.isDownloadServerServerReachable = false
+            serverConnectionHelper.isServerReachable = false
         } catch (ce: ConnectException) {
             log.debug("ConnectException ${ce.localizedMessage}")
-            serverConnectionHelper.isDownloadServerServerReachable = false
+            serverConnectionHelper.isServerReachable = false
         } catch (ste: SocketTimeoutException) {
             log.debug("SocketTimeoutException ${ste.localizedMessage}")
-            serverConnectionHelper.isDownloadServerServerReachable = false
+            serverConnectionHelper.isServerReachable = false
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
             Sentry.capture(ApiServiceException.WrongDataException())
@@ -511,7 +511,7 @@ class ApiService private constructor(applicationContext: Context) {
 
     private suspend
     fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
-        if (serverConnectionHelper.isDownloadServerServerReachable) {
+        if (serverConnectionHelper.isServerReachable) {
             continuation.resume(Unit)
             log.debug("ApiCall $tag waiting")
         } else {
