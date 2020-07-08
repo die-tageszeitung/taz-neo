@@ -250,7 +250,6 @@ class MomentView @JvmOverloads constructor(
             } else {
                 log.error("imgFile of $moment does not exist")
                 CoroutineScope(Dispatchers.IO).launch {
-                    moment.deleteFiles()
                     moment.download(context?.applicationContext)
                 }
                 null
