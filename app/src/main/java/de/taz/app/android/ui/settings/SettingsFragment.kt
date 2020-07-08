@@ -221,7 +221,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            showHome()
+            showHome(skipToNewestIssue = true)
         }
     }
 

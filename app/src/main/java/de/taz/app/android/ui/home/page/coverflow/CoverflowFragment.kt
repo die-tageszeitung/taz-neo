@@ -94,10 +94,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onResume() {
+        fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         skipToCurrentItem()
-        fragment_cover_flow_grid.apply {
-            addOnScrollListener(onScrollListener)
-        }
         applyZoomPageTransformer()
         getMainView()?.apply {
             setDrawerNavButton()
@@ -135,17 +133,24 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     fun skipToEnd() {
-        val itemCount = coverflowAdapter?.itemCount ?: -1
-        if (itemCount > 0) {
-            fragment_cover_flow_grid?.scrollToPosition(itemCount.minus(1))
+        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+            val itemCount = coverflowAdapter?.itemCount ?: -1
+            if (itemCount > 0) {
+                fragment_cover_flow_grid.layoutManager?.scrollToPosition(itemCount -1)
+            }
         }
     }
 
     fun skipToCurrentItem() {
         runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
             val position = coverflowAdapter?.getPosition(feed, date, status) ?: -1
-            if (position >= 0) {
-                snapHelper.scrollToPosition(position)
+            val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
+            layoutManager?.apply {
+                val currentPosition: Int =
+                    (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
+                if (position >= 0 && position != currentPosition) {
+                    fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+                }
             }
         }
     }
