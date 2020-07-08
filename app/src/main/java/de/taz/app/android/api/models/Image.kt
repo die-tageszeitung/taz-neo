@@ -51,8 +51,8 @@ data class Image(
     )
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        FileEntryRepository.getInstance().update(FileEntry(
-            this).copy(downloadedStatus = downloadedStatus)
+        FileEntryRepository.getInstance().update(
+            FileEntry(this).copy(downloadedStatus = downloadedStatus)
         )
     }
 

@@ -83,7 +83,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        this.setDownloadStatus(DownloadStatus.pending)
+        this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -105,6 +105,10 @@ data class Issue(
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
+    }
+
+    fun setDownloadStatusIncludingChildren(downloadStatus: DownloadStatus) {
+        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
         sectionList.forEach { section ->
             section.setDownloadStatus(downloadStatus)
             section.articleList.forEach { article ->
@@ -115,7 +119,6 @@ data class Issue(
         pageList.forEach { it.setDownloadStatus(downloadStatus) }
         moment.setDownloadStatus(downloadStatus)
     }
-
 }
 
 @JsonClass(generateAdapter = false)
