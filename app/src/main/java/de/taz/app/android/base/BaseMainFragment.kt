@@ -1,9 +1,7 @@
 package de.taz.app.android.base
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
-import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -189,6 +187,7 @@ abstract class BaseMainFragment (
     fun showIssue(issueStub: IssueStub) {
         (activity as? MainActivity)?.showIssue(issueStub)
     }
+
     protected fun hideKeyBoard() {
         activity?.apply {
             (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
