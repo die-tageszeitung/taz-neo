@@ -60,7 +60,13 @@ data class ResourceInfo(
 
         private val log by Log
 
-        suspend fun update(applicationContext: Context?) = withContext(Dispatchers.IO) {
+        suspend fun get(applicationContext: Context?): ResourceInfo? {
+            return ResourceInfoRepository.getInstance(applicationContext).get() ?: update(
+                applicationContext
+            )
+        }
+
+        suspend fun update(applicationContext: Context?): ResourceInfo? = withContext(Dispatchers.IO) {
             log.info("ResourceInfo.update called")
             val apiService = ApiService.getInstance(applicationContext)
             val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
@@ -102,6 +108,7 @@ data class ResourceInfo(
                         ?: log.debug("Updated ResourceInfo")
                 }
                 resourceInfoRepository.deleteAllButNewest()
+                fromServer
             }
         }
 
