@@ -9,13 +9,12 @@ import android.view.View
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.observeDistinct
@@ -38,7 +37,7 @@ class MomentView @JvmOverloads constructor(
 
     private val log by Log
 
-    private var issueOperations: IssueOperations? = null
+    private var issueStubLiveData: LiveData<IssueStub?>? = null
     private var dateFormat: DateFormat? = null
     private var lifecycleOwner: LifecycleOwner? = context as? LifecycleOwner
 
@@ -82,7 +81,7 @@ class MomentView @JvmOverloads constructor(
         displayJob?.cancel()
         displayJob = null
 
-        issueOperations = null
+        issueStubLiveData = null
         dateFormat = null
         clearDate()
         hideBitmap()
@@ -94,12 +93,14 @@ class MomentView @JvmOverloads constructor(
         this.clear()
 
         this.dateFormat = dateFormat
-        this.issueOperations = issueOperations
+        this.issueStubLiveData = issueRepository.getStubLiveData(
+            issueOperations.feedName, issueOperations.date, issueOperations.status
+        )
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
             launch {
                 var feed: Feed? = null
-                withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName)}
+                withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName) }
                 setDimension(feed)
             }
 
@@ -135,17 +136,14 @@ class MomentView @JvmOverloads constructor(
 
     private fun hideOrShowDownloadIcon() {
         if (!shouldNotShowDownloadIcon) {
-            issueOperations?.let { issueOperations ->
-                val issueStubLiveData = issueRepository.getStubLiveData(
-                    issueOperations.feedName, issueOperations.date, issueOperations.status
-                )
-
-                issueStubLiveData.observeDistinct(lifecycleOwner!!) { issueStub ->
-                    if (issueStub?.downloadedStatus == DownloadStatus.done) {
+            issueStubLiveData?.observeDistinct(lifecycleOwner!!) { issueStub ->
+                when (issueStub?.downloadedStatus) {
+                    DownloadStatus.done ->
                         hideDownloadIcon()
-                    } else {
+                    DownloadStatus.started ->
+                        showLoadingIcon()
+                    else ->
                         showDownloadIcon()
-                    }
                 }
             }
         }
@@ -215,14 +213,13 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showDownloadIcon() {
-        fragment_moment_is_downloaded?.apply {
-            visibility = View.VISIBLE
-            setOnClickListener {
-                lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
-                    issueOperations?.let {
-                        issueRepository.getIssue(it)?.let { issue ->
-                            downloadService.download(issue)
-                        }
+        fragment_moment_is_downloaded?.visibility = View.VISIBLE
+        view_moment_download_icon_wrapper?.setOnClickListener {
+            showLoadingIcon()
+            lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
+                issueStubLiveData?.value?.let {
+                    issueRepository.getIssue(it).let { issue ->
+                        downloadService.download(issue)
                     }
                 }
             }
@@ -231,7 +228,22 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun hideDownloadIcon() {
+        val wasDownloading = fragment_moment_is_downloading?.visibility == View.VISIBLE
+
+        fragment_moment_is_downloading?.visibility = View.GONE
         fragment_moment_is_downloaded?.visibility = View.GONE
+
+        if(wasDownloading) {
+            fragment_moment_is_download_finished?.visibility = View.GONE
+            fragment_moment_is_download_finished.alpha = 1f
+            fragment_moment_is_download_finished?.visibility = View.VISIBLE
+            fragment_moment_is_download_finished?.animate()?.alpha(0f)?.duration = 1000L
+        }
+    }
+
+    private fun showLoadingIcon() {
+        fragment_moment_is_downloaded?.visibility = View.GONE
+        fragment_moment_is_downloading?.visibility = View.VISIBLE
     }
 
     private suspend fun setDimension(feed: Feed?) = withContext(Dispatchers.Main) {

@@ -45,16 +45,51 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image" />
 
-    <ImageView
-        android:id="@+id/fragment_moment_is_downloaded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/settings_download_issue"
-        android:src="@drawable/ic_download_cloud"
-        android:visibility="gone"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/view_moment_download_icon_wrapper"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="@+id/fragment_moment_image"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image">
 
+        <ImageView
+            android:id="@+id/fragment_moment_is_downloaded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/settings_download_issue"
+            android:src="@drawable/ic_file_download"
+            android:tint="@color/lightGrey"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/fragment_moment_is_download_finished"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/settings_download_issue"
+            android:src="@drawable/ic_done"
+            android:tint="@color/lightGrey"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/fragment_moment_is_downloading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
