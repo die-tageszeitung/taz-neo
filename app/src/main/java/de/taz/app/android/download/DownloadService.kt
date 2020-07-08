@@ -21,6 +21,7 @@ import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.Sentry
+import io.sentry.connection.ConnectionException
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
@@ -266,34 +267,40 @@ class DownloadService private constructor(val applicationContext: Context) {
                             downloadRepository.setStatus(download, DownloadStatus.aborted)
                         }
                     }
-                } catch (ssle: SSLException) {
+                } catch (se: SSLException) {
                     log.debug("aborted download of ${download.fileName} - SSLException")
-                    fileEntry.setDownloadStatus(DownloadStatus.aborted)
-                    downloadRepository.setStatus(download, DownloadStatus.aborted)
-                    if (!doNotRestartDownload) {
-                        prependToDownloadList(download)
-                    }
+                    abortAndRetryDownload(download)
+                } catch (ce: ConnectionException) {
+                    log.debug("aborted download of ${download.fileName} - ConnectionException")
+                    abortAndRetryDownload(download)
                 }
             } ?: run {
                 log.debug("aborted download of ${download.fileName} - file is empty")
-                fileEntry.setDownloadStatus(DownloadStatus.aborted)
-                downloadRepository.setStatus(download, DownloadStatus.aborted)
-                if (!doNotRestartDownload) {
-                    prependToDownloadList(download)
-                }
+                abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
             // TODO handle 40x like wrong SHA sum
             // TODO handle 50x by "backing off" and trying again later
-            log.warn("Download was not successful ${response.code}")
-            fileEntry.setDownloadStatus(DownloadStatus.aborted)
-            downloadRepository.setStatus(download, DownloadStatus.aborted)
             Sentry.capture(response.message)
-            if (!doNotRestartDownload) {
-                prependToDownloadList(download)
-            }
+            log.warn("Download was not successful ${response.code}")
+            abortAndRetryDownload(download, doNotRestartDownload)
         }
         log.debug("finished handling response of ${download.fileName}")
+    }
+
+    /**
+     * save download and fileentry as not downloaded in database then retry download
+     * @param doNotRetry indicating whether to retry download - only for testing
+     */
+    private fun abortAndRetryDownload(
+        download: Download,
+        @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRetry: Boolean = false
+    ) {
+        download.file.setDownloadStatus(DownloadStatus.aborted)
+        downloadRepository.setStatus(download, DownloadStatus.aborted)
+        if (!doNotRetry) {
+            prependToDownloadList(download)
+        }
     }
 
     /**
