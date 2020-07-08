@@ -1,9 +1,12 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,6 +63,10 @@ data class ArticleStub(
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ArticleRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
+    }
+
+    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
+        return ArticleRepository.getInstance(applicationContext).getStubLiveData(articleFileName)
     }
 
 }

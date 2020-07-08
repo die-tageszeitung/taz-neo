@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Image
@@ -14,6 +15,14 @@ abstract class ImageDao() {
         """
     )
     abstract fun getByName(name: String): Image?
+
+    @Query(
+        """
+        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+         WHERE fileEntryName == :name
+        """
+    )
+    abstract fun getLiveDataByName(name: String): LiveData<Image?>
 
     @Query(
         """

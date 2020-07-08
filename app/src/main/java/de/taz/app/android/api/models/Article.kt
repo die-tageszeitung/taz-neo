@@ -1,7 +1,10 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.ArticleRepository
 
@@ -66,6 +69,10 @@ data class Article(
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ArticleRepository.getInstance()
             .update(ArticleStub(this).copy(downloadedStatus = downloadedStatus))
+    }
+
+    override fun getLiveData(applicationContext: Context?): LiveData<Article?> {
+        return ArticleRepository.getInstance(applicationContext).getLiveData(key)
     }
 
 }
