@@ -30,6 +30,7 @@ import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicInteger
+import javax.net.ssl.SSLException
 
 const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
@@ -70,7 +71,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerServerReachableLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -113,9 +114,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                         if (t == true) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 // mark download as downloaded - if it is an issue including articles etc
-                                issue?.setDownloadStatusIncludingChildren(DownloadStatus.done) ?: run {
-                                    cacheableDownload.setDownloadStatus(DownloadStatus.done)
-                                }
+                                issue?.setDownloadStatusIncludingChildren(DownloadStatus.done)
+                                    ?: run {
+                                        cacheableDownload.setDownloadStatus(DownloadStatus.done)
+                                    }
                             }
                             isDownloadedLiveData.removeObserver(this)
                             log.debug("downloaded ${cacheableDownload.javaClass.name}")
@@ -150,7 +152,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun startDownloadsIfCapacity() {
         log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
-            while (serverConnectionHelper.isDownloadServerServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+            while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
                     getFromServer(download).invokeOnCompletion {
@@ -205,7 +207,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             is ConnectException,
                             is SocketTimeoutException
                             -> {
-                                serverConnectionHelper.isDownloadServerServerReachable = false
+                                serverConnectionHelper.isServerReachable = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
@@ -235,32 +237,41 @@ class DownloadService private constructor(val applicationContext: Context) {
             response.body?.source()?.let { source ->
                 // ensure folders are created
                 fileHelper.createFileDirs(fileEntry)
-                val sha256 = fileHelper.writeFile(fileEntry, source)
-                if (sha256 == fileEntry.sha256) {
-                    log.debug("sha256 matched for file ${download.fileName}")
-                    download.workerManagerId?.let {
-                        workManager.cancelWorkById(it)
-                        log.info("canceling WorkerManagerRequest for ${download.fileName}")
-                    }
-                    val newDownload = download.copy(
-                        lastSha256 = sha256,
-                        status = DownloadStatus.done,
-                        workerManagerId = null
-                    )
-                    downloadRepository.update(newDownload)
-                    fileEntry.setDownloadStatus(DownloadStatus.done)
-                    log.debug("finished download of ${download.fileName}")
-                } else {
-                    // TODO get new metadata for cacheableDownload and restart download
-                    val m = "sha256 did NOT match the one of ${download.fileName}"
-                    log.warn(m)
-                    Sentry.capture(m)
-                    if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
-                        fileEntry.setDownloadStatus(DownloadStatus.takeOld)
-                        downloadRepository.setStatus(download, DownloadStatus.takeOld)
+                try {
+                    val sha256 = fileHelper.writeFile(fileEntry, source)
+                    if (sha256 == fileEntry.sha256) {
+                        log.debug("sha256 matched for file ${download.fileName}")
+                        download.workerManagerId?.let {
+                            workManager.cancelWorkById(it)
+                            log.info("canceling WorkerManagerRequest for ${download.fileName}")
+                        }
+                        val newDownload = download.copy(
+                            lastSha256 = sha256,
+                            status = DownloadStatus.done,
+                            workerManagerId = null
+                        )
+                        downloadRepository.update(newDownload)
+                        fileEntry.setDownloadStatus(DownloadStatus.done)
+                        log.debug("finished download of ${download.fileName}")
                     } else {
-                        fileEntry.setDownloadStatus(DownloadStatus.aborted)
-                        downloadRepository.setStatus(download, DownloadStatus.aborted)
+                        // TODO get new metadata for cacheableDownload and restart download
+                        val m = "sha256 did NOT match the one of ${download.fileName}"
+                        log.warn(m)
+                        Sentry.capture(m)
+                        if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
+                            fileEntry.setDownloadStatus(DownloadStatus.takeOld)
+                            downloadRepository.setStatus(download, DownloadStatus.takeOld)
+                        } else {
+                            fileEntry.setDownloadStatus(DownloadStatus.aborted)
+                            downloadRepository.setStatus(download, DownloadStatus.aborted)
+                        }
+                    }
+                } catch (ssle: SSLException) {
+                    log.debug("aborted download of ${download.fileName} - SSLException")
+                    fileEntry.setDownloadStatus(DownloadStatus.aborted)
+                    downloadRepository.setStatus(download, DownloadStatus.aborted)
+                    if (!doNotRestartDownload) {
+                        prependToDownloadList(download)
                     }
                 }
             } ?: run {
