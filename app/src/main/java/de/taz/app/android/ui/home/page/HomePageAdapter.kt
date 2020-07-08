@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -153,7 +154,7 @@ abstract class HomePageAdapter(
     inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.setOnClickListener {
+            itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.setOnClickListener {
                 fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                     getItem(adapterPosition)?.let {
                         fragment.onItemSelected(it)
