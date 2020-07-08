@@ -30,8 +30,7 @@ interface CacheableDownload {
     fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean>
 
     fun isDownloaded(applicationContext: Context?): Boolean {
-        return downloadedStatus == DownloadStatus.done ||
-                getLiveData(applicationContext).value?.downloadedStatus?.equals(DownloadStatus.done) ?: run {
+        return getLiveData(applicationContext).value?.downloadedStatus?.equals(DownloadStatus.done) ?: run {
             val isDownloadedInDb = isDownloadedInDb(applicationContext)
             val downloadedStatusFromDb =
                 if (isDownloadedInDb) DownloadStatus.done else DownloadStatus.pending
