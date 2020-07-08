@@ -188,7 +188,7 @@ class ArticlePagerFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome()
+                showHome(skipToNewestIssue = true)
             }
 
             R.id.bottom_navigation_action_bookmark -> {
