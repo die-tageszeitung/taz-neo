@@ -33,7 +33,7 @@ class DrawerLayout @JvmOverloads constructor(
      */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         ev?.let {
-            if (!isDrawerOpen(GravityCompat.START) && nav_view?.visibility == View.VISIBLE) {
+            if (!isDrawerOpen(GravityCompat.START) && drawer_logo?.visibility == View.VISIBLE) {
                 if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
                     log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
                     openDrawer(GravityCompat.START)
