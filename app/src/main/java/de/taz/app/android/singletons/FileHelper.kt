@@ -12,6 +12,7 @@ import okio.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import javax.net.ssl.SSLException
 
 
 @Mockable
@@ -59,7 +60,9 @@ class FileHelper private constructor(private val applicationContext: Context) {
 
     /**
      * writes data from [source] to file of [fileEntry] and return sha265
+     * @throws SSLException when connection is terminated while writing to file
      */
+    @Throws(SSLException::class)
     fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
         val fileSink = getFile(fileEntry).sink()
         val hashingSink = HashingSink.sha256(fileSink)
