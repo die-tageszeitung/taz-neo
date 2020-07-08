@@ -71,10 +71,14 @@ class SectionRepository private constructor(applicationContext: Context) :
         return sectionStubToSection(getStubOrThrow(sectionFileName))
     }
 
+    fun getStubLiveData(sectionFileName: String): LiveData<SectionStub?> {
+        return appDatabase.sectionDao().getLiveData(sectionFileName)
+    }
+
     fun getLiveData(sectionFileName: String): LiveData<Section?> {
-        return appDatabase.sectionDao().getLiveData(sectionFileName).switchMap { input ->
-            liveData(Dispatchers.IO) {
-                input?.let { emit(sectionStubToSection(input)) } ?: emit(null)
+        return Transformations.map(getStubLiveData(sectionFileName)) {
+            it?.let {
+                sectionStubToSection(it)
             }
         }
     }

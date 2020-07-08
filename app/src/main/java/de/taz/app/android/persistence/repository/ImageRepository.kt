@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
@@ -29,6 +30,10 @@ class ImageRepository private constructor(
 
     fun get(imageName: String): Image? {
         return appDatabase.imageDao().getByName(imageName)
+    }
+
+    fun getLiveData(imageName: String): LiveData<Image?> {
+        return appDatabase.imageDao().getLiveDataByName(imageName)
     }
 
     fun returnExisting(imageNames: List<String>): List<String> {

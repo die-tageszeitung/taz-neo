@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -56,6 +58,10 @@ data class Image(
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
         return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
+    }
+
+    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
+        return ImageRepository.getInstance(applicationContext).getLiveData(name)
     }
 
 }

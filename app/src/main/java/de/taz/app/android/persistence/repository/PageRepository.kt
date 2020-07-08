@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.util.SingletonHolder
@@ -43,18 +44,8 @@ class PageRepository private constructor(applicationContext: Context) :
 
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Page {
-        val pageStub = appDatabase.pageDao().get(fileName)
-        val file = fileEntryRepository.getOrThrow(fileName)
-
-        return pageStub?.let {
-            Page(
-                file,
-                pageStub.title,
-                pageStub.pagina,
-                pageStub.type,
-                pageStub.frameList,
-                pageStub.downloadedStatus
-            )
+        appDatabase.pageDao().get(fileName)?.let {
+            return pageStubToPage(it)
         } ?: throw NotFoundException()
     }
 
@@ -63,6 +54,27 @@ class PageRepository private constructor(applicationContext: Context) :
             getOrThrow(fileName)
         } catch (e: NotFoundException) {
             null
+        }
+    }
+
+    fun getLiveData(fileName: String): LiveData<Page?> {
+        return Transformations.map(
+            appDatabase.pageDao().getLiveData(fileName)
+        ) { it?.let { pageStubToPage(it) } }
+    }
+
+    private fun pageStubToPage(pageStub: PageStub): Page {
+        val file = fileEntryRepository.getOrThrow(pageStub.pdfFileName)
+
+        return pageStub.let {
+            Page(
+                file,
+                pageStub.title,
+                pageStub.pagina,
+                pageStub.type,
+                pageStub.frameList,
+                pageStub.downloadedStatus
+            )
         }
     }
 
