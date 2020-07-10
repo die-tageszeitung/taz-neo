@@ -214,19 +214,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     }
                 }
             }
-
-            // if user swiped update the drawer issue
-            if (dx != 0) {
-                getMainView()?.apply {
-                    coverflowAdapter?.getItem(position)?.let {
-                        setDrawerIssue(it)
-                        // if drawer is visible update UI
-                        if (getMainView()?.isDrawerVisible(GravityCompat.START) == true) {
-                            changeDrawerIssue()
-                        }
-                    }
-                }
-            }
         }
     }
 

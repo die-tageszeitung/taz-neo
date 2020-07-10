@@ -52,7 +52,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private var updated: Boolean = false
 
-    var defaultTypeface : Typeface? = null
+    var defaultTypeface: Typeface? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -104,15 +104,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 this@SectionDrawerFragment.issueStatus = IssueStatus.valueOf(issueStatus)
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val issueOperations =
-                        issueRepository?.getIssueStubByFeedAndDate(
-                            issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
-                        )
-                    activity?.runOnUiThread {
-                        issueOperations?.let {
-                            setIssueOperations(it)
-                            showIssueStub()
-                        }
+                    issueRepository?.getIssueStubByFeedAndDate(
+                        issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
+                    )?.let {
+                        setIssueOperations(it)
+                        showIssueStub()
                     }
                 }
             }
@@ -133,7 +129,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    fun showIssueStub() {
+    fun showIssueStub() = activity?.runOnUiThread {
         if (updated) {
             updated = false
 
