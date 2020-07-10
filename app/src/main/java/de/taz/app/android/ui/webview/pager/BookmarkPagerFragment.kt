@@ -1,8 +1,12 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -11,9 +15,12 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.*
+import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
@@ -22,6 +29,7 @@ class BookmarkPagerFragment :
     val log by Log
 
     private var articlePagerAdapter: BookmarkPagerAdapter? = null
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
 
     private var articleName: String? = null
     private var hasBeenSwiped: Boolean = false
@@ -88,6 +96,14 @@ class BookmarkPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         var firstSwipe = true
+        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+            if (isBookmarked) {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+            } else {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
+            }
+        }
+        private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
             viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
@@ -111,11 +127,65 @@ class BookmarkPagerFragment :
             viewModel.currentPositionLiveData.value = position
 
             lifecycleScope.launchWhenResumed {
-                articlePagerAdapter?.getArticleStub(position)?.getNavButton()?.let {
-                    showNavButton(it)
+                articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
+                    articleStub.getNavButton()?.let {
+                        showNavButton(it)
+                    }
+                    navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                        articleStub.onlineLink != null
+
+                    isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+                    isBookmarkedLiveData = articleStub.isBookmarkedLiveData()
+                    isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
                 }
             }
         }
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                showHome(skipToNewestIssue = true)
+            }
+
+            R.id.bottom_navigation_action_bookmark -> {
+                articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.key?.let {
+                    showBottomSheet(BookmarkSheetFragment.create(it))
+                }
+            }
+
+            R.id.bottom_navigation_action_share ->
+                share()
+
+            R.id.bottom_navigation_action_size -> {
+                showBottomSheet(TextSettingsFragment())
+            }
+        }
+    }
+
+    fun share() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let { articleStub ->
+                val url = articleStub.onlineLink
+                url?.let {
+                    shareArticle(url, articleStub.title)
+                }
+            }
+        }
+    }
+
+    private fun shareArticle(url: String, title: String?) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, url)
+            title?.let {
+                putExtra(Intent.EXTRA_SUBJECT, title)
+            }
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
     }
 
     private inner class BookmarkPagerAdapter : FragmentStateAdapter(this@BookmarkPagerFragment) {
