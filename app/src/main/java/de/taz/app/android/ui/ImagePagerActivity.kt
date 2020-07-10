@@ -10,6 +10,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
@@ -43,6 +44,8 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             imageList = getImageList(articleName)
             mPager.setCurrentItem(getPosition(imageName), false)
         }
+
+        mPager.reduceDragSensitivity()
     }
 
     private suspend fun getImageList(articleName: String?): List<Image>? =
