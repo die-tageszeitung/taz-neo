@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -94,6 +96,14 @@ class BookmarkPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         var firstSwipe = true
+        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+            if (isBookmarked) {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+            } else {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
+            }
+        }
+        private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
             viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
@@ -117,8 +127,16 @@ class BookmarkPagerFragment :
             viewModel.currentPositionLiveData.value = position
 
             lifecycleScope.launchWhenResumed {
-                articlePagerAdapter?.getArticleStub(position)?.getNavButton()?.let {
-                    showNavButton(it)
+                articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
+                    articleStub.getNavButton()?.let {
+                        showNavButton(it)
+                    }
+                    navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                        articleStub.onlineLink != null
+
+                    isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+                    isBookmarkedLiveData = articleStub.isBookmarkedLiveData()
+                    isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
                 }
             }
         }
