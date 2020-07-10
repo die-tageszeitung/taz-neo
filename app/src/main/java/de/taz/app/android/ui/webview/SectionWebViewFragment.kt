@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
+import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 import android.widget.ImageView
@@ -8,6 +9,7 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
+import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
@@ -19,13 +21,15 @@ import de.taz.app.android.singletons.FontHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.ceil
 
 class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
 
 const val PADDING_RIGHT_OF_LOGO = 20
-const val BIG_HEADER_TEXT_SIZE = 26f
+const val BIG_HEADER_TEXT_SIZE = 30f
 
-class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
+class SectionWebViewFragment :
+    WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
     override val viewModel by lazy {
         ViewModelProvider(this).get(SectionWebViewViewModel::class.java)
@@ -68,15 +72,22 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
                 }
                 DateHelper.getInstance(applicationContext)
                     .dateToLowerCaseString(displayable.issueDate)?.let {
-                    view?.findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = it
+                        view?.findViewById<TextView>(R.id.issue_date)?.apply {
+                            text = it
+                        }
                     }
-                }
 
                 // On first section "die tageszeitung" the header should be bigger:
                 if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
                     view?.findViewById<TextView>(R.id.section)?.apply {
                         setTextSize(COMPLEX_UNIT_DIP, BIG_HEADER_TEXT_SIZE)
+                        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                            this,
+                            TextViewCompat.getAutoSizeMinTextSize(this),
+                            (BIG_HEADER_TEXT_SIZE * resources.displayMetrics.density).toInt(),
+                            ceil(0.1 * resources.displayMetrics.density).toInt(),
+                            TypedValue.COMPLEX_UNIT_PX
+                        )
                     }
                 }
 
@@ -122,7 +133,8 @@ class SectionWebViewFragment : WebViewFragment<SectionStub, SectionWebViewViewMo
         view?.findViewById<TextView>(viewId)?.apply {
             val parentView = (parent as View)
             val paddingInPixel = (PADDING_RIGHT_OF_LOGO / resources.displayMetrics.density).toInt()
-            width = point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight - paddingInPixel
+            width =
+                point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight - paddingInPixel
         }
     }
 }

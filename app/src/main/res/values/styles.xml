@@ -84,6 +84,10 @@
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
+        <item name="autoSizeMinTextSize">2dp</item>
+        <item name="autoSizeStepGranularity">0.1dp</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
