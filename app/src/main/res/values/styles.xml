@@ -69,6 +69,7 @@
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/textColorSection</item>
+        <item name="android:minHeight">@dimen/fragment_drawer_sections_item_height</item>
         <item name="android:maxLines">1</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
@@ -182,7 +183,8 @@
     <style name="TextAppearance.Settings.TextSize.Decrease" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="firstBaselineToTopHeight">0dp</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size_decrease_small_a</item>
+        <item name="android:textSize">@dimen/fragment_settings_text_font_size_decrease_small_a
+        </item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingBottom">2sp</item>
