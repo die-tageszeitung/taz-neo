@@ -136,6 +136,7 @@ class MomentView @JvmOverloads constructor(
 
     private fun hideOrShowDownloadIcon() {
         if (!shouldNotShowDownloadIcon) {
+            view_moment_download_icon_wrapper?.visibility = View.VISIBLE
             issueStubLiveData?.observeDistinct(lifecycleOwner!!) { issueStub ->
                 when (issueStub?.downloadedStatus) {
                     DownloadStatus.done ->
@@ -146,6 +147,8 @@ class MomentView @JvmOverloads constructor(
                         showDownloadIcon()
                 }
             }
+        } else {
+            view_moment_download_icon_wrapper?.visibility = View.GONE
         }
     }
 
@@ -233,7 +236,7 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_is_downloading?.visibility = View.GONE
         fragment_moment_is_downloaded?.visibility = View.GONE
 
-        if(wasDownloading) {
+        if (wasDownloading) {
             fragment_moment_is_download_finished?.visibility = View.GONE
             fragment_moment_is_download_finished.alpha = 1f
             fragment_moment_is_download_finished?.visibility = View.VISIBLE
