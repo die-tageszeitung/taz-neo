@@ -149,7 +149,7 @@ class SplashActivity : BaseActivity() {
      */
     private fun initAppInfoAndCheckAndroidVersion() {
         CoroutineScope(Dispatchers.IO).launch {
-            AppInfo.update()?.let {
+            AppInfo.update(applicationContext)?.let {
                 if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
                     NotificationHelper.getInstance(applicationContext).showNotification(
                         R.string.notification_new_version_title,
