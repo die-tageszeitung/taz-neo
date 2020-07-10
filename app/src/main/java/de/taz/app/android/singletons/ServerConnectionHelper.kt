@@ -25,7 +25,7 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     companion object : SingletonHolder<ServerConnectionHelper, Context>(::ServerConnectionHelper)
 
     private val toastHelper = ToastHelper.getInstance(applicationContext)
-    private val okHttpClient = OkHttp.getInstance(applicationContext).client
+    private val okHttpClient = OkHttp.client
 
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
 

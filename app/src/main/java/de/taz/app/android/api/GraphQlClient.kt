@@ -31,7 +31,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val authHelper: AuthHelper
 ) {
     private constructor(applicationContext: Context) : this(
-        okHttpClient = OkHttp.getInstance(applicationContext).client,
+        okHttpClient = OkHttp.client,
         url = GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext)
