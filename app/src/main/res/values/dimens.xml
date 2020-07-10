@@ -67,7 +67,7 @@
     <dimen name="fragment_header_date_margin_bottom">50dp</dimen>
     <dimen name="fragment_header_section_margin_top">5dp</dimen>
     <dimen name="fragment_header_section_margin_bottom">16dp</dimen>
-    <dimen name="fragment_header_section_text_size">20dp</dimen>
+    <dimen name="fragment_header_section_text_size">25dp</dimen>
     <dimen name="fragment_header_section_title_height">40dp</dimen>
     <dimen name="fragment_header_section_title_y_translation">4dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
