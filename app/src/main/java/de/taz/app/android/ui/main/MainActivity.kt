@@ -395,17 +395,25 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                 sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
-                                            setCoverFlowItem(issueOperations)
                                             setDrawerIssue(issueOperations)
                                             changeDrawerIssue()
                                         }
                                     }
                             }
+
                             // clear fragment backstack before showing article
                             supportFragmentManager.popBackStackImmediate(
                                 null,
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE
                             )
+                            supportFragmentManager.fragments.firstOrNull { fragment ->
+                                fragment is HomeFragment
+                            }?.let { homeFragment ->
+                                supportFragmentManager.beginTransaction()
+                                    .detach(homeFragment)
+                                    .attach(homeFragment)
+                                    .commit()
+                            }
                             showArticle(articleName)
                         }
                     }
