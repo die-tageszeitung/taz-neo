@@ -88,7 +88,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            if (!cacheableDownload.isDownloaded(applicationContext)) {
+            if (!cacheableDownload.isDownloadedOrDownloading(applicationContext)) {
                 ensureAppInfo()
 
                 val issue = cacheableDownload as? Issue
@@ -343,7 +343,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     ) = withContext(Dispatchers.IO) {
 
         val tag = cacheableDownload.getDownloadTag()
-        val issueOperations = cacheableDownload.getIssueOperations()
+        val issueOperations = cacheableDownload.getIssueOperations(applicationContext)
 
         // create Downloads and save them in the database
         cacheableDownload.getAllFileNames().forEach {

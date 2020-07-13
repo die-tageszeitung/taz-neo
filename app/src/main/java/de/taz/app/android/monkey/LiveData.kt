@@ -55,6 +55,22 @@ fun <T> LiveData<T>.observeDistinctOnce(
     liveData.observe(lifecycleOwner, observer)
     return observer
 }
+fun <T> LiveData<T>.observeUntil(
+    lifecycleOwner: LifecycleOwner,
+    observationCallback: (T) -> Unit,
+    untilFunction: (T) -> Boolean
+): Observer<T> {
+    val observer = object : Observer<T> {
+        override fun onChanged(t: T) {
+            observationCallback(t)
+            if (untilFunction(t)) {
+                this@observeUntil.removeObserver(this)
+            }
+        }
+    }
+    this.observe(lifecycleOwner, observer)
+    return observer
+}
 
 fun <T> LiveData<T>.observeDistinctUntil(
     lifecycleOwner: LifecycleOwner,

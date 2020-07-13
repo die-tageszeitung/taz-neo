@@ -75,7 +75,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getLiveData(sectionFileName)
     }
 
-    fun getLiveData(sectionFileName: String): LiveData<Section?> {
+    suspend fun getLiveData(sectionFileName: String): LiveData<Section?> {
         return Transformations.map(getStubLiveData(sectionFileName)) {
             it?.let {
                 sectionStubToSection(it)

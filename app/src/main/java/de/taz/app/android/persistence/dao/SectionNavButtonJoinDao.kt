@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
 
 

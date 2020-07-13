@@ -15,7 +15,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
-import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
+import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,14 +23,14 @@ import kotlinx.coroutines.withContext
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var mPager: ViewPager2
-    private var articleName: String? = null
+    private var displayableName: String? = null
     private var imageName: String? = null
     private var imageList: List<Image>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        articleName = intent.extras?.getString(ARTICLE_NAME)
+        displayableName = intent.extras?.getString(DISPLAYABLE_NAME)?.replace("normal", "high")
         imageName = intent.extras?.getString(IMAGE_NAME)
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -41,12 +41,12 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         mPager.adapter = pagerAdapter
 
         lifecycleScope.launch(Dispatchers.IO) {
-            imageList = getImageList(articleName)
+            imageList = getImageList(displayableName)
             mPager.setCurrentItem(getPosition(imageName), false)
         }
 
         mPager.apply {
-            reduceDragSensitivity(4)
+            reduceDragSensitivity(6)
             offscreenPageLimit = 2
         }
     }
@@ -56,10 +56,12 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             articleName?.let {
                 if (it.startsWith("section.")) {
                     SectionRepository.getInstance().imagesForSectionStub(it)
-                        .filter { image -> image.name == imageName}
+                        .filter { image -> image.name == imageName }
                 } else {
-                    ArticleRepository.getInstance().getImagesForArticle(it)
-                        .filter { image -> image.resolution == ImageResolution.normal }
+                    val articleImages = ArticleRepository.getInstance().getImagesForArticle(it)
+                    val highRes =
+                        articleImages.filter { image -> image.resolution == ImageResolution.high }
+                    if (highRes.isNotEmpty()) highRes else articleImages.filter { image -> image.resolution == ImageResolution.normal }
                 }
             }
         }

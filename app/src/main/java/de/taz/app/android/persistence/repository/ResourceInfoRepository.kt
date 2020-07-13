@@ -61,7 +61,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().get())
     }
 
-    fun getLiveData(): LiveData<ResourceInfo?> {
+    suspend fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
             it?.let { resourceInfoStubToResourceInfo(it) }
         }
