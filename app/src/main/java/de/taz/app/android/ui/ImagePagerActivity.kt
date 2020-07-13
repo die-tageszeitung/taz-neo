@@ -46,7 +46,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         }
 
         mPager.apply {
-            reduceDragSensitivity()
+            reduceDragSensitivity(4)
             offscreenPageLimit = 2
         }
     }
