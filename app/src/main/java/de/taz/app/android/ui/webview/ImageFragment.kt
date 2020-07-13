@@ -8,9 +8,10 @@ import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
 
-class ImageFragment : Fragment() {
+class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
 
     fun newInstance(image: Image?): ImageFragment {
@@ -23,24 +24,52 @@ class ImageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_image, container, false)
-        val webView = view.findViewById<WebView>(R.id.image_view)
-        image?.let {
-            val fileHelper = FileHelper.getInstance(context)
-            context?.let { it1 ->
-                fileHelper.getFileDirectoryUrl(it1).let { fileDir ->
-
-                    val uri = "${fileDir}/${it.folder}/${it.name}"
-                    webView.settings.apply {
-                        builtInZoomControls = true
-                        displayZoomControls = false
-                        useWideViewPort = true
-                        loadWithOverviewMode = true
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        val webView = view?.findViewById<WebView>(R.id.image_view)
+        image?.download(context?.applicationContext)
+        image?.isDownloadedLiveData(context?.applicationContext)
+            ?.observeDistinctUntil(this, { isDownloaded ->
+                if (isDownloaded) {
+                    image?.let {
+                        val fileHelper = FileHelper.getInstance(context)
+                        context?.let { it1 ->
+                            fileHelper.getFileDirectoryUrl(it1).let { fileDir ->
+                                val uri = "${it.folder}/${it.name}"
+                                webView?.apply {
+                                    webChromeClient =
+                                        AppWebChromeClient {
+                                            view.findViewById<View>(R.id.loading_screen).visibility =
+                                                View.GONE
+                                        }
+                                    settings?.apply {
+                                        allowFileAccess = true
+                                        builtInZoomControls = true
+                                        displayZoomControls = false
+                                        useWideViewPort = true
+                                        loadWithOverviewMode = true
+                                        domStorageEnabled = true
+                                    }
+                                    loadDataWithBaseURL(fileDir,
+                                        """<html>
+                                                <body style="background: transparent;margin:0;">
+                                                    <div style="width:100%; height:100%; display: flex; align-items: center;">
+                                                        <img src="$fileDir/$uri" style="width:100%; "/>
+                                                    </div>
+                                                </body>
+                                            </html>""",
+                                        "text/html",
+                                        "UTF-8",
+                                        null
+                                    )
+                                }
+                            }
+                        }
                     }
-                    webView.loadUrl(uri)
                 }
-            }
-        }
+            }, { isDownloaded ->
+                isDownloaded
+            })
+
         return view
     }
 

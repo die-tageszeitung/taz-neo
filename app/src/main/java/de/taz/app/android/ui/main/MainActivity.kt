@@ -392,11 +392,12 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
-                                        section.getIssueOperations()?.let { issueOperations ->
-                                            setCoverFlowItem(issueOperations)
-                                            setDrawerIssue(issueOperations)
-                                            changeDrawerIssue()
-                                        }
+                                        section.getIssueOperations(applicationContext)
+                                            ?.let { issueOperations ->
+                                                setCoverFlowItem(issueOperations)
+                                                setDrawerIssue(issueOperations)
+                                                changeDrawerIssue()
+                                            }
                                     }
                             }
 

@@ -290,8 +290,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private fun isResourceInfoUpToDate(): Boolean {
-        val issueOperations = viewModel.displayable?.getIssueOperations()
+    private suspend fun isResourceInfoUpToDate(): Boolean {
+        val issueOperations = viewModel.displayable?.getIssueOperations(context?.applicationContext)
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
         val currentResourceVersion = resourceInfoRepository?.get()?.resourceVersion ?: 0
 

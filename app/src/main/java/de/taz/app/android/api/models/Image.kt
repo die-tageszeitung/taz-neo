@@ -6,8 +6,12 @@ import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueRepository
+import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,7 +26,7 @@ data class Image(
     val alpha: Float,
     val resolution: ImageResolution,
     override val downloadedStatus: DownloadStatus?
-):  FileEntryOperations {
+) : FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
         name = imageDto.name,
@@ -60,9 +64,20 @@ data class Image(
         return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
     }
 
-    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
+    override suspend fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
         return ImageRepository.getInstance(applicationContext).getLiveData(name)
     }
+
+    override fun download(applicationContext: Context?): Job =
+        CoroutineScope(Dispatchers.IO).launch {
+            DownloadService.getInstance(applicationContext)
+                .download(this@Image, getIssueOperations(applicationContext)?.baseUrl)
+        }
+
+    override suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? =
+        withContext(Dispatchers.IO) {
+            IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
+        }
 
 }
 

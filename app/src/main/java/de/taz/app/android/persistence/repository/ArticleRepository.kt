@@ -97,7 +97,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getLiveData(articleName: String): LiveData<Article?> {
+    suspend fun getLiveData(articleName: String): LiveData<Article?> {
         return appDatabase.articleDao().getLiveData(articleName).switchMap { input ->
             liveData(Dispatchers.IO) {
                 emit(input?.let { articleStubToArticle(input) })

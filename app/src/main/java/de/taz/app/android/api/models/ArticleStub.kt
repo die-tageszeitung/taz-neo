@@ -65,7 +65,7 @@ data class ArticleStub(
         ArticleRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
     }
 
-    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
+    override suspend fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
         return ArticleRepository.getInstance(applicationContext).getStubLiveData(articleFileName)
     }
 

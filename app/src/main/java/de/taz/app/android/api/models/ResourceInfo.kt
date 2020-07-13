@@ -42,7 +42,7 @@ data class ResourceInfo(
         return RESOURCE_TAG
     }
 
-    override fun getLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
+    override suspend fun getLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
         return ResourceInfoRepository.getInstance(applicationContext).getLiveData()
     }
 

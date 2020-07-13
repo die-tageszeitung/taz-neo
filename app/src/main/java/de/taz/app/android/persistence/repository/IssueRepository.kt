@@ -308,6 +308,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
     }
 
+    fun getIssueStubForImage(image: Image): IssueStub? {
+        return appDatabase.issueDao().getStubForArticleImageName(image.name)
+            ?: appDatabase.issueDao().getStubForSectionImageName(image.name)
+    }
+
     fun getIssueLiveData(
         issueFeedName: String,
         issueDate: String,
@@ -402,7 +407,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueOperations.status
     )
 
-    fun isDownloadedLiveData(feedName: String, date: String, status: IssueStatus): LiveData<Boolean> {
+    fun isDownloadedLiveData(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): LiveData<Boolean> {
         return appDatabase.issueDao().isDownloadedLiveData(feedName, date, status)
     }
 

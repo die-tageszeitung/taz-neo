@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import kotlinx.coroutines.Job
 
 /**
  * Interface every model has to implement which can be downloaded with [DownloadService]
@@ -24,12 +25,16 @@ interface CacheableDownload {
         getAllFiles().forEach { it.deleteFile() }
     }
 
-    fun download(applicationContext: Context? = null) =
+    fun download(applicationContext: Context? = null): Job =
         DownloadService.getInstance(applicationContext).download(this@CacheableDownload)
 
     fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean>
 
-    fun isDownloaded(applicationContext: Context?): Boolean {
+    suspend fun isDownloadedOrDownloading(applicationContext: Context?): Boolean {
+        return getLiveData(applicationContext).value?.downloadedStatus in listOf(DownloadStatus.done, DownloadStatus.started)
+    }
+
+    suspend fun isDownloaded(applicationContext: Context?): Boolean {
         return getLiveData(applicationContext).value?.downloadedStatus?.equals(DownloadStatus.done) ?: run {
             val isDownloadedInDb = isDownloadedInDb(applicationContext)
             val downloadedStatusFromDb =
@@ -39,11 +44,11 @@ interface CacheableDownload {
         }
     }
 
-    fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?>
+    suspend fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?>
 
     fun setDownloadStatus(downloadStatus: DownloadStatus)
 
-    private fun isDownloadedInDb(applicationContext: Context?): Boolean {
+    private suspend fun isDownloadedInDb(applicationContext: Context?): Boolean {
         return DownloadRepository.getInstance(applicationContext).isDownloaded(getAllFileNames())
     }
 
@@ -64,5 +69,5 @@ interface CacheableDownload {
      * if the [CacheableDownload] has [FileEntry]s of [StorageType.issue] we need the
      * [IssueOperations] for baseUrl and tag
      */
-    fun getIssueOperations(): IssueOperations? = null
+    suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? = null
 }
