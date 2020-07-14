@@ -77,11 +77,6 @@ data class Image(
     override fun getIssueOperations(applicationContext: Context?): IssueOperations? =
         IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
 
-
-    override suspend fun getDownloadStatus(applicationContext: Context?): DownloadStatus? {
-        return IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)?.downloadedStatus
-    }
-
 }
 
 enum class ImageType {
