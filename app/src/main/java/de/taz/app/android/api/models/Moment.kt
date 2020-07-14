@@ -89,6 +89,12 @@ data class Moment(
         )
     }
 
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return MomentRepository.getInstance(applicationContext).getDownloadedStatus(
+            this.issueFeedName, this.issueDate, this.issueStatus
+        )
+    }
+
     override fun getLiveData(applicationContext: Context?): LiveData<Moment?> {
         return this@Moment.getIssueOperations(applicationContext)?.let {
             MomentRepository.getInstance(applicationContext).getLiveData(it)

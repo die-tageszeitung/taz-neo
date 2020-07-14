@@ -71,4 +71,8 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         return ArticleRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return ArticleRepository.getInstance(applicationContext).get(key)?.downloadedStatus
+    }
+
 }

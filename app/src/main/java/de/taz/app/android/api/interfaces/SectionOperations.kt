@@ -2,6 +2,7 @@ package de.taz.app.android.api.interfaces
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
@@ -53,6 +54,10 @@ interface SectionOperations : WebViewDisplayable {
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
         return SectionRepository.getInstance(applicationContext).isDownloadedLiveData(this)
+    }
+
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return SectionRepository.getInstance(applicationContext).get(key)?.downloadedStatus
     }
 
 }
