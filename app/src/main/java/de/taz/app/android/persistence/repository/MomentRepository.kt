@@ -107,6 +107,11 @@ class MomentRepository private constructor(applicationContext: Context) :
                 IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
             }
         )
+        appDatabase.issueCreditMomentJoinDao().delete(
+            moment.creditList.mapIndexed { index, fileEntry ->
+                IssueCreditMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+            }
+        )
         try {
             imageRepository.delete(moment.imageList)
             log.debug("deleted FileEntry of image ${moment.imageList}")
@@ -114,5 +119,6 @@ class MomentRepository private constructor(applicationContext: Context) :
             log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
             // do not delete is used by another issue
         }
+        appDatabase.momentDao().delete(MomentStub(moment))
     }
 }
