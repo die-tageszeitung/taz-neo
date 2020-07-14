@@ -18,12 +18,13 @@ class MomentRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun update(momentStub: MomentStub) {
-        appDatabase.momentDao().update(momentStub)
+        appDatabase.momentDao().insertOrReplace(momentStub)
     }
 
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
+        appDatabase.momentDao().insertOrReplace(MomentStub(moment))
         appDatabase.issueImageMomentJoinDao().insertOrReplace(
             moment.imageList.mapIndexed { index, image ->
                 IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, image.name, index)

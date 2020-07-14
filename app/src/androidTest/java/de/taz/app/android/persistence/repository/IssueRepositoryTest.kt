@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.io.IOException
@@ -97,7 +96,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        assertTrue(issueRepository.getLatestIssue() == issue)
+        assertEquals(issue.moment, issueRepository.getLatestIssue()?.moment)
     }
 
 
