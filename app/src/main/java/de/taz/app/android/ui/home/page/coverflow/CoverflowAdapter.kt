@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.moment.MomentView
-import kotlinx.coroutines.launch
 import java.util.*
 
 const val MAX_VIEWHOLDER_WIDTH_OF_PARENT = 0.8
@@ -24,7 +23,9 @@ class CoverflowAdapter(
         super.setIssueStubs(issues)
         if (skipToLast) {
             if (fragment.hasSetItem()) {
-                fragment.skipToCurrentItem()
+                if(!fragment.skipToCurrentItem()) {
+                    fragment.skipToEnd()
+                }
             } else {
                 fragment.skipToEnd()
             }
