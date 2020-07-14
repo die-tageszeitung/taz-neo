@@ -9,7 +9,6 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.DownloadRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import io.sentry.Sentry
