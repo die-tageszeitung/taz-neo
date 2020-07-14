@@ -32,7 +32,7 @@ class ImageRepository private constructor(
         return appDatabase.imageDao().getByName(imageName)
     }
 
-    suspend fun getLiveData(imageName: String): LiveData<Image?> {
+    fun getLiveData(imageName: String): LiveData<Image?> {
         return appDatabase.imageDao().getLiveDataByName(imageName)
     }
 

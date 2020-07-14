@@ -54,7 +54,7 @@ data class Section(
         SectionRepository.getInstance().update(SectionStub(this).copy(downloadedStatus = downloadStatus))
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<Section?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<Section?> {
         return SectionRepository.getInstance(applicationContext).getLiveData(sectionHtml.name)
     }
 

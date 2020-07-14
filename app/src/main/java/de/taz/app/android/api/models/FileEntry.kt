@@ -53,7 +53,7 @@ data class FileEntry(
         return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<FileEntry?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<FileEntry?> {
         return FileEntryRepository.getInstance(applicationContext).getLiveData(name)
     }
 

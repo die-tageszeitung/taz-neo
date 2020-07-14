@@ -57,7 +57,7 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun getLiveData(fileName: String): LiveData<Page?> {
+    fun getLiveData(fileName: String): LiveData<Page?> {
         return Transformations.map(
             appDatabase.pageDao().getLiveData(fileName)
         ) { it?.let { pageStubToPage(it) } }

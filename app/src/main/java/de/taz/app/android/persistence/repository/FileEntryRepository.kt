@@ -37,7 +37,7 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 
-    suspend fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
+    fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
         return appDatabase.fileEntryDao().getLiveDataByName(fileEntryName)
     }
 

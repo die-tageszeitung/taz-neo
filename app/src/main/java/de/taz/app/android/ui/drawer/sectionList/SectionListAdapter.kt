@@ -54,7 +54,7 @@ class SectionListAdapter(
         }
     }
 
-    suspend fun getIssueOperations(): IssueOperations? {
+    fun getIssueOperations(): IssueOperations? {
         return issueOperations
     }
 

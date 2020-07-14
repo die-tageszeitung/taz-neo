@@ -62,11 +62,11 @@ data class Issue(
         return tag
     }
 
-    override suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? {
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? {
         return this
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<Issue?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<Issue?> {
         return IssueRepository.getInstance(applicationContext).getIssueLiveData(this.feedName, this.date, this.status)
     }
 

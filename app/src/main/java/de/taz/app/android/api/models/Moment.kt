@@ -12,8 +12,6 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 data class Moment(
     val issueFeedName: String,
@@ -70,7 +68,7 @@ data class Moment(
         return IssueRepository.getInstance(applicationContext).getIssueStubForMoment(this)
     }
 
-    override suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? {
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? {
         return getIssueStub(applicationContext)
     }
 
@@ -91,14 +89,13 @@ data class Moment(
         )
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<Moment?> =
-        withContext(Dispatchers.IO) {
-            this@Moment.getIssueOperations(applicationContext)?.let {
-                MomentRepository.getInstance(applicationContext).getLiveData(it)
-            } ?: run {
-                Sentry.capture("Could not get IssueOperations for Moment: $this")
-                MutableLiveData<Moment?>(null)
-            }
+    override fun getLiveData(applicationContext: Context?): LiveData<Moment?> {
+        return this@Moment.getIssueOperations(applicationContext)?.let {
+            MomentRepository.getInstance(applicationContext).getLiveData(it)
+        } ?: run {
+            Sentry.capture("Could not get IssueOperations for Moment: $this")
+            MutableLiveData<Moment?>(null)
         }
+    }
 
 }

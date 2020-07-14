@@ -71,7 +71,7 @@ data class Article(
             .update(ArticleStub(this).copy(downloadedStatus = downloadedStatus))
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<Article?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<Article?> {
         return ArticleRepository.getInstance(applicationContext).getLiveData(key)
     }
 
