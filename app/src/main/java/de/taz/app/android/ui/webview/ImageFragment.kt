@@ -11,6 +11,16 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
 
+const val HTML_BACKGROUND_CONTAINER = """
+<html>
+    <body style="background: transparent;margin:0;">
+        <div style="width:100%%; height:100%%; display: flex; align-items: center;">
+            <img src="%s" style="width:100%%; "/>
+        </div>
+    </body>
+</html>
+"""
+
 class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
 
@@ -50,13 +60,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                                         domStorageEnabled = true
                                     }
                                     loadDataWithBaseURL(fileDir,
-                                        """<html>
-                                                <body style="background: transparent;margin:0;">
-                                                    <div style="width:100%; height:100%; display: flex; align-items: center;">
-                                                        <img src="$fileDir/$uri" style="width:100%; "/>
-                                                    </div>
-                                                </body>
-                                            </html>""",
+                                        HTML_BACKGROUND_CONTAINER.format("$fileDir/$uri"),
                                         "text/html",
                                         "UTF-8",
                                         null
