@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -141,18 +140,22 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun skipToCurrentItem() {
-        runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
+    fun skipToCurrentItem(): Boolean {
+       return runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
             val position = coverflowAdapter?.getPosition(feed, date, status) ?: -1
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             layoutManager?.apply {
                 val currentPosition: Int =
                     (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
-                if (position >= 0 && position != currentPosition) {
-                    fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+                if (position >= 0 ) {
+                    if(position != currentPosition) {
+                        fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+                    }
+                    return@runIfNotNull true
                 }
             }
-        }
+           return@runIfNotNull false
+       } ?: false
     }
 
     fun skipToItem(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
