@@ -406,14 +406,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                 null,
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE
                             )
-                            supportFragmentManager.fragments.firstOrNull { fragment ->
-                                fragment is HomeFragment
-                            }?.let { homeFragment ->
-                                supportFragmentManager.beginTransaction()
-                                    .detach(homeFragment)
-                                    .attach(homeFragment)
-                                    .commit()
-                            }
+                            recreate()
                             showArticle(articleName)
                         }
                     }
