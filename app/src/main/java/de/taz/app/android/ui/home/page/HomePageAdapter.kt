@@ -154,24 +154,30 @@ abstract class HomePageAdapter(
     inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.setOnClickListener {
-                fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-                    getItem(adapterPosition)?.let {
-                        fragment.onItemSelected(it)
+            itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.apply {
+                setOnClickListener {
+                    fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+                        getItem(adapterPosition)?.let {
+                            fragment.onItemSelected(it)
+                        }
                     }
                 }
-            }
 
-            itemView.setOnLongClickListener { view ->
-                log.debug("onLongClickListener triggered for view: $view!")
-                getItem(adapterPosition)?.let { item ->
-                    fragment.getMainView()?.let { mainView ->
-                        fragment.showBottomSheet(IssueBottomSheetFragment.create(mainView, item))
+                setOnLongClickListener { view ->
+                    log.debug("onLongClickListener triggered for view: $view!")
+                    getItem(adapterPosition)?.let { item ->
+                        fragment.getMainView()?.let { mainView ->
+                            fragment.showBottomSheet(
+                                IssueBottomSheetFragment.create(
+                                    mainView,
+                                    item
+                                )
+                            )
+                        }
                     }
+                    true
                 }
-                true
             }
-
             dateOnClickListenerFunction?.let { dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
                     getItem(adapterPosition)?.let { issueStub ->
