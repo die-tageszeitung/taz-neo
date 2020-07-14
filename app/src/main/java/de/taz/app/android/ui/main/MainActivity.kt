@@ -393,6 +393,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                 sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
                                         section.getIssueOperations()?.let { issueOperations ->
+                                            setCoverFlowItem(issueOperations)
                                             setDrawerIssue(issueOperations)
                                             changeDrawerIssue()
                                         }
