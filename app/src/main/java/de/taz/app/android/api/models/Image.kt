@@ -64,7 +64,7 @@ data class Image(
         return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
         return ImageRepository.getInstance(applicationContext).getLiveData(name)
     }
 
@@ -74,10 +74,13 @@ data class Image(
                 .download(this@Image, getIssueOperations(applicationContext)?.baseUrl)
         }
 
-    override suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? =
-        withContext(Dispatchers.IO) {
-            IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
-        }
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? =
+        IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
+
+
+    override suspend fun getDownloadStatus(applicationContext: Context?): DownloadStatus? {
+        return IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)?.downloadedStatus
+    }
 
 }
 

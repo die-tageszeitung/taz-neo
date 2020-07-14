@@ -42,7 +42,7 @@ data class Page (
         return PageRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
-    override suspend fun getLiveData(applicationContext: Context?): LiveData<Page?> {
+    override fun getLiveData(applicationContext: Context?): LiveData<Page?> {
         return PageRepository.getInstance(applicationContext).getLiveData(pagePdf.name)
     }
 

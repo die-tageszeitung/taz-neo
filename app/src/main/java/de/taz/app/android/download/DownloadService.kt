@@ -88,7 +88,8 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            if (!cacheableDownload.isDownloadedOrDownloading(applicationContext)) {
+            val isDownloadingOrDownloaded = cacheableDownload.isDownloadedOrDownloading(applicationContext)
+            if (!isDownloadingOrDownloaded) {
                 ensureAppInfo()
 
                 val issue = cacheableDownload as? Issue

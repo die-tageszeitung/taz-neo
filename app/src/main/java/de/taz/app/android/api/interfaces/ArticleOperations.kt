@@ -61,7 +61,7 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         }
     }
 
-    override suspend fun getIssueOperations(applicationContext: Context?) = getIssueStub(applicationContext)
+    override fun getIssueOperations(applicationContext: Context?) = getIssueStub(applicationContext)
 
     suspend fun getNavButton(applicationContext: Context?): Image? = withContext(Dispatchers.IO){
         return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton()

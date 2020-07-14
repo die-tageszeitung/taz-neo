@@ -44,16 +44,12 @@ interface CacheableDownload {
         }
     }
 
-    suspend fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?>
+    fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?>
 
     fun setDownloadStatus(downloadStatus: DownloadStatus)
 
-    private suspend fun isDownloadedInDb(applicationContext: Context?): Boolean {
+    private fun isDownloadedInDb(applicationContext: Context?): Boolean {
         return DownloadRepository.getInstance(applicationContext).isDownloaded(getAllFileNames())
-    }
-
-    fun isDownloadedOrDownloading(): Boolean {
-        return downloadedStatus in listOf(DownloadStatus.done, DownloadStatus.started)
     }
 
     fun getAllFileNames(): List<String>
@@ -69,5 +65,5 @@ interface CacheableDownload {
      * if the [CacheableDownload] has [FileEntry]s of [StorageType.issue] we need the
      * [IssueOperations] for baseUrl and tag
      */
-    suspend fun getIssueOperations(applicationContext: Context?): IssueOperations? = null
+    fun getIssueOperations(applicationContext: Context?): IssueOperations? = null
 }

@@ -93,7 +93,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    suspend fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
+    fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
         return Transformations.map(
             appDatabase.momentDao().getLiveData(issueOperations)
         ) { momentStub ->

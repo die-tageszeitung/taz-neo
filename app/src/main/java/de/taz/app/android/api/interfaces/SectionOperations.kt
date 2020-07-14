@@ -45,7 +45,7 @@ interface SectionOperations : WebViewDisplayable {
         return extendedTitle ?: title
     }
 
-    override suspend fun getIssueOperations(applicationContext: Context?) = issueStub
+    override fun getIssueOperations(applicationContext: Context?) = issueStub
 
     suspend fun getNavButton(): Image = withContext(Dispatchers.IO) {
         return@withContext SectionRepository.getInstance().getNavButton(this@SectionOperations.key)
