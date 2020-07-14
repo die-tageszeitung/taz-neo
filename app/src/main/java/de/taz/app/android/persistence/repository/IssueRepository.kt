@@ -107,6 +107,9 @@ class IssueRepository private constructor(applicationContext: Context) :
         appDatabase.issueDao().update(issueStub)
     }
 
+    fun getStub(issueOperations: IssueOperations) =
+        getStub(issueOperations.feedName, issueOperations.date, issueOperations.status)
+
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
     }

@@ -119,6 +119,11 @@ data class Issue(
         pageList.forEach { it.setDownloadStatus(downloadStatus) }
         moment.setDownloadStatus(downloadStatus)
     }
+
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return IssueRepository.getInstance(applicationContext).getStub(this)?.downloadedStatus
+    }
+
 }
 
 @JsonClass(generateAdapter = false)
