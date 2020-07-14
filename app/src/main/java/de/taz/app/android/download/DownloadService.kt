@@ -101,6 +101,17 @@ class DownloadService private constructor(val applicationContext: Context) {
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
                             .await()
                     issueRepository.setDownloadDate(it, Date())
+                    launch {
+                        // check if metadata has changed and update db and restart download
+                        val fromServer = apiService.getIssueByFeedAndDateAsync(
+                            issue.feedName, issue.date
+                        ).await()
+                        if (fromServer?.status == issue.status && fromServer != issue) {
+                            cancelDownloads(issue.tag)
+                            issueRepository.save(fromServer)
+                            download(fromServer)
+                        }
+                    }
                 }
 
                 cacheableDownload.setDownloadStatus(DownloadStatus.started)

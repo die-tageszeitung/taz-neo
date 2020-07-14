@@ -97,23 +97,7 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         CoroutineScope(Dispatchers.IO).launch {
             val issueRepository = IssueRepository.getInstance(context?.applicationContext)
             issueRepository.getIssue(issueOperations)?.let {
-                if (!it.isDownloaded(context?.applicationContext)) {
-                    val apiService = ApiService.getInstance(context?.applicationContext)
-                    val downloadService = DownloadService.getInstance(context?.applicationContext)
-
-                    // start download
-                    downloadService.download(it)
-
-                    // check whether the metadata has changed online
-                    val updateIssue = apiService.getIssueByFeedAndDateAsync(
-                        it.feedName, it.date
-                    ).await()
-                    // if it has changed - save and redownload issue
-                    if (it != updateIssue && updateIssue != null) {
-                        issueRepository.save(updateIssue)
-                        downloadService.download(updateIssue)
-                    }
-                }
+                DownloadService.getInstance(context?.applicationContext).download(it)
             }
         }
 
