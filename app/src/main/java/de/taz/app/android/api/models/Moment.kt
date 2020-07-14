@@ -15,33 +15,35 @@ import de.taz.app.android.persistence.repository.MomentRepository
 import io.sentry.Sentry
 
 data class Moment(
+    val issueFeedName: String,
+    val issueDate: String,
+    val issueStatus: IssueStatus,
     val imageList: List<Image> = emptyList(),
-    val creditList: List<Image> = emptyList()
+    val creditList: List<Image> = emptyList(),
+    override val downloadedStatus: DownloadStatus?
 ) : CacheableDownload {
-    constructor(issueFeedName: String, issueDate: String, momentDto: MomentDto) : this(
+
+    constructor(issueFeedName: String, issueDate: String, issueStatus: IssueStatus, momentDto: MomentDto) : this(
+        issueFeedName,
+        issueDate,
+        issueStatus,
         momentDto.imageList
-            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+            ?.map { Image(it, "${issueFeedName}/${issueDate}") } ?: emptyList(),
         momentDto.creditList
-            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList()
+            ?.map { Image(it, "${issueFeedName}/${issueDate}") } ?: emptyList(),
+        DownloadStatus.pending
     )
 
-    override val downloadedStatus: DownloadStatus?
-        get() {
-            val imagesToDownload = getImagesToDownload()
-            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.aborted } != null) {
-                return DownloadStatus.aborted
-            }
-            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.started } != null) {
-                return DownloadStatus.started
-            }
-            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.pending } != null) {
-                return DownloadStatus.pending
-            }
-            if (imagesToDownload.firstOrNull { it.downloadedStatus == DownloadStatus.takeOld } != null) {
-                return DownloadStatus.takeOld
-            }
-            return DownloadStatus.done
-        }
+    constructor(issueOperations: IssueOperations, momentDto: MomentDto) : this(
+        issueOperations.feedName,
+        issueOperations.date,
+        issueOperations.status,
+        momentDto.imageList
+            ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") } ?: emptyList(),
+        momentDto.creditList
+            ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") } ?: emptyList(),
+        DownloadStatus.pending
+    )
 
     private fun getImagesToDownload(): List<Image> {
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
@@ -78,11 +80,7 @@ data class Moment(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        getImagesToDownload().forEach {
-            FileEntryRepository.getInstance().update(
-                FileEntry(it).copy(downloadedStatus = downloadStatus)
-            )
-        }
+        MomentRepository.getInstance().update(MomentStub(this).copy(downloadedStatus = downloadStatus))
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {

@@ -55,8 +55,6 @@ class SplashActivity : BaseActivity() {
 
         ensurePushTokenSent()
 
-        cleanUpImages()
-
         startNotDownloadedIssues()
 
         if (isDataPolicyAccepted()) {
@@ -214,64 +212,6 @@ class SplashActivity : BaseActivity() {
             if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
                 CoroutineScope(Dispatchers.IO).launch {
                     ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
-                }
-            }
-        }
-    }
-
-    /**
-     * This fixes an error introduced in 0.6.5 - TODO remove in 0.7 or so
-     */
-    private fun cleanUpImages() = CoroutineScope(Dispatchers.IO).launch {
-        val imageFileEntryNames =
-            FileEntryRepository.getInstance(applicationContext)
-                .getFileNamesContaining("%Media%").toMutableList()
-        imageFileEntryNames.addAll(
-            FileEntryRepository.getInstance(applicationContext)
-                .getFileNamesContaining("%Moment%")
-        )
-
-        val imageRepository = ImageRepository.getInstance(applicationContext)
-        val downloadRepository = DownloadRepository.getInstance(applicationContext)
-
-        imageFileEntryNames.forEach {
-            if (imageRepository.get(it) == null) {
-                try {
-                    downloadRepository.setStatus(it, DownloadStatus.pending)
-                } catch (e: Exception) {
-                    // download does not exist
-                }
-                if (it.contains(".norm") || it.contains(".quadrat")) {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.normal
-                        )
-                    )
-                } else if (it.contains(".high")) {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.high
-                        )
-                    )
-                } else {
-                    imageRepository.saveStub(
-                        ImageStub(
-                            it,
-                            ImageType.picture,
-                            1f,
-                            ImageResolution.small
-                        )
-                    )
-                }
-                if (it.contains("Moment")) {
-                    MomentRepository.getInstance(applicationContext).getByImageName(it)
-                        ?.download()
                 }
             }
         }
