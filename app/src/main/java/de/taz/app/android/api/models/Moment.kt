@@ -27,9 +27,9 @@ data class Moment(
         issueDate,
         issueStatus,
         momentDto.imageList
-            ?.map { Image(it, "${issueFeedName}/${issueDate}") } ?: emptyList(),
+            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
-            ?.map { Image(it, "${issueFeedName}/${issueDate}") } ?: emptyList(),
+            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         DownloadStatus.pending
     )
 
