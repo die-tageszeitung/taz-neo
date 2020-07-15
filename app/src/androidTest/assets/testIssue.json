@@ -48,6 +48,18 @@
                     "type": "facsimile",
                     "alpha": 1
                   }
+                ],
+                "creditList": [
+                  {
+                    "name": "MomentFax.1009797.w660.high.jpg",
+                    "storageType": "issue",
+                    "moTime": "1587921261",
+                    "sha256": "11dfd96904ad05129b7e5caea7b3f6c24dc574c7d890ccb3dae74010ac4a356e",
+                    "size": "645944",
+                    "resolution": "high",
+                    "type": "facsimile",
+                    "alpha": 1
+                  }
                 ]
               },
               "key": null,

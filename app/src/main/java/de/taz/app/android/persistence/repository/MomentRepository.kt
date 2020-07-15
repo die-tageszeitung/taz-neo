@@ -6,7 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.join.IssueMomentJoin
+import de.taz.app.android.persistence.join.IssueCreditMomentJoin
+import de.taz.app.android.persistence.join.IssueImageMomentJoin
 import de.taz.app.android.util.SingletonHolder
 
 class MomentRepository private constructor(applicationContext: Context) :
@@ -16,24 +17,62 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
+    fun update(momentStub: MomentStub) {
+        appDatabase.momentDao().insertOrReplace(momentStub)
+    }
+
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
-        appDatabase.issueMomentJoinDao().insertOrReplace(
-            moment.imageList.mapIndexed { index, fileEntry ->
-                IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+        appDatabase.momentDao().insertOrReplace(MomentStub(moment))
+        appDatabase.issueImageMomentJoinDao().insertOrReplace(
+            moment.imageList.mapIndexed { index, image ->
+                IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, image.name, index)
             }
+        )
+        appDatabase.issueCreditMomentJoinDao().insertOrReplace(
+            moment.creditList.mapIndexed { index, image ->
+                IssueCreditMomentJoin(issueFeedName, issueDate, issueStatus, image.name, index)
+            }
+        )
+    }
+
+    fun momentStubToMoment(momentStub: MomentStub): Moment {
+        return Moment(
+            momentStub.issueFeedName,
+            momentStub.issueDate,
+            momentStub.issueStatus,
+            appDatabase.issueImageMomentJoinDao().getMomentFiles(
+                momentStub.issueFeedName,
+                momentStub.issueDate,
+                momentStub.issueStatus
+            ),
+            appDatabase.issueCreditMomentJoinDao().getMomentFiles(
+                momentStub.issueFeedName,
+                momentStub.issueDate,
+                momentStub.issueStatus
+            ),
+            momentStub.downloadedStatus
         )
     }
 
     @Throws(NotFoundException::class)
     fun getOrThrow(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment {
         return Moment(
-            appDatabase.issueMomentJoinDao().getMomentFiles(
+            issueFeedName,
+            issueDate,
+            issueStatus,
+            appDatabase.issueImageMomentJoinDao().getMomentFiles(
                 issueFeedName,
                 issueDate,
                 issueStatus
-            )
+            ),
+            appDatabase.issueCreditMomentJoinDao().getMomentFiles(
+                issueFeedName,
+                issueDate,
+                issueStatus
+            ),
+            appDatabase.momentDao().getDownloadStatus(issueFeedName, issueDate, issueStatus)
         )
     }
 
@@ -56,25 +95,21 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
         return Transformations.map(
-            appDatabase.issueMomentJoinDao().getMomentFilesLiveData(
-                issueOperations.feedName,
-                issueOperations.date,
-                issueOperations.status
-            )
-        ) { imageList ->
-            Moment(imageList)
+            appDatabase.momentDao().getLiveData(issueOperations)
+        ) { momentStub ->
+            momentStub?.let { momentStubToMoment(momentStub) }
         }
-
-    }
-
-    fun getByImageName(imageName: String): Moment? {
-        return Moment(appDatabase.issueMomentJoinDao().getByImageName(imageName))
     }
 
     fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        appDatabase.issueMomentJoinDao().delete(
+        appDatabase.issueImageMomentJoinDao().delete(
             moment.imageList.mapIndexed { index, fileEntry ->
-                IssueMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+                IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+            }
+        )
+        appDatabase.issueCreditMomentJoinDao().delete(
+            moment.creditList.mapIndexed { index, fileEntry ->
+                IssueCreditMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
             }
         )
         try {
@@ -84,5 +119,6 @@ class MomentRepository private constructor(applicationContext: Context) :
             log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
             // do not delete is used by another issue
         }
+        appDatabase.momentDao().delete(MomentStub(moment))
     }
 }

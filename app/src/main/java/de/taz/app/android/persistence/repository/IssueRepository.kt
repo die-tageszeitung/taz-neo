@@ -172,7 +172,7 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getIssueStubForMoment(moment: Moment): IssueStub? {
         return moment.getMomentImage()?.let {
-            appDatabase.issueMomentJoinDao().getIssueStub(it.name)
+            appDatabase.issueImageMomentJoinDao().getIssueStub(it.name)
         }
     }
 
@@ -265,13 +265,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
-        val moment = Moment(
-            appDatabase.issueMomentJoinDao().getMomentFiles(
-                issueStub.feedName,
-                issueStub.date,
-                issueStub.status
-            )
-        )
+        val moment = momentRepository.getOrThrow(issueStub)
 
         val pageList =
             appDatabase.issuePageJoinDao()
