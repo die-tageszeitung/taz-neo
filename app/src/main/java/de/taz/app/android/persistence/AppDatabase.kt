@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 10
+const val DATABASE_VERSION = 11
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -24,7 +24,8 @@ val allMigrations = arrayOf(
     Migration6to7,
     Migration7to8,
     Migration8to9,
-    Migration9to10
+    Migration9to10,
+    Migration10to11
 )
 
 @Database(
@@ -40,9 +41,11 @@ val allMigrations = arrayOf(
         ImageStub::class,
         IssueStub::class,
         IssueImprintJoin::class,
-        IssueMomentJoin::class,
+        IssueCreditMomentJoin::class,
+        IssueImageMomentJoin::class,
         IssuePageJoin::class,
         IssueSectionJoin::class,
+        MomentStub::class,
         PageStub::class,
         ResourceInfoStub::class,
         ResourceInfoFileEntryJoin::class,
@@ -94,15 +97,17 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun imageStubDao(): ImageStubDao
     abstract fun issueDao(): IssueDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
-    abstract fun issueMomentJoinDao(): IssueMomentJoinDao
+    abstract fun issueCreditMomentJoinDao(): IssueCreditMomentJoinDao
+    abstract fun issueImageMomentJoinDao(): IssueImageMomentJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
     abstract fun issueSectionJoinDao(): IssueSectionJoinDao
+    abstract fun momentDao(): MomentDao
     abstract fun pageDao(): PageDao
     abstract fun resourceInfoDao(): ResourceInfoDao
     abstract fun resourceInfoFileEntryJoinDao(): ResourceInfoFileEntryJoinDao
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
-    abstract fun sectionNavButtonJoinDao():SectionNavButtonJoinDao
+    abstract fun sectionNavButtonJoinDao(): SectionNavButtonJoinDao
 
 }
