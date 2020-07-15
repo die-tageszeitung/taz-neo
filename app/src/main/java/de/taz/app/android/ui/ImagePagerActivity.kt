@@ -43,12 +43,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         lifecycleScope.launch(Dispatchers.IO) {
             imageList = getImageList(displayableName)
             mPager.setCurrentItem(getPosition(imageName), false)
+            imageList?.forEach { it.download(applicationContext) }
         }
 
-        mPager.apply {
-            reduceDragSensitivity(6)
-            offscreenPageLimit = 2
-        }
+        mPager.offscreenPageLimit = 2
     }
 
     private suspend fun getImageList(articleName: String?): List<Image>? =
