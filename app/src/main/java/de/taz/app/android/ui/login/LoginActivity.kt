@@ -253,6 +253,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showCredentialsInvalid() {
         log.debug("showCredentialsInvalid")
+        toastHelper?.showToast(R.string.login_error_unknown_credentials)
         showFragment(
             LoginFragment.create(
                 usernameErrorId = R.string.login_error_unknown_credentials
