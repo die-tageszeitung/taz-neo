@@ -10,6 +10,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.util.runIfNotNull
 
 const val HTML_BACKGROUND_CONTAINER = """
 <html>
@@ -37,44 +38,46 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         val webView = view?.findViewById<WebView>(R.id.image_view)
         image?.download(context?.applicationContext)
-        image?.isDownloadedLiveData(context?.applicationContext)
-            ?.observeDistinctUntil(this, { isDownloaded ->
-                if (isDownloaded) {
-                    image?.let {
-                        val fileHelper = FileHelper.getInstance(context)
-                        context?.let { it1 ->
-                            fileHelper.getFileDirectoryUrl(it1).let { fileDir ->
-                                val uri = "${it.folder}/${it.name}"
-                                webView?.apply {
-                                    webChromeClient =
-                                        AppWebChromeClient {
-                                            view.findViewById<View>(R.id.loading_screen).visibility =
-                                                View.GONE
-                                        }
-                                    settings?.apply {
-                                        allowFileAccess = true
-                                        builtInZoomControls = true
-                                        displayZoomControls = false
-                                        useWideViewPort = true
-                                        loadWithOverviewMode = true
-                                        domStorageEnabled = true
-                                    }
-                                    loadDataWithBaseURL(fileDir,
-                                        HTML_BACKGROUND_CONTAINER.format("$fileDir/$uri"),
-                                        "text/html",
-                                        "UTF-8",
-                                        null
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+        image?.isDownloadedLiveData(context?.applicationContext)?.observeDistinctUntil(
+            this, { isDownloaded ->
+                showImageIfDownloaded(isDownloaded)
             }, { isDownloaded ->
                 isDownloaded
             })
 
+        webView?.apply {
+            webChromeClient = AppWebChromeClient {
+                view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
+            }
+            settings?.apply {
+                allowFileAccess = true
+                builtInZoomControls = true
+                displayZoomControls = false
+                useWideViewPort = true
+                loadWithOverviewMode = true
+                domStorageEnabled = true
+            }
+        }
+
         return view
     }
 
+    private fun showImageIfDownloaded(isDownloaded: Boolean) {
+        if (isDownloaded) {
+            val webView = view?.findViewById<WebView>(R.id.image_view)
+            val fileHelper = FileHelper.getInstance(context)
+            runIfNotNull(image, context, webView) { image, context, web ->
+                fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+                    val uri = "${image.folder}/${image.name}"
+                    web.loadDataWithBaseURL(
+                        fileDir,
+                        HTML_BACKGROUND_CONTAINER.format("$fileDir/$uri"),
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
+                }
+            }
+        }
+    }
 }
