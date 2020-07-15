@@ -30,8 +30,8 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        displayableName = intent.extras?.getString(DISPLAYABLE_NAME)?.replace("normal", "high")
-        imageName = intent.extras?.getString(IMAGE_NAME)
+        displayableName = intent.extras?.getString(DISPLAYABLE_NAME)
+        imageName = intent.extras?.getString(IMAGE_NAME)?.replace("norm", "high")
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = findViewById(R.id.activity_image_pager)
@@ -67,13 +67,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         }
 
     private fun getPosition(imageName: String?): Int {
-        return imageList?.let { list ->
-            list.indexOf(
-                list.find {
-                    it.name == imageName
-                }
-            )
-        } ?: 0
+        return imageList?.indexOfFirst { it.name == imageName }?.coerceAtLeast(0) ?: 0
     }
 
     /**
