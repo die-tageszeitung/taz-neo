@@ -18,7 +18,7 @@
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_elapsed">Ihr Abo ist abgelaufen.</string>
-    <string name="toast_logout_invalid">Ihr Abo ist nicht mehr gültig.</string>
+    <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
     <string name="navigation_drawer_close">Seitenleiste schließen</string>
