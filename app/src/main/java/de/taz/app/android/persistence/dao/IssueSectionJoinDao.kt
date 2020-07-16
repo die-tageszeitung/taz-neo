@@ -43,7 +43,18 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
-    abstract fun getIssueStubForSection(sectionName: String): IssueStub
+    abstract fun getIssueStubForSection(sectionName: String): IssueStub?
+
+    @Query(
+        """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin INNER JOIN SectionArticleJoin
+            ON IssueSectionJoin.sectionFileName == SectionArticleJoin.sectionFileName
+            AND SectionArticleJoin.articleFileName == :articleFileName
+            AND Issue.feedName == IssueSectionJoin.issueFeedName
+            AND Issue.date == IssueSectionJoin.issueDate
+            AND Issue.status == IssueSectionJoin.issueStatus
+        """
+    )
+    abstract fun getIssueStubForArticle(articleFileName: String): IssueStub?
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
