@@ -291,8 +291,12 @@ class DownloadService private constructor(val applicationContext: Context) {
         } else {
             // TODO handle 50x by "backing off" and trying again later
             log.warn("Download was not successful ${response.code}")
-            download.file.setDownloadStatus(DownloadStatus.aborted)
-            downloadRepository.setStatus(download, DownloadStatus.aborted)
+            if (response.code in 400..499) {
+                download.file.setDownloadStatus(DownloadStatus.aborted)
+                downloadRepository.setStatus(download, DownloadStatus.aborted)
+            } else {
+                abortAndRetryDownload(download, doNotRestartDownload)
+            }
         }
         log.debug("finished handling response of ${download.fileName}")
     }
