@@ -167,7 +167,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onDestroy() {
         super.onDestroy()
-        //web_view?.destroy()
+        web_view?.destroy()
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
