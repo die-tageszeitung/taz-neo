@@ -61,8 +61,6 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     SubscriptionStatus.noSurname,
                     SubscriptionStatus.invalidMail,
                     SubscriptionStatus.alreadyLinked -> {
-                        // should never happen
-                        Sentry.capture("subscriptionPoll returned ${subscriptionInfo.status}")
                         // stop polling and tell user to try again
                         toastHelper.showToast(R.string.toast_login_failed_retry)
                     }

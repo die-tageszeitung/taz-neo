@@ -54,8 +54,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
             log.debug("From: " + remoteMessage.from)
 
-            Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
-
             // Check if message contains a data payload.
             if (remoteMessage.data.isNotEmpty()) {
                 log.debug("Message data payload: " + remoteMessage.data)
