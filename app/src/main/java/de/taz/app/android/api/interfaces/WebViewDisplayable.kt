@@ -7,6 +7,7 @@ interface WebViewDisplayable: CacheableDownload {
     val key: String
 
     fun getFile(): File?
+    fun getFilePath(): String?
 
     fun previous(): WebViewDisplayable?
 

@@ -33,6 +33,10 @@ interface SectionOperations : WebViewDisplayable {
         return FileHelper.getInstance().getFile(this.key)
     }
 
+    override fun getFilePath(): String? {
+        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
+    }
+
     override fun previous(): SectionStub? {
         return previousSectionStub()
     }
