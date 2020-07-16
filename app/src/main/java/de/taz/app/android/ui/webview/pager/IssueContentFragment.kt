@@ -1,13 +1,14 @@
 package de.taz.app.android.ui.webview.pager
 
-import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -15,6 +16,11 @@ import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+const val ISSUE_DATE = "issueDate"
+const val ISSUE_FEED = "issueFeed"
+const val ISSUE_STATUS = "issueStatus"
+const val DISPLAYABLE_KEY = "webViewDisplayableKey"
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -48,34 +54,65 @@ class IssueContentFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        savedInstanceState?.apply {
+            issueDate = getString(ISSUE_DATE)
+            issueFeedName = getString(ISSUE_FEED)
+            try {
+                issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+            } catch (e: IllegalArgumentException) {
+                // do nothing issueStatus is null
+            }
+            displayableKey = getString(DISPLAYABLE_KEY)
+        }
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        sectionPagerFragment = sectionPagerFragment ?: SectionPagerFragment()
+        articlePagerFragment = articlePagerFragment ?: ArticlePagerFragment()
 
         displayableKey?.let {
             getIssueOperationByDisplayableKey()
         }
 
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feed, date, status ->
-            viewModel.issueFeedNameLiveData.postValue(feed)
-            viewModel.issueDateLiveData.postValue(date)
-            viewModel.issueStatusLiveData.postValue(status)
-            getSectionListByIssue(feed, date, status).invokeOnCompletion { showSection(displayableKey) }
             getIssueStub(feed, date, status)
-            getArticles(feed, date, status)
         }
 
+        viewModel.issueOperationsLiveData.observeDistinctUntil(this, { issueOperations ->
+            issueOperations?.let {
+                val feed = it.feedName
+                val date = it.date
+                val status = it.status
+                getSectionListByIssue(feed, date, status).invokeOnCompletion {
+                    if (displayableKey == null || displayableKey?.startsWith("sec") == true) {
+                        showSection(displayableKey)
+                    }
+                }
+                getArticles(feed, date, status).invokeOnCompletion {
+                    if (displayableKey?.startsWith("art") == true) {
+                        showArticle(displayableKey)
+                    }
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        viewModel.sectionNameListLiveData.postValue(
+                            viewModel.articleList.map { article -> article.getSectionStub()?.key }
+                        )
+                    }
+                }
+                getMainView()?.setCoverFlowItem(issueOperations)
+                setDrawerIssue(issueOperations)
+                getMainView()?.changeDrawerIssue()
+            }
+        }, { issueOperations ->
+            issueOperations != null
+        })
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        sectionPagerFragment =
-            sectionPagerFragment ?: SectionPagerFragment.createInstance(viewModel)
-        articlePagerFragment =
-            articlePagerFragment ?: ArticlePagerFragment.createInstance(viewModel)
-    }
-
-    private fun showArticle(articleFileName: String) {
-        articlePagerFragment?.let {
-            showFragment(it)
-            it.tryLoadArticle(articleFileName)
+    private fun showArticle(articleFileName: String? = null) {
+        runIfNotNull(articleFileName, articlePagerFragment) { fileName, fragment ->
+            showFragment(fragment)
+            fragment.tryLoadArticle(fileName)
         }
     }
 
@@ -135,13 +172,12 @@ class IssueContentFragment :
         }
     }
 
-    private fun getArticles(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+    private fun getArticles(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) =
         lifecycleScope.launch(Dispatchers.IO) {
             val articles = ArticleRepository.getInstance(context?.applicationContext)
                 .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
             viewModel.articleList = articles
         }
-    }
 
     private fun getSectionListByIssue(
         issueFeedName: String,
@@ -159,5 +195,19 @@ class IssueContentFragment :
         return childFragmentManager.fragments.lastOrNull()?.let {
             (it as? BackFragment)?.onBackPressed() ?: false
         } ?: false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val issueOperations = viewModel.issueOperationsLiveData.value
+        outState.apply {
+            putString(ISSUE_DATE, issueDate ?: issueOperations?.date)
+            putString(ISSUE_FEED, issueFeedName ?: issueOperations?.feedName)
+            putString(
+                ISSUE_STATUS,
+                issueStatus?.toString() ?: issueOperations?.status?.toString()
+            )
+            putString(DISPLAYABLE_KEY, displayableKey)
+        }
     }
 }

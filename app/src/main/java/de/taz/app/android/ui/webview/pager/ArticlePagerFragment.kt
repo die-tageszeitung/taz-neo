@@ -39,17 +39,7 @@ class ArticlePagerFragment() :
     private var hasBeenSwiped: Boolean = false
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    private lateinit var issueContentViewModel: IssueContentViewModel
-
-    companion object {
-        fun createInstance(
-            issueContentViewModel: IssueContentViewModel
-        ): ArticlePagerFragment {
-            val fragment = ArticlePagerFragment()
-            fragment.issueContentViewModel = issueContentViewModel
-            return fragment
-        }
-    }
+    private val issueContentViewModel: IssueContentViewModel? by lazy { (parentFragment as? IssueContentFragment)?.viewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +69,7 @@ class ArticlePagerFragment() :
             }
         }
 
-        issueContentViewModel.issueOperationsLiveData.observeDistinct(this) { issueOperations ->
+        issueContentViewModel?.issueOperationsLiveData?.observeDistinct(this) { issueOperations ->
             issueOperations?.let { setDrawerIssue(it) }
         }
     }
@@ -118,7 +108,7 @@ class ArticlePagerFragment() :
                 firstSwipe = false
             } else {
                 hasBeenSwiped = true
-                issueContentViewModel.sectionNameListLiveData.observeDistinctUntil(
+                issueContentViewModel?.sectionNameListLiveData?.observeDistinctUntil(
                     viewLifecycleOwner, {
                         if (it.isNotEmpty()) {
                             it[position]?.let { sectionName ->
@@ -150,7 +140,7 @@ class ArticlePagerFragment() :
     private inner class ArticlePagerAdapter : FragmentStateAdapter(this@ArticlePagerFragment) {
 
         private val articleStubs
-            get() = issueContentViewModel.articleList
+            get() = issueContentViewModel?.articleList ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
@@ -166,7 +156,9 @@ class ArticlePagerFragment() :
     }
 
     override fun onBackPressed(): Boolean {
-        if (hasBeenSwiped) {
+        val noSectionParent = parentFragmentManager.backStackEntryCount == 1
+
+        if (hasBeenSwiped || noSectionParent) {
             showSectionOrGoBack()
         } else {
             parentFragmentManager.popBackStack()
@@ -228,16 +220,14 @@ class ArticlePagerFragment() :
         startActivity(shareIntent)
     }
 
-    fun tryLoadArticle(articleFileName: String): Boolean {
-        issueContentViewModel.articleList.indexOfFirst { it.key == articleFileName }.let {
-            if (it >= 0) {
-                lifecycleScope.launchWhenStarted {
+    fun tryLoadArticle(articleFileName: String) {
+        lifecycleScope.launchWhenStarted {
+            issueContentViewModel?.articleList?.indexOfFirst { it.key == articleFileName }?.let {
+                if (it >= 0) {
                     webview_pager_viewpager.setCurrentItem(it, false)
                 }
-                return true
             }
         }
-        return false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

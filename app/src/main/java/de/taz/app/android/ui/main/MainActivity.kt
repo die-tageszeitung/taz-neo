@@ -10,7 +10,6 @@ import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
-import androidx.annotation.MainThread
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -36,7 +35,6 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
-import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 
@@ -261,13 +259,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun setCoverFlowItem(issueStub: IssueStub) {
+    fun setCoverFlowItem(issueOperations: IssueOperations) {
         val homeFragment =
             supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
         val coverFlowFragment =
             homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
         runOnUiThread {
-            coverFlowFragment?.skipToItem(issueStub)
+            coverFlowFragment?.skipToItem(issueOperations)
         }
     }
 
@@ -366,18 +364,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                sectionRepository?.getSectionStubForArticle(articleName)
-                                    ?.let { section ->
-                                        section.getIssueOperations(applicationContext)
-                                            ?.let { issueOperations ->
-                                                setCoverFlowItem(issueOperations)
-                                                setDrawerIssue(issueOperations)
-                                                changeDrawerIssue()
-                                            }
-                                    }
-                            }
-
                             // clear fragment backstack before showing article
                             supportFragmentManager.popBackStackImmediate(
                                 null,

@@ -12,18 +12,6 @@ class IssueContentViewModel(application: Application) : AndroidViewModel(applica
     var articleList: List<ArticleStub> = emptyList()
     var sectionList: List<SectionStub> = emptyList()
 
-    val issueFeedNameLiveData = MutableLiveData<String?>(null)
-    val issueFeedName
-        get() = issueFeedNameLiveData.value
-
-    val issueDateLiveData = MutableLiveData<String?>(null)
-    val issueDate
-        get() = issueDateLiveData.value
-
-    val issueStatusLiveData = MutableLiveData<IssueStatus?>(null)
-    val issueStatus
-        get() = issueStatusLiveData.value
-
     var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
     var issueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
 
