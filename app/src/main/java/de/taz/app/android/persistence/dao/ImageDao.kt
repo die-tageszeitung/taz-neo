@@ -6,7 +6,7 @@ import androidx.room.Query
 import de.taz.app.android.api.models.Image
 
 @Dao
-abstract class ImageDao() {
+abstract class ImageDao {
 
     @Query(
         """

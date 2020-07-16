@@ -10,26 +10,28 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
-import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
+import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var mPager: ViewPager2
-    private var articleName: String? = null
+    private var displayableName: String? = null
     private var imageName: String? = null
     private var imageList: List<Image>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        articleName = intent.extras?.getString(ARTICLE_NAME)
+        displayableName = intent.extras?.getString(DISPLAYABLE_NAME)
         imageName = intent.extras?.getString(IMAGE_NAME)
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -40,8 +42,16 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         mPager.adapter = pagerAdapter
 
         lifecycleScope.launch(Dispatchers.IO) {
-            imageList = getImageList(articleName)
-            mPager.setCurrentItem(getPosition(imageName), false)
+            imageList = getImageList(displayableName)
+            runOnUiThread {
+                mPager.setCurrentItem(getPosition(imageName), false)
+            }
+            imageList?.forEach { it.download(applicationContext) }
+        }
+
+        mPager.apply {
+            reduceDragSensitivity(6)
+            offscreenPageLimit = 2
         }
     }
 
@@ -49,23 +59,39 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         withContext(Dispatchers.IO) {
             articleName?.let {
                 if (it.startsWith("section.")) {
-                    SectionRepository.getInstance().imagesForSectionStub(it)
-                        .filter { image -> image.name == imageName}
+                    val sectionImages = SectionRepository.getInstance().imagesForSectionStub(it)
+                    val image = sectionImages.firstOrNull { image ->
+                        image.name == imageName?.replace(
+                            "norm",
+                            "high"
+                        )
+                    } ?: sectionImages.firstOrNull { image -> image.name == imageName }
+                    image?.let { listOf(image) }
                 } else {
-                    ArticleRepository.getInstance().getImagesForArticle(it)
-                        .filter { image -> image.resolution == ImageResolution.normal }
+                    val articleImages = ArticleRepository.getInstance().getImagesForArticle(it)
+                    val highRes =
+                        articleImages.filter { image -> image.resolution == ImageResolution.high }
+                    val normalRes =
+                        articleImages.filter { image -> image.resolution == ImageResolution.normal }
+                    normalRes.map { normalResImage ->
+                        highRes.firstOrNull { highResImage ->
+                            highResImage.name == normalResImage.name.replace(
+                                "norm",
+                                "high"
+                            )
+                        } ?: normalResImage
+                    }
                 }
             }
         }
 
     private fun getPosition(imageName: String?): Int {
-        return imageList?.let { list ->
-            list.indexOf(
-                list.find {
-                    it.name == imageName
-                }
-            )
-        } ?: 0
+        val highResPosition =
+            imageList?.indexOfFirst { it.name == imageName?.replace("norm", "high") }
+                ?.coerceAtLeast(0) ?: 0
+        val normalResPosition =
+            imageList?.indexOfFirst { it.name == imageName }?.coerceAtLeast(0) ?: 0
+        return max(highResPosition, normalResPosition)
     }
 
     /**

@@ -57,4 +57,8 @@ data class FileEntry(
         return FileEntryRepository.getInstance(applicationContext).getLiveData(name)
     }
 
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return FileEntryRepository.getInstance(applicationContext).get(name)?.downloadedStatus
+    }
+
 }
