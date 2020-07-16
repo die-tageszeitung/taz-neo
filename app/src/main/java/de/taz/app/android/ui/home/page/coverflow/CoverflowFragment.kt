@@ -22,9 +22,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
-import de.taz.app.android.ui.webview.pager.ISSUE_DATE
-import de.taz.app.android.ui.webview.pager.ISSUE_FEED
-import de.taz.app.android.ui.webview.pager.ISSUE_STATUS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
@@ -32,6 +29,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
+
+const val ISSUE_DATE = "issueDate"
+const val ISSUE_FEED = "issueFeed"
+const val ISSUE_STATUS = "issueStatus"
 
 class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
@@ -165,7 +166,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         skipToCurrentItem()
     }
 
-    fun skipToItem(issueStub: IssueStub) =
+    fun skipToItem(issueStub: IssueOperations) =
         skipToItem(issueStub.feedName, issueStub.date, issueStub.status)
 
     inner class OnScrollListener : RecyclerView.OnScrollListener() {
