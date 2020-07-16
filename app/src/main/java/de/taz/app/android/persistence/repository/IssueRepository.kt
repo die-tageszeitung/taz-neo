@@ -169,12 +169,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getIssueStubForSection(sectionFileName: String): IssueStub {
+    fun getIssueStubForSection(sectionFileName: String): IssueStub? {
         return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
-    fun getIssueForSection(sectionFileName: String): Issue {
-        return issueStubToIssue(getIssueStubForSection(sectionFileName))
+    fun getIssueStubForArticle(articleFileName: String): IssueStub? {
+        return appDatabase.issueSectionJoinDao().getIssueStubForArticle(articleFileName)
     }
 
     fun getIssueStubForMoment(moment: Moment): IssueStub? {

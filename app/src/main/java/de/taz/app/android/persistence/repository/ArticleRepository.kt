@@ -352,4 +352,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
+    fun getArticleStubListForIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): List<ArticleStub> {
+        return appDatabase.articleDao().getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
+    }
+
 }
