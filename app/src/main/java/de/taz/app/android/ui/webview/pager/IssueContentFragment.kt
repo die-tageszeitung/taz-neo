@@ -96,7 +96,9 @@ class IssueContentFragment :
                     }
                     lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.sectionNameListLiveData.postValue(
-                            viewModel.articleList.map { article -> article.getSectionStub()?.key }
+                            viewModel.articleList.map { article -> article.getSectionStub(
+                                context?.applicationContext
+                            )?.key }
                         )
                     }
                 }
