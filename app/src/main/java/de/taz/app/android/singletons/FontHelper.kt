@@ -46,7 +46,7 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
 
     private suspend fun fromFile(fileName: String): Typeface? = withContext(Dispatchers.IO) {
         return@withContext fileHelper.getFile(fileName)?.let {
-            val ttfFile = File("${fontFolder}/${it.name.replace(".woff", ".ttf")}")
+            val ttfFile = File("${fontFolder}/${it.name.toLowerCase().replace(".woff", ".ttf")}")
             if (!ttfFile.exists()) {
                 ttfFile.writeBytes(
                     WoffConverter().convertToTTFByteArray(it.inputStream())
