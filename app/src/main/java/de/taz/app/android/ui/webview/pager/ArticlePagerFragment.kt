@@ -169,7 +169,9 @@ class ArticlePagerFragment() :
     private fun showSectionOrGoBack() {
         articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let {
             lifecycleScope.launch(Dispatchers.IO) {
-                it.getSectionStub()?.key?.let { sectionKey -> showInWebView(sectionKey) }
+                it.getSectionStub(context?.applicationContext)?.key?.let { sectionKey ->
+                    showInWebView(sectionKey)
+                }
             }
         } ?: parentFragmentManager.popBackStack()
     }
