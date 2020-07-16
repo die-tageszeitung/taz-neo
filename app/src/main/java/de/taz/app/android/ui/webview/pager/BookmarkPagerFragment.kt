@@ -47,7 +47,7 @@ class BookmarkPagerFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.apply {
-            articleName = getString(ARTICLE_NAME)
+            articleName = getString(DISPLAYABLE_NAME)
             viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
     }
@@ -128,7 +128,7 @@ class BookmarkPagerFragment :
 
             lifecycleScope.launchWhenResumed {
                 articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
-                    articleStub.getNavButton()?.let {
+                    articleStub.getNavButton(context?.applicationContext)?.let {
                         showNavButton(it)
                     }
                     navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
@@ -207,7 +207,7 @@ class BookmarkPagerFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ARTICLE_NAME, articleName)
+        outState.putString(DISPLAYABLE_NAME, articleName)
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }

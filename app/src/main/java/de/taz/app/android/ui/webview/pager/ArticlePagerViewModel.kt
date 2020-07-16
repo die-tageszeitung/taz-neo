@@ -39,7 +39,11 @@ class ArticlePagerViewModel(application: Application) : AndroidViewModel(applica
                 CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
                     val articles = ArticleRepository.getInstance(getApplication())
                         .getIssueArticleStubListByArticleName(articleName)
-                    sectionNameListLiveData.postValue(articles.map { it.getSectionStub()?.key })
+                    sectionNameListLiveData.postValue(articles.map {
+                        it.getSectionStub(
+                            getApplication()
+                        )?.key
+                    })
                     // only set position of article if no position has been restored
                     if (currentPosition <= 0) {
                         currentPositionLiveData.postValue(
@@ -47,7 +51,9 @@ class ArticlePagerViewModel(application: Application) : AndroidViewModel(applica
                         )
                     }
                     postValue(articles)
-                    issueOperationsLiveData.postValue(articles.first().getIssueOperations())
+                    issueOperationsLiveData.postValue(
+                        articles.first().getIssueOperations(getApplication())
+                    )
                 }
             }
         }

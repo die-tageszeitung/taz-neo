@@ -341,7 +341,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     ) = withContext(Dispatchers.IO) {
 
         val tag = cacheableDownload.getDownloadTag()
-        val issueOperations = cacheableDownload.getIssueOperations()
+        val issueOperations = cacheableDownload.getIssueOperations(applicationContext)
 
         // create Downloads and save them in the database
         cacheableDownload.getAllFileNames().forEach {

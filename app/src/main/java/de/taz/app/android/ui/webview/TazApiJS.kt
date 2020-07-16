@@ -14,7 +14,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
-import de.taz.app.android.ui.webview.pager.ARTICLE_NAME
+import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
@@ -136,7 +136,7 @@ class TazApiJS<DISPLAYABLE: WebViewDisplayable> constructor(webViewFragment: Web
         log.debug("openImage $name")
 
         val intent = Intent(mainActivity, ImagePagerActivity::class.java)
-        intent.putExtra(ARTICLE_NAME, displayable?.key)
+        intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
         intent.putExtra(IMAGE_NAME, name)
 
         mainActivity?.startActivity(

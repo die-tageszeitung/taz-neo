@@ -101,6 +101,16 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getDownloadedStatus(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): DownloadStatus? {
+        return appDatabase.momentDao().getDownloadStatus(
+            issueFeedName, issueDate, issueStatus
+        )
+    }
+
     fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.issueImageMomentJoinDao().delete(
             moment.imageList.mapIndexed { index, fileEntry ->

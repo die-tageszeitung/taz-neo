@@ -62,7 +62,7 @@ data class Issue(
         return tag
     }
 
-    override fun getIssueOperations(): IssueOperations? {
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? {
         return this
     }
 
@@ -119,6 +119,11 @@ data class Issue(
         pageList.forEach { it.setDownloadStatus(downloadStatus) }
         moment.setDownloadStatus(downloadStatus)
     }
+
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return IssueRepository.getInstance(applicationContext).getStub(this)?.downloadedStatus
+    }
+
 }
 
 @JsonClass(generateAdapter = false)

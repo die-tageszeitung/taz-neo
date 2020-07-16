@@ -64,12 +64,12 @@ data class Moment(
         }
     }
 
-    private fun getIssueStub(): IssueStub? {
-        return IssueRepository.getInstance().getIssueStubForMoment(this)
+    private fun getIssueStub(applicationContext: Context?): IssueStub? {
+        return IssueRepository.getInstance(applicationContext).getIssueStubForMoment(this)
     }
 
-    override fun getIssueOperations(): IssueOperations? {
-        return getIssueStub()
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? {
+        return getIssueStub(applicationContext)
     }
 
     fun getMomentImage(): Image? {
@@ -89,8 +89,14 @@ data class Moment(
         )
     }
 
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return MomentRepository.getInstance(applicationContext).getDownloadedStatus(
+            this.issueFeedName, this.issueDate, this.issueStatus
+        )
+    }
+
     override fun getLiveData(applicationContext: Context?): LiveData<Moment?> {
-        return this.getIssueOperations()?.let {
+        return this@Moment.getIssueOperations(applicationContext)?.let {
             MomentRepository.getInstance(applicationContext).getLiveData(it)
         } ?: run {
             Sentry.capture("Could not get IssueOperations for Moment: $this")

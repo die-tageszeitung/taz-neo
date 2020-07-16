@@ -39,8 +39,16 @@ class BookmarkPagerViewModel(application: Application) : AndroidViewModel(applic
                 val bookmarkedArticles =
                     ArticleRepository.getInstance(getApplication()).getBookmarkedArticleStubList()
                 postValue(bookmarkedArticles)
-                sectionNameListLiveData.postValue(bookmarkedArticles.map { it.getSectionStub()?.key })
-                issueStubListLiveData.postValue(bookmarkedArticles.map { it.getIssueOperations() })
+                sectionNameListLiveData.postValue(bookmarkedArticles.map {
+                    it.getSectionStub(
+                        getApplication()
+                    )?.key
+                })
+                issueStubListLiveData.postValue(bookmarkedArticles.map {
+                    it.getIssueOperations(
+                        getApplication()
+                    )
+                })
                 if (currentPosition <= 0) {
                     currentPositionLiveData.postValue(
                         bookmarkedArticles.indexOfFirst { it.key == articleName }

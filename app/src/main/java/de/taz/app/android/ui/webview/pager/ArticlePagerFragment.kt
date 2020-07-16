@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val ARTICLE_NAME = "articleName"
+const val DISPLAYABLE_NAME = "articleName"
 
 class ArticlePagerFragment :
     BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
@@ -51,7 +51,7 @@ class ArticlePagerFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.apply {
-            articleName = getString(ARTICLE_NAME)
+            articleName = getString(DISPLAYABLE_NAME)
             viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
     }
@@ -133,7 +133,7 @@ class ArticlePagerFragment :
 
             lifecycleScope.launchWhenResumed {
                 articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
-                    articleStub.getNavButton()?.let {
+                    articleStub.getNavButton(context?.applicationContext)?.let {
                         showNavButton(it)
                     }
                     navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
@@ -232,7 +232,7 @@ class ArticlePagerFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ARTICLE_NAME, articleName)
+        outState.putString(DISPLAYABLE_NAME, articleName)
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }
