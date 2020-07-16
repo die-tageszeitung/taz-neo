@@ -23,6 +23,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
+import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
@@ -61,6 +62,7 @@ class SplashActivity : BaseActivity() {
             if (isFirstTimeStart()) {
                 val intent = Intent(this, WelcomeActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                intent.putExtra(START_HOME_ACTIVITY, true)
                 startActivity(intent)
             } else {
                 val intent = Intent(this, MainActivity::class.java)
