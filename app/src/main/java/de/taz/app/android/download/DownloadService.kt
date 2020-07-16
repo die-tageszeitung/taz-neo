@@ -289,10 +289,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
-            // TODO handle 40x like wrong SHA sum
             // TODO handle 50x by "backing off" and trying again later
             log.warn("Download was not successful ${response.code}")
-            abortAndRetryDownload(download, doNotRestartDownload)
+            download.file.setDownloadStatus(DownloadStatus.aborted)
+            downloadRepository.setStatus(download, DownloadStatus.aborted)
         }
         log.debug("finished handling response of ${download.fileName}")
     }
