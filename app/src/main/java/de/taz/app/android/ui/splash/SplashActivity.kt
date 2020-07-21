@@ -72,6 +72,7 @@ class SplashActivity : BaseActivity() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(intent)
         }
+        finish()
     }
 
     private fun generateInstallationId() {
