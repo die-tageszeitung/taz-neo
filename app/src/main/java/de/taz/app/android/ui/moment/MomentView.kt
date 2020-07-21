@@ -240,7 +240,10 @@ class MomentView @JvmOverloads constructor(
             fragment_moment_is_download_finished?.visibility = View.GONE
             fragment_moment_is_download_finished.alpha = 1f
             fragment_moment_is_download_finished?.visibility = View.VISIBLE
-            fragment_moment_is_download_finished?.animate()?.alpha(0f)?.duration = 1000L
+            lifecycleOwner?.lifecycleScope?.launchWhenResumed {
+                delay(2000)
+                fragment_moment_is_download_finished?.animate()?.alpha(0f)?.duration = 1000L
+            }
         }
     }
 
