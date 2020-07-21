@@ -22,6 +22,7 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
@@ -120,7 +121,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onResume() {
         super.onResume()
-        if(isRendered) hideLoadingScreen()
+        if (isRendered) hideLoadingScreen()
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -192,9 +193,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 val isDownloadedLiveData =
                     displayable.isDownloadedLiveData(context?.applicationContext)
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData.observeDistinct(
+                    isDownloadedLiveData.observeDistinctUntil(
                         this@WebViewFragment,
-                        Observer { isDownloaded ->
+                        { isDownloaded ->
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("displayable is ready")
@@ -207,6 +208,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                             } else {
                                 downloadService?.download(displayable)
                             }
+                        }, { isDownloaded ->
+                            isDownloaded
                         }
                     )
                 }
@@ -221,9 +224,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                     if (!isResourceInfoUpToDate) {
                         ResourceInfo.update(context?.applicationContext)
                     }
-                    resourceInfoIsDownloadedLiveData.observeDistinct(
+                    resourceInfoIsDownloadedLiveData.observeDistinctUntil(
                         this@WebViewFragment,
-                        Observer { isDownloaded ->
+                        { isDownloaded ->
                             if (isDownloaded) {
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     log.info("resources are ready")
@@ -234,7 +237,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                                     )
                                 }
                             }
-                        }
+                        }, { isDownloaded -> isDownloaded }
                     )
                 }
             } else {
@@ -259,9 +262,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             if (isDisplayable == true) {
                 isDisplayableLiveData.removeObserver(this@DisplayableObserver)
                 lifecycleScope.launch(Dispatchers.IO) {
-                    displayable.getFile()?.let { file ->
-                        log.debug("file ${file.absolutePath} exists: ${file.exists()}")
-                        loadUrl("file://${file.absolutePath}")
+                    displayable.getFilePath()?.let { filePath ->
+                        loadUrl(filePath)
                     }
                 }
             }
