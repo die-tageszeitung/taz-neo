@@ -38,10 +38,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -147,6 +144,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
             showMainFragment(fragment)
+        }
+        drawer_layout.openDrawer(GravityCompat.START)
+        lifecycleScope.launch {
+            delay(3000)
+            if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+                runOnUiThread {
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                }
+            }
         }
     }
 
