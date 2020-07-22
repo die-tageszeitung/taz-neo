@@ -48,7 +48,6 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
         return@withContext fileHelper.getFile(fileName)?.let {
             val ttfFile = File("${fontFolder}/${it.name.replace(".woff", ".ttf")}")
             if (!ttfFile.exists()) {
-                ttfFile.createNewFile()
                 ttfFile.writeBytes(
                     WoffConverter().convertToTTFByteArray(it.inputStream())
                 )
