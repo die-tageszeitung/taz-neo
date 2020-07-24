@@ -25,10 +25,8 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
@@ -40,10 +38,7 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -149,6 +144,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         runOnUiThread {
             val fragment = SectionPagerFragment.createInstance(issueStub)
             showMainFragment(fragment)
+        }
+        drawer_layout.openDrawer(GravityCompat.START)
+        lifecycleScope.launch {
+            delay(3000)
+            if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+                runOnUiThread {
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                }
+            }
         }
     }
 
@@ -394,18 +398,21 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
-                                        section.getIssueOperations()?.let { issueOperations ->
-                                            setCoverFlowItem(issueOperations)
-                                            setDrawerIssue(issueOperations)
-                                            changeDrawerIssue()
-                                        }
+                                        section.getIssueOperations(applicationContext)
+                                            ?.let { issueOperations ->
+                                                setCoverFlowItem(issueOperations)
+                                                setDrawerIssue(issueOperations)
+                                                changeDrawerIssue()
+                                            }
                                     }
                             }
+
                             // clear fragment backstack before showing article
                             supportFragmentManager.popBackStackImmediate(
                                 null,
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE
                             )
+                            recreate()
                             showArticle(articleName)
                         }
                     }

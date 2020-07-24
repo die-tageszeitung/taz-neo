@@ -49,7 +49,7 @@ class SectionWebViewFragment :
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.IO) {
-                val issueOperations = displayable.getIssueOperations()
+                val issueOperations = displayable.getIssueOperations(context?.applicationContext)
                 issueOperations?.apply {
                     if (isWeekend) {
                         withContext(Dispatchers.Main) {

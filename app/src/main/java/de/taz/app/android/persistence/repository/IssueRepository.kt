@@ -107,6 +107,9 @@ class IssueRepository private constructor(applicationContext: Context) :
         appDatabase.issueDao().update(issueStub)
     }
 
+    fun getStub(issueOperations: IssueOperations) =
+        getStub(issueOperations.feedName, issueOperations.date, issueOperations.status)
+
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(issueFeedName, issueDate, issueStatus)
     }
@@ -172,7 +175,7 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getIssueStubForMoment(moment: Moment): IssueStub? {
         return moment.getMomentImage()?.let {
-            appDatabase.issueMomentJoinDao().getIssueStub(it.name)
+            appDatabase.issueImageMomentJoinDao().getIssueStub(it.name)
         }
     }
 
@@ -265,13 +268,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
-        val moment = Moment(
-            appDatabase.issueMomentJoinDao().getMomentFiles(
-                issueStub.feedName,
-                issueStub.date,
-                issueStub.status
-            )
-        )
+        val moment = momentRepository.getOrThrow(issueStub)
 
         val pageList =
             appDatabase.issuePageJoinDao()
@@ -312,6 +309,11 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
         return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
+    }
+
+    fun getIssueStubForImage(image: Image): IssueStub? {
+        return appDatabase.issueDao().getStubForArticleImageName(image.name)
+            ?: appDatabase.issueDao().getStubForSectionImageName(image.name)
     }
 
     fun getIssueLiveData(
@@ -408,7 +410,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueOperations.status
     )
 
-    fun isDownloadedLiveData(feedName: String, date: String, status: IssueStatus): LiveData<Boolean> {
+    fun isDownloadedLiveData(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): LiveData<Boolean> {
         return appDatabase.issueDao().isDownloadedLiveData(feedName, date, status)
     }
 

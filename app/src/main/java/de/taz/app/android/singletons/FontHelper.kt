@@ -11,6 +11,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.RuntimeException
 
 const val CONVERTED_FONT_FOLDER = "convertedFonts"
 
@@ -47,12 +48,16 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
         return@withContext fileHelper.getFile(fileName)?.let {
             val ttfFile = File("${fontFolder}/${it.name.replace(".woff", ".ttf")}")
             if (!ttfFile.exists()) {
-                ttfFile.createNewFile()
                 ttfFile.writeBytes(
                     WoffConverter().convertToTTFByteArray(it.inputStream())
                 )
             }
-            Typeface.createFromFile(ttfFile)
+            try {
+                Typeface.createFromFile(ttfFile)
+            } catch (re: RuntimeException) {
+                ttfFile.delete()
+                fromFile(fileName)
+            }
         }
     }
 }

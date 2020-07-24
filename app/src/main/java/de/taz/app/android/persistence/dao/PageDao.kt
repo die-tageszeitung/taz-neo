@@ -7,10 +7,10 @@ import de.taz.app.android.api.models.PageStub
 
 @Dao
 abstract class PageDao : BaseDao<PageStub>() {
-    @Query("SELECT * FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
+    @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
     abstract fun get(fileName: String): PageStub?
 
-    @Query("SELECT * FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
+    @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
     abstract fun getLiveData(fileName: String): LiveData<PageStub?>
 
     @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND downloadedStatus == 'done')")

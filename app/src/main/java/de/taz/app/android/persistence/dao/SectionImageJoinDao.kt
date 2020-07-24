@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.dao
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.persistence.join.SectionImageJoin
 
@@ -12,7 +11,7 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
 
     @Query(
-        """SELECT * FROM FileEntry INNER JOIN SectionImageJoin
+        """SELECT name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN SectionImageJoin
         ON FileEntry.name = SectionImageJoin.imageFileName
         INNER Join Image ON Image.fileEntryName == SectionImageJoin.imageFileName
         WHERE SectionImageJoin.sectionFileName == :sectionFileName

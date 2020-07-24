@@ -54,8 +54,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
             log.debug("From: " + remoteMessage.from)
 
-            Sentry.capture("Notification received - from: ${remoteMessage.from} data: ${remoteMessage.data}")
-
             // Check if message contains a data payload.
             if (remoteMessage.data.isNotEmpty()) {
                 log.debug("Message data payload: " + remoteMessage.data)
@@ -71,17 +69,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                         REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val issue = apiService.getLastIssuesAsync(1).await().first()
-                                issueRepository.save(issue)
-                                val downloadPreferences = applicationContext.getSharedPreferences(
-                                    PREFERENCES_DOWNLOADS,
-                                    Context.MODE_PRIVATE
-                                )
-                                if (downloadPreferences.getBoolean(SETTINGS_DOWNLOAD_ENABLED, true)) {
-                                    downloadService.scheduleIssueDownload(issue)
-                                }
-                            }
+                            downloadNewestIssue()
                         }
                     }
                 }
@@ -96,13 +84,32 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun downloadNewestIssue() = CoroutineScope(Dispatchers.IO).launch {
+        apiService.getLastIssues(1).firstOrNull()?.let { issue ->
+            issueRepository.save(issue)
+            val downloadPreferences =
+                applicationContext.getSharedPreferences(
+                    PREFERENCES_DOWNLOADS,
+                    Context.MODE_PRIVATE
+                )
+            if (downloadPreferences.getBoolean(
+                    SETTINGS_DOWNLOAD_ENABLED,
+                    true
+                )
+            ) {
+                downloadService.scheduleIssueDownload(issue)
+            }
+        }
+    }
+
     override fun onNewToken(token: String) {
         log.debug("new firebase messaging token: $token")
 
         val oldToken = firebaseHelper.firebaseToken
         firebaseHelper.firebaseToken = token
         CoroutineScope(Dispatchers.IO).launch {
-            firebaseHelper.hasTokenBeenSent = apiService.sendNotificationInfoAsync(oldToken).await() ?: false
+            firebaseHelper.hasTokenBeenSent =
+                apiService.sendNotificationInfoAsync(oldToken).await() ?: false
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }

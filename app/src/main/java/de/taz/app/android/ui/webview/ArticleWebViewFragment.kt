@@ -38,10 +38,10 @@ class ArticleWebViewFragment :
             ).size
 
             // only the imprint should have no section
-            val sectionStub = displayable.getSectionStub()
+            val sectionStub = displayable.getSectionStub(context?.applicationContext)
             setHeaderForSection(index, count, sectionStub)
 
-            val issueOperations = displayable.getIssueOperations()
+            val issueOperations = displayable.getIssueOperations(context?.applicationContext)
             issueOperations?.apply {
                 if (isWeekend) {
                     FontHelper.getInstance(context?.applicationContext)
@@ -78,7 +78,7 @@ class ArticleWebViewFragment :
     override fun hideLoadingScreen() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let { article ->
-                if (article.getIssueStub()?.status == IssueStatus.public) {
+                if (article.getIssueStub(context?.applicationContext)?.status == IssueStatus.public) {
                     withContext(Dispatchers.Main) {
                         try {
                             childFragmentManager.beginTransaction().replace(

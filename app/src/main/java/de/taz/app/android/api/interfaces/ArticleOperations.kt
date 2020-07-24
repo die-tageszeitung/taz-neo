@@ -24,8 +24,8 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         return ArticleRepository.getInstance().previousArticleStub(this.key)
     }
 
-    fun getSectionStub(): SectionStub? {
-        return SectionRepository.getInstance().getSectionStubForArticle(this.key)
+    fun getSectionStub(applicationContext: Context?): SectionStub? {
+        return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)
     }
 
     fun getIndexInSection(): Int? {
@@ -38,6 +38,10 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
 
     override fun getFile(): File? {
         return FileHelper.getInstance().getFile(this.key)
+    }
+
+    override fun getFilePath(): String? {
+        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
     }
 
     override fun previous(): ArticleStub? {
@@ -53,22 +57,26 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         return articleType == ArticleType.IMPRINT
     }
 
-    fun getIssueStub(): IssueStub? {
+    fun getIssueStub(applicationContext: Context?): IssueStub? {
         return if (isImprint()) {
-            IssueRepository.getInstance().getIssueStubByImprintFileName(this.key)
+            IssueRepository.getInstance(applicationContext).getIssueStubByImprintFileName(this.key)
         } else {
-            getSectionStub()?.issueStub
+            getSectionStub(applicationContext)?.issueStub
         }
     }
 
-    override fun getIssueOperations() = getIssueStub()
+    override fun getIssueOperations(applicationContext: Context?) = getIssueStub(applicationContext)
 
-    suspend fun getNavButton(): Image? = withContext(Dispatchers.IO){
-        return@withContext this@ArticleOperations.getSectionStub()?.getNavButton()
+    suspend fun getNavButton(applicationContext: Context?): Image? = withContext(Dispatchers.IO){
+        return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton()
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
         return ArticleRepository.getInstance(applicationContext).isDownloadedLiveData(this)
+    }
+
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return ArticleRepository.getInstance(applicationContext).get(key)?.downloadedStatus
     }
 
 }
