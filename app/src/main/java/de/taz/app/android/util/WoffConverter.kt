@@ -139,7 +139,7 @@ class WoffConverter {
                 readBytes += woffFileStream.read(
                     fontData, readBytes,
                     compressedLength - readBytes
-                ).coerceAtLeast(0)
+                )
             }
             readOffset += compressedLength
             inflatedFontData = inflateFontData(
