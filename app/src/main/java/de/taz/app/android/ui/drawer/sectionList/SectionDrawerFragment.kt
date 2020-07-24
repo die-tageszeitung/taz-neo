@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.DRAWER_DATE_TYPEFACE
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.interfaces.ArticleOperations
@@ -61,12 +60,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
-
-        //set date fontface
-        lifecycleScope.launchWhenResumed {
-            fragment_drawer_sections_date.typeface =
-                fontHelper?.getTypeFace(DRAWER_DATE_TYPEFACE)
-        }
 
     }
 
