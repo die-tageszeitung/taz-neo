@@ -77,10 +77,21 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return hashingSink.hash.hex()
     }
 
-    fun getFileByPath(filePath: String, internal: Boolean = false): File {
-        // TODO read from settings where to save
-        // TODO notification if external not writable?
-        return if (internal || !isExternalStorageWritable())
+    fun getAbsoluteFilePath(fileEntryName: String): String? {
+        return fileEntryRepository.get(fileEntryName)?.let { getAbsoluteFilePath(it) }
+    }
+
+    fun getAbsoluteFilePath(fileEntry: FileEntryOperations): String {
+        return if (!isExternalStorageWritable())
+            "file://${applicationContext.filesDir}/${fileEntry.path}"
+        else {
+            "file://${ContextCompat.getExternalFilesDirs(applicationContext, null)
+                .first()}/${fileEntry.path}"
+        }
+    }
+
+    fun getFileByPath(filePath: String): File {
+        return if (!isExternalStorageWritable())
             File(applicationContext.filesDir, filePath)
         else {
             return File(

@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 
 @Entity(
-    tableName = "IssueMomentJoin",
+    tableName = "IssueImageMomentJoin",
     foreignKeys = [
         ForeignKey(
             entity = IssueStub::class,
@@ -24,7 +24,7 @@ import de.taz.app.android.api.models.IssueStub
     primaryKeys = ["issueFeedName", "issueDate", "issueStatus", "momentFileName"],
     indices = [Index("momentFileName")]
 )
-data class IssueMomentJoin(
+data class IssueImageMomentJoin(
     val issueFeedName: String,
     val issueDate: String,
     val issueStatus: IssueStatus,

@@ -31,7 +31,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
-        Moment(feedName, issueDto.date, issueDto.moment),
+        Moment(feedName, issueDto.date, issueDto.status, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,
@@ -62,7 +62,7 @@ data class Issue(
         return tag
     }
 
-    override fun getIssueOperations(): IssueOperations? {
+    override fun getIssueOperations(applicationContext: Context?): IssueOperations? {
         return this
     }
 
@@ -119,6 +119,11 @@ data class Issue(
         pageList.forEach { it.setDownloadStatus(downloadStatus) }
         moment.setDownloadStatus(downloadStatus)
     }
+
+    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
+        return IssueRepository.getInstance(applicationContext).getStub(this)?.downloadedStatus
+    }
+
 }
 
 @JsonClass(generateAdapter = false)

@@ -6,11 +6,11 @@ import androidx.room.Query
 import de.taz.app.android.api.models.Image
 
 @Dao
-abstract class ImageDao() {
+abstract class ImageDao {
 
     @Query(
         """
-        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+        SELECT name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName == :name
         """
     )
@@ -18,7 +18,7 @@ abstract class ImageDao() {
 
     @Query(
         """
-        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+        SELECT name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName == :name
         """
     )
@@ -26,7 +26,7 @@ abstract class ImageDao() {
 
     @Query(
         """
-        SELECT * FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+        SELECT name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName IN (:names)
         """
     )

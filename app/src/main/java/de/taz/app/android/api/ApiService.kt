@@ -196,7 +196,7 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getIssueByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate")
         val issueList = getIssuesByFeedAndDateAsync(feedName, issueDate, 1).await()
-        issueList.first()
+        issueList.firstOrNull()
     }
 
     /**
@@ -213,7 +213,7 @@ class ApiService private constructor(applicationContext: Context) {
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             )?.product?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
             }
         }, tag)
         return issues
@@ -519,8 +519,7 @@ class ApiService private constructor(applicationContext: Context) {
         }
     }
 
-    private suspend
-    fun getDataDto(
+    private suspend fun getDataDto(
         tag: String,
         queryType: QueryType,
         variables: Variables? = null

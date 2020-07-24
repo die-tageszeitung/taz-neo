@@ -258,7 +258,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                         // TODO get new metadata for cacheableDownload and restart download
                         val m = "sha256 did NOT match the one of ${download.fileName}"
                         log.warn(m)
-                        Sentry.capture(m)
                         if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
                             fileEntry.setDownloadStatus(DownloadStatus.takeOld)
                             downloadRepository.setStatus(download, DownloadStatus.takeOld)
@@ -281,7 +280,6 @@ class DownloadService private constructor(val applicationContext: Context) {
         } else {
             // TODO handle 40x like wrong SHA sum
             // TODO handle 50x by "backing off" and trying again later
-            Sentry.capture(response.message)
             log.warn("Download was not successful ${response.code}")
             abortAndRetryDownload(download, doNotRestartDownload)
         }
@@ -289,7 +287,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     /**
-     * save download and fileentry as not downloaded in database then retry download
+     * save Download and FileEntry as not downloaded in database then retry download
      * @param doNotRetry indicating whether to retry download - only for testing
      */
     private fun abortAndRetryDownload(
@@ -343,7 +341,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     ) = withContext(Dispatchers.IO) {
 
         val tag = cacheableDownload.getDownloadTag()
-        val issueOperations = cacheableDownload.getIssueOperations()
+        val issueOperations = cacheableDownload.getIssueOperations(applicationContext)
 
         // create Downloads and save them in the database
         cacheableDownload.getAllFileNames().forEach {

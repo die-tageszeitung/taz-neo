@@ -116,8 +116,6 @@ class LoginViewModel(
                     toastHelper.showToast(R.string.toast_login_with_email)
                 }
                 AuthStatus.tazIdNotLinked -> {
-                    // this should never happen
-                    Sentry.capture("checkSubscriptionId returned tazIdNotLinked")
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
                 AuthStatus.elapsed ->
@@ -162,7 +160,6 @@ class LoginViewModel(
                 }
                 AuthStatus.notValidMail -> {
                     // this should never happen
-                    Sentry.capture("handleCredentials returned notValidMail")
                     toastHelper.showSomethingWentWrongToast()
                     status.postValue(LoginViewModelState.INITIAL)
                 }
@@ -256,12 +253,10 @@ class LoginViewModel(
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     // should not happen
-                    Sentry.capture("trialSubscription returned subscriptionIdNotValid")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
-                    Sentry.capture("trialSubscription returned tazIdNotValid")
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
@@ -277,7 +272,6 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                 }
                 SubscriptionStatus.noPollEntry -> {
-                    Sentry.capture("trialSubscription returned noPollEntry")
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.POLLING_FAILED)
@@ -384,14 +378,12 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 SubscriptionStatus.noPollEntry -> {
-                    Sentry.capture("subscriptionId2TazId returned noPollEntry")
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
                     status.postValue(LoginViewModelState.POLLING_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     // should not happen
-                    Sentry.capture("subscriptionId2TazId returned alreadyLinked")
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                 }
                 null -> {
@@ -434,12 +426,10 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
-                    Sentry.capture("trialSubscription returned tazIdNotValid")
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
                 SubscriptionStatus.subscriptionIdNotValid -> {
                     // should not happen
-                    Sentry.capture("trialSubscription returned aboIdNotValid")
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 }
                 SubscriptionStatus.elapsed -> {
@@ -450,7 +440,6 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.invalidMail -> {
                     // should never happen
-                    Sentry.capture("subscriptionPoll returned invalidMail")
                     resetCredentialsPassword()
                     status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
                 }

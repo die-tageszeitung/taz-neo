@@ -21,7 +21,7 @@ import de.taz.app.android.api.models.SectionStub
         )
     ],
     primaryKeys = ["sectionFileName", "navButtonFileName"],
-    indices = [Index("sectionFileName")]
+    indices = [Index("sectionFileName"), Index("navButtonFileName")]
 )
 data class SectionNavButtonJoin(
     val sectionFileName: String,
