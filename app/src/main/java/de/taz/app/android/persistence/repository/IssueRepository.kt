@@ -218,7 +218,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         issueDate: String,
         issueStatus: IssueStatus
     ): ArticleStub? {
-        val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
+        val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.getStub(it) }
@@ -238,7 +238,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Article? {
-        val imprintName = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
+        val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
@@ -264,7 +264,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections = sectionNames.map { sectionRepository.getOrThrow(it) }
 
-        val imprint = appDatabase.issueImprintJoinDao().getImprintNameForIssue(
+        val imprint = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
@@ -356,7 +356,22 @@ class IssueRepository private constructor(applicationContext: Context) :
             } catch (e: SQLiteConstraintException) {
                 // do not delete used by another issue
             }
+        } ?: appDatabase.issueImprintJoinDao().getLeftOverImprintNameForIssue(
+            issue.feedName,
+            issue.date,
+            issue.status
+        )?.let {
+            log.warn("There is a left over imprint with no entry in article table. Will be deleted: $it")
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    it
+                )
+            )
         }
+
         // delete page relation
         appDatabase.issuePageJoinDao().delete(
             issue.pageList.mapIndexed { index, page ->
