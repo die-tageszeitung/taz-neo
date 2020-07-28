@@ -17,7 +17,21 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
             AND IssueImprintJoin.issueStatus == :status
         """
     )
-    abstract fun getImprintNameForIssue(
+    abstract fun getArticleImprintNameForIssue(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): String?
+
+    @Query(
+        """SELECT articleFileName
+            FROM IssueImprintJoin
+            WHERE issueDate == :date
+            AND issueFeedName == :feedName
+            AND issueStatus == :status
+        """
+    )
+    abstract fun getLeftOverImprintNameForIssue(
         feedName: String,
         date: String,
         status: IssueStatus
