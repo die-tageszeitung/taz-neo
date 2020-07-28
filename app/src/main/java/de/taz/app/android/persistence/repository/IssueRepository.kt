@@ -2,8 +2,12 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
@@ -414,6 +418,33 @@ class IssueRepository private constructor(applicationContext: Context) :
             }
         }
     }
+
+    fun deleteNotDownloadedRegularIssues() {
+        CoroutineScope(Dispatchers.IO).launch {
+            getIssuesListByStatus(IssueStatus.regular).forEach {issueStub ->
+                if (issueStub.downloadedStatus != DownloadStatus.done) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val deleteJob = launch {
+                            getIssue(issueStub).delete()
+                        }
+                        var newIssue: Issue? = null
+                        val retrievalJob = launch {
+                            ApiService.getInstance().getIssueByFeedAndDateAsync(
+                                issueStub.feedName, issueStub.date
+                            ).await()?.let { newIssue = it }
+                        }
+
+                        deleteJob.join()
+                        retrievalJob.join()
+
+                        newIssue?.let {
+                            save(it)
+                        }
+                    }
+                }
+            }
+        }
+   }
 
     fun getDownloadStartedIssues(): List<Issue> {
         return appDatabase.issueDao().getDownloadStartedIssues().map { issueStubToIssue(it) }
