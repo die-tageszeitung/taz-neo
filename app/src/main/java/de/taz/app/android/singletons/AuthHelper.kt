@@ -10,6 +10,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,9 +84,11 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
                     toastHelper.showToast(R.string.toast_logout_elapsed)
+                    IssueRepository.getInstance(applicationContext).deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.notValid) {
                     toastHelper.showToast(R.string.toast_logout_invalid)
+                    IssueRepository.getInstance(applicationContext).deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
                     CoroutineScope(Dispatchers.IO).launch {
