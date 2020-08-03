@@ -72,7 +72,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (issueStub?.downloadedStatus != DownloadStatus.done){
+        if (issueStub?.downloadedStatus != DownloadStatus.done) {
             fragment_bottom_sheet_issue_delete?.visibility = View.GONE
             fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
         } else {
@@ -132,22 +132,15 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val deleteJob = launch {
-                        issueRepository?.getIssue(issueStub)?.delete()
-                    }
-                    var issue: Issue? = null
-                    val retrievalJob = launch {
-                        apiService?.getIssueByFeedAndDateAsync(
-                            issueStub.feedName, issueStub.date
-                        )?.await()?.let { issue = it }
-                    }
-
-                    deleteJob.join()
-                    retrievalJob.join()
-
-                    issue?.let {
+                    apiService?.getIssueByFeedAndDateAsync(
+                        issueStub.feedName, issueStub.date
+                    )?.await()?.let {
                         issueRepository?.save(it)
                         (activity as? MainActivity)?.setCoverFlowItem(IssueStub(it))
+                    }
+
+                    launch {
+                        issueRepository?.getIssue(issueStub)?.delete()
                     }
 
                     withContext(Dispatchers.Main) {
