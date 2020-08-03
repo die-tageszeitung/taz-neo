@@ -32,9 +32,8 @@ class IssueContentFragment :
     private var issueDate: String? = null
     private var issueStatus: IssueStatus? = null
 
-    private var sectionPagerFragment: SectionPagerFragment? = null
-    private var articlePagerFragment: ArticlePagerFragment? = null
-
+    private var sectionPagerFragment = SectionPagerFragment()
+    private var articlePagerFragment = ArticlePagerFragment()
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -69,8 +68,9 @@ class IssueContentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sectionPagerFragment = sectionPagerFragment ?: SectionPagerFragment()
-        articlePagerFragment = articlePagerFragment ?: ArticlePagerFragment()
+
+        addFragment(sectionPagerFragment)
+        addFragment(articlePagerFragment)
 
         displayableKey?.let {
             getIssueOperationByDisplayableKey()
@@ -96,9 +96,11 @@ class IssueContentFragment :
                     }
                     lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.sectionNameListLiveData.postValue(
-                            viewModel.articleList.map { article -> article.getSectionStub(
-                                context?.applicationContext
-                            )?.key }
+                            viewModel.articleList.map { article ->
+                                article.getSectionStub(
+                                    context?.applicationContext
+                                )?.key
+                            }
                         )
                     }
                 }
@@ -127,15 +129,23 @@ class IssueContentFragment :
         }
     }
 
-    fun showFragment(fragment: Fragment) {
-        val fragmentclass = fragment::class.java.toString()
-        childFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragment_issue_content_container, fragment, fragmentclass
-            )
-            .addToBackStack(fragmentclass)
-            .commit()
+    private fun showFragment(fragment: Fragment) {
+        val transaction = childFragmentManager.beginTransaction()
+        childFragmentManager.fragments.forEach {
+            transaction.hide(it)
+        }
+        transaction.show(fragment).commit()
+    }
 
+    private fun addFragment(fragment: Fragment) {
+        val fragmentClass = fragment::class.java.toString()
+        childFragmentManager.beginTransaction()
+            .add(
+                R.id.fragment_issue_content_container, fragment, fragmentClass
+            )
+            .addToBackStack(fragmentClass)
+            .hide(fragment)
+            .commit()
     }
 
     fun show(displayableName: String): Boolean {
@@ -194,8 +204,17 @@ class IssueContentFragment :
     }
 
     override fun onBackPressed(): Boolean {
-        return childFragmentManager.fragments.lastOrNull()?.let {
-            (it as? BackFragment)?.onBackPressed() ?: false
+        return childFragmentManager.fragments.lastOrNull { it.isVisible }?.let {
+            when ((it as? BackFragment?)?.onBackPressed()) {
+                true -> true
+                false -> {
+                    (it as? ArticlePagerFragment)?.let {
+                        showFragment(sectionPagerFragment)
+                        true
+                    } ?: false
+                }
+                null -> false
+            }
         } ?: false
     }
 

@@ -158,22 +158,22 @@ class ArticlePagerFragment() :
     override fun onBackPressed(): Boolean {
         val noSectionParent = parentFragmentManager.backStackEntryCount == 1
 
-        if (hasBeenSwiped || noSectionParent) {
+        return if (hasBeenSwiped || noSectionParent) {
             showSectionOrGoBack()
         } else {
-            parentFragmentManager.popBackStack()
+            false
         }
-        return true
     }
 
-    private fun showSectionOrGoBack() {
-        articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let {
+    private fun showSectionOrGoBack(): Boolean {
+        return articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let {
             lifecycleScope.launch(Dispatchers.IO) {
                 it.getSectionStub(context?.applicationContext)?.key?.let { sectionKey ->
                     showInWebView(sectionKey)
                 }
             }
-        } ?: parentFragmentManager.popBackStack()
+            true
+        } ?: false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
