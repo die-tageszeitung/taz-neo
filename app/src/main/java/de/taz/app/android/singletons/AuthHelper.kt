@@ -82,29 +82,24 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
         get() = isPollingLiveData.value ?: false
         set(value) = isPollingLiveData.postValue(value)
 
-    private var deleteNotDownloadedRegularIssuesJob: Job? = null
-    private var deletePublicIssuesJob: Job? = null
+    private var deletionJob: Job? = null
 
     init {
         CoroutineScope(Dispatchers.Main).launch {
-            deleteNotDownloadedRegularIssuesJob?.cancel()
-            deletePublicIssuesJob?.cancel()
+            DownloadService.getInstance(applicationContext).cancelDownloads()
+            deletionJob?.cancel()
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
                     toastHelper.showToast(R.string.toast_logout_elapsed)
-                    DownloadService.getInstance(applicationContext).cancelDownloads()
-                    deleteNotDownloadedRegularIssuesJob =
-                        issueRepository.deleteNotDownloadedRegularIssues()
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.notValid) {
                     toastHelper.showToast(R.string.toast_logout_invalid)
-                    DownloadService.getInstance(applicationContext).cancelDownloads()
-                    deleteNotDownloadedRegularIssuesJob =
-                        issueRepository.deleteNotDownloadedRegularIssues()
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
-                    deletePublicIssuesJob = issueRepository.deletePublicIssues()
+                    deletionJob = issueRepository.deletePublicIssues()
                     CoroutineScope(Dispatchers.IO).launch {
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }
