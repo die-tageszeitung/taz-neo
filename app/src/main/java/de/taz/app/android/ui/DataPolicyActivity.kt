@@ -49,6 +49,7 @@ class DataPolicyActivity : AppCompatActivity() {
             if (isFirstTimeStart()) {
                 log.debug("start welcome activity")
                 val intent = Intent(applicationContext, WelcomeActivity::class.java)
+                intent.putExtra(START_HOME_ACTIVITY, true)
                 intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
                 startActivity(Intent(intent))
             } else {
