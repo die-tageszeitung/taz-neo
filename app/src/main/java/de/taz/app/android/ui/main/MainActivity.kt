@@ -33,6 +33,8 @@ import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -64,6 +66,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
 
         lockNavigationView(GravityCompat.END)
+// TODO-> REMOVE ME:
+        showSubscriptionElapsedPopup()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
@@ -235,6 +239,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     fun showToast(string: String) {
         toastHelper?.showToast(string)
+    }
+
+    fun showSubscriptionElapsedPopup() {
+        val popUpFragment = SubscriptionElapsedDialogFragment()
+        popUpFragment.show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
     }
 
     fun getLifecycleOwner(): LifecycleOwner = this

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/subscription_elapsed_popup_header"
+        style="@style/TextAppearance.Fragment.Header.Default.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/popup_login_elapsed_header" />
+    <TextView
+        android:id="@+id/subscription_elapsed_popup_text"
+        style="@style/TextAppearance.Login.Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/popup_login_elapsed_text" />
+    <TextView
+        android:id="@+id/subscription_elapsed_popup_email"
+        style="@style/TextAppearance.Login.Text.Link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_login_digiabo_mail_underlined"/>
+    <Button
+        android:id="@+id/subscription_elapsed_popup_order_button"
+        style="@style/Button.Login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/order_button"/>
+
+</LinearLayout>
