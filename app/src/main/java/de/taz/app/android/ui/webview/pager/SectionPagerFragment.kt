@@ -10,6 +10,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
@@ -18,7 +19,6 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -83,17 +83,23 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
             override fun onChanged(t: IssueOperations?) {
                 t?.let {
                     viewModel.issueOperationsLiveData.removeObserver(this)
-                    CoroutineScope(Dispatchers.IO).launch {
-                        IssueRepository.getInstance(context?.applicationContext)
-                            .getIssue(t)?.let {
-                                DownloadService.getInstance(context?.applicationContext)
-                                    .download(it)
-                            }
-                    }
+                    updateAndDownloadIssue(t)
                 }
             }
         })
     }
+
+    /**
+     * start download of issue - if the issue is not downloaded yet check whether the metadata has
+     * changed - if yes persist and start download for updated issue
+     */
+    private fun updateAndDownloadIssue(issueOperations: IssueOperations) =
+        CoroutineScope(Dispatchers.IO).launch {
+            IssueRepository.getInstance(context?.applicationContext)
+                .getIssue(issueOperations)?.let {
+                    DownloadService.getInstance(context?.applicationContext).download(it)
+                }
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

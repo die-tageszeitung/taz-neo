@@ -56,7 +56,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image">
 
         <ImageView
-            android:id="@+id/fragment_moment_is_downloaded"
+            android:id="@+id/fragment_moment_download"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/settings_download_issue"
@@ -69,7 +69,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/fragment_moment_is_download_finished"
+            android:id="@+id/fragment_moment_download_finished"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/settings_download_issue"
@@ -82,7 +82,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
-            android:id="@+id/fragment_moment_is_downloading"
+            android:id="@+id/fragment_moment_downloading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"

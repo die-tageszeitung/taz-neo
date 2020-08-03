@@ -71,6 +71,8 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val currentDownloads = AtomicInteger(0)
 
+    private val tagJobMap: MutableMap<String, MutableList<Job>> = mutableMapOf()
+
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { isConnected ->
@@ -101,6 +103,17 @@ class DownloadService private constructor(val applicationContext: Context) {
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
                             .await()
                     issueRepository.setDownloadDate(it, Date())
+                    launch {
+                        // check if metadata has changed and update db and restart download
+                        val fromServer = apiService.getIssueByFeedAndDateAsync(
+                            issue.feedName, issue.date
+                        ).await()
+                        if (fromServer?.status == issue.status && fromServer != issue) {
+                            cancelDownloads(issue.tag)
+                            issueRepository.save(fromServer)
+                            download(fromServer)
+                        }
+                    }
                 }
 
                 cacheableDownload.setDownloadStatus(DownloadStatus.started)
@@ -156,9 +169,15 @@ class DownloadService private constructor(val applicationContext: Context) {
             while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
                     currentDownloads.incrementAndGet()
-                    getFromServer(download).invokeOnCompletion {
+                    val job = getFromServer(download)
+                    job.invokeOnCompletion {
                         currentDownloads.decrementAndGet()
                         startDownloadsIfCapacity()
+                    }
+                    download.tag?.let { tag ->
+                        val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                        jobsForTag.add(job)
+                        tagJobMap[download.tag] = jobsForTag
                     }
                 } ?: break
             }
@@ -278,10 +297,14 @@ class DownloadService private constructor(val applicationContext: Context) {
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
-            // TODO handle 40x like wrong SHA sum
             // TODO handle 50x by "backing off" and trying again later
             log.warn("Download was not successful ${response.code}")
-            abortAndRetryDownload(download, doNotRestartDownload)
+            if (response.code in 400..499) {
+                download.file.setDownloadStatus(DownloadStatus.aborted)
+                downloadRepository.setStatus(download, DownloadStatus.aborted)
+            } else {
+                abortAndRetryDownload(download, doNotRestartDownload)
+            }
         }
         log.debug("finished handling response of ${download.fileName}")
     }
@@ -326,6 +349,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     fun cancelDownloads(tag: String? = null) {
         tag?.let {
             downloadList.removeAll(downloadList.filter { it.tag == tag })
+            val jobsForTag = tagJobMap.remove(tag)
+            jobsForTag?.forEach { it.cancel() }
         } ?: downloadList.clear()
     }
 
