@@ -364,6 +364,18 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                sectionRepository?.getSectionStubForArticle(articleName)
+                                    ?.let { section ->
+                                        section.getIssueOperations(applicationContext)
+                                            ?.let { issueOperations ->
+                                                setCoverFlowItem(issueOperations)
+                                                setDrawerIssue(issueOperations)
+                                                changeDrawerIssue()
+                                            }
+                                    }
+                            }
+
                             // clear fragment backstack before showing article
                             supportFragmentManager.popBackStackImmediate(
                                 null,
