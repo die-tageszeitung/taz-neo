@@ -156,9 +156,7 @@ class ArticlePagerFragment() :
     }
 
     override fun onBackPressed(): Boolean {
-        val noSectionParent = parentFragmentManager.backStackEntryCount == 1
-
-        return if (hasBeenSwiped || noSectionParent) {
+        return if (hasBeenSwiped) {
             showSectionOrGoBack()
         } else {
             false
