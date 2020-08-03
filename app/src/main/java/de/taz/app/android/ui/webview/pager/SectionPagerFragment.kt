@@ -48,7 +48,7 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         issueContentViewModel.issueOperationsLiveData.observe(this, object : Observer<IssueOperations?> {
             override fun onChanged(t: IssueOperations?) {
                 t?.let {
-                    issueContentViewModel.issueOperationsLiveData.removeObserver(this)
+                    issueContentViewModel?.issueOperationsLiveData?.removeObserver(this)
                     updateAndDownloadIssue(t)
                 }
             }
