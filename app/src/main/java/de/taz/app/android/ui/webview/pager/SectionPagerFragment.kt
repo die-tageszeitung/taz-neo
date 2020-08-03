@@ -95,10 +95,10 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
      */
     private fun updateAndDownloadIssue(issueOperations: IssueOperations) =
         CoroutineScope(Dispatchers.IO).launch {
-            val issueRepository = IssueRepository.getInstance(context?.applicationContext)
-            issueRepository.getIssue(issueOperations)?.let {
-                DownloadService.getInstance(context?.applicationContext).download(it)
-            }
+            IssueRepository.getInstance(context?.applicationContext)
+                .getIssue(issueOperations)?.let {
+                    DownloadService.getInstance(context?.applicationContext).download(it)
+                }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
