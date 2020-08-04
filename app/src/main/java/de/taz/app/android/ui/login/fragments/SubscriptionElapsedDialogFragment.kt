@@ -1,38 +1,45 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
+import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
+import de.taz.app.android.singletons.ToastHelper
 
-class SubscriptionElapsedDialogFragment : DialogFragment()  {
+class SubscriptionElapsedDialogFragment : DialogFragment() {
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            // Use the Builder class for convenient dialog construction
-            val builder = AlertDialog.Builder(it)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.subscription_elapsed_popup, container)
 
-            // Get the layout inflater
-            val inflater = requireActivity().layoutInflater;
-
-            // Inflate and set the layout for the dialog
-            // Pass null as the parent view because its going in the dialog layout
-            builder.setView(inflater.inflate(R.layout.subscription_elapsed_popup, null))
-                // Add action buttons
-                .setPositiveButton(R.string.register_button,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // sign in the user ...
-                    })
-                .setNegativeButton(R.string.cancel_button,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
-            builder.create()
-
-        } ?: throw IllegalStateException("Activity cannot be null")
+        val emailText = view.findViewById<TextView>(R.id.subscription_elapsed_popup_email)
+        emailText.setOnClickListener {
+            val email = Intent(Intent.ACTION_SEND)
+            email.putExtra(Intent.EXTRA_EMAIL, arrayOf(SUBSCRIPTION_EMAIL_ADDRESS))
+            email.putExtra(Intent.EXTRA_SUBJECT, "")
+            email.putExtra(Intent.EXTRA_TEXT, "")
+            email.type = "message/rfc822"
+            startActivity(Intent.createChooser(email, null))
+        }
+        val cancelButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_cancel_button)
+        cancelButton.setOnClickListener {
+            dismiss()
+        }
+        val orderButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_order_button)
+        orderButton.setOnClickListener {
+            // TODO -> Go to order fragment which will be implemented soon
+            ToastHelper.getInstance().showToast("Bald können Sie aus der App heraus bestellen!")
+            dismiss()
+        }
+        return view
     }
-
-
 }

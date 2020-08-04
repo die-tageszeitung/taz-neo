@@ -12,9 +12,9 @@
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="popup_login_elapsed_header">Abonnement abgleaufen</string>
     <string name="popup_login_elapsed_text">
-        Es tut uns leid aber Ihr Abo ist leider abgelaufen.<br />
-        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.<br />
-        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.<br />
+        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
+        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
+        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
         Bei Fragen wenden Sie sich an unseren Service unter:
     </string>
     <string name="login_failed">Anmeldung fehlgeschlagen.</string>
