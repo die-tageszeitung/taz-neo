@@ -23,7 +23,6 @@ class ToDownloadIssueHelper(applicationContext: Context) {
 
     private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val dateHelper = DateHelper.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
     var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
@@ -54,7 +53,7 @@ class ToDownloadIssueHelper(applicationContext: Context) {
                 .apply()
         }
         var newLatestDownloadedDate = latestDownloadedDate
-        val missingIssuesCount = dateHelper.dayDelta(dateToDownloadFrom, latestDownloadedDate).toInt()
+        val missingIssuesCount = DateHelper.dayDelta(dateToDownloadFrom, latestDownloadedDate).toInt()
         // we download missing issues in batches of 10, since API call has upper limit
         val necessaryNumberAPICalls = missingIssuesCount / 10 + 1
         log.debug("necessary number of API calls: $necessaryNumberAPICalls")
