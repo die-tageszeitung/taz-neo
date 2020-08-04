@@ -21,7 +21,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
@@ -129,7 +128,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         web_view?.apply {
             webViewClient = AppWebViewClient(this@WebViewFragment)
             webChromeClient = AppWebChromeClient(::onPageRendered)
-            settings.javaScriptEnabled = true
+            settings.apply {
+                allowFileAccess = true
+                useWideViewPort = true
+                loadWithOverviewMode = true
+                domStorageEnabled = true
+                javaScriptEnabled = true
+            }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
         }
     }
