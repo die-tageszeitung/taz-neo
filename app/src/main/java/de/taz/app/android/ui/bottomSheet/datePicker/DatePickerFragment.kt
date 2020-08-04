@@ -84,8 +84,10 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                 feed = feedRepository?.get("taz")
                 feed?.let { feed ->
                     log.debug("minDate is ${feed.issueMinDate}")
-                    fragment_bottom_sheet_date_picker.minDate =
-                        dateHelper.stringToLong(feed.issueMinDate)
+                    withContext(Dispatchers.Main) {
+                        fragment_bottom_sheet_date_picker.minDate =
+                            dateHelper.stringToLong(feed.issueMinDate)
+                    }
                 }
             }
         }
