@@ -131,8 +131,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         runOnUiThread {
             val fragment = IssueContentFragment.createInstance(issueStub)
             showMainFragment(fragment)
+            drawer_layout.openDrawer(GravityCompat.START)
         }
-        drawer_layout.openDrawer(GravityCompat.START)
         lifecycleScope.launch {
             delay(3000)
             if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
