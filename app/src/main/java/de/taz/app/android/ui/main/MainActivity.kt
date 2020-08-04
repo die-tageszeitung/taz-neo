@@ -21,6 +21,7 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
@@ -34,7 +35,6 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -66,8 +66,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
 
         lockNavigationView(GravityCompat.END)
-// TODO-> REMOVE ME:
-        showSubscriptionElapsedPopup()
+
+        checkIfSubscriptionElapsed()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
@@ -144,6 +144,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     drawer_layout.closeDrawer(GravityCompat.START)
                 }
             }
+        }
+    }
+
+    private fun checkIfSubscriptionElapsed() {
+        val authStatus = AuthHelper.getInstance(applicationContext).authStatus
+        if (authStatus == AuthStatus.elapsed) {
+            showSubscriptionElapsedPopup()
         }
     }
 
