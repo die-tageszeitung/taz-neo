@@ -31,6 +31,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
 
@@ -69,6 +70,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
+    private val currentDownloadList = ConcurrentLinkedQueue<Download>()
 
     private val currentDownloads = AtomicInteger(0)
 
@@ -169,16 +171,19 @@ class DownloadService private constructor(val applicationContext: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
-                    currentDownloads.incrementAndGet()
-                    val job = getFromServer(download)
-                    job.invokeOnCompletion {
-                        currentDownloads.decrementAndGet()
-                        startDownloadsIfCapacity()
-                    }
-                    download.tag?.let { tag ->
-                        val jobsForTag = tagJobMap[tag] ?: mutableListOf()
-                        jobsForTag.add(job)
-                        tagJobMap[download.tag] = jobsForTag
+                    if (!currentDownloadList.contains(download)) {
+                        currentDownloadList.offer(download)
+                        currentDownloads.incrementAndGet()
+                        val job = getFromServer(download)
+                        job.invokeOnCompletion {
+                            currentDownloads.decrementAndGet()
+                            startDownloadsIfCapacity()
+                        }
+                        download.tag?.let { tag ->
+                            val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                            jobsForTag.add(job)
+                            tagJobMap[download.tag] = jobsForTag
+                        }
                     }
                 } ?: break
             }
@@ -223,12 +228,16 @@ class DownloadService private constructor(val applicationContext: Context) {
                         handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                        currentDownloadList.remove(download)
                         when (e) {
                             is UnknownHostException,
-                            is ConnectException,
-                            is SocketTimeoutException
+                            is ConnectException
                             -> {
                                 serverConnectionHelper.isServerReachable = false
+                                appendToDownloadList(download)
+                                log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
+                            }
+                            is SocketTimeoutException -> {
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
@@ -237,7 +246,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 throw e
                             }
                             else -> {
-                                log.warn("unknown error occurred")
+                                log.warn("unknown error occurred - ${fromDB.fileName}")
                                 Sentry.capture(e)
                                 throw e
                             }
@@ -405,12 +414,16 @@ class DownloadService private constructor(val applicationContext: Context) {
                             }
                         }
                     download?.let {
-                        log.debug("adding download ${download.fileName} to downloadList")
-                        // issues are not shown immediately - so download other downloads like articles first
-                        if (cacheableDownload is Issue) {
-                            appendToDownloadList(download)
-                        } else {
-                            prependToDownloadList(download)
+                        if (!currentDownloadList.contains(download)
+                            && !download.file.isDownloaded(applicationContext)
+                        ) {
+                            log.debug("adding download ${download.fileName} to downloadList")
+                            // issues are not shown immediately - so download other downloads like articles first
+                            if (cacheableDownload is Issue) {
+                                appendToDownloadList(download)
+                            } else {
+                                prependToDownloadList(download)
+                            }
                         }
                     } ?: log.debug("creating download returned null")
                 }
@@ -432,8 +445,10 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun appendToDownloadList(download: Download) {
-        if (downloadList.offerLast(download)) {
-            startDownloadsIfCapacity()
+        if (!downloadList.contains(download)) {
+            if (downloadList.offerLast(download)) {
+                startDownloadsIfCapacity()
+            }
         }
     }
 
