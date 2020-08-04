@@ -19,7 +19,6 @@ import de.taz.app.android.R
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
-import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -39,8 +38,6 @@ abstract class HomePageAdapter(
     private var authStatus = AuthStatus.notValid
     private var feedList: List<Feed> = emptyList()
     private var inactiveFeedNames: Set<String> = emptySet()
-
-    private val dateHelper = DateHelper.getInstance(fragment.activity?.applicationContext)
 
     private val log by Log
 
@@ -181,7 +178,7 @@ abstract class HomePageAdapter(
             dateOnClickListenerFunction?.let { dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
                     getItem(adapterPosition)?.let { issueStub ->
-                        val issueDate = dateHelper.stringToDate(issueStub.date)
+                        val issueDate = DateHelper.stringToDate(issueStub.date)
                         issueDate?.let {
                             dateOnClickListenerFunction(issueDate)
                         }
