@@ -119,11 +119,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (isRendered) hideLoadingScreen()
-    }
-
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
         web_view?.apply {
