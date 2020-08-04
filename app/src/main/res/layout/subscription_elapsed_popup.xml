@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
@@ -10,52 +11,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_weight="0"
         android:text="@string/popup_login_elapsed_header"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/subscription_elapsed_popup_text"
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_weight="0"
-        android:text="@string/popup_login_elapsed_text" />
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:text="@string/popup_login_elapsed_text"
+        app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_header" />
 
     <TextView
         android:id="@+id/subscription_elapsed_popup_email"
         style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:text="@string/fragment_login_digiabo_mail_underlined" />
+        android:text="@string/fragment_login_digiabo_mail_underlined"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_text" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_weight="1"
-        android:gravity="center|bottom"
-        android:orientation="horizontal">
+    <Button
+        android:id="@+id/subscription_elapsed_popup_cancel_button"
+        style="@style/Button.Login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:backgroundTint="@color/darkGrey"
+        android:text="@string/cancel_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_email" />
 
-        <Button
-            android:id="@+id/subscription_elapsed_popup_cancel_button"
-            style="@style/Button.Login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:backgroundTint="@color/darkGrey"
-            android:text="@string/cancel_button" />
-
-        <Button
-            android:id="@+id/subscription_elapsed_popup_order_button"
-            style="@style/Button.Login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:text="@string/order_button" />
-    </LinearLayout>
-</LinearLayout>
+    <Button
+        android:id="@+id/subscription_elapsed_popup_order_button"
+        style="@style/Button.Login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:text="@string/order_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_email" />
+</androidx.constraintlayout.widget.ConstraintLayout>
