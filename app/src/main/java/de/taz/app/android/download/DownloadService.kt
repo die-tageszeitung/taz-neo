@@ -25,6 +25,7 @@ import io.sentry.connection.ConnectionException
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
+import java.lang.NullPointerException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -230,6 +231,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 serverConnectionHelper.isServerReachable = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
+                            }
+                            is CancellationException -> {
+                                log.info("download of ${fromDB.fileName} has been canceled")
+                                throw e
                             }
                             else -> {
                                 log.warn("unknown error occurred")
