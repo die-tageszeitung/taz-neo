@@ -20,9 +20,7 @@ enum class AppTimeZone {
 }
 
 @Mockable
-class DateHelper private constructor(applicationContext: Context): ViewModel() {
-
-    companion object : SingletonHolder<DateHelper, Context>(::DateHelper)
+object DateHelper {
 
     val now
         get() = Date().time
@@ -63,8 +61,8 @@ class DateHelper private constructor(applicationContext: Context): ViewModel() {
         }
     }
 
-    fun stringToLong(string: String): Long {
-        return dateHelper.parse(string).time
+    fun stringToLong(string: String): Long? {
+        return dateHelper.parse(string)?.time
     }
 
     fun stringToStringWithDelta(string: String, days: Int): String? {
