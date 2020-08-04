@@ -34,7 +34,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private var feed: Feed? = null
 
     private var apiService: ApiService? = null
-    private var dateHelper: DateHelper? = null
     private var feedRepository: FeedRepository? = null
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
@@ -53,7 +52,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
-        dateHelper = DateHelper.getInstance(context.applicationContext)
         feedRepository = FeedRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
@@ -77,16 +75,15 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
 
 
         //minDate and maxDate constraints. UX is somewhat whack..
-        dateHelper?.let { dateHelper ->
-            fragment_bottom_sheet_date_picker.maxDate = dateHelper.today(AppTimeZone.Default)
-            log.debug("maxDate is ${dateHelper.longToString(dateHelper.today(AppTimeZone.Default))}")
-            lifecycleScope.launch(Dispatchers.IO) {
-                feed = feedRepository?.get("taz")
-                feed?.let { feed ->
-                    log.debug("minDate is ${feed.issueMinDate}")
+        fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
+        log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
+        lifecycleScope.launch(Dispatchers.IO) {
+            feed = feedRepository?.get("taz")
+            feed?.let { feed ->
+                log.debug("minDate is ${feed.issueMinDate}")
+                DateHelper.stringToLong(feed.issueMinDate)?.let {
                     withContext(Dispatchers.Main) {
-                        fragment_bottom_sheet_date_picker.minDate =
-                            dateHelper.stringToLong(feed.issueMinDate)
+                        fragment_bottom_sheet_date_picker.minDate = it
                     }
                 }
             }
@@ -127,7 +124,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         withContext(Dispatchers.IO) {
             val issueStub = issueRepository?.getLatestIssueStubByDate(date)
             if (issueStub != null && (issueStub.date == date ||
-                        dateHelper?.dayDelta(issueStub.date, date)?.toInt() == 1 &&
+                        DateHelper.dayDelta(issueStub.date, date).toInt() == 1 &&
                         issueStub.isWeekend)
             ) {
                 log.debug("issue is already local")
