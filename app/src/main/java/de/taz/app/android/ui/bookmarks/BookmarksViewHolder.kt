@@ -32,7 +32,6 @@ class BookmarksViewHolder(
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
     private val fileHelper = FileHelper.getInstance(parent.context.applicationContext)
-    private val dateHelper: DateHelper = DateHelper.getInstance(parent.context.applicationContext)
     private val bookmarksAdapter = BookmarksAdapter(bookmarksFragment)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
@@ -48,7 +47,7 @@ class BookmarksViewHolder(
     fun bind(article: Article) {
         bookmarkImage?.visibility = View.GONE
         article.let {
-            bookmarkDate?.text = dateHelper.dateToLowerCaseString(article.issueDate)
+            bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
 
             if (article.imageList.isNotEmpty()) {
                 fileHelper.getFile(article.imageList.first()).apply {

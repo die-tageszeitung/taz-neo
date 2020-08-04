@@ -38,7 +38,6 @@ abstract class HomePageFragment(
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
-        dateHelper = DateHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
     }
 
@@ -85,7 +84,7 @@ abstract class HomePageFragment(
         }
     }
 
-    suspend fun downloadNextIssues(date: String, limit: Int) {
+    private suspend fun downloadNextIssues(date: String, limit: Int) {
         withContext(Dispatchers.IO) {
             apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()?.let {
                 issueRepository?.save(it)
