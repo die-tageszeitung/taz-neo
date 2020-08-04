@@ -10,10 +10,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
@@ -30,11 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val ISSUE_DATE = "issueDate"
-const val ISSUE_FEED = "issueFeed"
-const val ISSUE_STATUS = "issueStatus"
 const val POSITION = "position"
-const val SECTION_KEY = "sectionKey"
 
 class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     R.layout.fragment_webview_pager
@@ -43,46 +36,19 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
 
     private var sectionAdapter: SectionPagerAdapter? = null
 
-    private var sectionKey: String? = null
-    private var issueFeedName: String? = null
-    private var issueDate: String? = null
-    private var issueStatus: IssueStatus? = null
-
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
-
-    companion object {
-        fun createInstance(sectionFileName: String): SectionPagerFragment {
-            val fragment = SectionPagerFragment()
-            fragment.sectionKey = sectionFileName
-            return fragment
-        }
-
-        fun createInstance(issueStub: IssueStub): SectionPagerFragment {
-            val fragment = SectionPagerFragment()
-            fragment.issueFeedName = issueStub.feedName
-            fragment.issueDate = issueStub.date
-            fragment.issueStatus = issueStub.status
-            return fragment
-        }
-    }
+    private val issueContentViewModel: IssueContentViewModel? by lazy { (parentFragment as? IssueContentFragment)?.viewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.apply {
-            issueDate = getString(ISSUE_DATE)
-            issueFeedName = getString(ISSUE_FEED)
-            try {
-                issueStatus = getString(ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
-            } catch (e: IllegalArgumentException) {
-                // do nothing issueStatus is null
-            }
-            sectionKey = getString(SECTION_KEY)
             viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
-        viewModel.issueOperationsLiveData.observe(this, object : Observer<IssueOperations?> {
+
+        issueContentViewModel?.issueOperationsLiveData?.observe(this, object : Observer<IssueOperations?> {
             override fun onChanged(t: IssueOperations?) {
                 t?.let {
-                    viewModel.issueOperationsLiveData.removeObserver(this)
+                    issueContentViewModel?.issueOperationsLiveData?.removeObserver(this)
                     updateAndDownloadIssue(t)
                 }
             }
@@ -103,16 +69,6 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sectionKey?.let {
-            viewModel.sectionKeyLiveData.value = it
-        }
-        runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
-            viewModel.apply {
-                issueFeedNameLiveData.value = feedName
-                issueDateLiveData.value = date
-                issueStatusLiveData.value = status
-            }
-        }
 
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
@@ -125,20 +81,19 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
             }
         }
 
-        viewModel.sectionStubListLiveData.observeDistinct(this) { sectionStubList ->
-            runIfNotNull(
-                sectionStubList,
-                viewModel.currentPosition
-            ) { _, currentPosition ->
-                webview_pager_viewpager.apply {
-                    adapter?.notifyDataSetChanged()
-                    setCurrentItem(currentPosition, false)
-                }
-                loading_screen?.visibility = View.GONE
+        runIfNotNull(
+            issueContentViewModel?.sectionList,
+            viewModel.currentPosition
+        ) { _, currentPosition ->
+            webview_pager_viewpager.apply {
+                adapter?.notifyDataSetChanged()
+                setCurrentItem(currentPosition, false)
             }
+            loading_screen?.visibility = View.GONE
         }
 
-        viewModel.issueOperationsLiveData.observeDistinct(this) { issueOperations ->
+        issueContentViewModel?.issueOperationsLiveData?.observeDistinct(this)
+        { issueOperations ->
             issueOperations?.let { setDrawerIssue(it) }
         }
     }
@@ -148,18 +103,18 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         setupViewPager()
     }
 
-    fun tryLoadSection(sectionFileName: String): Boolean {
-        viewModel.sectionStubListLiveData.value?.indexOfFirst { it.key == sectionFileName }?.let {
-            if (it >= 0) {
-                if (viewModel.currentPosition != it) {
-                    lifecycleScope.launchWhenResumed {
-                        webview_pager_viewpager.setCurrentItem(it, false)
+    fun tryLoadSection(sectionFileName: String) {
+        lifecycleScope.launchWhenResumed {
+            issueContentViewModel?.sectionList?.indexOfFirst { it.key == sectionFileName }?.let {
+                if (it >= 0) {
+                    if (viewModel.currentPosition != it) {
+                        lifecycleScope.launchWhenResumed {
+                            webview_pager_viewpager.setCurrentItem(it, false)
+                        }
                     }
                 }
-                return true
             }
         }
-        return false
     }
 
     private fun setupViewPager() {
@@ -195,7 +150,7 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     private inner class SectionPagerAdapter : FragmentStateAdapter(this@SectionPagerFragment) {
 
         private val sectionStubs: List<SectionStub>
-            get() = viewModel.sectionStubListLiveData.value ?: emptyList()
+            get() = issueContentViewModel?.sectionList ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
             val section = sectionStubs[position]
@@ -210,13 +165,6 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate ?: viewModel.issueDate)
-        outState.putString(ISSUE_FEED, issueFeedName ?: viewModel.issueFeedName)
-        outState.putString(
-            ISSUE_STATUS,
-            issueStatus?.toString() ?: viewModel.issueStatus?.toString()
-        )
-        outState.putString(SECTION_KEY, viewModel.sectionKey)
         viewModel.currentPosition?.let {
             outState.putInt(POSITION, it)
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.IssueStatus
 
 @Dao
 abstract class ArticleDao : BaseDao<ArticleStub>() {
@@ -22,15 +23,18 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     @Query("SELECT * FROM Article WHERE Article.bookmarked != 0")
     abstract fun getBookmarkedArticlesList(): List<ArticleStub>
 
-    @Query("""SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
+    @Query(
+        """SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
             ON Article.articleFileName == SAJ.articleFileName
         WHERE SectionArticleJoin.articleFileName == :articleFileName
             AND SAJ.sectionFileName == SectionArticleJoin.sectionFileName
             ORDER BY SAJ.`index` ASC
-    """)
+    """
+    )
     abstract fun getSectionArticleListByArticle(articleFileName: String): List<ArticleStub>
 
-    @Query("""SELECT Article.* FROM Article
+    @Query(
+        """SELECT Article.* FROM Article
         INNER JOIN SectionArticleJoin as Name
         INNER JOIN SectionArticleJoin as SAJ
         INNER JOIN IssueSectionJoin as ISJConstraint
@@ -43,10 +47,29 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
             AND ISJConstraint.issueFeedName == IssueSectionJoin.issueFeedName
             AND ISJConstraint.issueDate == IssueSectionJoin.issueDate
             ORDER BY IssueSectionJoin.`index` ASC , SAJ.`index` ASC
-    """)
+    """
+    )
     abstract fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
 
     @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND downloadedStatus == 'done')")
     abstract fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
+
+    @Query(
+        """SELECT Article.* FROM Article
+        INNER JOIN SectionArticleJoin
+        INNER JOIN IssueSectionJoin
+        WHERE IssueSectionJoin.issueFeedName == :issueFeedName
+            AND IssueSectionJoin.issueDate == :issueDate
+            AND IssueSectionJoin.issueStatus == :issueStatus
+            AND SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
+            AND Article.articleFileName == SectionArticleJoin.articleFileName
+        ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
+    """
+    )
+    abstract fun getArticleStubListForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<ArticleStub>
 
 }
