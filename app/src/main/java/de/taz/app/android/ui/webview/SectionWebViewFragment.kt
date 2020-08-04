@@ -70,12 +70,11 @@ class SectionWebViewFragment :
                 view?.findViewById<TextView>(R.id.section)?.apply {
                     text = displayable.getHeaderTitle()
                 }
-                DateHelper.getInstance(applicationContext)
-                    .dateToLowerCaseString(displayable.issueDate)?.let {
-                        view?.findViewById<TextView>(R.id.issue_date)?.apply {
-                            text = it
-                        }
+                DateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
+                    view?.findViewById<TextView>(R.id.issue_date)?.apply {
+                        text = it
                     }
+                }
 
                 // On first section "die tageszeitung" the header should be bigger:
                 if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {

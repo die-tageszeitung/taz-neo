@@ -159,17 +159,17 @@ class WoffConverter {
         compressedLength: Int, origLength: Int,
         fontData: ByteArray, inflatedFontData: ByteArray
     ): ByteArray {
-        var inflatedFontData = inflatedFontData
+        var tmpInflatedFontData = inflatedFontData
         if (compressedLength != origLength) {
             val decompressor = Inflater()
             decompressor.setInput(fontData, 0, compressedLength)
             try {
-                decompressor.inflate(inflatedFontData, 0, origLength)
+                decompressor.inflate(tmpInflatedFontData, 0, origLength)
             } catch (e: DataFormatException) {
                 throw InvalidWoffException("Malformed woff file")
             }
-        } else inflatedFontData = fontData
-        return inflatedFontData
+        } else tmpInflatedFontData = fontData
+        return tmpInflatedFontData
     }
 
     private fun getBytes(i: Int): ByteArray {
