@@ -1,6 +1,6 @@
 package de.taz.app.android.ui.home
 
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
@@ -24,13 +25,6 @@ import kotlinx.coroutines.withContext
 
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
-
-    var dateHelper: DateHelper? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        dateHelper = DateHelper.getInstance(context.applicationContext)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,14 +48,12 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
 
         coverflow_refresh_layout.setOnRefreshListener {
             lifecycleScope.launchWhenResumed {
-                dateHelper?.let { dateHelper ->
-                    val start = dateHelper.now
-                    onRefresh()
-                    val end = dateHelper.now
-                    // show animation at least 1000 ms so it looks smoother
-                    if (end - start < 1000) {
-                        delay(1000 - (end - start))
-                    }
+                val start = DateHelper.now
+                onRefresh()
+                val end = DateHelper.now
+                // show animation at least 1000 ms so it looks smoother
+                if (end - start < 1000) {
+                    delay(1000 - (end - start))
                 }
                 hideRefreshLoadingIcon()
             }
@@ -101,6 +93,11 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_bookmark -> showMainFragment(BookmarksFragment())
             R.id.bottom_navigation_action_settings -> showMainFragment(SettingsFragment())
+            R.id.bottom_navigation_action_help -> {
+                val intent = Intent(context?.applicationContext, WelcomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                startActivity(Intent(intent))
+            }
         }
     }
 }

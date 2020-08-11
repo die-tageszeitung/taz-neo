@@ -301,7 +301,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
             lifecycleScope.launch(Dispatchers.IO) {
                 DownloadService.getInstance(applicationContext).cancelDownloads()
                 downloadLatestIssueMoments()
-                deletePublicIssues()
 
                 article?.let {
                     data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
@@ -334,10 +333,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 }
             }
         }
-    }
-
-    private fun deletePublicIssues() {
-        issueRepository?.deletePublicIssues()
     }
 
     private fun showFragment(fragment: Fragment) {

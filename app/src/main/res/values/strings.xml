@@ -63,6 +63,7 @@
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
+    <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
     <string name="fragment_bookmarks_title">Leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>

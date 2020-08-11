@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 const val DISPLAYABLE_NAME = "articleName"
 
-class ArticlePagerFragment :
+class ArticlePagerFragment() :
     BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
     BackFragment {
 
@@ -39,14 +39,7 @@ class ArticlePagerFragment :
     private var hasBeenSwiped: Boolean = false
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-
-    companion object {
-        fun createInstance(articleName: String): ArticlePagerFragment {
-            val fragment = ArticlePagerFragment()
-            fragment.articleName = articleName
-            return fragment
-        }
-    }
+    private val issueContentViewModel: IssueContentViewModel? by lazy { (parentFragment as? IssueContentFragment)?.viewModel }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,20 +51,17 @@ class ArticlePagerFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.articleNameLiveData.value = articleName
 
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
 
-        viewModel.articleListLiveData.observeDistinct(this) {
-            webview_pager_viewpager.apply {
-                (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
-                setCurrentItem(viewModel.currentPosition, false)
-            }
-            loading_screen.visibility = View.GONE
+        webview_pager_viewpager.apply {
+            (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
+            setCurrentItem(viewModel.currentPosition, false)
         }
+        loading_screen.visibility = View.GONE
 
         viewModel.currentPositionLiveData.observeDistinct(this) {
             if (webview_pager_viewpager.currentItem != it) {
@@ -79,7 +69,7 @@ class ArticlePagerFragment :
             }
         }
 
-        viewModel.issueOperationsLiveData.observeDistinct(this) { issueOperations ->
+        issueContentViewModel?.issueOperationsLiveData?.observeDistinct(this) { issueOperations ->
             issueOperations?.let { setDrawerIssue(it) }
         }
     }
@@ -118,7 +108,7 @@ class ArticlePagerFragment :
                 firstSwipe = false
             } else {
                 hasBeenSwiped = true
-                viewModel.sectionNameListLiveData.observeDistinctUntil(
+                issueContentViewModel?.sectionNameListLiveData?.observeDistinctUntil(
                     viewLifecycleOwner, {
                         if (it.isNotEmpty()) {
                             it[position]?.let { sectionName ->
@@ -150,7 +140,7 @@ class ArticlePagerFragment :
     private inner class ArticlePagerAdapter : FragmentStateAdapter(this@ArticlePagerFragment) {
 
         private val articleStubs
-            get() = viewModel.articleList
+            get() = issueContentViewModel?.articleList ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
@@ -166,23 +156,22 @@ class ArticlePagerFragment :
     }
 
     override fun onBackPressed(): Boolean {
-        val noSectionParent = parentFragmentManager.backStackEntryCount == 1
-
-        if (hasBeenSwiped || noSectionParent) {
-            if (noSectionParent) {
-                parentFragmentManager.popBackStack()
-            }
+        return if (hasBeenSwiped) {
             showSectionOrGoBack()
         } else {
-            parentFragmentManager.popBackStack()
+            false
         }
-        return true
     }
 
-    private fun showSectionOrGoBack() {
-        viewModel.sectionNameListLiveData.value?.getOrNull(viewModel.currentPosition)?.let {
-            showInWebView(it)
-        } ?: parentFragmentManager.popBackStack()
+    private fun showSectionOrGoBack(): Boolean {
+        return articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let {
+            lifecycleScope.launch(Dispatchers.IO) {
+                it.getSectionStub(context?.applicationContext)?.key?.let { sectionKey ->
+                    showInWebView(sectionKey)
+                }
+            }
+            true
+        } ?: false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
@@ -229,6 +218,16 @@ class ArticlePagerFragment :
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
+    }
+
+    fun tryLoadArticle(articleFileName: String) {
+        lifecycleScope.launchWhenStarted {
+            issueContentViewModel?.articleList?.indexOfFirst { it.key == articleFileName }?.let {
+                if (it >= 0) {
+                    webview_pager_viewpager.setCurrentItem(it, false)
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
