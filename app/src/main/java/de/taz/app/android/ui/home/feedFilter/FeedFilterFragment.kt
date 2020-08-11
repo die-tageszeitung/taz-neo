@@ -138,4 +138,10 @@ class FeedFilterFragment :
             feedHelper.activateFeed(feed)
         }
     }
+
+    override fun onDestroyView() {
+        fragment_archive_navigation_end_feed_list.adapter = null
+        super.onDestroyView()
+    }
+
 }

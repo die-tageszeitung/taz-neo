@@ -231,4 +231,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
+    override fun onDestroyView() {
+        fragment_drawer_sections_list.adapter = null
+        super.onDestroyView()
+    }
+
 }

@@ -181,4 +181,9 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
             }
         }
     }
+
+    override fun onDestroyView() {
+        webview_pager_viewpager.adapter = null
+        super.onDestroyView()
+    }
 }
