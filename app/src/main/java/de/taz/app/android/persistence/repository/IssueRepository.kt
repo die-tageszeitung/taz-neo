@@ -342,9 +342,9 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        appDatabase.runInTransaction {
+  //      appDatabase.runInTransaction {
             // delete moment
-            momentRepository.delete(issue.moment, issue.feedName, issue.date, issue.status)
+            momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
 
             // delete imprint
             issue.imprint?.let { imprint ->
@@ -357,7 +357,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                     )
                 )
                 try {
-                    articleRepository.delete(imprint)
+                    articleRepository.deleteArticle(imprint)
                 } catch (e: SQLiteConstraintException) {
                     // do not delete used by another issue
                 }
@@ -410,7 +410,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             appDatabase.issueDao().delete(
                 IssueStub(issue)
             )
-        }
+   //     }
     }
 
     fun deletePublicIssues() = CoroutineScope(Dispatchers.IO).launch {

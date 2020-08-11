@@ -173,6 +173,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
         // get authors
         val authorImageJoins =
             appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+        log.warn("DAMNIT: ${authorImageJoins
+            .filter { !it.authorFileName.isNullOrEmpty() }
+            .map { it.authorFileName!! }}" )
         val authorImages = fileEntryRepository.getOrThrow(
             authorImageJoins
                 .filter { !it.authorFileName.isNullOrEmpty() }
@@ -281,7 +284,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     }
 
-    fun delete(article: Article) {
+    fun deleteArticle(article: Article) {
         appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
             if (!it.bookmarked) {
@@ -292,18 +295,27 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     articleFileName
                 ).forEach { articleAuthorImageJoin ->
                     log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
+                    val amountOfArticlesOfAuthor = articleAuthorImageJoin.authorFileName?.let { author ->
+                        appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
+                            author
+                        )
+                    }?.size ?: 2
                     appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
-                    articleAuthorImageJoin.authorFileName?.let { authorFileName ->
-                        try {
-                            fileEntryRepository.delete(
-                                fileEntryRepository.getOrThrow(
-                                    authorFileName
+                    if (amountOfArticlesOfAuthor == 1) {
+                        articleAuthorImageJoin.authorFileName?.let { authorFileName ->
+                            try {
+                                fileEntryRepository.delete(
+                                    fileEntryRepository.getOrThrow(
+                                        authorFileName
+                                    )
                                 )
-                            )
-                        } catch (e: SQLiteConstraintException) {
-                            // do nothing as author is still referenced by another article
-                        } catch (e: NotFoundException) {
-                            log.warn("tried to delete non-existent file: $authorFileName")
+                                log.warn("DAMNIT?? $authorFileName deleted!!!!")
+                            } catch (e: SQLiteConstraintException) {
+                                // do nothing as author is still referenced by another article
+                                log.warn("DAMNIT OR NOT. not deleted: $authorFileName")
+                            } catch (e: NotFoundException) {
+                                log.warn("tried to delete non-existent file: $authorFileName")
+                            }
                         }
                     }
                 }
