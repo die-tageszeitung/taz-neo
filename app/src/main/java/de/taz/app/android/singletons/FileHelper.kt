@@ -61,7 +61,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
      * writes data from [source] to file of [fileEntry] and return sha265
      * @throws SSLException when connection is terminated while writing to file
      */
-    @Throws(SSLException::class)
+    @Throws(SSLException::class, java.io.IOException::class)
     fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
         val fileSink = getFile(fileEntry).sink()
         val hashingSink = HashingSink.sha256(fileSink)
