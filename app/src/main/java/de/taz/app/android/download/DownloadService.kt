@@ -308,6 +308,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                 } catch (ce: ConnectionException) {
                     log.debug("aborted download of ${download.fileName} - ConnectionException")
                     abortAndRetryDownload(download)
+                } catch (ioe: IOException) {
+                    log.debug("aborted download of ${download.fileName} - IOException")
+                    abortAndRetryDownload(download)
                 }
             } ?: run {
                 log.debug("aborted download of ${download.fileName} - file is empty")
