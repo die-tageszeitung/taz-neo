@@ -13,6 +13,7 @@ abstract class BaseViewModelFragment<VIEW_MODEL : ViewModel>(
         ViewModelProvider(this).get(getViewModelClassByReflection())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getViewModelClassByReflection(): Class<VIEW_MODEL> {
         var superClass = javaClass.genericSuperclass
         while((superClass as? ParameterizedType) == null) {
