@@ -9,7 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.io.IOException
+import java.io.IOException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

@@ -7,7 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.allMigrations
-import kotlinx.io.IOException
+import java.io.IOException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
