@@ -10,6 +10,13 @@
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
 
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
+    <string name="popup_login_elapsed_header">Abonnement abgleaufen</string>
+    <string name="popup_login_elapsed_text">
+        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
+        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
+        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
+        Bei Fragen wenden Sie sich an unseren Service unter:
+    </string>
     <string name="login_failed">Anmeldung fehlgeschlagen.</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
@@ -46,6 +53,7 @@
 
     <string name="trial_subscription_title">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
     <string name="register_button">Registrieren</string>
+    <string name="order_button">Bestellen</string>
 
     <string name="archive">Archiv</string>
     <string name="feeds">Publikationen</string>
