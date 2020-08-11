@@ -294,7 +294,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
                     articleFileName
                 ).forEach { articleAuthorImageJoin ->
-                    log.debug("deleting ArticleAuthor ${articleAuthorImageJoin.id}")
                     val amountOfArticlesOfAuthor = articleAuthorImageJoin.authorFileName?.let { author ->
                         appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
                             author
@@ -309,10 +308,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
                                         authorFileName
                                     )
                                 )
-                                log.warn("DAMNIT?? $authorFileName deleted!!!!")
+                                log.debug("ArticleAuthor $authorFileName deleted.")
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
-                                log.warn("DAMNIT OR NOT. not deleted: $authorFileName")
                             } catch (e: NotFoundException) {
                                 log.warn("tried to delete non-existent file: $authorFileName")
                             }
