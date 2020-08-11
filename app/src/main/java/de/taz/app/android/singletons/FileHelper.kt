@@ -7,7 +7,6 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.io.IOException
 import okio.*
 import java.io.BufferedReader
 import java.io.File
