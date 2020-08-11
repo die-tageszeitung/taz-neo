@@ -40,7 +40,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = [
+                        "room.schemaLocation": "$projectDir/schemas".toString(),
+                        "room.incremental": "true"
+                ]
             }
         }
         vectorDrawables.useSupportLibrary = true
@@ -197,7 +200,7 @@ dependencies {
     // Core library
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
-    
+
     // AndroidJUnitRunner and JUnit Rules
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
