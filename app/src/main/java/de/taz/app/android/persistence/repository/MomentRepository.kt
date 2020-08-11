@@ -111,7 +111,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun delete(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+    fun deleteMoment(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         appDatabase.issueImageMomentJoinDao().delete(
             moment.imageList.mapIndexed { index, fileEntry ->
                 IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
