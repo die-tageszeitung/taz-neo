@@ -121,11 +121,9 @@ class IssueContentFragment :
     }
 
     private fun showSection(sectionFileName: String? = null) {
-        sectionPagerFragment?.let { sectionPagerFragment ->
-            showFragment(sectionPagerFragment)
-            sectionFileName?.let {
-                sectionPagerFragment.tryLoadSection(sectionFileName)
-            }
+        showFragment(sectionPagerFragment)
+        sectionFileName?.let {
+            sectionPagerFragment.tryLoadSection(sectionFileName)
         }
     }
 
