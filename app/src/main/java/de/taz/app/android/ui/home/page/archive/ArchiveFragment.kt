@@ -22,16 +22,13 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
     var archiveAdapter: ArchiveAdapter? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         archiveAdapter = archiveAdapter ?: ArchiveAdapter(
             this,
             R.layout.fragment_archive_item
         )
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         context?.let { context ->
             fragment_archive_grid.layoutManager =
@@ -87,5 +84,11 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
     override fun setInactiveFeedNames(feedNames: Set<String>) {
         archiveAdapter?.setInactiveFeedNames(feedNames)
     }
+
+    override fun onDestroyView() {
+        fragment_archive_grid.adapter = null
+        super.onDestroyView()
+    }
+
 
 }

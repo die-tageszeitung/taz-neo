@@ -20,11 +20,14 @@ import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
+
+    private var refreshJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,7 +50,8 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         })
 
         coverflow_refresh_layout.setOnRefreshListener {
-            lifecycleScope.launchWhenResumed {
+            refreshJob?.cancel()
+            refreshJob = lifecycleScope.launchWhenResumed {
                 val start = DateHelper.now
                 onRefresh()
                 val end = DateHelper.now
@@ -99,5 +103,12 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                 startActivity(Intent(intent))
             }
         }
+    }
+
+    override fun onDestroyView() {
+        feed_archive_pager.adapter = null
+        refreshJob?.cancel()
+        refreshJob = null
+        super.onDestroyView()
     }
 }

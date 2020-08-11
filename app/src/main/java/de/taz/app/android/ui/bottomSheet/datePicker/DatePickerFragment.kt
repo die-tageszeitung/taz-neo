@@ -102,7 +102,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
 
             preventDismissal()
 
-            activity?.lifecycleScope?.launch() {
+            lifecycleScope.launch() {
                 setIssue("$year-$month-$day")
             }
         }

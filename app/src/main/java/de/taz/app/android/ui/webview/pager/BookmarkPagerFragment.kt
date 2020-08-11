@@ -211,4 +211,10 @@ class BookmarkPagerFragment :
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }
+
+    override fun onDestroyView() {
+        webview_pager_viewpager.adapter = null
+        super.onDestroyView()
+    }
+
 }
