@@ -25,7 +25,7 @@ import io.sentry.connection.ConnectionException
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
-import java.lang.NullPointerException
+import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
 
 const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
@@ -237,6 +238,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
+                            is IOException,
+                            is SSLHandshakeException,
                             is SocketTimeoutException -> {
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
@@ -304,6 +307,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                     abortAndRetryDownload(download)
                 } catch (ce: ConnectionException) {
                     log.debug("aborted download of ${download.fileName} - ConnectionException")
+                    abortAndRetryDownload(download)
+                } catch (ioe: IOException) {
+                    log.debug("aborted download of ${download.fileName} - IOException")
                     abortAndRetryDownload(download)
                 }
             } ?: run {

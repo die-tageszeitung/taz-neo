@@ -8,7 +8,7 @@ import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.io.IOException
+import java.io.IOException
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before

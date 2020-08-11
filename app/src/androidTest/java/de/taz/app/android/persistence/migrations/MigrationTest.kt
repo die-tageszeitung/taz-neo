@@ -10,7 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.io.IOException
+import java.io.IOException
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
