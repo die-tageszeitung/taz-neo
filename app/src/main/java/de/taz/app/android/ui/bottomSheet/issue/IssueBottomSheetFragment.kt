@@ -2,6 +2,7 @@ package de.taz.app.android.ui.bottomSheet.issue
 
 import android.content.Context
 import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
@@ -70,6 +72,14 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (issueStub?.downloadedStatus != DownloadStatus.done) {
+            fragment_bottom_sheet_issue_delete?.visibility = View.GONE
+            fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
+        } else {
+            fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
+            fragment_bottom_sheet_issue_download?.visibility = View.GONE
+        }
+
         fragment_bottom_sheet_issue_read?.setOnClickListener {
             issueStub?.let { issueStub ->
                 weakActivityReference?.get()?.showIssue(issueStub)
@@ -122,22 +132,15 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val deleteJob = launch {
-                        issueRepository?.getIssue(issueStub)?.delete()
-                    }
-                    var issue: Issue? = null
-                    val retrievalJob = launch {
-                        apiService?.getIssueByFeedAndDateAsync(
-                            issueStub.feedName, issueStub.date
-                        )?.await()?.let { issue = it }
-                    }
-
-                    deleteJob.join()
-                    retrievalJob.join()
-
-                    issue?.let {
+                    apiService?.getIssueByFeedAndDateAsync(
+                        issueStub.feedName, issueStub.date
+                    )?.await()?.let {
                         issueRepository?.save(it)
                         (activity as? MainActivity)?.setCoverFlowItem(IssueStub(it))
+                    }
+
+                    launch {
+                        issueRepository?.getIssue(issueStub)?.delete()
                     }
 
                     withContext(Dispatchers.Main) {
@@ -145,6 +148,18 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     }
                 }
             }
+        }
+        fragment_bottom_sheet_issue_download?.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                issueStub?.let {
+                    issueRepository?.getIssue(it).let { issue ->
+                        if (issue != null) {
+                            downloadService?.download(issue)
+                        }
+                    }
+                }
+            }
+            dismiss()
         }
     }
 

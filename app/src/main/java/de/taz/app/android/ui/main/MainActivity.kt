@@ -10,7 +10,6 @@ import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
-import androidx.annotation.MainThread
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -34,9 +33,8 @@ import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
-import de.taz.app.android.ui.webview.pager.SectionPagerFragment
+import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 
@@ -102,21 +100,19 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         webViewDisplayableKey: String,
         bookmarksArticle: Boolean = false
     ) {
-        if (webViewDisplayableKey.startsWith("art")) {
-            if (bookmarksArticle) {
-                showBookmark(webViewDisplayableKey)
-            } else {
-                showArticle(webViewDisplayableKey)
-            }
+        if (bookmarksArticle) {
+            showBookmark(webViewDisplayableKey)
         } else {
-            showSection(webViewDisplayableKey)
+            showDisplayable(webViewDisplayableKey)
         }
     }
 
-    private fun showArticle(articleName: String) {
+    private fun showDisplayable(articleName: String) {
         runOnUiThread {
-            val fragment = ArticlePagerFragment.createInstance(articleName)
-            showMainFragment(fragment)
+            if ((supportFragmentManager.fragments.lastOrNull() as? IssueContentFragment)?.show(articleName) != true) {
+                val fragment = IssueContentFragment.createInstance(articleName)
+                showMainFragment(fragment)
+            }
         }
     }
 
@@ -127,25 +123,16 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun showSection(sectionFileName: String) {
-        runOnUiThread {
-            if (!tryShowExistingSection(sectionFileName)) {
-                val fragment = SectionPagerFragment.createInstance(sectionFileName)
-                showMainFragment(fragment)
-            }
-        }
-    }
-
     fun showIssue(issueStub: IssueStub) {
         setDrawerIssue(issueStub)
         setCoverFlowItem(issueStub)
         changeDrawerIssue()
 
         runOnUiThread {
-            val fragment = SectionPagerFragment.createInstance(issueStub)
+            val fragment = IssueContentFragment.createInstance(issueStub)
             showMainFragment(fragment)
+            drawer_layout.openDrawer(GravityCompat.START)
         }
-        drawer_layout.openDrawer(GravityCompat.START)
         lifecycleScope.launch {
             delay(3000)
             if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
@@ -153,24 +140,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     drawer_layout.closeDrawer(GravityCompat.START)
                 }
             }
-        }
-    }
-
-    @MainThread
-    private fun tryShowExistingSection(sectionFileName: String): Boolean {
-        supportFragmentManager.apply {
-            val currentTag = (backStackEntryCount - 1).toString()
-            val currentFragment = findFragmentByTag(currentTag)
-            if (currentFragment is SectionPagerFragment) {
-                return currentFragment.tryLoadSection(sectionFileName)
-            }
-            val lastTag = (backStackEntryCount - 2).toString()
-            val lastFragment = findFragmentByTag(lastTag)
-            if (lastFragment is SectionPagerFragment) {
-                popBackStackImmediate(lastTag, 0)
-                return lastFragment.tryLoadSection(sectionFileName)
-            }
-            return false
         }
     }
 
@@ -290,13 +259,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun setCoverFlowItem(issueStub: IssueStub) {
+    fun setCoverFlowItem(issueOperations: IssueOperations) {
         val homeFragment =
             supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
         val coverFlowFragment =
             homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
         runOnUiThread {
-            coverFlowFragment?.skipToItem(issueStub)
+            coverFlowFragment?.skipToItem(issueOperations)
         }
     }
 
@@ -413,7 +382,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE
                             )
                             recreate()
-                            showArticle(articleName)
+                            showDisplayable(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {

@@ -56,7 +56,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        dateHelper = DateHelper.getInstance(context.applicationContext)
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)

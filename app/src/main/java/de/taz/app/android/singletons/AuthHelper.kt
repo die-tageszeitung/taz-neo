@@ -9,10 +9,13 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 const val PREFERENCES_AUTH = "auth"
@@ -31,6 +34,7 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
     private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
@@ -78,16 +82,24 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
         get() = isPollingLiveData.value ?: false
         set(value) = isPollingLiveData.postValue(value)
 
+    private var deletionJob: Job? = null
+
     init {
         CoroutineScope(Dispatchers.Main).launch {
+            DownloadService.getInstance(applicationContext).cancelDownloads()
+            deletionJob?.cancel()
+
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
                     toastHelper.showToast(R.string.toast_logout_elapsed)
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.notValid) {
                     toastHelper.showToast(R.string.toast_logout_invalid)
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
+                    deletionJob = issueRepository.deletePublicIssues()
                     CoroutineScope(Dispatchers.IO).launch {
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }

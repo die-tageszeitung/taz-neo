@@ -41,7 +41,6 @@ class MomentView @JvmOverloads constructor(
     private var dateFormat: DateFormat? = null
     private var lifecycleOwner: LifecycleOwner? = context as? LifecycleOwner
 
-    private val dateHelper = DateHelper.getInstance(context.applicationContext)
     private val downloadService = DownloadService.getInstance(context.applicationContext)
     private val feedRepository = FeedRepository.getInstance(context.applicationContext)
     private val fileHelper = FileHelper.getInstance(context.applicationContext)
@@ -160,10 +159,9 @@ class MomentView @JvmOverloads constructor(
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
-                    fragment_moment_date.text = dateHelper.stringToLongLocalizedString(date)
+                    fragment_moment_date.text = DateHelper.stringToLongLocalizedString(date)
                 DateFormat.LongWithoutWeekDay ->
-                    fragment_moment_date.text =
-                        dateHelper.stringToMediumLocalizedString(date)
+                    fragment_moment_date.text = DateHelper.stringToMediumLocalizedString(date)
                 null ->
                     fragment_moment_date.visibility = View.GONE
             }
@@ -216,7 +214,10 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showDownloadIcon() {
-        fragment_moment_is_downloaded?.visibility = View.VISIBLE
+        fragment_moment_downloading?.visibility = View.GONE
+        fragment_moment_download_finished?.visibility = View.GONE
+        fragment_moment_download?.visibility = View.VISIBLE
+
         view_moment_download_icon_wrapper?.setOnClickListener {
             showLoadingIcon()
             lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
@@ -231,25 +232,26 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun hideDownloadIcon() {
-        val wasDownloading = fragment_moment_is_downloading?.visibility == View.VISIBLE
+        val wasDownloading = fragment_moment_downloading?.visibility == View.VISIBLE
 
-        fragment_moment_is_downloading?.visibility = View.GONE
-        fragment_moment_is_downloaded?.visibility = View.GONE
+        fragment_moment_downloading?.visibility = View.GONE
+        fragment_moment_download?.visibility = View.GONE
+        fragment_moment_download_finished?.visibility = View.GONE
 
         if (wasDownloading) {
-            fragment_moment_is_download_finished?.visibility = View.GONE
-            fragment_moment_is_download_finished.alpha = 1f
-            fragment_moment_is_download_finished?.visibility = View.VISIBLE
+            fragment_moment_download_finished.alpha = 1f
+            fragment_moment_download_finished?.visibility = View.VISIBLE
             lifecycleOwner?.lifecycleScope?.launchWhenResumed {
                 delay(2000)
-                fragment_moment_is_download_finished?.animate()?.alpha(0f)?.duration = 1000L
+                fragment_moment_download_finished?.animate()?.alpha(0f)?.duration = 1000L
             }
         }
     }
 
     private fun showLoadingIcon() {
-        fragment_moment_is_downloaded?.visibility = View.GONE
-        fragment_moment_is_downloading?.visibility = View.VISIBLE
+        fragment_moment_download?.visibility = View.GONE
+        fragment_moment_download_finished?.visibility = View.GONE
+        fragment_moment_downloading?.visibility = View.VISIBLE
     }
 
     private suspend fun setDimension(feed: Feed?) = withContext(Dispatchers.Main) {

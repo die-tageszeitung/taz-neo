@@ -26,6 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+const val START_HOME_ACTIVITY = "START_HOME_ACTIVITY"
+
 class WelcomeActivity : AppCompatActivity() {
 
     private val log by Log
@@ -33,9 +35,13 @@ class WelcomeActivity : AppCompatActivity() {
     private var fileHelper: FileHelper? = null
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
+    private var startHomeActivity = false
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        startHomeActivity = intent.getBooleanExtra(START_HOME_ACTIVITY, false)
 
         fileHelper = FileHelper.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
@@ -45,9 +51,7 @@ class WelcomeActivity : AppCompatActivity() {
         button_close.setOnClickListener {
             log.debug("welcome screen close clicked")
             setFirstTimeStart()
-            val intent = Intent(applicationContext, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(Intent(intent))
+            done()
         }
 
         web_view_fullscreen_content.apply {
@@ -74,9 +78,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
-        val intent = Intent(applicationContext, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(intent)
+        done()
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
@@ -100,5 +102,19 @@ class WelcomeActivity : AppCompatActivity() {
         this.runOnUiThread {
             welcome_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
+    }
+
+    private fun done() {
+        if(startHomeActivity) {
+            startMainActivity()
+        } else {
+            finish()
+        }
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(intent)
     }
 }

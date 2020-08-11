@@ -35,7 +35,7 @@ data class AppInfo (
 
         suspend fun update(applicationContext: Context): AppInfo? = withContext(Dispatchers.IO) {
             try {
-                ApiService.getInstance().getAppInfoAsync().await()?.let {
+                ApiService.getInstance(applicationContext).getAppInfoAsync().await()?.let {
                     AppInfoRepository.getInstance().save(it)
                     log.info("Initialized AppInfo")
                     return@withContext it

@@ -25,11 +25,13 @@ import io.sentry.connection.ConnectionException
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
+import java.lang.NullPointerException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
 
@@ -68,8 +70,11 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
+    private val currentDownloadList = ConcurrentLinkedQueue<Download>()
 
     private val currentDownloads = AtomicInteger(0)
+
+    private val tagJobMap: MutableMap<String, MutableList<Job>> = mutableMapOf()
 
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
@@ -101,6 +106,17 @@ class DownloadService private constructor(val applicationContext: Context) {
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
                             .await()
                     issueRepository.setDownloadDate(it, Date())
+                    launch {
+                        // check if metadata has changed and update db and restart download
+                        val fromServer = apiService.getIssueByFeedAndDateAsync(
+                            issue.feedName, issue.date
+                        ).await()
+                        if (fromServer?.status == issue.status && fromServer != issue) {
+                            cancelDownloads(issue.tag)
+                            issueRepository.save(fromServer)
+                            download(fromServer)
+                        }
+                    }
                 }
 
                 cacheableDownload.setDownloadStatus(DownloadStatus.started)
@@ -155,10 +171,19 @@ class DownloadService private constructor(val applicationContext: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
-                    currentDownloads.incrementAndGet()
-                    getFromServer(download).invokeOnCompletion {
-                        currentDownloads.decrementAndGet()
-                        startDownloadsIfCapacity()
+                    if (!currentDownloadList.contains(download)) {
+                        currentDownloadList.offer(download)
+                        currentDownloads.incrementAndGet()
+                        val job = getFromServer(download)
+                        job.invokeOnCompletion {
+                            currentDownloads.decrementAndGet()
+                            startDownloadsIfCapacity()
+                        }
+                        download.tag?.let { tag ->
+                            val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                            jobsForTag.add(job)
+                            tagJobMap[download.tag] = jobsForTag
+                        }
                     }
                 } ?: break
             }
@@ -203,17 +228,25 @@ class DownloadService private constructor(val applicationContext: Context) {
                         handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
+                        currentDownloadList.remove(download)
                         when (e) {
                             is UnknownHostException,
-                            is ConnectException,
-                            is SocketTimeoutException
+                            is ConnectException
                             -> {
                                 serverConnectionHelper.isServerReachable = false
                                 appendToDownloadList(download)
                                 log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
                             }
+                            is SocketTimeoutException -> {
+                                appendToDownloadList(download)
+                                log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
+                            }
+                            is CancellationException -> {
+                                log.info("download of ${fromDB.fileName} has been canceled")
+                                throw e
+                            }
                             else -> {
-                                log.warn("unknown error occurred")
+                                log.warn("unknown error occurred - ${fromDB.fileName}")
                                 Sentry.capture(e)
                                 throw e
                             }
@@ -278,10 +311,14 @@ class DownloadService private constructor(val applicationContext: Context) {
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
-            // TODO handle 40x like wrong SHA sum
             // TODO handle 50x by "backing off" and trying again later
             log.warn("Download was not successful ${response.code}")
-            abortAndRetryDownload(download, doNotRestartDownload)
+            if (response.code in 400..499) {
+                download.file.setDownloadStatus(DownloadStatus.aborted)
+                downloadRepository.setStatus(download, DownloadStatus.aborted)
+            } else {
+                abortAndRetryDownload(download, doNotRestartDownload)
+            }
         }
         log.debug("finished handling response of ${download.fileName}")
     }
@@ -326,6 +363,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     fun cancelDownloads(tag: String? = null) {
         tag?.let {
             downloadList.removeAll(downloadList.filter { it.tag == tag })
+            val jobsForTag = tagJobMap.remove(tag)
+            jobsForTag?.forEach { it.cancel() }
         } ?: downloadList.clear()
     }
 
@@ -375,12 +414,16 @@ class DownloadService private constructor(val applicationContext: Context) {
                             }
                         }
                     download?.let {
-                        log.debug("adding download ${download.fileName} to downloadList")
-                        // issues are not shown immediately - so download other downloads like articles first
-                        if (cacheableDownload is Issue) {
-                            appendToDownloadList(download)
-                        } else {
-                            prependToDownloadList(download)
+                        if (!currentDownloadList.contains(download)
+                            && !download.file.isDownloaded(applicationContext)
+                        ) {
+                            log.debug("adding download ${download.fileName} to downloadList")
+                            // issues are not shown immediately - so download other downloads like articles first
+                            if (cacheableDownload is Issue) {
+                                appendToDownloadList(download)
+                            } else {
+                                prependToDownloadList(download)
+                            }
                         }
                     } ?: log.debug("creating download returned null")
                 }
@@ -402,8 +445,10 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun appendToDownloadList(download: Download) {
-        if (downloadList.offerLast(download)) {
-            startDownloadsIfCapacity()
+        if (!downloadList.contains(download)) {
+            if (downloadList.offerLast(download)) {
+                startDownloadsIfCapacity()
+            }
         }
     }
 
