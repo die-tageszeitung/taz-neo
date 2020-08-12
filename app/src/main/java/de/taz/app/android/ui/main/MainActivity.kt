@@ -21,6 +21,7 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
@@ -33,6 +34,7 @@ import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -64,6 +66,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
 
         lockNavigationView(GravityCompat.END)
+
+        checkIfSubscriptionElapsed()
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
@@ -140,6 +144,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     drawer_layout.closeDrawer(GravityCompat.START)
                 }
             }
+        }
+    }
+
+    private fun checkIfSubscriptionElapsed() {
+        val authStatus = AuthHelper.getInstance(applicationContext).authStatus
+        if (authStatus == AuthStatus.elapsed) {
+            showSubscriptionElapsedPopup()
         }
     }
 
@@ -237,6 +248,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         toastHelper?.showToast(string)
     }
 
+    fun showSubscriptionElapsedPopup() {
+        val popUpFragment = SubscriptionElapsedDialogFragment()
+        popUpFragment.show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
+    }
+
     fun getLifecycleOwner(): LifecycleOwner = this
 
     fun getMainView(): MainActivity? = this
@@ -280,8 +299,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     private var navButton: Image? = null
-    var navButtonBitmap: Bitmap? = null
-    var navButtonAlpha = 255f
+    private var navButtonBitmap: Bitmap? = null
+    private var navButtonAlpha = 255f
 
     private var defaultNavButton: Image? = null
     fun setDrawerNavButton(navButton: Image? = null) {
@@ -326,31 +345,32 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 val scalingFactor = 1f / 3f
 
                 val file = fileHelper?.getFile(navButton)
-                val bitmap = BitmapFactory.decodeFile(file?.absolutePath)
-                val scaledBitmap = Bitmap.createScaledBitmap(
-                    bitmap,
-                    (TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        bitmap.width.toFloat(),
-                        resources.displayMetrics
-                    ) * scalingFactor).toInt(),
-                    (TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        bitmap.height.toFloat(),
-                        resources.displayMetrics
-                    ) * scalingFactor).toInt(),
-                    false
-                )
-                this.navButtonBitmap = scaledBitmap
-                this.navButtonAlpha = navButton.alpha
-                findViewById<ImageView>(R.id.drawer_logo)?.apply {
-                    background = BitmapDrawable(resources, scaledBitmap)
-                    alpha = navButton.alpha
-                    imageAlpha = (navButton.alpha * 255).toInt()
-                    drawer_layout.updateDrawerLogoBoundingBox(
-                        scaledBitmap.width,
-                        scaledBitmap.height
+                BitmapFactory.decodeFile(file?.absolutePath)?.let { bitmap ->
+                    val scaledBitmap = Bitmap.createScaledBitmap(
+                        bitmap,
+                        (TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            bitmap.width.toFloat(),
+                            resources.displayMetrics
+                        ) * scalingFactor).toInt(),
+                        (TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP,
+                            bitmap.height.toFloat(),
+                            resources.displayMetrics
+                        ) * scalingFactor).toInt(),
+                        false
                     )
+                    this.navButtonBitmap = scaledBitmap
+                    this.navButtonAlpha = navButton.alpha
+                    findViewById<ImageView>(R.id.drawer_logo)?.apply {
+                        background = BitmapDrawable(resources, scaledBitmap)
+                        alpha = navButton.alpha
+                        imageAlpha = (navButton.alpha * 255).toInt()
+                        drawer_layout.updateDrawerLogoBoundingBox(
+                            scaledBitmap.width,
+                            scaledBitmap.height
+                        )
+                    }
                 }
             }
         }
@@ -364,7 +384,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            CoroutineScope(Dispatchers.IO).launch {
+                            lifecycleScope.launch(Dispatchers.IO) {
                                 sectionRepository?.getSectionStubForArticle(articleName)
                                     ?.let { section ->
                                         section.getIssueOperations(applicationContext)
