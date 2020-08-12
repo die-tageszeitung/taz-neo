@@ -46,7 +46,7 @@ lint:
   interruptible: true
   stage: test
   script:
-    - ./gradlew --no-daemon --console=plain :app:lint
+    - ./gradlew --no-daemon --console=plain lintGoogleTazDebug lintGoogleTazRelease
 
 unitTests:
   extends: .prepareEnv
