@@ -6,8 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
@@ -35,6 +34,9 @@ class WelcomeActivity : AppCompatActivity() {
     private var fileHelper: FileHelper? = null
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
+    private var downloadedObserver: Observer<Boolean>? = null
+    private var isDownloadedLiveData: LiveData<Boolean>? = null
+
     private var startHomeActivity = false
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -61,9 +63,7 @@ class WelcomeActivity : AppCompatActivity() {
             settings.javaScriptEnabled = true
             val fileDir = fileHelper?.getFileDirectoryUrl(this.context)
             val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
-            lifecycleScope.launch(Dispatchers.IO) {
-                ensureResourceInfoIsDownloadedAndShow(file.path)
-            }
+            ensureResourceInfoIsDownloadedAndShow(file.path)
         }
     }
 
@@ -81,22 +81,22 @@ class WelcomeActivity : AppCompatActivity() {
         done()
     }
 
-    private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath : String) {
+    private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = resourceInfoRepository?.get()?.isDownloadedLiveData(applicationContext)
+            isDownloadedLiveData =
+                resourceInfoRepository?.get()?.isDownloadedLiveData(applicationContext)
 
+            downloadedObserver = Observer { isDownloaded ->
+                if (isDownloaded) {
+                    web_view_fullscreen_content.loadUrl(filePath)
+                }
+            }
             withContext(Dispatchers.Main) {
-                isDownloadedLiveData?.observeDistinct(
-                    this@WelcomeActivity,
-                    Observer { isDownloaded ->
-                        if (isDownloaded) {
-                            web_view_fullscreen_content.loadUrl(filePath)
-                        }
-                    }
-                )
+                downloadedObserver?.let {
+                    isDownloadedLiveData?.observeDistinct(this@WelcomeActivity, it)
+                }
             }
         }
-    }
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
@@ -105,7 +105,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun done() {
-        if(startHomeActivity) {
+        if (startHomeActivity) {
             startMainActivity()
         } else {
             finish()
@@ -117,4 +117,14 @@ class WelcomeActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(intent)
     }
+
+    override fun onDestroy() {
+        isDownloadedLiveData?.let { liveData ->
+            downloadedObserver?.let { observer ->
+                Transformations.distinctUntilChanged(liveData).removeObserver(observer)
+            }
+        }
+        super.onDestroy()
+    }
+
 }

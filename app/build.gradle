@@ -103,6 +103,16 @@ android {
     }
 
     buildTypes {
+        leakCanary {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+
+            debuggable true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig debug.signingConfig
+        }
         debug {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
@@ -220,6 +230,9 @@ dependencies {
 
     // room
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
+
+    // leak canary
+    leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // google Flavor
     googleImplementation 'com.google.firebase:firebase-messaging:20.2.4'

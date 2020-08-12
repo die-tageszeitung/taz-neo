@@ -257,4 +257,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         applyZoomPageTransformer()
     }
 
+    override fun onDestroyView() {
+        snapHelper.attachToRecyclerView(null)
+        fragment_cover_flow_grid.adapter = null
+        super.onDestroyView()
+    }
+
 }

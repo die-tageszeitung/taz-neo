@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 const val DISPLAYABLE_NAME = "articleName"
 
-class ArticlePagerFragment() :
+class ArticlePagerFragment :
     BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
     BackFragment {
 
@@ -234,6 +234,11 @@ class ArticlePagerFragment() :
         outState.putString(DISPLAYABLE_NAME, articleName)
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        webview_pager_viewpager.adapter = null
+        super.onDestroyView()
     }
 
 }
