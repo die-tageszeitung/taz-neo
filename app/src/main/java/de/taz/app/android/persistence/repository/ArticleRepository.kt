@@ -173,9 +173,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         // get authors
         val authorImageJoins =
             appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-        log.warn("DAMNIT: ${authorImageJoins
-            .filter { !it.authorFileName.isNullOrEmpty() }
-            .map { it.authorFileName!! }}" )
         val authorImages = fileEntryRepository.getOrThrow(
             authorImageJoins
                 .filter { !it.authorFileName.isNullOrEmpty() }
