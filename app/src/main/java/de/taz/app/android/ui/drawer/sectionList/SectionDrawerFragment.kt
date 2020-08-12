@@ -227,8 +227,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private fun setMomentDate() {
         issueOperations?.let { issueOperations ->
             fragment_drawer_sections_date?.text =
-                dateHelper?.stringToLongLocalizedString(issueOperations.date)
+                DateHelper.stringToLongLocalizedString(issueOperations.date)
         }
+    }
+
+    override fun onDestroyView() {
+        fragment_drawer_sections_list.adapter = null
+        super.onDestroyView()
     }
 
 }

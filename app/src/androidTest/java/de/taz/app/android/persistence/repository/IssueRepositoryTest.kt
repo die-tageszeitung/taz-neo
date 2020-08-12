@@ -9,7 +9,7 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.io.IOException
+import java.io.IOException
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before

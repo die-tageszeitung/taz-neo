@@ -98,7 +98,7 @@ class MomentView @JvmOverloads constructor(
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
             launch {
-                var feed: Feed? = null
+                var feed: Feed?
                 withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName) }
                 setDimension(feed)
             }
@@ -271,7 +271,8 @@ class MomentView @JvmOverloads constructor(
                 log.error("imgFile of $moment does not exist")
                 CoroutineScope(Dispatchers.IO).launch {
                     moment.deleteFiles()
-                    moment.download(context?.applicationContext)
+                    moment.download(context?.applicationContext).join()
+                    showMomentImage(moment)
                 }
                 null
             }

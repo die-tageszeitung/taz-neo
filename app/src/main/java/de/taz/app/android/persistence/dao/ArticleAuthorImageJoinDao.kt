@@ -19,6 +19,15 @@ abstract class ArticleAuthorImageJoinDao : BaseDao<ArticleAuthorImageJoin>() {
     )
     abstract fun getAuthorImageJoinForArticle(articleFileName: String): List<ArticleAuthorImageJoin>
 
+    @Query(
+        """SELECT DISTINCT ArticleAuthor.* FROM ArticleAuthor INNER JOIN Article
+        ON ArticleAuthor.articleFileName == Article.articleFileName 
+        WHERE ArticleAuthor.authorFileName == :authorFileName
+        ORDER BY ArticleAuthor.`index` ASC
+    """
+    )
+    abstract fun getArticlesForAuthor(authorFileName: String): List<ArticleAuthorImageJoin>
+
     fun getAuthorImageJoinForArticle(article: Article) = getAuthorImageJoinForArticle(article.articleHtml.name)
 
     fun getAuthorImageJoinForArticle(articleStub: ArticleStub) =

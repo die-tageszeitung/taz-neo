@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.Dispatchers
 
 @Mockable
 class SectionRepository private constructor(applicationContext: Context) :
@@ -232,7 +231,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         section.articleList.forEach { article ->
             if (!article.bookmarked) {
-                articleRepository.delete(article)
+                articleRepository.deleteArticle(article)
             }
         }
 
