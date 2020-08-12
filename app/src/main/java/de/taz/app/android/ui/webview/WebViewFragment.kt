@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebSettings
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.LiveData
@@ -129,6 +130,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 loadWithOverviewMode = true
                 domStorageEnabled = true
                 javaScriptEnabled = true
+                cacheMode = WebSettings.LOAD_NO_CACHE
+                setAppCacheEnabled(false)
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
         }
