@@ -41,7 +41,7 @@
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/web_view_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,19 +57,16 @@
                 android:layout_height="wrap_content"
                 android:overScrollMode="never"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:layout_alignParentTop="true"
-                />
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragment_article_bottom_fragment_placeholder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/web_view"
-                android:layout_alignParentBottom="true"
-                />
+                app:layout_constraintTop_toBottomOf="@id/web_view" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
 </de.taz.app.android.util.NestedCoordinatorLayout>
