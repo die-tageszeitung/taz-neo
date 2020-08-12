@@ -10,7 +10,7 @@
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
 
     <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
-    <string name="popup_login_elapsed_header">Abonnement abgleaufen</string>
+    <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
     <string name="popup_login_elapsed_text">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
         Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
