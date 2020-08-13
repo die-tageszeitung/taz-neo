@@ -109,6 +109,8 @@
     <string name="settings_category_support">Support</string>
     <string name="settings_faq"><u>FAQ</u></string>
     <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
+    <string name="settings_terms"><u>AGB</u></string>
+    <string name="settings_revocation"><u>Widerruf</u></string>
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads">Automatische Downloads</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
