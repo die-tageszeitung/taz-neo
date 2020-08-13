@@ -135,7 +135,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 setAppCacheEnabled(false)
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
-            // this seems to prevent the empty
             setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
         }
     }
