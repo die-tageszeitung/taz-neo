@@ -7,13 +7,13 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
@@ -74,6 +74,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     activity?.startActivity(
                         Intent(activity, WelcomeActivity::class.java)
                     )
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_terms)
+                .setOnClickListener {
+                    val intent = Intent(activity, WebViewActivity::class.java)
+                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
+                    activity?.startActivity(intent)
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_revocation)
+                .setOnClickListener {
+                    val intent = Intent(activity, WebViewActivity::class.java)
+                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+                    activity?.startActivity(intent)
                 }
 
             findViewById<View>(R.id.settings_text_decrease_wrapper).setOnClickListener {

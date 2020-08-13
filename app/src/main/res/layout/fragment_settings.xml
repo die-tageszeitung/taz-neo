@@ -168,6 +168,21 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
+            <TextView
+                android:id="@+id/fragment_settings_terms"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_terms"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
+
+            <TextView
+                android:id="@+id/fragment_settings_revocation"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_revocation"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_terms" />
 
             <TextView
                 android:id="@+id/fragment_settings_version_number"
@@ -175,7 +190,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_settings_version_margin"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_revocation" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
