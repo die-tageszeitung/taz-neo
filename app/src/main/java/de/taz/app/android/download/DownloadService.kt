@@ -71,7 +71,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
-    private val currentDownloadList = ConcurrentLinkedQueue<Download>()
+    private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
     private val currentDownloads = AtomicInteger(0)
 
@@ -172,8 +172,8 @@ class DownloadService private constructor(val applicationContext: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
-                    if (!currentDownloadList.contains(download)) {
-                        currentDownloadList.offer(download)
+                    if (!currentDownloadList.contains(download.fileName)) {
+                        currentDownloadList.offer(download.fileName)
                         currentDownloads.incrementAndGet()
                         val job = getFromServer(download)
                         job.invokeOnCompletion {
@@ -229,7 +229,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
-                        currentDownloadList.remove(download)
+                        currentDownloadList.remove(download.fileName)
                         when (e) {
                             is UnknownHostException,
                             is ConnectException
@@ -420,7 +420,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             }
                         }
                     download?.let {
-                        if (!currentDownloadList.contains(download)
+                        if (!currentDownloadList.contains(download.fileName)
                             && !download.file.isDownloaded(applicationContext)
                         ) {
                             log.debug("adding download ${download.fileName} to downloadList")
@@ -451,7 +451,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun appendToDownloadList(download: Download) {
-        if (!downloadList.contains(download)) {
+        if (!currentDownloadList.contains(download.fileName) && !downloadList.contains(download)) {
             if (downloadList.offerLast(download)) {
                 startDownloadsIfCapacity()
             }
@@ -459,9 +459,11 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     private fun prependToDownloadList(download: Download) {
-        downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
-        if (downloadList.offerFirst(download)) {
-            startDownloadsIfCapacity()
+        if (!currentDownloadList.contains(download.fileName)) {
+            downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
+            if (downloadList.offerFirst(download)) {
+                startDownloadsIfCapacity()
+            }
         }
     }
 
