@@ -7,9 +7,9 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
@@ -413,25 +413,20 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun deletePublicIssues() = CoroutineScope(Dispatchers.IO).launch {
-        getIssuesListByStatus(IssueStatus.public).forEach {
-            delete(issueStubToIssue(it))
+        val publicIssues = getIssuesListByStatus(IssueStatus.public)
+        log.info("deleting ${publicIssues.size} public issues")
+        publicIssues.forEach {
+            DownloadService.getInstance().cancelDownloads(it.tag)
+            val issue = issueStubToIssue(it)
+            issue.deleteFiles()
+            delete(issue)
         }
     }
 
     fun deleteNotDownloadedRegularIssues() = CoroutineScope(Dispatchers.IO).launch {
         getIssuesListByStatus(IssueStatus.regular).forEach { issueStub ->
             if (issueStub.downloadedStatus != DownloadStatus.done) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance().getIssueByFeedAndDateAsync(
-                        issueStub.feedName, issueStub.date
-                    ).await()?.let {
-                        save(it)
-                    }
-
-                    launch {
-                        getIssue(issueStub).delete()
-                    }
-                }
+                getIssue(issueStub).deleteAndUpdateMetaData()
             }
         }
     }
