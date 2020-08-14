@@ -2,7 +2,6 @@ package de.taz.app.android.ui.bottomSheet.issue
 
 import android.content.Context
 import android.content.Intent
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
@@ -132,17 +130,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    apiService?.getIssueByFeedAndDateAsync(
-                        issueStub.feedName, issueStub.date
-                    )?.await()?.let {
-                        issueRepository?.save(it)
-                        (activity as? MainActivity)?.setCoverFlowItem(IssueStub(it))
+                    issueRepository?.getIssue(issueStub)?.deleteAndUpdateMetaData()?.let { newIssue ->
+                        (activity as? MainActivity)?.setCoverFlowItem(newIssue)
                     }
-
-                    launch {
-                        issueRepository?.getIssue(issueStub)?.delete()
-                    }
-
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }

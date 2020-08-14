@@ -3,11 +3,13 @@ package de.taz.app.android.api.models
 import android.content.Context
 import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonClass
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.ServerConnectionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -71,7 +73,9 @@ data class Issue(
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<Issue?> {
-        return IssueRepository.getInstance(applicationContext).getIssueLiveData(this.feedName, this.date, this.status)
+        return IssueRepository.getInstance(applicationContext).getIssueLiveData(
+            this.feedName, this.date, this.status
+        )
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
@@ -100,19 +104,32 @@ data class Issue(
         IssueRepository.getInstance().resetDownloadDate(this)
     }
 
-    suspend fun delete() = withContext(Dispatchers.Default) {
-        DownloadService.getInstance().cancelDownloads(tag)
-        moment.deleteFiles()
-        deleteFiles()
-        IssueRepository.getInstance().delete(this@Issue)
-    }
+    suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
+        withContext(Dispatchers.IO) {
+            val deferredIssue =
+                ApiService.getInstance(applicationContext).getIssueByFeedAndDateAsync(
+                    feedName, date
+                )
+            DownloadService.getInstance(applicationContext).cancelDownloads(tag)
+            deleteFiles()
+            return@withContext deferredIssue.await()?.let {
+                IssueRepository.getInstance(applicationContext).delete(this@Issue)
+                IssueRepository.getInstance(applicationContext).save(it)
+                it.moment.download().join()
+                it
+            }
+        }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
+        IssueRepository.getInstance().update(
+            IssueStub(this).copy(downloadedStatus = downloadStatus)
+        )
     }
 
     fun setDownloadStatusIncludingChildren(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
+        IssueRepository.getInstance().update(
+            IssueStub(this).copy(downloadedStatus = downloadStatus)
+        )
         sectionList.forEach { section ->
             section.setDownloadStatus(downloadStatus)
             section.articleList.forEach { article ->
@@ -125,7 +142,8 @@ data class Issue(
     }
 
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-        return IssueRepository.getInstance(applicationContext).getStub(this)?.downloadedStatus
+        return IssueRepository.getInstance(applicationContext)
+            .getStub(this)?.downloadedStatus
     }
 
 }
