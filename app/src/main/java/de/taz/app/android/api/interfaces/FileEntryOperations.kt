@@ -19,14 +19,12 @@ interface FileEntryOperations: CacheableDownload {
     val path
         get() = "$folder/$name"
 
-    fun deleteFile(updateDatabase: Boolean = true) {
+    fun deleteFile() {
         val fileHelper = FileHelper.getInstance()
         // TODO check return value
         fileHelper.deleteFile(name)
-        if (updateDatabase) {
-            this.setDownloadStatus(DownloadStatus.pending)
-            DownloadRepository.getInstance().delete(name)
-        }
+        DownloadRepository.getInstance().delete(name)
+        this.setDownloadStatus(DownloadStatus.pending)
     }
 
     companion object {

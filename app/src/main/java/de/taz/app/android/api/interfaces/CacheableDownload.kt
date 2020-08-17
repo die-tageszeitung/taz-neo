@@ -20,11 +20,9 @@ interface CacheableDownload {
      * remove all downloaded files
      * metadata will be kepts
      */
-    suspend fun deleteFiles(updateDatabase: Boolean = true) {
-        if (updateDatabase) {
-            setDownloadStatus(DownloadStatus.pending)
-        }
-        getAllFiles().forEach { it.deleteFile(updateDatabase) }
+    suspend fun deleteFiles() {
+        setDownloadStatus(DownloadStatus.pending)
+        getAllFiles().forEach { it.deleteFile() }
     }
 
     fun download(applicationContext: Context? = null): Job =
