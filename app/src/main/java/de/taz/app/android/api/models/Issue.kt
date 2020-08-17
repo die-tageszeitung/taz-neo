@@ -9,7 +9,6 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.ServerConnectionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -90,8 +89,10 @@ data class Issue(
         return articleList
     }
 
-    override suspend fun deleteFiles() {
-        this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
+    override suspend fun deleteFiles(updateDatabase: Boolean) {
+        if (updateDatabase) {
+            this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
+        }
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -100,8 +101,10 @@ data class Issue(
             )
             acc
         })
-        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach { it.deleteFile() }
-        IssueRepository.getInstance().resetDownloadDate(this)
+        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach { it.deleteFile(updateDatabase) }
+        if (updateDatabase) {
+            IssueRepository.getInstance().resetDownloadDate(this)
+        }
     }
 
     suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
@@ -111,10 +114,13 @@ data class Issue(
                     feedName, date
                 )
             DownloadService.getInstance(applicationContext).cancelDownloads(tag)
-            deleteFiles()
             return@withContext deferredIssue.await()?.let {
-                IssueRepository.getInstance(applicationContext).delete(this@Issue)
-                IssueRepository.getInstance(applicationContext).save(it)
+                val newMetaData = moTime != it.moTime
+                deleteFiles(!newMetaData)
+                if (newMetaData) {
+                    IssueRepository.getInstance(applicationContext).delete(this@Issue)
+                    IssueRepository.getInstance(applicationContext).save(it)
+                }
                 it.moment.download().join()
                 it
             }
