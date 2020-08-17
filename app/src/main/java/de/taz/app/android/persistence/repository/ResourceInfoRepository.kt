@@ -24,24 +24,27 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     }
 
     fun save(resourceInfo: ResourceInfo) {
-        appDatabase.resourceInfoDao().insertOrReplace(
-            ResourceInfoStub(
-                resourceInfo.resourceVersion,
-                resourceInfo.resourceBaseUrl,
-                resourceInfo.resourceZip,
-                resourceInfo.downloadedStatus
+        appDatabase.runInTransaction<Void> {
+            appDatabase.resourceInfoDao().insertOrReplace(
+                ResourceInfoStub(
+                    resourceInfo.resourceVersion,
+                    resourceInfo.resourceBaseUrl,
+                    resourceInfo.resourceZip,
+                    resourceInfo.downloadedStatus
+                )
             )
-        )
-        // save file resourceList
-        fileEntryRepository.save(
-            resourceInfo.resourceList
-        )
-        // save relation to files
-        appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-            resourceInfo.resourceList.mapIndexed { index, fileEntry ->
-                ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
-            }
-        )
+            // save file resourceList
+            fileEntryRepository.save(
+                resourceInfo.resourceList
+            )
+            // save relation to files
+            appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
+                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
+                }
+            )
+            null
+        }
     }
 
     @Throws(NotFoundException::class)

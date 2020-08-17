@@ -346,73 +346,76 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        // delete moment
-        momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
+        appDatabase.runInTransaction<Void> {
+            // delete moment
+            momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
 
-        // delete imprint
-        issue.imprint?.let { imprint ->
-            appDatabase.issueImprintJoinDao().delete(
-                IssueImprintJoin(
-                    issue.feedName,
-                    issue.date,
-                    issue.status,
-                    imprint.articleHtml.name
-                )
-            )
-            try {
-                articleRepository.deleteArticle(imprint)
-            } catch (e: SQLiteConstraintException) {
-                // do not delete used by another issue
-            }
-        } ?: appDatabase.issueImprintJoinDao().getLeftOverImprintNameForIssue(
-            issue.feedName,
-            issue.date,
-            issue.status
-        )?.let {
-            log.warn("There is a left over imprint with no entry in article table. Will be deleted: $it")
-            appDatabase.issueImprintJoinDao().delete(
-                IssueImprintJoin(
-                    issue.feedName,
-                    issue.date,
-                    issue.status,
-                    it
-                )
-            )
-        }
-
-        // delete page relation
-        appDatabase.issuePageJoinDao().delete(
-            issue.pageList.mapIndexed { index, page ->
-                IssuePageJoin(
-                    issue.feedName,
-                    issue.date,
-                    issue.status,
-                    page.pagePdf.name,
-                    index
-                )
-            }
-        )
-        // delete pages
-        pageRepository.delete(issue.pageList)
-
-        // delete sections
-        issue.sectionList.let { sectionList ->
-            appDatabase.issueSectionJoinDao()
-                .delete(sectionList.mapIndexed { index, it ->
-                    IssueSectionJoin(
+            // delete imprint
+            issue.imprint?.let { imprint ->
+                appDatabase.issueImprintJoinDao().delete(
+                    IssueImprintJoin(
                         issue.feedName,
                         issue.date,
                         issue.status,
-                        it.sectionHtml.name,
+                        imprint.articleHtml.name
+                    )
+                )
+                try {
+                    articleRepository.deleteArticle(imprint)
+                } catch (e: SQLiteConstraintException) {
+                    // do not delete used by another issue
+                }
+            } ?: appDatabase.issueImprintJoinDao().getLeftOverImprintNameForIssue(
+                issue.feedName,
+                issue.date,
+                issue.status
+            )?.let {
+                log.warn("There is a left over imprint with no entry in article table. Will be deleted: $it")
+                appDatabase.issueImprintJoinDao().delete(
+                    IssueImprintJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        it
+                    )
+                )
+            }
+
+            // delete page relation
+            appDatabase.issuePageJoinDao().delete(
+                issue.pageList.mapIndexed { index, page ->
+                    IssuePageJoin(
+                        issue.feedName,
+                        issue.date,
+                        issue.status,
+                        page.pagePdf.name,
                         index
                     )
-                })
-            sectionList.forEach { sectionRepository.delete(it) }
-        }
+                }
+            )
+            // delete pages
+            pageRepository.delete(issue.pageList)
 
-        appDatabase.issueDao().delete(
-            IssueStub(issue)
-        )
+            // delete sections
+            issue.sectionList.let { sectionList ->
+                appDatabase.issueSectionJoinDao()
+                    .delete(sectionList.mapIndexed { index, it ->
+                        IssueSectionJoin(
+                            issue.feedName,
+                            issue.date,
+                            issue.status,
+                            it.sectionHtml.name,
+                            index
+                        )
+                    })
+                sectionList.forEach { sectionRepository.delete(it) }
+            }
+
+            appDatabase.issueDao().delete(
+                IssueStub(issue)
+            )
+            null
+        }
     }
 
     fun deletePublicIssues() = CoroutineScope(Dispatchers.IO).launch {
