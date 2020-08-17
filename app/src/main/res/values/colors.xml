@@ -9,6 +9,7 @@
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#262626</color>
     <color name="black">#000</color>
+    <color name="homeBackground">#E3E3E3</color>
     <color name="antifaGrey">#161616</color>
 
     <color name="colorPrimary">@color/tazRed</color>

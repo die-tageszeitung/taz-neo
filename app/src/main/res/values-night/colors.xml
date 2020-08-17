@@ -7,6 +7,7 @@
     <color name="lightGrey">#9C9C9C</color>
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#262626</color>
+    <color name="homeBackground">#121212</color>
     <color name="black">#000</color>
 
     <color name="colorPrimary">@color/tazRed</color>
