@@ -138,7 +138,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                                     }
                             }
                             isDownloadedLiveData.removeObserver(this)
-                            log.debug("downloaded ${cacheableDownload.javaClass.name}")
 
                             // notify server of completed download
                             downloadId?.let { downloadId ->
@@ -156,7 +155,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                 }
                 withContext(Dispatchers.Main) { isDownloadedLiveData.observeForever(observer) }
 
-                log.debug("starting download of ${cacheableDownload.javaClass.name}")
                 // create Downloads
                 addDownloadsToDownloadList(cacheableDownload, baseUrl)
             }
@@ -168,7 +166,6 @@ class DownloadService private constructor(val applicationContext: Context) {
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        log.debug("startDownloadsIfCapacity : listSize: ${downloadList.size}")
         CoroutineScope(Dispatchers.IO).launch {
             while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
                 downloadList.pollFirst()?.let { download ->
@@ -214,8 +211,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                         DownloadStatus.started
                     )
                 ) {
-                    log.debug("starting httpCall of ${fromDB.fileName}")
-
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
                     try {
@@ -224,8 +219,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 Request.Builder().url(fromDB.url).get().build()
                             )::enqueue
                         )
-                        log.debug("finished http call of ${fromDB.fileName}")
-
                         handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
@@ -268,7 +261,6 @@ class DownloadService private constructor(val applicationContext: Context) {
         response: Response, download: Download,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
     ) {
-        log.debug("handling response for ${download.fileName}")
         val fileEntry = download.file
         if (response.code.toString().startsWith("2")) {
             response.body?.source()?.let { source ->
@@ -277,7 +269,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                 try {
                     val sha256 = fileHelper.writeFile(fileEntry, source)
                     if (sha256 == fileEntry.sha256) {
-                        log.debug("sha256 matched for file ${download.fileName}")
                         download.workerManagerId?.let {
                             workManager.cancelWorkById(it)
                             log.info("canceling WorkerManagerRequest for ${download.fileName}")
@@ -289,11 +280,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                         )
                         downloadRepository.update(newDownload)
                         fileEntry.setDownloadStatus(DownloadStatus.done)
-                        log.debug("finished download of ${download.fileName}")
                     } else {
                         // TODO get new metadata for cacheableDownload and restart download
-                        val m = "sha256 did NOT match the one of ${download.fileName}"
-                        log.warn(m)
+                        log.warn("sha256 did NOT match the one of ${download.fileName}")
                         if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
                             fileEntry.setDownloadStatus(DownloadStatus.takeOld)
                             downloadRepository.setStatus(download, DownloadStatus.takeOld)
@@ -326,7 +315,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         }
-        log.debug("finished handling response of ${download.fileName}")
     }
 
     /**
@@ -348,19 +336,40 @@ class DownloadService private constructor(val applicationContext: Context) {
      * download issue in background
      */
     fun scheduleIssueDownload(issueOperations: IssueOperations): Operation? {
+        return scheduleIssueDownload(
+            issueOperations.feedName,
+            issueOperations.date,
+            issueOperations.status,
+            issueOperations.tag
+        )
+    }
+
+    /**
+     * download issue in background
+     */
+    fun scheduleIssueDownload(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus,
+        tag: String
+    ): Operation? {
         val data = Data.Builder()
-            .putString(DATA_ISSUE_STATUS, issueOperations.status.toString())
-            .putString(DATA_ISSUE_DATE, issueOperations.date)
-            .putString(DATA_ISSUE_FEEDNAME, issueOperations.feedName)
+            .putString(DATA_ISSUE_STATUS, issueStatus.toString())
+            .putString(DATA_ISSUE_DATE, issueDate)
+            .putString(DATA_ISSUE_FEEDNAME, issueFeedName)
             .build()
 
         val requestBuilder =
             OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
                 .setInputData(data)
                 .setConstraints(getConstraints())
-                .addTag(issueOperations.tag)
+                .addTag(tag)
 
-        return WorkManager.getInstance(applicationContext).enqueue(requestBuilder.build())
+        return WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            tag,
+            ExistingWorkPolicy.KEEP,
+            requestBuilder.build()
+        )
     }
 
     /**
@@ -423,7 +432,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                         if (!currentDownloadList.contains(download.fileName)
                             && !download.file.isDownloaded(applicationContext)
                         ) {
-                            log.debug("adding download ${download.fileName} to downloadList")
                             // issues are not shown immediately - so download other downloads like articles first
                             if (cacheableDownload is Issue) {
                                 appendToDownloadList(download)
