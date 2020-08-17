@@ -24,6 +24,9 @@ data class Issue(
     override val isWeekend: Boolean,
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
+    override val moTime: String,
+
+    // internal
     override val dateDownload: Date?,
     override val downloadedStatus: DownloadStatus?
 ) : IssueOperations, CacheableDownload {
@@ -40,6 +43,7 @@ data class Issue(
         issueDto.isWeekend,
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList(),
+        issueDto.moTime,
         null,
         DownloadStatus.pending
     )

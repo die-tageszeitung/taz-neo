@@ -29,6 +29,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                 baseUrl
                 status
                 minResourceVersion
+                moTime
                 imprint {
                     articleHtml {
                         name
