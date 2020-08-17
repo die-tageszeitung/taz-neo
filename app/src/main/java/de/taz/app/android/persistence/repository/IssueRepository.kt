@@ -293,6 +293,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.isWeekend,
             sections,
             pageList,
+            issueStub.moTime,
             issueStub.dateDownload,
             issueStub.downloadedStatus
         )

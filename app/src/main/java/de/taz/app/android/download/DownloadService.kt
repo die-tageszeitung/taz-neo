@@ -112,7 +112,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                         val fromServer = apiService.getIssueByFeedAndDateAsync(
                             issue.feedName, issue.date
                         ).await()
-                        if (fromServer?.status == issue.status && fromServer != issue) {
+                        if (
+                            fromServer?.status == issue.status && fromServer.moTime != issue.moTime
+                        ) {
                             cancelDownloads(issue.tag)
                             issueRepository.save(fromServer)
                             download(fromServer)
