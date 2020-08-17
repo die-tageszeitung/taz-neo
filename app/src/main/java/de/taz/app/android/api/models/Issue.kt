@@ -89,11 +89,9 @@ data class Issue(
         return articleList
     }
 
-    override suspend fun deleteFiles(updateDatabase: Boolean) {
-        if (updateDatabase) {
-            IssueRepository.getInstance().resetDownloadDate(this)
-            this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
-        }
+    override suspend fun deleteFiles() {
+        IssueRepository.getInstance().resetDownloadDate(this)
+        this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -103,10 +101,17 @@ data class Issue(
             acc
         })
         allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach {
-            it.deleteFile(updateDatabase)
+            it.deleteFile()
         }
     }
 
+    /**
+     * function to delete all files
+     * the server will be asked if the metadata has changed
+     * if the metadata has changed it will be saved to the Database
+     *
+     * @return the new [Issue] if the metadata has changed else null
+     */
     suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
         withContext(Dispatchers.IO) {
             val deferredIssue =
@@ -116,13 +121,15 @@ data class Issue(
             DownloadService.getInstance(applicationContext).cancelDownloads(tag)
             return@withContext deferredIssue.await()?.let {
                 val newMetaData = moTime != it.moTime
-                deleteFiles(!newMetaData)
+                deleteFiles()
+                it.moment.download().join()
                 if (newMetaData) {
                     IssueRepository.getInstance(applicationContext).delete(this@Issue)
                     IssueRepository.getInstance(applicationContext).save(it)
+                    it
+                } else {
+                    null
                 }
-                it.moment.download().join()
-                it
             }
         }
 
