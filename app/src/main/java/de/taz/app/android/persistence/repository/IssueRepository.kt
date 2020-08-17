@@ -35,7 +35,8 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun save(issue: Issue) {
-        appDatabase.runInTransaction {
+        log.info("saving issue: ${issue.tag}")
+        appDatabase.runInTransaction<Void> {
             appDatabase.issueDao().insertOrReplace(
                 IssueStub(issue)
             )
@@ -86,6 +87,8 @@ class IssueRepository private constructor(applicationContext: Context) :
                         )
                     })
             }
+            log.info("done saving issue: ${issue.tag}")
+            null
         }
     }
 

@@ -433,7 +433,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 prependToDownloadList(download)
                             }
                         }
-                    } ?: log.debug("creating download returned null")
+                    } ?: log.debug("creating download for ${fileEntry.name} returned null")
                 }
             }
         }

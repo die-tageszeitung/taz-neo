@@ -342,7 +342,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     }
                 }
 
-                log.debug("delete ArticleStub $article")
+                log.debug("delete ArticleStub ${article.articleHtml.name}")
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
