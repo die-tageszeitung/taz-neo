@@ -91,6 +91,7 @@ data class Issue(
 
     override suspend fun deleteFiles(updateDatabase: Boolean) {
         if (updateDatabase) {
+            IssueRepository.getInstance().resetDownloadDate(this)
             this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         }
         val allFiles = getAllFiles()
@@ -101,9 +102,8 @@ data class Issue(
             )
             acc
         })
-        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach { it.deleteFile(updateDatabase) }
-        if (updateDatabase) {
-            IssueRepository.getInstance().resetDownloadDate(this)
+        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach {
+            it.deleteFile(updateDatabase)
         }
     }
 
