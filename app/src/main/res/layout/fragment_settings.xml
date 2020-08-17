@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    app:statusBarBackground="@android:color/transparent"
+    tools:context="de.taz.app.android.ui.main.MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:expandedTitleGravity="top"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:scrimAnimationDuration="0">
+
+            <include
+                android:id="@+id/settings_header"
+                layout="@layout/fragment_header_default" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/web_view_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/nav_bottom_height"
+            android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+            android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
+
+            <TextView
+                android:id="@+id/fragment_settings_category_general"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_general"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fragment_settings_general_keep_issues"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_general_keep_number_issues"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
+
+
+            <Switch
+                android:id="@+id/fragment_settings_auto_download_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_auto_downloads_switch"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_general_keep_issues" />
+
+            <Switch
+                android:id="@+id/fragment_settings_auto_download_wifi_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_auto_downloads_wifi_switch"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_auto_download_switch" />
+
+            <TextView
+                android:id="@+id/fragment_settings_category_text"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_text"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_wifi_switch" />
+
+            <include
+                android:id="@+id/fragment_settings_text_size"
+                style="@style/TextAppearance.Settings.Category"
+                layout="@layout/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
+
+            <Switch
+                android:id="@+id/fragment_settings_night_mode"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_text_night_mode"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
+
+            <TextView
+                android:id="@+id/fragment_settings_category_support"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_support"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_night_mode" />
+
+            <TextView
+                android:id="@+id/fragment_settings_faq"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_faq"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
+
+            <TextView
+                android:id="@+id/fragment_settings_welcome_slides"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_welcome_slides"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_faq" />
+
+            <Button
+                android:id="@+id/fragment_settings_support_report_bug"
+                style="@style/Settings.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_support_report_bug"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_welcome_slides" />
+
+            <TextView
+                android:id="@+id/fragment_settings_category_account"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_account"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_support_report_bug" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_manage_account"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_account_manage_account"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_email"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_logout"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_account_logout"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
+
+
+            <TextView
+                android:id="@+id/fragment_settings_version_number"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_settings_version_margin"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nav_bottom_height"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/navigation_bottom_settings" />
+
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
