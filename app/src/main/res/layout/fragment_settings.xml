@@ -185,6 +185,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:background="@color/navigationBar"
+        android:elevation="@dimen/bottom_sheet_elevation"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
