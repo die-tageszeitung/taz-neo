@@ -11,8 +11,8 @@ const val DEFAULT_NAV_DRAWER_FILE_NAME = "navButton.taz.normal.png"
 const val SUBSCRIPTION_EMAIL_ADDRESS = "digiabo@taz.de"
 const val WEBVIEW_DRAG_SENSITIVITY_FACTOR = 2
 const val WEBVIEW_HTML_FILE = "htmlFile"
-const val WEBVIEW_HTML_FILE_TERMS = "welcomeAgb.html"
-const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeWiderruf.html"
+const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
+const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
 const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME="knile-semibold-webfont.woff"
 
 // Preferences
