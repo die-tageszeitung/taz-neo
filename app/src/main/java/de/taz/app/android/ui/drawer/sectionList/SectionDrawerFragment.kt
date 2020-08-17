@@ -45,7 +45,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private var issueStatus: IssueStatus? = null
 
 
-    private var dateHelper: DateHelper? = null
     private var fontHelper: FontHelper? = null
     private var issueRepository: IssueRepository? = null
     private var momentRepository: MomentRepository? = null
@@ -59,7 +58,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
