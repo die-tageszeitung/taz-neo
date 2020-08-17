@@ -63,7 +63,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/navigation_bottom_background"
             android:orientation="vertical"
             android:visibility="invisible"
             app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">

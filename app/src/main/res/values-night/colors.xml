@@ -8,6 +8,7 @@
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#262626</color>
     <color name="homeBackground">#121212</color>
+    <color name="navigationBar">#1C1C1E</color>
     <color name="black">#000</color>
 
     <color name="colorPrimary">@color/tazRed</color>
