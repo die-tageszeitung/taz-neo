@@ -25,10 +25,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="vertical"
         android:background="@color/navigationBar"
         android:elevation="@dimen/bottom_sheet_elevation"
-        android:visibility="invisible"
+        android:orientation="vertical"
         app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
