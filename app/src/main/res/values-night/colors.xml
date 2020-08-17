@@ -34,7 +34,6 @@
     <color name="navigation_drawer_icon">@color/darkGrey</color>
     <color name="navigation_drawer_icon_selected">@color/tazRed</color>
 
-    <color name="navigation_bottom_background">@color/darkGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="navigation_bottom_item_active">@color/tazRed</color>
 
