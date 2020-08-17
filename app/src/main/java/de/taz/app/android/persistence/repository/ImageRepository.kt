@@ -15,6 +15,16 @@ class ImageRepository private constructor(
 
     companion object : SingletonHolder<ImageRepository, Context>(::ImageRepository)
 
+    fun update(image: Image) {
+        appDatabase.imageStubDao().update(ImageStub(image))
+        appDatabase.fileEntryDao().update(FileEntry(image))
+    }
+
+    fun update(images: List<Image>) {
+        appDatabase.imageStubDao().update(images.map { ImageStub(it) })
+        appDatabase.fileEntryDao().update(images.map { FileEntry(it) })
+    }
+
     fun save(image: Image) {
         appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
         appDatabase.fileEntryDao().insertOrReplace(FileEntry(image))
