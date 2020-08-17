@@ -93,7 +93,7 @@ abstract class HomePageFragment(
     private suspend fun downloadNextIssues(date: String, limit: Int): String? {
         return withContext(Dispatchers.IO) {
             val issues = apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()
-                issues?.let {
+            issues?.let {
                 issueRepository?.save(it)
             }
             issues?.last()?.date
