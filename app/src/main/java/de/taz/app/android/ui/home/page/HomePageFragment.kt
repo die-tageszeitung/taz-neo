@@ -15,6 +15,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
 
@@ -29,6 +30,7 @@ abstract class HomePageFragment(
     private var issueRepository: IssueRepository? = null
 
     private var lastRequestedDate = ""
+    private var lastRequestDateIsRunning = AtomicBoolean(false)
 
     abstract fun setFeeds(feeds: List<Feed>)
     abstract fun setInactiveFeedNames(feedNames: Set<String>)
@@ -69,26 +71,32 @@ abstract class HomePageFragment(
     }
 
     suspend fun getNextIssueMoments(date: String) {
-        if (lastRequestedDate.isEmpty() || date <= lastRequestedDate) {
-            log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
-            lastRequestedDate = dateHelper?.stringToStringWithDelta(
-                date, -NUMBER_OF_REQUESTED_MOMENTS
-            ) ?: ""
+        if (!lastRequestDateIsRunning.getAndSet(true)) {
+            if (lastRequestedDate.isEmpty() || date < lastRequestedDate) {
+                log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                downloadNextIssues(
-                    date,
-                    NUMBER_OF_REQUESTED_MOMENTS
-                )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    downloadNextIssues(
+                        date,
+                        NUMBER_OF_REQUESTED_MOMENTS
+                    )
+                }.join()
+
+                lastRequestedDate = dateHelper?.stringToStringWithDelta(
+                    date, -NUMBER_OF_REQUESTED_MOMENTS
+                ) ?: ""
             }
+            lastRequestDateIsRunning.set(false)
         }
     }
 
-    private suspend fun downloadNextIssues(date: String, limit: Int) {
-        withContext(Dispatchers.IO) {
-            apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()?.let {
+    private suspend fun downloadNextIssues(date: String, limit: Int): String? {
+        return withContext(Dispatchers.IO) {
+            val issues = apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()
+                issues?.let {
                 issueRepository?.save(it)
             }
+            issues?.last()?.date
         }
     }
 
