@@ -6,7 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 object Migration11to12 : Migration(11, 12) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
-            execSQL( "ALTER TABLE Issue ADD COLUMN moTime TEXT DEFAULT \"2020-08-17\";")
+            execSQL( "ALTER TABLE Issue ADD COLUMN moTime TEXT NOT NULL DEFAULT \"2020-08-17\";")
         }
     }
 }
