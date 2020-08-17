@@ -16,6 +16,7 @@ import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -86,22 +87,26 @@ class IssueContentFragment :
                 val date = it.date
                 val status = it.status
                 getSectionListByIssue(feed, date, status).invokeOnCompletion {
-                    if (displayableKey == null || displayableKey?.startsWith("sec") == true) {
-                        showSection(displayableKey)
+                    lifecycleScope.launchWhenResumed {
+                        if (displayableKey == null || displayableKey?.startsWith("sec") == true) {
+                            showSection(displayableKey)
+                        }
                     }
                 }
                 getArticles(feed, date, status).invokeOnCompletion {
-                    if (displayableKey?.startsWith("art") == true) {
-                        showArticle(displayableKey)
-                    }
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        viewModel.sectionNameListLiveData.postValue(
-                            viewModel.articleList.map { article ->
-                                article.getSectionStub(
-                                    context?.applicationContext
-                                )?.key
-                            }
-                        )
+                    lifecycleScope.launchWhenResumed {
+                        if (displayableKey?.startsWith("art") == true) {
+                            showArticle(displayableKey)
+                        }
+                        withContext(Dispatchers.IO) {
+                            viewModel.sectionNameListLiveData.postValue(
+                                viewModel.articleList.map { article ->
+                                    article.getSectionStub(
+                                        context?.applicationContext
+                                    )?.key
+                                }
+                            )
+                        }
                     }
                 }
                 getMainView()?.setCoverFlowItem(issueOperations)
