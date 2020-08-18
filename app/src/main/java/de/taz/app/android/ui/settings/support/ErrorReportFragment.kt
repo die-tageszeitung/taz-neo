@@ -9,9 +9,9 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.SharedPreferenceStringLiveData
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +32,14 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         view.apply {
             fragment_header_default_title.text =
                 getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
+
+            // read email from settings
+            fragment_error_report_email.setText(
+                requireActivity().applicationContext.getSharedPreferences(
+                    PREFERENCES_AUTH,
+                    Context.MODE_PRIVATE
+                ).getString(PREFERENCES_AUTH_EMAIL, "")
+            )
 
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
