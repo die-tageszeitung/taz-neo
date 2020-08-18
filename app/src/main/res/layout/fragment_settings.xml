@@ -62,7 +62,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
 
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -70,7 +70,7 @@
                 android:text="@string/settings_auto_downloads_switch"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_general_keep_issues" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_download_wifi_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_night_mode"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"

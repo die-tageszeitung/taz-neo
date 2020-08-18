@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -20,7 +21,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
@@ -185,18 +185,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun showNightMode(nightMode: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
     }
 
     private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
             isEnabled = downloadsEnabled
         }
     }
