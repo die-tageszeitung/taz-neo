@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">taz neo</string>
     <string name="accept_button">accept</string>
+    <string name="close_button">close</string>
     <string name="cancel_button">cancel</string>
 
     <string name="notification_channel_new_version">New version</string>
