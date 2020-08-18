@@ -216,8 +216,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                         DownloadStatus.started
                     )
                 ) {
-                    log.debug("starting httpCall of ${fromDB.fileName}")
-
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
                     try {
@@ -226,8 +224,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 Request.Builder().url(fromDB.url).get().build()
                             )::enqueue
                         )
-                        log.debug("finished http call of ${fromDB.fileName}")
-
                         handleResponse(response, download, doNotRestartDownload)
                     } catch (e: Exception) {
                         downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
@@ -433,7 +429,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 prependToDownloadList(download)
                             }
                         }
-                    } ?: log.debug("creating download returned null")
+                    } ?: log.debug("creating download for ${fileEntry.name} returned null")
                 }
             }
         }

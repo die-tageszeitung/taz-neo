@@ -3,6 +3,7 @@ package de.taz.app.android.api.models
 import android.content.Context
 import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonClass
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -71,7 +72,9 @@ data class Issue(
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<Issue?> {
-        return IssueRepository.getInstance(applicationContext).getIssueLiveData(this.feedName, this.date, this.status)
+        return IssueRepository.getInstance(applicationContext).getIssueLiveData(
+            this.feedName, this.date, this.status
+        )
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
@@ -87,6 +90,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
+        IssueRepository.getInstance().resetDownloadDate(this)
         this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
@@ -96,23 +100,49 @@ data class Issue(
             )
             acc
         })
-        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach { it.deleteFile() }
-        IssueRepository.getInstance().resetDownloadDate(this)
+        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach {
+            it.deleteFile()
+        }
     }
 
-    suspend fun delete() = withContext(Dispatchers.Default) {
-        DownloadService.getInstance().cancelDownloads(tag)
-        moment.deleteFiles()
-        deleteFiles()
-        IssueRepository.getInstance().delete(this@Issue)
-    }
+    /**
+     * function to delete all files
+     * the server will be asked if the metadata has changed
+     * if the metadata has changed it will be saved to the Database
+     *
+     * @return the new [Issue] if the metadata has changed else null
+     */
+    suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
+        withContext(Dispatchers.IO) {
+            val deferredIssue =
+                ApiService.getInstance(applicationContext).getIssueByFeedAndDateAsync(
+                    feedName, date
+                )
+            DownloadService.getInstance(applicationContext).cancelDownloads(tag)
+            return@withContext deferredIssue.await()?.let {
+                val newMetaData = moTime != it.moTime
+                deleteFiles()
+                it.moment.download().join()
+                if (newMetaData) {
+                    IssueRepository.getInstance(applicationContext).delete(this@Issue)
+                    IssueRepository.getInstance(applicationContext).save(it)
+                    it
+                } else {
+                    null
+                }
+            }
+        }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
+        IssueRepository.getInstance().update(
+            IssueStub(this).copy(downloadedStatus = downloadStatus)
+        )
     }
 
     fun setDownloadStatusIncludingChildren(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(IssueStub(this).copy(downloadedStatus = downloadStatus))
+        IssueRepository.getInstance().update(
+            IssueStub(this).copy(downloadedStatus = downloadStatus)
+        )
         sectionList.forEach { section ->
             section.setDownloadStatus(downloadStatus)
             section.articleList.forEach { article ->
@@ -125,7 +155,8 @@ data class Issue(
     }
 
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-        return IssueRepository.getInstance(applicationContext).getStub(this)?.downloadedStatus
+        return IssueRepository.getInstance(applicationContext)
+            .getStub(this)?.downloadedStatus
     }
 
 }
