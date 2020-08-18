@@ -155,16 +155,18 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showMainFragment(fragment: Fragment) {
-        runOnUiThread {
-            supportFragmentManager.apply {
-                beginTransaction()
-                    .replace(
-                        R.id.main_content_fragment_placeholder,
-                        fragment,
-                        backStackEntryCount.toString()
-                    )
-                    .addToBackStack(backStackEntryCount.toString())
-                    .commit()
+        lifecycleScope.launchWhenResumed {
+            runOnUiThread {
+                supportFragmentManager.apply {
+                    beginTransaction()
+                        .replace(
+                            R.id.main_content_fragment_placeholder,
+                            fragment,
+                            backStackEntryCount.toString()
+                        )
+                        .addToBackStack(backStackEntryCount.toString())
+                        .commit()
+                }
             }
         }
     }
