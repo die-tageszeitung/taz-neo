@@ -51,17 +51,25 @@ val testSection = Section(
 val testIssue = Issue(
     feedName = "taz",
     date = "2019-10-17",
-    moment = Moment("taz", "2019-10-17", IssueStatus.regular, emptyList(), emptyList(), DownloadStatus.pending),
-    key =  null,
+    moment = Moment(
+        "taz",
+        "2019-10-17",
+        IssueStatus.regular,
+        emptyList(),
+        emptyList(),
+        DownloadStatus.pending
+    ),
+    key = null,
     baseUrl = "https://example.com",
     status = IssueStatus.regular,
     minResourceVersion = 23,
     imprint = null,
     sectionList = listOf(testSection),
     isWeekend = false,
-    pageList = emptyList(),
+    pageList = emptyList<Page>(),
     dateDownload = null,
-    downloadedStatus = DownloadStatus.pending
+    downloadedStatus = DownloadStatus.pending,
+    moTime = "2020-08-12"
 )
 val testIssues = listOf(testIssue)
 
@@ -74,7 +82,8 @@ val testIssueStub = IssueStub(
     minResourceVersion = 1312,
     isWeekend = false,
     dateDownload = null,
-    downloadedStatus = DownloadStatus.pending
+    downloadedStatus = DownloadStatus.pending,
+    moTime = "2020-08-12"
 )
 
 val testArticle = Article(
