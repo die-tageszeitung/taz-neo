@@ -30,7 +30,6 @@ class WebViewActivity : AppCompatActivity() {
 
     private var downloadedObserver: Observer<Boolean>? = null
     private var isDownloadedLiveData: LiveData<Boolean>? = null
-    private var startHomeActivity = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
