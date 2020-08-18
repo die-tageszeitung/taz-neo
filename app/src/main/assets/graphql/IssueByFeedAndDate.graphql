@@ -29,6 +29,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                 baseUrl
                 status
                 minResourceVersion
+                moTime
                 imprint {
                     articleHtml {
                         name

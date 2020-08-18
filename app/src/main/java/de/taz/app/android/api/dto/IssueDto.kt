@@ -16,5 +16,6 @@ class IssueDto(
     val imprint: ArticleDto?,
     val isWeekend: Boolean = false,
     val sectionList: List<SectionDto>? = null,
-    val pageList: List<PageDto>? = null
+    val pageList: List<PageDto>? = null,
+    val moTime: String
 )
