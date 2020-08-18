@@ -7,6 +7,7 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Article(
@@ -68,8 +69,9 @@ data class Article(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ArticleRepository.getInstance()
-            .update(ArticleStub(this).copy(downloadedStatus = downloadedStatus))
+        ArticleRepository.getInstance().update(
+            ArticleStub(this).copy(downloadedStatus = downloadedStatus)
+        )
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<Article?> {

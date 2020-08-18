@@ -21,6 +21,7 @@ interface FileEntryOperations: CacheableDownload {
 
     fun deleteFile() {
         val fileHelper = FileHelper.getInstance()
+        // TODO check return value of fileHelper.deleteFile function
         fileHelper.deleteFile(name)
         DownloadRepository.getInstance().delete(name)
         this.setDownloadStatus(DownloadStatus.pending)
