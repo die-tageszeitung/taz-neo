@@ -92,8 +92,8 @@
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
     <dimen name="fragment_archive_navigation_end_heading_margin_bottom">12dp</dimen>
-
     <dimen name="fragment_archive_navigation_end_item_text_margin_start">8dp</dimen>
+    <dimen name="fragment_archive_margin_horizontal">15dp</dimen>
 
     <dimen name="bottom_sheet_setting_padding_horizontal">20dp</dimen>
     <dimen name="bottom_sheet_setting_padding_horizontal_switch">10dp</dimen>
