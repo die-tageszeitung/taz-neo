@@ -28,6 +28,7 @@
         android:background="@color/navigationBar"
         android:elevation="@dimen/bottom_sheet_elevation"
         android:orientation="vertical"
+        android:visibility="invisible"
         app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
