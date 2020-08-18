@@ -28,7 +28,6 @@ import de.taz.app.android.ui.WelcomeActivity
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.util.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"

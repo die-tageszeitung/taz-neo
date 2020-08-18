@@ -22,32 +22,29 @@ class IssueDownloadWorkManagerWorker(
 
         val issueFeedName = inputData.getString(DATA_ISSUE_FEEDNAME)
         val issueDate = inputData.getString(DATA_ISSUE_DATE)
-        val issueStatus =
-            inputData.getString(DATA_ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
+        val issueStatus = inputData.getString(DATA_ISSUE_STATUS)?.let { IssueStatus.valueOf(it) }
 
-        log.debug("starting to download - issueDate: $issueDate")
+        log.debug("starting to download - issueDate: $issueDate issueFeedName: $issueFeedName issueStatus: $issueStatus")
 
         runIfNotNull(issueFeedName, issueDate, issueStatus) { feedName, date, status ->
             val downloadService = DownloadService.getInstance(applicationContext)
             val issueRepository = IssueRepository.getInstance(applicationContext)
 
-            return@runIfNotNull async {
-                try {
-                    issueRepository.getIssue(
-                        feedName, date, status
-                    )?.let { issue ->
-                        downloadService.download(issue).join()
-                        log.debug("successfully downloaded")
-                        Result.success()
-                    } ?: Result.failure()
-                } catch (e: Exception) {
-                    log.debug("download failed")
-                    Sentry.capture(e)
-                    Result.failure()
-                }
+            return@runIfNotNull try {
+                issueRepository.getIssue(
+                    feedName, date, status
+                )?.let { issue ->
+                    runBlocking { downloadService.download(issue).join() }
+                    log.debug("successfully downloaded")
+                    Result.success()
+                } ?: Result.failure()
+            } catch (e: Exception) {
+                log.debug("download failed")
+                Sentry.capture(e)
+                Result.failure()
             }
-        }?.await() ?: run {
-            log.debug("download failed")
+        } ?: run {
+            Sentry.capture("download failed - not enough information - issueDate: $issueDate issueFeedName: $issueFeedName issueStatus: $issueStatus")
             Result.failure()
         }
     }
