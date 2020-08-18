@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.taz.app.android.ui.WebViewActivity">
+
+    <include
+        android:id="@+id/web_view_loading_screen"
+        layout="@layout/include_loading_screen"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/content_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_data_policy_button_margin_bottom"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <de.taz.app.android.ui.webview.AppWebView
+                android:id="@+id/web_view_fullscreen_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/web_view_button"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/web_view_button"
+                android:layout_width="@dimen/activity_data_policy_button_width"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="@string/close_button"
+                android:textSize="@dimen/activity_data_policy_button_text_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/web_view_fullscreen_content" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
