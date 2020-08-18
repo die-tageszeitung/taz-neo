@@ -87,7 +87,6 @@ class IssueRepository private constructor(applicationContext: Context) :
                         )
                     })
             }
-            log.info("done saving issue: ${issue.tag}")
             null
         }
     }
