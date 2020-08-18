@@ -131,7 +131,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
     fun delete(fileName: String) {
         try {
             appDatabase.downloadDao().delete(getWithoutFileOrThrow(fileName))
-            log.info("deleted Download of $fileName")
         } catch (e: NotFoundException) {
             log.warn("did not delete download for $fileName")
         }
