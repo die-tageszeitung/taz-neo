@@ -178,14 +178,17 @@ class DownloadService private constructor(val applicationContext: Context) {
                         currentDownloadList.offer(download.fileName)
                         currentDownloads.incrementAndGet()
                         val job = getFromServer(download)
-                        job.invokeOnCompletion {
-                            currentDownloads.decrementAndGet()
-                            startDownloadsIfCapacity()
-                        }
                         download.tag?.let { tag ->
                             val jobsForTag = tagJobMap[tag] ?: mutableListOf()
                             jobsForTag.add(job)
                             tagJobMap[download.tag] = jobsForTag
+                        }
+                        job.invokeOnCompletion {
+                            log.info("download ${download.fileName} completed")
+                            currentDownloads.decrementAndGet()
+                            currentDownloadList.remove(download.fileName)
+                            startDownloadsIfCapacity()
+                            download.tag?.let { tagJobMap[it]?.remove(job) }
                         }
                     }
                 } ?: break
