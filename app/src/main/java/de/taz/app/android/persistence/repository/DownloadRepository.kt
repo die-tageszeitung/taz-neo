@@ -89,14 +89,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @Throws(NotFoundException::class)
-    fun setWorkerId(fileName: String, workerID: UUID) {
-        getWithoutFileOrThrow(fileName).let { downloadStub ->
-            downloadStub.workerManagerId = workerID
-            update(downloadStub)
-        }
-    }
-
     fun saveLastSha256(download: Download, sha256: String) =
         saveLastSha256(DownloadStub(download), sha256)
 
