@@ -63,7 +63,7 @@ class ToDownloadIssueHelper(applicationContext: Context) {
             try {
                 val missingIssues = apiService.getIssuesByDateAsync(newLatestDownloadedDate).await()
                 missingIssues.forEach {
-                    issueRepository.save(it)
+                    issueRepository.saveIfDoesNotExist(it)
                     newLatestDownloadedDate = it.date
 
                     editPrefs
