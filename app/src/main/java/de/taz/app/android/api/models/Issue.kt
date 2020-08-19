@@ -120,7 +120,7 @@ data class Issue(
                 )
             DownloadService.getInstance(applicationContext).cancelDownloads(tag)
             return@withContext deferredIssue.await()?.let {
-                val newMetaData = moTime != it.moTime
+                val newMetaData = moTime != it.moTime || status != it.status
                 deleteFiles()
                 it.moment.download().join()
                 if (newMetaData) {
