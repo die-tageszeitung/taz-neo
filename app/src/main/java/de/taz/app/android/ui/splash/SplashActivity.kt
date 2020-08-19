@@ -136,8 +136,16 @@ class SplashActivity : BaseActivity() {
     private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
+        val toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
         val issues = apiService.getLastIssuesAsync(number).await()
+        issueRepository.getLatestIssue()?.let {
+            toDownloadIssueHelper.startMissingDownloads(
+                issues.last().date,
+                it.date
+            )
+        }
+
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")
         issues.forEach { it.moment.download(applicationContext) }
