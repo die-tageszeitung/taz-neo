@@ -7,7 +7,6 @@ data class Download(
     override val baseUrl: String,
     val file: FileEntry,
     override var status: DownloadStatus = DownloadStatus.pending,
-    override var workerManagerId: UUID? = null,
     val tag: String? = null,
     var lastSha256: String? = null
 ): DownloadOperations {
@@ -15,7 +14,6 @@ data class Download(
         baseUrl = downloadStub.baseUrl,
         file = file,
         status = downloadStub.status,
-        workerManagerId = downloadStub.workerManagerId,
         tag = tag,
         lastSha256 = downloadStub.lastSha256
     )
