@@ -287,7 +287,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     try {
                         imageRepository.delete(image)
                     } catch (e: SQLiteConstraintException) {
-                        log.warn("Image ${image.name} not deleted")
                         // do not delete - still used by section/otherIssue/bookmarked article
                     }
                 }
