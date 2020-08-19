@@ -22,7 +22,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Mockable
-class IssueRepository private constructor(applicationContext: Context) :
+class IssueRepository private constructor(val applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -444,7 +444,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                     return@launch
                 }
                 if (issueStub.downloadedStatus != DownloadStatus.done) {
-                    getIssue(issueStub).deleteAndUpdateMetaData()
+                    getIssue(issueStub).delete(applicationContext)
                 }
             }
         }
