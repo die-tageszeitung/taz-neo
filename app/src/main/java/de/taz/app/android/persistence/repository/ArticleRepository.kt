@@ -244,11 +244,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
                     articleFileName
                 ).forEach { articleAuthorImageJoin ->
-                    val amountOfArticlesOfAuthor = articleAuthorImageJoin.authorFileName?.let { author ->
-                        appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
-                            author
-                        )
-                    }?.size ?: 2
+                    val amountOfArticlesOfAuthor =
+                        articleAuthorImageJoin.authorFileName?.let { author ->
+                            appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
+                                author
+                            )
+                        }?.size ?: 2
                     appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
                     if (amountOfArticlesOfAuthor == 1) {
                         articleAuthorImageJoin.authorFileName?.let { authorFileName ->
@@ -312,8 +313,13 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
-    fun getArticleStubListForIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): List<ArticleStub> {
-        return appDatabase.articleDao().getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
+    fun getArticleStubListForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<ArticleStub> {
+        return appDatabase.articleDao()
+            .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
     }
 
 }

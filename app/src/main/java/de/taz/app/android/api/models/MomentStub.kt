@@ -13,6 +13,11 @@ data class MomentStub(
     val downloadedStatus: DownloadStatus?
 ) {
 
-    constructor(moment: Moment) : this(moment.issueFeedName, moment.issueDate, moment.issueStatus, moment.downloadedStatus)
+    constructor(moment: Moment) : this(
+        moment.issueFeedName,
+        moment.issueDate,
+        moment.issueStatus,
+        moment.downloadedStatus
+    )
 
 }
