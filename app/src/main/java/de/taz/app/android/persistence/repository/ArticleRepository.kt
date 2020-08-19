@@ -259,7 +259,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                                         authorFileName
                                     )
                                 )
-                                log.debug("ArticleAuthor $authorFileName deleted.")
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
                             } catch (e: NotFoundException) {
@@ -271,7 +270,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
                 // delete audioFile and relation
                 article.audioFile?.let { audioFile ->
-                    log.debug("deleting ArticleAudioFile ${audioFile.name}")
                     appDatabase.articleAudioFileJoinDao().delete(
                         ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
                     )
@@ -294,7 +292,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     }
                 }
 
-                log.debug("delete ArticleStub ${article.articleHtml.name}")
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
