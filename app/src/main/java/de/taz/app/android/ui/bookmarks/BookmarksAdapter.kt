@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -95,7 +94,7 @@ class BookmarksAdapter(
 
     private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
         0,
-        ItemTouchHelper.LEFT
+        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
     ) {
         override fun onMove(
             recyclerView: RecyclerView,

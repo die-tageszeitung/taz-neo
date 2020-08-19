@@ -62,7 +62,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
 
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -70,7 +70,7 @@
                 android:text="@string/settings_auto_downloads_switch"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_general_keep_issues" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_download_wifi_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_night_mode"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -168,6 +168,21 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
 
+            <TextView
+                android:id="@+id/fragment_settings_terms"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_terms"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
+
+            <TextView
+                android:id="@+id/fragment_settings_revocation"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_revocation"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_terms" />
 
             <TextView
                 android:id="@+id/fragment_settings_version_number"
@@ -175,7 +190,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_settings_version_margin"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_settings_revocation" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -185,7 +200,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/navigation_bottom_background"
+        android:background="@color/navigationBar"
+        android:elevation="@dimen/bottom_sheet_elevation"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

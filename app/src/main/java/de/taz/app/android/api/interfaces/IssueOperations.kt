@@ -12,6 +12,7 @@ interface IssueOperations {
     val dateDownload: Date?
     val minResourceVersion: Int
     val isWeekend: Boolean
+    val moTime: String
 
     val tag: String
         get() = "$feedName/$date/$status"

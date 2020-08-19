@@ -116,23 +116,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStubList
     }
 
-    fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
-        var articleStubList = appDatabase.articleDao().getIssueArticleListByArticle(articleName)
-        // if it is the imprint we want to return a list of it
-        if (articleStubList.isEmpty()) {
-            articleStubList = getStub(articleName)?.let {
-                listOf(it)
-            } ?: emptyList()
-        }
-        return articleStubList
-    }
-
     fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
-    fun nextArticleStub(article: ArticleOperations): ArticleStub? = nextArticleStub(article.key)
 
     fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
@@ -140,19 +128,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 articleName
             )
     }
-
-    fun previousArticleStub(article: ArticleOperations): ArticleStub? =
-        previousArticleStub(article.key)
-
-    fun nextArticle(articleName: String): Article? =
-        nextArticleStub(articleName)?.let { articleStubToArticle(it) }
-
-    fun nextArticle(article: ArticleOperations): Article? = nextArticle(article.key)
-
-    fun previousArticle(articleName: String): Article? =
-        previousArticleStub(articleName)?.let { articleStubToArticle(it) }
-
-    fun previousArticle(article: ArticleOperations): Article? = previousArticle(article.key)
 
     fun getImagesForArticle(articleFileName: String): List<Image> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
@@ -213,16 +188,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = true))
     }
 
-    @Throws(NotFoundException::class)
-    fun bookmarkArticle(articleName: String) {
-        bookmarkArticle(getStubOrThrow(articleName))
-    }
-
-    @Throws(NotFoundException::class)
-    fun debookmarkArticle(articleName: String) {
-        debookmarkArticle(getStubOrThrow(articleName))
-    }
-
     fun debookmarkArticle(article: Article) {
         debookmarkArticle(ArticleStub(article))
     }
@@ -243,16 +208,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesList()
     }
 
-    fun getBookmarkedArticlesList(): List<Article> {
-        return getBookmarkedArticleStubList().map {
-            articleStubToArticle(it)
-        }
-    }
-
-    fun isBookmarked(article: Article): Boolean {
-        return article.bookmarked
-    }
-
     fun isBookmarked(articleStub: ArticleStub): Boolean {
         return articleStub.bookmarked
     }
@@ -264,8 +219,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
-
-    fun getIndexInSection(article: ArticleOperations): Int? = getIndexInSection(article.key)
 
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
         saveScrollingPosition(ArticleStub(article), percentage, position)
@@ -291,11 +244,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
                     articleFileName
                 ).forEach { articleAuthorImageJoin ->
-                    val amountOfArticlesOfAuthor = articleAuthorImageJoin.authorFileName?.let { author ->
-                        appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
-                            author
-                        )
-                    }?.size ?: 2
+                    val amountOfArticlesOfAuthor =
+                        articleAuthorImageJoin.authorFileName?.let { author ->
+                            appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
+                                author
+                            )
+                        }?.size ?: 2
                     appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
                     if (amountOfArticlesOfAuthor == 1) {
                         articleAuthorImageJoin.authorFileName?.let { authorFileName ->
@@ -305,7 +259,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                                         authorFileName
                                     )
                                 )
-                                log.debug("ArticleAuthor $authorFileName deleted.")
                             } catch (e: SQLiteConstraintException) {
                                 // do nothing as author is still referenced by another article
                             } catch (e: NotFoundException) {
@@ -317,7 +270,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
                 // delete audioFile and relation
                 article.audioFile?.let { audioFile ->
-                    log.debug("deleting ArticleAudioFile ${audioFile.name}")
                     appDatabase.articleAudioFileJoinDao().delete(
                         ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
                     )
@@ -332,17 +284,13 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     appDatabase.articleImageJoinDao().delete(
                         ArticleImageJoin(articleFileName, image.name, index)
                     )
-                    log.debug("deleted ArticleImageJoin $articleFileName - ${image.name} - $index")
                     try {
                         imageRepository.delete(image)
-                        log.debug("deleted FileEntry of image ${image.name}")
                     } catch (e: SQLiteConstraintException) {
-                        log.warn("Image ${image.name} not deleted")
                         // do not delete - still used by section/otherIssue/bookmarked article
                     }
                 }
 
-                log.debug("delete ArticleStub $article")
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
@@ -359,8 +307,13 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
-    fun getArticleStubListForIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): List<ArticleStub> {
-        return appDatabase.articleDao().getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
+    fun getArticleStubListForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<ArticleStub> {
+        return appDatabase.articleDao()
+            .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
     }
 
 }

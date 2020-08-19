@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.drawer.sectionList
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -23,6 +24,8 @@ class SectionListAdapter(
 ) : RecyclerView.Adapter<SectionListAdapter.SectionListAdapterViewHolder>() {
 
     private var issueOperations: IssueOperations? = null
+    private var fontHelper = FontHelper.getInstance(fragment.context?.applicationContext)
+    private var typeFace: Typeface? = null
 
     private val sectionRepository =
         SectionRepository.getInstance(fragment.context?.applicationContext)
@@ -51,6 +54,14 @@ class SectionListAdapter(
             sectionListObserver?.let { sectionListLiveData?.removeObserver(it) }
             sectionListObserver = null
             this.issueOperations = newIssueOperations
+
+            fragment.lifecycleScope.launch(Dispatchers.Main) {
+                typeFace = if (issueOperations?.isWeekend == true) {
+                    fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                } else {
+                    fragment.defaultTypeface
+                }
+            }
         }
     }
 
@@ -96,14 +107,6 @@ class SectionListAdapter(
         // create a new view
         val textView = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
-        CoroutineScope(Dispatchers.Main).launch {
-            textView.typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getInstance(fragment.context?.applicationContext)
-                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else {
-                fragment.defaultTypeface
-            }
-        }
         return SectionListAdapterViewHolder(
             textView
         )
@@ -112,8 +115,8 @@ class SectionListAdapter(
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
         val sectionStub = sectionList[position]
         sectionStub.let {
-
             holder.textView.apply {
+                typeface = this@SectionListAdapter.typeFace
                 text = sectionStub.title
                 setOnClickListener {
                     fragment.getMainView()?.apply {
@@ -147,15 +150,8 @@ class SectionListAdapter(
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
+        holder.textView.typeface = typeFace
         super.onViewRecycled(holder)
-        CoroutineScope(Dispatchers.Main).launch {
-            holder.textView.typeface = if (issueOperations?.isWeekend == true) {
-                FontHelper.getInstance(fragment.context?.applicationContext)
-                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else {
-                fragment.defaultTypeface
-            }
-        }
     }
 
     override fun getItemCount() = sectionList.size
