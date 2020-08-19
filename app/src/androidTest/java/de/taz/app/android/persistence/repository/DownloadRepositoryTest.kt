@@ -72,5 +72,5 @@ class DownloadRepositoryTest {
 
 }
 
-private val download = Download("http://example.com/", fileEntryTest, DownloadStatus.started, UUID.randomUUID())
+private val download = Download("http://example.com/", fileEntryTest, DownloadStatus.started)
 private val download2 = Download("http://example.com", fileEntryTest2, DownloadStatus.done)
