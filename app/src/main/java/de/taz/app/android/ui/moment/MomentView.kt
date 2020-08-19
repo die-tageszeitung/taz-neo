@@ -50,8 +50,13 @@ class MomentView @JvmOverloads constructor(
 
     private var displayJob: Job? = null
 
+    private var momentElevation: Float? = null
+
     init {
         LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
+        if (momentElevation == null) {
+            momentElevation = fragment_moment_image.elevation
+        }
 
         attrs?.let {
             val styledAttributes =
@@ -169,8 +174,8 @@ class MomentView @JvmOverloads constructor(
 
     private fun hideBitmap() {
         fragment_moment_image.apply {
-            visibility = View.INVISIBLE
-            setImageResource(android.R.color.transparent)
+            alpha = 0f
+            setImageDrawable(null)
         }
     }
 
@@ -185,12 +190,14 @@ class MomentView @JvmOverloads constructor(
     private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
         fragment_moment_image.apply {
             setImageBitmap(bitmap)
-            visibility = View.VISIBLE
+            animate().alpha(1f).duration = 100
+            momentElevation?.let { fragment_moment_image.elevation = it }
         }
         hideProgressBar()
     }
 
     private fun showProgressBar() {
+        fragment_moment_image.elevation = 0f
         fragment_moment_image_progressbar.visibility = View.VISIBLE
     }
 
