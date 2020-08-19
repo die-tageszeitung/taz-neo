@@ -30,6 +30,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -71,11 +72,11 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
-    private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
     private val currentDownloads = AtomicInteger(0)
+    private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
-    private val tagJobMap: MutableMap<String, MutableList<Job>> = mutableMapOf()
+    private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
