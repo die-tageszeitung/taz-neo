@@ -351,7 +351,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     fun delete(issue: Issue) {
         appDatabase.runInTransaction<Void> {
             // delete moment
-            momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
+            momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
             // delete imprint
             issue.imprint?.let { imprint ->
