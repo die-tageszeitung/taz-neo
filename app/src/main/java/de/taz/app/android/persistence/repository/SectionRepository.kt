@@ -94,11 +94,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionArticleJoinDao().getSectionStubForArticleFileName(articleFileName)
     }
 
-    @Throws(NotFoundException::class)
-    fun getSectionForArticle(articleFileName: String): Section? {
-        return getSectionStubForArticle(articleFileName)?.let { sectionStubToSection(it) }
-    }
-
     fun getNextSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
@@ -120,16 +115,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun getSectionsForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ) = getSectionStubsForIssue(
-        issueFeedName,
-        issueDate,
-        issueStatus
-    ).map { sectionStubToSection(it) }
-
     fun getSectionStubsForIssue(
         issueFeedName: String,
         issueDate: String,
@@ -140,51 +125,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun getSectionStubsForIssue(issueOperations: IssueOperations) =
-        getSectionStubsForIssue(
-            issueOperations.feedName,
-            issueOperations.date,
-            issueOperations.status
-        )
-
-    fun getSectionStubsForIssueOperations(issueOperations: IssueOperations) =
-        getSectionStubsForIssue(
-            issueOperations.feedName, issueOperations.date, issueOperations.status
-        )
-
-    fun getAllSectionStubsForSectionName(sectionName: String): List<SectionStub> {
-        return appDatabase.sectionDao().getAllSectionStubsForSectionName(sectionName)
-    }
-
-    fun getAllSectionsForSectionName(sectionFileName: String) =
-        getAllSectionStubsForSectionName(sectionFileName).map { sectionStubToSection(it) }
-
-    @Throws(NotFoundException::class)
-    fun getNextSection(sectionFileName: String): Section? =
-        getNextSectionStub(sectionFileName)?.let { sectionStubToSection(it) }
-
-    @Throws(NotFoundException::class)
-    fun getNextSection(section: SectionOperations): Section? =
-        getNextSection(section.key)
-
     fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
     }
 
-    @Throws(NotFoundException::class)
-    fun getPreviousSection(sectionFileName: String): Section? =
-        getPreviousSectionStub(sectionFileName)?.let { sectionStubToSection(it) }
-
-    @Throws(NotFoundException::class)
-    fun getPreviousSection(section: SectionOperations): Section? =
-        getPreviousSection(section.key)
-
     fun imagesForSectionStub(sectionFileName: String): List<Image> {
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
-    }
-
-    fun imageNamesForSectionStub(sectionFileName: String): List<String> {
-        return appDatabase.sectionImageJoinDao().getImageNamesForSection(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
@@ -246,7 +192,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         section.imageList.forEach {
             try {
                 imageRepository.delete(it)
-                log.debug("deleted FileEntry of image ${it.name}")
             } catch (e: SQLiteConstraintException) {
                 log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")
                 // do not delete still used by (presumably bookmarked) article

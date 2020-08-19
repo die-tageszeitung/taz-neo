@@ -56,16 +56,8 @@ class DownloadRepository private constructor(applicationContext: Context) :
         return appDatabase.downloadDao().get(fileName)
     }
 
-    fun getStubLiveData(fileName: String): LiveData<DownloadStub?> {
-        return appDatabase.downloadDao().getLiveData(fileName)
-    }
-
     fun getStub(fileNames: List<String>): List<DownloadStub?> {
         return appDatabase.downloadDao().get(fileNames)
-    }
-
-    fun getStubLiveData(fileNames: List<String>): List<LiveData<DownloadStub?>> {
-        return fileNames.map { appDatabase.downloadDao().getLiveData(it) }
     }
 
     @Throws(NotFoundException::class)
@@ -175,22 +167,6 @@ class DownloadRepository private constructor(applicationContext: Context) :
             }
         }
 
-        return mediatorLiveData
-    }
-
-    fun isDownloadingOrDownloadedLiveData(fileNames: List<String>): LiveData<Boolean> {
-        val downloadLiveDataList = getStubLiveData(fileNames)
-
-        val mediatorLiveData = MediatorLiveData<Boolean>()
-        downloadLiveDataList.forEach {
-            mediatorLiveData.addSource(Transformations.distinctUntilChanged(it)) {
-                mediatorLiveData.postValue(
-                    downloadLiveDataList.fold(true) { acc: Boolean, liveData: LiveData<DownloadStub?> ->
-                        acc && liveData.value != null
-                    }
-                )
-            }
-        }
         return mediatorLiveData
     }
 
