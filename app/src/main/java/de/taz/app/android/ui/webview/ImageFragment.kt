@@ -8,6 +8,7 @@ import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.runIfNotNull
@@ -56,6 +57,11 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                 useWideViewPort = true
                 loadWithOverviewMode = true
                 domStorageEnabled = true
+            }
+            context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
+                setBackgroundColor(
+                    it
+                )
             }
         }
 
