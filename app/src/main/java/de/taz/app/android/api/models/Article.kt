@@ -71,7 +71,7 @@ data class Article(
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ArticleRepository.getInstance().apply {
             getStub(this@Article.key)?.let {
-                update(it.copy(downloadedStatus = downloadedStatus))
+                update(it.copy(downloadedStatus = downloadStatus))
             }
         }
     }
