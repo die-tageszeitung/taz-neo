@@ -49,6 +49,7 @@ class MomentView @JvmOverloads constructor(
     private var shouldNotShowDownloadIcon: Boolean = false
 
     private var displayJob: Job? = null
+    private var downloadJob: Job? = null
 
     private var momentElevation: Float? = null
 
@@ -90,6 +91,13 @@ class MomentView @JvmOverloads constructor(
         hideBitmap()
         hideDownloadIcon()
         showProgressBar()
+
+        resetDownloadJob()
+    }
+
+    private fun resetDownloadJob() {
+        downloadJob?.cancel()
+        downloadJob = null
     }
 
     fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
@@ -272,7 +280,7 @@ class MomentView @JvmOverloads constructor(
                 BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
             } else {
                 log.error("imgFile of $moment does not exist")
-                CoroutineScope(Dispatchers.IO).launch {
+                downloadJob = CoroutineScope(Dispatchers.IO).launch {
                     moment.deleteFiles()
                     moment.download(context?.applicationContext).join()
                     showMomentImage(moment)
