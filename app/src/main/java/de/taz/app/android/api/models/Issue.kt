@@ -133,6 +133,12 @@ data class Issue(
             }
         }
 
+    suspend fun delete(applicationContext: Context? = null) = withContext(Dispatchers.IO) {
+        DownloadService.getInstance(applicationContext).cancelDownloads(tag)
+        deleteFiles()
+        IssueRepository.getInstance(applicationContext).delete(this@Issue)
+    }
+
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         IssueRepository.getInstance().update(
             IssueStub(this).copy(downloadedStatus = downloadStatus)

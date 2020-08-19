@@ -202,9 +202,12 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
+        val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")
-            IssueRepository.getInstance(applicationContext).deletePublicIssues()
+            issueRepository.deletePublicIssues()
+        } else {
+            issueRepository.deleteNotDownloadedRegularIssues()
         }
     }
 
