@@ -46,7 +46,11 @@ data class FileEntry(
     )
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        FileEntryRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
+        FileEntryRepository.getInstance().apply {
+            get(this@FileEntry.name)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {

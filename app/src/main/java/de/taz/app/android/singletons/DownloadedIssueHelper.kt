@@ -8,6 +8,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
@@ -24,6 +25,8 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
         PREFERENCES_GENERAL, Context.MODE_PRIVATE
     )
 
+    private var downloadedIssueBoolean = AtomicBoolean(false)
+
     private val storedIssueNumberLiveData =
         SharedPreferenceStringLiveData(
             generalSettings,
@@ -38,17 +41,16 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
     }
 
     private fun ensureIssueCount() {
-        CoroutineScope(Dispatchers.IO).launch {
-            var downloadedIssueCount = downloadIssueNumberLiveData.value?.size ?: 0
-            val storedIssuePreference = storedIssueNumberLiveData.value?.toInt()
-                ?: SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
-
-            while (downloadedIssueCount > storedIssuePreference) {
-                issueRepository.getEarliestDownloadedIssue()?.let {
-                    it.deleteFiles()
-                    downloadedIssueCount--
+        if (!downloadedIssueBoolean.getAndSet(true)) {
+            CoroutineScope(Dispatchers.IO).launch {
+                while (downloadIssueNumberLiveData.value?.size ?: 0 > getStoredIssuesNumber()) {
+                    issueRepository.getEarliestDownloadedIssue()?.deleteFiles()
                 }
+                downloadedIssueBoolean.set(false)
             }
         }
     }
+
+    private fun getStoredIssuesNumber(): Int = storedIssueNumberLiveData.value?.toInt()
+        ?: SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 }
