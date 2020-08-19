@@ -9,8 +9,8 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.*
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
@@ -64,76 +64,57 @@ data class ResourceInfo(
 
         private val log by Log
 
-        private val updating = AtomicBoolean(false)
-        private var deferredResourceInfo: Deferred<ResourceInfo?>? = null
-
         suspend fun get(applicationContext: Context?): ResourceInfo? {
             return ResourceInfoRepository.getInstance(applicationContext).get() ?: update(
                 applicationContext
             )
         }
 
-        private suspend fun updateAsync(applicationContext: Context?): Deferred<ResourceInfo?> =
-            if (!updating.getAndSet(true)) {
-                CoroutineScope(Dispatchers.IO).async {
-                    log.info("ResourceInfo.update called")
-                    val apiService = ApiService.getInstance(applicationContext)
-                    val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-                    val resourceInfoRepository =
-                        ResourceInfoRepository.getInstance(applicationContext)
+        suspend fun update(applicationContext: Context?): ResourceInfo? = withContext(Dispatchers.IO) {
+            log.info("ResourceInfo.update called")
+            val apiService = ApiService.getInstance(applicationContext)
+            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+            val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-                    val fromServer = apiService.getResourceInfoAsync().await()
-                    val local = resourceInfoRepository.get()
+            val fromServer = apiService.getResourceInfoAsync().await()
+            val local = resourceInfoRepository.get()
 
-                    return@async fromServer?.let {
-                        if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
-                                applicationContext
-                            )
-                        ) {
-                            if (local != null) {
-                                val fromServerResourceListNames =
-                                    fromServer.resourceList.map { it.name }
-                                // delete unused files
-                                local.resourceList.filter { local ->
-                                    local.name !in fromServerResourceListNames
-                                }.forEach {
-                                    log.info("deleting ${it.name}")
-                                    it.deleteFile()
-                                }
+            fromServer?.let {
+                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
+                        applicationContext
+                    )
+                ) {
+                    if (local != null) {
+                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
+                        // delete unused files
+                        local.resourceList.filter { local ->
+                            local.name !in fromServerResourceListNames
+                        }.forEach {
+                            log.info("deleting ${it.name}")
+                            it.deleteFile()
+                        }
 
-                                // delete modified files
-                                fromServer.resourceList.forEach { newFileEntry ->
-                                    fileEntryRepository.get(newFileEntry.name)
-                                        ?.let { oldFileEntry ->
-                                            if (oldFileEntry != newFileEntry) {
-                                                oldFileEntry.deleteFile()
-                                            }
-                                        }
+                        // delete modified files
+                        fromServer.resourceList.forEach { newFileEntry ->
+                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
+                                if (oldFileEntry != newFileEntry) {
+                                    oldFileEntry.deleteFile()
                                 }
                             }
-
-                            resourceInfoRepository.save(fromServer)
-
-                            // ensure resources are downloaded
-                            DownloadService.getInstance(applicationContext).download(fromServer)
-                            local?.let { log.debug("Initialized ResourceInfo") }
-                                ?: log.debug("Updated ResourceInfo")
                         }
-                        resourceInfoRepository.deleteAllButNewest()
-                        fromServer
                     }
-                }.also {
-                    deferredResourceInfo = it
-                    updating.set(false)
-                }
-            } else {
-                while (deferredResourceInfo == null) {
-                }
-                deferredResourceInfo!!
-            }
 
-        suspend fun update(applicationContext: Context?): ResourceInfo? =
-            withContext(Dispatchers.IO) { updateAsync(applicationContext).await() }
+                    resourceInfoRepository.save(fromServer)
+
+                    // ensure resources are downloaded
+                    DownloadService.getInstance(applicationContext).download(fromServer)
+                    local?.let { log.debug("Initialized ResourceInfo") }
+                        ?: log.debug("Updated ResourceInfo")
+                }
+                resourceInfoRepository.deleteAllButNewest()
+                fromServer
+            }
+        }
 
     }
 }
