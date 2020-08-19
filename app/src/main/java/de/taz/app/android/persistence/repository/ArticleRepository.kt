@@ -286,10 +286,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     appDatabase.articleImageJoinDao().delete(
                         ArticleImageJoin(articleFileName, image.name, index)
                     )
-                    log.debug("deleted ArticleImageJoin $articleFileName - ${image.name} - $index")
                     try {
                         imageRepository.delete(image)
-                        log.debug("deleted FileEntry of image ${image.name}")
                     } catch (e: SQLiteConstraintException) {
                         log.warn("Image ${image.name} not deleted")
                         // do not delete - still used by section/otherIssue/bookmarked article
