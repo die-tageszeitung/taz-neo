@@ -227,7 +227,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome(skipToActualIssue: Boolean = false) {
+    fun showHome(skipToCurrentIssue: Boolean = false) {
         supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         val homeFragment =
             supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
@@ -237,7 +237,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-            if (skipToActualIssue) coverFlowFragment?.skipToEnd()
+            if (skipToCurrentIssue) coverFlowFragment?.skipToEnd()
         }
 
     }
@@ -408,7 +408,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
-                        showHome()
+                        showHome(true)
                     }
                 }
             }
