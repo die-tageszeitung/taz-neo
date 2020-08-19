@@ -47,7 +47,9 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         CoroutineScope(Dispatchers.Main).launch {
                             authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
-                                    issueRepository.save(apiService.getLastIssuesAsync().await())
+                                    issueRepository.saveIfDoNotExist(
+                                        apiService.getLastIssuesAsync().await()
+                                    )
                                 }
                             }
                         }
