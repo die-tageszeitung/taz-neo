@@ -176,9 +176,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
 
         section.articleList.forEach { article ->
-            if (!article.bookmarked) {
-                articleRepository.deleteArticle(article)
-            }
+            articleRepository.deleteArticle(article)
         }
 
         fileEntryRepository.delete(section.sectionHtml)
@@ -193,7 +191,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             try {
                 imageRepository.delete(it)
             } catch (e: SQLiteConstraintException) {
-                log.warn("FileEntry $it not deleted, maybe still used by a bookmarked article?")
+                log.warn("FileEntry ${it.name} not deleted, maybe still used by a bookmarked article?")
                 // do not delete still used by (presumably bookmarked) article
             }
         }
@@ -208,7 +206,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         try {
             imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
-            log.warn("NavButton ${section.navButton} not deleted - probably still used by another section")
+            log.warn("NavButton ${section.navButton.name} not deleted - probably still used by another section")
         }
 
         appDatabase.sectionDao().delete(SectionStub(section))
