@@ -206,7 +206,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         try {
             imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
-            log.warn("NavButton ${section.navButton.name} not deleted - probably still used by another section")
+            // do not delete still used
         }
 
         appDatabase.sectionDao().delete(SectionStub(section))
