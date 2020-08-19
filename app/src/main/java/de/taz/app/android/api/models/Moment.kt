@@ -79,7 +79,11 @@ data class Moment(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        MomentRepository.getInstance().update(MomentStub(this).copy(downloadedStatus = downloadStatus))
+        MomentRepository.getInstance().apply  {
+            getStub(this@Moment.issueFeedName, this@Moment.issueDate, this@Moment.issueStatus)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {

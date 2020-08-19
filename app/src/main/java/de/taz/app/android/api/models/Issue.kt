@@ -90,8 +90,6 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        IssueRepository.getInstance().resetDownloadDate(this)
-        this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         val allFiles = getAllFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
@@ -103,6 +101,8 @@ data class Issue(
         allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach {
             it.deleteFile()
         }
+        this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
+        IssueRepository.getInstance().resetDownloadDate(this)
     }
 
     /**
@@ -140,15 +140,19 @@ data class Issue(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(
-            IssueStub(this).copy(downloadedStatus = downloadStatus)
-        )
+        IssueRepository.getInstance().apply {
+            getStub(this@Issue)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
     }
 
     fun setDownloadStatusIncludingChildren(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().update(
-            IssueStub(this).copy(downloadedStatus = downloadStatus)
-        )
+        IssueRepository.getInstance().apply {
+            getStub(this@Issue)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
         sectionList.forEach { section ->
             section.setDownloadStatus(downloadStatus)
             section.articleList.forEach { article ->

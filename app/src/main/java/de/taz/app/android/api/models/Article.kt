@@ -69,9 +69,11 @@ data class Article(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ArticleRepository.getInstance().update(
-            ArticleStub(this).copy(downloadedStatus = downloadedStatus)
-        )
+        ArticleRepository.getInstance().apply {
+            getStub(this@Article.key)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<Article?> {
