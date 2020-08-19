@@ -116,23 +116,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStubList
     }
 
-    fun getIssueArticleStubListByArticleName(articleName: String): List<ArticleStub> {
-        var articleStubList = appDatabase.articleDao().getIssueArticleListByArticle(articleName)
-        // if it is the imprint we want to return a list of it
-        if (articleStubList.isEmpty()) {
-            articleStubList = getStub(articleName)?.let {
-                listOf(it)
-            } ?: emptyList()
-        }
-        return articleStubList
-    }
-
     fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
-    fun nextArticleStub(article: ArticleOperations): ArticleStub? = nextArticleStub(article.key)
 
     fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
@@ -140,19 +128,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 articleName
             )
     }
-
-    fun previousArticleStub(article: ArticleOperations): ArticleStub? =
-        previousArticleStub(article.key)
-
-    fun nextArticle(articleName: String): Article? =
-        nextArticleStub(articleName)?.let { articleStubToArticle(it) }
-
-    fun nextArticle(article: ArticleOperations): Article? = nextArticle(article.key)
-
-    fun previousArticle(articleName: String): Article? =
-        previousArticleStub(articleName)?.let { articleStubToArticle(it) }
-
-    fun previousArticle(article: ArticleOperations): Article? = previousArticle(article.key)
 
     fun getImagesForArticle(articleFileName: String): List<Image> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
@@ -213,16 +188,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = true))
     }
 
-    @Throws(NotFoundException::class)
-    fun bookmarkArticle(articleName: String) {
-        bookmarkArticle(getStubOrThrow(articleName))
-    }
-
-    @Throws(NotFoundException::class)
-    fun debookmarkArticle(articleName: String) {
-        debookmarkArticle(getStubOrThrow(articleName))
-    }
-
     fun debookmarkArticle(article: Article) {
         debookmarkArticle(ArticleStub(article))
     }
@@ -243,16 +208,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesList()
     }
 
-    fun getBookmarkedArticlesList(): List<Article> {
-        return getBookmarkedArticleStubList().map {
-            articleStubToArticle(it)
-        }
-    }
-
-    fun isBookmarked(article: Article): Boolean {
-        return article.bookmarked
-    }
-
     fun isBookmarked(articleStub: ArticleStub): Boolean {
         return articleStub.bookmarked
     }
@@ -264,8 +219,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
-
-    fun getIndexInSection(article: ArticleOperations): Int? = getIndexInSection(article.key)
 
     fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
         saveScrollingPosition(ArticleStub(article), percentage, position)

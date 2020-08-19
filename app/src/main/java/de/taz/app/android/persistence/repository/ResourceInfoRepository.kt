@@ -47,14 +47,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @Throws(NotFoundException::class)
-    fun getWithoutFilesOrThrow(): ResourceInfoStub {
-        getWithoutFiles()?.let {
-            return it
-        }
-        throw NotFoundException()
-    }
-
     fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
     }
