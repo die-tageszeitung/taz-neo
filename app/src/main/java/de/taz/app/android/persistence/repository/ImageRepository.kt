@@ -24,10 +24,6 @@ class ImageRepository private constructor(
         images.forEach { save(it) }
     }
 
-    fun saveStub(imageStub: ImageStub) {
-        appDatabase.imageStubDao().insertOrReplace(imageStub)
-    }
-
     fun get(imageName: String): Image? {
         return appDatabase.imageDao().getByName(imageName)
     }
@@ -36,20 +32,12 @@ class ImageRepository private constructor(
         return appDatabase.imageDao().getLiveDataByName(imageName)
     }
 
-    fun returnExisting(imageNames: List<String>): List<String> {
-        return appDatabase.imageDao().getNames(imageNames)
-    }
-
     fun getStub(imageName: String): ImageStub? {
         return appDatabase.imageStubDao().getByName(imageName)
     }
 
     fun get(imageNames: List<String>): List<Image> {
         return appDatabase.imageDao().getByNames(imageNames)
-    }
-
-    fun getStubs(imageNames: List<String>): List<ImageStub> {
-        return appDatabase.imageStubDao().getByNames(imageNames)
     }
 
     @Throws(NotFoundException::class)
@@ -63,9 +51,10 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        val fileEntry = FileEntry(image)
-        DownloadRepository.getInstance().delete(fileEntry.name)
-        appDatabase.fileEntryDao().delete(fileEntry)
+        DownloadRepository.getInstance().delete(image.name)
+        FileEntryRepository.getInstance().apply {
+            get(image.name)?.let { delete(it) }
+        }
         appDatabase.imageStubDao().delete(ImageStub(image))
     }
 
