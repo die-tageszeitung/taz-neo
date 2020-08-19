@@ -349,6 +349,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
+        log.info("deleting issue ${issue.tag}")
         // delete moment
         momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
