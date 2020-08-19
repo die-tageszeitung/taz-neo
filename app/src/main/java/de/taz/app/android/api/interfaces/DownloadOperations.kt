@@ -7,7 +7,6 @@ interface DownloadOperations {
 
     val fileName: String
     val baseUrl: String
-    var workerManagerId: UUID?
     var status: DownloadStatus
 
     val url: String
