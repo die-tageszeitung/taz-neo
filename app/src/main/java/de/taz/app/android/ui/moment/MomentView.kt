@@ -200,7 +200,6 @@ class MomentView @JvmOverloads constructor(
 
     private fun setDimension(dimensionString: String) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
-            log.info("setting dimension to $dimensionString")
             fragment_moment_image.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
                 requestLayout()
