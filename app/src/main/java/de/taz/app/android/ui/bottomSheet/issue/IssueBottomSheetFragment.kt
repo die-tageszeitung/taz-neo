@@ -130,7 +130,10 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    issueRepository?.getIssue(issueStub)?.deleteAndUpdateMetaData()?.let { newIssue ->
+                    val issue = issueRepository?.getIssue(
+                        issueStub
+                    )
+                    issue?.deleteAndUpdateMetaData(context?.applicationContext)?.let { newIssue ->
                         (activity as? MainActivity)?.setCoverFlowItem(newIssue)
                     }
                     withContext(Dispatchers.Main) {
