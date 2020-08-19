@@ -41,10 +41,6 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getLiveDataByName(fileEntryName)
     }
 
-    fun getFileNamesContaining(filterString: String): List<String> {
-        return appDatabase.fileEntryDao().getNamesContaining(filterString)
-    }
-
     fun get(fileEntryNames: List<String>): List<FileEntry> {
         return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }

@@ -23,6 +23,10 @@
             android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.WebViewActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.DataPolicyActivity"
             android:noHistory="true"
             android:screenOrientation="portrait" />

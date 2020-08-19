@@ -28,7 +28,6 @@ import de.taz.app.android.ui.WelcomeActivity
 import io.sentry.Sentry
 import io.sentry.event.UserBuilder
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.util.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
@@ -203,9 +202,12 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun deletePublicIssuesIfLoggedIn() {
+        val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")
-            IssueRepository.getInstance(applicationContext).deletePublicIssues()
+            issueRepository.deletePublicIssues()
+        } else {
+            issueRepository.deleteNotDownloadedRegularIssues()
         }
     }
 

@@ -5,14 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
@@ -20,7 +21,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.settings.support.ErrorReportFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
@@ -74,6 +74,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     activity?.startActivity(
                         Intent(activity, WelcomeActivity::class.java)
                     )
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_terms)
+                .setOnClickListener {
+                    val intent = Intent(activity, WebViewActivity::class.java)
+                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
+                    activity?.startActivity(intent)
+                }
+
+            findViewById<TextView>(R.id.fragment_settings_revocation)
+                .setOnClickListener {
+                    val intent = Intent(activity, WebViewActivity::class.java)
+                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+                    activity?.startActivity(intent)
                 }
 
             findViewById<View>(R.id.settings_text_decrease_wrapper).setOnClickListener {
@@ -185,18 +199,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun showNightMode(nightMode: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
     }
 
     private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
-        view?.findViewById<Switch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
             isEnabled = downloadsEnabled
         }
     }

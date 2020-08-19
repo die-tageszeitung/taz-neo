@@ -111,24 +111,37 @@ class MomentRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun deleteMoment(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        appDatabase.issueImageMomentJoinDao().delete(
-            moment.imageList.mapIndexed { index, fileEntry ->
-                IssueImageMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
+    fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+        get(issueFeedName, issueDate, issueStatus)?.let { moment ->
+            appDatabase.issueImageMomentJoinDao().delete(
+                moment.imageList.mapIndexed { index, fileEntry ->
+                    IssueImageMomentJoin(
+                        issueFeedName,
+                        issueDate,
+                        issueStatus,
+                        fileEntry.name,
+                        index
+                    )
+                }
+            )
+            appDatabase.issueCreditMomentJoinDao().delete(
+                moment.creditList.mapIndexed { index, fileEntry ->
+                    IssueCreditMomentJoin(
+                        issueFeedName,
+                        issueDate,
+                        issueStatus,
+                        fileEntry.name,
+                        index
+                    )
+                }
+            )
+            try {
+                imageRepository.delete(moment.imageList)
+            } catch (e: SQLiteConstraintException) {
+                log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
+                // do not delete is used by another issue
             }
-        )
-        appDatabase.issueCreditMomentJoinDao().delete(
-            moment.creditList.mapIndexed { index, fileEntry ->
-                IssueCreditMomentJoin(issueFeedName, issueDate, issueStatus, fileEntry.name, index)
-            }
-        )
-        try {
-            imageRepository.delete(moment.imageList)
-            log.debug("deleted FileEntry of image ${moment.imageList}")
-        } catch (e: SQLiteConstraintException) {
-            log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
-            // do not delete is used by another issue
-        }
-        appDatabase.momentDao().delete(MomentStub(moment))
+            appDatabase.momentDao().delete(MomentStub(moment))
+        } ?: log.warn("moment for $issueFeedName $issueDate $issueStatus not deleted")
     }
 }

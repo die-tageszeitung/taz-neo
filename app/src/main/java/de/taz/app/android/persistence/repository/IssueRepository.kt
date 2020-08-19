@@ -7,20 +7,22 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Mockable
-class IssueRepository private constructor(applicationContext: Context) :
+class IssueRepository private constructor(val applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -30,12 +32,15 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
 
+    private var deletePublicIssuesBoolean = AtomicBoolean(false)
+
     fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
     }
 
     fun save(issue: Issue) {
-        appDatabase.runInTransaction {
+        log.info("saving issue: ${issue.tag}")
+        appDatabase.runInTransaction<Void> {
             appDatabase.issueDao().insertOrReplace(
                 IssueStub(issue)
             )
@@ -86,6 +91,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                         )
                     })
             }
+            null
         }
     }
 
@@ -293,6 +299,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.isWeekend,
             sections,
             pageList,
+            issueStub.moTime,
             issueStub.dateDownload,
             issueStub.downloadedStatus
         )
@@ -342,8 +349,9 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
+        log.info("deleting issue ${issue.tag}")
         // delete moment
-        momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
+        momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
         // delete imprint
         issue.imprint?.let { imprint ->
@@ -411,25 +419,32 @@ class IssueRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun deletePublicIssues() = CoroutineScope(Dispatchers.IO).launch {
-        getIssuesListByStatus(IssueStatus.public).forEach {
-            delete(issueStubToIssue(it))
+    fun deletePublicIssues(): Job {
+        deletePublicIssuesBoolean.set(true)
+        return CoroutineScope(Dispatchers.IO).launch {
+            val publicIssues = getIssuesListByStatus(IssueStatus.public)
+            log.info("deleting ${publicIssues.size} public issues")
+            publicIssues.forEach {
+                if (!deletePublicIssuesBoolean.get()) {
+                    return@launch
+                }
+                DownloadService.getInstance().cancelDownloads(it.tag)
+                val issue = issueStubToIssue(it)
+                issue.deleteFiles()
+                delete(issue)
+            }
         }
     }
 
-    fun deleteNotDownloadedRegularIssues() = CoroutineScope(Dispatchers.IO).launch {
-        getIssuesListByStatus(IssueStatus.regular).forEach { issueStub ->
-            if (issueStub.downloadedStatus != DownloadStatus.done) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance().getIssueByFeedAndDateAsync(
-                        issueStub.feedName, issueStub.date
-                    ).await()?.let {
-                        save(it)
-                    }
-
-                    launch {
-                        getIssue(issueStub).delete()
-                    }
+    fun deleteNotDownloadedRegularIssues(): Job {
+        deletePublicIssuesBoolean.set(false)
+        return CoroutineScope(Dispatchers.IO).launch {
+            getIssuesListByStatus(IssueStatus.regular).forEach { issueStub ->
+                if (deletePublicIssuesBoolean.get()) {
+                    return@launch
+                }
+                if (issueStub.downloadedStatus != DownloadStatus.done) {
+                    getIssue(issueStub).delete(applicationContext)
                 }
             }
         }

@@ -9,7 +9,8 @@
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#262626</color>
     <color name="black">#000</color>
-    <color name="antifaGrey">#161616</color>
+    <color name="homeBackground">#E3E3E3</color>
+    <color name="navigationBar">@color/white</color>
 
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -27,14 +28,13 @@
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/tazRed</color>
-    <color name="drawer_sections_item_highlighted">@color/black</color>
-    <color name="drawer_sections_imprint">@color/lightGrey</color>
+    <color name="drawer_sections_date">@color/textColor</color>
+    <color name="drawer_sections_item_highlighted">@color/lightGrey</color>
     <color name="navigation_drawer_header_title">@color/tazRed</color>
 
     <color name="navigation_drawer_icon">@color/lightGrey</color>
     <color name="navigation_drawer_icon_selected">@color/tazRed</color>
 
-    <color name="navigation_bottom_background">@color/darkGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="navigation_bottom_item_active">@color/tazRed</color>
 
