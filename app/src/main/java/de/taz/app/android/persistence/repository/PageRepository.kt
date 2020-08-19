@@ -42,6 +42,10 @@ class PageRepository private constructor(applicationContext: Context) :
         return appDatabase.pageDao().get(fileName)
     }
 
+    fun getStub(fileName: String): PageStub? {
+        return appDatabase.pageDao().get(fileName)
+    }
+
     @Throws(NotFoundException::class)
     fun getOrThrow(fileName: String): Page {
         appDatabase.pageDao().get(fileName)?.let {
@@ -79,21 +83,17 @@ class PageRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(page: Page) {
-        appDatabase.pageDao().delete(
-            PageStub(
-                page.pagePdf.name,
-                page.title,
-                page.pagina,
-                page.type,
-                page.frameList,
-                page.downloadedStatus
-            )
-        )
-        fileEntryRepository.delete(page.pagePdf)
+        getStub(page.pagePdf.name)?.let {
+            appDatabase.pageDao().delete(it)
+        }
+        fileEntryRepository.delete(page.pagePdf.name)
     }
 
     fun delete(pages: List<Page>) {
-        pages.map { delete(it) }
+        appDatabase.pageDao().delete(
+            pages.mapNotNull { getStub(it.pagePdf.name) }
+        )
+        fileEntryRepository.delete(pages.map { it.pagePdf })
     }
 
     fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)

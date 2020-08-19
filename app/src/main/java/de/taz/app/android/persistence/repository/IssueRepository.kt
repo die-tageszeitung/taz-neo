@@ -16,8 +16,10 @@ import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Mockable
 class IssueRepository private constructor(applicationContext: Context) :
@@ -29,6 +31,8 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+
+    private var deletePublicIssuesBoolean = AtomicBoolean(false)
 
     fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
@@ -345,93 +349,103 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun delete(issue: Issue) {
-        appDatabase.runInTransaction<Void> {
-            // delete moment
-            momentRepository.deleteMoment(issue.moment, issue.feedName, issue.date, issue.status)
+        log.info("deleting issue ${issue.tag}")
+        // delete moment
+        momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
-            // delete imprint
-            issue.imprint?.let { imprint ->
-                appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        imprint.articleHtml.name
-                    )
+        // delete imprint
+        issue.imprint?.let { imprint ->
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    imprint.articleHtml.name
                 )
-                try {
-                    articleRepository.deleteArticle(imprint)
-                } catch (e: SQLiteConstraintException) {
-                    // do not delete used by another issue
-                }
-            } ?: appDatabase.issueImprintJoinDao().getLeftOverImprintNameForIssue(
-                issue.feedName,
-                issue.date,
-                issue.status
-            )?.let {
-                log.warn("There is a left over imprint with no entry in article table. Will be deleted: $it")
-                appDatabase.issueImprintJoinDao().delete(
-                    IssueImprintJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        it
-                    )
+            )
+            try {
+                articleRepository.deleteArticle(imprint)
+            } catch (e: SQLiteConstraintException) {
+                // do not delete used by another issue
+            }
+        } ?: appDatabase.issueImprintJoinDao().getLeftOverImprintNameForIssue(
+            issue.feedName,
+            issue.date,
+            issue.status
+        )?.let {
+            log.warn("There is a left over imprint with no entry in article table. Will be deleted: $it")
+            appDatabase.issueImprintJoinDao().delete(
+                IssueImprintJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    it
+                )
+            )
+        }
+
+        // delete page relation
+        appDatabase.issuePageJoinDao().delete(
+            issue.pageList.mapIndexed { index, page ->
+                IssuePageJoin(
+                    issue.feedName,
+                    issue.date,
+                    issue.status,
+                    page.pagePdf.name,
+                    index
                 )
             }
+        )
+        // delete pages
+        pageRepository.delete(issue.pageList)
 
-            // delete page relation
-            appDatabase.issuePageJoinDao().delete(
-                issue.pageList.mapIndexed { index, page ->
-                    IssuePageJoin(
+        // delete sections
+        issue.sectionList.let { sectionList ->
+            appDatabase.issueSectionJoinDao()
+                .delete(sectionList.mapIndexed { index, it ->
+                    IssueSectionJoin(
                         issue.feedName,
                         issue.date,
                         issue.status,
-                        page.pagePdf.name,
+                        it.sectionHtml.name,
                         index
                     )
+                })
+            sectionList.forEach { sectionRepository.delete(it) }
+        }
+
+        appDatabase.issueDao().delete(
+            IssueStub(issue)
+        )
+    }
+
+    fun deletePublicIssues(): Job {
+        deletePublicIssuesBoolean.set(true)
+        return CoroutineScope(Dispatchers.IO).launch {
+            val publicIssues = getIssuesListByStatus(IssueStatus.public)
+            log.info("deleting ${publicIssues.size} public issues")
+            publicIssues.forEach {
+                if (!deletePublicIssuesBoolean.get()) {
+                    return@launch
                 }
-            )
-            // delete pages
-            pageRepository.delete(issue.pageList)
-
-            // delete sections
-            issue.sectionList.let { sectionList ->
-                appDatabase.issueSectionJoinDao()
-                    .delete(sectionList.mapIndexed { index, it ->
-                        IssueSectionJoin(
-                            issue.feedName,
-                            issue.date,
-                            issue.status,
-                            it.sectionHtml.name,
-                            index
-                        )
-                    })
-                sectionList.forEach { sectionRepository.delete(it) }
+                DownloadService.getInstance().cancelDownloads(it.tag)
+                val issue = issueStubToIssue(it)
+                issue.deleteFiles()
+                delete(issue)
             }
-
-            appDatabase.issueDao().delete(
-                IssueStub(issue)
-            )
-            null
         }
     }
 
-    fun deletePublicIssues() = CoroutineScope(Dispatchers.IO).launch {
-        val publicIssues = getIssuesListByStatus(IssueStatus.public)
-        log.info("deleting ${publicIssues.size} public issues")
-        publicIssues.forEach {
-            DownloadService.getInstance().cancelDownloads(it.tag)
-            val issue = issueStubToIssue(it)
-            issue.deleteFiles()
-            delete(issue)
-        }
-    }
-
-    fun deleteNotDownloadedRegularIssues() = CoroutineScope(Dispatchers.IO).launch {
-        getIssuesListByStatus(IssueStatus.regular).forEach { issueStub ->
-            if (issueStub.downloadedStatus != DownloadStatus.done) {
-                getIssue(issueStub).deleteAndUpdateMetaData()
+    fun deleteNotDownloadedRegularIssues(): Job {
+        deletePublicIssuesBoolean.set(false)
+        return CoroutineScope(Dispatchers.IO).launch {
+            getIssuesListByStatus(IssueStatus.regular).forEach { issueStub ->
+                if (deletePublicIssuesBoolean.get()) {
+                    return@launch
+                }
+                if (issueStub.downloadedStatus != DownloadStatus.done) {
+                    getIssue(issueStub).deleteAndUpdateMetaData()
+                }
             }
         }
     }
