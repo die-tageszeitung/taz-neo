@@ -16,7 +16,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -119,15 +118,13 @@ class MomentView @JvmOverloads constructor(
             moment?.apply {
                 download(context.applicationContext)
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData(context.applicationContext).observeDistinctUntil(
-                        lifecycleOwner = lifecycleOwner!!,
-                        observationCallback = { isDownloaded ->
-                            if (isDownloaded) {
-                                showMomentImage(moment)
-                            }
-                        },
-                        untilFunction = { isDownloaded -> isDownloaded }
-                    )
+                    isDownloadedLiveData(context.applicationContext).observeDistinct(
+                        lifecycleOwner!!
+                    ) { isDownloaded ->
+                        if (isDownloaded) {
+                            showMomentImage(moment)
+                        }
+                    }
                 }
             }
         }
