@@ -57,7 +57,7 @@ data class Image(
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         FileEntryRepository.getInstance().apply {
             get(this@Image.name)?.let {
-                update(it.copy(downloadedStatus = downloadedStatus))
+                update(it.copy(downloadedStatus = downloadStatus))
             }
         }
     }
