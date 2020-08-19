@@ -86,14 +86,14 @@ class PageRepository private constructor(applicationContext: Context) :
         getStub(page.pagePdf.name)?.let {
             appDatabase.pageDao().delete(it)
         }
-        fileEntryRepository.deleteByName(page.pagePdf.name)
+        fileEntryRepository.delete(page.pagePdf.name)
     }
 
     fun delete(pages: List<Page>) {
         appDatabase.pageDao().delete(
             pages.mapNotNull { getStub(it.pagePdf.name) }
         )
-        fileEntryRepository.deleteByNames(pages.map { it.pagePdf.name })
+        fileEntryRepository.delete(pages.map { it.pagePdf })
     }
 
     fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)
