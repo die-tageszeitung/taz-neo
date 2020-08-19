@@ -228,8 +228,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
         val articleStubLive = getStubOrThrow(articleStub.articleFileName)
         if (isBookmarked(articleStubLive)) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
-            appDatabase.articleDao()
-                .update(articleStubLive.copy(percentage = percentage, position = position))
+            appDatabase.articleDao().update(
+                articleStubLive.copy(percentage = percentage, position = position)
+            )
         }
 
     }
