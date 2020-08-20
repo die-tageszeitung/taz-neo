@@ -114,22 +114,26 @@ data class Issue(
      */
     suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
         withContext(Dispatchers.IO) {
-            val deferredIssue =
-                ApiService.getInstance(applicationContext).getIssueByFeedAndDateAsync(
-                    feedName, date
-                )
             DownloadService.getInstance(applicationContext).cancelDownloads(tag)
-            return@withContext deferredIssue.await()?.let {
-                val newMetaData = moTime != it.moTime || status != it.status
-                deleteFiles()
-                it.moment.download().join()
-                if (newMetaData) {
-                    IssueRepository.getInstance(applicationContext).delete(this@Issue)
-                    IssueRepository.getInstance(applicationContext).save(it)
-                    it
-                } else {
-                    null
+            deleteFiles()
+            try {
+                val issue =
+                    ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
+                        feedName, date
+                    )
+                issue?.let {
+                    val newMetaData = moTime != it.moTime || status != it.status
+                    it.moment.download().join()
+                    if (newMetaData) {
+                        IssueRepository.getInstance(applicationContext).delete(this@Issue)
+                        IssueRepository.getInstance(applicationContext).save(it)
+                        it
+                    } else {
+                        null
+                    }
                 }
+            } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+                null
             }
         }
 
