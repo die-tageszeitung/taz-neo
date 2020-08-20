@@ -37,6 +37,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private var feedRepository: FeedRepository? = null
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
+    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
 
     companion object {
         fun create(
@@ -55,6 +56,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         feedRepository = FeedRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -141,12 +143,12 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                             val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
                             selectedIssueStub?.let {
                                 showIssue(it)
-                            }
 
-                            toastHelper?.showToast("${getString(R.string.fragment_date_picker_selected_issue_toast)}: $date")
-                            context?.let {
-                                ToDownloadIssueHelper(it).startMissingDownloads(
-                                    date,
+                                toastHelper?.showToast(
+                                    "${getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
+                                )
+                                toDownloadIssueHelper?.startMissingDownloads(
+                                    it.date,
                                     lastDownloadedIssueStub.date
                                 )
                             }
