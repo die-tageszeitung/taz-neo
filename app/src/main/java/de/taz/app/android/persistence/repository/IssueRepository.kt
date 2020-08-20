@@ -239,7 +239,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getEarliestDownloadedIssueStub()?.let { issueStubToIssue(it) }
     }
 
-    fun getEarliestDownloadedIssueStub(): IssueStub? {
+    private fun getEarliestDownloadedIssueStub(): IssueStub? {
         return appDatabase.issueDao().getEarliestDownloaded()
     }
 
@@ -259,7 +259,9 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun setDownloadDate(issueStub: IssueStub, dateDownload: Date) {
-        update(issueStub.copy(dateDownload = dateDownload))
+        getStub(issueStub)?.let {
+            update(it.copy(dateDownload = dateDownload))
+        }
     }
 
     fun resetDownloadDate(issue: Issue) {
@@ -267,7 +269,9 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun resetDownloadDate(issueStub: IssueStub) {
-        update(issueStub.copy(dateDownload = null))
+        getStub(issueStub)?.let {
+            update(it.copy(dateDownload = null))
+        }
     }
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {

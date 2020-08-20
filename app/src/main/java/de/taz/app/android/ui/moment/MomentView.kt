@@ -16,7 +16,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -50,9 +49,15 @@ class MomentView @JvmOverloads constructor(
     private var shouldNotShowDownloadIcon: Boolean = false
 
     private var displayJob: Job? = null
+    private var downloadJob: Job? = null
+
+    private var momentElevation: Float? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
+        if (momentElevation == null) {
+            momentElevation = fragment_moment_image.elevation
+        }
 
         attrs?.let {
             val styledAttributes =
@@ -86,6 +91,13 @@ class MomentView @JvmOverloads constructor(
         hideBitmap()
         hideDownloadIcon()
         showProgressBar()
+
+        resetDownloadJob()
+    }
+
+    private fun resetDownloadJob() {
+        downloadJob?.cancel()
+        downloadJob = null
     }
 
     fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
@@ -119,15 +131,13 @@ class MomentView @JvmOverloads constructor(
             moment?.apply {
                 download(context.applicationContext)
                 withContext(Dispatchers.Main) {
-                    isDownloadedLiveData(context.applicationContext).observeDistinctUntil(
-                        lifecycleOwner = lifecycleOwner!!,
-                        observationCallback = { isDownloaded ->
-                            if (isDownloaded) {
-                                showMomentImage(moment)
-                            }
-                        },
-                        untilFunction = { isDownloaded -> isDownloaded }
-                    )
+                    isDownloadedLiveData(context.applicationContext).observeDistinct(
+                        lifecycleOwner!!
+                    ) { isDownloaded ->
+                        if (isDownloaded) {
+                            showMomentImage(moment)
+                        }
+                    }
                 }
             }
         }
@@ -172,8 +182,8 @@ class MomentView @JvmOverloads constructor(
 
     private fun hideBitmap() {
         fragment_moment_image.apply {
-            visibility = View.INVISIBLE
-            setImageResource(android.R.color.transparent)
+            alpha = 0f
+            setImageDrawable(null)
         }
     }
 
@@ -188,12 +198,14 @@ class MomentView @JvmOverloads constructor(
     private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
         fragment_moment_image.apply {
             setImageBitmap(bitmap)
-            visibility = View.VISIBLE
+            animate().alpha(1f).duration = 100
+            momentElevation?.let { fragment_moment_image.elevation = it }
         }
         hideProgressBar()
     }
 
     private fun showProgressBar() {
+        fragment_moment_image.elevation = 0f
         fragment_moment_image_progressbar.visibility = View.VISIBLE
     }
 
@@ -203,7 +215,6 @@ class MomentView @JvmOverloads constructor(
 
     private fun setDimension(dimensionString: String) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
-            log.info("setting dimension to $dimensionString")
             fragment_moment_image.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
                 requestLayout()
@@ -269,7 +280,7 @@ class MomentView @JvmOverloads constructor(
                 BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
             } else {
                 log.error("imgFile of $moment does not exist")
-                CoroutineScope(Dispatchers.IO).launch {
+                downloadJob = CoroutineScope(Dispatchers.IO).launch {
                     moment.deleteFiles()
                     moment.download(context?.applicationContext).join()
                     showMomentImage(moment)

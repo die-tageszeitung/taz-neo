@@ -8,7 +8,7 @@
         android:scaleY="0.9"
         android:translateY="1.31">
         <path
-            android:fillColor="@color/navigationBar"
+            android:fillColor="@color/navigation_bottom_background"
             android:pathData="M0.75,25.4668v-16.6l10.193,-8.117 10.2,8.117v16.6h-9.992v-6.791h-5.8v6.791Z"
             android:strokeWidth="1.5"
             android:strokeColor="@color/navigation_bottom_item"

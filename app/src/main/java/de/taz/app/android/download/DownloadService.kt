@@ -69,7 +69,6 @@ class DownloadService private constructor(val applicationContext: Context) {
     private var resourceInfo: ResourceInfo? = null
 
     private val httpClient = OkHttp.client
-    private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
 
@@ -275,16 +274,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                 try {
                     val sha256 = fileHelper.writeFile(fileEntry, source)
                     if (sha256 == fileEntry.sha256) {
-                        download.workerManagerId?.let {
-                            workManager.cancelWorkById(it)
-                            log.info("canceling WorkerManagerRequest for ${download.fileName}")
-                        }
-                        val newDownload = download.copy(
-                            lastSha256 = sha256,
-                            status = DownloadStatus.done,
-                            workerManagerId = null
-                        )
-                        downloadRepository.update(newDownload)
+                        downloadRepository.saveLastSha256(download, sha256)
+                        downloadRepository.setStatus(download, DownloadStatus.done)
                         fileEntry.setDownloadStatus(DownloadStatus.done)
                     } else {
                         // TODO get new metadata for cacheableDownload and restart download

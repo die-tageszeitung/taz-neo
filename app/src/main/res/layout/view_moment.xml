@@ -12,9 +12,9 @@
         android:id="@+id/fragment_moment_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:alpha="0"
         android:elevation="@dimen/moment_elevation"
         android:outlineProvider="paddedBounds"
-        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
         app:layout_constraintDimensionRatio="1:1.5"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -61,12 +61,12 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/settings_download_issue"
             android:src="@drawable/ic_file_download"
-            app:tint="@color/lightGrey"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
 
         <ImageView
             android:id="@+id/fragment_moment_download_finished"
@@ -74,12 +74,12 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/settings_download_issue"
             android:src="@drawable/ic_done"
-            app:tint="@color/lightGrey"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
 
         <ProgressBar
             android:id="@+id/fragment_moment_downloading"

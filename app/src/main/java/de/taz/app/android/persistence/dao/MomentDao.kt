@@ -41,4 +41,21 @@ abstract class MomentDao: BaseDao<MomentStub>() {
 
     fun getLiveData(issueOperations: IssueOperations) =
         getLiveData(issueOperations.feedName, issueOperations.date, issueOperations.status)
+
+    @Query(
+        """
+        SELECT Moment.* From Moment
+        WHERE Moment.issueStatus == :issueStatus
+            AND Moment.issueFeedName == :issueFeedName
+            AND Moment.issueDate == :issueDate
+                    """
+    )
+    abstract fun get(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): MomentStub?
+
+    fun get(issueOperations: IssueOperations) =
+        get(issueOperations.feedName, issueOperations.date, issueOperations.status)
 }

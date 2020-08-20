@@ -62,7 +62,9 @@ data class ArticleStub(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ArticleRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
+        ArticleRepository.getInstance().apply {
+            getStub(this@ArticleStub.key)?.let { it.copy(downloadedStatus = downloadStatus )}
+        }
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {

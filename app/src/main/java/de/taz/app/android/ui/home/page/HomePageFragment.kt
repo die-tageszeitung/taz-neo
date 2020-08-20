@@ -94,7 +94,7 @@ abstract class HomePageFragment(
         return withContext(Dispatchers.IO) {
             val issues = apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()
             issues?.let {
-                issueRepository?.save(it)
+                issueRepository?.saveIfDoNotExist(it)
             }
             issues?.last()?.date
         }
