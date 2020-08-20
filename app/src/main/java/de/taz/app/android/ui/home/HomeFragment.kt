@@ -16,6 +16,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -101,6 +102,11 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                 val intent = Intent(context?.applicationContext, WelcomeActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
                 startActivity(Intent(intent))
+            }
+            R.id.bottom_navigation_action_home -> {
+                (activity as? MainActivity)?.showHome(
+                    skipToCurrentIssue = true
+                )
             }
         }
     }
