@@ -69,7 +69,6 @@ class DownloadService private constructor(val applicationContext: Context) {
     private var resourceInfo: ResourceInfo? = null
 
     private val httpClient = OkHttp.client
-    private val workManager = WorkManager.getInstance(applicationContext)
 
     private val downloadList = ConcurrentLinkedDeque<Download>()
 
