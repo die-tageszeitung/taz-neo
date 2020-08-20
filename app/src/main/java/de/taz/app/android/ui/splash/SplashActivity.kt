@@ -46,12 +46,12 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initAppInfoAndCheckAndroidVersion()
-        initResources()
-        initFeedInformation()
         initLastIssues()
+        initResources()
+        initAppInfoAndCheckAndroidVersion()
+        initFeedInformation()
 
-        deletePublicIssuesIfLoggedIn()
+        deleteUnnecessaryIssues()
 
         ensurePushTokenSent()
 
@@ -209,7 +209,7 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private fun deletePublicIssuesIfLoggedIn() {
+    private fun deleteUnnecessaryIssues() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")
