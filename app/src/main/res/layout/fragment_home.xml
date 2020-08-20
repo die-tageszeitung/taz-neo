@@ -25,11 +25,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/navigationBar"
-            android:elevation="@dimen/bottom_sheet_elevation"
+            android:background="@color/navigation_bottom_background"
             android:orientation="vertical"
             app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@drawable/custom_shadow"/>
             <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:id="@+id/navigation_bottom"
                 android:layout_width="match_parent"
@@ -38,6 +40,5 @@
                 app:labelVisibilityMode="unlabeled"
                 app:menu="@menu/navigation_bottom_home" />
 
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout></androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -46,12 +46,12 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initAppInfoAndCheckAndroidVersion()
-        initResources()
-        initFeedInformation()
         initLastIssues()
+        initResources()
+        initAppInfoAndCheckAndroidVersion()
+        initFeedInformation()
 
-        deletePublicIssuesIfLoggedIn()
+        deleteUnnecessaryIssues()
 
         ensurePushTokenSent()
 
@@ -136,8 +136,19 @@ class SplashActivity : BaseActivity() {
     private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
         val issueRepository = IssueRepository.getInstance(applicationContext)
+        val toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
         val issues = apiService.getLastIssuesAsync(number).await()
+        issueRepository.getLatestIssue()?.let {
+            val newestDBIssueDate = issues.first().date
+            if (it.date != newestDBIssueDate) {
+                toDownloadIssueHelper.startMissingDownloads(
+                    newestDBIssueDate,
+                    it.date
+                )
+            }
+        }
+
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")
         issues.forEach { it.moment.download(applicationContext) }
@@ -201,7 +212,7 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private fun deletePublicIssuesIfLoggedIn() {
+    private fun deleteUnnecessaryIssues() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")

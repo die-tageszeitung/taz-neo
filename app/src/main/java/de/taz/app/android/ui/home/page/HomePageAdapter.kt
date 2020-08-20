@@ -67,7 +67,6 @@ abstract class HomePageAdapter(
 
     fun setAuthStatus(authStatus: AuthStatus) {
         if (this.authStatus != authStatus) {
-            log.debug("setting authStatus to ${authStatus.name}")
             this.authStatus = authStatus
             filterAndSetIssues()
         }
@@ -75,7 +74,6 @@ abstract class HomePageAdapter(
 
     open fun setIssueStubs(issues: List<IssueStub>) {
         if (allIssueStubList != issues) {
-            log.debug("setting issueStubs to a list of ${issues.size} issues")
             allIssueStubList = issues
             filterAndSetIssues()
         }
@@ -108,7 +106,6 @@ abstract class HomePageAdapter(
 
     private fun filterAndSetIssues() {
         val filteredIssueStubs = filterIssueStubs()
-        log.debug("after filtering ${filteredIssueStubs.size} remain")
         val diffResult = DiffUtil.calculateDiff(
             HomePageListDiffCallback(
                 visibleIssueStubList,

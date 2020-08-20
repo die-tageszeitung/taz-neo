@@ -81,6 +81,14 @@ class MomentRepository private constructor(applicationContext: Context) :
         return getOrThrow(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
+    fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): MomentStub? {
+        return try {
+            appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
+        } catch (e: NotFoundException) {
+            null
+        }
+    }
+
     fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
         return try {
             getOrThrow(issueFeedName, issueDate, issueStatus)

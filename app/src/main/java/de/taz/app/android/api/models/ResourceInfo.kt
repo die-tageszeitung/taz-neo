@@ -90,14 +90,13 @@ data class ResourceInfo(
                         local.resourceList.filter { local ->
                             local.name !in fromServerResourceListNames
                         }.forEach {
-                            log.info("deleting ${it.name}")
                             it.deleteFile()
                         }
 
                         // delete modified files
                         fromServer.resourceList.forEach { newFileEntry ->
                             fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                if (oldFileEntry != newFileEntry) {
+                                if (oldFileEntry.sha256 != newFileEntry.sha256) {
                                     oldFileEntry.deleteFile()
                                 }
                             }

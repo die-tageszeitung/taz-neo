@@ -35,7 +35,11 @@ data class Page (
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        PageRepository.getInstance().update(PageStub(this).copy(downloadedStatus = downloadStatus))
+        PageRepository.getInstance().apply {
+            getStub(this@Page.pagePdf.name)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
     }
 
     override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
