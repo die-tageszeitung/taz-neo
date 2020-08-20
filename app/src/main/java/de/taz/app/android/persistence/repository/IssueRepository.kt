@@ -472,4 +472,27 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().isDownloadedLiveData(feedName, date, status)
     }
 
+    fun setDownloadStatusIncludingChildren(issueOperations: IssueOperations, downloadStatus: DownloadStatus) {
+        appDatabase.runInTransaction {
+            getIssue(issueOperations)?.let {
+                IssueRepository.getInstance().apply {
+                    getStub(it)?.let {
+                        update(it.copy(downloadedStatus = downloadStatus))
+                    }
+                }
+                it.apply {
+                    sectionList.forEach { section ->
+                        section.setDownloadStatus(downloadStatus)
+                        section.articleList.forEach { article ->
+                            article.setDownloadStatus(downloadStatus)
+                        }
+                    }
+                    imprint?.setDownloadStatus(downloadStatus)
+                    pageList.forEach { it.setDownloadStatus(downloadStatus) }
+                    moment.setDownloadStatus(downloadStatus)
+                }
+            }
+        }
+    }
+
 }
