@@ -140,10 +140,13 @@ class SplashActivity : BaseActivity() {
 
         val issues = apiService.getLastIssuesAsync(number).await()
         issueRepository.getLatestIssue()?.let {
-            toDownloadIssueHelper.startMissingDownloads(
-                issues.last().date,
-                it.date
-            )
+            val newestDBIssueDate = issues.first().date
+            if (it.date != newestDBIssueDate) {
+                toDownloadIssueHelper.startMissingDownloads(
+                    newestDBIssueDate,
+                    it.date
+                )
+            }
         }
 
         issueRepository.saveIfDoNotExist(issues)
