@@ -200,6 +200,23 @@ class ApiService private constructor(applicationContext: Context) {
     }
 
     /**
+     * function to get an [Issue] by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date of the issue
+     * @return [Issue] of the feed at given date
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun getIssueByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: String = simpleDateFormat.format(Date())
+    ): Issue? {
+        val tag = "getIssueByFeedAndDate"
+        log.debug("$tag feedName: $feedName issueDate: $issueDate")
+        val issueList = getIssuesByFeedAndDate(feedName, issueDate, 1)
+        return issueList.firstOrNull()
+    }
+
+    /**
      * function to get the last [Issue]s
      * @param limit - number of issues to get
      * @return [List]<[Issue]>
@@ -263,11 +280,11 @@ class ApiService private constructor(applicationContext: Context) {
     }
 
     /**
-     * function to get an [Issue] by feedName and date
+     * function asynchronously to get an [Issue] by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - the date of the issue
      * @param limit - how many issues will be returned
-     * @return [Issue] of the feed at given date
+     * @return [Deferred]<[List]<[Issue]>> of the issues of a feed at given date
      */
     suspend fun getIssuesByFeedAndDateAsync(
         feedName: String = "taz",
@@ -281,6 +298,28 @@ class ApiService private constructor(applicationContext: Context) {
             QueryType.IssueByFeedAndDate,
             IssueVariables(feedName, issueDate, limit)
         ).product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+    }
+
+    /**
+     * function to get an [Issue] by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date of the issue
+     * @param limit - how many issues will be returned
+     * @return [List]<[Issue]> of the issues of a feed at given date
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun getIssuesByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: String = simpleDateFormat.format(Date()),
+        limit: Int = 2
+    ): List<Issue> {
+        val tag = "getIssuesByFeedAndDate"
+        log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.IssueByFeedAndDate,IssueVariables(feedName, issueDate, limit)
+            )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+        }, tag) ?: emptyList()
     }
 
     /**
