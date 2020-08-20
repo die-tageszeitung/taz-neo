@@ -64,4 +64,10 @@ interface SectionOperations : WebViewDisplayable {
         return SectionRepository.getInstance(applicationContext).get(key)?.downloadedStatus
     }
 
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        SectionRepository.getInstance().apply {
+            getStub(key)?.let { update(it.copy(downloadedStatus = downloadStatus)) }
+        }
+    }
+
 }
