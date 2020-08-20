@@ -134,7 +134,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
             } else {
                 issueRepository?.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
                     try {
-                        val apiIssueList = apiService?.getIssuesByDateAsync(date, 1)?.await()
+                        val apiIssueList = apiService?.getIssuesByDate(date, 1)
                         if (apiIssueList?.isNullOrEmpty() == false) {
                             apiIssueList.first().let {
                                 issueRepository?.saveIfDoesNotExist(it)
