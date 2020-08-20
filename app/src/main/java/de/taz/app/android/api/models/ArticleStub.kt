@@ -56,17 +56,6 @@ data class ArticleStub(
         return list.distinct()
     }
 
-    suspend fun getFirstImage(): Image? = withContext(Dispatchers.IO) {
-        ArticleRepository.getInstance().getImagesForArticle(this@ArticleStub.key)
-            .firstOrNull()
-    }
-
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ArticleRepository.getInstance().apply {
-            getStub(this@ArticleStub.key)?.let { it.copy(downloadedStatus = downloadStatus )}
-        }
-    }
-
     override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
         return ArticleRepository.getInstance(applicationContext).getStubLiveData(articleFileName)
     }
