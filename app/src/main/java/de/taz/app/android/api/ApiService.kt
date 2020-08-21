@@ -539,10 +539,12 @@ class ApiService private constructor(applicationContext: Context) {
             throw ApiServiceException.NoInternetException()
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
+            log.error("QraphQl-Error:\n", jee)
             Sentry.capture(ApiServiceException.WrongDataException())
             toastHelper.showSomethingWentWrongToast()
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
+            log.error("QraphQl-Error:\n", npe)
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
         }
