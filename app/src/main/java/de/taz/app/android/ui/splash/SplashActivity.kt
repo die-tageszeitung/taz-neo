@@ -57,8 +57,6 @@ class SplashActivity : BaseActivity() {
 
         startNotDownloadedIssues()
 
-        ensureIssueChildrenMarkedAsDownloaded()
-
         if (isDataPolicyAccepted()) {
             if (isFirstTimeStart()) {
                 val intent = Intent(this, WelcomeActivity::class.java)
@@ -295,19 +293,5 @@ class SplashActivity : BaseActivity() {
             }
         }
     }
-
-    // TODO: REMOVE IN NEXT VERSIONS
-    private fun ensureIssueChildrenMarkedAsDownloaded() {
-        CoroutineScope(Dispatchers.IO).launch {
-            IssueRepository.getInstance(applicationContext).apply {
-                getAllDownloadedStubs()?.map {
-                    getIssue(it).setDownloadStatusIncludingChildren(
-                        DownloadStatus.done
-                    )
-                }
-            }
-        }
-    }
-
 }
 
