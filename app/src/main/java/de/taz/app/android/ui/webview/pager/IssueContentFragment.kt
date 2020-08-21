@@ -64,11 +64,6 @@ class IssueContentFragment :
             }
             displayableKey = getString(DISPLAYABLE_KEY)
         }
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         addFragment(sectionPagerFragment)
         addFragment(articlePagerFragment)
@@ -142,13 +137,15 @@ class IssueContentFragment :
 
     private fun addFragment(fragment: Fragment) {
         val fragmentClass = fragment::class.java.toString()
-        childFragmentManager.beginTransaction()
-            .add(
-                R.id.fragment_issue_content_container, fragment, fragmentClass
-            )
-            .addToBackStack(fragmentClass)
-            .hide(fragment)
-            .commit()
+        if (childFragmentManager.findFragmentByTag(fragmentClass) == null) {
+            childFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_issue_content_container, fragment, fragmentClass
+                )
+                .addToBackStack(fragmentClass)
+                .hide(fragment)
+                .commit()
+        }
     }
 
     fun show(displayableName: String): Boolean {
