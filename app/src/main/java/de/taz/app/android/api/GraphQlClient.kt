@@ -65,7 +65,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)
                     source.close()
                     if (wrapper?.data == null) {
-                        val errorString = wrapper?.errors.toString()
+                        val errorString = "QraphQl-Error:\n ${wrapper?.errors.toString()}"
                         log.error(errorString)
                         Sentry.capture(errorString)
                     }
