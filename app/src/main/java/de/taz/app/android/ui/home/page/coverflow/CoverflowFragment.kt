@@ -113,7 +113,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        coverflowAdapter?.setIssueStubs(issueStubs.reversed())
+        coverflowAdapter?.setIssueStubs(issueStubs)
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
@@ -134,29 +134,31 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToEnd() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            val itemCount = coverflowAdapter?.itemCount ?: -1
-            if (itemCount > 0) {
-                fragment_cover_flow_grid.layoutManager?.scrollToPosition(itemCount -1)
+            val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
+            val position: Int = layoutManager?.findFirstCompletelyVisibleItemPosition() ?: 0
+            if (position != 0) {
+                setCurrentItem(coverflowAdapter?.getItem(0))
+                fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
             }
         }
     }
 
     fun skipToCurrentItem(): Boolean {
-       return runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
+        return runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
             val position = coverflowAdapter?.getPosition(feed, date, status) ?: -1
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             layoutManager?.apply {
                 val currentPosition: Int =
                     (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
-                if (position >= 0 ) {
-                    if(position != currentPosition) {
+                if (position >= 0) {
+                    if (position != currentPosition) {
                         fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
                     }
                     return@runIfNotNull true
                 }
             }
-           return@runIfNotNull false
-       } ?: false
+            return@runIfNotNull false
+        } ?: false
     }
 
     fun skipToItem(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
@@ -181,7 +183,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             // if user is dragging to left if no newer issue -> refresh
             super.onScrollStateChanged(recyclerView, newState)
             if (newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
-                !recyclerView.canScrollHorizontally(1)
+                !recyclerView.canScrollHorizontally(-1)
             ) {
                 activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
                     ?.setRefreshingWithCallback(true)
