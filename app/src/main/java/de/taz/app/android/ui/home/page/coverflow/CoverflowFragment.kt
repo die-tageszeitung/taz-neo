@@ -183,7 +183,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             // if user is dragging to left if no newer issue -> refresh
             super.onScrollStateChanged(recyclerView, newState)
             if (newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
-                !recyclerView.canScrollHorizontally(1)
+                !recyclerView.canScrollHorizontally(-1)
             ) {
                 activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
                     ?.setRefreshingWithCallback(true)
