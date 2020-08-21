@@ -25,13 +25,35 @@ object TazApiCssHelper {
 
     fun generateCssString(sharedPreferences: SharedPreferences) : String {
         val nightModeCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/themeNight.css")
-        val nightModeCssString = if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) "@import \"$nightModeCssFile\";" else ""
-        val fontSizePx = computeFontSize(sharedPreferences.getString(SETTINGS_TEXT_FONT_SIZE,  SETTINGS_TEXT_FONT_SIZE_DEFAULT) ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT)
-        return """
-            $nightModeCssString
-            html, body {
-                font-size: ${fontSizePx}px;
-            }
-        """.trimIndent()
+        val fontSizePx = computeFontSize(
+            sharedPreferences.getString(
+                SETTINGS_TEXT_FONT_SIZE,
+                SETTINGS_TEXT_FONT_SIZE_DEFAULT
+            ) ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        )
+        var backgroundColor = "#fff"
+
+        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+            backgroundColor = "#121212"
+            return """
+                @import "$nightModeCssFile";
+                html, body {
+                    background-color : ${backgroundColor};
+                    font-size        : ${fontSizePx}px;
+                }
+                div.demoDiv:before {
+                    background-image	: --webkit_linear-gradient(0deg,${backgroundColor} 5%,hsla(0,0%,100%,0));
+                    background-image	: linear-gradient(0deg,${backgroundColor} 5%,hsla(0,0%,100%,0));
+                }""".trimIndent()
+
+
+        } else {
+            return """
+                html, body {
+                    background-color : ${backgroundColor};
+                    font-size        : ${fontSizePx}px;
+                }
+            """.trimIndent()
+        }
     }
 }
