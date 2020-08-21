@@ -9,6 +9,8 @@ const val DEFAULT_FONT_SIZE = 18
 const val SETTINGS_TEXT_NIGHT_MODE = "text_night_mode"
 const val SETTINGS_TEXT_FONT_SIZE = "text_font_size"
 const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
+const val SETTINGS_DEFAULT_NIGHT_COLOR = "#121212"
+const val SETTINGS_DEFAULT_DAY_COLOR = "#000000"
 
 object TazApiCssHelper {
 
@@ -18,12 +20,12 @@ object TazApiCssHelper {
      * Computes an actual font size using the default font size and the display percentage
      * entered by the user
      */
-    private fun computeFontSize(percentage: String) : String {
+    private fun computeFontSize(percentage: String): String {
         val fontSize = percentage.toInt() * 0.01 * DEFAULT_FONT_SIZE
         return fontSize.toString()
     }
 
-    fun generateCssString(sharedPreferences: SharedPreferences) : String {
+    fun generateCssString(sharedPreferences: SharedPreferences): String {
         val nightModeCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/themeNight.css")
         val fontSizePx = computeFontSize(
             sharedPreferences.getString(
@@ -31,29 +33,24 @@ object TazApiCssHelper {
                 SETTINGS_TEXT_FONT_SIZE_DEFAULT
             ) ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
         )
-        var backgroundColor = "#fff"
 
         if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
-            backgroundColor = "#121212"
             return """
                 @import "$nightModeCssFile";
                 html, body {
-                    background-color : ${backgroundColor};
+                    background-color : ${SETTINGS_DEFAULT_NIGHT_COLOR};
                     font-size        : ${fontSizePx}px;
                 }
                 div.demoDiv:before {
-                    background-image	: --webkit_linear-gradient(0deg,${backgroundColor} 5%,hsla(0,0%,100%,0));
-                    background-image	: linear-gradient(0deg,${backgroundColor} 5%,hsla(0,0%,100%,0));
+                    background-image : --webkit_linear-gradient(0deg,${SETTINGS_DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
+                    background-image : linear-gradient(0deg,${SETTINGS_DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
                 }""".trimIndent()
-
-
         } else {
             return """
                 html, body {
-                    background-color : ${backgroundColor};
+                    background-color : ${SETTINGS_DEFAULT_DAY_COLOR};
                     font-size        : ${fontSizePx}px;
-                }
-            """.trimIndent()
+                }""".trimIndent()
         }
     }
 }
