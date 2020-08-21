@@ -129,7 +129,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     fun showIssue(issueStub: IssueStub) {
         setDrawerIssue(issueStub)
-        setCoverFlowItem(issueStub)
         changeDrawerIssue()
 
         runOnUiThread {
@@ -391,7 +390,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                     ?.let { section ->
                                         section.getIssueOperations(applicationContext)
                                             ?.let { issueOperations ->
-                                                setCoverFlowItem(issueOperations)
                                                 setDrawerIssue(issueOperations)
                                                 changeDrawerIssue()
                                             }
