@@ -29,6 +29,7 @@
     <color name="drawer_sections_item">@color/tazRed</color>
     <color name="drawer_sections_date">@color/textColor</color>
     <color name="drawer_sections_item_highlighted">@color/lightGrey</color>
+    <color name="navigation_drawer_background">@color/white</color>
     <color name="navigation_drawer_header_title">@color/tazRed</color>
 
     <color name="navigation_drawer_icon">@color/lightGrey</color>
