@@ -22,4 +22,8 @@
         android:id="@+id/bottom_navigation_action_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/settings" />
+    <item
+        android:id="@+id/bottom_navigation_action_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/bottom_navigation_action_home" />
 </menu>
