@@ -23,6 +23,7 @@
             android:layout_gravity="start"
             android:clipChildren="false"
             android:clipToPadding="false"
+            android:background="@color/navigation_drawer_background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
