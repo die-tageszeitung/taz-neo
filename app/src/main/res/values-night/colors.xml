@@ -41,6 +41,7 @@
     <color name="fragment_archive_background">@color/superDarkGrey</color>
 
     <color name="bottom_sheet_background">@color/darkGrey</color>
-    <color name="bottom_sheet_divider_color">@color/superLightGrey</color>
+    <color name="bottom_sheet_divider_color">@color/lightGrey</color>
+    <color name="bottom_sheet_text_color">@color/lightGrey</color>
 
 </resources>
