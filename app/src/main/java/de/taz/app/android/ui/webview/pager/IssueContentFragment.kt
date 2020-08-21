@@ -17,6 +17,8 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
+import java.lang.IllegalStateException
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -142,13 +144,15 @@ class IssueContentFragment :
 
     private fun addFragment(fragment: Fragment) {
         val fragmentClass = fragment::class.java.toString()
-        childFragmentManager.beginTransaction()
-            .add(
-                R.id.fragment_issue_content_container, fragment, fragmentClass
-            )
-            .addToBackStack(fragmentClass)
-            .hide(fragment)
-            .commit()
+        if (childFragmentManager.findFragmentByTag(fragmentClass) == null) {
+            childFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_issue_content_container, fragment, fragmentClass
+                )
+                .addToBackStack(fragmentClass)
+                .hide(fragment)
+                .commit()
+        }
     }
 
     fun show(displayableName: String): Boolean {
