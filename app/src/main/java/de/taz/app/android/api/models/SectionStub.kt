@@ -52,10 +52,6 @@ data class SectionStub(
         return list.distinct()
     }
 
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        SectionRepository.getInstance().update(this.copy(downloadedStatus = downloadStatus))
-    }
-
     override fun getLiveData(applicationContext: Context?): LiveData<SectionStub?> {
         return SectionRepository.getInstance(applicationContext).getStubLiveData(sectionFileName)
     }

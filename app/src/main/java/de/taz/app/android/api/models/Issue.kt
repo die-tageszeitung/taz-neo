@@ -152,20 +152,7 @@ data class Issue(
     }
 
     fun setDownloadStatusIncludingChildren(downloadStatus: DownloadStatus) {
-        IssueRepository.getInstance().apply {
-            getStub(this@Issue)?.let {
-                update(it.copy(downloadedStatus = downloadStatus))
-            }
-        }
-        sectionList.forEach { section ->
-            section.setDownloadStatus(downloadStatus)
-            section.articleList.forEach { article ->
-                article.setDownloadStatus(downloadStatus)
-            }
-        }
-        imprint?.setDownloadStatus(downloadStatus)
-        pageList.forEach { it.setDownloadStatus(downloadStatus) }
-        moment.setDownloadStatus(downloadStatus)
+        IssueRepository.getInstance().setDownloadStatusIncludingChildren(this, downloadStatus)
     }
 
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {

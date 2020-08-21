@@ -68,14 +68,6 @@ data class Article(
         return list.map { it.name }.distinct()
     }
 
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ArticleRepository.getInstance().apply {
-            getStub(this@Article.key)?.let {
-                update(it.copy(downloadedStatus = downloadStatus))
-            }
-        }
-    }
-
     override fun getLiveData(applicationContext: Context?): LiveData<Article?> {
         return ArticleRepository.getInstance(applicationContext).getLiveData(key)
     }
