@@ -51,12 +51,6 @@ data class Section(
         return list.distinct()
     }
 
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        SectionRepository.getInstance().apply {
-            getStub(this@Section.key)?.let { update(it.copy(downloadedStatus = downloadStatus)) }
-        }
-    }
-
     override fun getLiveData(applicationContext: Context?): LiveData<Section?> {
         return SectionRepository.getInstance(applicationContext).getLiveData(sectionHtml.name)
     }
