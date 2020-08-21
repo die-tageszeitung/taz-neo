@@ -4,9 +4,11 @@
     <color name="tazRed">#d50d2e</color>
 
     <color name="white">#fff</color>
+    <color name="superLightGrey">#E3E3E3</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="mediumGrey">#38383A</color>
     <color name="darkGrey">#1C1C1E</color>
+    <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
 
     <color name="colorPrimary">@color/tazRed</color>
@@ -36,9 +38,9 @@
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="navigation_bottom_item_active">@color/tazRed</color>
 
-    <color name="fragment_archive_background">@color/mediumGrey</color>
+    <color name="fragment_archive_background">@color/superDarkGrey</color>
 
-    <color name="bottom_sheet_background">@color/black</color>
-    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+    <color name="bottom_sheet_background">@color/darkGrey</color>
+    <color name="bottom_sheet_divider_color">@color/superLightGrey</color>
 
 </resources>
