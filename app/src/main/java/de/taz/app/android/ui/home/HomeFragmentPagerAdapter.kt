@@ -12,7 +12,9 @@ const val FEED_VIEW_FRAGMENT_COUNT = 2
 const val COVERFLOW_PAGER_POSITION = 0
 const val ARCHIVE_PAGER_POSITION = 1
 
-class HomeFragmentPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
+class HomeFragmentPagerAdapter(
+    fragmentManager: FragmentManager, lifecycle: Lifecycle
+) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
     override fun getItemCount(): Int {
         return FEED_VIEW_FRAGMENT_COUNT
