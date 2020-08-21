@@ -79,4 +79,12 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         return ArticleRepository.getInstance(applicationContext).get(key)?.downloadedStatus
     }
 
+    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
+        ArticleRepository.getInstance().apply {
+            getStub(key)?.let {
+                update(it.copy(downloadedStatus = downloadStatus))
+            }
+        }
+    }
+
 }
