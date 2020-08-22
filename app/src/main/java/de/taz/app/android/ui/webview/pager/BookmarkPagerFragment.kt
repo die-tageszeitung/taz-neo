@@ -23,6 +23,8 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+const val DISPLAYABLE_NAME = "displayableName"
+
 class BookmarkPagerFragment :
     BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 

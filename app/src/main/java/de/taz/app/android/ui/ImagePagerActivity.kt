@@ -15,11 +15,13 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
-import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.max
+
+
+const val DISPLAYABLE_NAME = "displayableName"
 
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
