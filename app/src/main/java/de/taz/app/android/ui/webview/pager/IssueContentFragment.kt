@@ -35,10 +35,18 @@ class IssueContentFragment :
     private var issueDate: String? = null
     private var issueStatus: IssueStatus? = null
 
-    private var sectionPagerFragment = SectionPagerFragment()
-    private var articlePagerFragment = ArticlePagerFragment()
+    private val sectionPagerFragment: SectionPagerFragment
+        get() = childFragmentManager.findFragmentByTag(
+            SectionPagerFragment::class.java.toString()
+        ) as SectionPagerFragment
 
-    private var showSections: Boolean = true
+    private val articlePagerFragment: ArticlePagerFragment
+        get() = childFragmentManager.findFragmentByTag(
+            ArticlePagerFragment::class.java.toString()
+        ) as ArticlePagerFragment
+
+
+private var showSections: Boolean = true
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -58,6 +66,10 @@ class IssueContentFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        addFragment(SectionPagerFragment())
+        addFragment(ArticlePagerFragment())
+
         savedInstanceState?.apply {
             issueDate = getString(ISSUE_DATE)
             issueFeedName = getString(ISSUE_FEED)
@@ -70,8 +82,6 @@ class IssueContentFragment :
             showSections = getBoolean(SHOW_SECTIONS, false)
         }
 
-        addFragment(sectionPagerFragment)
-        addFragment(articlePagerFragment)
 
         displayableKey?.let {
             getIssueOperationByDisplayableKey()
@@ -149,7 +159,10 @@ class IssueContentFragment :
         childFragmentManager.fragments.forEach {
             transaction.hide(it)
         }
-        transaction.show(fragment).commit()
+        val fragmentClass = fragment::class.java.toString()
+        childFragmentManager.findFragmentByTag(fragmentClass)?.let {
+            transaction.show(it).commit()
+        }
     }
 
     private fun addFragment(fragment: Fragment) {
@@ -248,4 +261,5 @@ class IssueContentFragment :
             putBoolean(SHOW_SECTIONS, showSections)
         }
     }
+
 }
