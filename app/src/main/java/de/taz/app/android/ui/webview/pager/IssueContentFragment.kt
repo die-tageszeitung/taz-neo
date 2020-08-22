@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -22,6 +21,7 @@ const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
 const val ISSUE_STATUS = "issueStatus"
 const val DISPLAYABLE_KEY = "webViewDisplayableKey"
+const val SHOW_SECTIONS = "showSection"
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -35,6 +35,8 @@ class IssueContentFragment :
 
     private var sectionPagerFragment = SectionPagerFragment()
     private var articlePagerFragment = ArticlePagerFragment()
+
+    private var showSections: Boolean = true
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -63,6 +65,7 @@ class IssueContentFragment :
                 // do nothing issueStatus is null
             }
             displayableKey = getString(DISPLAYABLE_KEY)
+            showSections = getBoolean(SHOW_SECTIONS, false)
         }
 
         addFragment(sectionPagerFragment)
@@ -83,14 +86,18 @@ class IssueContentFragment :
                 val status = it.status
                 getSectionListByIssue(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
-                        if (displayableKey == null || displayableKey?.startsWith("sec") == true) {
+                        if ((displayableKey == null && showSections)
+                            || displayableKey?.startsWith("sec") == true
+                        ) {
                             showSection(displayableKey)
                         }
                     }
                 }
                 getArticles(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
-                        if (displayableKey?.startsWith("art") == true) {
+                        if ((displayableKey == null && !showSections)
+                            || displayableKey?.startsWith("art") == true
+                        ) {
                             showArticle(displayableKey)
                         }
                         withContext(Dispatchers.IO) {
@@ -114,6 +121,7 @@ class IssueContentFragment :
     }
 
     private fun showArticle(articleFileName: String? = null) {
+        showSections = false
         runIfNotNull(articleFileName, articlePagerFragment) { fileName, fragment ->
             showFragment(fragment)
             fragment.tryLoadArticle(fileName)
@@ -121,6 +129,7 @@ class IssueContentFragment :
     }
 
     private fun showSection(sectionFileName: String? = null) {
+        showSections = true
         showFragment(sectionPagerFragment)
         sectionFileName?.let {
             sectionPagerFragment.tryLoadSection(sectionFileName)
@@ -229,6 +238,7 @@ class IssueContentFragment :
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
             putString(DISPLAYABLE_KEY, displayableKey)
+            putBoolean(SHOW_SECTIONS, showSections)
         }
     }
 }
