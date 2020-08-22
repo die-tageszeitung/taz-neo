@@ -16,6 +16,6 @@ class SectionPagerViewModel(application: Application) : AndroidViewModel(applica
 
     val currentPositionLiveData = MutableLiveData(0)
     val currentPosition
-        get() = currentPositionLiveData.value
+        get() = currentPositionLiveData.value ?: 0
 
 }

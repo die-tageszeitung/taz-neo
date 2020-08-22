@@ -14,5 +14,4 @@ class IssueContentViewModel(application: Application) : AndroidViewModel(applica
 
     var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
     var issueOperationsLiveData = MutableLiveData<IssueOperations?>(null)
-
 }
