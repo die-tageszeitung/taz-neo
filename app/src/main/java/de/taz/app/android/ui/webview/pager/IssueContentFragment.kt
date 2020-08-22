@@ -7,12 +7,14 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -114,6 +116,14 @@ class IssueContentFragment :
                 getMainView()?.setCoverFlowItem(issueOperations)
                 setDrawerIssue(issueOperations)
                 getMainView()?.changeDrawerIssue()
+                if(issueOperations.dateDownload == null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        IssueRepository.getInstance(context?.applicationContext)
+                            .getIssue(issueOperations)?.let { issue ->
+                            DownloadService.getInstance(context?.applicationContext).download(issue)
+                        }
+                    }
+                }
             }
         }, { issueOperations ->
             issueOperations != null
@@ -131,9 +141,7 @@ class IssueContentFragment :
     private fun showSection(sectionFileName: String? = null) {
         showSections = true
         showFragment(sectionPagerFragment)
-        sectionFileName?.let {
-            sectionPagerFragment.tryLoadSection(sectionFileName)
-        }
+        sectionPagerFragment.tryLoadSection(sectionFileName)
     }
 
     private fun showFragment(fragment: Fragment) {
@@ -237,7 +245,6 @@ class IssueContentFragment :
                 ISSUE_STATUS,
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
-            putString(DISPLAYABLE_KEY, displayableKey)
             putBoolean(SHOW_SECTIONS, showSections)
         }
     }

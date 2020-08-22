@@ -24,9 +24,9 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ArticlePagerFragment :
-    BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
-    BackFragment {
+class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
+    R.layout.fragment_webview_pager
+), BackFragment {
 
     val log by Log
     override val enableSideBar: Boolean = true
@@ -36,7 +36,9 @@ class ArticlePagerFragment :
     private var hasBeenSwiped: Boolean = false
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    private val issueContentViewModel: IssueContentViewModel? by lazy { (parentFragment as? IssueContentFragment)?.viewModel }
+    private val issueContentViewModel: IssueContentViewModel? by lazy {
+        (parentFragment as? IssueContentFragment)?.viewModel
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
