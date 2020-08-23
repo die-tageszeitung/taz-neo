@@ -135,10 +135,11 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     fun skipToEnd() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
-            val position: Int = layoutManager?.findFirstCompletelyVisibleItemPosition() ?: 0
-            if (position != 0) {
+            val position: Int = layoutManager?.findFirstVisibleItemPosition() ?: 0
+            if (position > 0) {
                 setCurrentItem(coverflowAdapter?.getItem(0))
                 fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
+                snapHelper.scrollToPosition(0)
             }
         }
     }
