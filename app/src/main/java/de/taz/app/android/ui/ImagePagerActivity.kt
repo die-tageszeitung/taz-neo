@@ -3,7 +3,6 @@ package de.taz.app.android.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -13,16 +12,12 @@ import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinctUntil
-import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,7 +31,6 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
     private var imageName: String? = null
     private var availableImageList: MutableList<Image>? = null
     private var toDownloadImageList: List<Image>? = null
-    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
