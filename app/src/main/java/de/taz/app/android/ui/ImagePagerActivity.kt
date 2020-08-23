@@ -60,7 +60,12 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             withContext(Dispatchers.Main) {
                 toDownloadImageList?.forEach { img ->
                     img.download(applicationContext)
-                    img.isDownloadedLiveData(applicationContext).observeDistinctUntil(
+                    // TODO: replace high res image with the normal res image when downloaded
+                    // but for now it is fine, gigh res will be downloaded and shown next
+                    // time image is clicked
+                    // following code can be good starting point
+                    // but result in flickering when image is replaced:
+                    /*img.isDownloadedLiveData(applicationContext).observeDistinctUntil(
                         this@ImagePagerActivity,
                         { isDownloaded ->
                             if (isDownloaded) {
@@ -68,12 +73,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
                                 availableImageList!![toReplaceIndex] = img
                                 val updatedPagerAdapter = ImagePagerAdapter(this@ImagePagerActivity)
                                 mPager.adapter = updatedPagerAdapter
-                                mPager.setCurrentItem(getPosition(imageName), false)
-                                log.debug("YIHA BETTER")
                             }
                         },
                         { it }
-                    )
+                    )*/
                 }
             }
         }
