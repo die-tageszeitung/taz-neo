@@ -10,7 +10,7 @@ const val SETTINGS_TEXT_NIGHT_MODE = "text_night_mode"
 const val SETTINGS_TEXT_FONT_SIZE = "text_font_size"
 const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
 const val SETTINGS_DEFAULT_NIGHT_COLOR = "#121212"
-const val SETTINGS_DEFAULT_DAY_COLOR = "#000000"
+const val SETTINGS_DEFAULT_DAY_COLOR = "#FFFFFF"
 
 object TazApiCssHelper {
 
