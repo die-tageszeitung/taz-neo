@@ -23,3 +23,6 @@ const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
 
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
+
+// onSaveInstanceState
+const val DISPLAYABLE_NAME = "displayableName"
