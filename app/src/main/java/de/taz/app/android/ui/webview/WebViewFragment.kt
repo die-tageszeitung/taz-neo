@@ -59,9 +59,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("WebViewFragment: shared pref changed: $key")
-            if (key == SETTINGS_TEXT_FONT_SIZE) {
-                web_view?.injectCss(sharedPreferences)
-            } else if (
+            web_view?.injectCss(sharedPreferences)
+            if (
                 key == SETTINGS_TEXT_NIGHT_MODE &&
                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
             ) {
