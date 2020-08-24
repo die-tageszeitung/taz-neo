@@ -1,19 +1,20 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,6 +23,7 @@ const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
 const val ISSUE_STATUS = "issueStatus"
 const val DISPLAYABLE_KEY = "webViewDisplayableKey"
+const val SHOW_SECTIONS = "showSection"
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -33,8 +35,18 @@ class IssueContentFragment :
     private var issueDate: String? = null
     private var issueStatus: IssueStatus? = null
 
-    private var sectionPagerFragment = SectionPagerFragment()
-    private var articlePagerFragment = ArticlePagerFragment()
+    private val sectionPagerFragment: SectionPagerFragment
+        get() = childFragmentManager.findFragmentByTag(
+            SectionPagerFragment::class.java.toString()
+        ) as SectionPagerFragment
+
+    private val articlePagerFragment: ArticlePagerFragment
+        get() = childFragmentManager.findFragmentByTag(
+            ArticlePagerFragment::class.java.toString()
+        ) as ArticlePagerFragment
+
+
+private var showSections: Boolean = true
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -54,6 +66,10 @@ class IssueContentFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        addFragment(SectionPagerFragment())
+        addFragment(ArticlePagerFragment())
+
         savedInstanceState?.apply {
             issueDate = getString(ISSUE_DATE)
             issueFeedName = getString(ISSUE_FEED)
@@ -63,10 +79,9 @@ class IssueContentFragment :
                 // do nothing issueStatus is null
             }
             displayableKey = getString(DISPLAYABLE_KEY)
+            showSections = getBoolean(SHOW_SECTIONS, false)
         }
 
-        addFragment(sectionPagerFragment)
-        addFragment(articlePagerFragment)
 
         displayableKey?.let {
             getIssueOperationByDisplayableKey()
@@ -83,14 +98,18 @@ class IssueContentFragment :
                 val status = it.status
                 getSectionListByIssue(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
-                        if (displayableKey == null || displayableKey?.startsWith("sec") == true) {
+                        if ((displayableKey == null && showSections)
+                            || displayableKey?.startsWith("sec") == true
+                        ) {
                             showSection(displayableKey)
                         }
                     }
                 }
                 getArticles(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
-                        if (displayableKey?.startsWith("art") == true) {
+                        if ((displayableKey == null && !showSections)
+                            || displayableKey?.startsWith("art") == true
+                        ) {
                             showArticle(displayableKey)
                         }
                         withContext(Dispatchers.IO) {
@@ -107,6 +126,14 @@ class IssueContentFragment :
                 getMainView()?.setCoverFlowItem(issueOperations)
                 setDrawerIssue(issueOperations)
                 getMainView()?.changeDrawerIssue()
+                if(issueOperations.dateDownload == null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        IssueRepository.getInstance(context?.applicationContext)
+                            .getIssue(issueOperations)?.let { issue ->
+                            DownloadService.getInstance(context?.applicationContext).download(issue)
+                        }
+                    }
+                }
             }
         }, { issueOperations ->
             issueOperations != null
@@ -114,6 +141,7 @@ class IssueContentFragment :
     }
 
     private fun showArticle(articleFileName: String? = null) {
+        showSections = false
         runIfNotNull(articleFileName, articlePagerFragment) { fileName, fragment ->
             showFragment(fragment)
             fragment.tryLoadArticle(fileName)
@@ -121,10 +149,9 @@ class IssueContentFragment :
     }
 
     private fun showSection(sectionFileName: String? = null) {
+        showSections = true
         showFragment(sectionPagerFragment)
-        sectionFileName?.let {
-            sectionPagerFragment.tryLoadSection(sectionFileName)
-        }
+        sectionPagerFragment.tryLoadSection(sectionFileName)
     }
 
     private fun showFragment(fragment: Fragment) {
@@ -132,7 +159,10 @@ class IssueContentFragment :
         childFragmentManager.fragments.forEach {
             transaction.hide(it)
         }
-        transaction.show(fragment).commit()
+        val fragmentClass = fragment::class.java.toString()
+        childFragmentManager.findFragmentByTag(fragmentClass)?.let {
+            transaction.show(it).commit()
+        }
     }
 
     private fun addFragment(fragment: Fragment) {
@@ -228,7 +258,8 @@ class IssueContentFragment :
                 ISSUE_STATUS,
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
-            putString(DISPLAYABLE_KEY, displayableKey)
+            putBoolean(SHOW_SECTIONS, showSections)
         }
     }
+
 }
