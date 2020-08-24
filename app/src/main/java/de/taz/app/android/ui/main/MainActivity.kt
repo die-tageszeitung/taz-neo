@@ -113,7 +113,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     private fun showDisplayable(articleName: String) {
         runOnUiThread {
-            if ((supportFragmentManager.fragments.lastOrNull() as? IssueContentFragment)?.show(articleName) != true) {
+            if ((supportFragmentManager.fragments.lastOrNull() as? IssueContentFragment)?.show(
+                    articleName
+                ) != true
+            ) {
                 val fragment = IssueContentFragment.createInstance(articleName)
                 showMainFragment(fragment)
             }
@@ -129,7 +132,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     fun showIssue(issueStub: IssueStub) {
         setDrawerIssue(issueStub)
-        setCoverFlowItem(issueStub)
         changeDrawerIssue()
 
         runOnUiThread {
@@ -391,7 +393,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                     ?.let { section ->
                                         section.getIssueOperations(applicationContext)
                                             ?.let { issueOperations ->
-                                                setCoverFlowItem(issueOperations)
                                                 setDrawerIssue(issueOperations)
                                                 changeDrawerIssue()
                                             }

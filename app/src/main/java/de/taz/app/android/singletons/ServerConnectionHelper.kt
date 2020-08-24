@@ -13,6 +13,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.Request
+import java.io.EOFException
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
@@ -79,6 +81,10 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                 log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
             } catch (uhe: UnknownHostException) {
                 log.debug("could not reach download server - UnknownHostException: ${uhe.localizedMessage}")
+            } catch (ce: ConnectException) {
+                log.debug("could not reach download server - ConnectException: ${ce.localizedMessage}")
+            } catch (eofe: EOFException) {
+                log.debug("could not reach download server - EOFException: ${eofe.localizedMessage}")
             }
         }
     }
