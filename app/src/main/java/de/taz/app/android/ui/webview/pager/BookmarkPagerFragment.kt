@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -23,7 +24,6 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val DISPLAYABLE_NAME = "displayableName"
 class BookmarkPagerFragment :
     BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 
