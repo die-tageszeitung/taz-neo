@@ -24,27 +24,25 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val DISPLAYABLE_NAME = "articleName"
-
-class ArticlePagerFragment :
-    BaseViewModelFragment<ArticlePagerViewModel>(R.layout.fragment_webview_pager),
-    BackFragment {
+class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
+    R.layout.fragment_webview_pager
+), BackFragment {
 
     val log by Log
     override val enableSideBar: Boolean = true
 
     private var articlePagerAdapter: ArticlePagerAdapter? = null
 
-    private var articleName: String? = null
     private var hasBeenSwiped: Boolean = false
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    private val issueContentViewModel: IssueContentViewModel? by lazy { (parentFragment as? IssueContentFragment)?.viewModel }
+    private val issueContentViewModel: IssueContentViewModel? by lazy {
+        (parentFragment as? IssueContentFragment)?.viewModel
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         savedInstanceState?.apply {
-            articleName = getString(DISPLAYABLE_NAME)
             viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
         }
     }
@@ -55,9 +53,7 @@ class ArticlePagerFragment :
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
-        }
 
-        webview_pager_viewpager.apply {
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
             setCurrentItem(viewModel.currentPosition, false)
         }
@@ -231,7 +227,6 @@ class ArticlePagerFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(DISPLAYABLE_NAME, articleName)
         outState.putInt(POSITION, viewModel.currentPosition)
         super.onSaveInstanceState(outState)
     }
