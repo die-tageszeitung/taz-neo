@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 
 const val HTML_BACKGROUND_CONTAINER = """
@@ -25,10 +26,15 @@ const val HTML_BACKGROUND_CONTAINER = """
 
 class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
+    private var toDownloadImage: Image? = null
 
-    fun newInstance(image: Image?): ImageFragment {
+    fun newInstance(
+        image: Image?,
+        toDownloadImage: Image?
+    ): ImageFragment {
         val fragment = ImageFragment()
         fragment.image = image
+        fragment.toDownloadImage = toDownloadImage
         return fragment
     }
 
@@ -38,43 +44,50 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         val webView = view?.findViewById<WebView>(R.id.image_view)
-        image?.download(context?.applicationContext)
-        image?.isDownloadedLiveData(context?.applicationContext)?.observeDistinctUntil(
-            this, { isDownloaded ->
-                showImageIfDownloaded(isDownloaded)
-            }, { isDownloaded ->
-                isDownloaded
-            })
 
-        webView?.apply {
-            webChromeClient = AppWebChromeClient {
-                view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
+        webView?.let { webView ->
+            image?.let {
+                showImageIfDownloaded(it, webView)
+
             }
-            settings?.apply {
-                allowFileAccess = true
-                builtInZoomControls = true
-                displayZoomControls = false
-                useWideViewPort = true
-                loadWithOverviewMode = true
-                domStorageEnabled = true
-            }
-            context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
-                setBackgroundColor(
-                    it
-                )
+            toDownloadImage?.isDownloadedLiveData(context?.applicationContext)
+                ?.observeDistinctUntil(
+                    this, { isDownloaded ->
+                        if (isDownloaded) {
+                            showImageIfDownloaded(toDownloadImage!!, webView)
+                        }
+                    }, { isDownloaded ->
+                        isDownloaded
+                    })
+
+            webView.apply {
+                webChromeClient = AppWebChromeClient {
+                    view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
+                }
+                settings?.apply {
+                    allowFileAccess = true
+                    builtInZoomControls = true
+                    displayZoomControls = false
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    domStorageEnabled = true
+                }
+                context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
+                    setBackgroundColor(
+                        it
+                    )
+                }
             }
         }
 
         return view
     }
 
-    private fun showImageIfDownloaded(isDownloaded: Boolean) {
-        if (isDownloaded) {
-            val webView = view?.findViewById<WebView>(R.id.image_view)
+    private fun showImageIfDownloaded(toShowImage: Image, webView: WebView) {
             val fileHelper = FileHelper.getInstance(context)
-            runIfNotNull(image, context, webView) { image, context, web ->
+            runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
                 fileHelper.getFileDirectoryUrl(context).let { fileDir ->
-                    val uri = "${image.folder}/${image.name}"
+                    val uri = "${toShowImage.folder}/${toShowImage.name}"
                     web.loadDataWithBaseURL(
                         fileDir,
                         HTML_BACKGROUND_CONTAINER.format("$fileDir/$uri"),
@@ -84,6 +97,5 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                     )
                 }
             }
-        }
     }
 }
