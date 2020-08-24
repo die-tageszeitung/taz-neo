@@ -16,6 +16,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import java.io.EOFException
 import java.net.SocketTimeoutException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -343,7 +344,7 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
         return transformExceptions({
             graphQlClient.query(
-                QueryType.IssueByFeedAndDate,IssueVariables(feedName, issueDate, limit)
+                QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
             )?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
         }, tag) ?: emptyList()
     }
@@ -528,6 +529,9 @@ class ApiService private constructor(applicationContext: Context) {
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()
+        } catch (eofe: EOFException) {
+            log.debug("EOFException ${eofe.localizedMessage}")
+            throw ApiServiceException.NoInternetException()
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
             throw ApiServiceException.NoInternetException()
@@ -555,6 +559,9 @@ class ApiService private constructor(applicationContext: Context) {
     fun <T> catchExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()
+        } catch (eofe: EOFException) {
+            log.debug("EOFException ${eofe.localizedMessage}")
+            serverConnectionHelper.isServerReachable = false
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
             serverConnectionHelper.isServerReachable = false
