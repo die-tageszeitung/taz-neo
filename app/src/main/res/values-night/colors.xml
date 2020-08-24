@@ -4,9 +4,11 @@
     <color name="tazRed">#d50d2e</color>
 
     <color name="white">#fff</color>
+    <color name="superLightGrey">#E3E3E3</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="mediumGrey">#38383A</color>
-    <color name="darkGrey">#262626</color>
+    <color name="darkGrey">#1C1C1E</color>
+    <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
 
     <color name="colorPrimary">@color/tazRed</color>
@@ -15,7 +17,7 @@
     <color name="colorAccent">@color/tazRed</color>
     <color name="deleteRed">#d50e2f</color>
 
-    <color name="backgroundColor">@color/black</color>
+    <color name="backgroundColor">@color/superDarkGrey</color>
     <color name="textColor">@color/superLightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
     <color name="textColorSection">@color/superLightGrey</color>
@@ -27,6 +29,7 @@
     <color name="drawer_sections_item">@color/white</color>
     <color name="drawer_sections_date">@color/lightGrey</color>
     <color name="drawer_sections_item_highlighted">@color/lightGrey</color>
+    <color name="navigation_drawer_background">@color/darkGrey</color>
     <color name="navigation_drawer_header_title">@color/tazRed</color>
 
     <color name="navigation_drawer_icon">@color/darkGrey</color>
@@ -36,9 +39,10 @@
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="navigation_bottom_item_active">@color/tazRed</color>
 
-    <color name="fragment_archive_background">@color/mediumGrey</color>
+    <color name="fragment_archive_background">@color/superDarkGrey</color>
 
-    <color name="bottom_sheet_background">@color/black</color>
-    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+    <color name="bottom_sheet_background">@color/darkGrey</color>
+    <color name="bottom_sheet_divider_color">@color/lightGrey</color>
+    <color name="bottom_sheet_text_color">@color/lightGrey</color>
 
 </resources>
