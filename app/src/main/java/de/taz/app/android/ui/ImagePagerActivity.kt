@@ -12,12 +12,14 @@ import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.ui.webview.pager.DISPLAYABLE_NAME
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +33,8 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
     private var imageName: String? = null
     private var availableImageList: MutableList<Image>? = null
     private var toDownloadImageList: List<Image>? = null
+
+    val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,23 +58,6 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             withContext(Dispatchers.Main) {
                 toDownloadImageList?.forEach { img ->
                     img.download(applicationContext)
-                    // TODO: replace high res image with the normal res image when downloaded
-                    // but for now it is fine, gigh res will be downloaded and shown next
-                    // time image is clicked
-                    // following code can be good starting point
-                    // but result in flickering when image is replaced:
-                    /*img.isDownloadedLiveData(applicationContext).observeDistinctUntil(
-                        this@ImagePagerActivity,
-                        { isDownloaded ->
-                            if (isDownloaded) {
-                                val toReplaceIndex = availableImageList!!.indexOfFirst { it.name.replace("norm","high") == img.name }
-                                availableImageList!![toReplaceIndex] = img
-                                val updatedPagerAdapter = ImagePagerAdapter(this@ImagePagerActivity)
-                                mPager.adapter = updatedPagerAdapter
-                            }
-                        },
-                        { it }
-                    )*/
                 }
             }
         }
@@ -163,7 +150,17 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
     private inner class ImagePagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
 
         override fun createFragment(position: Int): Fragment {
-            return ImageFragment().newInstance(availableImageList?.get(position))
+            val image = availableImageList?.get(position)
+            var toBeDownloadedImage: Image? = null
+            if (image?.resolution != ImageResolution.high && toDownloadImageList?.isNotEmpty()!!) {
+                toBeDownloadedImage = toDownloadImageList?.firstOrNull { highRes ->
+                    image?.name?.replace("norm", "high") == highRes.name
+                }
+            }
+            return ImageFragment().newInstance(
+                image,
+                toBeDownloadedImage
+            )
         }
 
         override fun getItemCount(): Int {
