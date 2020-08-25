@@ -136,7 +136,6 @@ class SplashActivity : BaseActivity() {
                 liveData.observeForever(object : Observer<ResourceInfo?> {
                     override fun onChanged(t: ResourceInfo?) {
                         if (t?.downloadedStatus == DownloadStatus.done) {
-                            log.error("ASDGA")
                             liveData.removeObserver(this)
                             CoroutineScope(Dispatchers.IO).launch { initIssues(10) }
                         }
