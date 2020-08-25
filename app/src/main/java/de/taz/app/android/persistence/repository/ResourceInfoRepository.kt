@@ -51,8 +51,8 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().get()
     }
 
-    fun getStub(): ResourceInfoStub {
-        return  appDatabase.resourceInfoDao().get()
+    fun getStub(): ResourceInfoStub? {
+        return appDatabase.resourceInfoDao().get()
     }
 
     @Throws(NotFoundException::class)

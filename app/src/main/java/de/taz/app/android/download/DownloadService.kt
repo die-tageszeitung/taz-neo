@@ -30,6 +30,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
@@ -74,6 +75,8 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
+    private val startDownloadsRunning = AtomicBoolean(false)
+
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { isConnected ->
@@ -89,8 +92,8 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
      *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
      */
-    fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
-        CoroutineScope(Dispatchers.IO).launch {
+    fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
             var redoJob: Job? = null
             if (!cacheableDownload.isDownloaded(applicationContext)) {
                 ensureAppInfo()
@@ -130,20 +133,18 @@ class DownloadService private constructor(val applicationContext: Context) {
                 val observer = object : Observer<Boolean> {
                     override fun onChanged(t: Boolean?) {
                         if (t == true) {
+                            isDownloadedLiveData.removeObserver(this)
                             CoroutineScope(Dispatchers.IO).launch {
                                 // mark download as downloaded - if it is an issue including articles etc
                                 issue?.setDownloadStatusIncludingChildren(DownloadStatus.done)
                                     ?: run {
                                         cacheableDownload.setDownloadStatus(DownloadStatus.done)
                                     }
-                            }
-                            isDownloadedLiveData.removeObserver(this)
 
-                            // notify server of completed download
-                            downloadId?.let { downloadId ->
-                                val seconds =
-                                    ((System.currentTimeMillis() - start) / 1000).toFloat()
-                                CoroutineScope(Dispatchers.IO).launch {
+                                // notify server of completed download
+                                downloadId?.let { downloadId ->
+                                    val seconds =
+                                        ((System.currentTimeMillis() - start) / 1000).toFloat()
                                     apiService.notifyServerOfDownloadStopAsync(
                                         downloadId,
                                         seconds
@@ -160,36 +161,41 @@ class DownloadService private constructor(val applicationContext: Context) {
                 redoJob?.join()
             }
         }
-
+    }
 
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
-                downloadList.pollFirst()?.let { download ->
-                    if (!currentDownloadList.contains(download.fileName)) {
-                        currentDownloadList.offer(download.fileName)
-                        currentDownloads.incrementAndGet()
-                        val job = getFromServer(download)
-                        val start = DateHelper.now
-                        log.info("download ${download.fileName} started")
-                        download.tag?.let { tag ->
-                            val jobsForTag = tagJobMap[tag] ?: mutableListOf()
-                            jobsForTag.add(job)
-                            tagJobMap[download.tag] = jobsForTag
-                        }
-                        job.invokeOnCompletion {
-                            log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                            currentDownloads.decrementAndGet()
-                            currentDownloadList.remove(download.fileName)
-                            startDownloadsIfCapacity()
-                            download.tag?.let { tagJobMap[it]?.remove(job) }
+        if (!startDownloadsRunning.getAndSet(true)) {
+            log.error("startD")
+            CoroutineScope(Dispatchers.IO).launch {
+                if (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+                    downloadList.pollFirst()?.let { download ->
+                        if (!currentDownloadList.contains(download.fileName)) {
+                            currentDownloadList.offer(download.fileName)
+                            currentDownloads.incrementAndGet()
+                            val start = DateHelper.now
+                            val job = getFromServer(download)
+                            log.info("download ${download.fileName} started")
+                            download.tag?.let { tag ->
+                                val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                                jobsForTag.add(job)
+                                tagJobMap[download.tag] = jobsForTag
+                            }
+                            launch {
+                                job.join()
+                                log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
+                                currentDownloads.decrementAndGet()
+                                currentDownloadList.remove(download.fileName)
+                                startDownloadsIfCapacity()
+                                download.tag?.let { tagJobMap[it]?.remove(job) }
+                            }
                         }
                     }
-                } ?: break
+                }
+                startDownloadsRunning.set(false)
             }
         }
     }

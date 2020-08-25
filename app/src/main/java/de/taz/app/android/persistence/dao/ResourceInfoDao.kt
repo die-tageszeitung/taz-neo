@@ -17,6 +17,6 @@ abstract class ResourceInfoDao: BaseDao<ResourceInfoStub>() {
     @Query("SELECT * FROM ResourceInfo WHERE resourceVersion NOT IN (SELECT resourceVersion from ResourceInfo ORDER BY resourceVersion DESC LIMIT 1)")
     abstract fun getAllButNewest(): List<ResourceInfoStub>
 
-    @Query("SELECT EXISTS (SELECT * FROM ResourceInfo WHERE resourceVersion == :resourceVersion AND downloadedStatus IN ('done', 'takeOld'))")
+    @Query("SELECT EXISTS (SELECT * FROM ResourceInfo WHERE resourceVersion == :resourceVersion AND downloadedStatus IN ('done'))")
     abstract fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean>
 }
