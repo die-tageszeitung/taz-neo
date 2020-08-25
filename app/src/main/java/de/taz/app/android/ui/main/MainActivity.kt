@@ -22,6 +22,7 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
@@ -89,7 +90,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             override fun onDrawerClosed(drawerView: View) {
                 opened = false
-                drawer_logo.translationX = 0f
+                drawer_logo.translationX = -10f
             }
 
             override fun onDrawerStateChanged(newState: Int) {
@@ -322,7 +323,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             val image: Image? = navButton ?: defaultNavButton
             image?.let {
-                if (image.isDownloaded(applicationContext)) {
+                if (image.downloadedStatus == DownloadStatus.done ||
+                    image.downloadedStatus == DownloadStatus.takeOld)
+                {
                     showNavButton(image)
                 } else {
                     // if image exists wait for it to be downloaded and show it
