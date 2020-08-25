@@ -56,7 +56,7 @@ data class ResourceInfo(
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         ResourceInfoRepository.getInstance().apply {
-            update(getStub().copy(downloadedStatus = downloadStatus))
+            getStub()?.copy(downloadedStatus = downloadStatus)?.let { update(it) }
         }
     }
 
@@ -75,8 +75,8 @@ data class ResourceInfo(
             val apiService = ApiService.getInstance(applicationContext)
             val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-            val fromServer = apiService.getResourceInfoAsync().await()
-            val local = resourceInfoRepository.get()
+                val fromServer = apiService.getResourceInfoAsync().await()
+                val local = resourceInfoRepository.get()
 
             fromServer?.let {
                 if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
