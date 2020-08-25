@@ -11,6 +11,8 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 @Mockable
 class ResourceInfoRepository private constructor(applicationContext: Context) :
@@ -62,7 +64,9 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
-            it?.let { resourceInfoStubToResourceInfo(it) }
+            runBlocking(Dispatchers.IO) {
+                it?.let { resourceInfoStubToResourceInfo(it) }
+            }
         }
     }
 
@@ -107,7 +111,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         try {
             appDatabase.fileEntryDao().delete(resourceInfo.resourceList)
         } catch (e: SQLiteConstraintException) {
-           log.warn("Error occurred: $e")
+            log.warn("Error occurred: $e")
         }
 
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
