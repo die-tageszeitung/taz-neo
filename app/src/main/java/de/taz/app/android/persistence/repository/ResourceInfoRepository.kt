@@ -20,7 +20,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun update(resourceInfoStub: ResourceInfoStub) {
-        appDatabase.resourceInfoDao().insertOrReplace(resourceInfoStub)
+        appDatabase.resourceInfoDao().update(resourceInfoStub)
     }
 
     fun save(resourceInfo: ResourceInfo) {
@@ -49,6 +49,10 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().get()
+    }
+
+    fun getStub(): ResourceInfoStub {
+        return  appDatabase.resourceInfoDao().get()
     }
 
     @Throws(NotFoundException::class)
