@@ -137,7 +137,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                     ?: run {
                                         cacheableDownload.setDownloadStatus(DownloadStatus.done)
                                     }
-                                log.debug("download of ${cacheableDownload::class.java} complete in ${DateHelper.now -start}")
+                                log.debug("download of ${cacheableDownload::class.java} complete in ${DateHelper.now - start}")
                                 // notify server of completed download
                                 downloadId?.let { downloadId ->
                                     val seconds =
@@ -165,12 +165,12 @@ class DownloadService private constructor(val applicationContext: Context) {
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
-                downloadList.pollFirst()?.let { download ->
-                    if (!currentDownloadList.contains(download.fileName)) {
-                        currentDownloadList.offer(download.fileName)
-                        currentDownloads.incrementAndGet()
+        while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+            downloadList.pollFirst()?.let { download ->
+                if (!currentDownloadList.contains(download.fileName)) {
+                    currentDownloadList.offer(download.fileName)
+                    currentDownloads.incrementAndGet()
+                    CoroutineScope(Dispatchers.IO).launch {
                         val job = getFromServer(download)
                         val start = DateHelper.now
                         log.info("download ${download.fileName} started")
@@ -179,16 +179,15 @@ class DownloadService private constructor(val applicationContext: Context) {
                             jobsForTag.add(job)
                             tagJobMap[download.tag] = jobsForTag
                         }
-                        job.invokeOnCompletion {
-                            log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                            currentDownloads.decrementAndGet()
-                            currentDownloadList.remove(download.fileName)
-                            startDownloadsIfCapacity()
-                            download.tag?.let { tagJobMap[it]?.remove(job) }
-                        }
+                        job.join()
+                        log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
+                        currentDownloads.decrementAndGet()
+                        currentDownloadList.remove(download.fileName)
+                        startDownloadsIfCapacity()
+                        download.tag?.let { tagJobMap[it]?.remove(job) }
                     }
-                } ?: break
-            }
+                }
+            } ?: break
         }
     }
 
