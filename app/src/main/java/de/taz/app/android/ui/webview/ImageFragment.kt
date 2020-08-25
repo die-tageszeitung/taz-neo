@@ -8,18 +8,24 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_JQUERY_FILE
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 
 const val HTML_BACKGROUND_CONTAINER = """
 <html>
+<head>
+    <script src="%s"></script>
+</head>
     <body style="background: transparent;margin:0;">
         <div style="width:100%%; height:100%%; display: flex; align-items: center;">
-            <img src="%s" style="width:100%%; "/>
+            <img id="image" src="%s" style="width:100%%; "/>
         </div>
     </body>
 </html>
@@ -28,6 +34,7 @@ const val HTML_BACKGROUND_CONTAINER = """
 class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
     private var toDownloadImage: Image? = null
+    val log by Log
 
     fun newInstance(
         image: Image?,
@@ -49,14 +56,14 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
 
         webView?.let { webView ->
             image?.let {
-                showImageIfDownloaded(it, webView)
+                showImageInWebView(it, webView)
 
             }
             toDownloadImage?.isDownloadedLiveData(context?.applicationContext)
                 ?.observeDistinctUntil(
                     this, { isDownloaded ->
                         if (isDownloaded) {
-                            showImageIfDownloaded(toDownloadImage!!, webView)
+                            fadeInImageInWebView(toDownloadImage!!, webView)
                         }
                     }, { isDownloaded ->
                         isDownloaded
@@ -73,6 +80,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                     useWideViewPort = true
                     loadWithOverviewMode = true
                     domStorageEnabled = true
+                    javaScriptEnabled = true
                 }
                 context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
                     setBackgroundColor(
@@ -85,19 +93,34 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         return view
     }
 
-    private fun showImageIfDownloaded(toShowImage: Image, webView: WebView) {
-            val fileHelper = FileHelper.getInstance(context)
-            runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
-                fileHelper.getFileDirectoryUrl(context).let { fileDir ->
-                    val uri = "${toShowImage.folder}/${toShowImage.name}"
-                    web.loadDataWithBaseURL(
-                        fileDir,
-                        HTML_BACKGROUND_CONTAINER.format("$fileDir/$uri"),
-                        "text/html",
-                        "UTF-8",
-                        null
-                    )
-                }
+    private fun showImageInWebView(toShowImage: Image, webView: WebView) {
+        val fileHelper = FileHelper.getInstance(context)
+        val jqueryFile = "file://${fileHelper.getFileByPath("$RESOURCE_FOLDER/$WEBVIEW_JQUERY_FILE").path}"
+        runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
+            RESOURCE_FOLDER
+            fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+                val uri = "${toShowImage.folder}/${toShowImage.name}"
+                web.loadDataWithBaseURL(
+                    fileDir,
+                    HTML_BACKGROUND_CONTAINER.format("$jqueryFile","$fileDir/$uri"),
+                    "text/html",
+                    "UTF-8",
+                    null
+                )
             }
+        }
+    }
+    private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
+        val fileHelper = FileHelper.getInstance(context)
+        runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
+            fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+                val uri = "${toShowImage.folder}/${toShowImage.name}"
+                web.evaluateJavascript(
+                    """
+                        document.getElementById("image").src="$fileDir/$uri";
+                    """.trimIndent()
+                ) { log.debug("ImageFragment: ${toShowImage.name} replaced") }
+            }
+        }
     }
 }
