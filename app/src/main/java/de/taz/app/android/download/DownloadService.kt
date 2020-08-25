@@ -30,7 +30,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
@@ -39,7 +38,7 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_STATUS = "extra.issue.status"
 
-const val CONCURRENT_DOWNLOAD_LIMIT = 20
+const val CONCURRENT_DOWNLOAD_LIMIT = 10
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
@@ -75,8 +74,6 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
-    private val startDownloadsRunning = AtomicBoolean(false)
-
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { isConnected ->
@@ -94,13 +91,13 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job {
         return CoroutineScope(Dispatchers.IO).launch {
+            val start = DateHelper.now
             var redoJob: Job? = null
             if (!cacheableDownload.isDownloaded(applicationContext)) {
                 ensureAppInfo()
 
                 val issue = cacheableDownload as? Issue
                 var downloadId: String? = null
-                val start = System.currentTimeMillis()
 
                 // if we download an issue tell the server we start downloading it
                 issue?.let {
@@ -140,7 +137,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                     ?: run {
                                         cacheableDownload.setDownloadStatus(DownloadStatus.done)
                                     }
-
+                                log.debug("download of ${cacheableDownload::class.java} complete in ${DateHelper.now -start}")
                                 // notify server of completed download
                                 downloadId?.let { downloadId ->
                                     val seconds =
@@ -168,34 +165,29 @@ class DownloadService private constructor(val applicationContext: Context) {
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        if (!startDownloadsRunning.getAndSet(true)) {
-            log.error("startD")
-            CoroutineScope(Dispatchers.IO).launch {
-                if (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
-                    downloadList.pollFirst()?.let { download ->
-                        if (!currentDownloadList.contains(download.fileName)) {
-                            currentDownloadList.offer(download.fileName)
-                            currentDownloads.incrementAndGet()
-                            val start = DateHelper.now
-                            val job = getFromServer(download)
-                            log.info("download ${download.fileName} started")
-                            download.tag?.let { tag ->
-                                val jobsForTag = tagJobMap[tag] ?: mutableListOf()
-                                jobsForTag.add(job)
-                                tagJobMap[download.tag] = jobsForTag
-                            }
-                            launch {
-                                job.join()
-                                log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                                currentDownloads.decrementAndGet()
-                                currentDownloadList.remove(download.fileName)
-                                startDownloadsIfCapacity()
-                                download.tag?.let { tagJobMap[it]?.remove(job) }
-                            }
+        CoroutineScope(Dispatchers.IO).launch {
+            while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+                downloadList.pollFirst()?.let { download ->
+                    if (!currentDownloadList.contains(download.fileName)) {
+                        currentDownloadList.offer(download.fileName)
+                        currentDownloads.incrementAndGet()
+                        val job = getFromServer(download)
+                        val start = DateHelper.now
+                        log.info("download ${download.fileName} started")
+                        download.tag?.let { tag ->
+                            val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                            jobsForTag.add(job)
+                            tagJobMap[download.tag] = jobsForTag
+                        }
+                        job.invokeOnCompletion {
+                            log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
+                            currentDownloads.decrementAndGet()
+                            currentDownloadList.remove(download.fileName)
+                            startDownloadsIfCapacity()
+                            download.tag?.let { tagJobMap[it]?.remove(job) }
                         }
                     }
-                }
-                startDownloadsRunning.set(false)
+                } ?: break
             }
         }
     }
@@ -456,7 +448,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         }
     }
 
-    private suspend fun ensureResourceInfo() {
+    private fun ensureResourceInfo() {
         if (resourceInfo == null) {
             resourceInfo = ResourceInfo.get(applicationContext)
         }

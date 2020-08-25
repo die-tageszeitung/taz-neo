@@ -64,46 +64,47 @@ data class ResourceInfo(
 
         private val log by Log
 
-        suspend fun get(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).get() ?: update(
-                applicationContext
-            )
+
+        fun get(applicationContext: Context?): ResourceInfo? {
+            return ResourceInfoRepository.getInstance(applicationContext).get()
         }
 
-        suspend fun update(applicationContext: Context?): ResourceInfo? = withContext(Dispatchers.IO) {
-            log.info("ResourceInfo.update called")
-            val apiService = ApiService.getInstance(applicationContext)
-            val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+        suspend fun update(applicationContext: Context?): ResourceInfo? =
+            withContext(Dispatchers.IO) {
+                log.info("ResourceInfo.update called")
+                val apiService = ApiService.getInstance(applicationContext)
+                val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
                 val fromServer = apiService.getResourceInfoAsync().await()
                 val local = resourceInfoRepository.get()
 
-            fromServer?.let {
-                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
-                        applicationContext
-                    )
-                ) {
-                    if (local != null) {
-                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
-                        // delete unused files
-                        local.resourceList.filter { local ->
-                            local.name !in fromServerResourceListNames
-                        }.forEach {
-                            it.deleteFile()
+                fromServer?.let {
+                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
+                            applicationContext
+                        )
+                    ) {
+                        if (local != null) {
+                            val fromServerResourceListNames =
+                                fromServer.resourceList.map { it.name }
+                            // delete unused files
+                            local.resourceList.filter { local ->
+                                local.name !in fromServerResourceListNames
+                            }.forEach {
+                                it.deleteFile()
+                            }
                         }
+
+                        resourceInfoRepository.save(fromServer)
+
+                        // ensure resources are downloaded
+                        DownloadService.getInstance(applicationContext).download(fromServer).join()
+                        local?.let { log.debug("Initialized ResourceInfo") }
+                            ?: log.debug("Updated ResourceInfo")
                     }
-
-                    resourceInfoRepository.save(fromServer)
-
-                    // ensure resources are downloaded
-                    DownloadService.getInstance(applicationContext).download(fromServer).join()
-                    local?.let { log.debug("Initialized ResourceInfo") }
-                        ?: log.debug("Updated ResourceInfo")
+                    resourceInfoRepository.deleteAllButNewest()
+                    fromServer
                 }
-                resourceInfoRepository.deleteAllButNewest()
-                fromServer
             }
-        }
 
     }
 }
