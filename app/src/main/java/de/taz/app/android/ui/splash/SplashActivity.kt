@@ -46,8 +46,8 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initLastIssues()
-        initResources()
+        initResources().invokeOnCompletion { initLastIssues() }
+
         initAppInfoAndCheckAndroidVersion()
         initFeedInformation()
 
@@ -185,11 +185,11 @@ class SplashActivity : BaseActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private fun initResources() {
+    private fun initResources(): Job {
         log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        val job = CoroutineScope(Dispatchers.IO).launch {
             ResourceInfo.update(applicationContext)
         }
 
@@ -210,6 +210,7 @@ class SplashActivity : BaseActivity() {
             fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
             log.debug("Created/updated tazApi.js")
         }
+        return job
     }
 
     private fun deleteUnnecessaryIssues() {

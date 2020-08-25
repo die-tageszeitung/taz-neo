@@ -13,10 +13,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.ServerConnectionHelper
-import de.taz.app.android.singletons.OkHttp
-import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ONLY_WIFI
+import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
@@ -41,7 +38,7 @@ const val DATA_ISSUE_DATE = "extra.issue.date"
 const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_STATUS = "extra.issue.status"
 
-const val CONCURRENT_DOWNLOAD_LIMIT = 50
+const val CONCURRENT_DOWNLOAD_LIMIT = 20
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
@@ -94,6 +91,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
         CoroutineScope(Dispatchers.IO).launch {
+            var redoJob: Job? = null
             if (!cacheableDownload.isDownloaded(applicationContext)) {
                 ensureAppInfo()
 
@@ -107,7 +105,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
                             .await()
                     issueRepository.setDownloadDate(it, Date())
-                    launch {
+                    redoJob = launch {
                         // check if metadata has changed and update db and restart download
                         val fromServer = apiService.getIssueByFeedAndDateAsync(
                             issue.feedName, issue.date
@@ -117,7 +115,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         ) {
                             cancelDownloads(issue.tag)
                             issueRepository.save(fromServer)
-                            download(fromServer)
+                            download(fromServer).join()
                         }
                     }
                 }
@@ -159,6 +157,7 @@ class DownloadService private constructor(val applicationContext: Context) {
 
                 // create Downloads
                 addDownloadsToDownloadList(cacheableDownload, baseUrl)
+                redoJob?.join()
             }
         }
 
@@ -175,13 +174,15 @@ class DownloadService private constructor(val applicationContext: Context) {
                         currentDownloadList.offer(download.fileName)
                         currentDownloads.incrementAndGet()
                         val job = getFromServer(download)
+                        val start = DateHelper.now
+                        log.info("download ${download.fileName} started")
                         download.tag?.let { tag ->
                             val jobsForTag = tagJobMap[tag] ?: mutableListOf()
                             jobsForTag.add(job)
                             tagJobMap[download.tag] = jobsForTag
                         }
                         job.invokeOnCompletion {
-                            log.info("download ${download.fileName} completed")
+                            log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
                             currentDownloads.decrementAndGet()
                             currentDownloadList.remove(download.fileName)
                             startDownloadsIfCapacity()

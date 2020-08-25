@@ -6,7 +6,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +55,9 @@ data class ResourceInfo(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ResourceInfoRepository.getInstance()
-            .update(ResourceInfoStub(this).copy(downloadedStatus = downloadStatus))
+        ResourceInfoRepository.getInstance().apply {
+            update(getStub().copy(downloadedStatus = downloadStatus))
+        }
     }
 
     companion object {
@@ -73,7 +73,6 @@ data class ResourceInfo(
         suspend fun update(applicationContext: Context?): ResourceInfo? = withContext(Dispatchers.IO) {
             log.info("ResourceInfo.update called")
             val apiService = ApiService.getInstance(applicationContext)
-            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
             val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
             val fromServer = apiService.getResourceInfoAsync().await()
@@ -92,21 +91,12 @@ data class ResourceInfo(
                         }.forEach {
                             it.deleteFile()
                         }
-
-                        // delete modified files
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                if (oldFileEntry.sha256 != newFileEntry.sha256) {
-                                    oldFileEntry.deleteFile()
-                                }
-                            }
-                        }
                     }
 
                     resourceInfoRepository.save(fromServer)
 
                     // ensure resources are downloaded
-                    DownloadService.getInstance(applicationContext).download(fromServer)
+                    DownloadService.getInstance(applicationContext).download(fromServer).join()
                     local?.let { log.debug("Initialized ResourceInfo") }
                         ?: log.debug("Updated ResourceInfo")
                 }
