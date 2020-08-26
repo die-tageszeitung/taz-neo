@@ -26,11 +26,12 @@ import kotlin.math.max
 
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
-    private lateinit var mPager: ViewPager2
+    private lateinit var viewPager2: ViewPager2
     private var displayableName: String? = null
     private var imageName: String? = null
     private var availableImageList: MutableList<Image>? = null
-    private var toDownloadImageList: List<Image>? = null
+    private var toDownloadImageList: List<Image> = emptyList()
+    private var pagerAdapter: ImagePagerAdapter? = null
 
     val log by Log
 
@@ -41,26 +42,26 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         imageName = intent.extras?.getString(IMAGE_NAME)
 
         // Instantiate a ViewPager and a PagerAdapter.
-        mPager = findViewById(R.id.activity_image_pager)
+        viewPager2 = findViewById(R.id.activity_image_pager)
 
         // The pager adapter, which provides the pages to the view pager widget.
-        val pagerAdapter = ImagePagerAdapter(this)
-        mPager.adapter = pagerAdapter
+        pagerAdapter = pagerAdapter ?: ImagePagerAdapter(this)
+        viewPager2.adapter = pagerAdapter
 
         lifecycleScope.launch(Dispatchers.IO) {
             availableImageList = getOfflineAvailableImageList(displayableName) as MutableList<Image>
             runOnUiThread {
-                mPager.setCurrentItem(getPosition(imageName), false)
+                viewPager2.setCurrentItem(getPosition(imageName), false)
             }
             toDownloadImageList = getToDownloadImageList(displayableName)
             withContext(Dispatchers.Main) {
-                toDownloadImageList?.forEach { img ->
+                toDownloadImageList.forEach { img ->
                     img.download(applicationContext)
                 }
             }
         }
 
-        mPager.apply {
+        viewPager2.apply {
             reduceDragSensitivity(6)
             offscreenPageLimit = 2
         }
@@ -104,7 +105,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
                 }
             }
         }
-    private suspend fun getToDownloadImageList(articleName: String?): List<Image>? =
+    private suspend fun getToDownloadImageList(articleName: String?): List<Image> =
         withContext(Dispatchers.IO) {
             articleName?.let {
                 if (it.startsWith("section.")) {
@@ -129,7 +130,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
                     highRes
                     }
 
-            }
+            } ?: emptyList()
         }
 
     private fun getPosition(imageName: String?): Int {
@@ -150,7 +151,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         override fun createFragment(position: Int): Fragment {
             val image = availableImageList?.get(position)
             var toBeDownloadedImage: Image? = null
-            if (image?.resolution != ImageResolution.high && toDownloadImageList?.isNotEmpty()!!) {
+            if (image?.resolution != ImageResolution.high && toDownloadImageList?.isNotEmpty()) {
                 toBeDownloadedImage = toDownloadImageList?.firstOrNull { highRes ->
                     image?.name?.replace("norm", "high") == highRes.name
                 }
