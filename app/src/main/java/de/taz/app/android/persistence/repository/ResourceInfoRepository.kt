@@ -11,6 +11,8 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 @Mockable
 class ResourceInfoRepository private constructor(applicationContext: Context) :
@@ -20,7 +22,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun update(resourceInfoStub: ResourceInfoStub) {
-        appDatabase.resourceInfoDao().insertOrReplace(resourceInfoStub)
+        appDatabase.resourceInfoDao().update(resourceInfoStub)
     }
 
     fun save(resourceInfo: ResourceInfo) {
@@ -51,6 +53,10 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().get()
     }
 
+    fun getStub(): ResourceInfoStub? {
+        return appDatabase.resourceInfoDao().get()
+    }
+
     @Throws(NotFoundException::class)
     fun getOrThrow(): ResourceInfo {
         return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().get())
@@ -58,7 +64,9 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
-            it?.let { resourceInfoStubToResourceInfo(it) }
+            runBlocking(Dispatchers.IO) {
+                it?.let { resourceInfoStubToResourceInfo(it) }
+            }
         }
     }
 
@@ -103,7 +111,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         try {
             appDatabase.fileEntryDao().delete(resourceInfo.resourceList)
         } catch (e: SQLiteConstraintException) {
-           log.warn("Error occurred: $e")
+            log.warn("Error occurred: $e")
         }
 
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))

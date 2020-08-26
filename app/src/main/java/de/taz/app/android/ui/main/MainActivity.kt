@@ -22,6 +22,7 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
@@ -39,6 +40,7 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import kotlin.math.min
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -77,7 +79,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     val drawerWidth =
                         drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                        drawer_logo.translationX = min(
+                            slideOffset * (parentView.width - drawerWidth),
+                            -5f * resources.displayMetrics.density
+                        )
                     }
                 }
             }
@@ -89,7 +94,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             override fun onDrawerClosed(drawerView: View) {
                 opened = false
-                drawer_logo.translationX = 0f
             }
 
             override fun onDrawerStateChanged(newState: Int) {
@@ -322,7 +326,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             val image: Image? = navButton ?: defaultNavButton
             image?.let {
-                if (image.isDownloaded(applicationContext)) {
+                if (image.downloadedStatus == DownloadStatus.done ||
+                    image.downloadedStatus == DownloadStatus.takeOld)
+                {
                     showNavButton(image)
                 } else {
                     // if image exists wait for it to be downloaded and show it
