@@ -28,6 +28,7 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
@@ -102,6 +103,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 }
             }
         })
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            IssueRepository.getInstance(applicationContext).getLatestIssue()
+                ?.let { setDrawerIssue(it) }
+        }
     }
 
     fun showInWebView(
@@ -327,8 +333,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             val image: Image? = navButton ?: defaultNavButton
             image?.let {
                 if (image.downloadedStatus == DownloadStatus.done ||
-                    image.downloadedStatus == DownloadStatus.takeOld)
-                {
+                    image.downloadedStatus == DownloadStatus.takeOld
+                ) {
                     showNavButton(image)
                 } else {
                     // if image exists wait for it to be downloaded and show it
