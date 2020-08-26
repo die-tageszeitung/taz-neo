@@ -22,6 +22,4 @@ abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
     )
     abstract fun getImagesForArticle(articleFileName: String): List<Image>
 
-    fun getImagesForArticle(article: Article): List<Image> =
-        getImagesForArticle(article.articleHtml.name)
 }
