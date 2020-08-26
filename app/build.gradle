@@ -42,7 +42,7 @@ android {
             annotationProcessorOptions {
                 arguments = [
                         "room.schemaLocation": "$projectDir/schemas".toString(),
-                        "room.incremental": "true"
+                        "room.incremental"   : "true"
                 ]
             }
         }
@@ -149,9 +149,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     // this needs to be jdk 7 as otherwise it will not work on Android 5.1
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.0-M1-1.4.0-rc'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
