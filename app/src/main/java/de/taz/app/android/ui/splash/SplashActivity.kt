@@ -163,7 +163,7 @@ class SplashActivity : BaseActivity() {
 
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")
-        issues.forEach { it.moment.download(applicationContext) }
+        issues.reversed().forEach { it.moment.download(applicationContext) }
     }
 
 
