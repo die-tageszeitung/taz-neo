@@ -151,8 +151,8 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         override fun createFragment(position: Int): Fragment {
             val image = availableImageList?.get(position)
             var toBeDownloadedImage: Image? = null
-            if (image?.resolution != ImageResolution.high && toDownloadImageList?.isNotEmpty()) {
-                toBeDownloadedImage = toDownloadImageList?.firstOrNull { highRes ->
+            if (image?.resolution != ImageResolution.high && toDownloadImageList.isNotEmpty()) {
+                toBeDownloadedImage = toDownloadImageList.firstOrNull { highRes ->
                     image?.name?.replace("norm", "high") == highRes.name
                 }
             }
