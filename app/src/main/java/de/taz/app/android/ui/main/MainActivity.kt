@@ -243,7 +243,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-            if (skipToCurrentIssue) coverFlowFragment?.skipToEnd()
+            if (skipToCurrentIssue) coverFlowFragment?.skipToHome()
         }
 
     }
