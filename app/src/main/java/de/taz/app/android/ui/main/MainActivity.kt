@@ -40,6 +40,7 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import kotlin.math.min
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -78,7 +79,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     val drawerWidth =
                         drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                        drawer_logo.translationX = min(
+                            slideOffset * (parentView.width - drawerWidth),
+                            -5f * resources.displayMetrics.density
+                        )
                     }
                 }
             }
@@ -90,7 +94,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             override fun onDrawerClosed(drawerView: View) {
                 opened = false
-                drawer_logo.translationX = -10f
             }
 
             override fun onDrawerStateChanged(newState: Int) {
