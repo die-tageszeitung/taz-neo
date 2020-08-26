@@ -3,6 +3,7 @@ package de.taz.app.android.singletons
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
@@ -62,18 +63,18 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
         while (!this@ServerConnectionHelper.isServerReachable) {
             delay(1000)
             try {
-                appInfoRepository.get()?.let { appInfo ->
-                    val result = awaitCallback(
-                        okHttpClient.newCall(
-                            Request.Builder().url(appInfo.globalBaseUrl).build()
-                        )::enqueue
-                    )
-                    val bool = result.code.toString().firstOrNull() in listOf('2', '3')
-                    if (bool) {
-                        log.debug("downloadserver reached")
-                        isServerReachableLiveData.postValue(bool)
-                        isServerReachableLastChecked = Date().time
-                    }
+                log.debug("checking server connection")
+                val serverUrl = appInfoRepository.get()?.globalBaseUrl ?: GRAPHQL_ENDPOINT
+                val result = awaitCallback(
+                    okHttpClient.newCall(
+                        Request.Builder().url(serverUrl).build()
+                    )::enqueue
+                )
+                val bool = result.code.toString().firstOrNull() in listOf('2', '3')
+                if (bool) {
+                    log.debug("downloadserver reached")
+                    isServerReachableLiveData.postValue(bool)
+                    isServerReachableLastChecked = Date().time
                 }
             } catch (ce: ConnectionException) {
                 log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")

@@ -81,11 +81,6 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
                             }
                         }
                     }
-            } ?: lifecycleScope.launchWhenResumed {
-                webview_pager_viewpager.setCurrentItem(
-                    0,
-                    false
-                )
             }
         }
     }
