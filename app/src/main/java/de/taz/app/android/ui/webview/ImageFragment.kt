@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 
@@ -53,8 +52,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         val webView = view?.findViewById<WebView>(R.id.image_view)
-
-        webView?.let { webView ->
+        webView?.let {
             image?.let {
                 showImageInWebView(it, webView)
 
@@ -96,13 +94,13 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private fun showImageInWebView(toShowImage: Image, webView: WebView) {
         val fileHelper = FileHelper.getInstance(context)
         val jqueryFile = "file://${fileHelper.getFileByPath("$RESOURCE_FOLDER/$WEBVIEW_JQUERY_FILE").path}"
-        runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
+        runIfNotNull(toShowImage, context, webView) { image, context, web ->
             RESOURCE_FOLDER
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
-                val uri = "${toShowImage.folder}/${toShowImage.name}"
+                val uri = "${image.folder}/${image.name}"
                 web.loadDataWithBaseURL(
                     fileDir,
-                    HTML_BACKGROUND_CONTAINER.format("$jqueryFile","$fileDir/$uri"),
+                    HTML_BACKGROUND_CONTAINER.format(jqueryFile,"$fileDir/$uri"),
                     "text/html",
                     "UTF-8",
                     null
@@ -112,14 +110,14 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
         val fileHelper = FileHelper.getInstance(context)
-        runIfNotNull(toShowImage, context, webView) { toShowImage, context, web ->
+        runIfNotNull(toShowImage, context, webView) { image, context, web ->
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
-                val uri = "${toShowImage.folder}/${toShowImage.name}"
+                val uri = "${image.folder}/${image.name}"
                 web.evaluateJavascript(
                     """
                         document.getElementById("image").src="$fileDir/$uri";
                     """.trimIndent()
-                ) { log.debug("ImageFragment: ${toShowImage.name} replaced") }
+                ) { log.debug("${image.name} replaced") }
             }
         }
     }
