@@ -10,6 +10,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.lifecycle.Observer
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -46,8 +47,9 @@ class SplashActivity : BaseActivity() {
         generateInstallationId()
         generateNotificationChannels()
 
-        initLastIssues()
         initResources()
+        initLastIssues()
+
         initAppInfoAndCheckAndroidVersion()
         initFeedInformation()
 
@@ -129,7 +131,17 @@ class SplashActivity : BaseActivity() {
 
     private fun initLastIssues() {
         CoroutineScope(Dispatchers.IO).launch {
-            initIssues(10)
+            val liveData = ResourceInfoRepository.getInstance(applicationContext).getLiveData()
+            withContext(Dispatchers.Main) {
+                liveData.observeForever(object : Observer<ResourceInfo?> {
+                    override fun onChanged(t: ResourceInfo?) {
+                        if (t?.downloadedStatus == DownloadStatus.done) {
+                            liveData.removeObserver(this)
+                            CoroutineScope(Dispatchers.IO).launch { initIssues(10) }
+                        }
+                    }
+                })
+            }
         }
     }
 
@@ -185,11 +197,11 @@ class SplashActivity : BaseActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private fun initResources() {
+    private fun initResources(): Job {
         log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        val job = CoroutineScope(Dispatchers.IO).launch {
             ResourceInfo.update(applicationContext)
         }
 
@@ -210,6 +222,7 @@ class SplashActivity : BaseActivity() {
             fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
             log.debug("Created/updated tazApi.js")
         }
+        return job
     }
 
     private fun deleteUnnecessaryIssues() {

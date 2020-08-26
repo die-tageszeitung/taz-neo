@@ -6,7 +6,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -56,64 +55,56 @@ data class ResourceInfo(
     }
 
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        ResourceInfoRepository.getInstance()
-            .update(ResourceInfoStub(this).copy(downloadedStatus = downloadStatus))
+        ResourceInfoRepository.getInstance().apply {
+            getStub()?.copy(downloadedStatus = downloadStatus)?.let { update(it) }
+        }
     }
 
     companion object {
 
         private val log by Log
 
-        suspend fun get(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).get() ?: update(
-                applicationContext
-            )
+
+        fun get(applicationContext: Context?): ResourceInfo? {
+            return ResourceInfoRepository.getInstance(applicationContext).get()
         }
 
-        suspend fun update(applicationContext: Context?): ResourceInfo? = withContext(Dispatchers.IO) {
-            log.info("ResourceInfo.update called")
-            val apiService = ApiService.getInstance(applicationContext)
-            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-            val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+        suspend fun update(applicationContext: Context?): ResourceInfo? =
+            withContext(Dispatchers.IO) {
+                log.info("ResourceInfo.update called")
+                val apiService = ApiService.getInstance(applicationContext)
+                val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
-            val fromServer = apiService.getResourceInfoAsync().await()
-            val local = resourceInfoRepository.get()
+                val fromServer = apiService.getResourceInfoAsync().await()
+                val local = resourceInfoRepository.get()
 
-            fromServer?.let {
-                if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
-                        applicationContext
-                    )
-                ) {
-                    if (local != null) {
-                        val fromServerResourceListNames = fromServer.resourceList.map { it.name }
-                        // delete unused files
-                        local.resourceList.filter { local ->
-                            local.name !in fromServerResourceListNames
-                        }.forEach {
-                            it.deleteFile()
-                        }
-
-                        // delete modified files
-                        fromServer.resourceList.forEach { newFileEntry ->
-                            fileEntryRepository.get(newFileEntry.name)?.let { oldFileEntry ->
-                                if (oldFileEntry.sha256 != newFileEntry.sha256) {
-                                    oldFileEntry.deleteFile()
-                                }
+                fromServer?.let {
+                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
+                            applicationContext
+                        )
+                    ) {
+                        if (local != null) {
+                            val fromServerResourceListNames =
+                                fromServer.resourceList.map { it.name }
+                            // delete unused files
+                            local.resourceList.filter { local ->
+                                local.name !in fromServerResourceListNames
+                            }.forEach {
+                                it.deleteFile()
                             }
                         }
+
+                        resourceInfoRepository.save(fromServer)
+
+                        // ensure resources are downloaded
+                        DownloadService.getInstance(applicationContext).download(fromServer).join()
+                        local?.let { log.debug("Initialized ResourceInfo") }
+                            ?: log.debug("Updated ResourceInfo")
                     }
-
-                    resourceInfoRepository.save(fromServer)
-
-                    // ensure resources are downloaded
-                    DownloadService.getInstance(applicationContext).download(fromServer)
-                    local?.let { log.debug("Initialized ResourceInfo") }
-                        ?: log.debug("Updated ResourceInfo")
+                    resourceInfoRepository.deleteAllButNewest()
+                    fromServer
                 }
-                resourceInfoRepository.deleteAllButNewest()
-                fromServer
             }
-        }
 
     }
 }
