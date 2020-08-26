@@ -89,8 +89,8 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
      *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
      */
-    fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job {
-        return CoroutineScope(Dispatchers.IO).launch {
+    fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
+        CoroutineScope(Dispatchers.IO).launch {
             val start = DateHelper.now
             var redoJob: Job? = null
             if (!cacheableDownload.isDownloaded(applicationContext)) {
@@ -158,7 +158,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 redoJob?.join()
             }
         }
-    }
+
 
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
