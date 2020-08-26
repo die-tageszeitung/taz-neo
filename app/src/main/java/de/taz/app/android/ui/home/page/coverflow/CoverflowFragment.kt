@@ -213,10 +213,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(coverflowAdapter?.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    val visibleItemCount = 3
-                    if (position < 2 * visibleItemCount) {
-                        coverflowAdapter?.getItem(0)?.date?.let { requestDate ->
-                            getNextIssueMoments(requestDate)
+                    val visibleItemCount = 5
+                    coverflowAdapter?.let { coverflowAdapter ->
+                        if (position > coverflowAdapter.itemCount - visibleItemCount) {
+                            coverflowAdapter.getItem(coverflowAdapter.itemCount-1)?.date?.let { requestDate ->
+                                getNextIssueMoments(requestDate)
+                            }
                         }
                     }
                 }
