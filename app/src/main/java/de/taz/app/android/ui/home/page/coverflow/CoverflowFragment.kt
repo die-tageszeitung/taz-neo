@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
@@ -139,7 +138,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             setCurrentItem(coverflowAdapter?.getItem(0))
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
             snapHelper.scrollToPosition(0)
-            setHomeIconFilled()
+            (parentFragment as? HomeFragment)?.setHomeIconFilled()
         }
     }
 
@@ -150,10 +149,13 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             layoutManager?.apply {
                 val currentPosition: Int =
                     (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
-                if (position >= 0) {
+                if (position > 0) {
                     if (position != currentPosition) {
                         fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
                     }
+                    return@runIfNotNull true
+                } else if (position == 0) {
+                    skipToHome()
                     return@runIfNotNull true
                 }
             }
@@ -210,10 +212,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
             // persist position and download new issues if user is scrolling
             if (position >= 0 && !isIdleEvent) {
-                if (position == 0) {
-                    setHomeIconFilled()
-                } else {
-                    setHomeIcon()
+                (parentFragment as? HomeFragment)?.apply {
+                    if (position == 0) {
+                        setHomeIconFilled()
+                    } else {
+                        setHomeIcon()
+                    }
                 }
 
                 setCurrentItem(coverflowAdapter?.getItem(position))
@@ -273,15 +277,4 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         super.onDestroyView()
     }
 
-    private fun setHomeIconFilled() {
-        (parentFragment as? HomeFragment)?.view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
-            R.id.bottom_navigation_action_home
-        )?.setIcon(R.drawable.ic_home_filled)
-    }
-
-    private fun setHomeIcon() {
-        (parentFragment as? HomeFragment)?.view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
-            R.id.bottom_navigation_action_home
-        )?.setIcon(R.drawable.ic_home)
-    }
 }
