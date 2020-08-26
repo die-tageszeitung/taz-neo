@@ -24,10 +24,10 @@ class CoverflowAdapter(
         if (skipToLast) {
             if (fragment.hasSetItem()) {
                 if(!fragment.skipToCurrentItem()) {
-                    fragment.skipToEnd()
+                    fragment.skipToHome()
                 }
             } else {
-                fragment.skipToEnd()
+                fragment.skipToHome()
             }
         }
     }
@@ -36,7 +36,7 @@ class CoverflowAdapter(
         val skipToLast = visibleIssueStubList.isEmpty()
         super.setInactiveFeedNames(inactiveFeedNames)
         if (skipToLast) {
-            fragment.skipToEnd()
+            fragment.skipToHome()
         }
     }
 

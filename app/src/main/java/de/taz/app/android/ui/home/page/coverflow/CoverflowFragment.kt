@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
@@ -22,13 +23,13 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
+import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
-
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
@@ -132,15 +133,13 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         return viewLifecycleOwner
     }
 
-    fun skipToEnd() {
+    fun skipToHome() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
-            val position: Int = layoutManager?.findFirstVisibleItemPosition() ?: 0
-            if (position > 0) {
-                setCurrentItem(coverflowAdapter?.getItem(0))
-                fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
-                snapHelper.scrollToPosition(0)
-            }
+            setCurrentItem(coverflowAdapter?.getItem(0))
+            fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
+            snapHelper.scrollToPosition(0)
+            setHomeIconFilled()
         }
     }
 
@@ -211,12 +210,18 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
             // persist position and download new issues if user is scrolling
             if (position >= 0 && !isIdleEvent) {
+                if (position == 0) {
+                    setHomeIconFilled()
+                } else {
+                    setHomeIcon()
+                }
+
                 setCurrentItem(coverflowAdapter?.getItem(position))
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val visibleItemCount = 5
                     coverflowAdapter?.let { coverflowAdapter ->
                         if (position > coverflowAdapter.itemCount - visibleItemCount) {
-                            coverflowAdapter.getItem(coverflowAdapter.itemCount-1)?.date?.let { requestDate ->
+                            coverflowAdapter.getItem(coverflowAdapter.itemCount - 1)?.date?.let { requestDate ->
                                 getNextIssueMoments(requestDate)
                             }
                         }
@@ -268,4 +273,15 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         super.onDestroyView()
     }
 
+    private fun setHomeIconFilled() {
+        (parentFragment as? HomeFragment)?.view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
+            R.id.bottom_navigation_action_home
+        )?.setIcon(R.drawable.ic_home_filled)
+    }
+
+    private fun setHomeIcon() {
+        (parentFragment as? HomeFragment)?.view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
+            R.id.bottom_navigation_action_home
+        )?.setIcon(R.drawable.ic_home)
+    }
 }
