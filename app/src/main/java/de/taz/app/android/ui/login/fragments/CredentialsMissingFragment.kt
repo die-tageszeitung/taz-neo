@@ -3,6 +3,7 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
@@ -43,6 +44,7 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
             fragment_login_missing_credentials_surname_layout.visibility = View.GONE
             fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
         }
+        fragment_login_missing_credentials_terms_and_conditions.markRequired()
 
         fragment_login_missing_credentials_switch.setOnClickListener {
             viewModel.status.postValue(
@@ -129,7 +131,7 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 fragment_login_missing_credentials_email_layout.error = getString(
-                    R.string.login_email_error_no_email
+                    R.string.login_email_error_invalid
                 )
                 somethingWrong = true
             }
@@ -140,6 +142,13 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
                 R.string.login_password_error_empty
             )
             somethingWrong = true
+        }
+
+        if (!fragment_login_missing_credentials_terms_and_conditions.isChecked) {
+            somethingWrong = true
+            fragment_login_missing_credentials_terms_and_conditions.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.tazRed)
+            )
         }
 
         if (somethingWrong) {

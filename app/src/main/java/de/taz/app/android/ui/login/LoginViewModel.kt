@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
+import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,8 @@ import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.PREFERENCES_AUTH
+import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -34,15 +37,30 @@ class LoginViewModel(
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
 
-    var username: String? = null
-        private set
+    var username: String? = application.getSharedPreferences(
+        PREFERENCES_AUTH,
+        Context.MODE_PRIVATE
+    ).getString(PREFERENCES_AUTH_EMAIL, null)
+//        private set
     var password: String? = null
-        private set
+  //      private set
     var subscriptionId: Int? = null
         private set
     var subscriptionPassword: String? = null
         private set
     var backToArticle: Boolean = true
+
+    var nameAffix: String? = null
+    var firstName: String? = null
+    var surName: String? = null
+    var street: String? = null
+    var city: String? = null
+    var postCode: String? = null
+    var country: String? = null
+    var phone: String? = null
+    var price: Int? = null
+    var iban: String? = null
+    var accountHolder: String? = null
 
     init {
         if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
@@ -598,10 +616,13 @@ enum class LoginViewModelState {
     POLLING_FAILED,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
+    SUBSCRIPTION_ACCOUNT,
+    SUBSCRIPTION_BANK,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
     SUBSCRIPTION_MISSING_INVALID_ID,
+    SUBSCRIPTION_ADDRESS,
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,
