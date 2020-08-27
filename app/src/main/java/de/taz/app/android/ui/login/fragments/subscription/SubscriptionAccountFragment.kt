@@ -45,6 +45,10 @@ class SubscriptionAccountFragment :
         fragment_subscription_account_password_layout.markRequired()
         fragment_subscription_account_terms_and_conditions.markRequired()
 
+        fragment_subscription_account_comment.setText(viewModel.comment)
+        fragment_subscription_account_email.setText(viewModel.username)
+        fragment_subscription_account_comment.setText(viewModel.comment)
+
         drawLayout()
 
         fragment_subscription_account_switch_new_account.setOnClickListener {

@@ -1,10 +1,7 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
-import android.widget.EditText
-import android.widget.TextView
 import androidx.annotation.StringRes
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
@@ -34,11 +31,7 @@ class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.username?.let {
-            fragment_login_username.setText(it)
-        } ?: viewModel.subscriptionId?.let {
-            fragment_login_username.setText(it.toString())
-        }
+        fragment_login_username.setText(viewModel.username ?: viewModel.subscriptionId?.toString())
 
         viewModel.password?.let {
             fragment_login_password.setText(it)
