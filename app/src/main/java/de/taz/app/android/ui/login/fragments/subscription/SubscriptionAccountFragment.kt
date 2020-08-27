@@ -18,6 +18,7 @@ import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.DataPolicyActivity
+import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import kotlinx.android.synthetic.main.fragment_subscription_account.*
 
@@ -66,9 +67,18 @@ class SubscriptionAccountFragment :
         fragment_subscription_account_terms_and_conditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms), ::showTermsAndConditions)
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy), ::showDataPolicy)
-            spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation), ::showRevocation)
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_terms),
+                ::showTermsAndConditions
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_data_policy),
+                ::showDataPolicy
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_revocation),
+                ::showRevocation
+            )
 
             text = spannableString
 
@@ -177,18 +187,19 @@ class SubscriptionAccountFragment :
         fragment_subscription_account_password_layout.error = context?.getString(stringRes)
     }
 
-    fun showTermsAndConditions() {
+    private fun showTermsAndConditions() {
         val intent = Intent(activity, WebViewActivity::class.java)
         intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
         activity?.startActivity(intent)
     }
 
-    fun showDataPolicy() {
+    private fun showDataPolicy() {
         val intent = Intent(activity, DataPolicyActivity::class.java)
+        intent.putExtra(FINISH_ON_CLOSE, true)
         activity?.startActivity(intent)
     }
 
-    fun showRevocation() {
+    private fun showRevocation() {
         val intent = Intent(activity, WebViewActivity::class.java)
         intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
         activity?.startActivity(intent)
