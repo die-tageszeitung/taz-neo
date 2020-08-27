@@ -43,6 +43,7 @@
         <item name="strokeColor">@color/colorAccent</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/colorAccent</item>
+        <item name="rippleColor">@color/outline_button_ripple_color</item>
     </style>
 
     <style name="AppTheme.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
