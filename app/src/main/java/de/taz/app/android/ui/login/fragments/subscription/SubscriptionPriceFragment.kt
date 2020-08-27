@@ -17,6 +17,7 @@ import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_price.*
+import kotlinx.android.synthetic.main.fragment_subscription_price_list_item.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -25,6 +26,15 @@ import kotlinx.coroutines.withContext
 
 class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_price) {
     private val priceInfoAdapter = PriceInfoAdapter()
+    private var priceList = emptyList<PriceInfo>()
+
+    companion object {
+        fun createInstance(priceList: List<PriceInfo>): SubscriptionPriceFragment {
+            val fragment = SubscriptionPriceFragment()
+            fragment.priceList = priceList
+            return fragment
+        }
+    }
 
     private val testSubscriptionPriceInfo by lazy {
         PriceInfo(resources.getString(R.string.trial_subscription_name), 0)
@@ -32,17 +42,8 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel.status.postValue(LoginViewModelState.LOADING)
-
         // get async so when user reconnects it automatically resolves
-        lifecycleScope.launch(Dispatchers.IO) {
-            ApiService.getInstance(context?.applicationContext).getPriceListAsync()
-                .let { deferred ->
-                    setPriceList(deferred.await())
-                }
-        }
-        getPriceList()
+        setPriceList(priceList)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,22 +69,6 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
 
     override fun next() {
         viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS)
-    }
-
-    /**
-     * get priceList synchronous to give user feedback
-     */
-    private fun getPriceList(): Job = lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            ApiService.getInstance(context?.applicationContext).getPriceList().let {
-                withContext(Dispatchers.Main) { setPriceList(it) }
-            }
-        } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-            view?.let {
-                Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry) { getPriceList() }.show()
-            } ?: ToastHelper.getInstance(context?.applicationContext).showNoConnectionToast()
-        }
     }
 
     private inner class PriceInfoAdapter : RecyclerView.Adapter<PriceInfoAdapter.ViewHolder>() {
