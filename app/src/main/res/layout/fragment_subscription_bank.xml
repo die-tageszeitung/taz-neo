@@ -25,9 +25,11 @@
         android:id="@+id/fragment_subscription_bank_iban_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="30"
         app:layout_constraintTop_toBottomOf="@id/fragment_subscription_bank_description">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_bank_iban"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,9 +44,11 @@
         android:id="@+id/fragment_subscription_bank_account_holder_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="30"
         app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_bank_iban_layout">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_bank_account_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
