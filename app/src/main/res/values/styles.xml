@@ -22,14 +22,21 @@
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="colorButtonNormal">@color/tazRed</item>
         <item name="android:colorButtonNormal">@color/tazRed</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="backgroundTint">@color/backgroundColor</item>
         <item name="textAllCaps">false</item>
@@ -234,13 +241,6 @@
         <item name="android:textSize">25sp</item>
     </style>
 
-    <style name="Settings.Button" parent="Widget.MaterialComponents.Button">
-        <item name="android:theme">@style/Theme.MaterialComponents</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
-        <item name="textAllCaps">false</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
@@ -276,6 +276,7 @@
         <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
     </style>
 

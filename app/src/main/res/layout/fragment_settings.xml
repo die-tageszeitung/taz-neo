@@ -129,7 +129,6 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fragment_settings_support_report_bug"
-                android:theme="@style/Settings.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_support_report_bug"
