@@ -5,12 +5,15 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
-import androidx.core.widget.TextViewCompat
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_address.*
+
+const val MAX_NAME_LENGTH = 24
 
 class SubscriptionAddressFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_address) {
@@ -41,6 +44,16 @@ class SubscriptionAddressFragment :
         fragment_subscription_address_city.setText(viewModel.city)
         fragment_subscription_address_country.setText(viewModel.country)
         fragment_subscription_address_postcode.setText(viewModel.postCode)
+
+        fragment_subscription_address_first_name.doAfterTextChanged { text ->
+            fragment_subscription_address_surname_layout.counterMaxLength =
+                MAX_NAME_LENGTH - (text?.length ?: 0)
+        }
+
+        fragment_subscription_address_surname.doAfterTextChanged { text ->
+            fragment_subscription_address_first_name_layout.counterMaxLength =
+                MAX_NAME_LENGTH - (text?.length ?: 0)
+        }
 
         fragment_subscription_address_phone.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)

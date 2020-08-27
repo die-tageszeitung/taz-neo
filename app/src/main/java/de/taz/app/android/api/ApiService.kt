@@ -54,13 +54,10 @@ class ApiService private constructor(applicationContext: Context) {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { canReach ->
                 if (canReach) {
-                    waitInternetList.forEach {
-                        try {
-                            log.debug("ApiCall resuming")
-                            it.resume(Unit)
-                        } catch (ise: IllegalStateException) {
-                            // already resumed
-                        }
+                    try {
+                        waitInternetList.forEach { it.resume(Unit) }
+                    } catch (ise: IllegalStateException) {
+                        // already resumed
                     }
                 }
             }
@@ -428,6 +425,52 @@ class ApiService private constructor(applicationContext: Context) {
         }
 
     /**
+     * function to request a subscription
+     * @param tazId the username
+     * @param idPassword the password for the username
+     * @param surname surname of the requesting person
+     * @param firstName firstName of the requesting person
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun subscription(
+        tazId: String? = null,
+        idPassword: String? = null,
+        surname: String? = null,
+        firstName: String? = null,
+        street: String? = null,
+        city: String? = null,
+        postCode: String? = null,
+        country: String? = null,
+        phone: String? = null,
+        price: Int? = null,
+        iban: String? = null,
+        accountHolder: String? = null
+    ): SubscriptionInfo? {
+        val tag = "subscription"
+        log.debug("$tag tazId: $tazId")
+        return transformExceptions({
+            val data = graphQlClient.query(
+                QueryType.Subscription,
+                SubscriptionVariables(
+                    tazId,
+                    idPassword,
+                    surname,
+                    firstName,
+                    street,
+                    city,
+                    postCode,
+                    country,
+                    phone,
+                    price,
+                    iban,
+                    accountHolder
+                )
+            )
+            data?.subscription
+        }, tag)
+    }
+
+    /**
      * function to request a trial subscription
      * @param tazId the username
      * @param idPassword the password for the username
@@ -528,6 +571,28 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    suspend fun getPriceList(): List<PriceInfo> {
+        val tag = "getPriceList"
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.PriceList
+                )?.priceList
+            },
+            tag
+        ) ?: emptyList()
+    }
+
+
+    suspend fun getPriceListAsync(): Deferred<List<PriceInfo>> =
+        CoroutineScope(Dispatchers.IO).async {
+            val tag = "notifyServerOfDownloadStop"
+            getDataDto(
+                tag,
+                QueryType.PriceList
+            ).priceList ?: emptyList()
+        }
+
     @Throws(ApiServiceException.NoInternetException::class)
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
@@ -590,8 +655,8 @@ class ApiService private constructor(applicationContext: Context) {
     fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
         if (serverConnectionHelper.isServerReachable) {
             continuation.resume(Unit)
-        } else {
             log.debug("ApiCall $tag waiting")
+        } else {
             waitInternetList.add(continuation)
         }
     }
