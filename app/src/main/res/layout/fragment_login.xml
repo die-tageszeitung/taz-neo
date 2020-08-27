@@ -27,13 +27,13 @@
         android:id="@+id/fragment_login_username_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/login_username_hint"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_description">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/fragment_login_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/login_username_hint"
             android:imeOptions="actionNext"
             android:inputType="textEmailAddress"
             android:nextFocusForward="@id/fragment_login_password" />
@@ -44,6 +44,7 @@
         android:id="@+id/fragment_login_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/login_password_hint"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_layout"
         app:passwordToggleEnabled="true">
 
@@ -51,14 +52,13 @@
             android:id="@+id/fragment_login_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/login_password_hint"
             android:imeOptions="actionDone"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-   <com.google.android.material.button.MaterialButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/fragment_login_login_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_button"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,11 +74,12 @@
         android:text="@string/trial_subscription_title"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/fragment_login_register_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/register_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,19 +87,10 @@
 
     <TextView
         android:id="@+id/fragment_login_forgot_password_text"
-        style="@style/TextAppearance.Login.Text"
+        style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_register_button" />
-
-    <Button
-        android:id="@+id/fragment_login_forgot_password_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/login_forgot_password_button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_forgot_password_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,8 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
+        <item name="colorOnSurface">@color/backgroundColor</item>
+        <item name="textInputStyle">@style/AppTheme.TextInputLayout</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
@@ -24,16 +26,19 @@
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:theme">@style/Theme.MaterialComponents</item>
-        <item name="android:layout_marginTop">@dimen/login_button_margin_top</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="backgroundTint">@color/backgroundColor</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="AppTheme.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColorHint">@color/textColorAccent</item>
+        <item name="boxStrokeColor">@color/textInput</item>
     </style>
 
     <style name="SplashTheme" parent="AppTheme">
