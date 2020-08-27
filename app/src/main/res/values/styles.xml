@@ -1,35 +1,38 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorError">@color/tazRed</item>
-    </style>
-
-    <style name="DialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="android:buttonStyle">@style/AppTheme.AlertDialog.ButtonStyle</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="colorButtonNormal">@color/tazRed</item>
+        <item name="android:colorButtonNormal">@color/tazRed</item>
+        <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
+        <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">#0F000000</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:buttonStyle">@style/AppTheme.NoActionBar.ButtonStyle</item>
-        <item name="alertDialogTheme">@style/DialogTheme</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.ButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:backgroundTint">@color/tazRed</item>
-        <item name="android:textColor">@color/white</item>
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
+        <item name="android:buttonStyle">@style/AppTheme.ButtonStyle</item>
+    </style>
+
+    <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:theme">@style/Theme.MaterialComponents</item>
+        <item name="android:layout_marginTop">@dimen/login_button_margin_top</item>
+        <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="AppTheme.AlertDialog.ButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:textColor">@color/black</item>
+    <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:theme">@style/Theme.MaterialComponents</item>
+        <item name="backgroundTint">@color/backgroundColor</item>
+        <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
@@ -143,7 +146,10 @@
 
     <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
         <item name="colorControlHighlight">@color/black</item>
-        <item name="android:background">?android:selectableItemBackgroundBorderless</item>
+        <item name="backgroundTint">@color/navigation_bottom_background</item>
+        <item name="android:backgroundTint">@color/navigation_bottom_background</item>
+        <item name="colorButtonNormal">@color/tazRed</item>
+        <item name="android:colorButtonNormal">@color/tazRed</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
@@ -220,9 +226,11 @@
         <item name="android:textSize">25sp</item>
     </style>
 
-    <style name="Settings.Button" parent="Widget.AppCompat.Button">
-        <item name="android:textSize">19sp</item>
+    <style name="Settings.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
@@ -261,10 +269,6 @@
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
-    </style>
-
-    <style name="Button.Login" parent="Widget.AppCompat.Button">
-        <item name="android:layout_marginTop">@dimen/login_button_margin_top</item>
     </style>
 
 </resources>

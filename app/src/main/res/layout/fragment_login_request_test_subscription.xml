@@ -116,7 +116,6 @@
 
     <Button
         android:id="@+id/fragment_login_request_test_subscription_login"
-        style="@style/Button.Login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/register_button"
