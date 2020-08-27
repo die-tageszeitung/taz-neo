@@ -21,6 +21,10 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_login.*
@@ -172,6 +176,15 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.NAME_MISSING -> {
                     showNamesMissing()
                 }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS -> {
+                    showSubscriptionAddress()
+                }
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT -> {
+                    showSubscriptionAccount()
+                }
+                LoginViewModelState.SUBSCRIPTION_BANK -> {
+                    showSubscriptionBank()
+                }
             }
         })
 
@@ -265,7 +278,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showLoginRequestTestSubscription(invalidMail: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
-        showFragment(RequestTestSubscriptionFragment.create(invalidMail))
+        if (invalidMail) {
+            showFragment(SubscriptionAccountFragment.createInstance(invalidMail))
+        } else {
+            showFragment(SubscriptionPriceFragment())
+        }
     }
 
     private fun showRegistrationSuccessful() {
@@ -292,6 +309,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         log.debug("showNamesMissing")
         showFragment(NamesMissingFragment())
     }
+
     fun done() {
         log.debug("done")
         showLoadingScreen()
@@ -362,6 +380,21 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 super.onBackPressed()
             }
         }
+    }
+
+    private fun showSubscriptionAddress() {
+        log.debug("showSubscriptionAddress")
+        showFragment(SubscriptionAddressFragment())
+    }
+
+    private fun showSubscriptionAccount() {
+        log.debug("showSubscriptionAccount")
+        showFragment(SubscriptionAccountFragment())
+    }
+
+    private fun showSubscriptionBank() {
+        log.debug("showSubscriptionBank")
+        showFragment(SubscriptionBankFragment())
     }
 
 }

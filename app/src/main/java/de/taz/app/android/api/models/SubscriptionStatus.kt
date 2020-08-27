@@ -5,16 +5,24 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = false)
 enum class SubscriptionStatus {
-    valid,
-    tazIdNotValid,
-    elapsed,
-    invalidConnection,
-    invalidMail,
-    subscriptionIdNotValid,
     alreadyLinked,
-    waitForMail,
-    waitForProc,
+    elapsed,
+    ibanNoIban,
+    ibanInvalidChecksum,
+    ibanNoSepaCountry,
+    invalidAccountHolder,
+    invalidConnection,
+    invalidFirstName,
+    invalidMail,
+    invalidSurname,
+    noFirstName,
     noPollEntry,
     noSurname,
-    noFirstName
+    priceNotValid,
+    subscriptionIdNotValid,
+    tazIdNotValid,
+    toManyPollTrys,
+    valid,
+    waitForMail,
+    waitForProc
 }

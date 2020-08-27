@@ -52,7 +52,9 @@
 
     <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. Wenn Sie bereits über eine taz-ID verfügen, loggen Sie sich bitte hier ein.</string>
 
-    <string name="trial_subscription_title">Sie möchten die digitale Ausgabe der taz 14 Tage kostenlos testen?</string>
+    <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
+    <string name="trial_subscription_name">14 Tage Testabo</string>
+
     <string name="register_button">Registrieren</string>
     <string name="order_button">Bestellen</string>
 
@@ -146,6 +148,8 @@
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
 
+    <string name="login_name_affix_hint">Namenszusatz</string>
+
     <string name="login_surname_hint">Nachname</string>
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
 
@@ -157,7 +161,7 @@
 
     <string name="login_email_hint">E-Mail-Adresse</string>
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
-    <string name="login_email_error_no_email">Muss eine E-Mail-Adresse sein.</string>
+    <string name="login_email_error_invalid">Muss eine E-Mail-Adresse sein.</string>
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
@@ -168,6 +172,35 @@
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
     <string name="login_password_confirmation_error_match">Passwörter stimmen nicht überein</string>
 
+    <string name="fragment_subscription_price_title">Monatlicher Bezugspreis</string>
+    <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
+
+    <string name="fragment_subscription_address_title">Persönliche Daten</string>
+
+    <string name="fragment_subscription_bank_title">Bankdaten</string>
+    <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
+
+    <string name="fragment_subscription_confirm_email_header">Danke für Ihre Registrierung!\nWir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse.\nSobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
+
+    <string name="street_hint">Straße/Hausnummer</string>
+    <string name="postcode_hint">PLZ</string>
+    <string name="country_hint">Land</string>
+    <string name="city_hint">Ort</string>
+    <string name="phone_hint">Telefon</string>
+
+    <string name="iban_hint">IBAN</string>
+    <string name="iban_error_invalid">Die IBAN ist ungültig.</string>
+    <string name="iban_error_empty">Bitte geben sie Ihre IBAN an.</string>
+    <string name="iban_error_no_sepa">SEPA leider nicht verfügbar.</string>
+
+    <string name="street_error_empty">Adresse wird benötigt.</string>
+    <string name="city_error_empty">Adresse wird benötigt.</string>
+    <string name="postcode_error_empty">Adresse wird benötigt.</string>
+    <string name="country_error_empty">Adresse wird benötigt.</string>
+
+    <string name="account_holder_hint">Kontoinhaber:In</string>
+    <string name="account_holder_invalid">Enthält ungültige Zeichen.</string>
+
     <string name="login_button">Anmelden</string>
 
     <string name="fragment_login_subscription_inactive_header">Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).</string>
@@ -177,7 +210,6 @@
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
     <string name="login_forgot_password_button">Hier klicken</string>
-    <string name="fragment_login_missing_credentials_terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
     <string name="fragment_login_missing_credentials_login">Anmelden</string>
     <string name="fragment_login_missing_credentials_switch_to_login">Ich habe schon eine taz-ID</string>
     <string name="fragment_login_missing_credentials_switch_to_registration">Ich habe noch keine taz-ID</string>
@@ -206,7 +238,6 @@
 
     <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
     <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
-    <string name="fragment_login_request_test_subscription_terms_and_conditions">Ich akzeptiere die AGB sowie die Hinweise zum Widerruf und Datenschutz.</string>
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
 
@@ -224,4 +255,16 @@
 
     <string name="fragment_date_picker_selected_issue_toast">Neue Ausgabe wurde ausgewählt</string>
     <string name="issue_not_found">Ausgabe nicht auffindbar.</string>
+
+    <string name="next_button">Weiter</string>
+
+    <string name="retry">Erneut versuchen</string>
+    <string name="terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
+
+    <string name="back">Zurück</string>
+
+    <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
+
+    <string name="fragment_login_request_subscription_text">Wollen Sie ein Abo abschließen?</string>
+    <string name="fragment_login_request_subscription_button">Abo abschließen</string>
 </resources>

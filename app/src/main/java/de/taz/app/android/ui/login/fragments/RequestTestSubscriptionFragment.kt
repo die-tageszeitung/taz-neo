@@ -88,7 +88,7 @@ class RequestTestSubscriptionFragment :
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 fragment_login_request_test_subscription_email_layout.error = getString(
-                    R.string.login_email_error_no_email
+                    R.string.login_email_error_invalid
                 )
                 somethingWrong = true
             }

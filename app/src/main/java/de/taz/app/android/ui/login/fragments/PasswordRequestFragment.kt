@@ -52,7 +52,7 @@ class PasswordRequestFragment : LoginBaseFragment(R.layout.fragment_login_forgot
                 viewModel.requestCredentialsPasswordReset(username)
             } else {
                 fragment_login_forgot_password_username_layout.error =
-                    getString(R.string.login_email_error_no_email)
+                    getString(R.string.login_email_error_invalid)
             }
         }
     }
