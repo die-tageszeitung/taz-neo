@@ -110,7 +110,8 @@ private var showSections: Boolean = true
                 getArticles(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
                         if ((displayableKey == null && !showSections)
-                            || displayableKey?.startsWith("art") == true
+                            || (displayableKey?.startsWith("art") == true
+                            &&  displayableKey?.equals(viewModel.imprint?.articleFileName) == false)
                         ) {
                             showArticle(displayableKey)
                         }
@@ -127,7 +128,7 @@ private var showSections: Boolean = true
                 }
                 getImprint(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
-                        if (displayableKey?.startsWith("art") == true) {
+                        if (displayableKey?.equals(viewModel.imprint?.articleFileName) == true) {
                             showImprint()
                         }
                     }
@@ -230,6 +231,7 @@ private var showSections: Boolean = true
             lifecycleScope.launch(Dispatchers.IO) {
                 val issueStub = issueRepository.getIssueStubForSection(it)
                     ?: issueRepository.getIssueStubForArticle(it)
+                    ?: issueRepository.getIssueStubByImprintFileName(it)
                 viewModel.issueOperationsLiveData.postValue(issueStub)
             }
         }
