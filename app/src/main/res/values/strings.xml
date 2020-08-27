@@ -167,6 +167,8 @@
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
     <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre taz-ID oder Abo-ID.</string>
 
+    <string name="login_comment_hint">Bemerkung</string>
+
     <string name="login_password_hint">Passwort</string>
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>

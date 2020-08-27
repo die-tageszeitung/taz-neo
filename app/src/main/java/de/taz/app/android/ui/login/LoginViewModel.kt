@@ -61,6 +61,11 @@ class LoginViewModel(
     var price: Int? = null
     var iban: String? = null
     var accountHolder: String? = null
+    var comment: String? = null
+
+    var createNewAccount: Boolean = true
+
+
 
     init {
         if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {

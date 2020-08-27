@@ -13,11 +13,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/fragment_subscription_account_switch_new_account"
+        style="@style/TextAppearance.Login.Text.Link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_login_missing_credentials_switch_to_login"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_title" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/fragment_subscription_account_email_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_title">
+        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_account_switch_new_account">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_account_email"
@@ -44,6 +52,42 @@
             android:hint="@string/login_password_hint"
             android:imeOptions="actionNext"
             android:inputType="textPassword"
+            android:nextFocusForward="@id/fragment_subscription_account_password_confirm" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_subscription_account_password_confirm_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_account_password_layout"
+        app:passwordToggleEnabled="true">
+
+        <de.taz.app.android.util.AppTextInputEditText
+            android:id="@+id/fragment_subscription_account_password_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_password_confirmation_hint"
+            android:imeOptions="actionNext"
+            android:inputType="textPassword"
+            android:nextFocusForward="@id/fragment_subscription_account_comment" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fragment_subscription_account_comment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="70"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_account_password_confirm_layout">
+
+        <de.taz.app.android.util.AppTextInputEditText
+            android:id="@+id/fragment_subscription_account_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_comment_hint"
+            android:imeOptions="actionNext"
+            android:inputType="textMultiLine"
+            android:minLines="3"
             android:nextFocusForward="@id/fragment_subscription_account_terms_and_conditions" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -52,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/terms_and_conditions"
-        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_password_layout" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_comment_layout" />
 
     <Button
         android:id="@+id/fragment_subscription_account_proceed"
