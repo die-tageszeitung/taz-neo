@@ -16,7 +16,6 @@
 
     <Button
         android:id="@+id/fragment_login_subscription_taken_retry"
-        style="@style/Button.Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_subscription_taken_retry"
