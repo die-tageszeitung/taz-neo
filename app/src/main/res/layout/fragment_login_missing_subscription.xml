@@ -47,7 +47,7 @@
 
     <Button
         android:id="@+id/fragment_login_missing_subscription_connect_account"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_missing_subscription_connect_subscription"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -65,7 +65,7 @@
 
     <Button
         android:id="@+id/fragment_login_missing_subscription_test_subscription"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_missing_subscription_test_subscription"
         app:layout_constraintLeft_toLeftOf="parent"

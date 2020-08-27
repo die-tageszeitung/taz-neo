@@ -9,20 +9,22 @@
     <WebView
         android:id="@+id/web_view_fullscreen_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
-    <Button
+    <TextView
         android:id="@+id/button_close"
-        android:layout_height="@dimen/ic_close_button_size"
         android:layout_width="@dimen/ic_close_button_size"
-        android:layout_marginEnd="@dimen/ic_close_button_margin_end"
+        android:layout_height="@dimen/ic_close_button_size"
+        android:layout_gravity="end"
         android:layout_marginTop="@dimen/ic_close_button_margin_top"
+        android:layout_marginEnd="@dimen/ic_close_button_margin_end"
         android:background="@drawable/ic_circle"
         android:backgroundTint="@color/white"
-        android:layout_gravity="end"
-        android:textColor="@color/lightGrey"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:text="@string/button_close_text"
-        android:textSize="@dimen/activity_welcome_button_text_size"/>
+        android:textColor="@color/lightGrey"
+        android:textSize="@dimen/activity_welcome_button_text_size" />
 
     <include
         android:id="@+id/welcome_loading_screen"

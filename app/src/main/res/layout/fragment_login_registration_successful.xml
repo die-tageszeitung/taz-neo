@@ -15,7 +15,7 @@
 
     <Button
         android:id="@+id/fragment_login_confirm_done"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_success_login_back_article"
         app:layout_constraintLeft_toLeftOf="parent"
