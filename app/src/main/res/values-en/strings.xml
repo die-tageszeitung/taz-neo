@@ -218,5 +218,7 @@
 
     <string name="button_close_text">×</string>
     <string name="issue_not_found">Issue not found.</string>
+    <string name="fragment_date_picker_selected_issue_toast">New Issue has been selected.</string>
+    <string name="order_button">Send order</string>
 
 </resources>
