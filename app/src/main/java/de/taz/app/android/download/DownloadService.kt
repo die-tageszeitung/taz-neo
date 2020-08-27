@@ -140,8 +140,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 log.debug("download of ${cacheableDownload::class.java} complete in ${DateHelper.now - start}")
                                 // notify server of completed download
                                 downloadId?.let { downloadId ->
-                                    val seconds =
-                                        ((System.currentTimeMillis() - start) / 1000).toFloat()
+                                    val seconds: Float = (System.currentTimeMillis() - start) / 1000f
                                     apiService.notifyServerOfDownloadStopAsync(
                                         downloadId,
                                         seconds
