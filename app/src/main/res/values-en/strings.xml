@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">taz neo</string>
-    <string name="accept_button">accept</string>
-    <string name="close_button">close</string>
-    <string name="cancel_button">cancel</string>
+    <string name="accept_button">Accept</string>
+    <string name="close_button">Close</string>
+    <string name="cancel_button">Cancel</string>
 
     <string name="notification_channel_new_version">New version</string>
     <string name="notification_channel_new_version_description">Notification if a new version exists</string>
@@ -244,5 +244,12 @@
     <string name="street_hint">Street/No.</string>
     <string name="fragment_subscription_bank_description">Direct debit mandate with SEPA. Our debtee id is DE9200100000011699. Accounts in the EU can take part in SEPA. Payment only in €.</string>
     <string name="fragment_subscription_confirm_email_header">Thank you for registering. We sent you an email. Please confirm your email-address so you can use the new taz-app.</string>
+    <string name="terms_and_conditions">I accept the <u>terms and conditions</u>, as well as the <u>data policy</u> and the <u>cancellation policy</u>.</string>
+    <string name="terms_and_conditions_terms">terms and conditions</string>
+    <string name="terms_and_conditions_data_policy">data policy</string>
+    <string name="terms_and_conditions_revocation">cancellation policy</string>
+    <string name="fragment_login_description">Please login to continue reading.</string>
+    <string name="login_name_affix_hint">name affix</string>
+    <string name="login_comment_hint">note</string>
 
 </resources>
