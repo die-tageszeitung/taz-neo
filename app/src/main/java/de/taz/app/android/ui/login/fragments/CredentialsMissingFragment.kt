@@ -1,12 +1,22 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
+import de.taz.app.android.monkey.onClick
+import de.taz.app.android.ui.DataPolicyActivity
+import de.taz.app.android.ui.FINISH_ON_CLOSE
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
@@ -29,7 +39,26 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fragment_login_missing_credentials_terms_and_conditions.apply {
+            val spannableString = SpannableString(text?.toString() ?: "")
 
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_terms),
+                ::showTermsAndConditions
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_data_policy),
+                ::showDataPolicy
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_revocation),
+                ::showRevocation
+            )
+
+            text = spannableString
+
+            movementMethod = LinkMovementMethod.getInstance()
+        }
         if (registration) {
             fragment_login_missing_credentials_forgot_password.visibility = View.GONE
 
@@ -161,6 +190,24 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
                 surname = surname
             )
         }
+    }
+
+    private fun showTermsAndConditions() {
+        val intent = Intent(activity, WebViewActivity::class.java)
+        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
+        activity?.startActivity(intent)
+    }
+
+    private fun showDataPolicy() {
+        val intent = Intent(activity, DataPolicyActivity::class.java)
+        intent.putExtra(FINISH_ON_CLOSE, true)
+        activity?.startActivity(intent)
+    }
+
+    private fun showRevocation() {
+        val intent = Intent(activity, WebViewActivity::class.java)
+        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+        activity?.startActivity(intent)
     }
 
 }
