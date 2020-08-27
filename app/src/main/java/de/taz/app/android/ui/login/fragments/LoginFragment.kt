@@ -56,7 +56,7 @@ class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
             viewModel.requestSubscription(fragment_login_username.text.toString().trim())
         }
 
-        fragment_login_forgot_password_button.setOnClickListener {
+        fragment_login_forgot_password_text.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 

@@ -140,7 +140,7 @@
     <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um. Geben Sie bitte zunächst Ihre bisherige Abo ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse (taz ID) und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt nur noch mit Ihrer taz ID anmelden. Wenn Sie bereits über eine taz ID verfügen, loggen Sie sich bitte hier ein.</string>
+    <string name="fragment_login_description">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um. Geben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt nur noch mit Ihrer E-Mail-Adresse anmelden.</string>
 
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
@@ -158,8 +158,8 @@
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="login_email_error_no_email">Muss eine E-Mail-Adresse sein.</string>
 
-    <string name="login_username_hint">Nutzername oder Abo-ID</string>
-    <string name="login_username_error_empty">Darf nicht leer sein.</string>
+    <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
+    <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
     <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre taz-ID oder Abo-ID.</string>
 
     <string name="login_password_hint">Passwort</string>
@@ -194,7 +194,7 @@
     <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>
     <string name="fragment_login_forgot_password_email_sent_back">Zurück zur Anmeldung/Registrierung</string>
 
-    <string name="fragment_login_success_login_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
+    <string name="fragment_login_success_login_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
     <string name="fragment_login_success_login_back_article">Zurück zum Artikel</string>
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
     <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
@@ -209,7 +209,7 @@
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
 
-    <string name="fragment_login_registration_successful_header">Vielen Dank für Ihre Anmeldung! Viel Spaß mit der neuen digitalen taz!</string>
+    <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
 
     <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>

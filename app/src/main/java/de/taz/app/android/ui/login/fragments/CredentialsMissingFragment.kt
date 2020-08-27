@@ -30,7 +30,6 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
         super.onViewCreated(view, savedInstanceState)
 
         if (registration) {
-            fragment_login_missing_credentials_forgot_password_button.visibility = View.GONE
             fragment_login_missing_credentials_forgot_password.visibility = View.GONE
 
             fragment_login_missing_credentials_email_layout.markRequired()
@@ -77,7 +76,7 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
             connect()
         }
 
-        fragment_login_missing_credentials_forgot_password_button?.setOnClickListener {
+        fragment_login_missing_credentials_forgot_password?.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
