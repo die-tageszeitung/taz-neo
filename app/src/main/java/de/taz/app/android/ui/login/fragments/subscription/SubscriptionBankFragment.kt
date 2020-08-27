@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
+import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_bank.*
 
@@ -48,10 +49,10 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
     }
 
     fun setIbanError(@StringRes stringRes: Int) {
-        fragment_subscription_bank_iban_layout.error = context?.getString(stringRes)
+        fragment_subscription_bank_iban_layout.setError(stringRes)
     }
 
     fun setAccountHolderError(@StringRes stringRes: Int) {
-        fragment_subscription_bank_iban_layout.error = context?.getString(stringRes)
+        fragment_subscription_bank_iban_layout.setError(stringRes)
     }
 }

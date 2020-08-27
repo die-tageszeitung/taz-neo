@@ -9,6 +9,7 @@ import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
+import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_address.*
 
@@ -127,10 +128,10 @@ class SubscriptionAddressFragment :
     }
 
     fun setFirstNameError(@StringRes stringRes: Int) {
-        fragment_subscription_address_first_name_layout.error = context?.getString(stringRes)
+        fragment_subscription_address_first_name_layout.setError(stringRes)
     }
 
     fun setSurnameError(@StringRes stringRes: Int) {
-        fragment_subscription_address_surname_layout.error = context?.getString(stringRes)
+        fragment_subscription_address_surname_layout.setError(stringRes)
     }
 }
