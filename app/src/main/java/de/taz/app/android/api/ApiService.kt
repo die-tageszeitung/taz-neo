@@ -583,16 +583,6 @@ class ApiService private constructor(applicationContext: Context) {
         ) ?: emptyList()
     }
 
-
-    suspend fun getPriceListAsync(): Deferred<List<PriceInfo>> =
-        CoroutineScope(Dispatchers.IO).async {
-            val tag = "notifyServerOfDownloadStop"
-            getDataDto(
-                tag,
-                QueryType.PriceList
-            ).priceList ?: emptyList()
-        }
-
     @Throws(ApiServiceException.NoInternetException::class)
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {

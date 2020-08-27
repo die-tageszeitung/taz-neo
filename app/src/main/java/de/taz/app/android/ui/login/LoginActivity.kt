@@ -7,11 +7,12 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
@@ -91,7 +92,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
         viewModel.backToArticle = article != null
 
-        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
+        viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
@@ -186,7 +187,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showSubscriptionBank()
                 }
             }
-        })
+        }
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
@@ -209,12 +210,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         )
     }
 
-    private fun hideLoadingScreen() {
+    private fun hideLoadingScreen() = runOnUiThread {
         log.debug("hideLoadingScreen")
         loading_screen.visibility = View.GONE
     }
 
-    private fun showLoadingScreen() {
+    private fun showLoadingScreen() = runOnUiThread {
         log.debug("showLoadingScreen")
         loading_screen.visibility = View.VISIBLE
     }
@@ -281,7 +282,27 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         if (invalidMail) {
             showFragment(SubscriptionAccountFragment.createInstance(invalidMail))
         } else {
-            showFragment(SubscriptionPriceFragment())
+            viewModel.status.postValue(LoginViewModelState.LOADING)
+            lifecycleScope.launch(Dispatchers.IO) {
+                getPriceList()?.let {
+                    showFragment(SubscriptionPriceFragment.createInstance(it))
+                } ?: hideLoadingScreen()
+            }
+        }
+    }
+
+    /**
+     * get priceList synchronous to give user feedback
+     */
+    private suspend fun getPriceList(): List<PriceInfo>? {
+        return try {
+            ApiService.getInstance(applicationContext).getPriceList()
+        } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+            view?.let {
+                Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry) { showLoginRequestTestSubscription(false) }.show()
+            } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
+            null
         }
     }
 

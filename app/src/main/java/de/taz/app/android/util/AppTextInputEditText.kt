@@ -29,8 +29,8 @@ class AppTextInputEditText @JvmOverloads constructor(
                         ) {
                             val counterMaxLength = textInputLayout.counterMaxLength
                             removeTextChangedListener(this)
-                            setText(text.substring(0, counterMaxLength - 1))
-                            setSelection(counterMaxLength - 1)
+                            setText(text.substring(0, counterMaxLength))
+                            setSelection(counterMaxLength)
                             addTextChangedListener(this)
                         }
                         if (textInputLayout.error != null) {
