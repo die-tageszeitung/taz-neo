@@ -14,7 +14,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.webview.ArticleWebViewFragment
+import de.taz.app.android.ui.webview.ImprintFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -162,7 +162,7 @@ private var showSections: Boolean = true
         showSections = false
         val imprint = viewModel.imprint
         imprint?.let {
-            val fragment = ArticleWebViewFragment.createInstance(it)
+            val fragment = ImprintFragment.createInstance(it)
             getMainView()?.setActiveDrawerSection(RecyclerView.NO_POSITION)
             showMainFragment(fragment)
         }
