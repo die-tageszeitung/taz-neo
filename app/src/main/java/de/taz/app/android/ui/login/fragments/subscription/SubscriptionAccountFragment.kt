@@ -1,15 +1,24 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
+import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.ui.DataPolicyActivity
+import de.taz.app.android.ui.WebViewActivity
 import kotlinx.android.synthetic.main.fragment_subscription_account.*
 
 class SubscriptionAccountFragment :
@@ -49,6 +58,22 @@ class SubscriptionAccountFragment :
         fragment_subscription_account_comment.setOnEditorActionListener(
             OnEditorActionDoneListener(::hideKeyBoard)
         )
+
+        fragment_subscription_forgot_password_text.setOnClickListener {
+            viewModel.requestPasswordReset()
+        }
+
+        fragment_subscription_account_terms_and_conditions.apply {
+            val spannableString = SpannableString(text?.toString() ?: "")
+
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms), ::showTermsAndConditions)
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy), ::showDataPolicy)
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation), ::showRevocation)
+
+            text = spannableString
+
+            movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 
     private fun drawLayout() {
@@ -151,4 +176,22 @@ class SubscriptionAccountFragment :
     fun setPasswordError(@StringRes stringRes: Int) {
         fragment_subscription_account_password_layout.error = context?.getString(stringRes)
     }
+
+    fun showTermsAndConditions() {
+        val intent = Intent(activity, WebViewActivity::class.java)
+        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
+        activity?.startActivity(intent)
+    }
+
+    fun showDataPolicy() {
+        val intent = Intent(activity, DataPolicyActivity::class.java)
+        activity?.startActivity(intent)
+    }
+
+    fun showRevocation() {
+        val intent = Intent(activity, WebViewActivity::class.java)
+        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+        activity?.startActivity(intent)
+    }
+
 }

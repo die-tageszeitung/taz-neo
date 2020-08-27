@@ -108,4 +108,13 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_account_terms_and_conditions" />
 
 
+    <TextView
+        android:id="@+id/fragment_subscription_forgot_password_text"
+        style="@style/TextAppearance.Login.Text.Link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_forgot_password"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_account_proceed" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

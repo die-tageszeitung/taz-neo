@@ -261,7 +261,10 @@
     <string name="next_button">Weiter</string>
 
     <string name="retry">Erneut versuchen</string>
-    <string name="terms_and_conditions">Ich akzeptiere die AGB, sowie die Hinweise zum Widerruf und Datenschutz.</string>
+    <string name="terms_and_conditions">Ich akzeptiere die <u>AGB</u>, sowie die Hinweise zum <u>Widerruf</u> und <u>Datenschutz</u>.</string>
+    <string name="terms_and_conditions_terms">AGB</string>
+    <string name="terms_and_conditions_data_policy">Datenschutz</string>
+    <string name="terms_and_conditions_revocation">Widerruf</string>
 
     <string name="back">Zurück</string>
 
