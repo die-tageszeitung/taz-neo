@@ -21,20 +21,14 @@
             android:nestedScrollingEnabled="true"
             android:orientation="vertical" />
 
-        <LinearLayout
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/nav_bottom_height"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
             android:layout_gravity="bottom"
-            android:background="@color/navigation_bottom_background"
-            android:orientation="vertical"
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/navigation_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/nav_bottom_height"
-                android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-                app:labelVisibilityMode="unlabeled"
-                app:menu="@menu/navigation_bottom_home" />
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/navigation_bottom_home" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout></androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
