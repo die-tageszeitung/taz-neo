@@ -50,7 +50,7 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
         fragment_subscription_bank_proceed.setOnClickListener { ifDoneNext() }
 
         if(accountHolderInvalid) {
-            setAccountHolderError(R.string.account_holder_invalid)
+            setAccountHolderError(R.string.subscription_field_invalid)
         }
 
         if(ibanEmpty) {

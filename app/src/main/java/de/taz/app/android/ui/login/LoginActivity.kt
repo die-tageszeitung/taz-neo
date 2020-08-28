@@ -28,6 +28,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragme
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -201,12 +202,27 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     ibanNoSepa = true
                 )
                 LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
-                null -> TODO()
+                null -> {
+                    Sentry.capture("login status is null")
+                    viewModel.status.postValue(LoginViewModelState.INITIAL)
+                }
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
                     nameTooLong = true
                 )
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
                     showSubscriptionAccount(subscriptionInvalid = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> {
+                    showSubscriptionAddress(cityInvalid = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> {
+                    showSubscriptionAddress(countryInvalid = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> {
+                    showSubscriptionAddress(streetInvalid = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> {
+                    showSubscriptionAddress(postcodeInvalid = true)
                 }
             }
         }
@@ -432,6 +448,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private fun showSubscriptionAddress(
+        cityInvalid: Boolean = false,
+        countryInvalid: Boolean = false,
+        postcodeInvalid: Boolean = false,
+        streetInvalid: Boolean = false,
         nameTooLong: Boolean = false,
         firstNameEmpty: Boolean = false,
         firstNameInvalid: Boolean = false,
@@ -445,7 +465,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 firstNameEmpty = firstNameEmpty,
                 firstNameInvalid = firstNameInvalid,
                 surnameEmpty = surnameEmpty,
-                surnameInvalid = surnameInvalid
+                surnameInvalid = surnameInvalid,
+                cityInvalid = cityInvalid,
+                countryInvalid = countryInvalid,
+                postcodeInvalid = postcodeInvalid,
+                streetInvalid = streetInvalid
             )
         )
     }

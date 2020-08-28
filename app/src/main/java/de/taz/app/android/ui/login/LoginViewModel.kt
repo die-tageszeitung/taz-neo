@@ -37,10 +37,12 @@ class LoginViewModel(
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
 
+    // save call necessary for tests
     var username: String? = application?.getSharedPreferences(
         PREFERENCES_AUTH,
         Context.MODE_PRIVATE
     )?.getString(PREFERENCES_AUTH_EMAIL, null)
+
     var password: String? = null
     var subscriptionId: Int? = null
         private set
@@ -286,6 +288,7 @@ class LoginViewModel(
                 }
                 else -> {
                     status.postValue(previousState)
+                    Sentry.capture("trialSubscription returned ${subscriptionInfo?.status}")
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
@@ -386,14 +389,7 @@ class LoginViewModel(
                     status.postValue(previousState)
                     noInternet.postValue(true)
                 }
-                SubscriptionStatus.ibanNoIban,
-                SubscriptionStatus.ibanInvalidChecksum,
-                SubscriptionStatus.ibanNoSepaCountry,
-                SubscriptionStatus.invalidAccountHolder,
-                SubscriptionStatus.invalidFirstName,
-                SubscriptionStatus.invalidSurname,
-                SubscriptionStatus.priceNotValid,
-                SubscriptionStatus.toManyPollTrys -> {
+                else -> {
                     // should not happen
                     Sentry.capture("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
@@ -501,7 +497,8 @@ class LoginViewModel(
                     LoginViewModelState.PASSWORD_REQUEST,
                     LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL,
                     LoginViewModelState.PASSWORD_REQUEST_INVALID_ID,
-                    LoginViewModelState.PASSWORD_REQUEST_NO_MAIL
+                    LoginViewModelState.PASSWORD_REQUEST_NO_MAIL,
+                    LoginViewModelState.PASSWORD_REQUEST_DONE
                 )
             ) {
                 statusBeforePasswordRequest = status.value
@@ -684,6 +681,18 @@ class LoginViewModel(
                             Sentry.capture("subscription returned ${subscriptionInfo.status} ")
                             toastHelper.showSomethingWentWrongToast()
                         }
+                        SubscriptionStatus.invalidCity -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID)
+                        }
+                        SubscriptionStatus.invalidCountry -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID)
+                        }
+                        SubscriptionStatus.invalidPostcode -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID)
+                        }
+                        SubscriptionStatus.invalidStreet -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID)
+                        }
                     }
                 } ?: run {
                     toastHelper.showSomethingWentWrongToast()
@@ -755,11 +764,15 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ACCOUNT_INVALID,
     SUBSCRIPTION_ACCOUNT_MAIL_INVALID,
     SUBSCRIPTION_ADDRESS,
+    SUBSCRIPTION_ADDRESS_CITY_INVALID,
+    SUBSCRIPTION_ADDRESS_COUNTRY_INVALID,
     SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY,
     SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID,
     SUBSCRIPTION_ADDRESS_SURNAME_EMPTY,
     SUBSCRIPTION_ADDRESS_SURNAME_INVALID,
+    SUBSCRIPTION_ADDRESS_STREET_INVALID,
     SUBSCRIPTION_ADDRESS_NAME_TOO_LONG,
+    SUBSCRIPTION_ADDRESS_POSTCODE_INVALID,
     SUBSCRIPTION_BANK,
     SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID,
     SUBSCRIPTION_BANK_IBAN_EMPTY,

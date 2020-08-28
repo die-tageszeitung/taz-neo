@@ -148,14 +148,14 @@
     <string name="login_first_name_helper">Mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
-    <string name="login_first_name_error_invalid">Enthält ungültige Zeichen</string>
+    <string name="login_first_name_error_invalid">Enthält nur ungültige Zeichen</string>
 
     <string name="login_name_affix_hint">Namenszusatz</string>
 
     <string name="login_surname_helper">Mit dem Vornamen max 24 Zeichen.</string>
     <string name="login_surname_hint">Nachname</string>
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
-    <string name="login_surname_error_invalid">Enthält ungültige Zeichen</string>
+    <string name="login_surname_error_invalid">Enthält nur ungültige Zeichen</string>
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
@@ -207,7 +207,7 @@
 
     <string name="account_holder_helper">Falls abweichend zu Abonnent:In</string>
     <string name="account_holder_hint">Kontoinhaber:In</string>
-    <string name="account_holder_invalid">Enthält ungültige Zeichen.</string>
+    <string name="subscription_field_invalid">Enthält nur ungültige Zeichen.</string>
 
     <string name="login_button">Anmelden</string>
 

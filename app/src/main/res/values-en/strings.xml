@@ -228,7 +228,7 @@
     <string name="fragment_subscription_address_title">Your Address</string>
     <string name="fragment_subscription_bank_title">Your bank information</string>
     <string name="account_holder_hint">Account holder</string>
-    <string name="account_holder_invalid">Contains invalid symbols</string>
+    <string name="subscription_field_invalid">Contains invalid symbols</string>
     <string name="country_error_empty">Please enter you full address.</string>
     <string name="postcode_error_empty">Please enter you full address.</string>
     <string name="city_error_empty">Please enter you full address.</string>
