@@ -92,14 +92,13 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
                     toastHelper.showToast(R.string.toast_logout_elapsed)
-                    //deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.notValid) {
                     toastHelper.showToast(R.string.toast_logout_invalid)
-                    //deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
+                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
-                    //deletionJob = issueRepository.deletePublicIssues()
                     CoroutineScope(Dispatchers.IO).launch {
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }
