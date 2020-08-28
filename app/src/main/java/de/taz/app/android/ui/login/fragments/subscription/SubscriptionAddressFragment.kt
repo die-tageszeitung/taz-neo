@@ -58,8 +58,7 @@ class SubscriptionAddressFragment :
             fragment_subscription_address_postcode_layout.visibility = View.GONE
             fragment_subscription_address_country_layout.visibility = View.GONE
             fragment_subscription_address_phone_layout.visibility = View.GONE
-            fragment_subscription_address_name_affix_layout.visibility = View.GONE
-            fragment_subscription_address_surname.imeOptions = EditorInfo.IME_ACTION_DONE
+            fragment_subscription_address_name_affix.imeOptions = EditorInfo.IME_ACTION_DONE
         }
 
         fragment_subscription_address_first_name.setText(viewModel.firstName)
@@ -83,7 +82,7 @@ class SubscriptionAddressFragment :
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
-        fragment_subscription_address_surname.setOnEditorActionListener(
+        fragment_subscription_address_name_affix.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
