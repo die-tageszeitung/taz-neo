@@ -337,7 +337,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private fun showPasswordMailSent() {
-        log.debug("showPasswordRequest")
+        log.debug("showPasswordMailSent")
         showFragment(PasswordEmailSentFragment())
     }
 

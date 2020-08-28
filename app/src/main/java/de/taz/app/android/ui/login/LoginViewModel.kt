@@ -37,10 +37,10 @@ class LoginViewModel(
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
 
-    var username: String? = application.getSharedPreferences(
+    var username: String? = application?.getSharedPreferences(
         PREFERENCES_AUTH,
         Context.MODE_PRIVATE
-    ).getString(PREFERENCES_AUTH_EMAIL, null)
+    )?.getString(PREFERENCES_AUTH_EMAIL, null)
     var password: String? = null
     var subscriptionId: Int? = null
         private set
@@ -387,7 +387,7 @@ class LoginViewModel(
                     noInternet.postValue(true)
                 }
                 SubscriptionStatus.ibanNoIban,
-                SubscriptionStatus.ibanInvalidChecksum ,
+                SubscriptionStatus.ibanInvalidChecksum,
                 SubscriptionStatus.ibanNoSepaCountry,
                 SubscriptionStatus.invalidAccountHolder,
                 SubscriptionStatus.invalidFirstName,
@@ -496,7 +496,17 @@ class LoginViewModel(
     }
 
     fun requestPasswordReset() {
-        statusBeforePasswordRequest = status.value
+        status.value?.let {
+            if (it !in listOf(
+                    LoginViewModelState.PASSWORD_REQUEST,
+                    LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL,
+                    LoginViewModelState.PASSWORD_REQUEST_INVALID_ID,
+                    LoginViewModelState.PASSWORD_REQUEST_NO_MAIL
+                )
+            ) {
+                statusBeforePasswordRequest = status.value
+            }
+        }
         status.postValue(LoginViewModelState.PASSWORD_REQUEST)
     }
 
