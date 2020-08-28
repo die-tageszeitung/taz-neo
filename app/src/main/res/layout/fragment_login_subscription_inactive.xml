@@ -10,7 +10,6 @@
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="viewStart"
         android:text="@string/fragment_login_subscription_inactive_header"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,7 +18,6 @@
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="viewStart"
         android:text="@string/fragment_login_subscription_inactive_body"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_inactive_header" />
 
@@ -29,7 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:textAlignment="viewStart"
         android:text="@string/fragment_login_digiabo_mail_underlined"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_subscription_inactive_body" />
 
