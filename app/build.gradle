@@ -194,8 +194,6 @@ dependencies {
     implementation 'io.sentry:sentry-android:1.7.30'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
-    debugImplementation 'androidx.fragment:fragment-testing:1.2.5'
-
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.13'
@@ -208,7 +206,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
 
     // Core library
-    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test:core:1.2.4'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
 
     // AndroidJUnitRunner and JUnit Rules
