@@ -56,6 +56,12 @@ data class Moment(
         return getImagesToDownload().map { it.name }
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        return getImagesToDownload()
+            .filter { it.downloadedStatus == DownloadStatus.done }
+            .map { it.name }
+    }
+
     fun getMomentFileToShare(): FileEntryOperations {
         return if (creditList.isNotEmpty()) {
             creditList.first { it.resolution == ImageResolution.high }
