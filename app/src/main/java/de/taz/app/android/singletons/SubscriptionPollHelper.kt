@@ -11,6 +11,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
@@ -80,6 +81,13 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     null -> {
                         // continue and wait for correct response
                         poll(timeoutMillis * 2)
+                    }
+                    SubscriptionStatus.toManyPollTrys -> {
+                        //TODO
+                    }
+                    else -> {
+                        // should not happen
+                        Sentry.capture("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
