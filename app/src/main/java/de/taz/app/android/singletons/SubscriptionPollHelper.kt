@@ -32,8 +32,9 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     }
 
     private fun poll(timeoutMillis: Long = 100) {
+        val timeMillis = timeoutMillis.coerceAtMost(5000)
         CoroutineScope(Dispatchers.IO).launch {
-            delay(timeoutMillis)
+            delay(timeMillis)
 
             try {
                 val subscriptionInfo = apiService.subscriptionPoll()
@@ -68,11 +69,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     SubscriptionStatus.waitForMail -> {
                         // still waiting poll again
-                        poll(2 * timeoutMillis)
+                        poll(2 * timeMillis)
                     }
                     SubscriptionStatus.waitForProc -> {
                         // still waiting poll again
-                        poll(timeoutMillis * 2)
+                        poll(timeMillis * 2)
                     }
                     SubscriptionStatus.noPollEntry -> {
                         // user waited to long
@@ -80,7 +81,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     null -> {
                         // continue and wait for correct response
-                        poll(timeoutMillis * 2)
+                        poll(timeMillis * 2)
                     }
                     SubscriptionStatus.toManyPollTrys -> {
                         authHelper.isPolling = false
@@ -93,7 +94,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 // continue polling
-                poll(timeoutMillis * 2)
+                poll(timeMillis * 2)
             }
         }
     }
