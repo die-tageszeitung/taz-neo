@@ -96,7 +96,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
-                        showLoginRequestTestSubscription()
+                        showSubscriptionPrice()
                     } else {
                         showLoginForm()
                     }
@@ -135,10 +135,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showSubscriptionMissing(invalidId = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
-                    showLoginRequestTestSubscription()
+                    showSubscriptionPrice()
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL -> {
-                    showLoginRequestTestSubscription(invalidMail = true)
+                    showSubscriptionAccount(mailInvalid = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_TAKEN -> {
                     showSubscriptionTaken()
@@ -162,30 +162,43 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
-                LoginViewModelState.REGISTRATION_EMAIL -> {
-                    showConfirmEmail()
-                }
-                LoginViewModelState.REGISTRATION_SUCCESSFUL -> {
-                    showRegistrationSuccessful()
-                }
-                LoginViewModelState.USERNAME_MISSING -> {
-                    showLoginForm(usernameErrorId = R.string.login_username_error_empty)
-                }
-                LoginViewModelState.DONE -> {
-                    done()
-                }
-                LoginViewModelState.NAME_MISSING -> {
-                    showNamesMissing()
-                }
-                LoginViewModelState.SUBSCRIPTION_ADDRESS -> {
-                    showSubscriptionAddress()
-                }
-                LoginViewModelState.SUBSCRIPTION_ACCOUNT -> {
-                    showSubscriptionAccount()
-                }
-                LoginViewModelState.SUBSCRIPTION_BANK -> {
-                    showSubscriptionBank()
-                }
+                LoginViewModelState.REGISTRATION_EMAIL -> showConfirmEmail()
+                LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
+                LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
+                LoginViewModelState.DONE -> done()
+                LoginViewModelState.NAME_MISSING -> showNamesMissing()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS -> showSubscriptionAddress()
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
+                LoginViewModelState.SUBSCRIPTION_BANK -> showSubscriptionBank()
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
+                    mailInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY -> showSubscriptionAddress(
+                    firstNameEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID -> showSubscriptionAddress(
+                    firstNameInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY -> showSubscriptionAddress(
+                    surnameEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID -> showSubscriptionAddress(
+                    surnameInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showSubscriptionBank(
+                    accountHolderInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showSubscriptionBank(
+                    ibanEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showSubscriptionBank(
+                    ibanInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showSubscriptionBank(
+                    ibanNoSepa = true
+                )
+                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
+                null -> TODO()
             }
         }
 
@@ -277,17 +290,18 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun showLoginRequestTestSubscription(invalidMail: Boolean = false) {
+    private fun showSubscriptionPrice(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
-        if (invalidMail) {
-            showFragment(SubscriptionAccountFragment.createInstance(invalidMail))
-        } else {
-            viewModel.status.postValue(LoginViewModelState.LOADING)
-            lifecycleScope.launch(Dispatchers.IO) {
-                getPriceList()?.let {
-                    showFragment(SubscriptionPriceFragment.createInstance(it))
-                } ?: hideLoadingScreen()
-            }
+        viewModel.status.postValue(LoginViewModelState.LOADING)
+        lifecycleScope.launch(Dispatchers.IO) {
+            getPriceList()?.let {
+                showFragment(
+                    SubscriptionPriceFragment.createInstance(
+                        it,
+                        invalidPrice = priceInvalid
+                    )
+                )
+            } ?: hideLoadingScreen()
         }
     }
 
@@ -300,7 +314,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         } catch (nie: ApiService.ApiServiceException.NoInternetException) {
             view?.let {
                 Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry) { showLoginRequestTestSubscription(false) }.show()
+                    .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
             } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
             null
         }
@@ -403,19 +417,43 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         }
     }
 
-    private fun showSubscriptionAddress() {
+    private fun showSubscriptionAddress(
+        firstNameEmpty: Boolean = false,
+        firstNameInvalid: Boolean = false,
+        surnameEmpty: Boolean = false,
+        surnameInvalid: Boolean = false
+    ) {
         log.debug("showSubscriptionAddress")
-        showFragment(SubscriptionAddressFragment())
+        showFragment(SubscriptionAddressFragment.createInstance(
+            firstNameEmpty = firstNameEmpty,
+            firstNameInvalid = firstNameInvalid,
+            surnameEmpty = surnameEmpty,
+            surnameInvalid = surnameInvalid
+        ))
     }
 
-    private fun showSubscriptionAccount() {
+    private fun showSubscriptionAccount(
+        mailInvalid: Boolean = false
+    ) {
         log.debug("showSubscriptionAccount")
-        showFragment(SubscriptionAccountFragment())
+        showFragment(SubscriptionAccountFragment.createInstance(mailInvalid = mailInvalid))
     }
 
-    private fun showSubscriptionBank() {
+    private fun showSubscriptionBank(
+        accountHolderInvalid: Boolean = false,
+        ibanEmpty: Boolean = false,
+        ibanInvalid: Boolean = false,
+        ibanNoSepa: Boolean = false
+    ) {
         log.debug("showSubscriptionBank")
-        showFragment(SubscriptionBankFragment())
+        showFragment(
+            SubscriptionBankFragment.createInstance(
+                accountHolderInvalid = accountHolderInvalid,
+                ibanEmpty = ibanEmpty,
+                ibanInvalid = ibanInvalid,
+                ibanNoSepa = ibanNoSepa
+            )
+        )
     }
 
 }

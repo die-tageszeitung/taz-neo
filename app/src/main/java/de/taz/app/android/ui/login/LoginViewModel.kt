@@ -17,6 +17,7 @@ import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class LoginViewModel(
@@ -578,102 +579,78 @@ class LoginViewModel(
         ioScope.launch {
             try {
                 ApiService.getInstance(getApplication()).subscription(
-                    username,
-                    password,
-                    surName,
-                    firstName,
-                    street,
-                    city,
-                    postCode,
-                    country,
-                    phone,
-                    price,
-                    iban,
-                    accountHolder
+                    tazId = username ?: "",
+                    idPassword = password ?: "",
+                    surname = surName,
+                    firstName = firstName,
+                    street = street ?: "",
+                    city = city ?: "",
+                    postCode = postCode ?: "",
+                    country = country ?: "",
+                    phone = phone,
+                    price = price ?: -1,
+                    iban = iban ?: "",
+                    accountHolder = accountHolder,
+                    comment = comment, nameAffix = nameAffix
                 )?.let { subscriptionInfo ->
                     log.debug("getSubscription returned: $subscriptionInfo")
-                    /*when (subscriptionInfo.status) {
-                    SubscriptionStatus.ibanNoIban -> {
-                        getFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_empty)
+                    when (subscriptionInfo.status) {
+                        SubscriptionStatus.ibanNoIban -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY)
+                        }
+                        SubscriptionStatus.ibanInvalidChecksum -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID)
+                        }
+                        SubscriptionStatus.ibanNoSepaCountry -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA)
+                        }
+                        SubscriptionStatus.invalidAccountHolder -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID)
+                        }
+                        SubscriptionStatus.invalidMail -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
+                        }
+                        SubscriptionStatus.invalidFirstName -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID)
+                        }
+                        SubscriptionStatus.invalidSurname -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID)
+                        }
+                        SubscriptionStatus.noFirstName -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY)
+                        }
+                        SubscriptionStatus.noSurname -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY)
+                        }
+                        SubscriptionStatus.priceNotValid -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_PRICE_INVALID)
+                        }
+                        SubscriptionStatus.waitForMail -> {
+                            status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                        }
+                        SubscriptionStatus.waitForProc -> {
+                            poll()
+                        }
+                        SubscriptionStatus.alreadyLinked -> {
+                            status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                        }
+                        SubscriptionStatus.tazIdNotValid -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
+                        }
+                        SubscriptionStatus.valid,
+                        SubscriptionStatus.invalidConnection,
+                        SubscriptionStatus.noPollEntry,
+                        SubscriptionStatus.toManyPollTrys,
+                        SubscriptionStatus.subscriptionIdNotValid,
+                        SubscriptionStatus.elapsed -> {
+                            // this should not happen
+                            Sentry.capture("subscription returned ${subscriptionInfo.status} ")
+                            toastHelper.showSomethingWentWrongToast()
+                        }
                     }
-                    SubscriptionStatus.ibanInvalidChecksum -> {
-                        getAndShowFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_invalid)
-                    }
-                    SubscriptionStatus.ibanNoSepaCountry -> {
-                        getAndShowFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_no_sepa)
-                    }
-                    SubscriptionStatus.invalidAccountHolder -> {
-                        getAndShowFragment<SubscriptionBankFragment>()?.setAccountHolderError(
-                            R.string.account_holder_invalid
-                        )
-                    }
-                    SubscriptionStatus.invalidMail -> {
-                        getAndShowFragment<SubscriptionAccountFragment>()?.setEmailError(R.string.login_email_error_empty)
-                    }
-                    SubscriptionStatus.invalidFirstName -> {
-                        getAndShowFragment<SubscriptionAddressFragment>()?.setFirstNameError(
-                            R.string.first_name_error_invalid
-                        )
-                    }
-                    SubscriptionStatus.invalidSurname -> {
-                        getAndShowFragment<SubscriptionAddressFragment>()?.setSurnameError(R.string.login_surname_error_invalid)
-                    }
-                    SubscriptionStatus.noFirstName -> {
-                        getAndShowFragment<SubscriptionAddressFragment>()?.setFirstNameError(
-                            R.string.first_name_error_empty
-                        )
-                    }
-                    SubscriptionStatus.noSurname -> {
-                        getAndShowFragment<SubscriptionAddressFragment>()?.setSurnameError(R.string.surname_error_empty)
-                    }
-                    SubscriptionStatus.priceNotValid -> {
-                        getAndShowFragment<SubscriptionPriceFragment>()?.showPriceError()
-                    }
-                    SubscriptionStatus.waitForMail -> {
-                        AuthHelper.getInstance(context?.applicationContext).isPolling = true
-                        parentFragmentManager.beginTransaction().replace(
-                            R.id.activity_subscription_fragment_placeholder,
-                            SubscriptionConfirmMailFragment()
-                        ).commit()
-                    }
-                    SubscriptionStatus.waitForProc -> {
-                        AuthHelper.getInstance(context?.applicationContext).isPolling = true
-                    }
-                    SubscriptionStatus.alreadyLinked -> {
-                        activity?.startActivity(
-                            Intent(
-                                activity?.applicationContext,
-                                LoginActivity::class.java
-                            )
-                        )
-                    }
-                    SubscriptionStatus.tazIdNotValid -> {
-                        // user doesn't have a tazID yet
-                        // TODO SEND TO LOGINACTIVITY TO CREATE ONE?
-                        toastHelper?.showSomethingWentWrongToast()
-                        hideLoadingScreen()
-                    }
-                    SubscriptionStatus.valid,
-                    SubscriptionStatus.invalidConnection,
-                    SubscriptionStatus.noPollEntry,
-                    SubscriptionStatus.toManyPollTrys,
-                    SubscriptionStatus.subscriptionIdNotValid,
-                    SubscriptionStatus.elapsed -> {
-                        // this should not happen
-                        Sentry.capture("subscription returned ${subscriptionInfo.status} ")
-                        toastHelper?.showSomethingWentWrongToast()
-                        hideLoadingScreen()
-
-                    }
-                }
-                isSubscriptionRequestRunning.set(false)
-            } ?: run {
-                isSubscriptionRequestRunning.set(false)
-                toastHelper?.showSomethingWentWrongToast()
-                Sentry.capture("subscription returned null")
-                hideLoadingScreen()
-            }
-        }*/
+                } ?: run {
+                    toastHelper.showSomethingWentWrongToast()
+                    Sentry.capture("subscription returned null")
                 }
             } catch (nie: ApiService.ApiServiceException.NoInternetException) {
                 TODO()
@@ -681,16 +658,15 @@ class LoginViewModel(
             }
         }
     }
-/*
+
     private fun showRetrySnackBar() {
-            Snackbar
-                .make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) {
-                    sendSubscriptionRequest()
-                }
-                .show()
-        }
-    }*/
+/*        Snackbar
+            .make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
+            .setAction(R.string.retry) {
+                sendSubscriptionRequest()
+            }
+            .show()*/
+    }
 }
 
 enum class LoginViewModelState {
@@ -711,12 +687,22 @@ enum class LoginViewModelState {
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
     SUBSCRIPTION_ACCOUNT,
+    SUBSCRIPTION_ACCOUNT_MAIL_INVALID,
+    SUBSCRIPTION_ADDRESS,
+    SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY,
+    SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID,
+    SUBSCRIPTION_ADDRESS_SURNAME_EMPTY,
+    SUBSCRIPTION_ADDRESS_SURNAME_INVALID,
     SUBSCRIPTION_BANK,
+    SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID,
+    SUBSCRIPTION_BANK_IBAN_EMPTY,
+    SUBSCRIPTION_BANK_IBAN_INVALID,
+    SUBSCRIPTION_BANK_IBAN_NO_SEPA,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
     SUBSCRIPTION_MISSING_INVALID_ID,
-    SUBSCRIPTION_ADDRESS,
+    SUBSCRIPTION_PRICE_INVALID,
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,

@@ -6,32 +6,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.radiobutton.MaterialRadioButton
-import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_price.*
-import kotlinx.android.synthetic.main.fragment_subscription_price_list_item.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_price) {
     private val priceInfoAdapter = PriceInfoAdapter()
     private var priceList = emptyList<PriceInfo>()
 
+    private var invalidPrice: Boolean = false
+
     companion object {
-        fun createInstance(priceList: List<PriceInfo>): SubscriptionPriceFragment {
+        fun createInstance(
+            priceList: List<PriceInfo>,
+            invalidPrice: Boolean = false
+        ): SubscriptionPriceFragment {
             val fragment = SubscriptionPriceFragment()
             fragment.priceList = priceList
+            fragment.invalidPrice = invalidPrice
             return fragment
         }
     }
@@ -44,6 +42,9 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
         super.onCreate(savedInstanceState)
         // get async so when user reconnects it automatically resolves
         setPriceList(priceList)
+        if(invalidPrice) {
+            showPriceError()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

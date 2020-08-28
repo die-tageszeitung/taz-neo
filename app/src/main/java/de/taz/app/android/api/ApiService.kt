@@ -433,18 +433,20 @@ class ApiService private constructor(applicationContext: Context) {
      */
     @Throws(ApiServiceException.NoInternetException::class)
     suspend fun subscription(
-        tazId: String? = null,
-        idPassword: String? = null,
+        tazId: String,
+        idPassword: String,
         surname: String? = null,
         firstName: String? = null,
-        street: String? = null,
-        city: String? = null,
-        postCode: String? = null,
-        country: String? = null,
+        street: String,
+        city: String,
+        postCode: String,
+        country: String,
         phone: String? = null,
-        price: Int? = null,
-        iban: String? = null,
-        accountHolder: String? = null
+        price: Int,
+        iban: String,
+        accountHolder: String? = null,
+        comment: String? = null,
+        nameAffix: String? = null
     ): SubscriptionInfo? {
         val tag = "subscription"
         log.debug("$tag tazId: $tazId")
@@ -452,18 +454,20 @@ class ApiService private constructor(applicationContext: Context) {
             val data = graphQlClient.query(
                 QueryType.Subscription,
                 SubscriptionVariables(
-                    tazId,
-                    idPassword,
-                    surname,
-                    firstName,
-                    street,
-                    city,
-                    postCode,
-                    country,
-                    phone,
-                    price,
-                    iban,
-                    accountHolder
+                    tazId= tazId,
+                    idPassword = idPassword,
+                    surname = surname,
+                    firstName = firstName,
+                    street = street,
+                    city = city,
+                    postcode =postCode,
+                    country =  country,
+                    phone =  phone,
+                    price =  price,
+                    iban =  iban,
+                    accountHolder =  accountHolder,
+                    comment = comment,
+                    nameAffix = nameAffix
                 )
             )
             data?.subscription

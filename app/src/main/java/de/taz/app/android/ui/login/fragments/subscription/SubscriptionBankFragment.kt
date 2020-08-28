@@ -12,6 +12,27 @@ import kotlinx.android.synthetic.main.fragment_subscription_bank.*
 
 class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_bank) {
 
+    var accountHolderInvalid: Boolean = false
+    var ibanEmpty: Boolean = false
+    var ibanInvalid: Boolean = false
+    var ibanNoSepa: Boolean = false
+
+    companion object {
+        fun createInstance(
+            accountHolderInvalid: Boolean = false,
+            ibanEmpty: Boolean = false,
+            ibanInvalid: Boolean = false,
+            ibanNoSepa: Boolean = false
+        ): SubscriptionBankFragment {
+            val fragment = SubscriptionBankFragment()
+            fragment.accountHolderInvalid = accountHolderInvalid
+            fragment.ibanEmpty = ibanEmpty
+            fragment.ibanInvalid = ibanInvalid
+            fragment.ibanNoSepa = ibanNoSepa
+            return fragment
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -27,6 +48,22 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
         }
 
         fragment_subscription_bank_proceed.setOnClickListener { ifDoneNext() }
+
+        if(accountHolderInvalid) {
+            setAccountHolderError(R.string.account_holder_invalid)
+        }
+
+        if(ibanEmpty) {
+            setIbanError(R.string.iban_error_empty)
+        }
+
+        if (ibanInvalid) {
+            setIbanError(R.string.iban_error_invalid)
+        }
+
+        if(ibanNoSepa) {
+            setIbanError(R.string.iban_error_no_sepa)
+        }
     }
 
     override fun done(): Boolean {
