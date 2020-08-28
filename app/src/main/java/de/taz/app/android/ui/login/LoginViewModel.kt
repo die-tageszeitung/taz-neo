@@ -606,6 +606,7 @@ class LoginViewModel(
     }
 
     fun getSubscription() {
+        val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
         ioScope.launch {
             try {
@@ -680,6 +681,7 @@ class LoginViewModel(
                             // this should not happen
                             Sentry.capture("subscription returned ${subscriptionInfo.status} ")
                             toastHelper.showSomethingWentWrongToast()
+                            status.postValue(previousState)
                         }
                         SubscriptionStatus.invalidCity -> {
                             status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID)
@@ -697,10 +699,11 @@ class LoginViewModel(
                 } ?: run {
                     toastHelper.showSomethingWentWrongToast()
                     Sentry.capture("subscription returned null")
+                    status.postValue(previousState)
                 }
             } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT)
                 noInternet.postValue(true)
+                status.postValue(previousState)
             }
         }
     }
