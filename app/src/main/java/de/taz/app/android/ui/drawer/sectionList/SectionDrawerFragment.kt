@@ -146,6 +146,17 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
         recyclerAdapter?.activePosition = activePosition
+        if (activePosition != RecyclerView.NO_POSITION) {
+            fragment_drawer_sections_imprint?.apply {
+                setTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.drawer_sections_item,
+                        null
+                    )
+                )
+            }
+        }
     }
 
     fun setActiveSection(sectionFileName: String) {
@@ -200,6 +211,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                     showInWebView(imprint.key)
                     closeDrawer()
                 }
+                setTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.drawer_sections_item_highlighted,
+                        null
+                    )
+                )
             }
             typeface = if (issueOperations?.isWeekend == true) {
                 fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
