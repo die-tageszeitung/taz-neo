@@ -63,6 +63,20 @@ data class Issue(
         return files.flatten().distinct()
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        val files = mutableListOf(moment.getAllLocalFileNames())
+        imprint?.let {
+            files.add(imprint.getAllLocalFileNames())
+        }
+        sectionList.forEach { section ->
+            files.add(section.getAllLocalFileNames())
+            getArticleList().forEach { article ->
+                files.add(article.getAllLocalFileNames())
+            }
+        }
+        return files.flatten().distinct()
+    }
+
     override fun getDownloadTag(): String? {
         return tag
     }
@@ -81,7 +95,7 @@ data class Issue(
         return IssueRepository.getInstance(applicationContext).isDownloadedLiveData(this)
     }
 
-    fun getArticleList(): List<Article> {
+    private fun getArticleList(): List<Article> {
         val articleList = mutableListOf<Article>()
         sectionList.forEach {
             articleList.addAll(it.articleList)
@@ -90,7 +104,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        val allFiles = getAllFiles()
+        val allFiles = getAllLocalFiles()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
                 section.articleList.filter { it.bookmarked }.map { it.getAllFileNames() }.flatten()
