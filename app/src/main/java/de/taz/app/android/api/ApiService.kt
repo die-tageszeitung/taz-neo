@@ -54,10 +54,13 @@ class ApiService private constructor(applicationContext: Context) {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
             .observeForever { canReach ->
                 if (canReach) {
-                    try {
-                        waitInternetList.forEach { it.resume(Unit) }
-                    } catch (ise: IllegalStateException) {
-                        // already resumed
+                    waitInternetList.forEach {
+                        try {
+                            log.debug("ApiCall resuming")
+                            it.resume(Unit)
+                        } catch (ise: IllegalStateException) {
+                            // already resumed
+                        }
                     }
                 }
             }
