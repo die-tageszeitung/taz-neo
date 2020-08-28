@@ -104,7 +104,6 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug(tag)
         return transformExceptions({
             graphQlClient.query(
-
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
             )?.subscriptionPoll

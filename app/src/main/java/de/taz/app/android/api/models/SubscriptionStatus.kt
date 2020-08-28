@@ -15,6 +15,7 @@ enum class SubscriptionStatus {
     invalidFirstName,
     invalidMail,
     invalidSurname,
+    nameTooLong,
     noFirstName,
     noPollEntry,
     noSurname,

@@ -199,6 +199,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 )
                 LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
                 null -> TODO()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
+                    nameTooLong = true
+                )
             }
         }
 
@@ -418,18 +421,22 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private fun showSubscriptionAddress(
+        nameTooLong: Boolean = false,
         firstNameEmpty: Boolean = false,
         firstNameInvalid: Boolean = false,
         surnameEmpty: Boolean = false,
         surnameInvalid: Boolean = false
     ) {
         log.debug("showSubscriptionAddress")
-        showFragment(SubscriptionAddressFragment.createInstance(
-            firstNameEmpty = firstNameEmpty,
-            firstNameInvalid = firstNameInvalid,
-            surnameEmpty = surnameEmpty,
-            surnameInvalid = surnameInvalid
-        ))
+        showFragment(
+            SubscriptionAddressFragment.createInstance(
+                nameTooLong = nameTooLong,
+                firstNameEmpty = firstNameEmpty,
+                firstNameInvalid = firstNameInvalid,
+                surnameEmpty = surnameEmpty,
+                surnameInvalid = surnameInvalid
+            )
+        )
     }
 
     private fun showSubscriptionAccount(

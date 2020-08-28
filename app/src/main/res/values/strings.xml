@@ -145,13 +145,17 @@
     <string name="fragment_login_description">Bitte melden Sie sich an um weiterzulesen.</string>
     <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.</string>
 
+    <string name="login_first_name_helper">Zusammen mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
+    <string name="login_first_name_error_invalid">Enthält ungültige Zeichen</string>
 
     <string name="login_name_affix_hint">Namenszusatz</string>
 
+    <string name="login_surname_helper">Zusammen mit dem Vornamen max 24 Zeichen.</string>
     <string name="login_surname_hint">Nachname</string>
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
+    <string name="login_surname_error_invalid">Enthält ungültige Zeichen</string>
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
     _
@@ -200,6 +204,7 @@
     <string name="postcode_error_empty">Adresse wird benötigt.</string>
     <string name="country_error_empty">Adresse wird benötigt.</string>
 
+    <string name="account_holder_helper">Falls abweichend zu Abonnent:In</string>
     <string name="account_holder_hint">Kontoinhaber:In</string>
     <string name="account_holder_invalid">Enthält ungültige Zeichen.</string>
 
