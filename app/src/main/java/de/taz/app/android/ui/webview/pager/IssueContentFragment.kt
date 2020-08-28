@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview.pager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
@@ -13,6 +14,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.webview.ImprintFragment
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -108,7 +110,8 @@ private var showSections: Boolean = true
                 getArticles(feed, date, status).invokeOnCompletion {
                     lifecycleScope.launchWhenResumed {
                         if ((displayableKey == null && !showSections)
-                            || displayableKey?.startsWith("art") == true
+                            || (displayableKey?.startsWith("art") == true
+                            &&  displayableKey?.equals(viewModel.imprint?.articleFileName) == false)
                         ) {
                             showArticle(displayableKey)
                         }
@@ -123,15 +126,23 @@ private var showSections: Boolean = true
                         }
                     }
                 }
+                getImprint(feed, date, status).invokeOnCompletion {
+                    lifecycleScope.launchWhenResumed {
+                        if (displayableKey?.equals(viewModel.imprint?.articleFileName) == true) {
+                            showImprint()
+                        }
+                    }
+                }
                 getMainView()?.setCoverFlowItem(issueOperations)
                 setDrawerIssue(issueOperations)
                 getMainView()?.changeDrawerIssue()
-                if(issueOperations.dateDownload == null) {
+                if (issueOperations.dateDownload == null) {
                     CoroutineScope(Dispatchers.IO).launch {
                         IssueRepository.getInstance(context?.applicationContext)
                             .getIssue(issueOperations)?.let { issue ->
-                            DownloadService.getInstance(context?.applicationContext).download(issue)
-                        }
+                                DownloadService.getInstance(context?.applicationContext)
+                                    .download(issue)
+                            }
                     }
                 }
             }
@@ -147,7 +158,15 @@ private var showSections: Boolean = true
             fragment.tryLoadArticle(fileName)
         }
     }
-
+    private fun showImprint() {
+        showSections = false
+        val imprint = viewModel.imprint
+        imprint?.let {
+            val fragment = ImprintFragment.createInstance(it)
+            getMainView()?.setActiveDrawerSection(RecyclerView.NO_POSITION)
+            showMainFragment(fragment)
+        }
+    }
     private fun showSection(sectionFileName: String? = null) {
         showSections = true
         showFragment(sectionPagerFragment)
@@ -183,6 +202,9 @@ private var showSections: Boolean = true
             viewModel.articleList.firstOrNull { it.key == displayableName }?.let {
                 showArticle(displayableName)
                 true
+            } ?: viewModel.imprint?.let {
+                showImprint()
+                true
             } ?: false
         } else {
             viewModel.sectionList.firstOrNull { it.key == displayableName }
@@ -209,6 +231,7 @@ private var showSections: Boolean = true
             lifecycleScope.launch(Dispatchers.IO) {
                 val issueStub = issueRepository.getIssueStubForSection(it)
                     ?: issueRepository.getIssueStubForArticle(it)
+                    ?: issueRepository.getIssueStubByImprintFileName(it)
                 viewModel.issueOperationsLiveData.postValue(issueStub)
             }
         }
@@ -219,6 +242,13 @@ private var showSections: Boolean = true
             val articles = ArticleRepository.getInstance(context?.applicationContext)
                 .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
             viewModel.articleList = articles
+        }
+
+    private fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) =
+        lifecycleScope.launch(Dispatchers.IO) {
+            val imprint = IssueRepository.getInstance(context?.applicationContext)
+                .getImprintStub(issueFeedName, issueDate, issueStatus)
+            viewModel.imprint = imprint
         }
 
     private fun getSectionListByIssue(
