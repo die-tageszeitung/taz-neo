@@ -175,17 +175,13 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                AuthStatus.alreadyLinked -> {
-                    TODO()
-                }
-                AuthStatus.notValidMail -> {
-                    // this should never happen
-                    toastHelper.showSomethingWentWrongToast()
-                    status.postValue(LoginViewModelState.INITIAL)
-                }
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
                     noInternet.postValue(true)
+                }
+                else -> {
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(LoginViewModelState.INITIAL)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
