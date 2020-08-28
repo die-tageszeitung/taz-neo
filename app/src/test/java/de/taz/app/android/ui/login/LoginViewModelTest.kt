@@ -535,7 +535,6 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.invalidMail).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 
