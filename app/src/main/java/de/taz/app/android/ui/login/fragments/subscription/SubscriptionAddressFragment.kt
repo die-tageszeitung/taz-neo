@@ -18,6 +18,27 @@ const val MAX_NAME_LENGTH = 24
 class SubscriptionAddressFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_address) {
 
+    var firstNameEmpty: Boolean = false
+    var firstNameInvalid: Boolean = false
+    var surnameEmpty: Boolean = false
+    var surnameInvalid: Boolean = false
+
+    companion object {
+        fun createInstance(
+            firstNameEmpty: Boolean = false,
+            firstNameInvalid: Boolean = false,
+            surnameEmpty: Boolean = false,
+            surnameInvalid: Boolean = false
+        ): SubscriptionAddressFragment {
+            val fragment = SubscriptionAddressFragment()
+            fragment.firstNameEmpty = firstNameEmpty
+            fragment.firstNameInvalid = firstNameInvalid
+            fragment.surnameEmpty = surnameEmpty
+            fragment.surnameInvalid = surnameInvalid
+            return fragment
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,12 +68,12 @@ class SubscriptionAddressFragment :
 
         fragment_subscription_address_first_name.doAfterTextChanged { text ->
             fragment_subscription_address_surname_layout.counterMaxLength =
-                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH -1)
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
         }
 
         fragment_subscription_address_surname.doAfterTextChanged { text ->
             fragment_subscription_address_first_name_layout.counterMaxLength =
-                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH -1)
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
         }
 
         fragment_subscription_address_phone.setOnEditorActionListener(

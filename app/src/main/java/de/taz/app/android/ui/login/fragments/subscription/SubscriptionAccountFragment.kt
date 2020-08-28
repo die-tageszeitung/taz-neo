@@ -25,15 +25,15 @@ import kotlinx.android.synthetic.main.fragment_subscription_account.*
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_account) {
 
-    private var invalidMail = false
+    private var mailInvalid = false
 
 
     companion object {
         fun createInstance(
-            invalidMail: Boolean = false
+            mailInvalid: Boolean = false
         ): SubscriptionAccountFragment {
             val fragment = SubscriptionAccountFragment()
-            fragment.invalidMail = invalidMail
+            fragment.mailInvalid = mailInvalid
             return fragment
         }
     }
@@ -88,10 +88,14 @@ class SubscriptionAccountFragment :
 
             movementMethod = LinkMovementMethod.getInstance()
         }
+
+        if(mailInvalid) {
+            setEmailError(R.string.login_email_error_invalid)
+        }
     }
 
     private fun drawLayout() {
-        if (invalidMail) {
+        if (mailInvalid) {
             setEmailError(R.string.login_email_error_invalid)
             fragment_subscription_account_password.nextFocusForwardId =
                 R.id.fragment_subscription_account_terms_and_conditions
