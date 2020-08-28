@@ -38,13 +38,13 @@ class NamesMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_n
             somethingWrong = true
         }
 
+        viewModel.firstName = firstName
+        viewModel.surName = surname
+
         if (somethingWrong) {
             return
         } else {
-            viewModel.getTrialSubscriptionForExistingCredentials(
-                firstName = firstName,
-                surname = surname
-            )
+            viewModel.getTrialSubscriptionForExistingCredentials()
         }
     }
 

@@ -3,6 +3,7 @@ mutation TrialSubscription(
     $idPassword: String!,
     $surname: String,
     $firstName: String,
+    $nameAffix: String,
     $installationId: String!,
     $deviceType: DeviceType,
     $pushToken: String
@@ -14,7 +15,8 @@ mutation TrialSubscription(
         firstName: $firstName,
         installationId: $installationId,
         deviceType: $deviceType
-        pushToken: $pushToken
+        pushToken: $pushToken,
+        nameAffix: $nameAffix
     ) {
         status
         message

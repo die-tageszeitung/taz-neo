@@ -24,7 +24,9 @@ enum class QueryType {
     LastIssues,
     Notification,
     PasswordReset,
+    PriceList,
     ResourceInfo,
+    Subscription,
     SubscriptionId2TazId,
     SubscriptionPoll,
     SubscriptionReset,
@@ -63,6 +65,6 @@ class QueryService private constructor(applicationContext: Context) {
     private fun readGraphQlQueryFromAssets(fileName: String): String {
         val fullFilePath =
             "graphql/" + if (fileName.endsWith(".graphql")) fileName else "$fileName.graphql"
-        return fileHelper.readFileFromAssets(fullFilePath)
+        return fileHelper.readFileFromAssets(fullFilePath).trimIndent()
     }
 }
