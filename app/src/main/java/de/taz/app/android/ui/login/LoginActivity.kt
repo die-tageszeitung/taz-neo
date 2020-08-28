@@ -31,6 +31,7 @@ import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -96,6 +97,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
+                    viewModel.validCredentials = false
                     if (register) {
                         showSubscriptionPrice()
                     } else {
@@ -112,16 +114,13 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showCredentialsInvalid()
                 }
                 LoginViewModelState.CREDENTIALS_MISSING_LOGIN -> {
-                    showMissingCredentialsLogin()
+                    showMissingCredentials()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED -> {
-                    showMissingCredentialsLogin(failed = true)
+                LoginViewModelState.CREDENTIALS_MISSING_FAILED -> {
+                    showMissingCredentials(failed = true)
                 }
                 LoginViewModelState.CREDENTIALS_MISSING_REGISTER -> {
-                    showMissingCredentialsRegistration()
-                }
-                LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED -> {
-                    showMissingCredentialsRegistration(failed = true)
+                    showMissingCredentials()
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
@@ -227,6 +226,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
                     showPasswordRequest(subscriptionId = true)
                 }
+                LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED -> {
+                    showSubscriptionAlreadyLinked()
+                }
             }
         }
 
@@ -271,6 +273,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(EmailAlreadyLinkedFragment())
     }
 
+    private fun showSubscriptionAlreadyLinked() {
+        log.debug("showSubscriptionAlreadyLinked")
+        showFragment(SubscriptionAlreadyLinkedFragment())
+    }
+
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
@@ -278,6 +285,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
         log.debug("showSubscriptionMissing")
+        viewModel.validCredentials = true
         showFragment(SubscriptionMissingFragment.create(invalidId))
     }
 
@@ -286,21 +294,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(SubscriptionTakenFragment())
     }
 
-    private fun showMissingCredentialsLogin(failed: Boolean = false) {
-        log.debug("showMissingCredentialsLogin - failed: $failed")
+    private fun showMissingCredentials(failed: Boolean = false) {
+        log.debug("showMissingCredentials - failed: $failed")
         showFragment(
             CredentialsMissingFragment.create(
-                registration = false,
-                failed = failed
-            )
-        )
-    }
-
-    private fun showMissingCredentialsRegistration(failed: Boolean = false) {
-        log.debug("showMissingCredentialsRegistration - failed $failed")
-        showFragment(
-            CredentialsMissingFragment.create(
-                registration = true,
                 failed = failed
             )
         )
@@ -391,7 +388,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 DownloadService.getInstance(applicationContext).cancelDownloads()
-                downloadLatestIssueMoments()
+                CoroutineScope(Dispatchers.IO).launch {
+                    downloadLatestIssueMoments()
+                }
 
                 article?.let {
                     data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)

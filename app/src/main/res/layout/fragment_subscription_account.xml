@@ -109,7 +109,7 @@
 
 
     <TextView
-        android:id="@+id/fragment_subscription_forgot_password_text"
+        android:id="@+id/fragment_subscription_account_forgot_password_text"
         style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

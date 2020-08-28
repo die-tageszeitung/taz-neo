@@ -24,7 +24,6 @@
     <string name="toast_no_email_client">No configured e-mail client found.</string>
 
     <string name="toast_login_elapsed">Account no longer valid.</string>
-    <string name="login_failed">Login failed.</string>
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_login_with_email">Please login with your email-address.</string>
@@ -180,8 +179,9 @@
     <string name="fragment_login_missing__names_header">There is no surname and family name registered to your taz id. Please add that to get a subscription test.</string>
 
     <string name="fragment_login_email_already_taken_header">Your email address is already used by another subscription id.</string>
+    <string name="fragment_login_subscription_already_taken_header">Your subscription is already used by another taz id.</string>
     <string name="fragment_login_email_already_taken_insert_new">Try different login credentials.</string>
-    <string name="fragment_login_email_already_taken_contact_support">Or contact our support service:</string>
+    <string name="login_or_contact_support">Or contact our support service:</string>
 
     <string name="fragment_login_forgot_password_header">You forgot your password? Insert your email address or subscription id and we will send you an email on how to proceed.</string>
     <string name="fragment_login_forgot_password_send">Send and request link</string>
@@ -208,7 +208,6 @@
 
     <string name="fragment_login_subscription_taken_header">Your subscription is already connected to another account.</string>
     <string name="fragment_login_subscription_taken_retry">Try other credentials</string>
-    <string name="fragment_login_subscription_taken_body">Or reach out to our helpdesk:</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">We were not able to send you an email. Please write to our support:</string>
     <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
@@ -221,8 +220,6 @@
     <string name="retry">Retry</string>
     <string name="back">Back</string>
     <string name="price_error_none">Please select a price.</string>
-    <string name="fragment_login_request_subscription_text">Do you want a subscription?</string>
-    <string name="fragment_login_request_subscription_button">subscribe</string>
     <string name="fragment_subscription_price_title">Monthly price</string>
     <string name="fragment_subscription_price_description">Like in the printed taz our solidary price system applies. Pay what you can and want.</string>
     <string name="fragment_subscription_address_title">Your Address</string>

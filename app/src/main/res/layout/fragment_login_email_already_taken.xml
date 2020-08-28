@@ -27,7 +27,7 @@
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_email_already_taken_contact_support"
+        android:text="@string/login_or_contact_support"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_email_already_taken_insert_new" />
 
 
