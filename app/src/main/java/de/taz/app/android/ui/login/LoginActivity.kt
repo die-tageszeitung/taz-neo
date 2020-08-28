@@ -152,6 +152,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.PASSWORD_REQUEST_DONE -> {
                     showPasswordMailSent()
                 }
+                LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL -> {
+                    showPasswordRequest(invalidMail = true)
+                }
                 LoginViewModelState.PASSWORD_REQUEST_NO_MAIL -> {
                     showPasswordRequestNoMail()
                 }
@@ -328,9 +331,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(RegistrationSuccessfulFragment())
     }
 
-    private fun showPasswordRequest(invalidId: Boolean = false) {
+    private fun showPasswordRequest(invalidId: Boolean = false, invalidMail: Boolean = false) {
         log.debug("showPasswordRequest")
-        showFragment(PasswordRequestFragment.create(invalidId = invalidId))
+        showFragment(PasswordRequestFragment.create(invalidId = invalidId, invalidMail = invalidMail))
     }
 
     private fun showPasswordMailSent() {

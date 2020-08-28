@@ -550,9 +550,11 @@ class LoginViewModel(
                 PasswordResetInfo.ok -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                 }
+                PasswordResetInfo.invalidMail -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL)
+                }
                 null,
                 PasswordResetInfo.error,
-                PasswordResetInfo.invalidMail,
                 PasswordResetInfo.mailError -> {
                     toastHelper.showToast(R.string.something_went_wrong_try_later)
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
@@ -696,6 +698,7 @@ enum class LoginViewModelState {
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
+    PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
     PASSWORD_REQUEST_NO_MAIL,
     PASSWORD_REQUEST_INVALID_ID,
