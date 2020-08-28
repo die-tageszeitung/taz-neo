@@ -26,14 +26,16 @@ class SubscriptionAccountFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_account) {
 
     private var mailInvalid = false
-
+    private var subscriptionInvalid = false
 
     companion object {
         fun createInstance(
-            mailInvalid: Boolean = false
+            mailInvalid: Boolean = false,
+            subscriptionInvalid: Boolean = false
         ): SubscriptionAccountFragment {
             val fragment = SubscriptionAccountFragment()
             fragment.mailInvalid = mailInvalid
+            fragment.subscriptionInvalid = subscriptionInvalid
             return fragment
         }
     }
@@ -89,8 +91,12 @@ class SubscriptionAccountFragment :
             movementMethod = LinkMovementMethod.getInstance()
         }
 
-        if(mailInvalid) {
+        if (mailInvalid) {
             setEmailError(R.string.login_email_error_invalid)
+        }
+
+        if(subscriptionInvalid) {
+            setEmailError(R.string.login_email_error_recheck)
         }
     }
 
@@ -141,17 +147,7 @@ class SubscriptionAccountFragment :
     }
 
     override fun next() {
-        viewModel.apply {
-            if (price == 0) {
-                if (createNewAccount) {
-                    getTrialSubscriptionForNewCredentials()
-                } else {
-                    getTrialSubscriptionForExistingCredentials()
-                }
-            } else {
-                getSubscription()
-            }
-        }
+        viewModel.requestSubscription()
     }
 
     override fun done(): Boolean {
