@@ -37,6 +37,12 @@ data class ResourceInfo(
         return resourceList.map { it.name }
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        return resourceList
+            .filter { it.downloadedStatus== DownloadStatus.done }
+            .map { it.name }
+    }
+
     override fun getDownloadTag(): String? {
         return RESOURCE_TAG
     }

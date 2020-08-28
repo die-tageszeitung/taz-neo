@@ -1,12 +1,13 @@
 package de.taz.app.android.ui.settings
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
@@ -164,13 +165,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun showKeepIssuesDialog() {
         context?.let {
-            val dialog = AlertDialog.Builder(ContextThemeWrapper(it, R.style.DialogTheme))
+            val dialog = MaterialAlertDialogBuilder(it)
                 .setView(R.layout.dialog_settings_keep_number)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    val editText = (dialog as AlertDialog).findViewById<EditText>(
+                    (dialog as AlertDialog).findViewById<EditText>(
                         R.id.dialog_settings_keep_number
-                    )
-                    editText.text.toString().toIntOrNull()?.let { number ->
+                    )?.text.toString().toIntOrNull()?.let { number ->
                         setStoredIssueNumber(number)
                         dialog.hide()
                     }
@@ -182,7 +182,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
             dialog.show()
             storedIssueNumber?.let {
-                dialog?.findViewById<TextView>(
+                dialog.findViewById<TextView>(
                     R.id.dialog_settings_keep_number
                 )?.text = storedIssueNumber
             }

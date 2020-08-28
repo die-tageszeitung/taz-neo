@@ -52,6 +52,14 @@ data class SectionStub(
         return list.distinct()
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        val list = SectionRepository.getInstance().imagesForSectionStub(
+            key
+        ).filter { it.downloadedStatus == DownloadStatus.done }.map { it.name }.toMutableList()
+        list.add(key)
+        return list.distinct()
+    }
+
     override fun getLiveData(applicationContext: Context?): LiveData<SectionStub?> {
         return SectionRepository.getInstance(applicationContext).getStubLiveData(sectionFileName)
     }

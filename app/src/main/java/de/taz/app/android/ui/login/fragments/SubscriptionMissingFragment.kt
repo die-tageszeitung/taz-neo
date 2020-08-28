@@ -34,7 +34,7 @@ class SubscriptionMissingFragment : LoginBaseFragment(R.layout.fragment_login_mi
             connect()
         }
 
-        fragment_login_forgot_password_button.setOnClickListener {
+        fragment_login_forgot_password_text.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 

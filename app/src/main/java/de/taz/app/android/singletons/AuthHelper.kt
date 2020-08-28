@@ -99,7 +99,6 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
                     deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
-                    deletionJob = issueRepository.deletePublicIssues()
                     CoroutineScope(Dispatchers.IO).launch {
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }

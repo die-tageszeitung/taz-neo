@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/fragment_article_read_on_description">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_article_read_on_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_username_layout"
         app:passwordToggleEnabled="true">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_article_read_on_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

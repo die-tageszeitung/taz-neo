@@ -60,11 +60,16 @@ data class Article(
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
         return list
     }
-
     override fun getAllFileNames(): List<String> {
         val list = mutableListOf<FileEntryOperations>(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
+        return list.map { it.name }.distinct()
+    }
+    override fun getAllLocalFileNames(): List<String> {
+        val list = mutableListOf<FileEntryOperations>(articleHtml)
+        list.addAll(authorList.mapNotNull { it.imageAuthor })
+        list.addAll(imageList.filter { it.downloadedStatus == DownloadStatus.done })
         return list.map { it.name }.distinct()
     }
 

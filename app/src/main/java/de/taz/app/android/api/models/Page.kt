@@ -34,6 +34,13 @@ data class Page (
         return listOf(pagePdf).map { it.name }.distinct()
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        return listOf(pagePdf)
+            .filter { it.downloadedStatus == DownloadStatus.done }
+            .map { it.name }
+            .distinct()
+    }
+
     override fun setDownloadStatus(downloadStatus: DownloadStatus) {
         PageRepository.getInstance().apply {
             getStub(this@Page.pagePdf.name)?.let {

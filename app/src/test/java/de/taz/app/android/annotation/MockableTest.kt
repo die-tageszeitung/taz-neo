@@ -1,13 +1,13 @@
 package de.taz.app.android.annotation
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 class MockableTest {
     @Test
     fun `@Mockable class is opened on test builds`() {
-        val fooMock = mock<Foo>()
+        val fooMock = mock(Foo::class.java)
         fooMock.hello()
         fooMock.world()
         verify(fooMock).hello()
