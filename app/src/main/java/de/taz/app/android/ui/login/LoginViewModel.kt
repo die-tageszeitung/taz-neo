@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
+import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,8 @@ import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.PREFERENCES_AUTH
+import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -34,15 +37,34 @@ class LoginViewModel(
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
 
-    var username: String? = null
-        private set
+    // save call necessary for tests
+    var username: String? = application?.getSharedPreferences(
+        PREFERENCES_AUTH,
+        Context.MODE_PRIVATE
+    )?.getString(PREFERENCES_AUTH_EMAIL, null)
+
     var password: String? = null
-        private set
     var subscriptionId: Int? = null
         private set
     var subscriptionPassword: String? = null
         private set
     var backToArticle: Boolean = true
+
+    var nameAffix: String? = null
+    var firstName: String? = null
+    var surName: String? = null
+    var street: String? = null
+    var city: String? = null
+    var postCode: String? = null
+    var country: String? = null
+    var phone: String? = null
+    var price: Int? = null
+    var iban: String? = null
+    var accountHolder: String? = null
+    var comment: String? = null
+
+    var createNewAccount: Boolean = true
+
 
     init {
         if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
@@ -181,43 +203,18 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(
-        firstName: String? = null,
-        surname: String? = null
-    ) {
-        register(
-            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
-            firstName = firstName,
-            surname = surname
-        )
+    fun getTrialSubscriptionForExistingCredentials() {
+        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials(
-        username: String? = null,
-        password: String? = null,
-        firstName: String? = null,
-        surname: String? = null
-    ) {
-        register(
-            LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL,
-            username,
-            password,
-            firstName,
-            surname
-        )
+    fun getTrialSubscriptionForNewCredentials() {
+        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
-        invalidMailState: LoginViewModelState,
-        username: String? = null,
-        password: String? = null,
-        firstName: String? = null,
-        surname: String? = null
+        invalidMailState: LoginViewModelState
     ): Job? {
-        username?.let { this.username = it }
-        password?.let { this.password = it }
-
         return runIfNotNull(this.username, this.password) { username1, password1 ->
             val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
@@ -226,7 +223,7 @@ class LoginViewModel(
                     username1,
                     password1,
                     firstName,
-                    surname,
+                    surName,
                     invalidMailState,
                     previousState
                 )
@@ -291,6 +288,7 @@ class LoginViewModel(
                 }
                 else -> {
                     status.postValue(previousState)
+                    Sentry.capture("trialSubscription returned ${subscriptionInfo?.status}")
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
@@ -345,6 +343,7 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.noFirstName,
                 SubscriptionStatus.noSurname,
+                SubscriptionStatus.nameTooLong,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
                     status.postValue(
@@ -390,7 +389,12 @@ class LoginViewModel(
                     status.postValue(previousState)
                     noInternet.postValue(true)
                 }
-
+                else -> {
+                    // should not happen
+                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(previousState)
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             status.postValue(previousState)
@@ -466,6 +470,15 @@ class LoginViewModel(
                 SubscriptionStatus.noFirstName -> {
                     status.postValue(LoginViewModelState.NAME_MISSING)
                 }
+                SubscriptionStatus.toManyPollTrys -> {
+                    authHelper.isPolling = false
+                    Sentry.capture("ToManyPollTrys")
+                }
+                else -> {
+                    // should not happen
+                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    toastHelper.showSomethingWentWrongToast()
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             noInternet.postValue(true)
@@ -479,7 +492,18 @@ class LoginViewModel(
     }
 
     fun requestPasswordReset() {
-        statusBeforePasswordRequest = status.value
+        status.value?.let {
+            if (it !in listOf(
+                    LoginViewModelState.PASSWORD_REQUEST,
+                    LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL,
+                    LoginViewModelState.PASSWORD_REQUEST_INVALID_ID,
+                    LoginViewModelState.PASSWORD_REQUEST_NO_MAIL,
+                    LoginViewModelState.PASSWORD_REQUEST_DONE
+                )
+            ) {
+                statusBeforePasswordRequest = status.value
+            }
+        }
         status.postValue(LoginViewModelState.PASSWORD_REQUEST)
     }
 
@@ -533,9 +557,11 @@ class LoginViewModel(
                 PasswordResetInfo.ok -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                 }
+                PasswordResetInfo.invalidMail -> {
+                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL)
+                }
                 null,
                 PasswordResetInfo.error,
-                PasswordResetInfo.invalidMail,
                 PasswordResetInfo.mailError -> {
                     toastHelper.showToast(R.string.something_went_wrong_try_later)
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
@@ -579,6 +605,144 @@ class LoginViewModel(
         authHelper.email = username
     }
 
+    fun getSubscription() {
+        val previousState = status.value
+        status.postValue(LoginViewModelState.LOADING)
+        ioScope.launch {
+            try {
+                ApiService.getInstance(getApplication()).subscription(
+                    tazId = username ?: "",
+                    idPassword = password ?: "",
+                    surname = surName,
+                    firstName = firstName,
+                    street = street ?: "",
+                    city = city ?: "",
+                    postCode = postCode ?: "",
+                    country = country ?: "",
+                    phone = phone,
+                    price = price ?: -1,
+                    iban = iban ?: "",
+                    accountHolder = accountHolder,
+                    comment = comment, nameAffix = nameAffix
+                )?.let { subscriptionInfo ->
+                    log.debug("getSubscription returned: $subscriptionInfo")
+                    when (subscriptionInfo.status) {
+                        SubscriptionStatus.ibanNoIban -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY)
+                        }
+                        SubscriptionStatus.ibanInvalidChecksum -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID)
+                        }
+                        SubscriptionStatus.ibanNoSepaCountry -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA)
+                        }
+                        SubscriptionStatus.invalidAccountHolder -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID)
+                        }
+                        SubscriptionStatus.invalidMail -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
+                        }
+                        SubscriptionStatus.invalidFirstName -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID)
+                        }
+                        SubscriptionStatus.invalidSurname -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID)
+                        }
+                        SubscriptionStatus.noFirstName -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY)
+                        }
+                        SubscriptionStatus.noSurname -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY)
+                        }
+                        SubscriptionStatus.nameTooLong -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG)
+                        }
+                        SubscriptionStatus.priceNotValid -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_PRICE_INVALID)
+                        }
+                        SubscriptionStatus.waitForMail -> {
+                            status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                        }
+                        SubscriptionStatus.waitForProc -> {
+                            poll()
+                        }
+                        SubscriptionStatus.alreadyLinked -> {
+                            status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                        }
+                        SubscriptionStatus.tazIdNotValid -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
+                        }
+                        SubscriptionStatus.valid,
+                        SubscriptionStatus.invalidConnection,
+                        SubscriptionStatus.noPollEntry,
+                        SubscriptionStatus.toManyPollTrys,
+                        SubscriptionStatus.subscriptionIdNotValid,
+                        SubscriptionStatus.elapsed -> {
+                            // this should not happen
+                            Sentry.capture("subscription returned ${subscriptionInfo.status} ")
+                            toastHelper.showSomethingWentWrongToast()
+                            status.postValue(previousState)
+                        }
+                        SubscriptionStatus.invalidCity -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID)
+                        }
+                        SubscriptionStatus.invalidCountry -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID)
+                        }
+                        SubscriptionStatus.invalidPostcode -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID)
+                        }
+                        SubscriptionStatus.invalidStreet -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID)
+                        }
+                    }
+                } ?: run {
+                    toastHelper.showSomethingWentWrongToast()
+                    Sentry.capture("subscription returned null")
+                    status.postValue(previousState)
+                }
+            } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+                noInternet.postValue(true)
+                status.postValue(previousState)
+            }
+        }
+    }
+
+    private suspend fun checkCredentials(): Boolean? {
+        return try {
+            val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
+            authTokenInfo?.authInfo?.status != AuthStatus.notValid
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(LoginViewModelState.INITIAL)
+            noInternet.postValue(true)
+            null
+        }
+    }
+
+    fun requestSubscription() = ioScope.launch {
+        val previousState = status.value
+        status.postValue(LoginViewModelState.LOADING)
+        if(!createNewAccount) {
+            val checkCredentials = checkCredentials()
+            if (checkCredentials == false) {
+                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID)
+                return@launch
+            } else if(checkCredentials == null) {
+                status.postValue(previousState)
+                return@launch
+            }
+        }
+
+        if (price == 0) {
+            if (createNewAccount) {
+                getTrialSubscriptionForNewCredentials()
+            } else {
+                getTrialSubscriptionForExistingCredentials()
+            }
+        } else {
+            getSubscription()
+        }
+    }
 }
 
 enum class LoginViewModelState {
@@ -592,16 +756,36 @@ enum class LoginViewModelState {
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
+    PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
     PASSWORD_REQUEST_NO_MAIL,
     PASSWORD_REQUEST_INVALID_ID,
     POLLING_FAILED,
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
+    SUBSCRIPTION_ACCOUNT,
+    SUBSCRIPTION_ACCOUNT_INVALID,
+    SUBSCRIPTION_ACCOUNT_MAIL_INVALID,
+    SUBSCRIPTION_ADDRESS,
+    SUBSCRIPTION_ADDRESS_CITY_INVALID,
+    SUBSCRIPTION_ADDRESS_COUNTRY_INVALID,
+    SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY,
+    SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID,
+    SUBSCRIPTION_ADDRESS_SURNAME_EMPTY,
+    SUBSCRIPTION_ADDRESS_SURNAME_INVALID,
+    SUBSCRIPTION_ADDRESS_STREET_INVALID,
+    SUBSCRIPTION_ADDRESS_NAME_TOO_LONG,
+    SUBSCRIPTION_ADDRESS_POSTCODE_INVALID,
+    SUBSCRIPTION_BANK,
+    SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID,
+    SUBSCRIPTION_BANK_IBAN_EMPTY,
+    SUBSCRIPTION_BANK_IBAN_INVALID,
+    SUBSCRIPTION_BANK_IBAN_NO_SEPA,
     SUBSCRIPTION_ELAPSED,
     SUBSCRIPTION_INVALID,
     SUBSCRIPTION_MISSING,
     SUBSCRIPTION_MISSING_INVALID_ID,
+    SUBSCRIPTION_PRICE_INVALID,
     SUBSCRIPTION_REQUEST,
     SUBSCRIPTION_REQUEST_INVALID_EMAIL,
     SUBSCRIPTION_TAKEN,

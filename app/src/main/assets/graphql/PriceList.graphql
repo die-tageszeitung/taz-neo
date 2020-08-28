@@ -1,0 +1,6 @@
+query PriceList {
+    priceList {
+        name
+        price
+    }
+}

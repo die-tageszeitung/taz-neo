@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_names_header">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_login_missing_first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_first_name_layout">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_login_missing_surname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

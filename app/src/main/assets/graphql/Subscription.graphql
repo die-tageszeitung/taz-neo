@@ -1,0 +1,43 @@
+mutation Subscription(
+    $tazId: String!,
+    $idPassword: String!,
+    $surname: String,
+    $firstName: String,
+    $iban: String!,
+    $price: Int!,
+    $phone: String,
+    $street: String!,
+    $city: String!,
+    $postcode: String!,
+    $country: String!,
+    $installationId: String!,
+    $deviceType: DeviceType,
+    $pushToken: String,
+    $accountHolder: String
+    $comment: String,
+    $nameAffix: String
+) {
+    subscription(
+        tazId: $tazId,
+        idPw: $idPassword,
+        iban: $iban,
+        price: $price,
+        phone: $phone,
+        surname: $surname,
+        firstName: $firstName,
+        street: $street,
+        city: $city,
+        postcode: $postcode,
+        country: $country,
+        installationId: $installationId,
+        deviceType: $deviceType
+        pushToken: $pushToken,
+        accountHolder: $accountHolder,
+        comment: $comment,
+        nameAffix: $nameAffix
+    ) {
+        status
+        message
+        token
+    }
+}
