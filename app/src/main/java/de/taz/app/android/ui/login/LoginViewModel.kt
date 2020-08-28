@@ -340,6 +340,7 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.noFirstName,
                 SubscriptionStatus.noSurname,
+                SubscriptionStatus.nameTooLong,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
                     status.postValue(
@@ -385,7 +386,19 @@ class LoginViewModel(
                     status.postValue(previousState)
                     noInternet.postValue(true)
                 }
-
+                SubscriptionStatus.ibanNoIban,
+                SubscriptionStatus.ibanInvalidChecksum ,
+                SubscriptionStatus.ibanNoSepaCountry,
+                SubscriptionStatus.invalidAccountHolder,
+                SubscriptionStatus.invalidFirstName,
+                SubscriptionStatus.invalidSurname,
+                SubscriptionStatus.priceNotValid,
+                SubscriptionStatus.toManyPollTrys -> {
+                    // should not happen
+                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(previousState)
+                }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             status.postValue(previousState)
@@ -460,6 +473,14 @@ class LoginViewModel(
                 SubscriptionStatus.noSurname,
                 SubscriptionStatus.noFirstName -> {
                     status.postValue(LoginViewModelState.NAME_MISSING)
+                }
+                SubscriptionStatus.toManyPollTrys -> {
+                    TODO()
+                }
+                else -> {
+                    // should not happen
+                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    toastHelper.showSomethingWentWrongToast()
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
@@ -622,6 +643,9 @@ class LoginViewModel(
                         SubscriptionStatus.noSurname -> {
                             status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY)
                         }
+                        SubscriptionStatus.nameTooLong -> {
+                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG)
+                        }
                         SubscriptionStatus.priceNotValid -> {
                             status.postValue(LoginViewModelState.SUBSCRIPTION_PRICE_INVALID)
                         }
@@ -653,19 +677,10 @@ class LoginViewModel(
                     Sentry.capture("subscription returned null")
                 }
             } catch (nie: ApiService.ApiServiceException.NoInternetException) {
-                TODO()
-                //showRetrySnackBar()
+                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT)
+                noInternet.postValue(true)
             }
         }
-    }
-
-    private fun showRetrySnackBar() {
-/*        Snackbar
-            .make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-            .setAction(R.string.retry) {
-                sendSubscriptionRequest()
-            }
-            .show()*/
     }
 }
 
@@ -693,6 +708,7 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID,
     SUBSCRIPTION_ADDRESS_SURNAME_EMPTY,
     SUBSCRIPTION_ADDRESS_SURNAME_INVALID,
+    SUBSCRIPTION_ADDRESS_NAME_TOO_LONG,
     SUBSCRIPTION_BANK,
     SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID,
     SUBSCRIPTION_BANK_IBAN_EMPTY,

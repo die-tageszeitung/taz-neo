@@ -18,6 +18,7 @@ const val MAX_NAME_LENGTH = 24
 class SubscriptionAddressFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_address) {
 
+    var nameTooLong: Boolean = false
     var firstNameEmpty: Boolean = false
     var firstNameInvalid: Boolean = false
     var surnameEmpty: Boolean = false
@@ -25,12 +26,14 @@ class SubscriptionAddressFragment :
 
     companion object {
         fun createInstance(
+            nameTooLong: Boolean = false,
             firstNameEmpty: Boolean = false,
             firstNameInvalid: Boolean = false,
             surnameEmpty: Boolean = false,
             surnameInvalid: Boolean = false
         ): SubscriptionAddressFragment {
             val fragment = SubscriptionAddressFragment()
+            fragment.nameTooLong = nameTooLong
             fragment.firstNameEmpty = firstNameEmpty
             fragment.firstNameInvalid = firstNameInvalid
             fragment.surnameEmpty = surnameEmpty
@@ -87,6 +90,26 @@ class SubscriptionAddressFragment :
         fragment_subscription_address_proceed.setOnClickListener {
             ifDoneNext()
         }
+
+        if (nameTooLong) {
+            setFirstNameError(R.string.login_first_name_helper)
+            setSurnameError(R.string.login_surname_helper)
+        }
+
+        if(firstNameEmpty) {
+            setFirstNameError(R.string.login_first_name_error_empty)
+        }
+        if(firstNameInvalid) {
+            setFirstNameError(R.string.login_first_name_error_invalid)
+        }
+        if(surnameEmpty) {
+            setSurnameError(R.string.login_surname_error_empty)
+        }
+        if(surnameInvalid) {
+            setSurnameError(R.string.login_surname_error_invalid)
+        }
+
+
     }
 
     override fun done(): Boolean {
