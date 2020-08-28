@@ -37,4 +37,5 @@ interface FileEntryOperations: CacheableDownload {
         }
     }
     override fun getAllFileNames() = listOf(this.name)
+    override fun getAllLocalFileNames() = listOf(this.name)
 }
