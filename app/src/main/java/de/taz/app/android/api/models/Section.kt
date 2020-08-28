@@ -51,6 +51,12 @@ data class Section(
         return list.distinct()
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        val list = mutableListOf(sectionHtml.name)
+        list.addAll(imageList.filter { it.downloadedStatus == DownloadStatus.done }.map { it.name })
+        return list.distinct()
+    }
+
     override fun getLiveData(applicationContext: Context?): LiveData<Section?> {
         return SectionRepository.getInstance(applicationContext).getLiveData(sectionHtml.name)
     }

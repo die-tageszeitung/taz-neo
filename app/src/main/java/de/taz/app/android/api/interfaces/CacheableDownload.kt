@@ -55,6 +55,12 @@ interface CacheableDownload {
         return getAllFileNames().mapNotNull { fileEntryRepository.get(it) }
     }
 
+    fun getAllLocalFileNames(): List<String>
+    suspend fun getAllLocalFiles(): List<FileEntryOperations> {
+        val fileEntryRepository = FileEntryRepository.getInstance()
+        return getAllLocalFileNames().mapNotNull { fileEntryRepository.get(it) }
+    }
+
     // the download tag can be used to cancel downloads
     fun getDownloadTag(): String? = null
 
