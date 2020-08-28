@@ -83,7 +83,8 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         poll(timeoutMillis * 2)
                     }
                     SubscriptionStatus.toManyPollTrys -> {
-                        //TODO
+                        authHelper.isPolling = false
+                        Sentry.capture("ToManyPollTrys")
                     }
                     else -> {
                         // should not happen
