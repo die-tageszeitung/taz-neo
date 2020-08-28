@@ -54,7 +54,7 @@ class LoginViewModelTest {
     private val alreadyLinkedAuthInfo = AuthInfo(AuthStatus.alreadyLinked, message)
     private val alreadyLinkedAuthTokenInfo = AuthTokenInfo(token, alreadyLinkedAuthInfo)
 
-    private val viewModelState = LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
+    private val viewModelState = LoginViewModelState.CREDENTIALS_MISSING_FAILED
 
     private val invalidMailSubscriptionInfo = SubscriptionInfo(SubscriptionStatus.invalidMail)
     private val noPollEntrySubscriptionInfo = SubscriptionInfo(SubscriptionStatus.noPollEntry)
@@ -74,7 +74,7 @@ class LoginViewModelTest {
         SubscriptionResetInfo(SubscriptionResetStatus.invalidSubscriptionId)
     private val subscriptionResetInfoNoMail = SubscriptionResetInfo(SubscriptionResetStatus.noMail)
     private val subscriptionResetInfoInvalidConnection =
-        SubscriptionResetInfo(SubscriptionResetStatus.invalidConnection, email)
+        SubscriptionResetInfo(SubscriptionResetStatus.invalidConnection)
 
     @Mock
     lateinit var apiService: ApiService
@@ -306,7 +306,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(viewModelState)?.join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     @Test
@@ -602,7 +602,7 @@ class LoginViewModelTest {
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     @Test
@@ -612,7 +612,7 @@ class LoginViewModelTest {
 
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     @Test
@@ -621,7 +621,7 @@ class LoginViewModelTest {
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     @Test
@@ -631,7 +631,7 @@ class LoginViewModelTest {
 
         loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
         loginViewModel.connect(email, password, subscriptionId, subscriptionPassword).join()
-        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     @Test

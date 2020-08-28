@@ -56,7 +56,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_password_layout" />
 
     <TextView
-        android:id="@+id/fragment_login_trial_subscription"
+        android:id="@+id/fragment_login_missing_subscription_subscription"
         style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -66,13 +66,14 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account" />
 
     <Button
-        android:id="@+id/fragment_login_missing_subscription_test_subscription"
+        android:id="@+id/fragment_login_missing_subscription_subscription_button"
+        style="@style/AppTheme.ButtonStyle.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_missing_subscription_test_subscription"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_trial_subscription" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_subscription" />
 
     <TextView
         android:id="@+id/fragment_login_forgot_password_text"
@@ -81,7 +82,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_test_subscription" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_subscription_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
