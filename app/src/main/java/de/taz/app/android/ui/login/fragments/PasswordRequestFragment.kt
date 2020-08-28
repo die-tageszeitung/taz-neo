@@ -11,15 +11,18 @@ class PasswordRequestFragment : LoginBaseFragment(R.layout.fragment_login_forgot
 
     private var invalidId: Boolean = false
     private var invalidMail: Boolean = false
+    private var subscriptionId: Boolean = false
 
     companion object {
         fun create(
             invalidId: Boolean = false,
-            invalidMail: Boolean = false
+            invalidMail: Boolean = false,
+            subscriptionId: Boolean = false
         ): PasswordRequestFragment {
             val fragment = PasswordRequestFragment()
             fragment.invalidId = invalidId
             fragment.invalidMail = invalidMail
+            fragment.subscriptionId = subscriptionId
             return fragment
         }
     }
@@ -28,7 +31,11 @@ class PasswordRequestFragment : LoginBaseFragment(R.layout.fragment_login_forgot
         super.onViewCreated(view, savedInstanceState)
 
         fragment_login_forgot_password_username.setText(
-            viewModel.username ?: viewModel.subscriptionId?.toString()
+            if (subscriptionId) {
+                viewModel.subscriptionId?.toString()
+            } else {
+                viewModel.username ?: viewModel.subscriptionId?.toString()
+            }
         )
 
         if (invalidId) {

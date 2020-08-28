@@ -242,7 +242,7 @@
 
     <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer taz-ID verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
-    <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
+    <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
     <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
     <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
@@ -255,7 +255,7 @@
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
     <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
 
-    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden. Bitte wenden Sie sich an den Support:</string>
+    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden.\nBitte wenden Sie sich an den Support:</string>
     <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
     <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
 

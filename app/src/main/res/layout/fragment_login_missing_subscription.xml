@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/fragment_login_missing_subscription_header"
+        style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_missing_subscription_header"
@@ -56,9 +57,10 @@
 
     <TextView
         android:id="@+id/fragment_login_trial_subscription"
+        style="@style/TextAppearance.Login.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_text_margin_top"
+        android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
         android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
         android:text="@string/trial_subscription_title"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account" />
