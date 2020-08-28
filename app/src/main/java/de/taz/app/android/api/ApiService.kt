@@ -453,18 +453,18 @@ class ApiService private constructor(applicationContext: Context) {
             val data = graphQlClient.query(
                 QueryType.Subscription,
                 SubscriptionVariables(
-                    tazId= tazId,
+                    tazId = tazId,
                     idPassword = idPassword,
                     surname = surname,
                     firstName = firstName,
                     street = street,
                     city = city,
-                    postcode =postCode,
-                    country =  country,
-                    phone =  phone,
-                    price =  price,
-                    iban =  iban,
-                    accountHolder =  accountHolder,
+                    postcode = postCode,
+                    country = country,
+                    phone = phone,
+                    price = price,
+                    iban = iban,
+                    accountHolder = accountHolder,
                     comment = comment,
                     nameAffix = nameAffix
                 )
@@ -485,7 +485,8 @@ class ApiService private constructor(applicationContext: Context) {
         tazId: String,
         idPassword: String,
         surname: String? = null,
-        firstName: String? = null
+        firstName: String? = null,
+        nameAffix: String? = null
     ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
@@ -493,7 +494,13 @@ class ApiService private constructor(applicationContext: Context) {
             {
                 graphQlClient.query(
                     QueryType.TrialSubscription,
-                    TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
+                    TrialSubscriptionVariables(
+                        tazId = tazId,
+                        idPassword = idPassword,
+                        surname = surname,
+                        firstName = firstName,
+                        nameAffix = nameAffix
+                    )
                 )?.trialSubscription
             }, tag
         )
