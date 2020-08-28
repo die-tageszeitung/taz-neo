@@ -32,17 +32,17 @@ class PasswordRequestFragment : LoginBaseFragment(R.layout.fragment_login_forgot
         )
 
         if (invalidId) {
+            fragment_login_forgot_password_username.setText(viewModel.subscriptionId?.toString())
             fragment_login_forgot_password_username_layout.setError(
                 R.string.login_forgot_password_error_invalid_id
             )
-            fragment_login_forgot_password_username.setText(viewModel.subscriptionId?.toString())
         }
 
         if (invalidMail) {
+            fragment_login_forgot_password_username.setText(viewModel.username)
             fragment_login_forgot_password_username_layout.setError(
                 R.string.login_email_error_invalid
             )
-            fragment_login_forgot_password_username.setText(viewModel.username?.toString())
         }
 
         fragment_login_forgot_password_button.setOnClickListener {

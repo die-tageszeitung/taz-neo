@@ -17,7 +17,10 @@ const val MAX_NAME_LENGTH = 24
 
 class SubscriptionAddressFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_address) {
-
+    var cityInvalid: Boolean = false
+    var countryInvalid: Boolean = false
+    var postcodeInvalid: Boolean = false
+    var streetInvalid: Boolean = false
     var nameTooLong: Boolean = false
     var firstNameEmpty: Boolean = false
     var firstNameInvalid: Boolean = false
@@ -26,6 +29,10 @@ class SubscriptionAddressFragment :
 
     companion object {
         fun createInstance(
+            cityInvalid: Boolean = false,
+            countryInvalid: Boolean = false,
+            postcodeInvalid: Boolean = false,
+            streetInvalid: Boolean = false,
             nameTooLong: Boolean = false,
             firstNameEmpty: Boolean = false,
             firstNameInvalid: Boolean = false,
@@ -33,6 +40,10 @@ class SubscriptionAddressFragment :
             surnameInvalid: Boolean = false
         ): SubscriptionAddressFragment {
             val fragment = SubscriptionAddressFragment()
+            fragment.cityInvalid = cityInvalid
+            fragment.countryInvalid = countryInvalid
+            fragment.postcodeInvalid = postcodeInvalid
+            fragment.streetInvalid = streetInvalid
             fragment.nameTooLong = nameTooLong
             fragment.firstNameEmpty = firstNameEmpty
             fragment.firstNameInvalid = firstNameInvalid
@@ -95,20 +106,31 @@ class SubscriptionAddressFragment :
             setSurnameError(R.string.login_surname_helper)
         }
 
-        if(firstNameEmpty) {
+        if (firstNameEmpty) {
             setFirstNameError(R.string.login_first_name_error_empty)
         }
-        if(firstNameInvalid) {
+        if (firstNameInvalid) {
             setFirstNameError(R.string.login_first_name_error_invalid)
         }
-        if(surnameEmpty) {
+        if (surnameEmpty) {
             setSurnameError(R.string.login_surname_error_empty)
         }
-        if(surnameInvalid) {
+        if (surnameInvalid) {
             setSurnameError(R.string.login_surname_error_invalid)
         }
 
-
+        if (cityInvalid) {
+            fragment_subscription_address_city_layout.setError(R.string.subscription_field_invalid)
+        }
+        if (countryInvalid) {
+            fragment_subscription_address_country_layout.setError(R.string.subscription_field_invalid)
+        }
+        if (streetInvalid) {
+            fragment_subscription_address_street_layout.setError(R.string.subscription_field_invalid)
+        }
+        if (postcodeInvalid) {
+            fragment_subscription_address_postcode_layout.setError(R.string.subscription_field_invalid)
+        }
     }
 
     override fun done(): Boolean {
