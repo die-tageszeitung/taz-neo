@@ -107,7 +107,6 @@ class ApiService private constructor(applicationContext: Context) {
         log.debug(tag)
         return transformExceptions({
             graphQlClient.query(
-
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
             )?.subscriptionPoll
@@ -428,6 +427,56 @@ class ApiService private constructor(applicationContext: Context) {
         }
 
     /**
+     * function to request a subscription
+     * @param tazId the username
+     * @param idPassword the password for the username
+     * @param surname surname of the requesting person
+     * @param firstName firstName of the requesting person
+     */
+    @Throws(ApiServiceException.NoInternetException::class)
+    suspend fun subscription(
+        tazId: String,
+        idPassword: String,
+        surname: String? = null,
+        firstName: String? = null,
+        street: String,
+        city: String,
+        postCode: String,
+        country: String,
+        phone: String? = null,
+        price: Int,
+        iban: String,
+        accountHolder: String? = null,
+        comment: String? = null,
+        nameAffix: String? = null
+    ): SubscriptionInfo? {
+        val tag = "subscription"
+        log.debug("$tag tazId: $tazId")
+        return transformExceptions({
+            val data = graphQlClient.query(
+                QueryType.Subscription,
+                SubscriptionVariables(
+                    tazId = tazId,
+                    idPassword = idPassword,
+                    surname = surname,
+                    firstName = firstName,
+                    street = street,
+                    city = city,
+                    postcode = postCode,
+                    country = country,
+                    phone = phone,
+                    price = price,
+                    iban = iban,
+                    accountHolder = accountHolder,
+                    comment = comment,
+                    nameAffix = nameAffix
+                )
+            )
+            data?.subscription
+        }, tag)
+    }
+
+    /**
      * function to request a trial subscription
      * @param tazId the username
      * @param idPassword the password for the username
@@ -439,7 +488,8 @@ class ApiService private constructor(applicationContext: Context) {
         tazId: String,
         idPassword: String,
         surname: String? = null,
-        firstName: String? = null
+        firstName: String? = null,
+        nameAffix: String? = null
     ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
@@ -447,7 +497,13 @@ class ApiService private constructor(applicationContext: Context) {
             {
                 graphQlClient.query(
                     QueryType.TrialSubscription,
-                    TrialSubscriptionVariables(tazId, idPassword, surname, firstName)
+                    TrialSubscriptionVariables(
+                        tazId = tazId,
+                        idPassword = idPassword,
+                        surname = surname,
+                        firstName = firstName,
+                        nameAffix = nameAffix
+                    )
                 )?.trialSubscription
             }, tag
         )
@@ -528,6 +584,18 @@ class ApiService private constructor(applicationContext: Context) {
         )
     }
 
+    suspend fun getPriceList(): List<PriceInfo> {
+        val tag = "getPriceList"
+        return transformExceptions(
+            {
+                graphQlClient.query(
+                    QueryType.PriceList
+                )?.priceList
+            },
+            tag
+        ) ?: emptyList()
+    }
+
     @Throws(ApiServiceException.NoInternetException::class)
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
@@ -590,8 +658,8 @@ class ApiService private constructor(applicationContext: Context) {
     fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
         if (serverConnectionHelper.isServerReachable) {
             continuation.resume(Unit)
-        } else {
             log.debug("ApiCall $tag waiting")
+        } else {
             waitInternetList.add(continuation)
         }
     }

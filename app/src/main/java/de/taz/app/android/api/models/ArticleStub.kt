@@ -56,6 +56,17 @@ data class ArticleStub(
         return list.distinct()
     }
 
+    override fun getAllLocalFileNames(): List<String> {
+        val articleRepository = ArticleRepository.getInstance()
+        val imageList = articleRepository.getImagesForArticle(key)
+        val authorList = articleRepository.getAuthorImageFileNamesForArticle(key)
+
+        val list = mutableListOf(key)
+        list.addAll(authorList)
+        list.addAll(imageList.filter { it.downloadedStatus == DownloadStatus.done}.map { it.name })
+        return list.distinct()
+    }
+
     override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
         return ArticleRepository.getInstance(applicationContext).getStubLiveData(articleFileName)
     }

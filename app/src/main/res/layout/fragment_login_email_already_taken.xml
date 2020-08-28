@@ -11,12 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_email_already_taken_header"
-        android:textAlignment="viewStart"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/fragment_login_email_already_taken_insert_new"
-        style="@style/Button.Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_email_already_taken_insert_new"
@@ -30,17 +28,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_login_email_already_taken_contact_support"
-        android:textAlignment="viewStart"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_email_already_taken_insert_new" />
 
 
     <TextView
         android:id="@+id/fragment_login_email_already_taken_contact_email"
         style="@style/TextAppearance.Login.Text.Link"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:textAlignment="viewStart"
         android:text="@string/fragment_login_digiabo_mail_underlined"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_login_email_already_taken_contact_support" />

@@ -7,11 +7,12 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
@@ -21,8 +22,13 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -87,11 +93,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
         viewModel.backToArticle = article != null
 
-        viewModel.status.observe(this, Observer { loginViewModelState: LoginViewModelState? ->
+        viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     if (register) {
-                        showLoginRequestTestSubscription()
+                        showSubscriptionPrice()
                     } else {
                         showLoginForm()
                     }
@@ -130,10 +136,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showSubscriptionMissing(invalidId = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
-                    showLoginRequestTestSubscription()
+                    showSubscriptionPrice()
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL -> {
-                    showLoginRequestTestSubscription(invalidMail = true)
+                    showSubscriptionAccount(mailInvalid = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_TAKEN -> {
                     showSubscriptionTaken()
@@ -147,6 +153,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.PASSWORD_REQUEST_DONE -> {
                     showPasswordMailSent()
                 }
+                LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL -> {
+                    showPasswordRequest(invalidMail = true)
+                }
                 LoginViewModelState.PASSWORD_REQUEST_NO_MAIL -> {
                     showPasswordRequestNoMail()
                 }
@@ -157,23 +166,66 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
-                LoginViewModelState.REGISTRATION_EMAIL -> {
-                    showConfirmEmail()
+                LoginViewModelState.REGISTRATION_EMAIL -> showConfirmEmail()
+                LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
+                LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
+                LoginViewModelState.DONE -> done()
+                LoginViewModelState.NAME_MISSING -> showNamesMissing()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS -> showSubscriptionAddress()
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
+                LoginViewModelState.SUBSCRIPTION_BANK -> showSubscriptionBank()
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
+                    mailInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY -> showSubscriptionAddress(
+                    firstNameEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID -> showSubscriptionAddress(
+                    firstNameInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY -> showSubscriptionAddress(
+                    surnameEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID -> showSubscriptionAddress(
+                    surnameInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showSubscriptionBank(
+                    accountHolderInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showSubscriptionBank(
+                    ibanEmpty = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showSubscriptionBank(
+                    ibanInvalid = true
+                )
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showSubscriptionBank(
+                    ibanNoSepa = true
+                )
+                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
+                null -> {
+                    Sentry.capture("login status is null")
+                    viewModel.status.postValue(LoginViewModelState.INITIAL)
                 }
-                LoginViewModelState.REGISTRATION_SUCCESSFUL -> {
-                    showRegistrationSuccessful()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
+                    nameTooLong = true
+                )
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
+                    showSubscriptionAccount(subscriptionInvalid = true)
                 }
-                LoginViewModelState.USERNAME_MISSING -> {
-                    showLoginForm(usernameErrorId = R.string.login_username_error_empty)
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> {
+                    showSubscriptionAddress(cityInvalid = true)
                 }
-                LoginViewModelState.DONE -> {
-                    done()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> {
+                    showSubscriptionAddress(countryInvalid = true)
                 }
-                LoginViewModelState.NAME_MISSING -> {
-                    showNamesMissing()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> {
+                    showSubscriptionAddress(streetInvalid = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> {
+                    showSubscriptionAddress(postcodeInvalid = true)
                 }
             }
-        })
+        }
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
@@ -196,12 +248,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         )
     }
 
-    private fun hideLoadingScreen() {
+    private fun hideLoadingScreen() = runOnUiThread {
         log.debug("hideLoadingScreen")
         loading_screen.visibility = View.GONE
     }
 
-    private fun showLoadingScreen() {
+    private fun showLoadingScreen() = runOnUiThread {
         log.debug("showLoadingScreen")
         loading_screen.visibility = View.VISIBLE
     }
@@ -263,9 +315,34 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun showLoginRequestTestSubscription(invalidMail: Boolean = false) {
+    private fun showSubscriptionPrice(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
-        showFragment(RequestTestSubscriptionFragment.create(invalidMail))
+        viewModel.status.postValue(LoginViewModelState.LOADING)
+        lifecycleScope.launch(Dispatchers.IO) {
+            getPriceList()?.let {
+                showFragment(
+                    SubscriptionPriceFragment.createInstance(
+                        it,
+                        invalidPrice = priceInvalid
+                    )
+                )
+            } ?: hideLoadingScreen()
+        }
+    }
+
+    /**
+     * get priceList synchronous to give user feedback
+     */
+    private suspend fun getPriceList(): List<PriceInfo>? {
+        return try {
+            ApiService.getInstance(applicationContext).getPriceList()
+        } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+            view?.let {
+                Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
+            } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
+            null
+        }
     }
 
     private fun showRegistrationSuccessful() {
@@ -273,13 +350,18 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(RegistrationSuccessfulFragment())
     }
 
-    private fun showPasswordRequest(invalidId: Boolean = false) {
+    private fun showPasswordRequest(invalidId: Boolean = false, invalidMail: Boolean = false) {
         log.debug("showPasswordRequest")
-        showFragment(PasswordRequestFragment.create(invalidId = invalidId))
+        showFragment(
+            PasswordRequestFragment.create(
+                invalidId = invalidId,
+                invalidMail = invalidMail
+            )
+        )
     }
 
     private fun showPasswordMailSent() {
-        log.debug("showPasswordRequest")
+        log.debug("showPasswordMailSent")
         showFragment(PasswordEmailSentFragment())
     }
 
@@ -292,6 +374,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         log.debug("showNamesMissing")
         showFragment(NamesMissingFragment())
     }
+
     fun done() {
         log.debug("done")
         showLoadingScreen()
@@ -362,6 +445,63 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 super.onBackPressed()
             }
         }
+    }
+
+    private fun showSubscriptionAddress(
+        cityInvalid: Boolean = false,
+        countryInvalid: Boolean = false,
+        postcodeInvalid: Boolean = false,
+        streetInvalid: Boolean = false,
+        nameTooLong: Boolean = false,
+        firstNameEmpty: Boolean = false,
+        firstNameInvalid: Boolean = false,
+        surnameEmpty: Boolean = false,
+        surnameInvalid: Boolean = false
+    ) {
+        log.debug("showSubscriptionAddress")
+        showFragment(
+            SubscriptionAddressFragment.createInstance(
+                nameTooLong = nameTooLong,
+                firstNameEmpty = firstNameEmpty,
+                firstNameInvalid = firstNameInvalid,
+                surnameEmpty = surnameEmpty,
+                surnameInvalid = surnameInvalid,
+                cityInvalid = cityInvalid,
+                countryInvalid = countryInvalid,
+                postcodeInvalid = postcodeInvalid,
+                streetInvalid = streetInvalid
+            )
+        )
+    }
+
+    private fun showSubscriptionAccount(
+        mailInvalid: Boolean = false,
+        subscriptionInvalid: Boolean = false
+    ) {
+        log.debug("showSubscriptionAccount")
+        showFragment(
+            SubscriptionAccountFragment.createInstance(
+                mailInvalid = mailInvalid,
+                subscriptionInvalid = subscriptionInvalid
+            )
+        )
+    }
+
+    private fun showSubscriptionBank(
+        accountHolderInvalid: Boolean = false,
+        ibanEmpty: Boolean = false,
+        ibanInvalid: Boolean = false,
+        ibanNoSepa: Boolean = false
+    ) {
+        log.debug("showSubscriptionBank")
+        showFragment(
+            SubscriptionBankFragment.createInstance(
+                accountHolderInvalid = accountHolderInvalid,
+                ibanEmpty = ibanEmpty,
+                ibanInvalid = ibanInvalid,
+                ibanNoSepa = ibanNoSepa
+            )
+        )
     }
 
 }

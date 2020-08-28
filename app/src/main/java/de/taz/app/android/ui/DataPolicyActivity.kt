@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+const val FINISH_ON_CLOSE = "FINISH ON CLOSE"
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
@@ -36,8 +37,12 @@ class DataPolicyActivity : AppCompatActivity() {
     private var downloadRepository: DownloadRepository? = null
     private var fileHelper: FileHelper? = null
 
+    private var finishOnClose = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
         downloadRepository = DownloadRepository.getInstance(applicationContext)
         fileHelper = FileHelper.getInstance(applicationContext)
@@ -46,17 +51,21 @@ class DataPolicyActivity : AppCompatActivity() {
 
         data_policy_accept_button?.setOnClickListener {
             acceptDataPolicy()
-            if (isFirstTimeStart()) {
-                log.debug("start welcome activity")
-                val intent = Intent(applicationContext, WelcomeActivity::class.java)
-                intent.putExtra(START_HOME_ACTIVITY, true)
-                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-                startActivity(Intent(intent))
+            if(finishOnClose) {
+                finish()
             } else {
-                log.debug("start main activity")
-                val intent = Intent(applicationContext, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-                startActivity(Intent(intent))
+                if (isFirstTimeStart()) {
+                    log.debug("start welcome activity")
+                    val intent = Intent(applicationContext, WelcomeActivity::class.java)
+                    intent.putExtra(START_HOME_ACTIVITY, true)
+                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    startActivity(Intent(intent))
+                } else {
+                    log.debug("start main activity")
+                    val intent = Intent(applicationContext, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    startActivity(Intent(intent))
+                }
             }
         }
 

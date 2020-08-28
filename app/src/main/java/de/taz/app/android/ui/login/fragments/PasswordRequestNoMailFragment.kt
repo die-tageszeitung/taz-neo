@@ -6,9 +6,4 @@ import de.taz.app.android.R
 
 class PasswordRequestNoMailFragment : LoginBaseFragment(R.layout.fragment_login_forgot_password_no_mail) {
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
-
 }

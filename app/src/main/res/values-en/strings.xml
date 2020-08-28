@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">taz neo</string>
-    <string name="accept_button">accept</string>
-    <string name="close_button">close</string>
-    <string name="cancel_button">cancel</string>
+    <string name="accept_button">Accept</string>
+    <string name="close_button">Close</string>
+    <string name="cancel_button">Cancel</string>
 
     <string name="notification_channel_new_version">New version</string>
     <string name="notification_channel_new_version_description">Notification if a new version exists</string>
@@ -43,7 +43,7 @@
     <string name="navigation_drawer_icon_content">Content</string>
     <string name="navigation_drawer_icon_home">Home</string>
     <string name="navigation_drawer_icon_bookmarks">Bookmarks</string>
-    <string name="navigation_drawer_icon_help">Help</string>
+    <string name="help">Help</string>
 
     <string name="bottom_navigation_action_bookmark">add to bookmarks</string>
     <string name="bottom_navigation_action_help">show help</string>
@@ -136,7 +136,7 @@
     <string name="percentage">%d%%</string>
 
     <string name="fragment_login_title">Login</string>
-    <string name="fragment_login_description">We would like to make it easier for you to access our digital products and are therefore changing our registration procedure in a two-stage process. First, please enter your current Subscription ID and password. In a second step you will be asked to log in with a valid e-mail address (taz ID) and a password of your choice. That\'s it! From now on you can only log in with your taz ID. If you already have a taz ID, please log in here.</string>
+    <string name="fragment_login_help">We would like to make it easier for you to access our digital products and are therefore changing our registration procedure in a two-stage process. First, please enter your current Subscription ID and password. In a second step you will be asked to log in with a valid e-mail address (taz ID) and a password of your choice. That\'s it! From now on you can only log in with your taz ID. If you already have a taz ID, please log in here.</string>
 
     <string name="login_error_unknown_credentials">Login failed</string>
 
@@ -146,7 +146,7 @@
 
     <string name="login_email_hint">email</string>
     <string name="login_email_error_empty">Email can\'t be empty.</string>
-    <string name="login_email_error_no_email">Must be an email address</string>
+    <string name="login_email_error_invalid">Must be an email address</string>
 
     <string name="login_first_name_hint">first name</string>
     <string name="login_first_name_error_empty">Please enter your first name</string>
@@ -173,7 +173,6 @@
     <string name="fragment_login_missing_credentials_header_login">If you already have an account on taz.de please insert your credentials here.</string>
     <string name="login_forgot_password">Did you forget your password?</string>
     <string name="login_forgot_password_button">Click here</string>
-    <string name="fragment_login_missing_credentials_terms_and_conditions">I accept the terms and conditions, as well as the notes on revocation and privacy.</string>
     <string name="fragment_login_missing_credentials_login">Login</string>
     <string name="fragment_login_missing_credentials_switch_to_login">I already have an account</string>
     <string name="fragment_login_missing_credentials_switch_to_registration">I don\'t have an account yet</string>
@@ -202,7 +201,6 @@
 
     <string name="fragment_login_request_test_subscription_header">You can try the digital taz for 14 days:</string>
     <string name="fragment_login_request_test_subscription_existing_account">If you already have an taz.de account (to comment on articles or use the archive) with email address and password please enter them here</string>>
-    <string name="fragment_login_request_test_subscription_terms_and_conditions">I accept the terms and conditions, as well as the information on revocation and privacy.</string>
 
     <string name="fragment_login_confirm_email_header">Thanks for your registration! We sent you an email. Please open it and confirm your address. As soon as it has been confirmed you will be able to use the new taz app.</string>
 
@@ -218,5 +216,40 @@
 
     <string name="button_close_text">×</string>
     <string name="issue_not_found">Issue not found.</string>
+    <string name="fragment_date_picker_selected_issue_toast">New issue has been selected</string>
+    <string name="next_button">Next</string>
+    <string name="retry">Retry</string>
+    <string name="back">Back</string>
+    <string name="price_error_none">Please select a price.</string>
+    <string name="fragment_login_request_subscription_text">Do you want a subscription?</string>
+    <string name="fragment_login_request_subscription_button">subscribe</string>
+    <string name="fragment_subscription_price_title">Monthly price</string>
+    <string name="fragment_subscription_price_description">Like in the printed taz our solidary price system applies. Pay what you can and want.</string>
+    <string name="fragment_subscription_address_title">Your Address</string>
+    <string name="fragment_subscription_bank_title">Your bank information</string>
+    <string name="account_holder_hint">Account holder</string>
+    <string name="subscription_field_invalid">Contains invalid symbols</string>
+    <string name="country_error_empty">Please enter you full address.</string>
+    <string name="postcode_error_empty">Please enter you full address.</string>
+    <string name="city_error_empty">Please enter you full address.</string>
+    <string name="street_error_empty">Please enter you full address.</string>
+    <string name="iban_error_invalid">IBAN is invalid.</string>
+    <string name="iban_error_empty">Please enter your IBAN.</string>
+    <string name="iban_error_no_sepa">SEPA not available for your country.</string>
+    <string name="iban_hint">IBAN</string>
+    <string name="phone_hint">Phone</string>
+    <string name="city_hint">City</string>
+    <string name="country_hint">Country</string>
+    <string name="postcode_hint">Postcode</string>
+    <string name="street_hint">Street/No.</string>
+    <string name="fragment_subscription_bank_description">Direct debit mandate with SEPA. Our debtee id is DE9200100000011699. Accounts in the EU can take part in SEPA. Payment only in €.</string>
+    <string name="fragment_subscription_confirm_email_header">Thank you for registering. We sent you an email. Please confirm your email-address so you can use the new taz-app.</string>
+    <string name="terms_and_conditions">I accept the <u>terms and conditions</u>, as well as the <u>data policy</u> and the <u>cancellation policy</u>.</string>
+    <string name="terms_and_conditions_terms">terms and conditions</string>
+    <string name="terms_and_conditions_data_policy">data policy</string>
+    <string name="terms_and_conditions_revocation">cancellation policy</string>
+    <string name="fragment_login_description">Please login to continue reading.</string>
+    <string name="login_name_affix_hint">name affix</string>
+    <string name="login_comment_hint">note</string>
 
 </resources>

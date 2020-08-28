@@ -11,6 +11,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
@@ -31,8 +32,9 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     }
 
     private fun poll(timeoutMillis: Long = 100) {
+        val timeMillis = timeoutMillis.coerceAtMost(5000)
         CoroutineScope(Dispatchers.IO).launch {
-            delay(timeoutMillis)
+            delay(timeMillis)
 
             try {
                 val subscriptionInfo = apiService.subscriptionPoll()
@@ -67,11 +69,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     SubscriptionStatus.waitForMail -> {
                         // still waiting poll again
-                        poll(2 * timeoutMillis)
+                        poll(2 * timeMillis)
                     }
                     SubscriptionStatus.waitForProc -> {
                         // still waiting poll again
-                        poll(timeoutMillis * 2)
+                        poll(timeMillis * 2)
                     }
                     SubscriptionStatus.noPollEntry -> {
                         // user waited to long
@@ -79,12 +81,20 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     null -> {
                         // continue and wait for correct response
-                        poll(timeoutMillis * 2)
+                        poll(timeMillis * 2)
+                    }
+                    SubscriptionStatus.toManyPollTrys -> {
+                        authHelper.isPolling = false
+                        Sentry.capture("ToManyPollTrys")
+                    }
+                    else -> {
+                        // should not happen
+                        Sentry.capture("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 // continue polling
-                poll(timeoutMillis * 2)
+                poll(timeMillis * 2)
             }
         }
     }

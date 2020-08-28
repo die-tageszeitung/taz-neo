@@ -23,7 +23,7 @@
     <color name="textColorSection">@color/tazRed</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
-    
+
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/tazRed</color>

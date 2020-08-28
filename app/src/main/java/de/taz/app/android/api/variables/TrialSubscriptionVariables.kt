@@ -13,6 +13,7 @@ data class TrialSubscriptionVariables(
     val idPassword: String,
     val surname: String? = null,
     val firstName: String? = null,
+    val nameAffix: String? = null,
     val installationId: String = AuthHelper.getInstance().installationId,
     val pushToken: String? = FirebaseHelper.getInstance().firebaseToken,
     val deviceType: DeviceType = DeviceType.android

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
@@ -44,8 +45,13 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 when (position) {
-                    COVERFLOW_PAGER_POSITION -> enableRefresh()
-                    ARCHIVE_PAGER_POSITION -> disableRefresh()
+                    COVERFLOW_PAGER_POSITION -> {
+                        enableRefresh()
+                    }
+                    ARCHIVE_PAGER_POSITION -> {
+                        setHomeIcon()
+                        disableRefresh()
+                    }
                 }
             }
         })
@@ -116,5 +122,17 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         refreshJob?.cancel()
         refreshJob = null
         super.onDestroyView()
+    }
+
+    fun setHomeIconFilled() {
+        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
+            R.id.bottom_navigation_action_home
+        )?.setIcon(R.drawable.ic_home_filled)
+    }
+
+    fun setHomeIcon() {
+        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
+            R.id.bottom_navigation_action_home
+        )?.setIcon(R.drawable.ic_home)
     }
 }
