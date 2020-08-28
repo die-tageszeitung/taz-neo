@@ -224,6 +224,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> {
                     showSubscriptionAddress(postcodeInvalid = true)
                 }
+                LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
+                    showPasswordRequest(subscriptionId = true)
+                }
             }
         }
 
@@ -350,12 +353,17 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(RegistrationSuccessfulFragment())
     }
 
-    private fun showPasswordRequest(invalidId: Boolean = false, invalidMail: Boolean = false) {
+    private fun showPasswordRequest(
+        subscriptionId: Boolean = false,
+        invalidId: Boolean = false,
+        invalidMail: Boolean = false
+    ) {
         log.debug("showPasswordRequest")
         showFragment(
             PasswordRequestFragment.create(
                 invalidId = invalidId,
-                invalidMail = invalidMail
+                invalidMail = invalidMail,
+                subscriptionId = subscriptionId
             )
         )
     }

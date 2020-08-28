@@ -491,7 +491,7 @@ class LoginViewModel(
         }
     }
 
-    fun requestPasswordReset() {
+    fun requestPasswordReset(subscriptionId: Boolean = false) {
         status.value?.let {
             if (it !in listOf(
                     LoginViewModelState.PASSWORD_REQUEST,
@@ -504,7 +504,11 @@ class LoginViewModel(
                 statusBeforePasswordRequest = status.value
             }
         }
-        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+        if (subscriptionId) {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID)
+        } else {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+        }
     }
 
     fun requestSubscriptionPassword(subscriptionId: Int): Job {
@@ -520,7 +524,6 @@ class LoginViewModel(
                 SubscriptionResetStatus.ok ->
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                 SubscriptionResetStatus.invalidConnection -> {
-                    username = subscriptionResetInfo.mail
                     status.postValue(LoginViewModelState.INITIAL)
                     toastHelper.showToast(R.string.toast_login_with_email)
                 }
@@ -756,6 +759,7 @@ enum class LoginViewModelState {
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
+    PASSWORD_REQUEST_SUBSCRIPTION_ID,
     PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
     PASSWORD_REQUEST_NO_MAIL,
