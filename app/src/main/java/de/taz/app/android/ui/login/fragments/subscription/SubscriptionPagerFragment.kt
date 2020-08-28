@@ -91,7 +91,7 @@ class SubscriptionPagerFragment : BaseViewModelFragment<SubscriptionViewModel>(
     }
 
     private fun sendSubscriptionRequest() {
-/*        try {
+       try {
             if (!isSubscriptionRequestRunning.getAndSet(true)) {
                 showLoadingScreen()
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -194,7 +194,7 @@ class SubscriptionPagerFragment : BaseViewModelFragment<SubscriptionViewModel>(
             }
         } catch (nie: ApiService.ApiServiceException.NoInternetException) {
             showRetrySnackBar()
-        }*/
+        }
     }
 
     private fun showRetrySnackBar() {

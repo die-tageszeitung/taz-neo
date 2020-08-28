@@ -137,7 +137,17 @@ class SubscriptionAccountFragment :
     }
 
     override fun next() {
-        TODO()
+        viewModel.apply {
+            if (price == 0) {
+                if (createNewAccount) {
+                    getTrialSubscriptionForNewCredentials()
+                } else {
+                    getTrialSubscriptionForExistingCredentials()
+                }
+            } else {
+                getSubscription()
+            }
+        }
     }
 
     override fun done(): Boolean {

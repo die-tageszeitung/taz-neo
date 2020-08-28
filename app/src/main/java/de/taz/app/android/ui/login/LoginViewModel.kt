@@ -17,7 +17,6 @@ import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 class LoginViewModel(
@@ -41,9 +40,7 @@ class LoginViewModel(
         PREFERENCES_AUTH,
         Context.MODE_PRIVATE
     ).getString(PREFERENCES_AUTH_EMAIL, null)
-//        private set
     var password: String? = null
-  //      private set
     var subscriptionId: Int? = null
         private set
     var subscriptionPassword: String? = null
@@ -64,7 +61,6 @@ class LoginViewModel(
     var comment: String? = null
 
     var createNewAccount: Boolean = true
-
 
 
     init {
@@ -204,43 +200,18 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(
-        firstName: String? = null,
-        surname: String? = null
-    ) {
-        register(
-            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED,
-            firstName = firstName,
-            surname = surname
-        )
+    fun getTrialSubscriptionForExistingCredentials() {
+        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials(
-        username: String? = null,
-        password: String? = null,
-        firstName: String? = null,
-        surname: String? = null
-    ) {
-        register(
-            LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL,
-            username,
-            password,
-            firstName,
-            surname
-        )
+    fun getTrialSubscriptionForNewCredentials() {
+        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
-        invalidMailState: LoginViewModelState,
-        username: String? = null,
-        password: String? = null,
-        firstName: String? = null,
-        surname: String? = null
+        invalidMailState: LoginViewModelState
     ): Job? {
-        username?.let { this.username = it }
-        password?.let { this.password = it }
-
         return runIfNotNull(this.username, this.password) { username1, password1 ->
             val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
@@ -249,7 +220,7 @@ class LoginViewModel(
                     username1,
                     password1,
                     firstName,
-                    surname,
+                    surName,
                     invalidMailState,
                     previousState
                 )
@@ -602,6 +573,124 @@ class LoginViewModel(
         authHelper.email = username
     }
 
+    fun getSubscription() {
+        status.postValue(LoginViewModelState.LOADING)
+        ioScope.launch {
+            try {
+                ApiService.getInstance(getApplication()).subscription(
+                    username,
+                    password,
+                    surName,
+                    firstName,
+                    street,
+                    city,
+                    postCode,
+                    country,
+                    phone,
+                    price,
+                    iban,
+                    accountHolder
+                )?.let { subscriptionInfo ->
+                    log.debug("getSubscription returned: $subscriptionInfo")
+                    /*when (subscriptionInfo.status) {
+                    SubscriptionStatus.ibanNoIban -> {
+                        getFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_empty)
+                    }
+                    SubscriptionStatus.ibanInvalidChecksum -> {
+                        getAndShowFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_invalid)
+                    }
+                    SubscriptionStatus.ibanNoSepaCountry -> {
+                        getAndShowFragment<SubscriptionBankFragment>()?.setIbanError(R.string.iban_error_no_sepa)
+                    }
+                    SubscriptionStatus.invalidAccountHolder -> {
+                        getAndShowFragment<SubscriptionBankFragment>()?.setAccountHolderError(
+                            R.string.account_holder_invalid
+                        )
+                    }
+                    SubscriptionStatus.invalidMail -> {
+                        getAndShowFragment<SubscriptionAccountFragment>()?.setEmailError(R.string.login_email_error_empty)
+                    }
+                    SubscriptionStatus.invalidFirstName -> {
+                        getAndShowFragment<SubscriptionAddressFragment>()?.setFirstNameError(
+                            R.string.first_name_error_invalid
+                        )
+                    }
+                    SubscriptionStatus.invalidSurname -> {
+                        getAndShowFragment<SubscriptionAddressFragment>()?.setSurnameError(R.string.login_surname_error_invalid)
+                    }
+                    SubscriptionStatus.noFirstName -> {
+                        getAndShowFragment<SubscriptionAddressFragment>()?.setFirstNameError(
+                            R.string.first_name_error_empty
+                        )
+                    }
+                    SubscriptionStatus.noSurname -> {
+                        getAndShowFragment<SubscriptionAddressFragment>()?.setSurnameError(R.string.surname_error_empty)
+                    }
+                    SubscriptionStatus.priceNotValid -> {
+                        getAndShowFragment<SubscriptionPriceFragment>()?.showPriceError()
+                    }
+                    SubscriptionStatus.waitForMail -> {
+                        AuthHelper.getInstance(context?.applicationContext).isPolling = true
+                        parentFragmentManager.beginTransaction().replace(
+                            R.id.activity_subscription_fragment_placeholder,
+                            SubscriptionConfirmMailFragment()
+                        ).commit()
+                    }
+                    SubscriptionStatus.waitForProc -> {
+                        AuthHelper.getInstance(context?.applicationContext).isPolling = true
+                    }
+                    SubscriptionStatus.alreadyLinked -> {
+                        activity?.startActivity(
+                            Intent(
+                                activity?.applicationContext,
+                                LoginActivity::class.java
+                            )
+                        )
+                    }
+                    SubscriptionStatus.tazIdNotValid -> {
+                        // user doesn't have a tazID yet
+                        // TODO SEND TO LOGINACTIVITY TO CREATE ONE?
+                        toastHelper?.showSomethingWentWrongToast()
+                        hideLoadingScreen()
+                    }
+                    SubscriptionStatus.valid,
+                    SubscriptionStatus.invalidConnection,
+                    SubscriptionStatus.noPollEntry,
+                    SubscriptionStatus.toManyPollTrys,
+                    SubscriptionStatus.subscriptionIdNotValid,
+                    SubscriptionStatus.elapsed -> {
+                        // this should not happen
+                        Sentry.capture("subscription returned ${subscriptionInfo.status} ")
+                        toastHelper?.showSomethingWentWrongToast()
+                        hideLoadingScreen()
+
+                    }
+                }
+                isSubscriptionRequestRunning.set(false)
+            } ?: run {
+                isSubscriptionRequestRunning.set(false)
+                toastHelper?.showSomethingWentWrongToast()
+                Sentry.capture("subscription returned null")
+                hideLoadingScreen()
+            }
+        }*/
+                }
+            } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+                TODO()
+                //showRetrySnackBar()
+            }
+        }
+    }
+/*
+    private fun showRetrySnackBar() {
+            Snackbar
+                .make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
+                .setAction(R.string.retry) {
+                    sendSubscriptionRequest()
+                }
+                .show()
+        }
+    }*/
 }
 
 enum class LoginViewModelState {
