@@ -475,7 +475,8 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.NAME_MISSING)
                 }
                 SubscriptionStatus.toManyPollTrys -> {
-                    TODO()
+                    authHelper.isPolling = false
+                    Sentry.capture("ToManyPollTrys")
                 }
                 else -> {
                     // should not happen
