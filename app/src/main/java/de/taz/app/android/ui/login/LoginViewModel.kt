@@ -695,6 +695,42 @@ class LoginViewModel(
             }
         }
     }
+
+    private suspend fun checkCredentials(): Boolean? {
+        return try {
+            val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
+            authTokenInfo?.authInfo?.status != AuthStatus.notValid
+        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            status.postValue(LoginViewModelState.INITIAL)
+            noInternet.postValue(true)
+            null
+        }
+    }
+
+    fun requestSubscription() = ioScope.launch {
+        val previousState = status.value
+        status.postValue(LoginViewModelState.LOADING)
+        if(!createNewAccount) {
+            val checkCredentials = checkCredentials()
+            if (checkCredentials == false) {
+                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID)
+                return@launch
+            } else if(checkCredentials == null) {
+                status.postValue(previousState)
+                return@launch
+            }
+        }
+
+        if (price == 0) {
+            if (createNewAccount) {
+                getTrialSubscriptionForNewCredentials()
+            } else {
+                getTrialSubscriptionForExistingCredentials()
+            }
+        } else {
+            getSubscription()
+        }
+    }
 }
 
 enum class LoginViewModelState {
@@ -716,6 +752,7 @@ enum class LoginViewModelState {
     REGISTRATION_EMAIL,
     REGISTRATION_SUCCESSFUL,
     SUBSCRIPTION_ACCOUNT,
+    SUBSCRIPTION_ACCOUNT_INVALID,
     SUBSCRIPTION_ACCOUNT_MAIL_INVALID,
     SUBSCRIPTION_ADDRESS,
     SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY,

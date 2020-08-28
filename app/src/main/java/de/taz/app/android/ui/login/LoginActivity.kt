@@ -205,6 +205,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
                     nameTooLong = true
                 )
+                LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
+                    showSubscriptionAccount(subscriptionInvalid = true)
+                }
             }
         }
 
@@ -333,7 +336,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showPasswordRequest(invalidId: Boolean = false, invalidMail: Boolean = false) {
         log.debug("showPasswordRequest")
-        showFragment(PasswordRequestFragment.create(invalidId = invalidId, invalidMail = invalidMail))
+        showFragment(
+            PasswordRequestFragment.create(
+                invalidId = invalidId,
+                invalidMail = invalidMail
+            )
+        )
     }
 
     private fun showPasswordMailSent() {
@@ -443,10 +451,16 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private fun showSubscriptionAccount(
-        mailInvalid: Boolean = false
+        mailInvalid: Boolean = false,
+        subscriptionInvalid: Boolean = false
     ) {
         log.debug("showSubscriptionAccount")
-        showFragment(SubscriptionAccountFragment.createInstance(mailInvalid = mailInvalid))
+        showFragment(
+            SubscriptionAccountFragment.createInstance(
+                mailInvalid = mailInvalid,
+                subscriptionInvalid = subscriptionInvalid
+            )
+        )
     }
 
     private fun showSubscriptionBank(
