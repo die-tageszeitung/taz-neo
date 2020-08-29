@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -104,7 +105,7 @@ data class Issue(
     }
 
     override suspend fun deleteFiles() {
-        val allFiles = getAllLocalFiles()
+        val filesToDelete: MutableList<FileEntryOperations> = getAllLocalFiles().toMutableList()
         val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
             acc.addAll(
                 section.articleList.filter { it.bookmarked }.map { it.getAllFileNames() }.flatten()
@@ -112,9 +113,24 @@ data class Issue(
             )
             acc
         })
-        allFiles.filter { it.name !in bookmarkedArticleFiles }.forEach {
-            it.deleteFile()
-        }
+        filesToDelete.removeAll { it.name in bookmarkedArticleFiles }
+
+        // do not delete files of other issues of the day
+        IssueRepository.getInstance().getDownloadedOrDownloadingIssuesForDayAndFeed(feedName, date)
+            .forEach {
+                if (it.status != status) {
+                    if (it.downloadedStatus in listOf(
+                            DownloadStatus.started,
+                            DownloadStatus.done
+                        )
+                    ) {
+                        filesToDelete.removeAll(it.getAllFiles())
+                    }
+                }
+            }
+
+        filesToDelete.forEach { it.deleteFile() }
+
         this.setDownloadStatusIncludingChildren(DownloadStatus.pending)
         IssueRepository.getInstance().resetDownloadDate(this)
     }

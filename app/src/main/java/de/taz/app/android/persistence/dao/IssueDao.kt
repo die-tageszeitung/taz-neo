@@ -99,4 +99,14 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     )
     abstract fun getStubForSectionImageName(imageName: String): IssueStub?
 
+    @Query(
+        """
+            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.downloadedStatus in ('done', 'started')
+        """
+    )
+    abstract fun getDownloadedOrDownloadingIssuesForDayAndFeed(
+        feedName: String,
+        date: String
+    ): List<IssueStub>
+
 }
