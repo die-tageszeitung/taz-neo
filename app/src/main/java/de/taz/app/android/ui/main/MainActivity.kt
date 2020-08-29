@@ -317,21 +317,32 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var navButtonAlpha = 255f
 
     private var defaultNavButton: Image? = null
-    fun setDrawerNavButton(navButton: Image? = null) {
-        lifecycleScope.launch(Dispatchers.IO) {
+    private var setNavButtonJob: Job? = null
+
+
+    fun setDrawerNavButton(navButton: Image) {
+        setNavButtonJob?.cancel()
+        setNavButtonJob = lifecycleScope.launch(Dispatchers.IO) {
             suspendSetDrawerNavButton(navButton)
         }
     }
 
-    private suspend fun suspendSetDrawerNavButton(navButton: Image?) {
-        withContext(Dispatchers.IO) {
+    fun setDefaultDrawerNavButton() {
+        setNavButtonJob?.cancel()
+        setNavButtonJob = lifecycleScope.launch(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
                 defaultNavButton = imageRepository?.get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
+            defaultNavButton?.let { suspendSetDrawerNavButton(it) }
+        }
+    }
 
-            val image: Image? = navButton ?: defaultNavButton
-            image?.let {
+    private suspend fun suspendSetDrawerNavButton(navButton: Image) {
+        if (this.navButton != navButton) {
+            withContext(Dispatchers.IO) {
+
+                val image: Image = navButton
                 if (image.downloadedStatus == DownloadStatus.done ||
                     image.downloadedStatus == DownloadStatus.takeOld
                 ) {

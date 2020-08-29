@@ -22,12 +22,15 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
     BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 
     val log by Log
+
+    override val enableSideBar = true
 
     private var articlePagerAdapter: BookmarkPagerAdapter? = null
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
@@ -97,6 +100,8 @@ class BookmarkPagerFragment :
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         var firstSwipe = true
+        var showButtonJob: Job? = null
+
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
             if (isBookmarked) {
                 setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
@@ -127,7 +132,8 @@ class BookmarkPagerFragment :
 
             viewModel.currentPositionLiveData.value = position
 
-            lifecycleScope.launchWhenResumed {
+            showButtonJob?.cancel()
+            showButtonJob = lifecycleScope.launchWhenResumed {
                 articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
                     articleStub.getNavButton(context?.applicationContext)?.let {
                         showNavButton(it)
