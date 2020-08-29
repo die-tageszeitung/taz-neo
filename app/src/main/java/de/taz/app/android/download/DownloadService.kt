@@ -377,7 +377,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     /**
-     * cancel all issues that are downloading
+     * cancel all downloads except for resources
      */
     fun cancelDownloads() {
         val tagsToSkip = listOf(RESOURCE_TAG)
