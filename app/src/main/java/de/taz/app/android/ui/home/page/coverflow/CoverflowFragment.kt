@@ -23,11 +23,11 @@ import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.HomePageAdapter
+import de.taz.app.android.ui.home.page.HomePageOnScrollListener
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 
 const val ISSUE_DATE = "issueDate"
@@ -41,7 +41,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val openDatePicker: (Date) -> Unit = { issueDate ->
         showBottomSheet(DatePickerFragment.create(this, issueDate))
     }
-    var coverflowAdapter: CoverflowAdapter? = null
+    override var adapter: HomePageAdapter? = null
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -53,7 +53,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        coverflowAdapter = coverflowAdapter ?: CoverflowAdapter(
+        adapter = adapter ?: CoverflowAdapter(
             this,
             R.layout.fragment_cover_flow_item,
             openDatePicker
@@ -77,7 +77,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             context?.let { context ->
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             }
-            adapter = coverflowAdapter
+            adapter = this@CoverflowFragment.adapter
 
             snapHelper.apply {
                 attachToRecyclerView(fragment_cover_flow_grid)
@@ -113,19 +113,19 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        coverflowAdapter?.setIssueStubs(issueStubs)
+        adapter?.setIssueStubs(issueStubs)
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
-        coverflowAdapter?.setAuthStatus(authStatus)
+        adapter?.setAuthStatus(authStatus)
     }
 
     override fun setFeeds(feeds: List<Feed>) {
-        coverflowAdapter?.setFeeds(feeds)
+        adapter?.setFeeds(feeds)
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
-        coverflowAdapter?.setInactiveFeedNames(feedNames)
+        adapter?.setInactiveFeedNames(feedNames)
     }
 
     fun getLifecycleOwner(): LifecycleOwner {
@@ -134,7 +134,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToHome() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            setCurrentItem(coverflowAdapter?.getItem(0))
+            setCurrentItem(adapter?.getItem(0))
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
             snapHelper.scrollToPosition(0)
             (parentFragment as? HomeFragment)?.setHomeIconFilled()
@@ -143,7 +143,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToCurrentItem(): Boolean {
         return runIfNotNull(issueFeedname, issueDate, issueStatus) { feed, date, status ->
-            val position = coverflowAdapter?.getPosition(feed, date, status) ?: -1
+            val position = adapter?.getPosition(feed, date, status) ?: -1
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             layoutManager?.apply {
                 val currentPosition: Int =
@@ -172,7 +172,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     fun skipToItem(issueStub: IssueOperations) =
         skipToItem(issueStub.feedName, issueStub.date, issueStub.status)
 
-    inner class OnScrollListener : RecyclerView.OnScrollListener() {
+    inner class OnScrollListener : HomePageOnScrollListener(this@CoverflowFragment) {
 
         private var isDragEvent = false
         private var isIdleEvent = false
@@ -219,17 +219,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     }
                 }
 
-                setCurrentItem(coverflowAdapter?.getItem(position))
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    val visibleItemCount = 5
-                    coverflowAdapter?.let { coverflowAdapter ->
-                        if (position > coverflowAdapter.itemCount - visibleItemCount) {
-                            coverflowAdapter.getItem(coverflowAdapter.itemCount - 1)?.date?.let { requestDate ->
-                                getNextIssueMoments(requestDate)
-                            }
-                        }
-                    }
-                }
+                setCurrentItem(adapter?.getItem(position))
             }
         }
     }

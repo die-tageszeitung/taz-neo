@@ -37,6 +37,8 @@ abstract class HomePageFragment(
     abstract fun setAuthStatus(authStatus: AuthStatus)
     abstract fun onDataSetChanged(issueStubs: List<IssueStub>)
 
+    abstract var adapter: HomePageAdapter?
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
