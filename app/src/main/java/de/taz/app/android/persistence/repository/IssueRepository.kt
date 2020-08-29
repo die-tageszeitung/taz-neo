@@ -432,7 +432,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
                 if (!deletePublicIssuesBoolean.get()) {
                     return@launch
                 }
-                DownloadService.getInstance().cancelDownloads(it.tag)
+                DownloadService.getInstance().cancelDownloadsForTag(it.tag)
                 val issue = issueStubToIssue(it)
                 issue.deleteFiles()
                 delete(issue)
