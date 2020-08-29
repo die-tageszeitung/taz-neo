@@ -113,7 +113,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         if (
                             fromServer?.status == issue.status && fromServer.moTime != issue.moTime
                         ) {
-                            cancelDownloads(issue.tag)
+                            cancelDownloadsForTag(issue.tag)
                             issueRepository.save(fromServer)
                             download(fromServer).join()
                         }
@@ -140,7 +140,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 log.debug("download of ${cacheableDownload::class.java} complete in ${DateHelper.now - start}")
                                 // notify server of completed download
                                 downloadId?.let { downloadId ->
-                                    val seconds: Float = (System.currentTimeMillis() - start) / 1000f
+                                    val seconds: Float =
+                                        (System.currentTimeMillis() - start) / 1000f
                                     apiService.notifyServerOfDownloadStopAsync(
                                         downloadId,
                                         seconds
@@ -369,12 +370,20 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * cancel all running download jobs
      */
-    fun cancelDownloads(tag: String? = null) {
-        tag?.let {
-            downloadList.removeAll(downloadList.filter { it.tag == tag })
-            val jobsForTag = tagJobMap.remove(tag)
-            jobsForTag?.forEach { it.cancel() }
-        } ?: downloadList.clear()
+    fun cancelDownloadsForTag(tag: String) {
+        downloadList.removeAll(downloadList.filter { it.tag == tag })
+        val jobsForTag = tagJobMap.remove(tag)
+        jobsForTag?.forEach { it.cancel() }
+    }
+
+    /**
+     * cancel all issues that are downloading
+     */
+    fun cancelDownloads() {
+        val tagsToSkip = listOf(RESOURCE_TAG)
+        tagJobMap.keys.toList().filter { it !in tagsToSkip }.forEach { tag ->
+            cancelDownloadsForTag(tag)
+        }
     }
 
     /**
