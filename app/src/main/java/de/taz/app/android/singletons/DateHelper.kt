@@ -1,9 +1,6 @@
 package de.taz.app.android.singletons
 
-import android.content.Context
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.util.SingletonHolder
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
