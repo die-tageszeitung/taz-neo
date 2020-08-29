@@ -244,10 +244,10 @@ class MomentView @JvmOverloads constructor(
 
     private fun hideDownloadIcon() {
         val wasDownloading = fragment_moment_downloading?.visibility == View.VISIBLE
-
         fragment_moment_downloading?.visibility = View.GONE
         fragment_moment_download?.visibility = View.GONE
         fragment_moment_download_finished?.visibility = View.GONE
+        view_moment_download_icon_wrapper.setOnClickListener(null)
 
         if (wasDownloading) {
             fragment_moment_download_finished.alpha = 1f
@@ -263,6 +263,7 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_download?.visibility = View.GONE
         fragment_moment_download_finished?.visibility = View.GONE
         fragment_moment_downloading?.visibility = View.VISIBLE
+        view_moment_download_icon_wrapper.setOnClickListener(null)
     }
 
     private suspend fun setDimension(feed: Feed?) = withContext(Dispatchers.Main) {
