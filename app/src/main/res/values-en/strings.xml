@@ -248,5 +248,13 @@
     <string name="fragment_login_description">Please login to continue reading.</string>
     <string name="login_name_affix_hint">name affix</string>
     <string name="login_comment_hint">note</string>
+    <string name="order_button">Order</string>
+    <string name="trial_subscription_name">14 day trial subscription</string>
+    <string name="login_first_name_helper">With surname max 24 symbols.</string>
+    <string name="login_first_name_error_invalid">Contains only invalid symbols.</string>
+    <string name="login_surname_helper">With first name max 24 symbols.</string>
+    <string name="login_surname_error_invalid">Contains only invalid symbols.</string>
+    <string name="login_email_error_recheck">Check your account data.</string>
+    <string name="account_holder_helper">If different of subscriber.</string>
 
 </resources>
