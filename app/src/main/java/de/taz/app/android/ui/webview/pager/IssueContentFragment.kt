@@ -133,7 +133,6 @@ private var showSections: Boolean = true
                         }
                     }
                 }
-                getMainView()?.setCoverFlowItem(issueOperations)
                 setDrawerIssue(issueOperations)
                 getMainView()?.changeDrawerIssue()
                 if (issueOperations.dateDownload == null) {
