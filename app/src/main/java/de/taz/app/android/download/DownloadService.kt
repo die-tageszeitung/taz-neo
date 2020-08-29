@@ -72,6 +72,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
     private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
+    private val currentIssueDownloadTags = ConcurrentLinkedQueue<String>()
+
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
     init {
@@ -99,6 +101,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                 val issue = cacheableDownload as? Issue
                 var downloadId: String? = null
 
+                cacheableDownload.setDownloadStatus(DownloadStatus.started)
+
                 // if we download an issue tell the server we start downloading it
                 issue?.let {
                     downloadId =
@@ -119,8 +123,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                         }
                     }
                 }
-
-                cacheableDownload.setDownloadStatus(DownloadStatus.started)
 
                 // wait for [CacheableDownload]'s files to be downloaded
                 val isDownloadedLiveData = Transformations.distinctUntilChanged(
@@ -377,12 +379,11 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     /**
-     * cancel all downloads except for resources
+     * cancel all issue downloads
      */
-    fun cancelDownloads() {
-        val tagsToSkip = listOf(RESOURCE_TAG)
-        tagJobMap.keys.toList().filter { it !in tagsToSkip }.forEach { tag ->
-            cancelDownloadsForTag(tag)
+    fun cancelIssueDownloads() {
+        IssueRepository.getInstance(applicationContext).getDownloadStartedIssueStubs().forEach {
+            cancelDownloadsForTag(it.tag)
         }
     }
 
