@@ -111,7 +111,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             }
             R.id.bottom_navigation_action_home -> {
                 (activity as? MainActivity)?.showHome(
-                    skipToCurrentIssue = true
+                    skipToFirst = true
                 )
             }
         }

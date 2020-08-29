@@ -202,10 +202,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun isDrawerVisible(gravity: Int): Boolean {
-        return drawer_layout.isDrawerVisible(gravity)
-    }
-
     fun closeDrawer() {
         drawer_layout.closeDrawers()
     }
@@ -239,7 +235,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome(skipToCurrentIssue: Boolean = false) {
+    fun showHome(skipToFirst: Boolean = false, skipToIssue: IssueOperations? = null) {
         supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         val homeFragment =
             supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
@@ -249,7 +245,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-            if (skipToCurrentIssue) coverFlowFragment?.skipToHome()
+            if (skipToFirst) {
+                coverFlowFragment?.skipToHome()
+            } else {
+                skipToIssue?.let { coverFlowFragment?.skipToItem(skipToIssue) }
+            }
         }
 
     }
@@ -289,16 +289,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     fun setActiveDrawerSection(sectionFileName: String) {
         (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
             setActiveSection(sectionFileName)
-        }
-    }
-
-    fun setCoverFlowItem(issueOperations: IssueOperations) {
-        val homeFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
-        val coverFlowFragment =
-            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
-        runOnUiThread {
-            coverFlowFragment?.skipToItem(issueOperations)
         }
     }
 
