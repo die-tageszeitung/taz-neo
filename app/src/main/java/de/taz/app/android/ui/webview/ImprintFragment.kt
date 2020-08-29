@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
@@ -10,25 +11,30 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImprintFragment(override val nestedScrollViewId: Int) :
+class ImprintFragment :
     WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_imprint),
     BackFragment {
 
-    companion object {
-        fun createInstance(imprintStub: ArticleStub): ImprintFragment {
-            val fragment = ImprintFragment(R.id.nested_scroll_view)
-            fragment.displayable = imprintStub
-            return fragment
-        }
-    }
+    override val nestedScrollViewId = R.id.nested_scroll_view
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
     override val viewModel: ArticleWebViewViewModel by lazy {
         ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
+    }
+
+    private val issueContentViewModel: IssueContentViewModel? by lazy {
+        (parentFragment as? IssueContentFragment)?.viewModel
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        displayable = issueContentViewModel?.imprint
+        super.onCreate(savedInstanceState)
     }
 
     override fun setHeader(displayable: ArticleStub) {

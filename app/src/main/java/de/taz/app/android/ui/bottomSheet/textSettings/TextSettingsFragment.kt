@@ -67,7 +67,6 @@ class TextSettingsFragment :
 
     private fun onNightModeChanged(activated: Boolean) {
         viewModel.setNightMode(activated)
-        showNavButton()
     }
 
     private fun onSettingsSelected() {
