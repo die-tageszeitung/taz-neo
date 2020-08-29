@@ -137,7 +137,6 @@ class IssueContentFragment :
                         }
                     }
                 }
-                getMainView()?.setCoverFlowItem(issueOperations)
                 setDrawerIssue(issueOperations)
                 getMainView()?.changeDrawerIssue()
                 if (issueOperations.dateDownload == null) {

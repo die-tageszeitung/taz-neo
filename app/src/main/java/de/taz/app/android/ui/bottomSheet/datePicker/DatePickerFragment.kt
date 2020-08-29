@@ -75,7 +75,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         log.debug("created a new date picker")
         super.onViewCreated(view, savedInstanceState)
 
-
         //minDate and maxDate constraints. UX is somewhat whack..
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
@@ -136,9 +135,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                     try {
                         val apiIssueList = apiService?.getIssuesByDate(date, 1)
                         if (apiIssueList?.isNullOrEmpty() == false) {
-                            apiIssueList.first().let {
-                                issueRepository?.saveIfDoesNotExist(it)
-                            }
+                            issueRepository?.saveIfDoNotExist(apiIssueList)
 
                             val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
                             selectedIssueStub?.let {

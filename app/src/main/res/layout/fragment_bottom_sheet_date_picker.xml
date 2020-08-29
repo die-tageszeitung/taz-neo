@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:background="@color/bottom_sheet_background"
-        android:elevation="@dimen/bottom_sheet_elevation"
-        android:theme="@style/AppTheme">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bottom_sheet_background"
+    android:elevation="@dimen/bottom_sheet_elevation"
+    android:paddingStart="@dimen/fragment_padding_horizontal"
+    android:paddingEnd="@dimen/fragment_padding_horizontal"
+    android:theme="@style/AppTheme">
 
-    <DatePicker android:id="@+id/fragment_bottom_sheet_date_picker"
-        android:datePickerMode="spinner"
-        android:calendarViewShown="false"
+    <DatePicker
+        android:id="@+id/fragment_bottom_sheet_date_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/fragment_bottom_sheet_date_picker_confirm_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/fragment_bottom_sheet_date_picker"
+        android:text="@android:string/ok"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_date_picker"
-        android:text="ok" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_date_picker" />
 
     <include
-            layout="@layout/include_loading_screen"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        layout="@layout/include_loading_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
