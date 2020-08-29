@@ -78,9 +78,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) =
         CoroutineScope(Dispatchers.Main).launch {
-            log.debug("waiting for startingMissingDownloads to finish")
             downloadingJob?.cancelAndJoin()
-            log.debug("startingMissingDownloads finished")
             val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
             val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
             if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
