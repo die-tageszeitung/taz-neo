@@ -7,10 +7,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 const val SHARED_PREFERENCES_GAP_TO_DOWNLOAD = "shared_preferences_gap_to_download"
@@ -27,11 +24,9 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
-    var prefs: SharedPreferences = applicationContext.getSharedPreferences(
+    private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
     )
-    private var editPrefs: SharedPreferences.Editor = prefs.edit()
-
     private val lastDownloadedDateLiveData =
         SharedPreferenceStringLiveData(prefs, LAST_DOWNLOADED_DATE, "")
     private val dateToDownloadFromLiveData =
@@ -46,48 +41,52 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     private fun startMissingDownloads() {
         if (!isDownloading.getAndSet(true)) {
+            log.debug("startingMissingDownloads")
             downloadingJob = CoroutineScope(Dispatchers.IO).launch {
-                while (
-                    !dateToDownloadFromLiveData.value.isNullOrEmpty() &&
-                    !lastDownloadedDateLiveData.value.isNullOrEmpty() &&
-                    DateHelper.dayDelta(
-                        dateToDownloadFromLiveData.value ?: "",
-                        lastDownloadedDateLiveData.value ?: ""
-                    ).toInt() > 0
-                ) {
-                    try {
-                        val missingIssues =
-                            apiService.getIssuesByDateAsync(lastDownloadedDateLiveData.value ?: "")
-                                .await()
-                        missingIssues.forEach {
-                            issueRepository.saveIfDoesNotExist(it)
+                try {
+                    while (
+                        !dateToDownloadFromLiveData.value.isNullOrEmpty() &&
+                        !lastDownloadedDateLiveData.value.isNullOrEmpty() &&
+                        DateHelper.dayDelta(
+                            dateToDownloadFromLiveData.value ?: "",
+                            lastDownloadedDateLiveData.value ?: ""
+                        ).toInt() > 0
+                    ) {
+                        try {
+                            val missingIssues =
+                                apiService.getIssuesByDateAsync(
+                                    lastDownloadedDateLiveData.value ?: ""
+                                ).await()
+                            issueRepository.saveIfDoNotExist(missingIssues)
+                            withContext(Dispatchers.Main) {
+                                lastDownloadedDateLiveData.setValue(missingIssues.last().date)
+                            }
+                        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                            log.warn("$e")
+                            break
                         }
-                        editPrefs
-                            .putString(LAST_DOWNLOADED_DATE, missingIssues.last().date)
-                            .apply()
-                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        log.warn("$e")
-                        break
                     }
-                }
-            }.also {
-                it.invokeOnCompletion {
-                    isDownloading.set(false)
+                } finally {
+                    withContext(NonCancellable) {
+                        isDownloading.set(false)
+                        log.debug("startingMissingDownloads done")
+                    }
                 }
             }
         }
     }
 
-    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
-        downloadingJob?.cancel()
-        val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
-        val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
-        if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
-            dateToDownloadFromLiveData.postValue(dateToDownloadFrom)
+    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) =
+        CoroutineScope(Dispatchers.Main).launch {
+            downloadingJob?.cancelAndJoin()
+            val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
+            val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
+            if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
+                dateToDownloadFromLiveData.setValue(dateToDownloadFrom)
+            }
+            if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
+                lastDownloadedDateLiveData.setValue(latestDownloadedDate)
+            }
+            startMissingDownloads()
         }
-        if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
-            lastDownloadedDateLiveData.postValue(latestDownloadedDate)
-        }
-        startMissingDownloads()
-    }
 }
