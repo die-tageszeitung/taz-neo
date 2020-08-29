@@ -23,6 +23,7 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -610,6 +611,9 @@ class ApiService private constructor(applicationContext: Context) {
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
             throw ApiServiceException.NoInternetException()
+        } catch (she: SSLHandshakeException) {
+            log.debug("SSLHandshakeException ${she.localizedMessage}")
+            throw ApiServiceException.NoInternetException()
         } catch (ce: ConnectException) {
             log.debug("ConnectException ${ce.localizedMessage}")
             throw ApiServiceException.NoInternetException()
@@ -656,6 +660,9 @@ class ApiService private constructor(applicationContext: Context) {
             toastHelper.showSomethingWentWrongToast()
         } catch (se: SSLException) {
             log.debug("SSLException ${se.localizedMessage}")
+            serverConnectionHelper.isServerReachable = false
+        } catch (she: SSLHandshakeException) {
+            log.debug("SSLHandshakeException ${she.localizedMessage}")
             serverConnectionHelper.isServerReachable = false
         }
         return null
