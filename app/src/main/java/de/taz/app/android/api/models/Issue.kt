@@ -115,13 +115,19 @@ data class Issue(
         })
         filesToDelete.removeAll { it.name in bookmarkedArticleFiles }
 
-        // do not delete files of regular issue if needed
-        if(status != IssueStatus.regular) {
-            val regularIssue = IssueRepository.getInstance().getIssue(feedName, date, IssueStatus.regular)
-            if(regularIssue?.downloadedStatus in listOf(DownloadStatus.started, DownloadStatus.done)) {
-                filesToDelete.removeAll(regularIssue?.getAllFiles() ?: emptyList())
+        // do not delete files of other issues of the day
+        IssueRepository.getInstance().getDownloadedOrDownloadingIssuesForDayAndFeed(feedName, date)
+            .forEach {
+                if (it.status != status) {
+                    if (it.downloadedStatus in listOf(
+                            DownloadStatus.started,
+                            DownloadStatus.done
+                        )
+                    ) {
+                        filesToDelete.removeAll(it.getAllFiles())
+                    }
+                }
             }
-        }
 
         filesToDelete.forEach { it.deleteFile() }
 
