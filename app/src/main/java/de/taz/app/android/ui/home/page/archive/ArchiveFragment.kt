@@ -51,7 +51,7 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
     override fun onResume() {
         super.onResume()
         getMainView()?.apply {
-            setDrawerNavButton()
+            setDefaultDrawerNavButton()
             setActiveDrawerSection(RecyclerView.NO_POSITION)
         }
     }

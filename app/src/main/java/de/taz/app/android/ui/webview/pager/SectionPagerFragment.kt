@@ -71,16 +71,16 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     fun tryLoadSection(sectionFileName: String?) {
         lifecycleScope.launchWhenResumed {
             sectionFileName?.let {
-                issueContentViewModel?.sectionList?.indexOfFirst { it.key == sectionFileName }
-                    ?.let {
-                        if (it >= 0) {
-                            if (viewModel.currentPosition != it) {
-                                lifecycleScope.launchWhenResumed {
-                                    webview_pager_viewpager.setCurrentItem(it, false)
-                                }
-                            }
+                issueContentViewModel?.sectionList?.indexOfFirst {
+                    it.key == sectionFileName
+                }?.let {
+                    if (it >= 0) {
+                        lifecycleScope.launchWhenResumed {
+                            webview_pager_viewpager.setCurrentItem(it, false)
+                            pageChangeListener.onPageSelected(it)
                         }
                     }
+                }
             }
         }
     }

@@ -47,8 +47,12 @@ class IssueContentFragment :
             ArticlePagerFragment::class.java.toString()
         ) as ArticlePagerFragment
 
+    private val imprintFragment: ImprintFragment
+        get() = childFragmentManager.findFragmentByTag(
+            ImprintFragment::class.java.toString()
+        ) as ImprintFragment
 
-private var showSections: Boolean = true
+    private var showSections: Boolean = true
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -111,7 +115,7 @@ private var showSections: Boolean = true
                     lifecycleScope.launchWhenResumed {
                         if ((displayableKey == null && !showSections)
                             || (displayableKey?.startsWith("art") == true
-                            &&  displayableKey?.equals(viewModel.imprint?.articleFileName) == false)
+                                    && displayableKey?.equals(viewModel.imprint?.articleFileName) == false)
                         ) {
                             showArticle(displayableKey)
                         }
@@ -127,7 +131,7 @@ private var showSections: Boolean = true
                     }
                 }
                 getImprint(feed, date, status).invokeOnCompletion {
-                    lifecycleScope.launchWhenResumed {
+                    addFragment(ImprintFragment()) {
                         if (displayableKey?.equals(viewModel.imprint?.articleFileName) == true) {
                             showImprint()
                         }
@@ -158,15 +162,14 @@ private var showSections: Boolean = true
             fragment.tryLoadArticle(fileName)
         }
     }
+
     private fun showImprint() {
         showSections = false
-        val imprint = viewModel.imprint
-        imprint?.let {
-            val fragment = ImprintFragment.createInstance(it)
-            getMainView()?.setActiveDrawerSection(RecyclerView.NO_POSITION)
-            showMainFragment(fragment)
-        }
+        getMainView()?.setActiveDrawerSection(RecyclerView.NO_POSITION)
+        showDefaultNavButton()
+        showFragment(imprintFragment)
     }
+
     private fun showSection(sectionFileName: String? = null) {
         showSections = true
         showFragment(sectionPagerFragment)
@@ -184,15 +187,15 @@ private var showSections: Boolean = true
         }
     }
 
-    private fun addFragment(fragment: Fragment) {
+    private fun addFragment(fragment: Fragment, runWhenAdded: (() -> Unit)? = null) {
         val fragmentClass = fragment::class.java.toString()
         if (childFragmentManager.findFragmentByTag(fragmentClass) == null) {
             childFragmentManager.beginTransaction()
                 .add(
                     R.id.fragment_issue_content_container, fragment, fragmentClass
                 )
-                .addToBackStack(fragmentClass)
                 .hide(fragment)
+                .runOnCommit { runWhenAdded?.let { runWhenAdded() } }
                 .commit()
         }
     }
