@@ -22,6 +22,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.net.ssl.SSLException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -600,6 +601,9 @@ class ApiService private constructor(applicationContext: Context) {
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()
+        } catch (se: SSLException) {
+            log.debug("SSLException ${se.localizedMessage}")
+            throw ApiServiceException.NoInternetException()
         } catch (eofe: EOFException) {
             log.debug("EOFException ${eofe.localizedMessage}")
             throw ApiServiceException.NoInternetException()
@@ -650,6 +654,9 @@ class ApiService private constructor(applicationContext: Context) {
             // inform sentry of missing data in response
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
+        } catch (se: SSLException) {
+            log.debug("SSLException ${se.localizedMessage}")
+            serverConnectionHelper.isServerReachable = false
         }
         return null
     }
