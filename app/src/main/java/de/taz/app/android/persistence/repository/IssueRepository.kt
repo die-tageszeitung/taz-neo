@@ -199,7 +199,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getAllIssueStubs()
     }
 
-    private fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
+    fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
         return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
     }
 
@@ -321,6 +321,12 @@ class IssueRepository private constructor(val applicationContext: Context) :
         issueOperations.date,
         issueOperations.status
     )
+
+    fun getDownloadedOrDownloadingIssuesForDayAndFeed(issueFeedName: String, issueDate: String): List<Issue> {
+        return appDatabase.issueDao()
+            .getDownloadedOrDownloadingIssuesForDayAndFeed(issueFeedName, issueDate)
+            .map { issueStubToIssue(it) }
+    }
 
     fun getIssue(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Issue? {
         return getStub(issueFeedName, issueDate, issueStatus)?.let { getIssue(it) }
@@ -447,7 +453,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
                 if (deletePublicIssuesBoolean.get()) {
                     return@launch
                 }
-                if (issueStub.downloadedStatus != DownloadStatus.done) {
+                if (issueStub.downloadedStatus !in listOf(DownloadStatus.done, DownloadStatus.started)) {
                     getIssue(issueStub).delete(applicationContext)
                 }
             }

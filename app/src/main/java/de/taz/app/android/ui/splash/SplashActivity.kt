@@ -228,9 +228,8 @@ class SplashActivity : BaseActivity() {
     private fun deleteUnnecessaryIssues() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
-            // TODO: Refactor deletePublicIssues to not delete commonly used files (e.g. images)
-            /*log.debug("Deleting public Issues")
-            issueRepository.deletePublicIssues()*/
+            log.debug("Deleting public Issues")
+            issueRepository.deletePublicIssues()
         } else {
             issueRepository.deleteNotDownloadedRegularIssues()
         }
