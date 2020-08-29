@@ -4,8 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class SubscriptionResetInfo(
-    val status: SubscriptionResetStatus,
-    val mail: String? = null
+    val status: SubscriptionResetStatus
 )
 
 @JsonClass(generateAdapter = false)

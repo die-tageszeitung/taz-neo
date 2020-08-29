@@ -66,7 +66,7 @@ class SubscriptionAccountFragment :
             OnEditorActionDoneListener(::hideKeyBoard)
         )
 
-        fragment_subscription_forgot_password_text.setOnClickListener {
+        fragment_subscription_account_forgot_password_text.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
@@ -95,8 +95,16 @@ class SubscriptionAccountFragment :
             setEmailError(R.string.login_email_error_invalid)
         }
 
-        if(subscriptionInvalid) {
+        if (subscriptionInvalid) {
             setEmailError(R.string.login_email_error_recheck)
+        }
+
+        if (viewModel.validCredentials) {
+            fragment_subscription_account_switch_new_account.visibility = View.GONE
+            fragment_subscription_account_email_layout.visibility = View.GONE
+            fragment_subscription_account_password_layout.visibility = View.GONE
+            fragment_subscription_account_password_confirm_layout.visibility = View.GONE
+            fragment_subscription_account_forgot_password_text.visibility = View.GONE
         }
     }
 
@@ -153,38 +161,38 @@ class SubscriptionAccountFragment :
     override fun done(): Boolean {
         var done = true
 
-        val email = fragment_subscription_account_email.text?.toString()
-        if (email.isNullOrBlank()) {
-            done = false
-            setEmailError(R.string.login_email_error_empty)
-        } else {
-            viewModel.username = email
-        }
-
-        val password = fragment_subscription_account_password.text?.toString()
-        if (password.isNullOrBlank()) {
-            done = false
-            setPasswordError(R.string.login_password_error_empty)
-        } else {
-            viewModel.password = password
-        }
-
-        if (fragment_subscription_account_password_confirm_layout.isVisible) {
-            val passwordConfirmation =
-                fragment_subscription_account_password_confirm.text?.toString()
-            if (password != passwordConfirmation) {
+        if (!viewModel.validCredentials) {
+            val email = fragment_subscription_account_email.text?.toString()
+            if (email.isNullOrBlank()) {
                 done = false
-                fragment_subscription_account_password_confirm_layout.setError(
-                    R.string.login_password_confirmation_error_match
-                )
+                setEmailError(R.string.login_email_error_empty)
+            } else {
+                viewModel.username = email
+            }
+
+            val password = fragment_subscription_account_password.text?.toString()
+            if (password.isNullOrBlank()) {
+                done = false
+                setPasswordError(R.string.login_password_error_empty)
+            } else {
+                viewModel.password = password
+            }
+
+            if (fragment_subscription_account_password_confirm_layout.isVisible) {
+                val passwordConfirmation =
+                    fragment_subscription_account_password_confirm.text?.toString()
+                if (password != passwordConfirmation) {
+                    done = false
+                    fragment_subscription_account_password_confirm_layout.setError(
+                        R.string.login_password_confirmation_error_match
+                    )
+                }
             }
         }
 
         viewModel.comment = fragment_subscription_account_comment.text?.toString()
 
-        val acceptedTermsAndConditions =
-            fragment_subscription_account_terms_and_conditions.isChecked
-        if (!acceptedTermsAndConditions) {
+        if (!fragment_subscription_account_terms_and_conditions.isChecked) {
             done = false
             fragment_subscription_account_terms_and_conditions.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.tazRed)
@@ -193,11 +201,11 @@ class SubscriptionAccountFragment :
         return done
     }
 
-    fun setEmailError(@StringRes stringRes: Int) {
+    private fun setEmailError(@StringRes stringRes: Int) {
         fragment_subscription_account_email_layout.error = context?.getString(stringRes)
     }
 
-    fun setPasswordError(@StringRes stringRes: Int) {
+    private fun setPasswordError(@StringRes stringRes: Int) {
         fragment_subscription_account_password_layout.error = context?.getString(stringRes)
     }
 

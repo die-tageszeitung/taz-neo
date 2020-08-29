@@ -45,9 +45,7 @@ class LoginViewModel(
 
     var password: String? = null
     var subscriptionId: Int? = null
-        private set
     var subscriptionPassword: String? = null
-        private set
     var backToArticle: Boolean = true
 
     var nameAffix: String? = null
@@ -64,7 +62,7 @@ class LoginViewModel(
     var comment: String? = null
 
     var createNewAccount: Boolean = true
-
+    var validCredentials: Boolean = false
 
     init {
         if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
@@ -177,17 +175,13 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
                 AuthStatus.elapsed ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                AuthStatus.alreadyLinked -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                }
-                AuthStatus.notValidMail -> {
-                    // this should never happen
-                    toastHelper.showSomethingWentWrongToast()
-                    status.postValue(LoginViewModelState.INITIAL)
-                }
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
                     noInternet.postValue(true)
+                }
+                else -> {
+                    toastHelper.showSomethingWentWrongToast()
+                    status.postValue(LoginViewModelState.INITIAL)
                 }
             }
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
@@ -204,7 +198,7 @@ class LoginViewModel(
     }
 
     fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+        register(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
     fun getTrialSubscriptionForNewCredentials() {
@@ -248,13 +242,9 @@ class LoginViewModel(
             )
 
             when (subscriptionInfo?.status) {
-                SubscriptionStatus.subscriptionIdNotValid -> {
-                    // should not happen
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                }
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED)
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
@@ -299,40 +289,39 @@ class LoginViewModel(
     }
 
 
-    fun connect(
-        username: String? = null,
-        password: String? = null,
-        subscriptionId: Int? = null,
-        subscriptionPassword: String? = null,
-        firstName: String? = null,
-        surname: String? = null
-    ): Job {
+    fun connect(): Job {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
+        return ioScope.launch {
+            if (!createNewAccount) {
+                val checkCredentials = checkCredentials()
+                if (checkCredentials == false) {
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+                    return@launch
+                } else if (checkCredentials == null) {
+                    status.postValue(previousState)
+                    return@launch
+                }
+            }
 
-        username?.let { this.username = it }
-        password?.let { this.password = it }
-        subscriptionId?.let { this.subscriptionId = it }
-        subscriptionPassword?.let { this.subscriptionPassword = it }
-
-        return ioScope.launch { handleConnect(previousState, firstName, surname) }
+            handleConnect(previousState)
+        }
     }
 
     private suspend fun handleConnect(
-        previousState: LoginViewModelState?,
-        firstName: String?,
-        surname: String?
+        previousState: LoginViewModelState?
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
-                tazId = this@LoginViewModel.username!!,
-                idPassword = this@LoginViewModel.password!!,
-                subscriptionId = this@LoginViewModel.subscriptionId!!,
-                subscriptionPassword = this@LoginViewModel.subscriptionPassword!!,
+                tazId = username!!,
+                idPassword = password!!,
+                subscriptionId = subscriptionId!!,
+                subscriptionPassword = subscriptionPassword!!,
                 firstName = firstName,
-                surname = surname
+                surname = surName
             )
 
+            log.error(subscriptionInfo.toString())
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
                     saveToken(subscriptionInfo.token!!)
@@ -346,13 +335,7 @@ class LoginViewModel(
                 SubscriptionStatus.nameTooLong,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
-                    status.postValue(
-                        if (previousState == LoginViewModelState.CREDENTIALS_MISSING_LOGIN) {
-                            LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED
-                        } else {
-                            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
-                        }
-                    )
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
                 }
                 SubscriptionStatus.waitForProc -> {
                     poll()
@@ -362,13 +345,7 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.tazIdNotValid -> {
                     resetCredentialsPassword()
-                    status.postValue(
-                        if (previousState == LoginViewModelState.CREDENTIALS_MISSING_LOGIN) {
-                            LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED
-                        } else {
-                            LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED
-                        }
-                    )
+                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
                 }
                 SubscriptionStatus.invalidConnection -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
@@ -382,8 +359,13 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.POLLING_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
-                    // should not happen
-                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                    status.postValue(
+                        if (validCredentials) {
+                            LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
+                        } else {
+                            LoginViewModelState.EMAIL_ALREADY_LINKED
+                        }
+                    )
                 }
                 null -> {
                     status.postValue(previousState)
@@ -428,27 +410,20 @@ class LoginViewModel(
                     saveToken(subscriptionInfo.token!!)
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
-                SubscriptionStatus.tazIdNotValid -> {
-                    // should not happen
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
-                }
-                SubscriptionStatus.subscriptionIdNotValid -> {
-                    // should not happen
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                }
                 SubscriptionStatus.elapsed -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 SubscriptionStatus.invalidConnection -> {
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                 }
-                SubscriptionStatus.invalidMail -> {
-                    // should never happen
-                    resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
-                }
                 SubscriptionStatus.alreadyLinked -> {
-                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                    status.postValue(
+                        if (validCredentials) {
+                            LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
+                        } else {
+                            LoginViewModelState.EMAIL_ALREADY_LINKED
+                        }
+                    )
                 }
                 SubscriptionStatus.waitForMail -> {
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
@@ -491,7 +466,7 @@ class LoginViewModel(
         }
     }
 
-    fun requestPasswordReset() {
+    fun requestPasswordReset(subscriptionId: Boolean = false) {
         status.value?.let {
             if (it !in listOf(
                     LoginViewModelState.PASSWORD_REQUEST,
@@ -504,7 +479,11 @@ class LoginViewModel(
                 statusBeforePasswordRequest = status.value
             }
         }
-        status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+        if (subscriptionId) {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID)
+        } else {
+            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+        }
     }
 
     fun requestSubscriptionPassword(subscriptionId: Int): Job {
@@ -520,7 +499,6 @@ class LoginViewModel(
                 SubscriptionResetStatus.ok ->
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
                 SubscriptionResetStatus.invalidConnection -> {
-                    username = subscriptionResetInfo.mail
                     status.postValue(LoginViewModelState.INITIAL)
                     toastHelper.showToast(R.string.toast_login_with_email)
                 }
@@ -719,22 +697,23 @@ class LoginViewModel(
         }
     }
 
+
     fun requestSubscription() = ioScope.launch {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
-        if(!createNewAccount) {
+        if (!createNewAccount) {
             val checkCredentials = checkCredentials()
             if (checkCredentials == false) {
                 status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID)
                 return@launch
-            } else if(checkCredentials == null) {
+            } else if (checkCredentials == null) {
                 status.postValue(previousState)
                 return@launch
             }
         }
 
         if (price == 0) {
-            if (createNewAccount) {
+            if (createNewAccount || !validCredentials) {
                 getTrialSubscriptionForNewCredentials()
             } else {
                 getTrialSubscriptionForExistingCredentials()
@@ -749,13 +728,13 @@ enum class LoginViewModelState {
     INITIAL,
     CREDENTIALS_INVALID,
     CREDENTIALS_MISSING_LOGIN,
-    CREDENTIALS_MISSING_LOGIN_FAILED,
+    CREDENTIALS_MISSING_FAILED,
     CREDENTIALS_MISSING_REGISTER,
-    CREDENTIALS_MISSING_REGISTER_FAILED,
     EMAIL_ALREADY_LINKED,
     PASSWORD_MISSING,
     PASSWORD_REQUEST,
     PASSWORD_REQUEST_DONE,
+    PASSWORD_REQUEST_SUBSCRIPTION_ID,
     PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
     PASSWORD_REQUEST_NO_MAIL,
@@ -776,6 +755,7 @@ enum class LoginViewModelState {
     SUBSCRIPTION_ADDRESS_STREET_INVALID,
     SUBSCRIPTION_ADDRESS_NAME_TOO_LONG,
     SUBSCRIPTION_ADDRESS_POSTCODE_INVALID,
+    SUBSCRIPTION_ALREADY_LINKED,
     SUBSCRIPTION_BANK,
     SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID,
     SUBSCRIPTION_BANK_IBAN_EMPTY,

@@ -134,7 +134,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     fun skipToHome() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             setCurrentItem(coverflowAdapter?.getItem(0))
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
             snapHelper.scrollToPosition(0)

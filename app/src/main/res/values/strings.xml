@@ -18,7 +18,6 @@
         Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
         Bei Fragen wenden Sie sich an unseren Service unter:
     </string>
-    <string name="login_failed">Anmeldung fehlgeschlagen.</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer taz-ID ein.</string>
@@ -225,8 +224,9 @@
     <string name="fragment_login_missing__names_header">Zu Ihrer taz-ID ist noch kein Vor- und Nachname registriert. Dies ist zur Erstellung eines Probeabos notwendig.</string>
 
     <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
-    <string name="fragment_login_email_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
-    <string name="fragment_login_email_already_taken_contact_support">Oder wenden Sie sich an unseren Service unter</string>
+    <string name="fragment_login_email_already_taken_insert_new">Andere E-Mail-Adresse eingeben</string>
+    <string name="login_or_contact_support">Oder wenden Sie sich an unseren Service unter</string>
+    <string name="fragment_login_subscription_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
 
     <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse oder Abo-ID an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
@@ -242,7 +242,7 @@
 
     <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer taz-ID verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
-    <string name="fragment_login_missing_subscription_test_subscription">Probeabo abschließen</string>
+    <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
     <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
     <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
@@ -253,9 +253,8 @@
 
     <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
-    <string name="fragment_login_subscription_taken_body">Oder wenden Sie sich an unseren Service unter</string>
 
-    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden. Bitte wenden Sie sich an den Support:</string>
+    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden.\nBitte wenden Sie sich an den Support:</string>
     <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
     <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
 
@@ -266,7 +265,7 @@
 
     <string name="next_button">Weiter</string>
 
-    <string name="retry">Erneut versuchen</string>
+    <string name="retry">Wiederholen</string>
     <string name="terms_and_conditions">Ich akzeptiere die <u>AGB</u>, sowie die Hinweise zum <u>Widerruf</u> und <u>Datenschutz</u>.</string>
     <string name="terms_and_conditions_terms">AGB</string>
     <string name="terms_and_conditions_data_policy">Datenschutz</string>
@@ -275,7 +274,5 @@
     <string name="back">Zurück</string>
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
-
-    <string name="fragment_login_request_subscription_text">Wollen Sie ein Abo abschließen?</string>
-    <string name="fragment_login_request_subscription_button">Abo abschließen</string>
+    <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
 </resources>

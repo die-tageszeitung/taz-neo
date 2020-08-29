@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.ui.login.LoginViewModelState
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import kotlinx.android.synthetic.main.fragment_login_missing_subscription.*
 
-class SubscriptionMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_subscription) {
+class SubscriptionMissingFragment : SubscriptionBaseFragment(R.layout.fragment_login_missing_subscription) {
 
     private var invalidId: Boolean = false
 
@@ -31,23 +33,23 @@ class SubscriptionMissingFragment : LoginBaseFragment(R.layout.fragment_login_mi
         }
 
         fragment_login_missing_subscription_connect_account.setOnClickListener {
-            connect()
+            ifDoneNext()
         }
 
         fragment_login_forgot_password_text.setOnClickListener {
-            viewModel.requestPasswordReset()
+            viewModel.requestPasswordReset(subscriptionId = true)
         }
 
         fragment_login_missing_subscription_password.setOnEditorActionListener(
-            OnEditorActionDoneListener(::connect)
+            OnEditorActionDoneListener(::ifDoneNext)
         )
 
-        fragment_login_missing_subscription_test_subscription.setOnClickListener {
-            viewModel.getTrialSubscriptionForExistingCredentials()
+        fragment_login_missing_subscription_subscription_button.setOnClickListener {
+            viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
     }
 
-    private fun connect() {
+    override fun done(): Boolean {
         val subscriptionId = fragment_login_missing_subscription.text.toString().trim()
         val subscriptionPassword = fragment_login_missing_subscription_password.text.toString()
 
@@ -71,17 +73,15 @@ class SubscriptionMissingFragment : LoginBaseFragment(R.layout.fragment_login_mi
             )
             somethingWrong = true
         }
+        viewModel.subscriptionId = subscriptionId.toInt()
+        viewModel.subscriptionPassword = subscriptionPassword
 
-        if (somethingWrong) {
-            return
-        } else {
-            hideKeyBoard()
-            viewModel.connect(
-                subscriptionId = subscriptionId.toIntOrNull(),
-                subscriptionPassword = subscriptionPassword
-            )
+        return !somethingWrong
+    }
 
-        }
+    override fun next() {
+        hideKeyBoard()
+        viewModel.connect()
     }
 
 }
