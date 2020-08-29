@@ -72,8 +72,6 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
     private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
-    private val currentIssueDownloadTags = ConcurrentLinkedQueue<String>()
-
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
     init {
