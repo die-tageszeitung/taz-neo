@@ -11,6 +11,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.ui.home.page.HomePageOnScrollListener
 import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.home.page.HomePageFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
@@ -20,12 +21,12 @@ import kotlinx.android.synthetic.main.fragment_archive.*
  */
 class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
-    var archiveAdapter: ArchiveAdapter? = null
+    override var adapter: HomePageAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        archiveAdapter = archiveAdapter ?: ArchiveAdapter(
+        adapter = adapter ?: ArchiveAdapter(
             this,
             R.layout.fragment_archive_item
         )
@@ -34,10 +35,10 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             fragment_archive_grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns(context))
         }
-        fragment_archive_grid.adapter = archiveAdapter
+        fragment_archive_grid.adapter = adapter
 
         fragment_archive_grid.addOnScrollListener(
-            ArchiveOnScrollListener(
+            HomePageOnScrollListener(
                 this
             )
         )
@@ -74,15 +75,15 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
     }
 
     override fun setAuthStatus(authStatus: AuthStatus) {
-        archiveAdapter?.setAuthStatus(authStatus)
+        adapter?.setAuthStatus(authStatus)
     }
 
     override fun setFeeds(feeds: List<Feed>) {
-        archiveAdapter?.setFeeds(feeds)
+        adapter?.setFeeds(feeds)
     }
 
     override fun setInactiveFeedNames(feedNames: Set<String>) {
-        archiveAdapter?.setInactiveFeedNames(feedNames)
+        adapter?.setInactiveFeedNames(feedNames)
     }
 
     override fun onDestroyView() {
