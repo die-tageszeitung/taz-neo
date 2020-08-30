@@ -13,6 +13,7 @@ import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.singletons.OkHttp
+import de.taz.app.android.singletons.ServerConnectionHelper
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,13 +29,15 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val okHttpClient: OkHttpClient,
     private val url: String,
     private val queryService: QueryService,
-    private val authHelper: AuthHelper
+    private val authHelper: AuthHelper,
+    private val serverConnectionHelper: ServerConnectionHelper
 ) {
     private constructor(applicationContext: Context) : this(
         okHttpClient = OkHttp.client,
         url = GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext),
-        authHelper = AuthHelper.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext),
+        serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
@@ -65,9 +68,10 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)
                     source.close()
                     return@withContext if (wrapper?.errors?.isNotEmpty() == true) {
-                        val errorString = "QraphQl-Error:\n ${wrapper?.errors.toString()}"
+                        val errorString = "QraphQl-Error:\n ${wrapper.errors}"
                         log.error(errorString)
                         Sentry.capture(errorString)
+                        serverConnectionHelper.isServerReachable = false
                         null
                     } else {
                         wrapper?.data
