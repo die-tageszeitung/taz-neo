@@ -22,6 +22,8 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -600,11 +602,17 @@ class ApiService private constructor(applicationContext: Context) {
     private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
         try {
             return block()
+        } catch (se: SSLException) {
+            log.debug("SSLException ${se.localizedMessage}")
+            throw ApiServiceException.NoInternetException()
         } catch (eofe: EOFException) {
             log.debug("EOFException ${eofe.localizedMessage}")
             throw ApiServiceException.NoInternetException()
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
+            throw ApiServiceException.NoInternetException()
+        } catch (she: SSLHandshakeException) {
+            log.debug("SSLHandshakeException ${she.localizedMessage}")
             throw ApiServiceException.NoInternetException()
         } catch (ce: ConnectException) {
             log.debug("ConnectException ${ce.localizedMessage}")
@@ -650,6 +658,12 @@ class ApiService private constructor(applicationContext: Context) {
             // inform sentry of missing data in response
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
+        } catch (se: SSLException) {
+            log.debug("SSLException ${se.localizedMessage}")
+            serverConnectionHelper.isServerReachable = false
+        } catch (she: SSLHandshakeException) {
+            log.debug("SSLHandshakeException ${she.localizedMessage}")
+            serverConnectionHelper.isServerReachable = false
         }
         return null
     }
