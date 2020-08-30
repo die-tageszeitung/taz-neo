@@ -5,6 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.GraphQlClient
+import de.taz.app.android.api.QueryType
+import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
@@ -27,6 +31,7 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<ServerConnectionHelper, Context>(::ServerConnectionHelper)
 
+    var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val okHttpClient = OkHttp.client
 
@@ -118,13 +123,22 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                 )
                 val isGraphQlServerReachable =  graphQlServerResult.isSuccessful
                 if (isGraphQlServerReachable) {
-                    log.debug("graph ql server reached")
-                    withContext(Dispatchers.Main) {
-                        isGraphQlServerReachableLiveData.value = isGraphQlServerReachable
+                    try {
+                        val dataDto = graphQlClient.query(QueryType.AppInfo)
+                        if (dataDto?.product!!.appName!! == AppName.taz) {
+                            log.debug("graph ql server reached")
+                            withContext(Dispatchers.Main) {
+                                isGraphQlServerReachableLiveData.value = isGraphQlServerReachable
+                            }
+                            isGraphQlServerReachableLastChecked = Date().time
+                            backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
+                            break
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            isGraphQlServerReachableLiveData.value = false
+                        }
                     }
-                    isGraphQlServerReachableLastChecked = Date().time
-                    backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
-                    break
                 } else if (downloadServerResult.code.toString().firstOrNull() in listOf('4', '5')) {
                     backOffTimeMillis = (backOffTimeMillis * 2).coerceAtMost(
                         MAX_CONNECTION_CHECK_INTERVAL
