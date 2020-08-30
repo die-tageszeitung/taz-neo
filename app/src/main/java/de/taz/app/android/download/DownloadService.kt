@@ -75,7 +75,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -165,7 +165,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)

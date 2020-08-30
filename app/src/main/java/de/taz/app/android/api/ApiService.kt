@@ -53,7 +53,7 @@ class ApiService private constructor(applicationContext: Context) {
     private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isGraphQlServerReachableLiveData)
             .observeForever { canReach ->
                 if (canReach) {
                     waitInternetList.forEach {
@@ -640,16 +640,16 @@ class ApiService private constructor(applicationContext: Context) {
             return block()
         } catch (eofe: EOFException) {
             log.debug("EOFException ${eofe.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         } catch (ce: ConnectException) {
             log.debug("ConnectException ${ce.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         } catch (ste: SocketTimeoutException) {
             log.debug("SocketTimeoutException ${ste.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
             Sentry.capture(ApiServiceException.WrongDataException())
@@ -660,17 +660,17 @@ class ApiService private constructor(applicationContext: Context) {
             toastHelper.showSomethingWentWrongToast()
         } catch (se: SSLException) {
             log.debug("SSLException ${se.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         } catch (she: SSLHandshakeException) {
             log.debug("SSLHandshakeException ${she.localizedMessage}")
-            serverConnectionHelper.isServerReachable = false
+            serverConnectionHelper.isDownloadServerReachable = false
         }
         return null
     }
 
     private suspend
     fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
-        if (serverConnectionHelper.isServerReachable) {
+        if (serverConnectionHelper.isDownloadServerReachable) {
             continuation.resume(Unit)
         } else {
             log.debug("ApiCall $tag waiting")
