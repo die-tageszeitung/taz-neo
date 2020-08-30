@@ -284,6 +284,7 @@ class IssueContentFragment :
         super.onSaveInstanceState(outState)
         val issueOperations = viewModel.issueOperationsLiveData.value
         outState.apply {
+            putString(DISPLAYABLE_KEY, displayableKey)
             putString(ISSUE_DATE, issueDate ?: issueOperations?.date)
             putString(ISSUE_FEED, issueFeedName ?: issueOperations?.feedName)
             putString(
