@@ -67,6 +67,7 @@ class SubscriptionAccountFragment :
         )
 
         fragment_subscription_account_forgot_password_text.setOnClickListener {
+            done()
             viewModel.requestPasswordReset()
         }
 
@@ -99,13 +100,6 @@ class SubscriptionAccountFragment :
             setEmailError(R.string.login_email_error_recheck)
         }
 
-        if (viewModel.validCredentials) {
-            fragment_subscription_account_switch_new_account.visibility = View.GONE
-            fragment_subscription_account_email_layout.visibility = View.GONE
-            fragment_subscription_account_password_layout.visibility = View.GONE
-            fragment_subscription_account_password_confirm_layout.visibility = View.GONE
-            fragment_subscription_account_forgot_password_text.visibility = View.GONE
-        }
     }
 
     private fun drawLayout() {
@@ -116,6 +110,7 @@ class SubscriptionAccountFragment :
         }
 
         if (viewModel.createNewAccount) {
+            fragment_subscription_account_forgot_password_text.visibility = View.GONE
             fragment_subscription_account_switch_new_account.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_login)
             fragment_subscription_account_password_confirm_layout.visibility = View.VISIBLE
@@ -124,6 +119,7 @@ class SubscriptionAccountFragment :
                 nextFocusForwardId = R.id.fragment_subscription_account_password_confirm
             }
         } else {
+            fragment_subscription_account_forgot_password_text.visibility = View.VISIBLE
             fragment_subscription_account_switch_new_account.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_registration)
             fragment_subscription_account_password_confirm_layout.visibility = View.GONE
@@ -151,6 +147,14 @@ class SubscriptionAccountFragment :
                 imeOptions = EditorInfo.IME_ACTION_NEXT
                 nextFocusForwardId = R.id.fragment_subscription_account_comment
             }
+        }
+
+        if (viewModel.validCredentials) {
+            fragment_subscription_account_switch_new_account.visibility = View.GONE
+            fragment_subscription_account_email_layout.visibility = View.GONE
+            fragment_subscription_account_password_layout.visibility = View.GONE
+            fragment_subscription_account_password_confirm_layout.visibility = View.GONE
+            fragment_subscription_account_forgot_password_text.visibility = View.GONE
         }
     }
 
