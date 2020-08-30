@@ -86,7 +86,6 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
 
     init {
         CoroutineScope(Dispatchers.Main).launch {
-            DownloadService.getInstance(applicationContext).cancelDownloads()
             deletionJob?.cancel()
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->

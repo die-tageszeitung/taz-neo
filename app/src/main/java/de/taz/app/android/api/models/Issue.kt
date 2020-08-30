@@ -144,7 +144,7 @@ data class Issue(
      */
     suspend fun deleteAndUpdateMetaData(applicationContext: Context? = null): Issue? =
         withContext(Dispatchers.IO) {
-            DownloadService.getInstance(applicationContext).cancelDownloads(tag)
+            DownloadService.getInstance(applicationContext).cancelDownloadsForTag(tag)
             deleteFiles()
             try {
                 val issue =
@@ -168,7 +168,7 @@ data class Issue(
         }
 
     suspend fun delete(applicationContext: Context? = null) = withContext(Dispatchers.IO) {
-        DownloadService.getInstance(applicationContext).cancelDownloads(tag)
+        DownloadService.getInstance(applicationContext).cancelDownloadsForTag(tag)
         deleteFiles()
         IssueRepository.getInstance(applicationContext).delete(this@Issue)
     }

@@ -438,7 +438,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
                 if (!deletePublicIssuesBoolean.get()) {
                     return@launch
                 }
-                DownloadService.getInstance().cancelDownloads(it.tag)
+                DownloadService.getInstance().cancelDownloadsForTag(it.tag)
                 val issue = issueStubToIssue(it)
                 issue.deleteFiles()
                 delete(issue)
@@ -461,7 +461,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun getDownloadStartedIssues(): List<Issue> {
-        return appDatabase.issueDao().getDownloadStartedIssues().map { issueStubToIssue(it) }
+        return getDownloadStartedIssueStubs().map { issueStubToIssue(it) }
+    }
+    fun getDownloadStartedIssueStubs(): List<IssueStub> {
+        return appDatabase.issueDao().getDownloadStartedIssues()
     }
 
     fun isDownloadedLiveData(issueOperations: IssueOperations) = isDownloadedLiveData(

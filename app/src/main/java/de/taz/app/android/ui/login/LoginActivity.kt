@@ -387,7 +387,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val data = Intent()
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
-                DownloadService.getInstance(applicationContext).cancelDownloads()
+                DownloadService.getInstance(applicationContext).cancelIssueDownloads()
                 CoroutineScope(Dispatchers.IO).launch {
                     downloadLatestIssueMoments()
                 }
