@@ -71,7 +71,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         val errorString = "QraphQl-Error:\n ${wrapper.errors}"
                         log.error(errorString)
                         Sentry.capture(errorString)
-                        serverConnectionHelper.isServerReachable = false
+                        serverConnectionHelper.isGraphQlServerReachable = false
                         null
                     } else {
                         wrapper?.data
