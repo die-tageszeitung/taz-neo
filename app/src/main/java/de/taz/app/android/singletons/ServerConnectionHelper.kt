@@ -9,18 +9,18 @@ import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.connection.ConnectionException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.Request
 import java.io.EOFException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
 
-const val CONNECTION_CHECK_INTERVAL = 1000
+const val DEFAULT_CONNECTION_CHECK_INTERVAL = 1000L
+const val MAX_CONNECTION_CHECK_INTERVAL = 30000L
 
 @Mockable
 class ServerConnectionHelper private constructor(applicationContext: Context) {
@@ -35,12 +35,14 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
     val isServerReachableLiveData = MutableLiveData(true)
     private var isServerReachableLastChecked: Long = 0L
 
+    private var backOffTimeMillis = 1000L
+
     var isServerReachable: Boolean
         get() = isServerReachableLiveData.value ?: true
         set(value) {
             if (!value) {
                 if (isServerReachableLiveData.value != value
-                    && isServerReachableLastChecked < Date().time - CONNECTION_CHECK_INTERVAL
+                    && isServerReachableLastChecked < Date().time - DEFAULT_CONNECTION_CHECK_INTERVAL
                 ) {
                     isServerReachableLiveData.postValue(value)
                 }
@@ -61,7 +63,7 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
 
     private fun checkServerConnection() = CoroutineScope(Dispatchers.IO).launch {
         while (!this@ServerConnectionHelper.isServerReachable) {
-            delay(1000)
+            delay(backOffTimeMillis)
             try {
                 log.debug("checking server connection")
                 val serverUrl = appInfoRepository.get()?.globalBaseUrl ?: GRAPHQL_ENDPOINT
@@ -70,11 +72,19 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                         Request.Builder().url(serverUrl).build()
                     )::enqueue
                 )
-                val bool = result.code.toString().firstOrNull() in listOf('2', '3')
+                val bool = result.isSuccessful || serverUrl == GRAPHQL_ENDPOINT
                 if (bool) {
                     log.debug("downloadserver reached")
-                    isServerReachableLiveData.postValue(bool)
+                    withContext(Dispatchers.Main) {
+                        isServerReachableLiveData.value = bool
+                    }
                     isServerReachableLastChecked = Date().time
+                    backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
+                    break
+                } else if (result.code.toString().firstOrNull() in listOf('4', '5')) {
+                    backOffTimeMillis = (backOffTimeMillis * 2).coerceAtMost(
+                        MAX_CONNECTION_CHECK_INTERVAL
+                    )
                 }
             } catch (ce: ConnectionException) {
                 log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
@@ -86,6 +96,10 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                 log.debug("could not reach download server - ConnectException: ${ce.localizedMessage}")
             } catch (eofe: EOFException) {
                 log.debug("could not reach download server - EOFException: ${eofe.localizedMessage}")
+            } catch (se: SSLException) {
+                log.debug("could not reach download server - SSLException: ${se.localizedMessage}")
+            } catch (she: SSLHandshakeException) {
+                log.debug("could not reach download server - SSLHandshakeException: ${she.localizedMessage}")
             }
         }
     }
