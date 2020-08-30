@@ -387,6 +387,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 DownloadService.getInstance(applicationContext).cancelIssueDownloads()
+                ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
                 downloadLatestIssueMoments()
 
                 article?.let {

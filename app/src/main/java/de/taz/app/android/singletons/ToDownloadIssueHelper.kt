@@ -89,4 +89,10 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
             }
             startMissingDownloads()
         }
+
+    suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
+        downloadingJob?.cancelAndJoin()
+        lastDownloadedDateLiveData.setValue("")
+        dateToDownloadFromLiveData.setValue("")
+    }
 }
