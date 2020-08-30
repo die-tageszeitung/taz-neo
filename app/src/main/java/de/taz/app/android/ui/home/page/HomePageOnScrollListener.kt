@@ -2,9 +2,6 @@ package de.taz.app.android.ui.home.page
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * [HomePageOnScrollListener] ensures endless scrolling is possible
@@ -25,9 +22,7 @@ open class HomePageOnScrollListener(
 
         if (lastVisibleItem > totalItemCount - 2 * visibleItemCount) {
             homePageFragment.adapter?.getItem(totalItemCount - 1)?.date?.let { date ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    homePageFragment.getNextIssueMoments(date)
-                }
+                homePageFragment.getNextIssueMoments(date)
             }
         }
     }

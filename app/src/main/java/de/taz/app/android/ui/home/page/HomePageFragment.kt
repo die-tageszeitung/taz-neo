@@ -2,7 +2,6 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -11,10 +10,8 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
 const val NUMBER_OF_REQUESTED_MOMENTS = 10
@@ -26,8 +23,9 @@ abstract class HomePageFragment(
     private val log by Log
 
     private var apiService: ApiService? = null
-    private var dateHelper: DateHelper? = null
+
     private var issueRepository: IssueRepository? = null
+    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
 
     private var lastRequestedDate = ""
     private var lastRequestDateIsRunning = AtomicBoolean(false)
@@ -43,6 +41,7 @@ abstract class HomePageFragment(
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -72,33 +71,19 @@ abstract class HomePageFragment(
         showIssue(issueStub)
     }
 
-    suspend fun getNextIssueMoments(date: String) {
+    fun getNextIssueMoments(date: String) {
         if (!lastRequestDateIsRunning.getAndSet(true)) {
             if (lastRequestedDate.isEmpty() || date < lastRequestedDate) {
                 log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
 
-                viewLifecycleOwner.lifecycleScope.launch {
-                    downloadNextIssues(
-                        date,
-                        NUMBER_OF_REQUESTED_MOMENTS
-                    )
-                }.join()
-
-                lastRequestedDate = dateHelper?.stringToStringWithDelta(
+                val requestDate = DateHelper.stringToStringWithDelta(
                     date, -NUMBER_OF_REQUESTED_MOMENTS
                 ) ?: ""
+
+                toDownloadIssueHelper?.startMissingDownloads(requestDate, date)
+                lastRequestedDate = requestDate
             }
             lastRequestDateIsRunning.set(false)
-        }
-    }
-
-    private suspend fun downloadNextIssues(date: String, limit: Int): String? {
-        return withContext(Dispatchers.IO) {
-            val issues = apiService?.getIssuesByDateAsync(issueDate = date, limit = limit)?.await()
-            issues?.let {
-                issueRepository?.saveIfDoNotExist(it)
-            }
-            issues?.last()?.date
         }
     }
 
