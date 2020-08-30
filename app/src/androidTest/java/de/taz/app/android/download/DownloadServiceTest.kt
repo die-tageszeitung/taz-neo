@@ -132,7 +132,6 @@ class DownloadServiceTest {
 
         downloadService.getFromServer(TEST_FILE_NAME)
 
-        // TODO replace takeOld once we have proper sha handling
         assertEquals(DownloadStatus.takeOld, downloadRepository.get(TEST_FILE_NAME)?.status)
     }
 

@@ -170,20 +170,19 @@ class DownloadService private constructor(val applicationContext: Context) {
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)
                     currentDownloads.incrementAndGet()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val job = getFromServer(download)
+                    val job = CoroutineScope(Dispatchers.IO).launch {
+                        getFromServer(download)
                         val start = DateHelper.now
                         log.info("download ${download.fileName} started")
-                        download.tag?.let { tag ->
-                            val jobsForTag = tagJobMap[tag] ?: mutableListOf()
-                            jobsForTag.add(job)
-                            tagJobMap[download.tag] = jobsForTag
-                        }
-                        job.join()
                         log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                        currentDownloads.decrementAndGet()
-                        currentDownloadList.remove(download.fileName)
                         startDownloadsIfCapacity()
+                    }
+                    download.tag?.let { tag ->
+                        val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                        jobsForTag.add(job)
+                        tagJobMap[download.tag] = jobsForTag
+                    }
+                    job.invokeOnCompletion {
                         download.tag?.let { tagJobMap[it]?.remove(job) }
                     }
                 }
@@ -194,18 +193,18 @@ class DownloadService private constructor(val applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun getFromServer(fileName: String) = runBlocking {
         downloadRepository.get(fileName)?.let {
-            getFromServer(it, true).join()
+            getFromServer(it, true)
         }
     }
 
     /**
      * call server to get response
      */
-    private fun getFromServer(
+    private suspend fun getFromServer(
         download: Download,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
-    ): Job =
-        CoroutineScope(Dispatchers.IO).launch {
+    ) {
+        try {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
@@ -216,46 +215,50 @@ class DownloadService private constructor(val applicationContext: Context) {
                 ) {
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
-                    try {
-                        val response = awaitCallback(
-                            httpClient.newCall(
-                                Request.Builder().url(fromDB.url).get().build()
-                            )::enqueue
-                        )
-                        handleResponse(response, download, doNotRestartDownload)
-                    } catch (e: Exception) {
-                        downloadRepository.setStatus(fromDB, DownloadStatus.aborted)
-                        currentDownloadList.remove(download.fileName)
-                        when (e) {
-                            is UnknownHostException,
-                            is ConnectException
-                            -> {
-                                serverConnectionHelper.isServerReachable = false
-                                appendToDownloadList(download)
-                                log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
-                            }
-                            is IOException,
-                            is SSLHandshakeException,
-                            is SocketTimeoutException -> {
-                                appendToDownloadList(download)
-                                log.warn("aborted download of ${fromDB.fileName} - ${e.localizedMessage}")
-                            }
-                            is CancellationException -> {
-                                log.info("download of ${fromDB.fileName} has been canceled")
-                                throw e
-                            }
-                            else -> {
-                                log.warn("unknown error occurred - ${fromDB.fileName}")
-                                Sentry.capture(e)
-                                throw e
-                            }
-                        }
-                    }
+                    val response = awaitCallback(
+                        httpClient.newCall(
+                            Request.Builder().url(fromDB.url).get().build()
+                        )::enqueue
+                    )
+                    handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
                 }
             }
+        } catch (e: Exception) {
+            when (e) {
+                is UnknownHostException,
+                is ConnectionException,
+                is ConnectException
+                -> {
+                    serverConnectionHelper.isServerReachable = false
+                    abortAndRetryDownload(download)
+                    DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
+                }
+                is SSLException,
+                is IOException,
+                is SSLHandshakeException,
+                is SocketTimeoutException -> {
+                    abortAndRetryDownload(download)
+                    DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
+                }
+                is CancellationException -> {
+                    DownloadService.log.info("download of ${download.fileName} has been canceled")
+                    // cancellation was requested by program so do not retry
+                    download.file.setDownloadStatus(DownloadStatus.pending)
+                    downloadRepository.setStatus(download, DownloadStatus.pending)
+                    currentDownloads.decrementAndGet()
+                    currentDownloadList.remove(download.fileName)
+                }
+                else -> {
+                    DownloadService.log.warn("unknown error occurred - ${download.fileName}")
+                    abortAndRetryDownload(download)
+                    Sentry.capture(e)
+                    throw e
+                }
+            }
         }
+    }
 
     /**
      * save server response to file, calculate sha and compare
@@ -265,50 +268,32 @@ class DownloadService private constructor(val applicationContext: Context) {
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
     ) {
         val fileEntry = download.file
-        if (response.code.toString().startsWith("2")) {
+        if (response.isSuccessful) {
             response.body?.source()?.let { source ->
                 // ensure folders are created
                 fileHelper.createFileDirs(fileEntry)
-                try {
-                    val sha256 = fileHelper.writeFile(fileEntry, source)
-                    if (sha256 == fileEntry.sha256) {
-                        downloadRepository.saveLastSha256(download, sha256)
-                        downloadRepository.setStatus(download, DownloadStatus.done)
-                        fileEntry.setDownloadStatus(DownloadStatus.done)
-                    } else {
-                        // TODO get new metadata for cacheableDownload and restart download
-                        log.warn("sha256 did NOT match the one of ${download.fileName}")
-                        if (fileHelper.getFile(fileEntry.name)?.exists() == true) {
-                            fileEntry.setDownloadStatus(DownloadStatus.takeOld)
-                            downloadRepository.setStatus(download, DownloadStatus.takeOld)
-                        } else {
-                            fileEntry.setDownloadStatus(DownloadStatus.aborted)
-                            downloadRepository.setStatus(download, DownloadStatus.aborted)
-                        }
-                    }
-                } catch (se: SSLException) {
-                    log.debug("aborted download of ${download.fileName} - SSLException")
-                    abortAndRetryDownload(download)
-                } catch (ce: ConnectionException) {
-                    log.debug("aborted download of ${download.fileName} - ConnectionException")
-                    abortAndRetryDownload(download)
-                } catch (ioe: IOException) {
-                    log.debug("aborted download of ${download.fileName} - IOException")
-                    abortAndRetryDownload(download)
+                val sha256 = fileHelper.writeFile(fileEntry, source)
+                downloadRepository.saveLastSha256(download, sha256)
+                if (sha256 == fileEntry.sha256) {
+                    downloadRepository.setStatus(download, DownloadStatus.done)
+                    fileEntry.setDownloadStatus(DownloadStatus.done)
+                } else {
+                    log.warn("sha256 did NOT match the one of ${download.fileName}")
+                    fileEntry.setDownloadStatus(DownloadStatus.takeOld)
+                    downloadRepository.setStatus(download, DownloadStatus.takeOld)
                 }
+                currentDownloads.decrementAndGet()
+                currentDownloadList.remove(download.fileName)
             } ?: run {
                 log.debug("aborted download of ${download.fileName} - file is empty")
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
-            // TODO handle 50x by "backing off" and trying again later
             log.warn("Download was not successful ${response.code}")
-            if (response.code in 400..499) {
-                download.file.setDownloadStatus(DownloadStatus.aborted)
-                downloadRepository.setStatus(download, DownloadStatus.aborted)
-            } else {
-                abortAndRetryDownload(download, doNotRestartDownload)
+            if (response.code in 400..599) {
+                serverConnectionHelper.isServerReachable = false
             }
+            abortAndRetryDownload(download, doNotRestartDownload)
         }
     }
 
@@ -322,6 +307,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     ) {
         download.file.setDownloadStatus(DownloadStatus.aborted)
         downloadRepository.setStatus(download, DownloadStatus.aborted)
+        currentDownloads.decrementAndGet()
+        currentDownloadList.remove(download.fileName)
         if (!doNotRetry) {
             prependToDownloadList(download)
         }
