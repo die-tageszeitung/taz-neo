@@ -3,6 +3,7 @@ package de.taz.app.android.api
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ServerConnectionHelper
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -19,6 +20,7 @@ class GraphQlClientTest {
     private val mockServer = MockWebServer()
     @Mock private lateinit var queryServiceMock: QueryService
     @Mock private lateinit var authHelper: AuthHelper
+    @Mock private lateinit var serverConnectionHelper: ServerConnectionHelper
 
     private lateinit var graphQlClient: GraphQlClient
 
@@ -30,7 +32,8 @@ class GraphQlClientTest {
             okHttpClient = OkHttpClient(),
             url = mockServer.url("").toString(),
             queryService= queryServiceMock,
-            authHelper = authHelper
+            authHelper = authHelper,
+            serverConnectionHelper =serverConnectionHelper
         )
     }
 
