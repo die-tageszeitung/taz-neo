@@ -56,9 +56,9 @@ class GraphQlClientTest {
 
         runBlocking {
             val dataDto = graphQlClient.query(QueryType.AppInfo)
-            assertTrue(dataDto?.authentificationToken == null)
-            assertTrue(dataDto?.product!!.appName!! == AppName.taz)
-            assertTrue(dataDto.product!!.appType!! == AppType.production)
+            assertTrue(dataDto?.data?.authentificationToken == null)
+            assertTrue(dataDto?.data?.product!!.appName!! == AppName.taz)
+            assertTrue(dataDto.data?.product!!.appType!! == AppType.production)
         }
     }
 }
