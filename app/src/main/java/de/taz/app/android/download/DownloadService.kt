@@ -252,6 +252,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 }
                 else -> {
                     DownloadService.log.warn("unknown error occurred - ${download.fileName}")
+                    abortAndRetryDownload(download)
                     Sentry.capture(e)
                     throw e
                 }
