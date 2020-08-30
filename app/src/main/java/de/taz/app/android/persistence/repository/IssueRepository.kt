@@ -157,6 +157,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getLatestByDate(date)
     }
 
+    fun getLatestRegularIssueStubByDate(date: String): IssueStub? {
+        return appDatabase.issueDao().getLatestRegularByDate(date)
+    }
+
     fun getLatestIssueStubByFeedAndDate(
         feedName: String,
         date: String,
