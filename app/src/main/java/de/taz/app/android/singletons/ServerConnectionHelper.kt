@@ -74,6 +74,13 @@ class ServerConnectionHelper private constructor(applicationContext: Context) {
                     checkServerConnection()
                 }
             }
+        Transformations.distinctUntilChanged(isGraphQlServerReachableLiveData)
+            .observeForever { isConnected ->
+                if (isConnected == false) {
+                    toastHelper.showNoConnectionToast()
+                    checkServerConnection()
+                }
+            }
     }
 
     private fun checkServerConnection() = CoroutineScope(Dispatchers.IO).launch {
