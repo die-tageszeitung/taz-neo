@@ -69,8 +69,8 @@ class FileHelper private constructor(private val applicationContext: Context) {
         try {
             hashingSinkBuffer.writeAll(source)
         } finally {
-            hashingSink.close()
             hashingSinkBuffer.close()
+            hashingSink.close()
             fileSink.flush()
             fileSink.close()
             source.close()
