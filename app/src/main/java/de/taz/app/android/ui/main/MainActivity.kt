@@ -419,7 +419,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                                 null,
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE
                             )
-                            recreate()
                             showDisplayable(articleName)
                         }
                     }
