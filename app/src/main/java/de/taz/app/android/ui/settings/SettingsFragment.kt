@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.widget.doOnTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.api.models.AuthStatus
@@ -115,7 +116,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 logout()
             }
 
-            fragment_settings_version_number?.text = getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
+            fragment_settings_version_number?.text =
+                getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -171,7 +173,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     (dialog as AlertDialog).findViewById<EditText>(
                         R.id.dialog_settings_keep_number
                     )?.text.toString().toIntOrNull()?.let { number ->
-                        setStoredIssueNumber(number)
+                        setStoredIssueNumber(number.coerceAtLeast(1))
                         dialog.hide()
                     }
                 }
@@ -179,7 +181,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     (dialog as AlertDialog).hide()
                 }
                 .create()
-
             dialog.show()
             storedIssueNumber?.let {
                 dialog.findViewById<TextView>(

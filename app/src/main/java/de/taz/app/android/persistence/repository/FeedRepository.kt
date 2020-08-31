@@ -28,4 +28,8 @@ class FeedRepository private constructor(applicationContext: Context) :
         return appDatabase.feedDao().getAllLiveData()
     }
 
+
+    fun getAll(): List<Feed> {
+        return appDatabase.feedDao().getAll()
+    }
 }

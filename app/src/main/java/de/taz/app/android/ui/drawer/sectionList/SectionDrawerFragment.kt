@@ -82,7 +82,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
 
         fragment_drawer_sections_moment.setOnClickListener {
-            getMainView()?.showHome()
+            getMainView()?.showHome(skipToIssue = issueOperations)
             getMainView()?.closeDrawer()
         }
 

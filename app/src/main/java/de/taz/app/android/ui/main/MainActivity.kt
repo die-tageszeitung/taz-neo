@@ -202,10 +202,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun isDrawerVisible(gravity: Int): Boolean {
-        return drawer_layout.isDrawerVisible(gravity)
-    }
-
     fun closeDrawer() {
         drawer_layout.closeDrawers()
     }
@@ -239,19 +235,25 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome(skipToCurrentIssue: Boolean = false) {
-        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val homeFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
-        val coverFlowFragment =
-            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
+    fun showHome(skipToFirst: Boolean = false, skipToIssue: IssueOperations? = null) {
         runOnUiThread {
+            supportFragmentManager.popBackStackImmediate(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            val homeFragment =
+                supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+            val coverFlowFragment =
+                homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-            if (skipToCurrentIssue) coverFlowFragment?.skipToHome()
+            if (skipToFirst) {
+                coverFlowFragment?.skipToHome()
+            } else {
+                skipToIssue?.let { coverFlowFragment?.skipToItem(skipToIssue) }
+            }
         }
-
     }
 
     fun showToast(stringId: Int) {
@@ -292,16 +294,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun setCoverFlowItem(issueOperations: IssueOperations) {
-        val homeFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
-        val coverFlowFragment =
-            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
-        runOnUiThread {
-            coverFlowFragment?.skipToItem(issueOperations)
-        }
-    }
-
     fun changeDrawerIssue() {
         runOnUiThread {
             (supportFragmentManager.findFragmentById(
@@ -317,21 +309,32 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var navButtonAlpha = 255f
 
     private var defaultNavButton: Image? = null
-    fun setDrawerNavButton(navButton: Image? = null) {
-        lifecycleScope.launch(Dispatchers.IO) {
+    private var setNavButtonJob: Job? = null
+
+
+    fun setDrawerNavButton(navButton: Image) {
+        setNavButtonJob?.cancel()
+        setNavButtonJob = lifecycleScope.launch(Dispatchers.IO) {
             suspendSetDrawerNavButton(navButton)
         }
     }
 
-    private suspend fun suspendSetDrawerNavButton(navButton: Image?) {
-        withContext(Dispatchers.IO) {
+    fun setDefaultDrawerNavButton() {
+        setNavButtonJob?.cancel()
+        setNavButtonJob = lifecycleScope.launch(Dispatchers.IO) {
             if (defaultNavButton == null) {
                 //  get defaultNavButton
                 defaultNavButton = imageRepository?.get(DEFAULT_NAV_DRAWER_FILE_NAME)
             }
+            defaultNavButton?.let { suspendSetDrawerNavButton(it) }
+        }
+    }
 
-            val image: Image? = navButton ?: defaultNavButton
-            image?.let {
+    private suspend fun suspendSetDrawerNavButton(navButton: Image) {
+        if (this.navButton != navButton) {
+            withContext(Dispatchers.IO) {
+
+                val image: Image = navButton
                 if (image.downloadedStatus == DownloadStatus.done ||
                     image.downloadedStatus == DownloadStatus.takeOld
                 ) {

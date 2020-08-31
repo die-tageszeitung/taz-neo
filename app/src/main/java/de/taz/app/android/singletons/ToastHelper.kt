@@ -39,6 +39,14 @@ class ToastHelper private constructor(private val applicationContext: Context) {
         }
     }
 
+    fun showConnectionToServerFailedToast() {
+        val now = Date().time
+        if (now > lastConnectionError + 10000) {
+            lastConnectionError = now
+            showToast(R.string.toast_no_connection_to_server)
+        }
+    }
+
     private var lastSomethingWentWrontToast = 0L
     fun showSomethingWentWrongToast() {
         val now = Date().time

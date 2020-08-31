@@ -86,20 +86,24 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
 
     init {
         CoroutineScope(Dispatchers.Main).launch {
-            DownloadService.getInstance(applicationContext).cancelDownloads()
             deletionJob?.cancel()
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
+                    }
                     toastHelper.showToast(R.string.toast_logout_elapsed)
-                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.notValid) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
+                    }
                     toastHelper.showToast(R.string.toast_logout_invalid)
-                    deletionJob = issueRepository.deleteNotDownloadedRegularIssues()
                 }
                 if (authStatus == AuthStatus.valid) {
                     CoroutineScope(Dispatchers.IO).launch {
+                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }
                 }

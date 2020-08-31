@@ -26,6 +26,9 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT 1 ")
     abstract fun getLatestByDate(date: String): IssueStub?
 
+    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) AND Issue.status == 'regular' ORDER BY date DESC LIMIT 1 ")
+    abstract fun getLatestRegularByDate(date: String): IssueStub?
+
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
     abstract fun getByFeedDateAndStatusLiveData(
         feedName: String,
@@ -98,5 +101,15 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     """
     )
     abstract fun getStubForSectionImageName(imageName: String): IssueStub?
+
+    @Query(
+        """
+            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.downloadedStatus in ('done', 'started')
+        """
+    )
+    abstract fun getDownloadedOrDownloadingIssuesForDayAndFeed(
+        feedName: String,
+        date: String
+    ): List<IssueStub>
 
 }

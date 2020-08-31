@@ -12,6 +12,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.download.DownloadService
@@ -20,6 +21,7 @@ import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
@@ -28,6 +30,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragme
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -53,7 +56,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     private var articleRepository: ArticleRepository? = null
     private var authHelper: AuthHelper? = null
     private var issueRepository: IssueRepository? = null
+    private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
+    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,10 +68,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         authHelper = AuthHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        sectionRepository = SectionRepository.getInstance(applicationContext)
+        toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
         view.moveContentBeneathStatusBar()
 
-        article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)?.replace("public.", "")
+        article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
 
         navigation_bottom.apply {
             itemIconTintList = null
@@ -96,6 +103,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
+                    viewModel.validCredentials = false
                     if (register) {
                         showSubscriptionPrice()
                     } else {
@@ -112,16 +120,13 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showCredentialsInvalid()
                 }
                 LoginViewModelState.CREDENTIALS_MISSING_LOGIN -> {
-                    showMissingCredentialsLogin()
+                    showMissingCredentials()
                 }
-                LoginViewModelState.CREDENTIALS_MISSING_LOGIN_FAILED -> {
-                    showMissingCredentialsLogin(failed = true)
+                LoginViewModelState.CREDENTIALS_MISSING_FAILED -> {
+                    showMissingCredentials(failed = true)
                 }
                 LoginViewModelState.CREDENTIALS_MISSING_REGISTER -> {
-                    showMissingCredentialsRegistration()
-                }
-                LoginViewModelState.CREDENTIALS_MISSING_REGISTER_FAILED -> {
-                    showMissingCredentialsRegistration(failed = true)
+                    showMissingCredentials()
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
                     showSubscriptionElapsed()
@@ -224,6 +229,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> {
                     showSubscriptionAddress(postcodeInvalid = true)
                 }
+                LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
+                    showPasswordRequest(showSubscriptionId = true)
+                }
+                LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED -> {
+                    showSubscriptionAlreadyLinked()
+                }
             }
         }
 
@@ -268,6 +279,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(EmailAlreadyLinkedFragment())
     }
 
+    private fun showSubscriptionAlreadyLinked() {
+        log.debug("showSubscriptionAlreadyLinked")
+        showFragment(SubscriptionAlreadyLinkedFragment())
+    }
+
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
@@ -275,6 +291,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
         log.debug("showSubscriptionMissing")
+        viewModel.validCredentials = true
         showFragment(SubscriptionMissingFragment.create(invalidId))
     }
 
@@ -283,21 +300,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(SubscriptionTakenFragment())
     }
 
-    private fun showMissingCredentialsLogin(failed: Boolean = false) {
-        log.debug("showMissingCredentialsLogin - failed: $failed")
+    private fun showMissingCredentials(failed: Boolean = false) {
+        log.debug("showMissingCredentials - failed: $failed")
         showFragment(
             CredentialsMissingFragment.create(
-                registration = false,
-                failed = failed
-            )
-        )
-    }
-
-    private fun showMissingCredentialsRegistration(failed: Boolean = false) {
-        log.debug("showMissingCredentialsRegistration - failed $failed")
-        showFragment(
-            CredentialsMissingFragment.create(
-                registration = true,
                 failed = failed
             )
         )
@@ -350,12 +356,17 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showFragment(RegistrationSuccessfulFragment())
     }
 
-    private fun showPasswordRequest(invalidId: Boolean = false, invalidMail: Boolean = false) {
+    private fun showPasswordRequest(
+        showSubscriptionId: Boolean = false,
+        invalidId: Boolean = false,
+        invalidMail: Boolean = false
+    ) {
         log.debug("showPasswordRequest")
         showFragment(
             PasswordRequestFragment.create(
                 invalidId = invalidId,
-                invalidMail = invalidMail
+                invalidMail = invalidMail,
+                showSubscriptionId = showSubscriptionId
             )
         )
     }
@@ -382,8 +393,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val data = Intent()
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
-                DownloadService.getInstance(applicationContext).cancelDownloads()
+                ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
+                DownloadService.getInstance(applicationContext).cancelIssueDownloads()
                 downloadLatestIssueMoments()
+                article = article?.replace("public.", "")
 
                 article?.let {
                     data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
@@ -404,16 +417,27 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        apiService?.getLastIssuesAsync()?.await()?.let { lastIssues ->
-            issueRepository?.saveIfDoNotExist(lastIssues)
-            article?.let { article ->
-                var lastDate = lastIssues.last().date
-                while (articleRepository?.get(article) == null) {
-                    apiService?.getIssuesByDateAsync(lastDate)?.await()?.let { issues ->
-                        issueRepository?.saveIfDoNotExist(issues)
-                        lastDate = issues.last().date
-                    }
-                }
+        val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
+            issueRepository?.saveIfDoNotExist(it)
+        }
+        val articleIssue = getArticleIssue()?.also {
+            issueRepository?.saveIfDoesNotExist(it)
+        }
+        runIfNotNull(lastIssues, articleIssue) { issues, issue ->
+            toDownloadIssueHelper?.startMissingDownloads(
+                issue.date,
+                issues.last().date
+            )
+        }
+    }
+
+    private suspend fun getArticleIssue(): Issue? {
+        return article?.let { article ->
+            val section = sectionRepository?.getSectionStubForArticle(article)
+            section?.getIssueOperations(applicationContext)?.let { issueOperations ->
+                apiService?.getIssueByFeedAndDateAsync(
+                    issueOperations.feedName, issueOperations.date
+                )?.await()
             }
         }
     }

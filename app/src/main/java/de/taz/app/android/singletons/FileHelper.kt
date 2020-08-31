@@ -65,14 +65,16 @@ class FileHelper private constructor(private val applicationContext: Context) {
     fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
         val fileSink = getFile(fileEntry).sink()
         val hashingSink = HashingSink.sha256(fileSink)
-
-        hashingSink.buffer().apply {
-            writeAll(source)
-            close()
+        val hashingSinkBuffer = hashingSink.buffer()
+        try {
+            hashingSinkBuffer.writeAll(source)
+        } finally {
+            hashingSinkBuffer.close()
+            hashingSink.close()
+            fileSink.flush()
+            fileSink.close()
+            source.close()
         }
-        fileSink.flush()
-        fileSink.close()
-        source.close()
         return hashingSink.hash.hex()
     }
 
@@ -80,12 +82,12 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return fileEntryRepository.get(fileEntryName)?.let { getAbsoluteFilePath(it) }
     }
 
-    fun getAbsoluteFilePath(fileEntry: FileEntryOperations): String {
+    private fun getAbsoluteFilePath(fileEntry: FileEntryOperations): String {
         return if (!isExternalStorageWritable())
             "file://${applicationContext.filesDir}/${fileEntry.path}"
         else {
-            "file://${ContextCompat.getExternalFilesDirs(applicationContext, null)
-                .first()}/${fileEntry.path}"
+            val path = ContextCompat.getExternalFilesDirs(applicationContext, null).first()
+            "file://${path}/${fileEntry.path}"
         }
     }
 

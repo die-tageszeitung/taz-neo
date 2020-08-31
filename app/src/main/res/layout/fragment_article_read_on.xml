@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_article_read_ondescription_margin_top"
         android:layout_marginBottom="@dimen/fragment_article_read_ondescription_margin_bottom"
-        android:text="@string/fragment_article_read_onreadon"
+        android:text="@string/fragment_login_description"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -52,7 +52,7 @@
 
     <Button
         android:id="@+id/fragment_article_read_on_login_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/login_button_margin_top"
         android:text="@string/login_button"
@@ -73,7 +73,8 @@
 
     <Button
         android:id="@+id/fragment_article_read_on_register_button"
-        android:layout_width="wrap_content"
+        style="@style/AppTheme.ButtonStyle.Outlined"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/login_button_margin_top"
         android:text="@string/register_button"

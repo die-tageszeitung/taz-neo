@@ -4,7 +4,7 @@ mutation SubscriptionId2TazId(
     $subscriptionId: Int!,
     $subscriptionPassword: String!,
     $surname: String,
-    $firstname: String,
+    $firstName: String,
     $installationId: String!,
     $deviceType: DeviceType!,
     $pushToken: String
@@ -15,7 +15,7 @@ mutation SubscriptionId2TazId(
         subscriptionId: $subscriptionId,
         subscriptionPw: $subscriptionPassword,
         surname: $surname,
-        firstName: $firstname,
+        firstName: $firstName,
         installationId: $installationId,
         deviceType: $deviceType
         pushToken: $pushToken

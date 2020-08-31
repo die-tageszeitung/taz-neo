@@ -153,7 +153,7 @@ class SplashActivity : BaseActivity() {
         val issues = apiService.getLastIssuesAsync(number).await()
         issueRepository.getLatestIssue()?.let {
             val newestDBIssueDate = issues.first().date
-            if (it.date != newestDBIssueDate) {
+            if (it.date != newestDBIssueDate && newestDBIssueDate < it.date) {
                 toDownloadIssueHelper.startMissingDownloads(
                     newestDBIssueDate,
                     it.date
@@ -228,9 +228,8 @@ class SplashActivity : BaseActivity() {
     private fun deleteUnnecessaryIssues() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
-            // TODO: Refactor deletePublicIssues to not delete commonly used files (e.g. images)
-            /*log.debug("Deleting public Issues")
-            issueRepository.deletePublicIssues()*/
+            log.debug("Deleting public Issues")
+            issueRepository.deletePublicIssues()
         } else {
             issueRepository.deleteNotDownloadedRegularIssues()
         }
