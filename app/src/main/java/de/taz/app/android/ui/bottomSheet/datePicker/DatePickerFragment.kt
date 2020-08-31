@@ -38,6 +38,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
     private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
+    private var authHelper: AuthHelper? = null
 
     companion object {
         fun create(
@@ -57,6 +58,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -123,7 +125,11 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            val issueStub = issueRepository?.getLatestIssueStubByDate(date)
+            val issueStub = if(authHelper?.isLoggedIn() == true) {
+                issueRepository?.getLatestRegularIssueStubByDate(date)
+            } else {
+                issueRepository?.getLatestIssueStubByDate(date)
+            }
             if (issueStub != null && (issueStub.date == date ||
                         DateHelper.dayDelta(issueStub.date, date).toInt() == 1 &&
                         issueStub.isWeekend)
