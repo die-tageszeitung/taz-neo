@@ -231,7 +231,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 is ConnectionException,
                 is ConnectException
                 -> {
-                    serverConnectionHelper.isServerReachable = false
+                    serverConnectionHelper.isDownloadServerReachable = false
                     abortAndRetryDownload(download)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
                 }
@@ -291,7 +291,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         } else {
             log.warn("Download was not successful ${response.code}")
             if (response.code in 400..599) {
-                serverConnectionHelper.isServerReachable = false
+                serverConnectionHelper.isDownloadServerReachable = false
             }
             abortAndRetryDownload(download, doNotRestartDownload)
         }

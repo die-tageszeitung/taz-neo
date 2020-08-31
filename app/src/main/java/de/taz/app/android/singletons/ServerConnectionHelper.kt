@@ -79,7 +79,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
         Transformations.distinctUntilChanged(isGraphQlServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected == false) {
-                    toastHelper.showNoConnectionToast()
+                    toastHelper.showConnectionToServerFailedToast()
                     checkServerConnection()
                 }
             }
