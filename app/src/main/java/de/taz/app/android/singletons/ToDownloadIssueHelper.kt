@@ -104,6 +104,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     }
 
     suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
+        log.debug("cancelling ToDownloadIssueHelper")
         downloadingJob?.cancelAndJoin()
         lastDownloadedDateLiveData.setValue("")
         dateToDownloadFromLiveData.setValue("")
