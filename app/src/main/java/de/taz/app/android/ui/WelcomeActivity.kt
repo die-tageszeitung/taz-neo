@@ -62,7 +62,7 @@ class WelcomeActivity : AppCompatActivity() {
 
             settings.javaScriptEnabled = true
             val fileDir = fileHelper?.getFileDirectoryUrl(this.context)
-            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlides.html")
+            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlidesAndroid.html")
             ensureResourceInfoIsDownloadedAndShow(file.path)
         }
     }
