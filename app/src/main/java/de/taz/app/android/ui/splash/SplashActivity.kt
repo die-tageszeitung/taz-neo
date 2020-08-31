@@ -153,8 +153,7 @@ class SplashActivity : BaseActivity() {
         val issues = apiService.getLastIssuesAsync(number).await()
         issueRepository.getLatestIssue()?.let {
             val newestDBIssueDate = issues.first().date
-            if (it.date != newestDBIssueDate) {
-                // TODO check if ok
+            if (it.date != newestDBIssueDate && newestDBIssueDate < it.date) {
                 toDownloadIssueHelper.startMissingDownloads(
                     newestDBIssueDate,
                     it.date

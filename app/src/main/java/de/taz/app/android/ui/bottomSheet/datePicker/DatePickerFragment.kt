@@ -31,7 +31,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private val log by Log
 
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
-    private var feed: Feed? = null
 
     private var apiService: ApiService? = null
     private var feedRepository: FeedRepository? = null
@@ -81,14 +80,13 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            // TODO GET MIN DATE FOR ALL FEEDS
-            /*feedRepository.getAllLiveData().value.forEach {
+            val minDate = feedRepository?.getAll()?.fold(null) {acc: String?, feed ->
+                if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
+            }
 
-            }*/
-            feed = feedRepository?.get("taz")
-            feed?.let { feed ->
-                log.debug("minDate is ${feed.issueMinDate}")
-                DateHelper.stringToLong(feed.issueMinDate)?.let {
+            if(!minDate.isNullOrBlank()) {
+                log.debug("minDate is $minDate")
+                DateHelper.stringToLong(minDate)?.let {
                     withContext(Dispatchers.Main) {
                         fragment_bottom_sheet_date_picker.minDate = it
                     }
