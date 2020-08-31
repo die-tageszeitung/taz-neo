@@ -75,7 +75,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
 
     init {
-        Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
+        Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerReachableLiveData)
             .observeForever { isConnected ->
                 if (isConnected) {
                     startDownloadsIfCapacity()
@@ -165,7 +165,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      * and the server is reachable
      */
     private fun startDownloadsIfCapacity() {
-        while (serverConnectionHelper.isServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)
@@ -231,7 +231,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 is ConnectionException,
                 is ConnectException
                 -> {
-                    serverConnectionHelper.isServerReachable = false
+                    serverConnectionHelper.isDownloadServerReachable = false
                     abortAndRetryDownload(download)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
                 }
@@ -291,7 +291,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         } else {
             log.warn("Download was not successful ${response.code}")
             if (response.code in 400..599) {
-                serverConnectionHelper.isServerReachable = false
+                serverConnectionHelper.isDownloadServerReachable = false
             }
             abortAndRetryDownload(download, doNotRestartDownload)
         }
