@@ -80,7 +80,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
             .observeForever { isConnected ->
                 if (isConnected == false) {
                     toastHelper.showConnectionToServerFailedToast()
-                    checkServerConnection()
+                    checkGraphQlConnection()
                 }
             }
     }
