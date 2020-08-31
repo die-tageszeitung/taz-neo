@@ -24,6 +24,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
@@ -83,11 +84,9 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
             val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
             val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
             if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
-                // TODO GET min FEED MIN DATE of all feeds
-                val tazbla = withContext(Dispatchers.IO) {
-                    FeedRepository.getInstance().get("taz").issueMinDate
+                val minDate = feedRepository?.getAll()?.fold(null) { acc: String?, feed ->
+                    if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
                 }
-
                 dateToDownloadFromLiveData.setValue(
                     if (tazbla < dateToDownloadFrom) {
                         dateToDownloadFrom
