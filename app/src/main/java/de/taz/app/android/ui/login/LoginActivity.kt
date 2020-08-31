@@ -31,7 +31,6 @@ import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -388,9 +387,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 DownloadService.getInstance(applicationContext).cancelIssueDownloads()
-                CoroutineScope(Dispatchers.IO).launch {
-                    downloadLatestIssueMoments()
-                }
+                downloadLatestIssueMoments()
 
                 article?.let {
                     data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
