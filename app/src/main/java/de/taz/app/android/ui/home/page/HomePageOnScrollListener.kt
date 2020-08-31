@@ -2,9 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import de.taz.app.android.util.Log
 
 /**
  * [HomePageOnScrollListener] ensures endless scrolling is possible
@@ -13,6 +11,8 @@ import kotlinx.coroutines.launch
 open class HomePageOnScrollListener(
     private val homePageFragment: HomePageFragment
 ) : RecyclerView.OnScrollListener() {
+
+    private val log by Log
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
@@ -25,9 +25,8 @@ open class HomePageOnScrollListener(
 
         if (lastVisibleItem > totalItemCount - 2 * visibleItemCount) {
             homePageFragment.adapter?.getItem(totalItemCount - 1)?.date?.let { date ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    homePageFragment.getNextIssueMoments(date)
-                }
+                log.debug("requesting next issues")
+                homePageFragment.getNextIssueMoments(date)
             }
         }
     }

@@ -72,7 +72,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
     private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
-    private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
+    private val tagJobMap = ConcurrentHashMap<String, ConcurrentLinkedQueue<Job>>()
 
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isDownloadServerReachableLiveData)
@@ -178,7 +178,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         startDownloadsIfCapacity()
                     }
                     download.tag?.let { tag ->
-                        val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                        val jobsForTag = tagJobMap.getOrPut(tag) { ConcurrentLinkedQueue<Job>() }
                         jobsForTag.add(job)
                         tagJobMap[download.tag] = jobsForTag
                     }
@@ -223,6 +223,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
+                    currentDownloads.decrementAndGet()
+                    currentDownloadList.remove(download.fileName)
                 }
             }
         } catch (e: Exception) {
@@ -357,19 +359,22 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * cancel all running download jobs
      */
-    fun cancelDownloadsForTag(tag: String) {
+    suspend fun cancelDownloadsForTag(tag: String) {
+        log.debug("canceling downloads for tag: $tag")
         downloadList.removeAll(downloadList.filter { it.tag == tag })
         val jobsForTag = tagJobMap.remove(tag)
-        jobsForTag?.forEach { it.cancel() }
+        jobsForTag?.forEach { it.cancelAndJoin() }
     }
 
     /**
      * cancel all issue downloads
      */
-    fun cancelIssueDownloads() {
+    suspend fun cancelIssueDownloads() {
+        log.debug("canceling all issue donwloads")
         IssueRepository.getInstance(applicationContext).getDownloadStartedIssueStubs().forEach {
             cancelDownloadsForTag(it.tag)
         }
+        log.debug("canceling all issue donwloads done")
     }
 
     /**

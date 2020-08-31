@@ -3,6 +3,7 @@ package de.taz.app.android.singletons
 import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceStringLiveData
@@ -23,6 +24,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
@@ -76,17 +78,39 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         }
     }
 
-    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) =
+    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
+        log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
         CoroutineScope(Dispatchers.Main).launch {
-            downloadingJob?.cancelAndJoin()
             val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
             val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
-            if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
-                dateToDownloadFromLiveData.setValue(dateToDownloadFrom)
+
+            val minDate: String? = withContext(Dispatchers.IO) {
+                return@withContext if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
+                    feedRepository.getAll().fold(null) { acc: String?, feed ->
+                        if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
+                    }
+                } else null
+            }
+            if (!minDate.isNullOrBlank()) {
+                dateToDownloadFromLiveData.setValue(
+                    if (minDate < dateToDownloadFrom) {
+                        dateToDownloadFrom
+                    } else {
+                        minDate
+                    }
+                )
             }
             if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
                 lastDownloadedDateLiveData.setValue(latestDownloadedDate)
             }
             startMissingDownloads()
         }
+    }
+
+    suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
+        log.debug("cancelling ToDownloadIssueHelper")
+        downloadingJob?.cancelAndJoin()
+        lastDownloadedDateLiveData.setValue("")
+        dateToDownloadFromLiveData.setValue("")
+    }
 }

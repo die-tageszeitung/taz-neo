@@ -271,7 +271,7 @@ class ApiService private constructor(applicationContext: Context) {
         issueDate: String = simpleDateFormat.format(Date()),
         limit: Int = 10
     ): Deferred<List<Issue>> = CoroutineScope(Dispatchers.IO).async {
-        val tag = "getIssuesByDate"
+        val tag = "getIssuesByDateAsync"
         log.debug("$tag issueDate: $issueDate limit: $limit")
         val issues = mutableListOf<Issue>()
         getDataDto(
