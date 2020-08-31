@@ -426,8 +426,8 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         }
         runIfNotNull(lastIssues, articleIssue) { issues, issue ->
             toDownloadIssueHelper?.startMissingDownloads(
-                issues.last().date,
-                issue.date
+                issue.date,
+                issues.last().date
             )
         }
     }
