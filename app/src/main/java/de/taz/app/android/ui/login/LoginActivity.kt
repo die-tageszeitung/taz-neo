@@ -36,7 +36,6 @@ import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
@@ -432,8 +431,8 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         }
     }
 
-    private fun getArticleIssue(): Issue?  = runBlocking{
-        article?.let { article ->
+    private suspend fun getArticleIssue(): Issue? {
+        return article?.let { article ->
             val section = sectionRepository?.getSectionStubForArticle(article)
             section?.getIssueOperations(applicationContext)?.let { issueOperations ->
                 apiService?.getIssueByFeedAndDateAsync(
