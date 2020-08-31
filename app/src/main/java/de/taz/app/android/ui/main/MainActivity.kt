@@ -104,9 +104,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             }
         })
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            IssueRepository.getInstance(applicationContext).getLatestIssue()
-                ?.let { setDrawerIssue(it) }
+        if(savedInstanceState == null) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                IssueRepository.getInstance(applicationContext).getLatestIssue()
+                    ?.let { setDrawerIssue(it) }
+            }
         }
     }
 
