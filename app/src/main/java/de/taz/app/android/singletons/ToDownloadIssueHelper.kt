@@ -88,10 +88,10 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                     if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
                 }
                 dateToDownloadFromLiveData.setValue(
-                    if (tazbla < dateToDownloadFrom) {
+                    if (minDate < dateToDownloadFrom) {
                         dateToDownloadFrom
                     } else {
-                        tazbla
+                        minDate
                     }
                 )
             }
