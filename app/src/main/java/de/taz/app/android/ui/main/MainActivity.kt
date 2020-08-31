@@ -236,12 +236,15 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showHome(skipToFirst: Boolean = false, skipToIssue: IssueOperations? = null) {
-        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val homeFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
-        val coverFlowFragment =
-            homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
         runOnUiThread {
+            supportFragmentManager.popBackStackImmediate(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            val homeFragment =
+                supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+            val coverFlowFragment =
+                homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
@@ -251,7 +254,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 skipToIssue?.let { coverFlowFragment?.skipToItem(skipToIssue) }
             }
         }
-
     }
 
     fun showToast(stringId: Int) {
