@@ -3,6 +3,7 @@ package de.taz.app.android.singletons
 import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceStringLiveData
@@ -76,19 +77,31 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         }
     }
 
-    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) =
+    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
+        log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
         CoroutineScope(Dispatchers.Main).launch {
-            downloadingJob?.cancelAndJoin()
             val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
             val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
             if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
-                dateToDownloadFromLiveData.setValue(dateToDownloadFrom)
+                // TODO GET min FEED MIN DATE of all feeds
+                val tazbla = withContext(Dispatchers.IO) {
+                    FeedRepository.getInstance().get("taz").issueMinDate
+                }
+
+                dateToDownloadFromLiveData.setValue(
+                    if (tazbla < dateToDownloadFrom) {
+                        dateToDownloadFrom
+                    } else {
+                        tazbla
+                    }
+                )
             }
             if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
                 lastDownloadedDateLiveData.setValue(latestDownloadedDate)
             }
             startMissingDownloads()
         }
+    }
 
     suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
         downloadingJob?.cancelAndJoin()

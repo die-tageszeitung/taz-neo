@@ -81,6 +81,10 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
+            // TODO GET MIN DATE FOR ALL FEEDS
+            /*feedRepository.getAllLiveData().value.forEach {
+
+            }*/
             feed = feedRepository?.get("taz")
             feed?.let { feed ->
                 log.debug("minDate is ${feed.issueMinDate}")
@@ -148,7 +152,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                                 showIssue(it)
 
                                 toastHelper?.showToast(
-                                    "${getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
+                                    "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
                                 )
                                 toDownloadIssueHelper?.startMissingDownloads(
                                     it.date,

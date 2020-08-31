@@ -72,7 +72,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private val currentDownloads = AtomicInteger(0)
     private val currentDownloadList = ConcurrentLinkedQueue<String>()
 
-    private val tagJobMap = ConcurrentHashMap<String, MutableList<Job>>()
+    private val tagJobMap = ConcurrentHashMap<String, ConcurrentLinkedQueue<Job>>()
 
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isServerReachableLiveData)
@@ -178,7 +178,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         startDownloadsIfCapacity()
                     }
                     download.tag?.let { tag ->
-                        val jobsForTag = tagJobMap[tag] ?: mutableListOf()
+                        val jobsForTag = tagJobMap.getOrPut(tag) { ConcurrentLinkedQueue<Job>() }
                         jobsForTag.add(job)
                         tagJobMap[download.tag] = jobsForTag
                     }
@@ -357,16 +357,16 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * cancel all running download jobs
      */
-    fun cancelDownloadsForTag(tag: String) {
+    suspend fun cancelDownloadsForTag(tag: String) {
         downloadList.removeAll(downloadList.filter { it.tag == tag })
         val jobsForTag = tagJobMap.remove(tag)
-        jobsForTag?.forEach { it.cancel() }
+        jobsForTag?.forEach { it.cancelAndJoin() }
     }
 
     /**
      * cancel all issue downloads
      */
-    fun cancelIssueDownloads() {
+    suspend fun cancelIssueDownloads() {
         IssueRepository.getInstance(applicationContext).getDownloadStartedIssueStubs().forEach {
             cancelDownloadsForTag(it.tag)
         }
