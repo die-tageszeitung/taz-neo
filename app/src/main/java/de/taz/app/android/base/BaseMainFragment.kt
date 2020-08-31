@@ -180,8 +180,12 @@ abstract class BaseMainFragment (
         (activity as? MainActivity)?.setDrawerIssue(issueOperations)
     }
 
-    fun showNavButton(navButton: Image? = null) {
+    fun showNavButton(navButton: Image) {
         (activity as? MainActivity)?.setDrawerNavButton(navButton)
+    }
+
+    fun showDefaultNavButton() {
+        (activity as? MainActivity)?.setDefaultDrawerNavButton()
     }
 
     fun showIssue(issueStub: IssueStub) {

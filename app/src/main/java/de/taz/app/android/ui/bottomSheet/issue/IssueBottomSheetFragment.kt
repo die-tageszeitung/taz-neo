@@ -134,7 +134,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                         issueStub
                     )
                     issue?.deleteAndUpdateMetaData(context?.applicationContext)?.let { newIssue ->
-                        (activity as? MainActivity)?.setCoverFlowItem(newIssue)
+                        (activity as? MainActivity)?.showHome(skipToIssue = newIssue)
                     }
                     withContext(Dispatchers.Main) {
                         dismiss()

@@ -263,18 +263,19 @@
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:textAlignment">center</item>
         <item name="android:lineSpacingExtra">7dp</item>
-        <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+        <item name="android:paddingTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:layout_marginLeft">@dimen/fragment_login_text_margin_horizontal</item>
         <item name="android:layout_marginRight">@dimen/fragment_login_text_margin_horizontal</item>
+        <item name="android:paddingBottom">@dimen/fragment_login_text_padding_vertical</item>
     </style>
 
     <style name="TextAppearance.Login.Text" parent="TextAppearance.AppCompat">
-        <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+        <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
     </style>
 
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
-        <item name="android:layout_marginTop">@dimen/fragment_login_text_margin_top</item>
+        <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:textStyle">bold</item>

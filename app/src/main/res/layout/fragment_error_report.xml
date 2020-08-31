@@ -62,7 +62,7 @@
                     android:id="@+id/fragment_error_report_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_login_text_margin_top"
+                    android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
                     android:text="@string/fragment_error_report_description"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
 

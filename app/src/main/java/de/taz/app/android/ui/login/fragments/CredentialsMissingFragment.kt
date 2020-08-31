@@ -7,6 +7,8 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
@@ -14,25 +16,26 @@ import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
+import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
+import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
+import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 
-class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_credentials) {
+class CredentialsMissingFragment :
+    SubscriptionBaseFragment(R.layout.fragment_login_missing_credentials) {
 
     private var failed: Boolean = false
-    private var registration: Boolean = true
 
     companion object {
         fun create(
-            registration: Boolean,
             failed: Boolean = false
         ): CredentialsMissingFragment {
             val fragment = CredentialsMissingFragment()
             fragment.failed = failed
-            fragment.registration = registration
             return fragment
         }
     }
@@ -59,68 +62,94 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
 
             movementMethod = LinkMovementMethod.getInstance()
         }
-        if (registration) {
-            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
 
-            fragment_login_missing_credentials_email_layout.markRequired()
-            fragment_login_missing_credentials_password_layout.markRequired()
-            fragment_login_missing_credentials_password_confirmation_layout.markRequired()
-            fragment_login_missing_credentials_first_name_layout.markRequired()
-            fragment_login_missing_credentials_surname_layout.markRequired()
-        } else {
-            fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
-            fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
-            fragment_login_missing_credentials_surname_layout.visibility = View.GONE
-            fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
-        }
+        fragment_login_missing_credentials_email.setText(viewModel.username)
+        fragment_login_missing_credentials_first_name.setText(viewModel.firstName)
+        fragment_login_missing_credentials_surname.setText(viewModel.surName)
+
+        fragment_login_missing_credentials_email_layout.markRequired()
+        fragment_login_missing_credentials_password_layout.markRequired()
+        fragment_login_missing_credentials_password_confirmation_layout.markRequired()
+        fragment_login_missing_credentials_first_name_layout.markRequired()
+        fragment_login_missing_credentials_surname_layout.markRequired()
         fragment_login_missing_credentials_terms_and_conditions.markRequired()
 
         fragment_login_missing_credentials_switch.setOnClickListener {
+            viewModel.createNewAccount = !viewModel.createNewAccount
             viewModel.status.postValue(
-                if (registration) {
-                    LoginViewModelState.CREDENTIALS_MISSING_LOGIN
-                } else {
+                if (viewModel.createNewAccount) {
                     LoginViewModelState.CREDENTIALS_MISSING_REGISTER
+                } else {
+                    LoginViewModelState.CREDENTIALS_MISSING_LOGIN
                 }
             )
         }
 
-        if (!registration) {
+        if (viewModel.createNewAccount) {
+            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
+        } else {
             fragment_login_missing_credentials_switch.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_registration)
 
             fragment_login_missing_credentials_header.text =
                 getString(R.string.fragment_login_missing_credentials_header_login)
-        }
-
-        viewModel.username?.let {
-            fragment_login_missing_credentials_email.setText(it)
+            fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
+            fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
+            fragment_login_missing_credentials_surname_layout.visibility = View.GONE
+            fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
         }
 
         if (failed) {
-            fragment_login_missing_credentials_email_layout.error = getString(
-                R.string.login_failed
-            )
+            fragment_login_missing_credentials_email_layout.setError(R.string.login_email_error_recheck)
         }
 
-        fragment_login_missing_credentials_login.setOnClickListener {
-            connect()
-        }
+        fragment_login_missing_credentials_login.setOnClickListener { ifDoneNext() }
 
         fragment_login_missing_credentials_forgot_password?.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
         fragment_login_missing_credentials_surname.setOnEditorActionListener(
-            OnEditorActionDoneListener(::connect)
+            OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
         )
 
         fragment_login_missing_credentials_password.setOnEditorActionListener(
-            OnEditorActionDoneListener(::connect)
+            OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
         )
+
+        fragment_login_missing_credentials_first_name.doAfterTextChanged { text ->
+            fragment_login_missing_credentials_surname_layout.counterMaxLength =
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
+        }
+
+        fragment_login_missing_credentials_surname.doAfterTextChanged { text ->
+            fragment_login_missing_credentials_first_name_layout.counterMaxLength =
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
+        }
+
+        fragment_login_missing_credentials_terms_and_conditions.apply {
+            val spannableString = SpannableString(text?.toString() ?: "")
+
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_terms),
+                ::showTermsAndConditions
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_data_policy),
+                ::showDataPolicy
+            )
+            spannableString.onClick(
+                resources.getString(R.string.terms_and_conditions_revocation),
+                ::showRevocation
+            )
+
+            text = spannableString
+
+            movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 
-    private fun connect() {
+    override fun done(): Boolean {
         val email = fragment_login_missing_credentials_email.text.toString().trim()
         val password = fragment_login_missing_credentials_password.text.toString()
 
@@ -129,67 +158,66 @@ class CredentialsMissingFragment : LoginBaseFragment(R.layout.fragment_login_mis
         val firstName = fragment_login_missing_credentials_first_name.text.toString().trim()
         val surname = fragment_login_missing_credentials_surname.text.toString().trim()
 
-        var somethingWrong = false
+        var done = true
 
-        if (passwordConfirm.isNotEmpty()) {
-            if (password != passwordConfirm) {
-                fragment_login_missing_credentials_password_layout.error = getString(
-                    R.string.login_password_confirmation_error_match
-                )
-                somethingWrong = true
-            }
-            if (firstName.isEmpty()) {
-                fragment_login_missing_credentials_first_name_layout.error = getString(
-                    R.string.login_first_name_error_empty
-                )
-                somethingWrong = true
-            }
-            if (surname.isEmpty()) {
-                fragment_login_missing_credentials_surname_layout.error = getString(
-                    R.string.login_surname_error_empty
-                )
-                somethingWrong = true
-            }
+        if (password != passwordConfirm && fragment_login_missing_credentials_password_confirmation_layout.isVisible) {
+            fragment_login_missing_credentials_password_layout.setError(R.string.login_password_confirmation_error_match)
+            fragment_login_missing_credentials_password_confirmation_layout.setError(
+                R.string.login_password_confirmation_error_match
+            )
+            done = false
+        }
+        if (firstName.isEmpty() && fragment_login_missing_credentials_first_name_layout.isVisible) {
+            fragment_login_missing_credentials_first_name_layout.setError(
+                R.string.login_first_name_error_empty
+            )
+            done = false
+        }
+        if (surname.isEmpty() && fragment_login_missing_credentials_surname_layout.isVisible) {
+            fragment_login_missing_credentials_surname_layout.setError(
+                R.string.login_surname_error_empty
+            )
+            done = false
         }
 
         if (email.isEmpty()) {
-            fragment_login_missing_credentials_email_layout.error = getString(
+            fragment_login_missing_credentials_email_layout.setError(
                 R.string.login_email_error_empty
             )
-            somethingWrong = true
+            done = false
         } else {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                fragment_login_missing_credentials_email_layout.error = getString(
+                fragment_login_missing_credentials_email_layout.setError(
                     R.string.login_email_error_invalid
                 )
-                somethingWrong = true
+                done = false
             }
         }
 
         if (password.isEmpty()) {
-            fragment_login_missing_credentials_password_layout.error = getString(
+            fragment_login_missing_credentials_password_layout.setError(
                 R.string.login_password_error_empty
             )
-            somethingWrong = true
+            done = false
         }
 
         if (!fragment_login_missing_credentials_terms_and_conditions.isChecked) {
-            somethingWrong = true
+            done = false
             fragment_login_missing_credentials_terms_and_conditions.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.tazRed)
             )
         }
 
-        if (somethingWrong) {
-            return
-        } else {
-            viewModel.connect(
-                username = email,
-                password = password,
-                firstName = firstName,
-                surname = surname
-            )
-        }
+        viewModel.username = email
+        viewModel.password = password
+        viewModel.firstName = firstName
+        viewModel.surName = surname
+
+        return done
+    }
+
+    override fun next() {
+        viewModel.connect()
     }
 
     private fun showTermsAndConditions() {

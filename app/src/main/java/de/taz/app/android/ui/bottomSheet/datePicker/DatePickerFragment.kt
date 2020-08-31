@@ -31,13 +31,13 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private val log by Log
 
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
-    private var feed: Feed? = null
 
     private var apiService: ApiService? = null
     private var feedRepository: FeedRepository? = null
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
     private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
+    private var authHelper: AuthHelper? = null
 
     companion object {
         fun create(
@@ -57,6 +57,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -75,15 +76,17 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         log.debug("created a new date picker")
         super.onViewCreated(view, savedInstanceState)
 
-
         //minDate and maxDate constraints. UX is somewhat whack..
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            feed = feedRepository?.get("taz")
-            feed?.let { feed ->
-                log.debug("minDate is ${feed.issueMinDate}")
-                DateHelper.stringToLong(feed.issueMinDate)?.let {
+            val minDate = feedRepository?.getAll()?.fold(null) {acc: String?, feed ->
+                if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
+            }
+
+            if(!minDate.isNullOrBlank()) {
+                log.debug("minDate is $minDate")
+                DateHelper.stringToLong(minDate)?.let {
                     withContext(Dispatchers.Main) {
                         fragment_bottom_sheet_date_picker.minDate = it
                     }
@@ -124,7 +127,11 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            val issueStub = issueRepository?.getLatestIssueStubByDate(date)
+            val issueStub = if(authHelper?.isLoggedIn() == true) {
+                issueRepository?.getLatestRegularIssueStubByDate(date)
+            } else {
+                issueRepository?.getLatestIssueStubByDate(date)
+            }
             if (issueStub != null && (issueStub.date == date ||
                         DateHelper.dayDelta(issueStub.date, date).toInt() == 1 &&
                         issueStub.isWeekend)
@@ -136,16 +143,14 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                     try {
                         val apiIssueList = apiService?.getIssuesByDate(date, 1)
                         if (apiIssueList?.isNullOrEmpty() == false) {
-                            apiIssueList.first().let {
-                                issueRepository?.saveIfDoesNotExist(it)
-                            }
+                            issueRepository?.saveIfDoNotExist(apiIssueList)
 
                             val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
                             selectedIssueStub?.let {
                                 showIssue(it)
 
                                 toastHelper?.showToast(
-                                    "${getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
+                                    "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
                                 )
                                 toDownloadIssueHelper?.startMissingDownloads(
                                     it.date,
