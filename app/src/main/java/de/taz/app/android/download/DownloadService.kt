@@ -358,6 +358,7 @@ class DownloadService private constructor(val applicationContext: Context) {
      * cancel all running download jobs
      */
     suspend fun cancelDownloadsForTag(tag: String) {
+        log.debug("canceling downloads for tag: $tag")
         downloadList.removeAll(downloadList.filter { it.tag == tag })
         val jobsForTag = tagJobMap.remove(tag)
         jobsForTag?.forEach { it.cancelAndJoin() }
@@ -367,9 +368,11 @@ class DownloadService private constructor(val applicationContext: Context) {
      * cancel all issue downloads
      */
     suspend fun cancelIssueDownloads() {
+        log.debug("canceling all issue donwloads")
         IssueRepository.getInstance(applicationContext).getDownloadStartedIssueStubs().forEach {
             cancelDownloadsForTag(it.tag)
         }
+        log.debug("canceling all issue donwloads done")
     }
 
     /**
