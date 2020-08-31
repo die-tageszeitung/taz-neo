@@ -83,10 +83,15 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         CoroutineScope(Dispatchers.Main).launch {
             val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
             val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
-            if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
-                val minDate = feedRepository?.getAll()?.fold(null) { acc: String?, feed ->
-                    if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
-                }
+
+            val minDate: String? = withContext(Dispatchers.IO) {
+                return@withContext if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
+                    feedRepository.getAll().fold(null) { acc: String?, feed ->
+                        if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
+                    }
+                } else null
+            }
+            if (!minDate.isNullOrBlank()) {
                 dateToDownloadFromLiveData.setValue(
                     if (minDate < dateToDownloadFrom) {
                         dateToDownloadFrom
