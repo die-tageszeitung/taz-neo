@@ -223,6 +223,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
+                    currentDownloads.decrementAndGet()
+                    currentDownloadList.remove(download.fileName)
                 }
             }
         } catch (e: Exception) {
