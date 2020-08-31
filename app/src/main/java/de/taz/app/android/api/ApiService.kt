@@ -623,12 +623,12 @@ class ApiService private constructor(applicationContext: Context) {
             // inform sentry of malformed JSON response
             log.error("QraphQl-Error:\n", jee)
             Sentry.capture(ApiServiceException.WrongDataException())
-            toastHelper.showSomethingWentWrongToast()
+            toastHelper.showConnectionToServerFailedToast()
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
             log.error("QraphQl-Error:\n", npe)
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
-            toastHelper.showSomethingWentWrongToast()
+            toastHelper.showConnectionToServerFailedToast()
         }
         return null
     }
@@ -639,37 +639,39 @@ class ApiService private constructor(applicationContext: Context) {
             return block()
         } catch (eofe: EOFException) {
             log.debug("EOFException ${eofe.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (uhe: UnknownHostException) {
             log.debug("UnknownHostException ${uhe.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (ce: ConnectException) {
             log.debug("ConnectException ${ce.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (ste: SocketTimeoutException) {
             log.debug("SocketTimeoutException ${ste.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
             Sentry.capture(ApiServiceException.WrongDataException())
-            toastHelper.showSomethingWentWrongToast()
+            toastHelper.showConnectionToServerFailedToast()
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (se: SSLException) {
             log.debug("SSLException ${se.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         } catch (she: SSLHandshakeException) {
             log.debug("SSLHandshakeException ${she.localizedMessage}")
-            serverConnectionHelper.isDownloadServerReachable = false
+            serverConnectionHelper.isGraphQlServerReachable = false
         }
         return null
     }
 
     private suspend
     fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
-        if (serverConnectionHelper.isDownloadServerReachable) {
+        if (serverConnectionHelper.isGraphQlServerReachable) {
             continuation.resume(Unit)
         } else {
             log.debug("ApiCall $tag waiting")
