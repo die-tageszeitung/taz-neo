@@ -73,15 +73,16 @@ abstract class HomePageFragment(
 
     fun getNextIssueMoments(date: String) {
         if (!lastRequestDateIsRunning.getAndSet(true)) {
-            if (lastRequestedDate.isEmpty() || date < lastRequestedDate) {
-                log.debug("lastRequestedDate: $lastRequestedDate date: $date requested new issues")
+            log.debug("lastRequestedDate: $lastRequestedDate date: $date")
+            if (lastRequestedDate.isEmpty() || date <= lastRequestedDate) {
+                log.debug("lastRequestedDate: requested new issues")
 
                 val requestDate = DateHelper.stringToStringWithDelta(
                     date, -NUMBER_OF_REQUESTED_MOMENTS
                 ) ?: ""
 
-                toDownloadIssueHelper?.startMissingDownloads(requestDate, date)
                 lastRequestedDate = requestDate
+                toDownloadIssueHelper?.startMissingDownloads(requestDate, date)
             }
             lastRequestDateIsRunning.set(false)
         }
