@@ -9,7 +9,6 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
@@ -29,12 +28,16 @@ const val PREFERENCES_AUTH_TOKEN = "token"
  * Singleton handling authentication
  */
 @Mockable
-class AuthHelper private constructor(applicationContext: Context) : ViewModel() {
+class AuthHelper private constructor(val applicationContext: Context) : ViewModel() {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
-    private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val toastHelper
+        get() = ToastHelper.getInstance(applicationContext)
+    private val issueRepository
+        get() = IssueRepository.getInstance(applicationContext)
+    private val toDownloadIssueHelper
+        get() = ToDownloadIssueHelper.getInstance(applicationContext)
 
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
@@ -90,24 +93,33 @@ class AuthHelper private constructor(applicationContext: Context) : ViewModel() 
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 if (authStatus == AuthStatus.elapsed) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
-                    }
+                    cancelAndStartDownloadingPublicIssues()
                     toastHelper.showToast(R.string.toast_logout_elapsed)
                 }
                 if (authStatus == AuthStatus.notValid) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
-                    }
+                    cancelAndStartDownloadingPublicIssues()
                     toastHelper.showToast(R.string.toast_logout_invalid)
                 }
                 if (authStatus == AuthStatus.valid) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
+                        toDownloadIssueHelper.cancelDownloads()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                     }
                 }
             }
+        }
+    }
+
+    private fun cancelAndStartDownloadingPublicIssues() = CoroutineScope(Dispatchers.IO).launch {
+        toDownloadIssueHelper.cancelDownloads()
+        runIfNotNull(
+            issueRepository.getLatestIssue(),
+            issueRepository.getEarliestIssue()
+        ) { latest, earliest ->
+            toDownloadIssueHelper.startMissingDownloads(
+                earliest.date,
+                        latest.date
+            )
         }
     }
 
