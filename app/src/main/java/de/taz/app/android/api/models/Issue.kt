@@ -131,7 +131,7 @@ data class Issue(
             }
 
         // do not delete bookmarked files
-        ArticleRepository.getInstance().getBookmarkedArticleStubListForIssue(feedName, date, status).forEach {
+        ArticleRepository.getInstance().getBookmarkedArticleStubListForIssuesAtDate(feedName, date).forEach {
             filesToDelete.removeAll(it.getAllFiles())
         }
 
