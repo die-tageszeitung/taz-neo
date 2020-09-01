@@ -265,8 +265,19 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             if (isDisplayable == true) {
                 isDisplayableLiveData.removeObserver(this@DisplayableObserver)
                 lifecycleScope.launch(Dispatchers.IO) {
-                    displayable.getFilePath()?.let { filePath ->
-                        loadUrl(filePath)
+                    displayable.getFile()?.let { file ->
+                        if (file.exists()) {
+                            loadUrl("file://${file.absolutePath}")
+                        } else {
+                            displayable.download(context?.applicationContext)
+                            withContext(Dispatchers.Main) {
+                                displayable.isDownloadedLiveData(context?.applicationContext)
+                                    .observe(
+                                        this@WebViewFragment,
+                                        DisplayableObserver(displayable, isDisplayableLiveData)
+                                    )
+                            }
+                        }
                     }
                 }
             }
