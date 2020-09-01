@@ -179,22 +179,35 @@ class ArticleRepository private constructor(applicationContext: Context) :
         )
     }
 
+
     fun bookmarkArticle(article: Article) {
-        bookmarkArticle(ArticleStub(article))
+        bookmarkArticle(article.key)
     }
 
     fun bookmarkArticle(articleStub: ArticleStub) {
-        log.debug("bookmarked from article ${articleStub.articleFileName}")
-        appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = true))
+        bookmarkArticle(articleStub.articleFileName)
+    }
+
+    fun bookmarkArticle(articleName: String) {
+        log.debug("bookmarked from article $articleName")
+        getStub(articleName)?.copy(bookmarked = true)?.let {
+            appDatabase.articleDao().update(it)
+        }
     }
 
     fun debookmarkArticle(article: Article) {
-        debookmarkArticle(ArticleStub(article))
+        debookmarkArticle(article.key)
     }
 
     fun debookmarkArticle(articleStub: ArticleStub) {
-        log.debug("removed bookmark from article ${articleStub.articleFileName}")
-        appDatabase.articleDao().insertOrReplace(articleStub.copy(bookmarked = false))
+        debookmarkArticle(articleStub.articleFileName)
+    }
+
+    fun debookmarkArticle(articleName: String) {
+        log.debug("removed bookmark from article $articleName")
+        getStub(articleName)?.copy(bookmarked = false)?.let {
+            appDatabase.articleDao().update(it)
+        }
     }
 
     fun getBookmarkedArticles(): LiveData<List<Article>> =
