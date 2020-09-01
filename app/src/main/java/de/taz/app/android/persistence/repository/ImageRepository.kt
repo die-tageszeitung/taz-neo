@@ -10,14 +10,14 @@ import de.taz.app.android.util.SingletonHolder
 
 @Mockable
 class ImageRepository private constructor(
-    applicationContext: Context
+    val applicationContext: Context
 ) : RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<ImageRepository, Context>(::ImageRepository)
 
     fun save(image: Image) {
         appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
-        appDatabase.fileEntryDao().insertOrReplace(FileEntry(image))
+        FileEntryRepository.getInstance(applicationContext).save(FileEntry(image))
     }
 
     fun save(images: List<Image>) {
