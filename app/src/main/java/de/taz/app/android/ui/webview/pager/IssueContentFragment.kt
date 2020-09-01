@@ -165,7 +165,6 @@ class IssueContentFragment :
     private fun showImprint() {
         showSections = false
         getMainView()?.setActiveDrawerSection(RecyclerView.NO_POSITION)
-        showDefaultNavButton()
         showFragment(imprintFragment)
     }
 
