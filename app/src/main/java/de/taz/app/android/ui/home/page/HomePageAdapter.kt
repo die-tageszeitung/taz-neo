@@ -88,23 +88,32 @@ abstract class HomePageAdapter(
 
         // show regular issue if user is logged out only if downloaded else demo issue else public
         filteredIssueList.forEach { item ->
-            val issuesAtSameDate = filteredIssueList.filter {
-                item.date == it.date && item.feedName == it.feedName
-            }.toMutableList()
-            if (issuesAtSameDate.size > 1) {
-                issuesAtSameDate.firstOrNull {
-                    it.status == IssueStatus.regular && it.downloadedStatus in listOf(
-                        DownloadStatus.done,
-                        DownloadStatus.started
-                    )
-                }?.let { regularDownloaded ->
-                    mutableFilteredIssueList.removeAll(issuesAtSameDate.filter { it != regularDownloaded })
-                } ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.demo }?.let { demo ->
-                    mutableFilteredIssueList.removeAll(issuesAtSameDate.filter { it != demo })
-                } ?: mutableFilteredIssueList.removeAll { it.status != IssueStatus.public }
+            if (!(item.status == IssueStatus.regular && item.downloadedStatus in listOf(
+                    DownloadStatus.done,
+                    DownloadStatus.started
+                )
+                        )
+            ) {
+                val issuesAtSameDate = filteredIssueList.filter {
+                    item.date == it.date && item.feedName == it.feedName
+                }
+                if (issuesAtSameDate.size > 1) {
+                    issuesAtSameDate.firstOrNull {
+                        it.status == IssueStatus.regular && it.downloadedStatus in listOf(
+                            DownloadStatus.done,
+                            DownloadStatus.started
+                        )
+                    }?.let { mutableFilteredIssueList.remove(item) }
+                        ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.demo }?.let {
+                            mutableFilteredIssueList.remove(item)
+                        } ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.public }?.let {
+                            if(item.status == IssueStatus.regular && !authenticated) {
+                                mutableFilteredIssueList.remove(item)
+                            }
+                        }
+                }
             }
         }
-
         return mutableFilteredIssueList
     }
 
