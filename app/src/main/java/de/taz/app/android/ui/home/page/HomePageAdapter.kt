@@ -9,13 +9,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.util.Log
 import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
+import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
@@ -79,7 +76,7 @@ abstract class HomePageAdapter(
         }
     }
 
-    fun filterIssueStubs(): List<IssueStub> {
+    private fun filterIssueStubs(): List<IssueStub> {
         val authenticated = authStatus == AuthStatus.valid
 
         // do not show public issues if logged in
@@ -88,19 +85,35 @@ abstract class HomePageAdapter(
         }
 
         val mutableFilteredIssueList = filteredIssueList.toMutableList()
-        // only show regular issue if 2 exist
-        // i.e. when user is not logged in anymore but has issues from before
+
+        // show regular issue if user is logged out only if downloaded else demo issue else public
         filteredIssueList.forEach { item ->
-            val issuesAtSameDate = filteredIssueList.filter {
-                item.date == it.date && item.feedName == it.feedName
-            }
-            if (issuesAtSameDate.size > 1) {
-                mutableFilteredIssueList.removeAll(
-                    issuesAtSameDate.filter { it.status != IssueStatus.regular }
+            if (!(item.status == IssueStatus.regular && item.downloadedStatus in listOf(
+                    DownloadStatus.done,
+                    DownloadStatus.started
                 )
+                        )
+            ) {
+                val issuesAtSameDate = filteredIssueList.filter {
+                    item.date == it.date && item.feedName == it.feedName
+                }
+                if (issuesAtSameDate.size > 1) {
+                    issuesAtSameDate.firstOrNull {
+                        it.status == IssueStatus.regular && it.downloadedStatus in listOf(
+                            DownloadStatus.done,
+                            DownloadStatus.started
+                        )
+                    }?.let { mutableFilteredIssueList.remove(item) }
+                        ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.demo }?.let {
+                            mutableFilteredIssueList.remove(item)
+                        } ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.public }?.let {
+                            if(item.status == IssueStatus.regular && !authenticated) {
+                                mutableFilteredIssueList.remove(item)
+                            }
+                        }
+                }
             }
         }
-
         return mutableFilteredIssueList
     }
 
