@@ -213,6 +213,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         DownloadStatus.started
                     )
                 ) {
+                    fileEntry.setDownloadStatus(DownloadStatus.started)
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
 
                     val response = awaitCallback(
