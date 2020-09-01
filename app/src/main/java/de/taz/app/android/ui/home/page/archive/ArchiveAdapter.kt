@@ -6,7 +6,6 @@ import de.taz.app.android.R
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.moment.MomentView
-import kotlinx.coroutines.launch
 
 
 class ArchiveAdapter(
