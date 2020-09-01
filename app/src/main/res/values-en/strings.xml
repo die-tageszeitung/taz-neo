@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">taz neo</string>
+    <string name="app_name">taz</string>
     <string name="accept_button">Accept</string>
     <string name="close_button">Close</string>
     <string name="cancel_button">Cancel</string>
