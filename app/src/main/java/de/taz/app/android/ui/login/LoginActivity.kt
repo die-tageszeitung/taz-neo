@@ -417,23 +417,45 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        val articleIssue = getArticleIssue()?.also {
+        val articleIssue = getArticleIssue(article)?.also {
             issueRepository?.saveIfDoesNotExist(it)
         }
         val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
             issueRepository?.saveIfDoNotExist(it)
         }
-        runIfNotNull(lastIssues, articleIssue) { issues, issue ->
+        val bookmarkedMinDate: String =
+            articleRepository?.getBookmarkedArticleStubList()?.fold("") { acc, articleStub ->
+                getArticleIssue(articleStub.key)?.let { issue ->
+                    issueRepository?.saveIfDoesNotExist(issue)
+                    articleRepository?.apply {
+                        debookmarkArticle(articleStub)
+                        bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
+                    }
+                    if (acc == "" || issue.date < acc) {
+                        issue.date
+                    } else {
+                        acc
+                    }
+                } ?: ""
+            } ?: ""
+        val articleIssueDate = articleIssue?.date
+        val minDate = if (articleIssueDate != null && bookmarkedMinDate > articleIssueDate) {
+            articleIssueDate
+        } else {
+            bookmarkedMinDate
+        }
+        runIfNotNull(lastIssues, articleIssue)
+        { issues, issue ->
             toDownloadIssueHelper?.startMissingDownloads(
-                issue.date,
+                minDate,
                 issues.last().date
             )
         }
     }
 
-    private suspend fun getArticleIssue(): Issue? {
-        return article?.let { article ->
-            val section = sectionRepository?.getSectionStubForArticle(article)
+    private suspend fun getArticleIssue(articleFileName: String?): Issue? {
+        return articleFileName?.let {
+            val section = sectionRepository?.getSectionStubForArticle(articleFileName)
             section?.getIssueOperations(applicationContext)?.let { issueOperations ->
                 apiService?.getIssueByFeedAndDateAsync(
                     issueOperations.feedName, issueOperations.date
