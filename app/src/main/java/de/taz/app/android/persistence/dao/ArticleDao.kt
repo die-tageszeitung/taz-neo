@@ -72,4 +72,23 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
         issueStatus: IssueStatus
     ): List<ArticleStub>
 
+    @Query(
+        """SELECT Article.* FROM Article
+        INNER JOIN SectionArticleJoin
+        INNER JOIN IssueSectionJoin
+        WHERE IssueSectionJoin.issueFeedName == :issueFeedName
+            AND IssueSectionJoin.issueDate == :issueDate
+            AND IssueSectionJoin.issueStatus == :issueStatus
+            AND SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
+            AND Article.articleFileName == SectionArticleJoin.articleFileName
+            AND Article.bookmarked != 0 
+        ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
+    """
+    )
+    abstract fun getBookmarkedArticleStubListForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<ArticleStub>
+
 }

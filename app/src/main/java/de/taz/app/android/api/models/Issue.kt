@@ -9,6 +9,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -128,6 +129,11 @@ data class Issue(
                     }
                 }
             }
+
+        // do not delete bookmarked files
+        ArticleRepository.getInstance().getBookmarkedArticleStubListForIssue(feedName, date, status).forEach {
+            filesToDelete.removeAll(it.getAllFiles())
+        }
 
         filesToDelete.forEach { it.deleteFile() }
 
