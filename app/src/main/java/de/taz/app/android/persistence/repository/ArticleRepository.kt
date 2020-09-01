@@ -330,13 +330,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
     }
 
-    fun getBookmarkedArticleStubListForIssue(
+    fun getBookmarkedArticleStubListForIssuesAtDate(
         issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
+        issueDate: String
     ): List<ArticleStub> {
         return appDatabase.articleDao()
-            .getBookmarkedArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
+            .getBookmarkedArticleStubListForIssue(issueFeedName, issueDate)
     }
 
 }
