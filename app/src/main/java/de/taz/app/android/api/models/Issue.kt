@@ -66,7 +66,7 @@ data class Issue(
     }
 
     override fun getAllLocalFileNames(): List<String> {
-        val files = mutableListOf(moment.getAllLocalFileNames())
+        val files = mutableListOf<List<String>>()
         imprint?.let {
             files.add(imprint.getAllLocalFileNames())
         }
@@ -147,6 +147,7 @@ data class Issue(
         withContext(Dispatchers.IO) {
             DownloadService.getInstance(applicationContext).cancelDownloadsForTag(tag)
             deleteFiles()
+            moment.deleteFiles()
             try {
                 val issue =
                     ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
