@@ -108,26 +108,15 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             articleName?.let {
                 if (it.startsWith("section.")) {
                     val sectionImages = SectionRepository.getInstance().imagesForSectionStub(it)
-                    val image = sectionImages.firstOrNull { image ->
-                        image.name == imageName?.replace(
-                            "norm",
-                            "high"
-                        )
-                    } ?: sectionImages.firstOrNull { image ->
-                        image.name == imageName
-                                && image.downloadedStatus != DownloadStatus.done
+                    sectionImages.filter { image ->
+                        image.downloadedStatus != DownloadStatus.done
                     }
-                    image?.let { listOf(image) }
                 } else {
                     val articleImages = ArticleRepository.getInstance().getImagesForArticle(it)
-                    val highRes =
-                        articleImages.filter { image ->
-                            image.resolution == ImageResolution.high
-                                    && image.downloadedStatus != DownloadStatus.done
-                        }
-                    highRes
+                    articleImages.filter { image ->
+                        image.downloadedStatus != DownloadStatus.done
                     }
-
+                }
             } ?: emptyList()
         }
 
