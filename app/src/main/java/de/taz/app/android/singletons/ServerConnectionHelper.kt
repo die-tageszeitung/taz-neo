@@ -59,7 +59,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
         set(value) {
             if (!value) {
                 if (isGraphQlServerReachableLiveData.value != value
-                    && isDownloadServerReachableLastChecked < Date().time - DEFAULT_CONNECTION_CHECK_INTERVAL
+                    && isGraphQlServerReachableLastChecked < Date().time - DEFAULT_CONNECTION_CHECK_INTERVAL
                 ) {
                     isGraphQlServerReachableLiveData.postValue(value)
                 }
@@ -140,7 +140,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                     if (wrapperDto?.errors?.isEmpty() == true) {
                         log.debug("graph ql server reached")
                         withContext(Dispatchers.Main) {
-                            isGraphQlServerReachableLiveData.value = isGraphQlServerReachable
+                            isGraphQlServerReachableLiveData.value = true
                         }
                         isGraphQlServerReachableLastChecked = Date().time
                         backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
