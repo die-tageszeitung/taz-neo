@@ -20,8 +20,11 @@ class FileEntryRepository private constructor(
     fun save(fileEntry: FileEntry) {
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
         fromDB?.let {
-            if (fromDB.moTime < fileEntry.moTime)
-                appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+            if (fromDB.moTime < fileEntry.moTime) {
+                appDatabase.fileEntryDao().insertOrReplace(fileEntry.copy(
+                    downloadedStatus = fromDB.downloadedStatus
+                ))
+            }
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
