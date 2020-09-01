@@ -149,8 +149,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 val currentPosition: Int =
                     (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
                 if (position > 0) {
-                    if (position != currentPosition) {
-                        fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+                    viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+                        if (position != currentPosition) {
+                            setCurrentItem(adapter?.getItem(position))
+                            fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+                            snapHelper.scrollToPosition(position)
+                        }
                     }
                     return@runIfNotNull true
                 } else if (position == 0) {
@@ -162,7 +166,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         } ?: false
     }
 
-    fun skipToItem(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+    private fun skipToItem(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         this.issueFeedname = issueFeedName
         this.issueDate = issueDate
         this.issueStatus = issueStatus
