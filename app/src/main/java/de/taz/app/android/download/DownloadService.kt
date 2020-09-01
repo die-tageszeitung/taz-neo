@@ -506,4 +506,9 @@ class DownloadService private constructor(val applicationContext: Context) {
             fromDB
         }
     }
+
+    fun isDownloading(): Boolean {
+        return currentDownloads.get() > 0
+    }
+
 }
