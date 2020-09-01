@@ -178,6 +178,7 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    implementation 'androidx.autofill:autofill:1.0.0'
 
     implementation "androidx.paging:paging-runtime:3.0.0-alpha07"
 
