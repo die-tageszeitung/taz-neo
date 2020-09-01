@@ -417,11 +417,11 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     }
 
     private suspend fun downloadLatestIssueMoments() {
-        val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
-            issueRepository?.saveIfDoNotExist(it)
-        }
         val articleIssue = getArticleIssue()?.also {
             issueRepository?.saveIfDoesNotExist(it)
+        }
+        val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
+            issueRepository?.saveIfDoNotExist(it)
         }
         runIfNotNull(lastIssues, articleIssue) { issues, issue ->
             toDownloadIssueHelper?.startMissingDownloads(

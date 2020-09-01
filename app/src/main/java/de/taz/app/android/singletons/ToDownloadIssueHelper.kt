@@ -3,6 +3,7 @@ package de.taz.app.android.singletons
 import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -26,9 +27,12 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
+    private val downloadService = DownloadService.getInstance(applicationContext)
+
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
     )
+
     private val lastDownloadedDateLiveData =
         SharedPreferenceStringLiveData(prefs, LAST_DOWNLOADED_DATE, "")
     private val dateToDownloadFromLiveData =
@@ -54,18 +58,22 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                             lastDownloadedDateLiveData.value ?: ""
                         ).toInt() > 0
                     ) {
-                        try {
-                            val missingIssues =
-                                apiService.getIssuesByDateAsync(
-                                    lastDownloadedDateLiveData.value ?: ""
-                                ).await()
-                            issueRepository.saveIfDoNotExist(missingIssues)
-                            withContext(Dispatchers.Main) {
-                                lastDownloadedDateLiveData.setValue(missingIssues.last().date)
+                        if (downloadService.isDownloading()) {
+                            delay(1000)
+                        } else {
+                            try {
+                                val missingIssues =
+                                    apiService.getIssuesByDateAsync(
+                                        lastDownloadedDateLiveData.value ?: ""
+                                    ).await()
+                                issueRepository.saveIfDoNotExist(missingIssues)
+                                withContext(Dispatchers.Main) {
+                                    lastDownloadedDateLiveData.setValue(missingIssues.last().date)
+                                }
+                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                                log.warn("$e")
+                                break
                             }
-                        } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                            log.warn("$e")
-                            break
                         }
                     }
                 } finally {
