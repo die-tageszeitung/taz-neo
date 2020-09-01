@@ -49,11 +49,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         viewPager2.adapter = pagerAdapter
 
         lifecycleScope.launch(Dispatchers.IO) {
-            availableImageList = getOfflineAvailableImageList(displayableName) as MutableList<Image>
+            setImages()
             runOnUiThread {
                 viewPager2.setCurrentItem(getPosition(imageName), false)
             }
-            toDownloadImageList = getToDownloadImageList(displayableName)
             withContext(Dispatchers.Main) {
                 toDownloadImageList.forEach { img ->
                     img.download(applicationContext)
@@ -67,58 +66,30 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         }
     }
 
-    private suspend fun getOfflineAvailableImageList(articleName: String?): List<Image>? =
-        withContext(Dispatchers.IO) {
-            articleName?.let { displayableName ->
-                if (displayableName.startsWith("section.")) {
-                    val sectionImages = SectionRepository.getInstance().imagesForSectionStub(displayableName)
-                    val image = sectionImages
-                        .filter { it.downloadedStatus == DownloadStatus.done }
-                        .firstOrNull { image ->
-                            image.name == imageName?.replace(
-                                "norm",
-                                "high"
-                            )
-                        } ?: sectionImages.firstOrNull { image ->
-                            image.name == imageName
-                    }
-                    image?.let { listOf(image) }
-                } else {
-                    val articleImages = ArticleRepository.getInstance().getImagesForArticle(displayableName)
-                    articleImages
-                        .filter { it.downloadedStatus == DownloadStatus.done }
-                        .map { img ->
-                            articleImages
-                                .filter { highRes ->
-                                    highRes.resolution == ImageResolution.high
-                                    highRes.downloadedStatus == DownloadStatus.done
-                                }
-                                .firstOrNull { highResImage ->
-                                    highResImage.name == img.name.replace(
-                                        "norm",
-                                        "high"
-                                    )
-                                } ?: img
-                        }
-                }
+    private suspend fun setImages() = withContext(Dispatchers.IO) {
+        displayableName?.let { displayableName ->
+            val allImages = if (displayableName.startsWith("section.")) {
+                SectionRepository.getInstance().imagesForSectionStub(displayableName)
+            } else {
+                ArticleRepository.getInstance().getImagesForArticle(displayableName)
             }
+
+            val downloadedImages =
+                allImages.filter { it.downloadedStatus == DownloadStatus.done }.toMutableList()
+            val imagesToDownload = allImages.toMutableList()
+            imagesToDownload.removeAll(downloadedImages)
+
+            downloadedImages.removeAll { image ->
+                val name = image.name
+                name.contains("norm.")
+                        && downloadedImages.firstOrNull {
+                    it.name == name.replace("norm.", "high.")
+                } != null
+            }
+            availableImageList = downloadedImages
+            toDownloadImageList = imagesToDownload
         }
-    private suspend fun getToDownloadImageList(articleName: String?): List<Image> =
-        withContext(Dispatchers.IO) {
-            articleName?.let {
-                if (it.startsWith("section.")) {
-                    val sectionImages = SectionRepository.getInstance().imagesForSectionStub(it)
-                    sectionImages.filter { image ->
-                        image.downloadedStatus != DownloadStatus.done
-                    }
-                } else {
-                    val articleImages = ArticleRepository.getInstance().getImagesForArticle(it)
-                    articleImages.filter { image ->
-                        image.downloadedStatus != DownloadStatus.done
-                    }
-                }
-            } ?: emptyList()
-        }
+    }
 
     private fun getPosition(imageName: String?): Int {
         val highResPosition =
