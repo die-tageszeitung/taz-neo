@@ -37,6 +37,11 @@ class ImprintFragment :
         super.onCreate(savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+        showDefaultNavButton()
+    }
+
     override fun setHeader(displayable: ArticleStub) {
         lifecycleScope.launch(Dispatchers.IO) {
 
