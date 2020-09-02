@@ -68,7 +68,8 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val httpClient = OkHttp.client
 
-    private val downloadList = ConcurrentLinkedDeque<Download>()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val downloadList = ConcurrentLinkedDeque<Download>()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val currentDownloads = AtomicInteger(0)
@@ -165,13 +166,19 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
+    private fun startDownloadsIfCapacity() {
+        while(serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+            startDownloadIfCapacity()
+        }
+    }
 
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
      * and the server is reachable
      */
-    private fun startDownloadsIfCapacity() {
-        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun startDownloadIfCapacity(): Job? {
+        if(serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)
@@ -180,20 +187,31 @@ class DownloadService private constructor(val applicationContext: Context) {
                         val start = DateHelper.now
                         log.info("download ${download.fileName} started")
                         log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                        startDownloadsIfCapacity()
+                        startDownloadIfCapacity()
                     }
                     download.tag?.let { tag ->
                         val jobsForTag = tagJobMap.getOrPut(tag) { ConcurrentLinkedQueue<Job>() }
                         jobsForTag.add(job)
                         tagJobMap[download.tag] = jobsForTag
                     }
-                    job.invokeOnCompletion {
+                    job.invokeOnCompletion { cause ->
+                        if (cause is CancellationException) {
+                            DownloadService.log.info("download of ${download.fileName} has been canceled")
+                            // cancellation was requested by program so do not retry
+                            download.file.setDownloadStatus(DownloadStatus.pending)
+                            downloadRepository.setStatus(download, DownloadStatus.pending)
+                            currentDownloads.decrementAndGet()
+                            currentDownloadList.remove(download.fileName)
+                        }
                         download.tag?.let { tagJobMap[it]?.remove(job) }
                     }
+                    return job
                 }
-            } ?: break
+            }
+        } else {
+            currentDownloads.decrementAndGet()
         }
-        currentDownloads.decrementAndGet()
+        return null
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -215,7 +233,7 @@ class DownloadService private constructor(val applicationContext: Context) {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
-                if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
+                if (fromDB.lastSha256 != fileEntry.sha256 && fromDB.status !in arrayOf(
                         DownloadStatus.done,
                         DownloadStatus.started
                     )
@@ -231,6 +249,8 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
+                    download.file.setDownloadStatus(DownloadStatus.done)
+                    downloadRepository.setStatus(download, DownloadStatus.done)
                     currentDownloads.decrementAndGet()
                     currentDownloadList.remove(download.fileName)
                 }
@@ -250,14 +270,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                 is SocketTimeoutException -> {
                     abortAndRetryDownload(download, doNotRestartDownload)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
-                }
-                is CancellationException -> {
-                    DownloadService.log.info("download of ${download.fileName} has been canceled")
-                    // cancellation was requested by program so do not retry
-                    download.file.setDownloadStatus(DownloadStatus.pending)
-                    downloadRepository.setStatus(download, DownloadStatus.pending)
-                    currentDownloads.decrementAndGet()
-                    currentDownloadList.remove(download.fileName)
                 }
                 else -> {
                     DownloadService.log.warn("unknown error occurred - ${download.fileName}")
@@ -467,7 +479,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun appendToDownloadList(download: Download) {
         if (!currentDownloadList.contains(download.fileName) && !downloadList.contains(download)) {
             if (downloadList.offerLast(download)) {
-                startDownloadsIfCapacity()
+                startDownloadIfCapacity()
             }
         }
     }
@@ -476,7 +488,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         if (!currentDownloadList.contains(download.fileName)) {
             downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
             if (downloadList.offerFirst(download)) {
-                startDownloadsIfCapacity()
+                startDownloadIfCapacity()
             }
         }
     }

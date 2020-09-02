@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import junit.framework.TestCase.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.Protocol
 import okhttp3.mockwebserver.MockResponse
@@ -213,7 +214,7 @@ class DownloadServiceTest {
         val mockFileEntry =
             FileEntry(TEST_FILE_NAME, StorageType.issue, 0, "", 0, "bla", DownloadStatus.pending)
         val mockDownload =
-            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending, "tag")
 
         fileEntryRepository.saveOrReplace(mockFileEntry)
         downloadRepository.save(mockDownload)
@@ -224,14 +225,13 @@ class DownloadServiceTest {
             .setBody(TEST_STRING)
         mockServer.enqueue(mockResponse)
 
-        downloadService.currentDownloads.incrementAndGet()
+        downloadService.downloadList.add(mockDownload)
         runBlocking {
-            val job = launch {
-                downloadService.getFromServer(
-                    downloadRepository.get(TEST_FILE_NAME)!!, true)
-            }
-            delay(10)
-            job.cancel()
+            launch {
+                val job = downloadService.startDownloadIfCapacity()
+                downloadService.cancelDownloadsForTag("tag")
+                job?.join()
+            }.join()
         }
         assertEquals(DownloadStatus.pending, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(0, downloadService.currentDownloads.get())
@@ -260,8 +260,71 @@ class DownloadServiceTest {
         downloadService.getFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(
+            DownloadStatus.aborted,
+            fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus
+        )
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
 
+    @Test
+    fun downloadAlreadyDownloadedFileEntry() {
+        val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
+        val mockFileEntry = FileEntry(
+            TEST_FILE_NAME,
+            StorageType.issue,
+            0,
+            mockFileSha,
+            0,
+            "bla",
+            DownloadStatus.done
+        )
+        val mockDownload =
+            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+
+        fileEntryRepository.saveOrReplace(mockFileEntry)
+        downloadRepository.save(mockDownload)
+
+        downloadService.currentDownloads.incrementAndGet()
+        downloadService.getFromServer(TEST_FILE_NAME)
+
+        assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(0, downloadService.currentDownloads.get())
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+    }
+
+    @Test
+    fun downloadWithLastSHA256Matching() {
+        val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
+        val mockFileEntry = FileEntry(
+            TEST_FILE_NAME,
+            StorageType.issue,
+            0,
+            mockFileSha,
+            0,
+            "bla",
+            DownloadStatus.pending
+        )
+        val mockDownload =
+            Download(
+                mockServer.url("").toString(),
+                mockFileEntry,
+                DownloadStatus.pending,
+                null,
+                mockFileSha
+            )
+
+        fileEntryRepository.saveOrReplace(mockFileEntry)
+        downloadRepository.save(mockDownload)
+
+        downloadService.currentDownloads.incrementAndGet()
+        downloadService.getFromServer(TEST_FILE_NAME)
+
+        assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(0, downloadService.currentDownloads.get())
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+    }
 }
