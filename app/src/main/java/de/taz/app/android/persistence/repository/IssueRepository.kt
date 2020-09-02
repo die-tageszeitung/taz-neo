@@ -497,7 +497,9 @@ class IssueRepository private constructor(val applicationContext: Context) :
                     sectionList.forEach { section ->
                         section.setDownloadStatus(downloadStatus)
                         section.articleList.forEach { article ->
-                            article.setDownloadStatus(downloadStatus)
+                            if(!(downloadStatus == DownloadStatus.pending && article.bookmarked)) {
+                                article.setDownloadStatus(downloadStatus)
+                            }
                         }
                     }
                     imprint?.setDownloadStatus(downloadStatus)
