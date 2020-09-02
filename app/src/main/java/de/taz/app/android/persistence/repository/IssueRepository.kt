@@ -504,7 +504,6 @@ class IssueRepository private constructor(val applicationContext: Context) :
                     }
                     imprint?.setDownloadStatus(downloadStatus)
                     pageList.forEach { it.setDownloadStatus(downloadStatus) }
-                    moment.setDownloadStatus(downloadStatus)
                 }
             }
         }

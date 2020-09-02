@@ -12,6 +12,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -52,7 +53,7 @@ data class Issue(
     )
 
     override fun getAllFileNames(): List<String> {
-        val files = mutableListOf(moment.getAllFileNames())
+        val files = mutableListOf<List<String>>()
         imprint?.let {
             files.add(imprint.getAllFileNames())
         }
@@ -66,7 +67,7 @@ data class Issue(
     }
 
     override fun getAllLocalFileNames(): List<String> {
-        val files = mutableListOf(moment.getAllLocalFileNames())
+        val files = mutableListOf<List<String>>()
         imprint?.let {
             files.add(imprint.getAllLocalFileNames())
         }
@@ -152,6 +153,7 @@ data class Issue(
         withContext(Dispatchers.IO) {
             DownloadService.getInstance(applicationContext).cancelDownloadsForTag(tag)
             deleteFiles()
+            moment.deleteFiles()
             try {
                 val issue =
                     ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
@@ -194,6 +196,11 @@ data class Issue(
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
         return IssueRepository.getInstance(applicationContext)
             .getStub(this)?.downloadedStatus
+    }
+
+    override fun download(applicationContext: Context?): Job {
+        moment.download(applicationContext)
+        return super.download(applicationContext)
     }
 
 }
