@@ -104,8 +104,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 // if we download an issue tell the server we start downloading it
                 issue?.let {
                     downloadId =
-                        apiService.notifyServerOfDownloadStartAsync(issue.feedName, issue.date)
-                            .await()
+                        apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
                     issueRepository.setDownloadDate(it, Date())
                     redoJob = launch {
                         // check if metadata has changed and update db and restart download

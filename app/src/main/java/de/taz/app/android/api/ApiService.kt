@@ -349,7 +349,8 @@ class ApiService private constructor(applicationContext: Context) {
         return transformExceptions({
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
-            )?.data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+            )?.data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+                ?: emptyList()
         }, tag) ?: emptyList()
     }
 
@@ -386,6 +387,31 @@ class ApiService private constructor(applicationContext: Context) {
             log.debug("Notified server that download started. ID: $id")
             id
         }
+    }
+
+    /**
+     * function to inform server of started download
+     * @param feedName name of the feed the download is started for
+     * @param issueDate the date of the issue that is being downloaded
+     * @return [String] the id of the download
+     */
+    suspend fun notifyServerOfDownloadStart(
+        feedName: String,
+        issueDate: String
+    ): String? {
+        val tag = "notifyServerOfDownloadStart"
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.DownloadStart,
+                DownloadStartVariables(
+                    feedName,
+                    issueDate
+                )
+            )?.data?.downloadStart?.let { id ->
+                log.debug("Notified server that download started. ID: $id")
+                id
+            }
+        }, tag)
     }
 
     /**
