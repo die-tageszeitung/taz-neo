@@ -166,28 +166,22 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
-    private fun startDownloadsIfCapacity() {
-        while(serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
-            startDownloadIfCapacity()
-        }
-    }
-
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
      * and the server is reachable
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun startDownloadIfCapacity(): Job? {
-        if(serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
+    private fun startDownloadsIfCapacity(): Job? {
+        while(serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
+                    currentDownloads.incrementAndGet()
                     currentDownloadList.offer(download.fileName)
                     val job = CoroutineScope(Dispatchers.IO).launch {
                         getFromServer(download)
                         val start = DateHelper.now
                         log.info("download ${download.fileName} started")
                         log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
-                        startDownloadIfCapacity()
+                        startDownloadsIfCapacity()
                     }
                     download.tag?.let { tag ->
                         val jobsForTag = tagJobMap.getOrPut(tag) { ConcurrentLinkedQueue<Job>() }
@@ -207,9 +201,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     }
                     return job
                 }
-            }
-        } else {
-            currentDownloads.decrementAndGet()
+            } ?: break
         }
         return null
     }
@@ -479,7 +471,7 @@ class DownloadService private constructor(val applicationContext: Context) {
     private fun appendToDownloadList(download: Download) {
         if (!currentDownloadList.contains(download.fileName) && !downloadList.contains(download)) {
             if (downloadList.offerLast(download)) {
-                startDownloadIfCapacity()
+                startDownloadsIfCapacity()
             }
         }
     }
@@ -488,7 +480,7 @@ class DownloadService private constructor(val applicationContext: Context) {
         if (!currentDownloadList.contains(download.fileName)) {
             downloadList.removeAll(downloadList.filter { it.fileName == download.fileName })
             if (downloadList.offerFirst(download)) {
-                startDownloadIfCapacity()
+                startDownloadsIfCapacity()
             }
         }
     }
