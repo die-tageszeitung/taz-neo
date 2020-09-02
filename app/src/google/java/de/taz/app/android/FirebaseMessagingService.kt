@@ -85,7 +85,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun downloadNewestIssue() = CoroutineScope(Dispatchers.IO).launch {
-        apiService.getLastIssues(1).firstOrNull()?.let { issue ->
+        apiService.getLastIssuesAsync(1).await().firstOrNull()?.let { issue ->
             issueRepository.saveIfDoesNotExist(issue)
             val downloadPreferences =
                 applicationContext.getSharedPreferences(
