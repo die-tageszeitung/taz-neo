@@ -349,7 +349,8 @@ class ApiService private constructor(applicationContext: Context) {
         return transformExceptions({
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
-            )?.data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+            )?.data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+                ?: emptyList()
         }, tag) ?: emptyList()
     }
 
@@ -364,33 +365,35 @@ class ApiService private constructor(applicationContext: Context) {
             getDataDto(tag, QueryType.ResourceInfo).product?.let { ResourceInfo(it) }
         }
 
+
     /**
      * function to inform server of started download
      * @param feedName name of the feed the download is started for
      * @param issueDate the date of the issue that is being downloaded
      * @return [String] the id of the download
      */
-    suspend fun notifyServerOfDownloadStartAsync(
+    suspend fun notifyServerOfDownloadStart(
         feedName: String,
         issueDate: String
-    ): Deferred<String?> = CoroutineScope(Dispatchers.IO).async {
+    ): String? {
         val tag = "notifyServerOfDownloadStart"
-        getDataDto(
-            tag,
-            QueryType.DownloadStart,
-            DownloadStartVariables(
-                feedName,
-                issueDate
-            )
-        ).downloadStart?.let { id ->
-            log.debug("Notified server that download started. ID: $id")
-            id
-        }
+        return transformExceptions({
+            graphQlClient.query(
+                QueryType.DownloadStart,
+                DownloadStartVariables(
+                    feedName,
+                    issueDate
+                )
+            )?.data?.downloadStart?.let { id ->
+                log.debug("Notified server that download started. ID: $id")
+                id
+            }
+        }, tag)
     }
 
     /**
      * function to inform server of finished download
-     * @param id the id of the download received via [notifyServerOfDownloadStartAsync]
+     * @param id the id of the download received via [notifyServerOfDownloadStart]
      * @param time time in seconds needed for the download
      */
     suspend fun notifyServerOfDownloadStopAsync(
