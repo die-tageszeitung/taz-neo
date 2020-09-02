@@ -226,13 +226,14 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun deleteUnnecessaryIssues() {
-        val issueRepository = IssueRepository.getInstance(applicationContext)
+        // TODO implement deletion service
+/*        val issueRepository = IssueRepository.getInstance(applicationContext)
         if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
             log.debug("Deleting public Issues")
             issueRepository.deletePublicIssues()
         } else {
             issueRepository.deleteNotDownloadedRegularIssues()
-        }
+        }*/
     }
 
     private fun ensurePushTokenSent() {
