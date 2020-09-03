@@ -256,5 +256,7 @@
     <string name="login_surname_error_invalid">Contains only invalid symbols.</string>
     <string name="login_email_error_recheck">Check your account data.</string>
     <string name="account_holder_helper">If different of subscriber.</string>
+    <string name="toast_no_connection_to_server">Could not establish connection to server.</string>
+    <string name="order_with_costs_button">Order with costs</string>
 
 </resources>
