@@ -39,6 +39,7 @@ const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
 const val DATA_ISSUE_STATUS = "extra.issue.status"
 
 const val CONCURRENT_DOWNLOAD_LIMIT = 10
+const val SHA_EMPTY_STRING = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 @Mockable
 class DownloadService private constructor(val applicationContext: Context) {
@@ -67,10 +68,14 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     private val httpClient = OkHttp.client
 
-    private val downloadList = ConcurrentLinkedDeque<Download>()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val downloadList = ConcurrentLinkedDeque<Download>()
 
-    private val currentDownloads = AtomicInteger(0)
-    private val currentDownloadList = ConcurrentLinkedQueue<String>()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val currentDownloads = AtomicInteger(0)
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val currentDownloadList = ConcurrentLinkedQueue<String>()
 
     private val tagJobMap = ConcurrentHashMap<String, ConcurrentLinkedQueue<Job>>()
 
@@ -161,17 +166,22 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
+    private fun startDownloadsIfCapacity() {
+        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+            startDownloadIfCapacity() ?: break
+        }
+    }
 
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
      * and the server is reachable
      */
-    private fun startDownloadsIfCapacity() {
-        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun startDownloadIfCapacity(): Job? {
+        if (serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)
-                    currentDownloads.incrementAndGet()
                     val job = CoroutineScope(Dispatchers.IO).launch {
                         getFromServer(download)
                         val start = DateHelper.now
@@ -184,12 +194,23 @@ class DownloadService private constructor(val applicationContext: Context) {
                         jobsForTag.add(job)
                         tagJobMap[download.tag] = jobsForTag
                     }
-                    job.invokeOnCompletion {
+                    job.invokeOnCompletion { cause ->
+                        if (cause is CancellationException) {
+                            DownloadService.log.info("download of ${download.fileName} has been canceled")
+                            // cancellation was requested by program so do not retry
+                            download.file.setDownloadStatus(DownloadStatus.pending)
+                            downloadRepository.setStatus(download, DownloadStatus.pending)
+                            currentDownloads.decrementAndGet()
+                            currentDownloadList.remove(download.fileName)
+                        }
                         download.tag?.let { tagJobMap[it]?.remove(job) }
                     }
+                    return job
                 }
-            } ?: break
+            }
         }
+        currentDownloads.decrementAndGet()
+        return null
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -202,7 +223,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     /**
      * call server to get response
      */
-    private suspend fun getFromServer(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    suspend fun getFromServer(
         download: Download,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) doNotRestartDownload: Boolean = false
     ) {
@@ -210,10 +232,10 @@ class DownloadService private constructor(val applicationContext: Context) {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
-                if (fromDB.lastSha256 != fileEntry.sha256 || fromDB.status !in arrayOf(
+                if (!(fromDB.lastSha256 == fileEntry.sha256 || fromDB.status in arrayOf(
                         DownloadStatus.done,
                         DownloadStatus.started
-                    )
+                    ))
                 ) {
                     fileEntry.setDownloadStatus(DownloadStatus.started)
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
@@ -226,6 +248,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
+                    if(fromDB.lastSha256 == fileEntry.sha256) {
+                        download.file.setDownloadStatus(DownloadStatus.done)
+                        downloadRepository.setStatus(download, DownloadStatus.done)
+                    }
                     currentDownloads.decrementAndGet()
                     currentDownloadList.remove(download.fileName)
                 }
@@ -234,30 +260,25 @@ class DownloadService private constructor(val applicationContext: Context) {
             when (e) {
                 is UnknownHostException,
                 is ConnectionException,
-                is ConnectException
-                -> {
+                is ConnectException -> {
                     serverConnectionHelper.isDownloadServerReachable = false
-                    abortAndRetryDownload(download)
+                    abortAndRetryDownload(download, doNotRestartDownload)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
                 }
                 is SSLException,
                 is IOException,
                 is SSLHandshakeException,
                 is SocketTimeoutException -> {
-                    abortAndRetryDownload(download)
+                    abortAndRetryDownload(download, doNotRestartDownload)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
                 }
                 is CancellationException -> {
-                    DownloadService.log.info("download of ${download.fileName} has been canceled")
-                    // cancellation was requested by program so do not retry
-                    download.file.setDownloadStatus(DownloadStatus.pending)
-                    downloadRepository.setStatus(download, DownloadStatus.pending)
-                    currentDownloads.decrementAndGet()
-                    currentDownloadList.remove(download.fileName)
+                    // do nothing will be caught by invokeOnCompletion
+                    throw e
                 }
                 else -> {
                     DownloadService.log.warn("unknown error occurred - ${download.fileName}")
-                    abortAndRetryDownload(download)
+                    abortAndRetryDownload(download, doNotRestartDownload)
                     Sentry.capture(e)
                     throw e
                 }
@@ -274,21 +295,28 @@ class DownloadService private constructor(val applicationContext: Context) {
     ) {
         val fileEntry = download.file
         if (response.isSuccessful) {
-            response.body?.source()?.let { source ->
+            response.body?.let { body ->
                 // ensure folders are created
                 fileHelper.createFileDirs(fileEntry)
-                val sha256 = fileHelper.writeFile(fileEntry, source)
+                val sha256 = fileHelper.writeFile(fileEntry, body.source())
                 downloadRepository.saveLastSha256(download, sha256)
                 if (sha256 == fileEntry.sha256) {
                     downloadRepository.setStatus(download, DownloadStatus.done)
                     fileEntry.setDownloadStatus(DownloadStatus.done)
+                    currentDownloads.decrementAndGet()
+                    currentDownloadList.remove(download.fileName)
                 } else {
-                    log.warn("sha256 did NOT match the one of ${download.fileName}")
-                    fileEntry.setDownloadStatus(DownloadStatus.takeOld)
-                    downloadRepository.setStatus(download, DownloadStatus.takeOld)
+                    if (sha256 == SHA_EMPTY_STRING) {
+                        abortAndRetryDownload(download, doNotRestartDownload)
+                    } else {
+                        log.warn("sha256 did NOT match the one of ${download.fileName}")
+                        fileEntry.setDownloadStatus(DownloadStatus.takeOld)
+                        downloadRepository.setStatus(download, DownloadStatus.takeOld)
+                        currentDownloads.decrementAndGet()
+                        currentDownloadList.remove(download.fileName)
+                    }
                 }
-                currentDownloads.decrementAndGet()
-                currentDownloadList.remove(download.fileName)
+                body.close()
             } ?: run {
                 log.debug("aborted download of ${download.fileName} - file is empty")
                 abortAndRetryDownload(download, doNotRestartDownload)
@@ -373,11 +401,9 @@ class DownloadService private constructor(val applicationContext: Context) {
      * cancel all issue downloads
      */
     suspend fun cancelIssueDownloads() {
-        log.debug("canceling all issue donwloads")
         IssueRepository.getInstance(applicationContext).getDownloadStartedIssueStubs().forEach {
             cancelDownloadsForTag(it.tag)
         }
-        log.debug("canceling all issue donwloads done")
     }
 
     /**

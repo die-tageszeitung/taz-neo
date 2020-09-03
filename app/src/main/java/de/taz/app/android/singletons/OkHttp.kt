@@ -12,6 +12,7 @@ object OkHttp : ViewModel() {
     val client: OkHttpClient
 
     init {
+        // TODO reduce timeouts
         val builder = OkHttpClient
             .Builder()
             .retryOnConnectionFailure(true)
@@ -23,6 +24,9 @@ object OkHttp : ViewModel() {
         // disallow cleartext connections if not testing
         try {
             Class.forName("org.junit.Test")
+            builder.connectTimeout(2, TimeUnit.SECONDS)
+                .readTimeout(2, TimeUnit.SECONDS)
+                .writeTimeout(2, TimeUnit.SECONDS)
         } catch (e: ClassNotFoundException) {
             builder.connectionSpecs(listOf(ConnectionSpec.MODERN_TLS))
         }
