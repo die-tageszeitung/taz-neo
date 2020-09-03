@@ -87,6 +87,24 @@ class DownloadServiceTest {
     }
 
     @Test
+    fun startDownloadIfCapacityIfNoDownloads() {
+        runBlocking {
+            downloadService.startDownloadIfCapacity()
+        }
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+        assertEquals(0, downloadService.currentDownloads.get())
+    }
+
+    @Test
+    fun startDownloadsIfCapacityIfNoDownloads() {
+        runBlocking {
+            downloadService.startDownloadsIfCapacity()
+        }
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+        assertEquals(0, downloadService.currentDownloads.get())
+    }
+
+    @Test
     fun successDownloadOn200Response() {
         val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
         val mockFileEntry = FileEntry(
