@@ -166,10 +166,13 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
-    private fun startDownloadsIfCapacity() {
-        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun startDownloadsIfCapacity() {
+        log.debug("startDownloadsIfCapacity")
+        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
             startDownloadIfCapacity() ?: break
         }
+        log.debug("startDownloadsIfCapacity done")
     }
 
     /**
@@ -178,15 +181,14 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun startDownloadIfCapacity(): Job? {
+        log.debug("startDownloadIfCapacity")
         if (serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
                     currentDownloadList.offer(download.fileName)
                     val job = CoroutineScope(Dispatchers.IO).launch {
                         getFromServer(download)
-                        val start = DateHelper.now
                         log.info("download ${download.fileName} started")
-                        log.info("download ${download.fileName} completed - ${DateHelper.now - start}")
                         startDownloadsIfCapacity()
                     }
                     download.tag?.let { tag ->
@@ -248,7 +250,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
-                    if(fromDB.lastSha256 == fileEntry.sha256) {
+                    if (fromDB.lastSha256 == fileEntry.sha256) {
                         download.file.setDownloadStatus(DownloadStatus.done)
                         downloadRepository.setStatus(download, DownloadStatus.done)
                     }
@@ -455,6 +457,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                         if (!currentDownloadList.contains(download.fileName)
                             && !download.file.isDownloaded(applicationContext)
                         ) {
+                            log.debug("adding ${download.fileName} to downloadList")
                             // issues are not shown immediately - so download other downloads like articles first
                             if (cacheableDownload is Issue) {
                                 appendToDownloadList(download)

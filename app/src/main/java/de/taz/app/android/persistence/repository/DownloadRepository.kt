@@ -162,4 +162,7 @@ class DownloadRepository private constructor(applicationContext: Context) :
         return mediatorLiveData
     }
 
+    fun getAllStartedStubs(): List<DownloadStub> {
+        return appDatabase.downloadDao().getAllStarted()
+    }
 }
