@@ -373,7 +373,7 @@ class LoginViewModelTest {
     @Test
     fun pollNoPollEntry() = runBlocking {
         doReturn(noPollEntrySubscriptionInfo).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0).join()
+        loginViewModel.poll(LoginViewModelState.INITIAL, 0).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.POLLING_FAILED)
     }
 
@@ -390,7 +390,7 @@ class LoginViewModelTest {
     @Test
     fun pollWaitForMail() = runBlocking {
         doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0).join()
+        loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL,0).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
 
@@ -398,7 +398,7 @@ class LoginViewModelTest {
     fun pollWaitForProc() = runBlocking {
         doReturn(waitForProcSubscriptionInfo).doReturn(waitForProcSubscriptionInfo)
             .doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0, runBlocking = true).join()
+        loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL, 0, runBlocking = true).join()
 
         verify(apiService, times(3)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
@@ -407,7 +407,7 @@ class LoginViewModelTest {
     @Test
     fun pollNull() = runBlocking {
         doReturn(null).doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0, runBlocking = true).join()
+        loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL, 0, runBlocking = true).join()
         verify(apiService, times(2)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
@@ -417,7 +417,7 @@ class LoginViewModelTest {
         doThrow(ApiService.ApiServiceException.NoInternetException()).doReturn(
             waitForMailSubscriptionInfo
         ).`when`(apiService).subscriptionPoll()
-        loginViewModel.poll(0, runBlocking = true).join()
+        loginViewModel.poll(LoginViewModelState.INITIAL, 0, runBlocking = true).join()
         verify(apiService, times(2)).subscriptionPoll()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
         assertTrue(loginViewModel.noInternet.value == true)
