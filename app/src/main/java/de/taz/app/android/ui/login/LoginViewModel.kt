@@ -198,20 +198,20 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
+        register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials() {
-        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
+    fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+        register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
+        previousState: LoginViewModelState?,
         invalidMailState: LoginViewModelState
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
-            val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
             ioScope.launch {
                 handleRegistration(
@@ -581,8 +581,7 @@ class LoginViewModel(
         authHelper.email = username ?: ""
     }
 
-    fun getSubscription() {
-        val previousState = status.value
+    fun getSubscription(previousState: LoginViewModelState?) {
         status.postValue(LoginViewModelState.LOADING)
         ioScope.launch {
             try {
@@ -713,12 +712,12 @@ class LoginViewModel(
 
         if (price == 0) {
             if (createNewAccount || !validCredentials) {
-                getTrialSubscriptionForNewCredentials()
+                getTrialSubscriptionForNewCredentials(previousState)
             } else {
-                getTrialSubscriptionForExistingCredentials()
+                getTrialSubscriptionForExistingCredentials(previousState)
             }
         } else {
-            getSubscription()
+            getSubscription(previousState)
         }
     }
 }
