@@ -57,6 +57,7 @@
 
     <string name="register_button">Registrieren</string>
     <string name="order_button">Bestellen</string>
+    <string name="order_with_costs_button">kostenpflichtig Bestellen</string>
 
     <string name="archive">Archiv</string>
     <string name="feeds">Publikationen</string>
