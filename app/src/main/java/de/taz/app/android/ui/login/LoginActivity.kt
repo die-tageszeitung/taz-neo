@@ -395,7 +395,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
             lifecycleScope.launch(Dispatchers.IO) {
                 ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
                 DownloadService.getInstance(applicationContext).cancelIssueDownloads()
-                downloadLatestIssueMoments()
+                downloadNeededIssues()
                 article = article?.replace("public.", "")
 
                 article?.let {
@@ -416,7 +416,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         }
     }
 
-    private suspend fun downloadLatestIssueMoments() {
+    private suspend fun downloadNeededIssues() {
         val articleIssue = getArticleIssue(article)?.also {
             issueRepository?.saveIfDoesNotExist(it)
         }
@@ -439,17 +439,18 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 } ?: ""
             } ?: ""
         val articleIssueDate = articleIssue?.date
-        val minDate = if (articleIssueDate != null && bookmarkedMinDate > articleIssueDate) {
+        val minDate = if (!articleIssueDate.isNullOrBlank() && bookmarkedMinDate > articleIssueDate && bookmarkedMinDate.isNotBlank()) {
             articleIssueDate
         } else {
             bookmarkedMinDate
         }
-        runIfNotNull(lastIssues, articleIssue)
-        { issues, issue ->
-            toDownloadIssueHelper?.startMissingDownloads(
-                minDate,
-                issues.last().date
-            )
+        if(minDate != "") {
+            lastIssues?.let {
+                toDownloadIssueHelper?.startMissingDownloads(
+                    minDate,
+                    it.last().date
+                )
+            }
         }
     }
 
