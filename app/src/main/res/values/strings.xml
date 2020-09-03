@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">taz</string>
+    <string name="app_name">die tageszeitung</string>
     <string name="accept_button">Akzeptieren</string>
     <string name="close_button">Schließen</string>
     <string name="cancel_button">Abbrechen</string>
