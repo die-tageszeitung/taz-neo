@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
@@ -87,6 +88,13 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        getMainView()?.apply {
+            setDefaultDrawerNavButton()
+            setActiveDrawerSection(RecyclerView.NO_POSITION)
+        }
+    }
 
     fun enableRefresh() {
         coverflow_refresh_layout?.isEnabled = true
