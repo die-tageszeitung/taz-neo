@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
@@ -13,6 +15,7 @@ import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ImprintFragment
 import de.taz.app.android.util.runIfNotNull
@@ -152,6 +155,11 @@ class IssueContentFragment :
         }, { issueOperations ->
             issueOperations != null
         })
+
+        lifecycleScope.launchWhenResumed {
+            goToRegularIssueAfterLogin()
+        }
+
     }
 
     private fun showArticle(articleFileName: String? = null) {
@@ -216,7 +224,11 @@ class IssueContentFragment :
         }
     }
 
-    private fun getIssueStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+    private fun getIssueStub(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ) {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.issueOperationsLiveData.postValue(
                 IssueRepository.getInstance(context?.applicationContext).getStub(
@@ -238,7 +250,11 @@ class IssueContentFragment :
         }
     }
 
-    private fun getArticles(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) =
+    private fun getArticles(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ) =
         lifecycleScope.launch(Dispatchers.IO) {
             val articles = ArticleRepository.getInstance(context?.applicationContext)
                 .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
@@ -291,6 +307,41 @@ class IssueContentFragment :
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
             putBoolean(SHOW_SECTIONS, showSections)
+        }
+    }
+
+    private fun goToRegularIssueAfterLogin() {
+        if (issueStatus == IssueStatus.public) {
+            val authHelper = AuthHelper.getInstance(context?.applicationContext)
+            val apiService = ApiService.getInstance(context?.applicationContext)
+            val issueRepository = IssueRepository.getInstance(context?.applicationContext)
+
+            authHelper.authStatusLiveData.observe(viewLifecycleOwner) { authStatus ->
+                if (authStatus == AuthStatus.valid) {
+                    runIfNotNull(issueFeedName, issueDate) { feedName, date ->
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            apiService.getIssueByFeedAndDate(feedName, date)?.let {
+                                issueRepository.saveIfDoesNotExist(it)
+                                getMainView()?.switchToDisplayableAfterLogin(
+                                    getCurrentlyShownDisplayableKey()
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCurrentlyShownDisplayableKey(): String {
+        return if (showSections) {
+            viewModel.sectionList[
+                    sectionPagerFragment.viewModel.currentPosition
+            ].sectionFileName.replace("public.", "")
+        } else {
+            viewModel.articleList[
+                    articlePagerFragment.viewModel.currentPosition
+            ].articleFileName.replace("public.", "")
         }
     }
 
