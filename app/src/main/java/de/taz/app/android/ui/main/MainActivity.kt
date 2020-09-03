@@ -405,23 +405,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                sectionRepository?.getSectionStubForArticle(articleName)
-                                    ?.let { section ->
-                                        section.getIssueOperations(applicationContext)
-                                            ?.let { issueOperations ->
-                                                setDrawerIssue(issueOperations)
-                                                changeDrawerIssue()
-                                            }
-                                    }
-                            }
-
-                            // clear fragment backstack before showing article
-                            supportFragmentManager.popBackStackImmediate(
-                                null,
-                                FragmentManager.POP_BACK_STACK_INCLUSIVE
-                            )
-                            showDisplayable(articleName)
+                            switchToDisplayableAfterLogin(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -430,5 +414,26 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 }
             }
         }
+    }
+
+
+    fun switchToDisplayableAfterLogin(displayableName: String) = runOnUiThread {
+        lifecycleScope.launch(Dispatchers.IO) {
+            sectionRepository?.getSectionStubForArticle(displayableName)
+                ?.let { section ->
+                    section.getIssueOperations(applicationContext)
+                        ?.let { issueOperations ->
+                            setDrawerIssue(issueOperations)
+                            changeDrawerIssue()
+                        }
+                }
+        }
+
+        // clear fragment backstack before showing article
+        supportFragmentManager.popBackStackImmediate(
+            null,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+        showDisplayable(displayableName)
     }
 }
