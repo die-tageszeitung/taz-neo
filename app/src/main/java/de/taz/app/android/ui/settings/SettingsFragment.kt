@@ -165,6 +165,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        showDefaultNavButton()
+    }
+
     private fun showKeepIssuesDialog() {
         context?.let {
             val dialog = MaterialAlertDialogBuilder(it)
