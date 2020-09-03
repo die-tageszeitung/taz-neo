@@ -138,6 +138,7 @@ class SubscriptionAccountFragment :
                 )
             }
         } else {
+            fragment_subscription_account_proceed.setText(R.string.order_with_costs_button)
             fragment_subscription_account_comment_layout.visibility = View.VISIBLE
             if (fragment_subscription_account_password_confirm_layout.isVisible) {
                 fragment_subscription_account_password_confirm
