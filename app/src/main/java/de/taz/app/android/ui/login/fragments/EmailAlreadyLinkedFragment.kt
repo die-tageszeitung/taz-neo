@@ -15,7 +15,7 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment(R.layout.fragment_login_ema
             viewModel.apply {
                 username = ""
                 password = ""
-                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT)
+                activity?.onBackPressed()
             }
         }
         fragment_login_email_already_taken_contact_email.setOnClickListener {
