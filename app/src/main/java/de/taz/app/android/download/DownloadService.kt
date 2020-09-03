@@ -166,15 +166,21 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         }
 
+    private fun startDownloadsIfCapacity() {
+        while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+            startDownloadIfCapacity() ?: break
+        }
+    }
+
     /**
      * start downloads if there are less then [CONCURRENT_DOWNLOAD_LIMIT] downloads started atm
      * and the server is reachable
      */
-    private fun startDownloadsIfCapacity(): Job? {
-        while(serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun startDownloadIfCapacity(): Job? {
+        if (serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
-                    currentDownloads.incrementAndGet()
                     currentDownloadList.offer(download.fileName)
                     val job = CoroutineScope(Dispatchers.IO).launch {
                         getFromServer(download)
@@ -201,8 +207,9 @@ class DownloadService private constructor(val applicationContext: Context) {
                     }
                     return job
                 }
-            } ?: break
+            }
         }
+        currentDownloads.decrementAndGet()
         return null
     }
 
@@ -225,10 +232,10 @@ class DownloadService private constructor(val applicationContext: Context) {
             val fileEntry = download.file
             downloadRepository.getStub(download.fileName)?.let { fromDB ->
                 // download only if not already downloaded or downloading
-                if (fromDB.lastSha256 != fileEntry.sha256 && fromDB.status !in arrayOf(
+                if (!(fromDB.lastSha256 == fileEntry.sha256 || fromDB.status in arrayOf(
                         DownloadStatus.done,
                         DownloadStatus.started
-                    )
+                    ))
                 ) {
                     fileEntry.setDownloadStatus(DownloadStatus.started)
                     downloadRepository.setStatus(fromDB, DownloadStatus.started)
@@ -241,8 +248,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                     handleResponse(response, download, doNotRestartDownload)
                 } else {
                     log.debug("skipping download of ${fromDB.fileName} - already downloading/ed")
-                    download.file.setDownloadStatus(DownloadStatus.done)
-                    downloadRepository.setStatus(download, DownloadStatus.done)
+                    if(fromDB.lastSha256 == fileEntry.sha256) {
+                        download.file.setDownloadStatus(DownloadStatus.done)
+                        downloadRepository.setStatus(download, DownloadStatus.done)
+                    }
                     currentDownloads.decrementAndGet()
                     currentDownloadList.remove(download.fileName)
                 }

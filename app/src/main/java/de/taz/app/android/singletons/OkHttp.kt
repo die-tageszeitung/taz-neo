@@ -24,9 +24,9 @@ object OkHttp : ViewModel() {
         // disallow cleartext connections if not testing
         try {
             Class.forName("org.junit.Test")
-            builder.connectTimeout(1, TimeUnit.SECONDS)
-                .readTimeout(1, TimeUnit.SECONDS)
-                .writeTimeout(1, TimeUnit.SECONDS)
+            builder.connectTimeout(2, TimeUnit.SECONDS)
+                .readTimeout(2, TimeUnit.SECONDS)
+                .writeTimeout(2, TimeUnit.SECONDS)
         } catch (e: ClassNotFoundException) {
             builder.connectionSpecs(listOf(ConnectionSpec.MODERN_TLS))
         }
