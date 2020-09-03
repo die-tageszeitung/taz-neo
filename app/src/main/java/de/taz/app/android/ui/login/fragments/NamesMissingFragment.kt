@@ -44,7 +44,7 @@ class NamesMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_n
         if (somethingWrong) {
             return
         } else {
-            viewModel.getTrialSubscriptionForExistingCredentials()
+            viewModel.getTrialSubscriptionForExistingCredentials(viewModel.status.value)
         }
     }
 
