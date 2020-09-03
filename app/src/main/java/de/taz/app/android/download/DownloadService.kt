@@ -272,6 +272,10 @@ class DownloadService private constructor(val applicationContext: Context) {
                     abortAndRetryDownload(download, doNotRestartDownload)
                     DownloadService.log.warn("aborted download of ${download.fileName} - ${e.localizedMessage}")
                 }
+                is CancellationException -> {
+                    // do nothing will be caught by invokeOnCompletion
+                    throw e
+                }
                 else -> {
                     DownloadService.log.warn("unknown error occurred - ${download.fileName}")
                     abortAndRetryDownload(download, doNotRestartDownload)
