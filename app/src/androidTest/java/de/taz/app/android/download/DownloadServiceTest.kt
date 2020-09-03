@@ -14,7 +14,6 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import junit.framework.TestCase.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.Protocol
 import okhttp3.mockwebserver.MockResponse
@@ -42,6 +41,7 @@ class DownloadServiceTest {
 
     private val mockServer = MockWebServer()
 
+    @ObsoleteCoroutinesApi
     @ExperimentalCoroutinesApi
     @Before
     fun setUp() {
@@ -281,7 +281,7 @@ class DownloadServiceTest {
             DownloadStatus.done
         )
         val mockDownload =
-            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.done)
 
         fileEntryRepository.saveOrReplace(mockFileEntry)
         downloadRepository.save(mockDownload)
@@ -295,6 +295,32 @@ class DownloadServiceTest {
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
 
+    @Test
+    fun downloadAlreadyDownloadingFileEntry() {
+        val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
+        val mockFileEntry = FileEntry(
+            TEST_FILE_NAME,
+            StorageType.issue,
+            0,
+            mockFileSha,
+            0,
+            "bla",
+            DownloadStatus.started
+        )
+        val mockDownload =
+            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.started)
+
+        fileEntryRepository.saveOrReplace(mockFileEntry)
+        downloadRepository.save(mockDownload)
+
+        downloadService.currentDownloads.incrementAndGet()
+        downloadService.getFromServer(TEST_FILE_NAME)
+
+        assertEquals(DownloadStatus.started, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(DownloadStatus.started, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(0, downloadService.currentDownloads.get())
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+    }
     @Test
     fun downloadWithLastSHA256Matching() {
         val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
