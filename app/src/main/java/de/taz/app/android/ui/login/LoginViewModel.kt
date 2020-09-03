@@ -643,6 +643,7 @@ class LoginViewModel(
                             poll(previousState)
                         }
                         SubscriptionStatus.alreadyLinked -> {
+                            statusBeforeEmailAlreadyLinked = previousState
                             status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                         }
                         SubscriptionStatus.tazIdNotValid -> {
