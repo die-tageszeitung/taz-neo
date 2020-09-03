@@ -59,7 +59,7 @@ class SplashActivity : BaseActivity() {
 
             initResources()
 
-            // initLastIssues()
+            initLastIssues()
             deleteUnnecessaryIssues()
             ensurePushTokenSent()
             startNotDownloadedIssues()
