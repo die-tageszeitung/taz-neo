@@ -16,4 +16,7 @@ abstract class DownloadDao : BaseDao<DownloadStub>() {
     @Query("SELECT * FROM Download WHERE Download.fileName == :fileName LIMIT 1")
     abstract fun getLiveData(fileName: String): LiveData<DownloadStub?>
 
+    @Query("SELECT * FROM Download WHERE Download.status == 'started'")
+    abstract fun getAllStarted(): List<DownloadStub>
+
 }
