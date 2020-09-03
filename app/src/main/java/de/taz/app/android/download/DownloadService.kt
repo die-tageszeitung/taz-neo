@@ -168,11 +168,9 @@ class DownloadService private constructor(val applicationContext: Context) {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun startDownloadsIfCapacity() {
-        log.debug("startDownloadsIfCapacity")
         while (serverConnectionHelper.isDownloadServerReachable && currentDownloads.get() < CONCURRENT_DOWNLOAD_LIMIT && downloadList.size > 0) {
             startDownloadIfCapacity() ?: break
         }
-        log.debug("startDownloadsIfCapacity done")
     }
 
     /**
@@ -181,7 +179,6 @@ class DownloadService private constructor(val applicationContext: Context) {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun startDownloadIfCapacity(): Job? {
-        log.debug("startDownloadIfCapacity")
         if (serverConnectionHelper.isDownloadServerReachable && currentDownloads.getAndIncrement() < CONCURRENT_DOWNLOAD_LIMIT) {
             downloadList.pollFirst()?.let { download ->
                 if (!currentDownloadList.contains(download.fileName)) {
