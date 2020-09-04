@@ -71,7 +71,7 @@ class LoginViewModel(
     }
 
     fun startPolling() {
-        authHelper.email = username
+        authHelper.email = username ?: ""
         authHelper.isPolling = true
         status.postValue(LoginViewModelState.DONE)
     }
@@ -104,7 +104,7 @@ class LoginViewModel(
 
             status.postValue(LoginViewModelState.LOADING)
 
-            val tmpUsername = username
+            val tmpUsername = username ?: ""
             val tmpPassword = password
 
             if (tmpUsername.isNullOrBlank()) {
@@ -580,7 +580,7 @@ class LoginViewModel(
     private fun saveToken(token: String) {
         authHelper.token = token
         authHelper.authStatus = AuthStatus.valid
-        authHelper.email = username
+        authHelper.email = username ?: ""
     }
 
     fun getSubscription() {
