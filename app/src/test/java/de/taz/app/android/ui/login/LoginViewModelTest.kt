@@ -16,10 +16,12 @@ import org.junit.Before
 import org.junit.Test
 
 import org.junit.Rule
+import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class LoginViewModelTest {
 
     @kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -81,20 +83,18 @@ class LoginViewModelTest {
     @Mock
     lateinit var authHelper: AuthHelper
     @Mock
-    lateinit var toastHelper: ToastHelper
-    @Mock
     lateinit var application: Application
     @Mock
     lateinit var feedHelper: FeedHelper
 
     private lateinit var loginViewModel: LoginViewModel
 
+    private var toastHelper = ToastHelper()
     @ObsoleteCoroutinesApi
     @ExperimentalCoroutinesApi
     @Before
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
-        MockitoAnnotations.initMocks(this)
 
         authHelper.authStatusLiveData = MutableLiveData()
 
@@ -266,7 +266,7 @@ class LoginViewModelTest {
         doReturn(validSubscriptionInfo).`when`(apiService).trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_SUCCESSFUL)
     }
 
@@ -276,7 +276,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.EMAIL_ALREADY_LINKED)
     }
 
@@ -285,7 +285,7 @@ class LoginViewModelTest {
         doReturn(elapsedSubscriptionInfo).`when`(apiService).trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_ELAPSED)
     }
 
@@ -295,7 +295,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.SUBSCRIPTION_TAKEN)
     }
 
@@ -305,7 +305,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
@@ -330,7 +330,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.REGISTRATION_EMAIL)
     }
 
@@ -340,7 +340,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.LOADING)
         // polling logic tested separately
     }
@@ -349,7 +349,7 @@ class LoginViewModelTest {
     fun registerNull() = runBlocking {
         val status = loginViewModel.status.value
         doReturn(null).`when`(apiService).trialSubscription(username, password)
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == status)
     }
 
@@ -360,7 +360,7 @@ class LoginViewModelTest {
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
-        loginViewModel.register(viewModelState)?.join()
+        loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == status)
         assertTrue(loginViewModel.noInternet.value == true)
     }
@@ -541,7 +541,6 @@ class LoginViewModelTest {
     fun requestCredentialsPasswordError() = runBlocking {
         doReturn(PasswordResetInfo.error).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 
@@ -549,7 +548,6 @@ class LoginViewModelTest {
     fun requestCredentialsPasswordNull() = runBlocking {
         doReturn(null).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        verify(toastHelper, times(1)).showToast(anyInt(), anyBoolean())
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
     }
 

@@ -14,7 +14,7 @@ import java.util.*
  * Singleton to create Toasts
  */
 @Mockable
-class ToastHelper private constructor(private val applicationContext: Context) {
+open class ToastHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)
 
