@@ -417,12 +417,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
 
-    fun switchToDisplayableAfterLogin(displayableName: String) = runOnUiThread {
-        // clear fragment backstack before showing article
-        supportFragmentManager.popBackStackImmediate(
-            null,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-        showDisplayable(displayableName)
+    fun switchToDisplayableAfterLogin(displayableName: String) = lifecycleScope.launchWhenResumed {
+        runOnUiThread {
+            // clear fragment backstack before showing article
+            supportFragmentManager.popBackStackImmediate(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            showDisplayable(displayableName)
+        }
     }
 }
