@@ -576,8 +576,8 @@ class LoginViewModel(
     }
 
     private fun saveToken(token: String) {
-        authHelper.token = token
         authHelper.authStatus = AuthStatus.valid
+        authHelper.token = token
         authHelper.email = username ?: ""
     }
 

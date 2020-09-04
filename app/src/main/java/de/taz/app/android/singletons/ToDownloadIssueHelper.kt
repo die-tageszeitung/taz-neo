@@ -47,15 +47,14 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     private fun startMissingDownloads() {
         if (!isDownloading.getAndSet(true)) {
-            log.debug("startingMissingDownloads")
             downloadingJob = CoroutineScope(Dispatchers.IO).launch {
                 try {
                     while (
-                        !dateToDownloadFromLiveData.value.isNullOrEmpty() &&
-                        !lastDownloadedDateLiveData.value.isNullOrEmpty() &&
+                        dateToDownloadFromLiveData.value.isNotEmpty() &&
+                        lastDownloadedDateLiveData.value.isNotEmpty() &&
                         DateHelper.dayDelta(
-                            dateToDownloadFromLiveData.value ?: "",
-                            lastDownloadedDateLiveData.value ?: ""
+                            dateToDownloadFromLiveData.value,
+                            lastDownloadedDateLiveData.value
                         ).toInt() > 0
                     ) {
                         if (downloadService.isDownloading()) {
@@ -64,11 +63,11 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                             try {
                                 val missingIssues =
                                     apiService.getIssuesByDateAsync(
-                                        lastDownloadedDateLiveData.value ?: ""
+                                        lastDownloadedDateLiveData.value
                                     ).await()
                                 issueRepository.saveIfDoNotExist(missingIssues)
                                 withContext(Dispatchers.Main) {
-                                    lastDownloadedDateLiveData.setValue(missingIssues.last().date)
+                                    lastDownloadedDateLiveData.value = missingIssues.last().date
                                 }
                             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                                 log.warn("$e")
@@ -79,7 +78,6 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                 } finally {
                     withContext(NonCancellable) {
                         isDownloading.set(false)
-                        log.debug("startingMissingDownloads done")
                     }
                 }
             }
@@ -89,8 +87,8 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
         log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
         CoroutineScope(Dispatchers.Main).launch {
-            val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value ?: ""
-            val prefsLastDownloadedDate = lastDownloadedDateLiveData.value ?: ""
+            val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value
+            val prefsLastDownloadedDate = lastDownloadedDateLiveData.value
 
             val minDate: String? = withContext(Dispatchers.IO) {
                 return@withContext if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
@@ -100,16 +98,14 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                 } else null
             }
             if (!minDate.isNullOrBlank()) {
-                dateToDownloadFromLiveData.setValue(
-                    if (minDate < dateToDownloadFrom) {
-                        dateToDownloadFrom
-                    } else {
-                        minDate
-                    }
-                )
+                dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
+                    dateToDownloadFrom
+                } else {
+                    minDate
+                }
             }
             if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
-                lastDownloadedDateLiveData.setValue(latestDownloadedDate)
+                lastDownloadedDateLiveData.value = latestDownloadedDate
             }
             startMissingDownloads()
         }
@@ -118,7 +114,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
         log.debug("cancelling ToDownloadIssueHelper")
         downloadingJob?.cancelAndJoin()
-        lastDownloadedDateLiveData.setValue("")
-        dateToDownloadFromLiveData.setValue("")
+        lastDownloadedDateLiveData.value =""
+        dateToDownloadFromLiveData.value = ""
     }
 }
