@@ -258,5 +258,8 @@
     <string name="account_holder_helper">If different of subscriber.</string>
     <string name="toast_no_connection_to_server">Could not establish connection to server.</string>
     <string name="order_with_costs_button">Order with costs</string>
+    <string name="fragment_login_missing_subscription_help">You are currently missing a valid subscription. Please enter your subscription details or subscribe.</string>
+    <string name="fragment_login_subscription_already_taken_insert_new">Enter different subscription details</string>
+    <string name="fragment_login_missing_credentials_help">We want to facilitate the access to our digital services. Therfore we are changing our sign-on procedure. Please enter a valid email address and a password. Afterwards use these credentials to log in.</string>
 
 </resources>
