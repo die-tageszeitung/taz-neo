@@ -30,7 +30,6 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragme
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -393,7 +392,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val data = Intent()
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
-                ToDownloadIssueHelper.getInstance(applicationContext).cancelDownloads()
                 DownloadService.getInstance(applicationContext).cancelIssueDownloads()
                 downloadNeededIssues()
                 article = article?.replace("public.", "")
