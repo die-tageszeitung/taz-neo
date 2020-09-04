@@ -8,13 +8,14 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 import java.util.*
 
 /**
  * Singleton to create Toasts
  */
 @Mockable
-class ToastHelper private constructor(private val applicationContext: Context) {
+open class ToastHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)
 
@@ -25,7 +26,11 @@ class ToastHelper private constructor(private val applicationContext: Context) {
     fun showToast(message: String, long: Boolean = false) {
         CoroutineScope(Dispatchers.Main).launch {
             val toastDuration = if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-            Toast.makeText(applicationContext, message, toastDuration).show()
+            try {
+                Toast.makeText(applicationContext, message, toastDuration).show()
+            } catch(re: RuntimeException) {
+                // do nothing presumably test
+            }
         }
     }
 
