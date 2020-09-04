@@ -68,8 +68,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         restore(savedInstanceState)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
