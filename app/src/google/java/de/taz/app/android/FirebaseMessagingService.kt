@@ -12,7 +12,6 @@ import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ENABLED
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,7 +68,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                         REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                            downloadNewestIssue()
+                            downloadNewestIssue(remoteMessage.sentTime)
                         }
                     }
                 }
@@ -84,21 +83,18 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun downloadNewestIssue() = CoroutineScope(Dispatchers.IO).launch {
-        apiService.getLastIssuesAsync(1).await().firstOrNull()?.let { issue ->
-            issueRepository.saveIfDoesNotExist(issue)
-            val downloadPreferences =
-                applicationContext.getSharedPreferences(
-                    PREFERENCES_DOWNLOADS,
-                    Context.MODE_PRIVATE
-                )
-            if (downloadPreferences.getBoolean(
-                    SETTINGS_DOWNLOAD_ENABLED,
-                    true
-                )
-            ) {
-                downloadService.scheduleIssueDownload(issue)
-            }
+    private fun downloadNewestIssue(sentTime: Long) = CoroutineScope(Dispatchers.IO).launch {
+        val downloadPreferences =
+            applicationContext.getSharedPreferences(
+                PREFERENCES_DOWNLOADS,
+                Context.MODE_PRIVATE
+            )
+        if (downloadPreferences.getBoolean(
+                SETTINGS_DOWNLOAD_ENABLED,
+                true
+            )
+        ) {
+            downloadService.scheduleNewestIssueDownload(sentTime.toString())
         }
     }
 
