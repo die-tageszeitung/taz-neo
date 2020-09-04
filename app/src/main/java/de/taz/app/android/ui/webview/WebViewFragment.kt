@@ -51,7 +51,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private var apiService: ApiService? = null
     private var downloadService: DownloadService? = null
-    private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private var isRendered = false
 
@@ -71,7 +70,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
-        resourceInfoRepository = ResourceInfoRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,9 +181,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
 
         val resourceInfo = if (isResourceInfoUpToDate) {
-            resourceInfoRepository?.get()
+            ResourceInfo.get(context?.applicationContext)
         } else {
-            tryGetResourceInfo()
+            ResourceInfo.update(context?.applicationContext)
         }
 
         resourceInfo?.let {
@@ -289,27 +287,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     }
 
     /**
-     * Try to get the resourceInfo from apiService.
-     * @return ResourceInfo or null
-     */
-    private suspend fun tryGetResourceInfo(): ResourceInfo? {
-        return apiService?.getResourceInfoAsync()?.await()?.let {
-            resourceInfoRepository?.save(it)
-            it
-        } ?: run {
-            getMainActivity()?.showToast(R.string.something_went_wrong_try_later)
-            null
-        }
-    }
-
-    /**
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = viewModel.displayable?.getIssueOperations(context?.applicationContext)
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-        val currentResourceVersion = resourceInfoRepository?.get()?.resourceVersion ?: 0
+        val currentResourceVersion = ResourceInfo.get(context?.applicationContext)?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
     }

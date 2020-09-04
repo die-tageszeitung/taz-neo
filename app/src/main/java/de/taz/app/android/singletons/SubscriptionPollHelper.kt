@@ -32,7 +32,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     }
 
     private fun poll(timeoutMillis: Long = 100) {
-        val timeMillis = timeoutMillis.coerceAtMost(5000)
+        val timeMillis = timeoutMillis.coerceAtMost(3600000)
         CoroutineScope(Dispatchers.IO).launch {
             delay(timeMillis)
 

@@ -3,7 +3,6 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -54,22 +53,12 @@ class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
             viewModel.requestSubscription(fragment_login_username.text.toString().trim())
         }
 
-        fragment_login_forgot_password_text.setOnClickListener {
+        fragment_login_missing_subscription_forgot_password.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
         fragment_login_forgot_help.setOnClickListener {
-            context?.let {
-                val dialog = MaterialAlertDialogBuilder(it)
-                    .setMessage(R.string.fragment_login_help)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-
-                dialog.show()
-
-            }
+            showHelpDialog(R.string.fragment_login_help)
         }
 
         fragment_login_password.setOnEditorActionListener(

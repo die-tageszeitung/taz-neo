@@ -92,6 +92,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
             deletionJob?.cancel()
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
+                log.debug("AuthStatus changed to $authStatus")
                 if (authStatus == AuthStatus.elapsed) {
                     cancelAndStartDownloadingPublicIssues()
                     toastHelper.showToast(R.string.toast_logout_elapsed)
@@ -104,6 +105,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                     CoroutineScope(Dispatchers.IO).launch {
                         toDownloadIssueHelper.cancelDownloads()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
+                        isPolling = false
                     }
                 }
             }

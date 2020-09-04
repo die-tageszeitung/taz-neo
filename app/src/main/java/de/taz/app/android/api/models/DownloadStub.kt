@@ -14,7 +14,8 @@ data class DownloadStub(
     constructor(download: Download) : this(
         download.file.name,
         download.baseUrl,
-        download.status
+        download.status,
+        download.lastSha256
     )
 
 }
