@@ -437,12 +437,22 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 } ?: ""
             } ?: ""
         val articleIssueDate = articleIssue?.date
-        val minDate = if (!articleIssueDate.isNullOrBlank() && bookmarkedMinDate > articleIssueDate && bookmarkedMinDate.isNotBlank()) {
-            articleIssueDate
-        } else {
+
+        val minDate: String = if (articleIssueDate.isNullOrBlank()) {
             bookmarkedMinDate
+        } else {
+            if (bookmarkedMinDate.isNotBlank()) {
+                if (bookmarkedMinDate > articleIssueDate) {
+                    articleIssueDate
+                } else {
+                    bookmarkedMinDate
+                }
+            } else {
+                articleIssueDate
+            }
         }
-        if(minDate != "") {
+
+        if (minDate != "") {
             lastIssues?.let {
                 toDownloadIssueHelper?.startMissingDownloads(
                     minDate,
