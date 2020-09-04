@@ -113,40 +113,43 @@ class SectionListAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        val sectionStub = sectionList[position]
-        sectionStub.let {
-            holder.textView.apply {
-                typeface = this@SectionListAdapter.typeFace
-                text = sectionStub.title
-                setOnClickListener {
-                    fragment.getMainView()?.apply {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            showInWebView(sectionStub.key)
-                            withContext(Dispatchers.Main) {
-                                closeDrawer()
+        if(position != RecyclerView.NO_POSITION){
+            val sectionStub = sectionList[position]
+            sectionStub.let {
+                holder.textView.apply {
+                    typeface = this@SectionListAdapter.typeFace
+                    text = sectionStub.title
+                    setOnClickListener {
+                        fragment.getMainView()?.apply {
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                showInWebView(sectionStub.key)
+                                withContext(Dispatchers.Main) {
+                                    closeDrawer()
+                                }
                             }
                         }
                     }
-                }
-                if (position == activePosition) {
-                    setTextColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.drawer_sections_item_highlighted,
-                            fragment.activity?.theme
+                    if (position == activePosition) {
+                        setTextColor(
+                            ResourcesCompat.getColor(
+                                resources,
+                                R.color.drawer_sections_item_highlighted,
+                                fragment.activity?.theme
+                            )
                         )
-                    )
-                } else {
-                    setTextColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.drawer_sections_item,
-                            fragment.activity?.theme
+                    } else {
+                        setTextColor(
+                            ResourcesCompat.getColor(
+                                resources,
+                                R.color.drawer_sections_item,
+                                fragment.activity?.theme
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
+
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {

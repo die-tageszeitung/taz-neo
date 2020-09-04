@@ -33,6 +33,7 @@ class LoginViewModel(
     private val log by Log
     private val ioScope = CoroutineScope(Dispatchers.IO)
     private var statusBeforePasswordRequest: LoginViewModelState? = null
+    var statusBeforeEmailAlreadyLinked: LoginViewModelState? = null
 
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
@@ -71,7 +72,7 @@ class LoginViewModel(
     }
 
     fun startPolling() {
-        authHelper.email = username
+        authHelper.email = username ?: ""
         authHelper.isPolling = true
         status.postValue(LoginViewModelState.DONE)
     }
@@ -104,7 +105,7 @@ class LoginViewModel(
 
             status.postValue(LoginViewModelState.LOADING)
 
-            val tmpUsername = username
+            val tmpUsername = username ?: ""
             val tmpPassword = password
 
             if (tmpUsername.isNullOrBlank()) {
@@ -197,20 +198,20 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials() {
-        register(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
+        register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials() {
-        register(LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
+    fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+        register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
+        previousState: LoginViewModelState?,
         invalidMailState: LoginViewModelState
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
-            val previousState = status.value
             status.postValue(LoginViewModelState.LOADING)
             ioScope.launch {
                 handleRegistration(
@@ -247,6 +248,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
+                    statusBeforeEmailAlreadyLinked = previousState
                     status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                 }
                 SubscriptionStatus.invalidMail -> {
@@ -271,7 +273,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.waitForProc -> {
-                    poll()
+                    poll(previousState)
                 }
                 SubscriptionStatus.noFirstName, SubscriptionStatus.noSurname -> {
                     status.postValue(LoginViewModelState.NAME_MISSING)
@@ -338,7 +340,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
                 }
                 SubscriptionStatus.waitForProc -> {
-                    poll()
+                    poll(previousState)
                 }
                 SubscriptionStatus.waitForMail -> {
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
@@ -359,6 +361,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.POLLING_FAILED)
                 }
                 SubscriptionStatus.alreadyLinked -> {
+                    statusBeforeEmailAlreadyLinked = previousState
                     status.postValue(
                         if (validCredentials) {
                             LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
@@ -386,6 +389,7 @@ class LoginViewModel(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun poll(
+        previousState: LoginViewModelState?,
         timeoutMillis: Long = 100,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ): Job {
@@ -393,11 +397,12 @@ class LoginViewModel(
 
         return ioScope.launch {
             delay(timeoutMillis)
-            handlePoll(timeoutMillis * 2, runBlocking)
+            handlePoll(previousState, timeoutMillis * 2, runBlocking)
         }
     }
 
     private suspend fun handlePoll(
+        previousState: LoginViewModelState?,
         timeoutMillis: Long,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ) {
@@ -417,6 +422,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
                 }
                 SubscriptionStatus.alreadyLinked -> {
+                    statusBeforeEmailAlreadyLinked = previousState
                     status.postValue(
                         if (validCredentials) {
                             LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
@@ -431,9 +437,9 @@ class LoginViewModel(
                 null,
                 SubscriptionStatus.waitForProc -> {
                     if (runBlocking) {
-                        poll(timeoutMillis, runBlocking).join()
+                        poll(previousState,timeoutMillis, runBlocking).join()
                     } else {
-                        poll(timeoutMillis)
+                        poll(previousState, timeoutMillis)
                     }
                 }
                 SubscriptionStatus.noPollEntry -> {
@@ -458,9 +464,9 @@ class LoginViewModel(
         } catch (e: ApiService.ApiServiceException.NoInternetException) {
             noInternet.postValue(true)
             if (runBlocking) {
-                poll(timeoutMillis, runBlocking).join()
+                poll(previousState, timeoutMillis, runBlocking).join()
             } else {
-                poll(timeoutMillis)
+                poll(previousState, timeoutMillis)
             }
 
         }
@@ -557,14 +563,6 @@ class LoginViewModel(
         statusBeforePasswordRequest = null
     }
 
-    fun backToLogin() {
-        status.postValue(LoginViewModelState.LOADING)
-        resetSubscriptionPassword()
-        resetCredentialsPassword()
-        resetSubscriptionId()
-        status.postValue(LoginViewModelState.INITIAL)
-    }
-
     private fun resetSubscriptionPassword() {
         subscriptionPassword = null
     }
@@ -580,11 +578,10 @@ class LoginViewModel(
     private fun saveToken(token: String) {
         authHelper.token = token
         authHelper.authStatus = AuthStatus.valid
-        authHelper.email = username
+        authHelper.email = username ?: ""
     }
 
-    fun getSubscription() {
-        val previousState = status.value
+    fun getSubscription(previousState: LoginViewModelState?) {
         status.postValue(LoginViewModelState.LOADING)
         ioScope.launch {
             try {
@@ -642,9 +639,10 @@ class LoginViewModel(
                             status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                         }
                         SubscriptionStatus.waitForProc -> {
-                            poll()
+                            poll(previousState)
                         }
                         SubscriptionStatus.alreadyLinked -> {
+                            statusBeforeEmailAlreadyLinked = previousState
                             status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
                         }
                         SubscriptionStatus.tazIdNotValid -> {
@@ -714,12 +712,12 @@ class LoginViewModel(
 
         if (price == 0) {
             if (createNewAccount || !validCredentials) {
-                getTrialSubscriptionForNewCredentials()
+                getTrialSubscriptionForNewCredentials(previousState)
             } else {
-                getTrialSubscriptionForExistingCredentials()
+                getTrialSubscriptionForExistingCredentials(previousState)
             }
         } else {
-            getSubscription()
+            getSubscription(previousState)
         }
     }
 }

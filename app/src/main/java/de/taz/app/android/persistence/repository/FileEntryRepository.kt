@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
 
@@ -21,9 +22,11 @@ class FileEntryRepository private constructor(
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
         fromDB?.let {
             if (fromDB.moTime < fileEntry.moTime) {
-                appDatabase.fileEntryDao().insertOrReplace(fileEntry.copy(
-                    downloadedStatus = fromDB.downloadedStatus
-                ))
+                appDatabase.fileEntryDao().insertOrReplace(
+                    fileEntry.copy(
+                        downloadedStatus = fromDB.downloadedStatus
+                    )
+                )
             }
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
@@ -79,5 +82,11 @@ class FileEntryRepository private constructor(
 
     fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
         return appDatabase.fileEntryDao().isDownloadedLiveData(fileName)
+    }
+
+    fun setDownloadStatus(fileName: String, downloadStatus: DownloadStatus) {
+        get(fileName)?.let {
+            update(it.copy(downloadedStatus = downloadStatus))
+        }
     }
 }

@@ -39,6 +39,7 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlin.math.min
@@ -55,6 +56,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var imageRepository: ImageRepository? = null
     private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
+    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,7 +151,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         runOnUiThread {
             val fragment = IssueContentFragment.createInstance(issueStub)
             showMainFragment(fragment)
-            drawer_layout.openDrawer(GravityCompat.START)
         }
         lifecycleScope.launch {
             delay(3000)
@@ -204,6 +205,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
+    fun openDrawer(gravity: Int) {
+        drawer_layout.openDrawer(gravity)
+    }
+
     fun closeDrawer() {
         drawer_layout.closeDrawers()
     }
@@ -214,14 +219,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
      */
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
-
+        log.info("back button pressed")
         if (drawer_layout.isDrawerOpen(GravityCompat.START)
             || drawer_layout.isDrawerOpen(GravityCompat.END)
         ) {
             closeDrawer()
             return
         }
-
 
         if (count > 0) {
             supportFragmentManager
@@ -405,23 +409,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                sectionRepository?.getSectionStubForArticle(articleName)
-                                    ?.let { section ->
-                                        section.getIssueOperations(applicationContext)
-                                            ?.let { issueOperations ->
-                                                setDrawerIssue(issueOperations)
-                                                changeDrawerIssue()
-                                            }
-                                    }
-                            }
-
-                            // clear fragment backstack before showing article
-                            supportFragmentManager.popBackStackImmediate(
-                                null,
-                                FragmentManager.POP_BACK_STACK_INCLUSIVE
-                            )
-                            showDisplayable(articleName)
+                            switchToDisplayableAfterLogin(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -429,6 +417,18 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     }
                 }
             }
+        }
+    }
+
+
+    fun switchToDisplayableAfterLogin(displayableName: String) = lifecycleScope.launchWhenResumed {
+        runOnUiThread {
+            // clear fragment backstack before showing article
+            supportFragmentManager.popBackStackImmediate(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+            showDisplayable(displayableName)
         }
     }
 }

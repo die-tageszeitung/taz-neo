@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -42,40 +43,54 @@ class SplashActivity : BaseActivity() {
         super.onResume()
         log.info("splashactivity onresume called")
 
-        setupSentry()
+        lifecycleScope.launchWhenResumed {
+            setupSentry()
 
-        generateInstallationId()
-        generateNotificationChannels()
+            generateInstallationId()
+            generateNotificationChannels()
 
-        initResources()
-        initLastIssues()
+            resetAllDownloads()
 
-        initAppInfoAndCheckAndroidVersion()
-        initFeedInformation()
+            val initAppInfoJob = initAppInfoAndCheckAndroidVersion()
+            val initFeedJob = initFeedInformation()
 
-        deleteUnnecessaryIssues()
+            initAppInfoJob.join()
+            initFeedJob.join()
 
-        ensurePushTokenSent()
+            initResources()
 
-        startNotDownloadedIssues()
+            initLastIssues()
+            deleteUnnecessaryIssues()
+            ensurePushTokenSent()
+            startNotDownloadedIssues()
 
-        if (isDataPolicyAccepted()) {
-            if (isFirstTimeStart()) {
-                val intent = Intent(this, WelcomeActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                intent.putExtra(START_HOME_ACTIVITY, true)
-                startActivity(intent)
+            if (isDataPolicyAccepted()) {
+                if (isFirstTimeStart()) {
+                    val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    intent.putExtra(START_HOME_ACTIVITY, true)
+                    startActivity(intent)
+                } else {
+                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(intent)
+                }
             } else {
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this@SplashActivity, DataPolicyActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 startActivity(intent)
             }
-        } else {
-            val intent = Intent(this, DataPolicyActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            startActivity(intent)
+            finish()
         }
-        finish()
+    }
+
+    private suspend fun resetAllDownloads() = withContext(Dispatchers.IO) {
+        val downloadRepository = DownloadRepository.getInstance(applicationContext)
+        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+        downloadRepository.getAllStartedStubs().forEach {
+            downloadRepository.setStatus(it, DownloadStatus.pending)
+            fileEntryRepository.setDownloadStatus(it.fileName, DownloadStatus.pending)
+        }
     }
 
     private fun generateInstallationId() {
@@ -118,32 +133,18 @@ class SplashActivity : BaseActivity() {
     }
 
 
-    private fun initFeedInformation() {
+    private fun initFeedInformation() : Job {
         val apiService = ApiService.getInstance(applicationContext)
         val feedRepository = FeedRepository.getInstance(applicationContext)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        return CoroutineScope(Dispatchers.IO).launch {
             val feeds = apiService.getFeedsAsync().await()
             feedRepository.save(feeds)
             log.debug("Initialized Feeds")
         }
     }
 
-    private fun initLastIssues() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val liveData = ResourceInfoRepository.getInstance(applicationContext).getLiveData()
-            withContext(Dispatchers.Main) {
-                liveData.observeForever(object : Observer<ResourceInfo?> {
-                    override fun onChanged(t: ResourceInfo?) {
-                        if (t?.downloadedStatus == DownloadStatus.done) {
-                            liveData.removeObserver(this)
-                            CoroutineScope(Dispatchers.IO).launch { initIssues(10) }
-                        }
-                    }
-                })
-            }
-        }
-    }
+    private fun initLastIssues() = CoroutineScope(Dispatchers.IO).launch { initIssues(10) }
 
     private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
         val apiService = ApiService.getInstance(applicationContext)
@@ -170,22 +171,20 @@ class SplashActivity : BaseActivity() {
     /**
      * download AppInfo and persist it
      */
-    private fun initAppInfoAndCheckAndroidVersion() {
-        CoroutineScope(Dispatchers.IO).launch {
-            AppInfo.update(applicationContext)?.let {
-                if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
-                    NotificationHelper.getInstance(applicationContext).showNotification(
-                        R.string.notification_new_version_title,
-                        R.string.notification_new_version_body,
-                        CHANNEL_ID_NEW_VERSION,
-                        pendingIntent = PendingIntent.getActivity(
-                            applicationContext,
-                            NEW_VERSION_REQUEST_CODE,
-                            downloadFromServerIntent(),
-                            FLAG_CANCEL_CURRENT
-                        )
+    private fun initAppInfoAndCheckAndroidVersion() = CoroutineScope(Dispatchers.IO).launch {
+        AppInfo.update(applicationContext)?.let {
+            if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
+                NotificationHelper.getInstance(applicationContext).showNotification(
+                    R.string.notification_new_version_title,
+                    R.string.notification_new_version_body,
+                    CHANNEL_ID_NEW_VERSION,
+                    pendingIntent = PendingIntent.getActivity(
+                        applicationContext,
+                        NEW_VERSION_REQUEST_CODE,
+                        downloadFromServerIntent(),
+                        FLAG_CANCEL_CURRENT
                     )
-                }
+                )
             }
         }
     }
@@ -197,7 +196,7 @@ class SplashActivity : BaseActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private fun initResources(): Job {
+    private suspend fun initResources() {
         log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
 
@@ -222,7 +221,7 @@ class SplashActivity : BaseActivity() {
             fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
             log.debug("Created/updated tazApi.js")
         }
-        return job
+        job.join()
     }
 
     private fun deleteUnnecessaryIssues() {

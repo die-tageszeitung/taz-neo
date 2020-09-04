@@ -97,11 +97,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         skipToCurrentItem()
         applyZoomPageTransformer()
-        getMainView()?.apply {
-            setDefaultDrawerNavButton()
-            setActiveDrawerSection(RecyclerView.NO_POSITION)
-            changeDrawerIssue()
-        }
         super.onResume()
     }
 

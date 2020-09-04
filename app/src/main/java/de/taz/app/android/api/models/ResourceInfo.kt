@@ -89,21 +89,10 @@ data class ResourceInfo(
                             applicationContext
                         )
                     ) {
-                        if (local != null) {
-                            val fromServerResourceListNames =
-                                fromServer.resourceList.map { it.name }
-                            // delete unused files
-                            local.resourceList.filter { local ->
-                                local.name !in fromServerResourceListNames
-                            }.forEach {
-                                it.deleteFile()
-                            }
-                        }
-
                         resourceInfoRepository.save(fromServer)
 
                         // ensure resources are downloaded
-                        DownloadService.getInstance(applicationContext).download(fromServer).join()
+                        DownloadService.getInstance(applicationContext).download(fromServer)
                         local?.let { log.debug("Initialized ResourceInfo") }
                             ?: log.debug("Updated ResourceInfo")
                     }

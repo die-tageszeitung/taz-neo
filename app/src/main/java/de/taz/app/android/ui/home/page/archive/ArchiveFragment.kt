@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
@@ -46,14 +45,6 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        getMainView()?.apply {
-            setDefaultDrawerNavButton()
-            setActiveDrawerSection(RecyclerView.NO_POSITION)
         }
     }
 
