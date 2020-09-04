@@ -39,6 +39,7 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlin.math.min
@@ -55,6 +56,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var imageRepository: ImageRepository? = null
     private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
+    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -214,14 +216,13 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
      */
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
-
+        log.info("back button pressed")
         if (drawer_layout.isDrawerOpen(GravityCompat.START)
             || drawer_layout.isDrawerOpen(GravityCompat.END)
         ) {
             closeDrawer()
             return
         }
-
 
         if (count > 0) {
             supportFragmentManager
