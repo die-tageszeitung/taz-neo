@@ -104,6 +104,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                     CoroutineScope(Dispatchers.IO).launch {
                         toDownloadIssueHelper.cancelDownloads()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
+                        isPolling = false
                     }
                 }
             }
