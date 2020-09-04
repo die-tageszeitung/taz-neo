@@ -1,9 +1,14 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.os.Bundle
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.DRAWER_SHOW_NUMBER
+import de.taz.app.android.PREFERENCES_GENERAL
+import de.taz.app.android.PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -18,17 +23,17 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ImprintFragment
+import de.taz.app.android.util.SharedPreferenceIntLiveData
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val ISSUE_DATE = "issueDate"
 const val ISSUE_FEED = "issueFeed"
 const val ISSUE_STATUS = "issueStatus"
 const val DISPLAYABLE_KEY = "webViewDisplayableKey"
 const val SHOW_SECTIONS = "showSection"
+
+const val DRAWER_SHOWN = "drawerShown"
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -56,6 +61,7 @@ class IssueContentFragment :
         ) as ImprintFragment
 
     private var showSections: Boolean = true
+    private var drawerShown: Boolean = false
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -89,6 +95,7 @@ class IssueContentFragment :
             }
             displayableKey = getString(DISPLAYABLE_KEY)
             showSections = getBoolean(SHOW_SECTIONS, false)
+            drawerShown = getBoolean(DRAWER_SHOWN, false)
         }
 
 
@@ -140,8 +147,17 @@ class IssueContentFragment :
                         }
                     }
                 }
-                setDrawerIssue(issueOperations)
-                getMainView()?.changeDrawerIssue()
+                lifecycleScope.launchWhenResumed {
+                    setDrawerIssue(issueOperations)
+                    getMainView()?.changeDrawerIssue()
+                    val drawerShownLiveData = getShownDrawerNumberLiveData()
+                    if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
+                        drawerShown = true
+                        delay(100)
+                        getMainView()?.openDrawer(GravityCompat.START)
+                        drawerShownLiveData.postValue(drawerShownLiveData.value + 1)
+                    }
+                }
                 if (issueOperations.dateDownload == null) {
                     CoroutineScope(Dispatchers.IO).launch {
                         IssueRepository.getInstance(context?.applicationContext)
@@ -307,6 +323,7 @@ class IssueContentFragment :
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
             putBoolean(SHOW_SECTIONS, showSections)
+            putBoolean(DRAWER_SHOWN, drawerShown)
         }
     }
 
@@ -343,6 +360,15 @@ class IssueContentFragment :
                     articlePagerFragment.viewModel.currentPosition
             ].articleFileName.replace("public.", "")
         }
+    }
+
+
+    private fun getShownDrawerNumberLiveData(): SharedPreferenceIntLiveData {
+        return SharedPreferenceIntLiveData(
+            requireActivity().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
+            PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER,
+            0
+        )
     }
 
 }

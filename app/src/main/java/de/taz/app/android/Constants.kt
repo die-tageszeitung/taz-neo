@@ -22,6 +22,11 @@ const val PREFERENCES_GENERAL = "preferences_general"
 const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
+// General Preferences
+const val DRAWER_SHOW_NUMBER = 1
+const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
+
+
 
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 
