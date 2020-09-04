@@ -33,6 +33,8 @@ const val ISSUE_STATUS = "issueStatus"
 const val DISPLAYABLE_KEY = "webViewDisplayableKey"
 const val SHOW_SECTIONS = "showSection"
 
+const val DRAWER_SHOWN = "drawerShown"
+
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
 
@@ -59,6 +61,7 @@ class IssueContentFragment :
         ) as ImprintFragment
 
     private var showSections: Boolean = true
+    private var drawerShown: Boolean = false
 
     companion object {
         fun createInstance(issueOperations: IssueOperations): IssueContentFragment {
@@ -92,6 +95,7 @@ class IssueContentFragment :
             }
             displayableKey = getString(DISPLAYABLE_KEY)
             showSections = getBoolean(SHOW_SECTIONS, false)
+            drawerShown = getBoolean(DRAWER_SHOWN, false)
         }
 
 
@@ -147,7 +151,8 @@ class IssueContentFragment :
                     setDrawerIssue(issueOperations)
                     getMainView()?.changeDrawerIssue()
                     val drawerShownLiveData = getShownDrawerNumberLiveData()
-                    if (drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
+                    if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
+                        drawerShown = true
                         delay(100)
                         getMainView()?.openDrawer(GravityCompat.START)
                         drawerShownLiveData.postValue(drawerShownLiveData.value + 1)
@@ -318,6 +323,7 @@ class IssueContentFragment :
                 issueStatus?.toString() ?: issueOperations?.status?.toString()
             )
             putBoolean(SHOW_SECTIONS, showSections)
+            putBoolean(DRAWER_SHOWN, drawerShown)
         }
     }
 
@@ -358,12 +364,11 @@ class IssueContentFragment :
 
 
     private fun getShownDrawerNumberLiveData(): SharedPreferenceIntLiveData {
-        return requireActivity().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
-            .let {
-                SharedPreferenceIntLiveData(
-                    it, PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER, 0
-                )
-            }
+        return SharedPreferenceIntLiveData(
+            requireActivity().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
+            PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER,
+            0
+        )
     }
 
 }
