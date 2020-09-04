@@ -8,7 +8,8 @@ import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import kotlinx.android.synthetic.main.fragment_login_missing_subscription.*
 
-class SubscriptionMissingFragment : SubscriptionBaseFragment(R.layout.fragment_login_missing_subscription) {
+class SubscriptionMissingFragment :
+    SubscriptionBaseFragment(R.layout.fragment_login_missing_subscription) {
 
     private var invalidId: Boolean = false
 
@@ -36,7 +37,7 @@ class SubscriptionMissingFragment : SubscriptionBaseFragment(R.layout.fragment_l
             ifDoneNext()
         }
 
-        fragment_login_forgot_password_text.setOnClickListener {
+        fragment_login_missing_subscription_forgot_password.setOnClickListener {
             viewModel.requestPasswordReset(subscriptionId = true)
         }
 
@@ -47,6 +48,10 @@ class SubscriptionMissingFragment : SubscriptionBaseFragment(R.layout.fragment_l
         fragment_login_missing_subscription_subscription_button.setOnClickListener {
             viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
+        fragment_login_missing_subscription_help.setOnClickListener {
+            showHelpDialog(R.string.fragment_login_missing_subscription_help)
+        }
+
     }
 
     override fun done(): Boolean {

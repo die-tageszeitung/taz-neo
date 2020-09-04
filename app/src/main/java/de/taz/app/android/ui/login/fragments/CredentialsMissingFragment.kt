@@ -74,6 +74,10 @@ class CredentialsMissingFragment :
         fragment_login_missing_credentials_surname_layout.markRequired()
         fragment_login_missing_credentials_terms_and_conditions.markRequired()
 
+        fragment_login_missing_credentials_forgot_help.setOnClickListener {
+            showHelpDialog(R.string.fragment_login_missing_credentials_help)
+        }
+
         fragment_login_missing_credentials_switch.setOnClickListener {
             viewModel.createNewAccount = !viewModel.createNewAccount
             viewModel.status.postValue(
