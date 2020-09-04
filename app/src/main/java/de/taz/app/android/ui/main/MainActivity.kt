@@ -418,17 +418,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
 
     fun switchToDisplayableAfterLogin(displayableName: String) = runOnUiThread {
-        lifecycleScope.launch(Dispatchers.IO) {
-            sectionRepository?.getSectionStubForArticle(displayableName)
-                ?.let { section ->
-                    section.getIssueOperations(applicationContext)
-                        ?.let { issueOperations ->
-                            setDrawerIssue(issueOperations)
-                            changeDrawerIssue()
-                        }
-                }
-        }
-
         // clear fragment backstack before showing article
         supportFragmentManager.popBackStackImmediate(
             null,
