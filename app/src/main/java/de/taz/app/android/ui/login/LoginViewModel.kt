@@ -105,7 +105,7 @@ class LoginViewModel(
 
             status.postValue(LoginViewModelState.LOADING)
 
-            val tmpUsername = username
+            val tmpUsername = username ?: ""
             val tmpPassword = password
 
             if (tmpUsername.isNullOrBlank()) {
