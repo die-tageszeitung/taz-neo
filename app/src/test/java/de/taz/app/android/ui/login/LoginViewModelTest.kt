@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
+import android.widget.Toast
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.api.ApiService
@@ -86,10 +87,11 @@ class LoginViewModelTest {
     lateinit var application: Application
     @Mock
     lateinit var feedHelper: FeedHelper
+    @Mock
+    lateinit var toastHelper: ToastHelper
 
     private lateinit var loginViewModel: LoginViewModel
 
-    private var toastHelper = ToastHelper()
     @ObsoleteCoroutinesApi
     @ExperimentalCoroutinesApi
     @Before
