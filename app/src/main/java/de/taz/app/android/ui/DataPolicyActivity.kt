@@ -33,6 +33,7 @@ class DataPolicyActivity : AppCompatActivity() {
     private val log by Log
     private fun getLifecycleOwner(): LifecycleOwner = this
     private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
+    private val dataPolicyHeader = "welcomeSlidesImgHeader.png"
 
     private var downloadRepository: DownloadRepository? = null
     private var fileHelper: FileHelper? = null
@@ -99,7 +100,9 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = downloadRepository?.isDownloadedLiveData(dataPolicyPage)
+            val isDownloadedLiveData = downloadRepository?.isDownloadedLiveData(
+                listOf(dataPolicyPage, dataPolicyHeader)
+            )
 
             withContext(Dispatchers.Main) {
                 isDownloadedLiveData?.observeDistinct(
