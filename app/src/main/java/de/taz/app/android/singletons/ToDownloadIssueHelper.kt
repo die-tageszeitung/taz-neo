@@ -24,6 +24,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     companion object : SingletonHolder<ToDownloadIssueHelper, Context>(::ToDownloadIssueHelper)
 
     private val log by Log
+
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
@@ -49,6 +50,13 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         if (!isDownloading.getAndSet(true)) {
             downloadingJob = CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    if(lastDownloadedDateLiveData.value.isEmpty()) {
+                        val latestIssueDate = issueRepository.getLatestIssue()?.date ?: ""
+                        withContext(Dispatchers.Main) {
+                            lastDownloadedDateLiveData.value = latestIssueDate
+                        }
+                    }
+
                     while (
                         dateToDownloadFromLiveData.value.isNotEmpty() &&
                         lastDownloadedDateLiveData.value.isNotEmpty() &&
@@ -84,37 +92,37 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         }
     }
 
-    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
-        log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
+    fun startMissingDownloads(dateToDownloadFrom: String) {
+        log.debug("startMissingDownloads: $dateToDownloadFrom")
         CoroutineScope(Dispatchers.Main).launch {
-            val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value
-            val prefsLastDownloadedDate = lastDownloadedDateLiveData.value
-
             val minDate: String? = withContext(Dispatchers.IO) {
-                return@withContext if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
+                return@withContext if (dateToDownloadFromLiveData.value == "" || dateToDownloadFrom < dateToDownloadFromLiveData.value) {
                     feedRepository.getAll().fold(null) { acc: String?, feed ->
                         if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
                     }
                 } else null
             }
-            if (!minDate.isNullOrBlank()) {
-                dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
-                    dateToDownloadFrom
-                } else {
-                    minDate
+            synchronized(dateToDownloadFromLiveData) {
+                if (!minDate.isNullOrBlank()) {
+                    dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
+                        dateToDownloadFrom
+                    } else {
+                        minDate
+                    }
                 }
-            }
-            if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
-                lastDownloadedDateLiveData.value = latestDownloadedDate
             }
             startMissingDownloads()
         }
     }
 
-    suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
+    suspend fun cancelDownloadsAndStartAgain() = withContext(Dispatchers.Main) {
         log.debug("cancelling ToDownloadIssueHelper")
         downloadingJob?.cancelAndJoin()
-        lastDownloadedDateLiveData.value =""
-        dateToDownloadFromLiveData.value = ""
+
+        synchronized(lastDownloadedDateLiveData) {
+            lastDownloadedDateLiveData.value = ""
+            dateToDownloadFromLiveData.value = ""
+        }
     }
+
 }
