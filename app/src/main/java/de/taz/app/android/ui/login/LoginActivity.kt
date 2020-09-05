@@ -428,8 +428,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         if (articleIssueDate.isNotBlank() && lastIssueDate.isNotBlank() && articleIssueDate < lastIssueDate) {
             lastIssues?.let {
                 toDownloadIssueHelper?.startMissingDownloads(
-                    articleIssueDate,
-                    lastIssueDate
+                    articleIssueDate
                 )
             }
         }

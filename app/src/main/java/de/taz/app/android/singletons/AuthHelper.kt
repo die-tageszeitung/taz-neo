@@ -127,14 +127,8 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     private fun cancelAndStartDownloadingPublicIssues() = CoroutineScope(Dispatchers.IO).launch {
         toDownloadIssueHelper.cancelDownloadsAndStartAgain()
-        runIfNotNull(
-            issueRepository.getLatestIssue(),
-            issueRepository.getEarliestIssue()
-        ) { latest, earliest ->
-            toDownloadIssueHelper.startMissingDownloads(
-                earliest.date,
-                latest.date
-            )
+        issueRepository.getEarliestIssue()?.let { earliest ->
+            toDownloadIssueHelper.startMissingDownloads(earliest.date)
         }
     }
 
@@ -155,9 +149,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                 } ?: ""
             }
         if (bookmarkedMinDate.isNotBlank()) {
-            issueRepository.getLatestIssueStub()?.date?.let {
-                toDownloadIssueHelper.startMissingDownloads(bookmarkedMinDate, it)
-            }
+            toDownloadIssueHelper.startMissingDownloads(bookmarkedMinDate)
         }
     }
 

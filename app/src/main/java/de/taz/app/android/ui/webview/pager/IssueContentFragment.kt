@@ -343,11 +343,9 @@ class IssueContentFragment :
                                 getMainView()?.switchToDisplayableAfterLogin(
                                     getCurrentlyShownDisplayableKey()
                                 )
-                                issueRepository.getLatestIssueStub()?.date?.let { date ->
-                                    ToDownloadIssueHelper.getInstance().startMissingDownloads(
-                                        it.date, date
-                                    )
-                                }
+                                ToDownloadIssueHelper.getInstance().startMissingDownloads(
+                                    it.date
+                                )
                             }
                         }
                     }
