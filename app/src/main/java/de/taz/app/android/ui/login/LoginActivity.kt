@@ -421,54 +421,15 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
             issueRepository?.saveIfDoNotExist(it)
         }
-        val bookmarkedMinDate: String =
-            articleRepository?.getBookmarkedArticleStubList()?.fold("") { acc, articleStub ->
-                getArticleIssue(articleStub.key)?.let { issue ->
-                    issueRepository?.saveIfDoesNotExist(issue)
-                    articleRepository?.apply {
-                        debookmarkArticle(articleStub)
-                        bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
-                    }
-                    if (acc == "" || issue.date < acc) {
-                        issue.date
-                    } else {
-                        acc
-                    }
-                } ?: ""
-            } ?: ""
-        val articleIssueDate = articleIssue?.date
 
-        val minDate: String = if (articleIssueDate.isNullOrBlank()) {
-            bookmarkedMinDate
-        } else {
-            if (bookmarkedMinDate.isNotBlank()) {
-                if (bookmarkedMinDate > articleIssueDate) {
-                    articleIssueDate
-                } else {
-                    bookmarkedMinDate
-                }
-            } else {
-                articleIssueDate
-            }
-        }
+        val lastIssueDate = lastIssues?.lastOrNull()?.date ?: ""
+        val articleIssueDate = articleIssue?.date ?: ""
 
-        if (minDate != "") {
+        if (articleIssueDate.isNotBlank() && lastIssueDate.isNotBlank() && articleIssueDate < lastIssueDate) {
             lastIssues?.let {
                 toDownloadIssueHelper?.startMissingDownloads(
-                    minDate,
-                    it.last().date
+                    articleIssueDate
                 )
-            }
-        }
-    }
-
-    private suspend fun getArticleIssue(articleFileName: String?): Issue? {
-        return articleFileName?.let {
-            val section = sectionRepository?.getSectionStubForArticle(articleFileName)
-            section?.getIssueOperations(applicationContext)?.let { issueOperations ->
-                apiService?.getIssueByFeedAndDateAsync(
-                    issueOperations.feedName, issueOperations.date
-                )?.await()
             }
         }
     }
@@ -559,4 +520,14 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         )
     }
 
+    private suspend fun getArticleIssue(articleFileName: String?): Issue? {
+        return articleFileName?.let {
+            val section = sectionRepository?.getSectionStubForArticle(articleFileName)
+            section?.getIssueOperations(applicationContext)?.let { issueOperations ->
+                apiService?.getIssueByFeedAndDateAsync(
+                    issueOperations.feedName, issueOperations.date
+                )?.await()
+            }
+        }
+    }
 }

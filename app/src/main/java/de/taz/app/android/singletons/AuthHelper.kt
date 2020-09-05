@@ -8,9 +8,13 @@ import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,12 +36,19 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
-    private val toastHelper
-        get() = ToastHelper.getInstance(applicationContext)
+    private val apiService
+        get() = ApiService.getInstance(applicationContext)
+    private val articleRepository
+        get() = ArticleRepository.getInstance(applicationContext)
     private val issueRepository
         get() = IssueRepository.getInstance(applicationContext)
+    private val toastHelper
+        get() = ToastHelper.getInstance(applicationContext)
+    private val sectionRepository
+        get() = SectionRepository.getInstance(applicationContext)
     private val toDownloadIssueHelper
         get() = ToDownloadIssueHelper.getInstance(applicationContext)
+
 
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
@@ -103,9 +114,11 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                 }
                 if (authStatus == AuthStatus.valid) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        toDownloadIssueHelper.cancelDownloads()
+                        toDownloadIssueHelper.cancelDownloadsAndStartAgain()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
                         isPolling = false
+                        transformBookmarks()
+
                     }
                 }
             }
@@ -113,16 +126,36 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     }
 
     private fun cancelAndStartDownloadingPublicIssues() = CoroutineScope(Dispatchers.IO).launch {
-        toDownloadIssueHelper.cancelDownloads()
-        runIfNotNull(
-            issueRepository.getLatestIssue(),
-            issueRepository.getEarliestIssue()
-        ) { latest, earliest ->
-            toDownloadIssueHelper.startMissingDownloads(
-                earliest.date,
-                        latest.date
-            )
+        toDownloadIssueHelper.cancelDownloadsAndStartAgain()
+        issueRepository.getEarliestIssue()?.let { earliest ->
+            toDownloadIssueHelper.startMissingDownloads(earliest.date)
         }
     }
 
+    private suspend fun transformBookmarks() {
+        val bookmarkedMinDate: String =
+            articleRepository.getBookmarkedArticleStubList().fold("") { acc, articleStub ->
+                getArticleIssue(articleStub)?.let { issue ->
+                    issueRepository.saveIfDoesNotExist(issue)
+                    articleRepository.apply {
+                        debookmarkArticle(articleStub)
+                        bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
+                    }
+                    if (acc == "" || issue.date < acc) {
+                        issue.date
+                    } else {
+                        acc
+                    }
+                } ?: ""
+            }
+        if (bookmarkedMinDate.isNotBlank()) {
+            toDownloadIssueHelper.startMissingDownloads(bookmarkedMinDate)
+        }
+    }
+
+    private suspend fun getArticleIssue(articleStub: ArticleStub): Issue? {
+        return apiService.getIssueByFeedAndDateAsync(
+            articleStub.issueFeedName, articleStub.issueDate
+        ).await()
+    }
 }

@@ -133,7 +133,7 @@ class SplashActivity : BaseActivity() {
     }
 
 
-    private fun initFeedInformation() : Job {
+    private fun initFeedInformation(): Job {
         val apiService = ApiService.getInstance(applicationContext)
         val feedRepository = FeedRepository.getInstance(applicationContext)
 
@@ -152,15 +152,10 @@ class SplashActivity : BaseActivity() {
         val toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
         val issues = apiService.getLastIssuesAsync(number).await()
-        issueRepository.getLatestIssue()?.let {
-            val newestDBIssueDate = issues.first().date
-            if (it.date != newestDBIssueDate && newestDBIssueDate < it.date) {
-                toDownloadIssueHelper.startMissingDownloads(
-                    newestDBIssueDate,
-                    it.date
-                )
-            }
-        }
+        val newestDBIssueDate = issues.first().date
+        toDownloadIssueHelper.startMissingDownloads(
+            newestDBIssueDate
+        )
 
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")

@@ -80,11 +80,11 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            val minDate = feedRepository?.getAll()?.fold(null) {acc: String?, feed ->
+            val minDate = feedRepository?.getAll()?.fold(null) { acc: String?, feed ->
                 if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
             }
 
-            if(!minDate.isNullOrBlank()) {
+            if (!minDate.isNullOrBlank()) {
                 log.debug("minDate is $minDate")
                 DateHelper.stringToLong(minDate)?.let {
                     withContext(Dispatchers.Main) {
@@ -127,7 +127,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            val issueStub = if(authHelper?.isLoggedIn() == true) {
+            val issueStub = if (authHelper?.isLoggedIn() == true) {
                 issueRepository?.getLatestRegularIssueStubByDate(date)
             } else {
                 issueRepository?.getLatestIssueStubByDate(date)
@@ -139,32 +139,29 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                 log.debug("issue is already local")
                 showIssue(issueStub)
             } else {
-                issueRepository?.getEarliestIssueStub()?.let { lastDownloadedIssueStub ->
-                    try {
-                        val apiIssueList = apiService?.getIssuesByDate(date, 1)
-                        if (apiIssueList?.isNullOrEmpty() == false) {
-                            issueRepository?.saveIfDoNotExist(apiIssueList)
+                try {
+                    val apiIssueList = apiService?.getIssuesByDate(date, 1)
+                    if (apiIssueList?.isNullOrEmpty() == false) {
+                        issueRepository?.saveIfDoNotExist(apiIssueList)
 
-                            val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
-                            selectedIssueStub?.let {
-                                showIssue(it)
+                        val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
+                        selectedIssueStub?.let {
+                            showIssue(it)
 
-                                toastHelper?.showToast(
-                                    "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
-                                )
-                                toDownloadIssueHelper?.startMissingDownloads(
-                                    it.date,
-                                    lastDownloadedIssueStub.date
-                                )
-                            }
-                        } else {
-                            toastHelper?.showToast(getString(R.string.issue_not_found))
-                            dismiss()
+                            toastHelper?.showToast(
+                                "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
+                            )
+                            toDownloadIssueHelper?.startMissingDownloads(
+                                it.date
+                            )
                         }
-                    } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                        toastHelper?.showNoConnectionToast()
+                    } else {
+                        toastHelper?.showToast(getString(R.string.issue_not_found))
                         dismiss()
                     }
+                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                    toastHelper?.showNoConnectionToast()
+                    dismiss()
                 }
             }
         }
