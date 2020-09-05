@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -51,6 +50,13 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         if (!isDownloading.getAndSet(true)) {
             downloadingJob = CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    if(lastDownloadedDateLiveData.value.isEmpty()) {
+                        val latestIssueDate = issueRepository.getLatestIssue()?.date ?: ""
+                        withContext(Dispatchers.Main) {
+                            lastDownloadedDateLiveData.value = latestIssueDate
+                        }
+                    }
+
                     while (
                         dateToDownloadFromLiveData.value.isNotEmpty() &&
                         lastDownloadedDateLiveData.value.isNotEmpty() &&
@@ -69,9 +75,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                                     ).await()
                                 issueRepository.saveIfDoNotExist(missingIssues)
                                 withContext(Dispatchers.Main) {
-                                    synchronized(lastDownloadedDateLiveData) {
-                                        lastDownloadedDateLiveData.value = missingIssues.last().date
-                                    }
+                                    lastDownloadedDateLiveData.value = missingIssues.last().date
                                 }
                             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                                 log.warn("$e")
@@ -88,8 +92,8 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
         }
     }
 
-    fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
-        log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
+    fun startMissingDownloads(dateToDownloadFrom: String) {
+        log.debug("startMissingDownloads: $dateToDownloadFrom")
         CoroutineScope(Dispatchers.Main).launch {
             val minDate: String? = withContext(Dispatchers.IO) {
                 return@withContext if (dateToDownloadFromLiveData.value == "" || dateToDownloadFrom < dateToDownloadFromLiveData.value) {
@@ -98,16 +102,13 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                     }
                 } else null
             }
-            synchronized(lastDownloadedDateLiveData) {
+            synchronized(dateToDownloadFromLiveData) {
                 if (!minDate.isNullOrBlank()) {
                     dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
                         dateToDownloadFrom
                     } else {
                         minDate
                     }
-                }
-                if (lastDownloadedDateLiveData.value == "" || latestDownloadedDate > lastDownloadedDateLiveData.value) {
-                    lastDownloadedDateLiveData.value = latestDownloadedDate
                 }
             }
             startMissingDownloads()

@@ -82,7 +82,7 @@ abstract class HomePageFragment(
                 ) ?: ""
 
                 lastRequestedDate = requestDate
-                toDownloadIssueHelper?.startMissingDownloads(requestDate, date)
+                toDownloadIssueHelper?.startMissingDownloads(requestDate)
             }
             lastRequestDateIsRunning.set(false)
         }
