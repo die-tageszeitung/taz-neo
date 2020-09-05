@@ -21,6 +21,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ImprintFragment
 import de.taz.app.android.util.SharedPreferenceIntLiveData
@@ -342,6 +343,11 @@ class IssueContentFragment :
                                 getMainView()?.switchToDisplayableAfterLogin(
                                     getCurrentlyShownDisplayableKey()
                                 )
+                                issueRepository.getLatestIssueStub()?.date?.let { date ->
+                                    ToDownloadIssueHelper.getInstance().startMissingDownloads(
+                                        it.date, date
+                                    )
+                                }
                             }
                         }
                     }

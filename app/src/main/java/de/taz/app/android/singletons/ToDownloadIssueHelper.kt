@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -24,6 +25,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     companion object : SingletonHolder<ToDownloadIssueHelper, Context>(::ToDownloadIssueHelper)
 
     private val log by Log
+
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
@@ -67,7 +69,9 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                                     ).await()
                                 issueRepository.saveIfDoNotExist(missingIssues)
                                 withContext(Dispatchers.Main) {
-                                    lastDownloadedDateLiveData.value = missingIssues.last().date
+                                    synchronized(lastDownloadedDateLiveData) {
+                                        lastDownloadedDateLiveData.value = missingIssues.last().date
+                                    }
                                 }
                             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                                 log.warn("$e")
@@ -87,34 +91,37 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     fun startMissingDownloads(dateToDownloadFrom: String, latestDownloadedDate: String) {
         log.debug("startMissingDownloads: $dateToDownloadFrom - $latestDownloadedDate")
         CoroutineScope(Dispatchers.Main).launch {
-            val prefsDateToDownloadFrom = dateToDownloadFromLiveData.value
-            val prefsLastDownloadedDate = lastDownloadedDateLiveData.value
-
             val minDate: String? = withContext(Dispatchers.IO) {
-                return@withContext if (prefsDateToDownloadFrom == "" || dateToDownloadFrom < prefsDateToDownloadFrom) {
+                return@withContext if (dateToDownloadFromLiveData.value == "" || dateToDownloadFrom < dateToDownloadFromLiveData.value) {
                     feedRepository.getAll().fold(null) { acc: String?, feed ->
                         if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
                     }
                 } else null
             }
-            if (!minDate.isNullOrBlank()) {
-                dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
-                    dateToDownloadFrom
-                } else {
-                    minDate
+            synchronized(lastDownloadedDateLiveData) {
+                if (!minDate.isNullOrBlank()) {
+                    dateToDownloadFromLiveData.value = if (minDate < dateToDownloadFrom) {
+                        dateToDownloadFrom
+                    } else {
+                        minDate
+                    }
                 }
-            }
-            if (prefsLastDownloadedDate == "" || latestDownloadedDate > prefsLastDownloadedDate) {
-                lastDownloadedDateLiveData.value = latestDownloadedDate
+                if (lastDownloadedDateLiveData.value == "" || latestDownloadedDate > lastDownloadedDateLiveData.value) {
+                    lastDownloadedDateLiveData.value = latestDownloadedDate
+                }
             }
             startMissingDownloads()
         }
     }
 
-    suspend fun cancelDownloads() = withContext(Dispatchers.Main) {
+    suspend fun cancelDownloadsAndStartAgain() = withContext(Dispatchers.Main) {
         log.debug("cancelling ToDownloadIssueHelper")
         downloadingJob?.cancelAndJoin()
-        lastDownloadedDateLiveData.value =""
-        dateToDownloadFromLiveData.value = ""
+
+        synchronized(lastDownloadedDateLiveData) {
+            lastDownloadedDateLiveData.value = ""
+            dateToDownloadFromLiveData.value = ""
+        }
     }
+
 }
