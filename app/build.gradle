@@ -35,8 +35,8 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 54
-        versionName "0.9.3"
+        versionCode 55
+        versionName "0.9.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
