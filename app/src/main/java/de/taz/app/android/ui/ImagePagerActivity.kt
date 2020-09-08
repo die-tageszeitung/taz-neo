@@ -1,11 +1,16 @@
 package de.taz.app.android.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.DownloadStatus
@@ -27,6 +32,7 @@ import kotlin.math.max
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var viewPager2: ViewPager2
+    private lateinit var tabLayout: TabLayout
     private var displayableName: String? = null
     private var imageName: String? = null
     private var availableImageList: MutableList<Image>? = null
@@ -41,10 +47,13 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         displayableName = intent.extras?.getString(DISPLAYABLE_NAME)
         imageName = intent.extras?.getString(IMAGE_NAME)
 
-        // Instantiate a ViewPager and a PagerAdapter.
+        // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_image_pager)
 
-        // The pager adapter, which provides the pages to the view pager widget.
+        // Instantiate a TabLayout for page indicator
+        tabLayout = findViewById(R.id.activity_image_pager_tab_layout)
+
+        // Instantiate pager adapter, which provides the pages to the view pager widget.
         pagerAdapter = pagerAdapter ?: ImagePagerAdapter(this)
         viewPager2.adapter = pagerAdapter
 
@@ -64,6 +73,15 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             reduceDragSensitivity(6)
             offscreenPageLimit = 2
         }
+    }
+
+    override fun onAttachedToWindow() {
+        val itemCount = viewPager2.adapter?.itemCount ?: 0
+        if (itemCount > 1) {
+            TabLayoutMediator(tabLayout, viewPager2) { _, _ ->
+            }.attach()
+        }
+        super.onAttachedToWindow()
     }
 
     private suspend fun setImages() = withContext(Dispatchers.IO) {
