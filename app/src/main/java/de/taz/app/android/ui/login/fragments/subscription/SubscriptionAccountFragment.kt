@@ -71,6 +71,10 @@ class SubscriptionAccountFragment :
             viewModel.requestPasswordReset()
         }
 
+        fragment_subscription_order_note.setOnClickListener {
+            showHelpDialog(R.string.order_note_text_detail)
+        }
+
         fragment_subscription_account_terms_and_conditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
@@ -127,6 +131,7 @@ class SubscriptionAccountFragment :
 
         if (viewModel.price == 0) {
             fragment_subscription_account_comment_layout.visibility = View.GONE
+            fragment_subscription_order_note.visibility = View.VISIBLE
             if (fragment_subscription_account_password_confirm_layout.isVisible) {
                 fragment_subscription_account_password_confirm
             } else {

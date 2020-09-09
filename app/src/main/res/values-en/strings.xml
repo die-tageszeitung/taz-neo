@@ -249,6 +249,8 @@
     <string name="login_name_affix_hint">name affix</string>
     <string name="login_comment_hint">note</string>
     <string name="order_button">Order</string>
+    <string name="order_note_text">Click for more information</string>
+    <string name="order_note_text_detail">After placing an order, a confirmation will appear on your screen. You will be asked for confirmation by email immediately after receipt of your order. If you do not receive this email, please check your spam folder (especially if you are an AOL user), you might find it there. The app edition of the taz is already available for you to view and use on the evening before the publication date. The trial subscription ends automatically.</string>
     <string name="trial_subscription_name">6 weeks trial subscription</string>
     <string name="login_first_name_helper">With surname max 24 symbols.</string>
     <string name="login_first_name_error_invalid">Contains only invalid symbols.</string>
