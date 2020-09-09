@@ -53,7 +53,7 @@
     <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. Wenn Sie bereits über eine taz-ID verfügen, loggen Sie sich bitte hier ein.</string>
 
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
-    <string name="trial_subscription_name">14 Tage Testabo</string>
+    <string name="trial_subscription_name">6 Wochen Testabo</string>
 
     <string name="register_button">Registrieren</string>
     <string name="order_button">Bestellen</string>
@@ -247,7 +247,7 @@
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
-    <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 14 Tage kostenlos testen:</string>
+    <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 6 Wochen kostenlos testen:</string>
     <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
