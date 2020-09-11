@@ -2,16 +2,22 @@ mutation notification(
     $pushToken: String!,
     $deviceMessageSound: String,
     $textNotification: Boolean!,
-    $deviceType: DeviceType!,
+    $oldToken: String,
+    $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $oldToken: String
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String
 ) {
     notification(
         pushToken: $pushToken,
         deviceMessageSound: $deviceMessageSound,
         textNotification: $textNotification,
-        deviceType: $deviceType,
-        deviceFormat: $deviceFormat,
         oldToken: $oldToken
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion
     )
 }

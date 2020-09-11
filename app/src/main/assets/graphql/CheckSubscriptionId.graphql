@@ -1,10 +1,20 @@
 query CheckSubscriptionId(
     $subscriptionId: Int!,
-    $password: String!
+    $password: String!,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String
 )  {
     checkSubscriptionId(
         subscriptionId: $subscriptionId,
         password: $password
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion
     ) {
       status
       message

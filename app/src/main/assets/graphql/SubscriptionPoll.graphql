@@ -1,7 +1,19 @@
 query SubscriptionPoll(
-    $installationId: String!
+    $installationId: String!,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String
 ) {
-    subscriptionPoll(installationId: $installationId) {
+    subscriptionPoll(
+        installationId: $installationId,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion
+    ) {
         status
         message
         token

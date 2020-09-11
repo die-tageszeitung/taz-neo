@@ -11,11 +11,15 @@ mutation Subscription(
     $postcode: String!,
     $country: String!,
     $installationId: String!,
-    $deviceType: DeviceType,
     $pushToken: String,
     $accountHolder: String
     $comment: String,
-    $nameAffix: String
+    $nameAffix: String,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String
 ) {
     subscription(
         tazId: $tazId,
@@ -30,11 +34,15 @@ mutation Subscription(
         postcode: $postcode,
         country: $country,
         installationId: $installationId,
-        deviceType: $deviceType
         pushToken: $pushToken,
         accountHolder: $accountHolder,
         comment: $comment,
         nameAffix: $nameAffix
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion
     ) {
         status
         message
