@@ -51,18 +51,20 @@ class SplashActivity : BaseActivity() {
 
             resetAllDownloads()
 
-            val initAppInfoJob = initAppInfoAndCheckAndroidVersion()
-            val initFeedJob = initFeedInformation()
+            CoroutineScope(Dispatchers.IO).launch {
+                val initAppInfoJob = initAppInfoAndCheckAndroidVersion()
+                val initFeedJob = initFeedInformation()
 
-            initAppInfoJob.join()
-            initFeedJob.join()
+                initAppInfoJob.join()
+                initFeedJob.join()
 
-            initResources()
+                initResources()
 
-            initLastIssues()
-            deleteUnnecessaryIssues()
-            ensurePushTokenSent()
-            startNotDownloadedIssues()
+                initLastIssues()
+                deleteUnnecessaryIssues()
+                ensurePushTokenSent()
+                startNotDownloadedIssues()
+            }
 
             if (isDataPolicyAccepted()) {
                 if (isFirstTimeStart()) {
