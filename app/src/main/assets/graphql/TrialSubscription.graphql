@@ -10,7 +10,8 @@ mutation TrialSubscription(
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     trialSubscription(
         tazId: $tazId,
@@ -24,7 +25,8 @@ mutation TrialSubscription(
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         status
         message

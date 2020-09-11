@@ -5,7 +5,8 @@ query AuthenticationQuery(
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     authentificationToken(
         user: $user,
@@ -14,7 +15,8 @@ query AuthenticationQuery(
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         token
         authInfo {
