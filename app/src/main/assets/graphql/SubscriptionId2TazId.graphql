@@ -12,7 +12,8 @@ mutation SubscriptionId2TazId(
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     subscriptionId2tazId(
         tazId: $tazId,
@@ -27,7 +28,8 @@ mutation SubscriptionId2TazId(
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         status
         message

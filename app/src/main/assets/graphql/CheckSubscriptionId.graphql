@@ -5,7 +5,8 @@ query CheckSubscriptionId(
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $deviceOS: String
 )  {
     checkSubscriptionId(
         subscriptionId: $subscriptionId,
@@ -14,7 +15,8 @@ query CheckSubscriptionId(
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
       status
       message

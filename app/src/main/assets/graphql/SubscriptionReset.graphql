@@ -4,7 +4,8 @@ mutation SubscriptionReset(
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     subscriptionReset(
         subscriptionId: $subscriptionId,
@@ -12,7 +13,8 @@ mutation SubscriptionReset(
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         status
         mail
