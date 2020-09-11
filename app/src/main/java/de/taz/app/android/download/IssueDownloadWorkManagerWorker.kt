@@ -22,14 +22,8 @@ class IssueDownloadWorkManagerWorker(
         val apiService = ApiService.getInstance(applicationContext)
         apiService.getLastIssues(limit = 1).firstOrNull()?.let { issue ->
             val issueRepository = IssueRepository.getInstance(applicationContext)
-            val latestDownloadedDate = issueRepository.getLatestIssue()?.date
-
             issueRepository.saveIfDoesNotExist(issue)
-            latestDownloadedDate?.let {
-                ToDownloadIssueHelper.getInstance(applicationContext)
-                    .startMissingDownloads(issue.date, latestDownloadedDate)
 
-            }
             log.debug("starting to download - issueDate: ${issue.date} issueFeedName: ${issue.feedName} issueStatus: ${issue.status}")
 
             val downloadService = DownloadService.getInstance(applicationContext)
