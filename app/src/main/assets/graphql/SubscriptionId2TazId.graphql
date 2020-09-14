@@ -12,7 +12,7 @@ mutation SubscriptionId2TazId(
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 ) {
     subscriptionId2tazId(

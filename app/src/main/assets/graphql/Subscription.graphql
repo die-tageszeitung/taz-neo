@@ -19,7 +19,7 @@ mutation Subscription(
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 ) {
     subscription(
