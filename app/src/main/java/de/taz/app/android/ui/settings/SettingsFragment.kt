@@ -7,7 +7,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
-import androidx.core.widget.doOnTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.api.models.AuthStatus
@@ -128,10 +127,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
         }
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         viewModel.apply {
             textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
@@ -304,6 +300,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun getTextSizePercent(): String {
-        return viewModel.textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        return viewModel.textSizeLiveData.value
     }
 }
