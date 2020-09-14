@@ -179,16 +179,21 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         ResourceInfo.getNewestDownloadedStubLiveData(context?.applicationContext).observeUntil(
             this, { resourceInfo ->
                 lifecycleScope.launch(Dispatchers.Main) {
-                    if (isResourceInfoUpToDate(resourceInfo)) {
-                        displayable.isDownloadedLiveData(context?.applicationContext).observeUntil(
-                            this@WebViewFragment,
-                            { isDownloaded ->
-                                if (isDownloaded) {
-                                    log.info("displayable is ready")
-                                    loadUrl()
-                                }
-                            }, { isDownloaded -> isDownloaded }
-                        )
+                    resourceInfo?.let {
+                        if (isResourceInfoUpToDate(resourceInfo)) {
+                            displayable.isDownloadedLiveData(context?.applicationContext)
+                                .observeUntil(
+                                    this@WebViewFragment,
+                                    { isDownloaded ->
+                                        if (isDownloaded) {
+                                            log.info("displayable is ready")
+                                            loadUrl()
+                                        }
+                                    }, { isDownloaded -> isDownloaded }
+                                )
+                        } else {
+                            ResourceInfo.update(context?.applicationContext, true)
+                        }
                     }
                 }
             }, { isResourceInfoUpToDate(it) }
@@ -221,11 +226,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean =
-        resourceInfo?.let {
+    private fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean {
+        return resourceInfo?.let {
             val minResourceVersion = issueOperations?.minResourceVersion ?: Int.MAX_VALUE
             minResourceVersion <= resourceInfo.resourceVersion
         } ?: false
+    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         viewModel.scrollPosition?.let {
