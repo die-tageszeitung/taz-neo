@@ -8,7 +8,7 @@ mutation TrialSubscription(
     $pushToken: String,
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $deviceName: String,
+    $deviceName: String!,
     $deviceType: DeviceType!,
     $deviceVersion: String,
     $deviceOS: String
