@@ -41,6 +41,9 @@ class SectionWebViewFragment :
         fun createInstance(section: SectionStub): SectionWebViewFragment {
             val fragment = SectionWebViewFragment()
             fragment.displayable = section
+            fragment.lifecycleScope.launch(Dispatchers.IO) {
+                fragment.issueOperations = section.getIssueOperations()
+            }
             return fragment
         }
     }

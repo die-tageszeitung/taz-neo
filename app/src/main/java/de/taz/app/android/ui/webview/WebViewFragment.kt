@@ -15,6 +15,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoStub
@@ -39,6 +40,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override val enableSideBar: Boolean = true
 
     protected var displayable: DISPLAYABLE? = null
+    protected var issueOperations: IssueOperations? = null
+
     abstract override val viewModel: VIEW_MODEL
 
     protected val log by Log
@@ -188,7 +191,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                         )
                     }
                 }
-            }, { runBlocking { isResourceInfoUpToDate(it) } }
+            }, { isResourceInfoUpToDate(it) }
         )
     }
 
@@ -218,16 +221,11 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean =
-        withContext(Dispatchers.IO) {
-            resourceInfo?.let {
-                val issueOperations =
-                    viewModel.displayable?.getIssueOperations(context?.applicationContext)
-                val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-
-                minResourceVersion <= resourceInfo.resourceVersion
-            } ?: false
-        }
+    private fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean =
+        resourceInfo?.let {
+            val minResourceVersion = issueOperations?.minResourceVersion ?: Int.MAX_VALUE
+            minResourceVersion <= resourceInfo.resourceVersion
+        } ?: false
 
     override fun onSaveInstanceState(outState: Bundle) {
         viewModel.scrollPosition?.let {
