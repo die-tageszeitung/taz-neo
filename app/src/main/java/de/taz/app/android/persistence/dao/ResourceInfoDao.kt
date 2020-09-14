@@ -9,13 +9,19 @@ import de.taz.app.android.api.models.ResourceInfoStub
 abstract class ResourceInfoDao: BaseDao<ResourceInfoStub>() {
 
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
-    abstract fun get(): ResourceInfoStub
+    abstract fun getNewest(): ResourceInfoStub
+
+    @Query("SELECT * FROM ResourceInfo WHERE downloadedStatus == 'done' ORDER BY resourceVersion DESC LIMIT 1")
+    abstract fun getNewestDownloadedLiveData(): LiveData<ResourceInfoStub?>
+
+    @Query("SELECT * FROM ResourceInfo WHERE downloadedStatus == 'done' ORDER BY resourceVersion DESC LIMIT 1")
+    abstract fun getNewestDownloaded(): ResourceInfoStub?
 
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
     abstract fun getLiveData(): LiveData<ResourceInfoStub?>
 
-    @Query("SELECT * FROM ResourceInfo WHERE resourceVersion NOT IN (SELECT resourceVersion from ResourceInfo ORDER BY resourceVersion DESC LIMIT 1)")
-    abstract fun getAllButNewest(): List<ResourceInfoStub>
+    @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion")
+    abstract fun getAll(): List<ResourceInfoStub>
 
     @Query("SELECT EXISTS (SELECT * FROM ResourceInfo WHERE resourceVersion == :resourceVersion AND downloadedStatus IN ('done'))")
     abstract fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean>

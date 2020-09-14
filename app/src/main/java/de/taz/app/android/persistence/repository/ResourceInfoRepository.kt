@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.RESOURCE_FOLDER
@@ -50,16 +51,16 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     }
 
     fun getWithoutFiles(): ResourceInfoStub? {
-        return appDatabase.resourceInfoDao().get()
+        return appDatabase.resourceInfoDao().getNewest()
     }
 
     fun getStub(): ResourceInfoStub? {
-        return appDatabase.resourceInfoDao().get()
+        return appDatabase.resourceInfoDao().getNewest()
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(): ResourceInfo {
-        return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().get())
+    fun getNewestOrThrow(): ResourceInfo {
+        return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().getNewest())
     }
 
     fun getLiveData(): LiveData<ResourceInfo?> {
@@ -94,12 +95,23 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     }
 
 
-    fun get(): ResourceInfo? {
+    fun getNewest(): ResourceInfo? {
         return try {
-            getOrThrow()
+            getNewestOrThrow()
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun getNewestDownloaded(): ResourceInfo? {
+        return appDatabase.resourceInfoDao().getNewestDownloaded()?.let {
+            resourceInfoStubToResourceInfo(it)
+        }
+    }
+
+    fun getNewestDownloadedLiveData(): LiveData<ResourceInfo?> {
+        return appDatabase.resourceInfoDao().getNewestDownloadedLiveData()
+            .map { it?.let { resourceInfoStubToResourceInfo(it) } }
     }
 
     fun delete(resourceInfo: ResourceInfo) {
@@ -117,8 +129,13 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
 
-    fun deleteAllButNewest() {
-        appDatabase.resourceInfoDao().getAllButNewest().forEach { resourceInfo ->
+    fun deleteAllButNewestAndNewestDownloaded() {
+        val allResourceInfos = appDatabase.resourceInfoDao().getAll().toMutableList()
+        val newestResourceInfo = appDatabase.resourceInfoDao().getNewest()
+        val newestDownloadedResourceInfo = appDatabase.resourceInfoDao().getNewestDownloaded()
+        allResourceInfos.remove(newestResourceInfo)
+        allResourceInfos.remove(newestDownloadedResourceInfo)
+        allResourceInfos.forEach { resourceInfo ->
             delete(resourceInfoStubToResourceInfo(resourceInfo))
         }
     }
