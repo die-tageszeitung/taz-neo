@@ -71,7 +71,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
+    private fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )
@@ -109,9 +109,8 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getNewestDownloadedLiveData(): LiveData<ResourceInfo?> {
+    fun getNewestDownloadedLiveData(): LiveData<ResourceInfoStub?> {
         return appDatabase.resourceInfoDao().getNewestDownloadedLiveData()
-            .map { it?.let { resourceInfoStubToResourceInfo(it) } }
     }
 
     fun delete(resourceInfo: ResourceInfo) {

@@ -9,9 +9,6 @@ import android.view.View
 import android.webkit.WebSettings
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -20,11 +17,11 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.monkey.observeDistinctUntil
-import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -91,7 +88,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
         configureWebView()
         viewModel.displayable?.let { displayable ->
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 ensureDownloadedAndShow(displayable)
             }
         }
@@ -173,106 +170,40 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     }
 
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
-        val isDisplayableLiveData = MutableLiveData<Boolean>()
+        ResourceInfo.update(context?.applicationContext)
+        downloadService?.download(displayable)
 
-        val isResourceInfoUpToDate = isResourceInfoUpToDate()
-        if (!isResourceInfoUpToDate) {
-            ResourceInfo.update(context?.applicationContext)
-        }
-
-        val resourceInfo = ResourceInfo.getNewestDownloaded(context?.applicationContext)
-
-
-        resourceInfo?.let {
-            val displayableDownloaded = displayable.isDownloaded(context?.applicationContext)
-            val resourceInfoIsDownloaded = resourceInfo.isDownloaded(context?.applicationContext)
-
-            if (!displayableDownloaded) {
-                val isDownloadedLiveData =
-                    displayable.isDownloadedLiveData(context?.applicationContext)
-                withContext(Dispatchers.Main) {
-                    isDownloadedLiveData.observeDistinctUntil(
-                        this@WebViewFragment,
-                        { isDownloaded ->
-                            if (isDownloaded) {
-                                lifecycleScope.launch(Dispatchers.IO) {
+        ResourceInfo.getNewestDownloadedStubLiveData(context?.applicationContext).observeUntil(
+            this, { resourceInfo ->
+                lifecycleScope.launch(Dispatchers.Main) {
+                    if (isResourceInfoUpToDate(resourceInfo)) {
+                        displayable.isDownloadedLiveData(context?.applicationContext).observeUntil(
+                            this@WebViewFragment,
+                            { isDownloaded ->
+                                if (isDownloaded) {
                                     log.info("displayable is ready")
-                                    isDisplayableLiveData.postValue(
-                                        resourceInfo.isDownloaded(
-                                            context?.applicationContext
-                                        )
-                                    )
+                                    loadUrl()
                                 }
-                            } else {
-                                downloadService?.download(displayable)
-                            }
-                        }, { isDownloaded ->
-                            isDownloaded
-                        }
-                    )
-                }
-            } else {
-                isDisplayableLiveData.postValue(resourceInfoIsDownloaded)
-            }
-            if (!resourceInfoIsDownloaded) {
-                val resourceInfoIsDownloadedLiveData =
-                    resourceInfo.isDownloadedLiveData(context?.applicationContext)
-
-                withContext(Dispatchers.Main) {
-                    if (!isResourceInfoUpToDate) {
-                        ResourceInfo.update(context?.applicationContext)
+                            }, { isDownloaded -> isDownloaded }
+                        )
                     }
-                    resourceInfoIsDownloadedLiveData.observeDistinctUntil(
-                        this@WebViewFragment,
-                        { isDownloaded ->
-                            if (isDownloaded) {
-                                lifecycleScope.launch(Dispatchers.IO) {
-                                    log.info("resources are ready")
-                                    isDisplayableLiveData.postValue(
-                                        displayable.isDownloaded(
-                                            context?.applicationContext
-                                        )
-                                    )
-                                }
-                            }
-                        }, { isDownloaded -> isDownloaded }
-                    )
                 }
-            } else {
-                isDisplayableLiveData.postValue(displayableDownloaded)
-            }
-
-
-            withContext(Dispatchers.Main) {
-                isDisplayableLiveData.observe(
-                    this@WebViewFragment,
-                    DisplayableObserver(displayable, isDisplayableLiveData)
-                )
-            }
-        }
+            }, { runBlocking { isResourceInfoUpToDate(it) } }
+        )
     }
 
-    inner class DisplayableObserver(
-        private val displayable: DISPLAYABLE,
-        private val isDisplayableLiveData: LiveData<Boolean>
-    ) : Observer<Boolean> {
-        override fun onChanged(isDisplayable: Boolean?) {
-            if (isDisplayable == true) {
-                isDisplayableLiveData.removeObserver(this@DisplayableObserver)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    displayable.getFile()?.let { file ->
-                        if (file.exists()) {
-                            loadUrl("file://${file.absolutePath}")
-                        } else {
-                            displayable.download(context?.applicationContext)
-                            withContext(Dispatchers.Main) {
-                                displayable.isDownloadedLiveData(context?.applicationContext)
-                                    .observe(
-                                        this@WebViewFragment,
-                                        DisplayableObserver(displayable, isDisplayableLiveData)
-                                    )
-                            }
-                        }
+    private fun loadUrl() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            displayable?.getFile()?.let { file ->
+                if (file.exists()) {
+                    loadUrl("file://${file.absolutePath}")
+                } else {
+                    displayable?.download(context?.applicationContext)
+                    withContext(Dispatchers.Main) {
+                        displayable?.isDownloadedLiveData(context?.applicationContext)
+                            ?.observeUntil(
+                                this@WebViewFragment, { if (it) loadUrl() }, { it }
+                            )
                     }
                 }
             }
@@ -287,13 +218,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private fun isResourceInfoUpToDate(): Boolean {
-        val issueOperations = viewModel.displayable?.getIssueOperations(context?.applicationContext)
-        val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-        val currentResourceVersion = ResourceInfo.getNewestDownloaded(context?.applicationContext)?.resourceVersion ?: 0
+    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean =
+        withContext(Dispatchers.IO) {
+            resourceInfo?.let {
+                val issueOperations =
+                    viewModel.displayable?.getIssueOperations(context?.applicationContext)
+                val minResourceVersion = issueOperations?.minResourceVersion ?: 0
 
-        return minResourceVersion <= currentResourceVersion
-    }
+                minResourceVersion <= resourceInfo.resourceVersion
+            } ?: false
+        }
 
     override fun onSaveInstanceState(outState: Bundle) {
         viewModel.scrollPosition?.let {

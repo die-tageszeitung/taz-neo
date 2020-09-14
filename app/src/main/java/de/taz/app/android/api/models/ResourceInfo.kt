@@ -79,7 +79,7 @@ data class ResourceInfo(
             return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloaded()
         }
 
-        fun getNewestDownloadedLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
+        fun getNewestDownloadedStubLiveData(applicationContext: Context?): LiveData<ResourceInfoStub?> {
             return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloadedLiveData()
         }
 
