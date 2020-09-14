@@ -18,8 +18,6 @@ data class ErrorReportVariables(
     val conditions: String? = null,
     val storageType: String? = null,
     val errorProtocol: String? = null,
-    val deviceName: String? = android.os.Build.MODEL,
-    val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val deviceOS: String? = System.getProperty("os.version"),
     val appVersion: String = BuildConfig.VERSION_NAME,
     val installationId: String = AuthHelper.getInstance().installationId,

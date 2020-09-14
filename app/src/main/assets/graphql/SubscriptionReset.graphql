@@ -1,5 +1,21 @@
-mutation SubscriptionReset($subscriptionId: Int!) {
-    subscriptionReset(subscriptionId: $subscriptionId) {
+mutation SubscriptionReset(
+    $subscriptionId: Int!,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String,
+    $deviceOS: String
+) {
+    subscriptionReset(
+        subscriptionId: $subscriptionId,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
+    ) {
         status
         mail
     }

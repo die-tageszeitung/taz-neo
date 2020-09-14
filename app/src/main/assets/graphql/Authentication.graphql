@@ -1,5 +1,23 @@
-query AuthenticationQuery($user: String!, $password: String!) {
-    authentificationToken(user: $user, password: $password) {
+query AuthenticationQuery(
+    $user: String!,
+    $password: String!,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String,
+    $deviceOS: String
+) {
+    authentificationToken(
+        user: $user,
+        password: $password,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
+    ) {
         token
         authInfo {
             status
