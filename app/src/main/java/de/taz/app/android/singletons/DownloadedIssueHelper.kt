@@ -51,6 +51,6 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
         }
     }
 
-    private fun getStoredIssuesNumber(): Int = storedIssueNumberLiveData.value?.toInt()
-        ?: SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
+    private fun getStoredIssuesNumber(): Int = storedIssueNumberLiveData.value.toInt()
+
 }

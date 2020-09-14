@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -44,9 +45,8 @@ abstract class HomePageFragment(
         toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         viewModel.apply {
             issueStubsLiveData.observeDistinct(
                 viewLifecycleOwner,

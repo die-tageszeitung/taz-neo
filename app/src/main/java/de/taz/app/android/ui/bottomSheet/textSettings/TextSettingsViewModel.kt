@@ -42,6 +42,6 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun getTextSizePercent(): String {
-        return textSizeLiveData.value ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        return textSizeLiveData.value
     }
 }
