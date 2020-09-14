@@ -68,5 +68,5 @@ interface CacheableDownload {
      * if the [CacheableDownload] has [FileEntry]s of [StorageType.issue] we need the
      * [IssueOperations] for baseUrl and tag
      */
-    fun getIssueOperations(applicationContext: Context?): IssueOperations? = null
+    fun getIssueOperations(applicationContext: Context? = null): IssueOperations? = null
 }
