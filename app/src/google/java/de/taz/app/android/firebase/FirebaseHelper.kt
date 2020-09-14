@@ -34,7 +34,7 @@ class FirebaseHelper private constructor(applicationContext: Context) : Firebase
         )
 
     override var hasTokenBeenSent: Boolean
-        get() = firebaseTokenHasBeenSentLiveData.value ?: false
+        get() = firebaseTokenHasBeenSentLiveData.value
         set(value) {
             firebaseTokenHasBeenSentLiveData.postValue(value)
         }
