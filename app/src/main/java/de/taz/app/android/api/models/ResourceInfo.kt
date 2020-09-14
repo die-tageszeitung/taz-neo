@@ -8,8 +8,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
@@ -39,7 +38,7 @@ data class ResourceInfo(
 
     override fun getAllLocalFileNames(): List<String> {
         return resourceList
-            .filter { it.downloadedStatus== DownloadStatus.done }
+            .filter { it.downloadedStatus == DownloadStatus.done }
             .map { it.name }
     }
 
@@ -71,11 +70,12 @@ data class ResourceInfo(
         private val log by Log
 
         fun getNewestDownloadedStubLiveData(applicationContext: Context?): LiveData<ResourceInfoStub?> {
-            return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloadedLiveData()
+            return ResourceInfoRepository.getInstance(applicationContext)
+                .getNewestDownloadedLiveData()
         }
 
-        suspend fun update(applicationContext: Context?): ResourceInfo? =
-            withContext(Dispatchers.IO) {
+        suspend fun update(applicationContext: Context?) {
+            CoroutineScope(Dispatchers.IO).launch {
                 log.info("ResourceInfo.update called")
                 val apiService = ApiService.getInstance(applicationContext)
                 val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
@@ -96,9 +96,8 @@ data class ResourceInfo(
                             ?: log.debug("Updated ResourceInfo")
                     }
                     resourceInfoRepository.deleteAllButNewestAndNewestDownloaded()
-                    fromServer
                 }
             }
-
+        }
     }
 }
