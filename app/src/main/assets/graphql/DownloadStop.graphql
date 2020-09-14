@@ -3,7 +3,7 @@ mutation DownloadStop(
     $time: Float!,
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $deviceName: String,
+    $deviceName: String!,
     $deviceType: DeviceType!,
     $deviceVersion: String,
     $deviceOS: String
