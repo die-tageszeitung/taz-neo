@@ -7,9 +7,9 @@ import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
@@ -39,7 +39,7 @@ data class ResourceInfo(
 
     override fun getAllLocalFileNames(): List<String> {
         return resourceList
-            .filter { it.downloadedStatus== DownloadStatus.done }
+            .filter { it.downloadedStatus == DownloadStatus.done }
             .map { it.name }
     }
 
@@ -48,7 +48,7 @@ data class ResourceInfo(
     }
 
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-        return ResourceInfoRepository.getInstance(applicationContext).get()?.downloadedStatus
+        return ResourceInfoRepository.getInstance(applicationContext).getNewest()?.downloadedStatus
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
@@ -70,36 +70,42 @@ data class ResourceInfo(
 
         private val log by Log
 
+        private var lastUpdated = 0L
+        private const val updateTimeOut = 3600000L // 1 hour
 
-        fun get(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).get()
+        fun getNewestDownloadedStubLiveData(applicationContext: Context?): LiveData<ResourceInfoStub?> {
+            return ResourceInfoRepository.getInstance(applicationContext)
+                .getNewestDownloadedLiveData()
         }
 
-        suspend fun update(applicationContext: Context?): ResourceInfo? =
-            withContext(Dispatchers.IO) {
-                log.info("ResourceInfo.update called")
-                val apiService = ApiService.getInstance(applicationContext)
-                val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+        suspend fun update(applicationContext: Context? = null, force: Boolean = false) {
+            if(force || lastUpdated < DateHelper.now - updateTimeOut) {
+                lastUpdated = DateHelper.now
+                CoroutineScope(Dispatchers.IO).launch {
+                    log.info("ResourceInfo.update called")
+                    val apiService = ApiService.getInstance(applicationContext)
+                    val resourceInfoRepository =
+                        ResourceInfoRepository.getInstance(applicationContext)
 
-                val fromServer = apiService.getResourceInfoAsync().await()
-                val local = resourceInfoRepository.get()
+                    val fromServer = apiService.getResourceInfoAsync().await()
+                    val newest = resourceInfoRepository.getNewest()
 
-                fromServer?.let {
-                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
-                            applicationContext
-                        )
-                    ) {
-                        resourceInfoRepository.save(fromServer)
+                    fromServer?.let {
+                        if (newest == null || fromServer.resourceVersion > newest.resourceVersion || !newest.isDownloaded(
+                                applicationContext
+                            )
+                        ) {
+                            resourceInfoRepository.save(fromServer)
 
-                        // ensure resources are downloaded
-                        DownloadService.getInstance(applicationContext).download(fromServer)
-                        local?.let { log.debug("Initialized ResourceInfo") }
-                            ?: log.debug("Updated ResourceInfo")
+                            // ensure resources are downloaded
+                            DownloadService.getInstance(applicationContext).download(fromServer)
+                            newest?.let { log.debug("Initialized ResourceInfo") }
+                                ?: log.debug("Updated ResourceInfo")
+                        }
+                        resourceInfoRepository.deleteAllButNewestAndNewestDownloaded()
                     }
-                    resourceInfoRepository.deleteAllButNewest()
-                    fromServer
                 }
             }
-
+        }
     }
 }

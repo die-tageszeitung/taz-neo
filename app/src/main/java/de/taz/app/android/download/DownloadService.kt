@@ -60,7 +60,8 @@ class DownloadService private constructor(val applicationContext: Context) {
     val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
     private var appInfo: AppInfo? = null
-    private var resourceInfo: ResourceInfo? = null
+    private val resourceInfo
+        get() = resourceInfoRepository.getNewest()
 
     private val httpClient = OkHttp.client
 
@@ -407,7 +408,6 @@ class DownloadService private constructor(val applicationContext: Context) {
                                     }
                                 }
                                 StorageType.resource -> {
-                                    ensureResourceInfo()
                                     resourceInfo?.resourceBaseUrl?.let { resourceBaseUrl ->
                                         createAndSaveDownload(resourceBaseUrl, fileEntry, tag)
                                     }
@@ -444,12 +444,6 @@ class DownloadService private constructor(val applicationContext: Context) {
         if (appInfo == null) {
             AppInfo.get(applicationContext)
             appInfo = appInfoRepository.get()
-        }
-    }
-
-    private fun ensureResourceInfo() {
-        if (resourceInfo == null) {
-            resourceInfo = ResourceInfo.get(applicationContext)
         }
     }
 

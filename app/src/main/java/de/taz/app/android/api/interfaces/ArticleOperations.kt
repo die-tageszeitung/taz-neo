@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
+interface ArticleOperations : CacheableDownload, WebViewDisplayable {
 
     override val key: String
     val articleType: ArticleType
@@ -65,9 +65,10 @@ interface ArticleOperations: CacheableDownload, WebViewDisplayable  {
         }
     }
 
-    override fun getIssueOperations(applicationContext: Context?) = getIssueStub(applicationContext)
+    override fun getIssueOperations(applicationContext: Context?) =
+        getIssueStub(applicationContext)
 
-    suspend fun getNavButton(applicationContext: Context?): Image? = withContext(Dispatchers.IO){
+    suspend fun getNavButton(applicationContext: Context?): Image? = withContext(Dispatchers.IO) {
         return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton()
     }
 
