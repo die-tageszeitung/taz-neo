@@ -46,7 +46,7 @@ class ResourceInfoRepositoryTest {
     @Throws(Exception::class)
     fun writeAndRead() {
         resourceInfoRepository.save(resourceInfo)
-        val fromDB = resourceInfoRepository.get()
+        val fromDB = resourceInfoRepository.getNewest()
         assertEquals(fromDB, resourceInfo)
     }
 
@@ -64,7 +64,7 @@ class ResourceInfoRepositoryTest {
         resourceInfoRepository.save(resourceInfo)
         resourceInfoRepository.save(resourceInfo2)
 
-        val fromDB = resourceInfoRepository.get()
+        val fromDB = resourceInfoRepository.getNewest()
         assertEquals(fromDB, resourceInfo2)
     }
 

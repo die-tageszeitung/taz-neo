@@ -175,16 +175,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
         val isDisplayableLiveData = MutableLiveData<Boolean>()
 
-        // Ensure only one resourceVersion exists by deleting all but newest:
-        ResourceInfoRepository.getInstance(activity?.applicationContext).deleteAllButNewest()
-
         val isResourceInfoUpToDate = isResourceInfoUpToDate()
-
-        val resourceInfo = if (isResourceInfoUpToDate) {
-            ResourceInfo.get(context?.applicationContext)
-        } else {
+        if (!isResourceInfoUpToDate) {
             ResourceInfo.update(context?.applicationContext)
         }
+
+        val resourceInfo = ResourceInfo.getNewestDownloaded(context?.applicationContext)
+
 
         resourceInfo?.let {
             val displayableDownloaded = displayable.isDownloaded(context?.applicationContext)
@@ -293,7 +290,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private fun isResourceInfoUpToDate(): Boolean {
         val issueOperations = viewModel.displayable?.getIssueOperations(context?.applicationContext)
         val minResourceVersion = issueOperations?.minResourceVersion ?: 0
-        val currentResourceVersion = ResourceInfo.get(context?.applicationContext)?.resourceVersion ?: 0
+        val currentResourceVersion = ResourceInfo.getNewestDownloaded(context?.applicationContext)?.resourceVersion ?: 0
 
         return minResourceVersion <= currentResourceVersion
     }

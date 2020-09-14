@@ -48,7 +48,7 @@ data class ResourceInfo(
     }
 
     override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-        return ResourceInfoRepository.getInstance(applicationContext).get()?.downloadedStatus
+        return ResourceInfoRepository.getInstance(applicationContext).getNewest()?.downloadedStatus
     }
 
     override fun getLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
@@ -71,8 +71,16 @@ data class ResourceInfo(
         private val log by Log
 
 
-        fun get(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).get()
+        fun getNewest(applicationContext: Context?): ResourceInfo? {
+            return ResourceInfoRepository.getInstance(applicationContext).getNewest()
+        }
+
+        fun getNewestDownloaded(applicationContext: Context?): ResourceInfo? {
+            return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloaded()
+        }
+
+        fun getNewestDownloadedLiveData(applicationContext: Context?): LiveData<ResourceInfo?> {
+            return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloadedLiveData()
         }
 
         suspend fun update(applicationContext: Context?): ResourceInfo? =
@@ -82,10 +90,10 @@ data class ResourceInfo(
                 val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
                 val fromServer = apiService.getResourceInfoAsync().await()
-                val local = resourceInfoRepository.get()
+                val newest = resourceInfoRepository.getNewest()
 
                 fromServer?.let {
-                    if (local == null || fromServer.resourceVersion > local.resourceVersion || !local.isDownloaded(
+                    if (newest == null || fromServer.resourceVersion > newest.resourceVersion || !newest.isDownloaded(
                             applicationContext
                         )
                     ) {
@@ -93,10 +101,10 @@ data class ResourceInfo(
 
                         // ensure resources are downloaded
                         DownloadService.getInstance(applicationContext).download(fromServer)
-                        local?.let { log.debug("Initialized ResourceInfo") }
+                        newest?.let { log.debug("Initialized ResourceInfo") }
                             ?: log.debug("Updated ResourceInfo")
                     }
-                    resourceInfoRepository.deleteAllButNewest()
+                    resourceInfoRepository.deleteAllButNewestAndNewestDownloaded()
                     fromServer
                 }
             }
