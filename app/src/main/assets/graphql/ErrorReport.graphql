@@ -14,7 +14,7 @@ mutation errorReport(
     $architecture: String,
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $deviceName: String,
+    $deviceName: String!,
     $deviceOS: String,
     $deviceType: DeviceType!,
     $deviceVersion: String
