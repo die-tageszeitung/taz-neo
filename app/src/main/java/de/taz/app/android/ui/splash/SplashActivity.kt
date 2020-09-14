@@ -10,7 +10,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
