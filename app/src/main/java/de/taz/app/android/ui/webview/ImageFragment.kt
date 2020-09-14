@@ -24,7 +24,7 @@ const val HTML_BACKGROUND_CONTAINER = """
 </head>
     <body style="background: transparent;margin:0;">
         <div style="width:100%%; height:100%%; display: flex; align-items: center;">
-            <img id="image" src="%s" style="width:100%%; "/>
+            <img id="image" src="%s" style="width:100%%; height: 100%%;  object-fit: contain;"/>
         </div>
     </body>
 </html>

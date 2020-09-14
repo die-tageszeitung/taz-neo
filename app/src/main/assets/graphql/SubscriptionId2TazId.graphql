@@ -6,8 +6,14 @@ mutation SubscriptionId2TazId(
     $surname: String,
     $firstName: String,
     $installationId: String!,
+    $pushToken: String,
+    $nameAffix: String,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
     $deviceType: DeviceType!,
-    $pushToken: String
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     subscriptionId2tazId(
         tazId: $tazId,
@@ -17,8 +23,13 @@ mutation SubscriptionId2TazId(
         surname: $surname,
         firstName: $firstName,
         installationId: $installationId,
-        deviceType: $deviceType
         pushToken: $pushToken
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         status
         message

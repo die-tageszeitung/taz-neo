@@ -1,23 +1,25 @@
 mutation DownloadStart(
     $feedName: String!,
     $issueDate: String!,
-    $deviceFormat: DeviceFormat!,
-    $deviceName: String!,
-    $deviceVersion: String!,
-    $appVersion: String!,
     $isPush: Boolean!,
     $installationId: String!
-    $deviceType: DeviceType!
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     downloadStart(
         feedName: $feedName,
         issueDate: $issueDate,
-        deviceFormat: $deviceFormat,
-        deviceType: $deviceType,
-        deviceName: $deviceName,
-        deviceVersion: $deviceVersion,
-        appVersion: $appVersion,
         isPush: $isPush,
         installationId: $installationId
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     )
 }

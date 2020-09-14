@@ -1,6 +1,21 @@
-mutation DownloadStop($id: ID!, $time: Float!) {
+mutation DownloadStop(
+    $id: ID!,
+    $time: Float!,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String,
+    $deviceOS: String
+) {
     downloadStop(
         downloadId: $id,
         downloadTime: $time
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     )
 }

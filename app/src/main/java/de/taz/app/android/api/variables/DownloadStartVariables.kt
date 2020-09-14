@@ -18,7 +18,8 @@ data class DownloadStartVariables(
     val isPush: Boolean = FirebaseHelper.getInstance().isPush,
     val installationId: String = AuthHelper.getInstance().installationId,
     val deviceFormat: DeviceFormat = DeviceFormat.mobile,
-    val deviceType: DeviceType = DeviceType.android
+    val deviceType: DeviceType = DeviceType.android,
+    val deviceOS: String? = System.getProperty("os.version"),
 ) : Variables {
     override fun toJson() = JsonHelper.toJson(this)
 }
