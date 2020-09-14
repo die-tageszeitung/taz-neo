@@ -4,10 +4,6 @@ mutation errorReport(
     $conditions: String,
     $errorProtocol: String,
     $eMail: String,
-    $deviceName: String,
-    $deviceVersion: String,
-    $deviceOS: String,
-    $appVersion: String!,
     $installationId: String!,
     $storageAvailable: String,
     $storageUsed: String,
@@ -16,8 +12,12 @@ mutation errorReport(
     $ramUsed: String,
     $pushToken: String,
     $architecture: String,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceOS: String,
     $deviceType: DeviceType!,
-    $deviceFormat: DeviceFormat!
+    $deviceVersion: String
 ) {
     errorReport(
         message: $message,
@@ -25,10 +25,6 @@ mutation errorReport(
         conditions: $conditions,
         errorProtocol: $errorProtocol,
         eMail: $eMail,
-        deviceName: $deviceName,
-        deviceVersion: $deviceVersion,
-        deviceOS: $deviceOS,
-        appVersion: $appVersion,
         installationId: $installationId,
         storageAvailable: $storageAvailable,
         storageUsed: $storageUsed,
@@ -37,7 +33,11 @@ mutation errorReport(
         ramUsed: $ramUsed,
         architecture: $architecture,
         pushToken: $pushToken,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceOS: $deviceOS,
         deviceType: $deviceType,
-        deviceFormat: $deviceFormat
+        deviceVersion: $deviceVersion
     )
 }

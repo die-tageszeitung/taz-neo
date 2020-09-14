@@ -5,8 +5,13 @@ mutation TrialSubscription(
     $firstName: String,
     $nameAffix: String,
     $installationId: String!,
-    $deviceType: DeviceType,
-    $pushToken: String
+    $pushToken: String,
+    $appVersion: String!,
+    $deviceFormat: DeviceFormat!,
+    $deviceName: String,
+    $deviceType: DeviceType!,
+    $deviceVersion: String,
+    $deviceOS: String
 ) {
     trialSubscription(
         tazId: $tazId,
@@ -14,9 +19,14 @@ mutation TrialSubscription(
         surname: $surname,
         firstName: $firstName,
         installationId: $installationId,
-        deviceType: $deviceType
         pushToken: $pushToken,
-        nameAffix: $nameAffix
+        nameAffix: $nameAffix,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceName: $deviceName,
+        deviceType: $deviceType,
+        deviceVersion: $deviceVersion,
+        deviceOS: $deviceOS
     ) {
         status
         message
