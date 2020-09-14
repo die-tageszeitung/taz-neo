@@ -70,15 +70,6 @@ data class ResourceInfo(
 
         private val log by Log
 
-
-        fun getNewest(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).getNewest()
-        }
-
-        fun getNewestDownloaded(applicationContext: Context?): ResourceInfo? {
-            return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloaded()
-        }
-
         fun getNewestDownloadedStubLiveData(applicationContext: Context?): LiveData<ResourceInfoStub?> {
             return ResourceInfoRepository.getInstance(applicationContext).getNewestDownloadedLiveData()
         }
