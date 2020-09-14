@@ -34,10 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
 
-const val DATA_ISSUE_DATE = "extra.issue.date"
-const val DATA_ISSUE_FEEDNAME = "extra.issue.feedname"
-const val DATA_ISSUE_STATUS = "extra.issue.status"
-
 const val CONCURRENT_DOWNLOAD_LIMIT = 10
 const val SHA_EMPTY_STRING = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
@@ -212,9 +208,9 @@ class DownloadService private constructor(val applicationContext: Context) {
         return null
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun getFromServer(fileName: String) = runBlocking {
+    fun getBlockingFromServer(fileName: String) = runBlocking {
         downloadRepository.get(fileName)?.let {
+            currentDownloads.incrementAndGet()
             getFromServer(it, true)
         }
     }
@@ -347,35 +343,11 @@ class DownloadService private constructor(val applicationContext: Context) {
     }
 
     /**
-     * download issue in background
+     * download new issue in background
      */
-    fun scheduleIssueDownload(issueOperations: IssueOperations): Operation? {
-        return scheduleIssueDownload(
-            issueOperations.feedName,
-            issueOperations.date,
-            issueOperations.status,
-            issueOperations.tag
-        )
-    }
-
-    /**
-     * download issue in background
-     */
-    fun scheduleIssueDownload(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus,
-        tag: String
-    ): Operation? {
-        val data = Data.Builder()
-            .putString(DATA_ISSUE_STATUS, issueStatus.toString())
-            .putString(DATA_ISSUE_DATE, issueDate)
-            .putString(DATA_ISSUE_FEEDNAME, issueFeedName)
-            .build()
-
+    fun scheduleNewestIssueDownload(tag: String): Operation? {
         val requestBuilder =
             OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
-                .setInputData(data)
                 .setConstraints(getConstraints())
                 .addTag(tag)
 

@@ -128,8 +128,7 @@ class DownloadServiceTest {
             .setBody(TEST_STRING)
         mockServer.enqueue(mockResponse)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
@@ -162,8 +161,7 @@ class DownloadServiceTest {
             .setBody(TEST_STRING)
         mockServer.enqueue(mockResponse)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.takeOld, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(downloadService.currentDownloads.get(), 0)
@@ -274,8 +272,7 @@ class DownloadServiceTest {
 
         mockServer.enqueue(mockResponse)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(
@@ -304,8 +301,7 @@ class DownloadServiceTest {
         fileEntryRepository.saveOrReplace(mockFileEntry)
         downloadRepository.save(mockDownload)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
@@ -331,8 +327,7 @@ class DownloadServiceTest {
         fileEntryRepository.saveOrReplace(mockFileEntry)
         downloadRepository.save(mockDownload)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.started, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(DownloadStatus.started, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
@@ -363,8 +358,7 @@ class DownloadServiceTest {
         fileEntryRepository.saveOrReplace(mockFileEntry)
         downloadRepository.save(mockDownload)
 
-        downloadService.currentDownloads.incrementAndGet()
-        downloadService.getFromServer(TEST_FILE_NAME)
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
