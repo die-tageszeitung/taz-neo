@@ -4,7 +4,7 @@ query SubscriptionPoll(
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 ) {
     subscriptionPoll(

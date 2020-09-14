@@ -7,7 +7,7 @@ mutation DownloadStart(
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 ) {
     downloadStart(

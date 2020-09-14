@@ -7,7 +7,7 @@ mutation notification(
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 ) {
     notification(
