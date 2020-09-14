@@ -3,9 +3,9 @@ query CheckSubscriptionId(
     $password: String!,
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $deviceName: String,
+    $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
+    $deviceVersion: String!,
     $deviceOS: String
 )  {
     checkSubscriptionId(
