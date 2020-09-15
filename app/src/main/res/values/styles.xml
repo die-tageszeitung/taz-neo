@@ -56,10 +56,6 @@
         <item name="android:windowBackground">@drawable/activity_splash</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Header.Title" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/navigation_drawer_header_title</item>
-    </style>
-
     <style name="TextAppearance.Fragment.Header.Default.Title" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize" tools:ignore="SpUsage">32.5dp</item>
@@ -69,12 +65,6 @@
     <style name="TextAppearance.Fragment.Title" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TextAppearance.Fragment.Subtitle" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -143,11 +133,6 @@
         <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
-    <style name="TextAppearance.Archive.Header.Icon" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
     <style name="TextAppearance.Archive.NavigationEnd.Heading" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textSize">23sp</item>
@@ -173,10 +158,6 @@
         <item name="android:textColor">@color/bottom_sheet_text_color</item>
         <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
         <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
-    </style>
-
-    <style name="TextAppearance.BottomSheet.InfoText" parent="TextAppearance.BottomSheet.Setting">
-        <item name="android:textSize">11sp</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.TextSize.Decrease" parent="TextAppearance.AppCompat">
@@ -233,13 +214,6 @@
         <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
         <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_bottom</item>
-    </style>
-
-    <style name="TextAppearance.Settings.Section" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
-        <item name="android:lineSpacingExtra">32pt</item>
-        <item name="android:textSize">25sp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
