@@ -2,8 +2,7 @@ package de.taz.app.android
 
 import android.app.Application
 import com.facebook.stetho.Stetho
-import io.sentry.core.Sentry
-import io.sentry.android.AndroidSentryClientFactory
+import io.sentry.android.core.SentryAndroid
 
 class TazApplication : Application() {
     override fun onCreate() {
@@ -11,6 +10,6 @@ class TazApplication : Application() {
         if(BuildConfig.DEBUG) {
            Stetho.initializeWithDefaults(this)
         }
-        Sentry.init(AndroidSentryClientFactory(this))
+        SentryAndroid.init(this)
     }
 }
