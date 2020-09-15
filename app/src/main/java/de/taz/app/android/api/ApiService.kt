@@ -374,7 +374,8 @@ class ApiService private constructor(applicationContext: Context) {
      */
     suspend fun notifyServerOfDownloadStart(
         feedName: String,
-        issueDate: String
+        issueDate: String,
+        isAutomatically: Boolean
     ): String? {
         val tag = "notifyServerOfDownloadStart"
         return transformExceptions({
@@ -382,7 +383,8 @@ class ApiService private constructor(applicationContext: Context) {
                 QueryType.DownloadStart,
                 DownloadStartVariables(
                     feedName,
-                    issueDate
+                    issueDate,
+                    isAutomatically
                 )
             )?.data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id")
