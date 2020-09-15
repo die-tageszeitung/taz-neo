@@ -11,7 +11,6 @@
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
 
-    <string name="toast_login_elapsed">Abonnement ist abgelaufen.</string>
     <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
     <string name="popup_login_elapsed_text">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
@@ -29,28 +28,19 @@
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
-    <string name="navigation_drawer_close">Seitenleiste schließen</string>
-    <string name="nav_header_desc">Startseite der aktuellen Ausgabe</string>
 
     <string name="something_went_wrong_try_later">Etwas unerwartetes ist passiert. Bitte versuchen Sie es später erneut.</string>
 
-    <string name="navigation_drawer_icon_content">Inhalt</string>
-    <string name="navigation_drawer_icon_home">Home</string>
-    <string name="navigation_drawer_icon_bookmarks">Lesezeichen</string>
     <string name="help">Hilfe</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
     <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
-    <string name="bottom_navigation_action_mp3">MP3 streamen</string>
-    <string name="bottom_navigation_action_search">Suche</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
-
-    <string name="fragment_article_read_onreadon">Wir stellen unser Anmeldeverfahren um. Geben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. Wenn Sie bereits über eine taz-ID verfügen, loggen Sie sich bitte hier ein.</string>
 
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
     <string name="trial_subscription_name">6 Wochen Testabo</string>
@@ -61,13 +51,11 @@
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
     <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per Email um Bestätigung gebeten. Sollten Sie diese Email nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
-    <string name="archive">Archiv</string>
     <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
     <string name="settings">Einstellungen</string>
 
     <string name="fragment_archive_navigation_end_item_image_active">aktiv</string>
-    <string name="fragment_archive_navigation_end_item_image_inactive">inaktiv</string>
 
     <string name="fragment_bottom_sheet_text_size_decrease">Textgröße erhöhen</string>
     <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
@@ -98,13 +86,7 @@
     <string name="settings_category_text">Darstellung</string>
     <string name="settings_category_account">Abo</string>
     <string name="settings_text_font_size">Textgröße</string>
-    <string name="settings_text_epaper">Immer als E-Paper lesen</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
-    <string name="settings_text_tap_on_edge">Tippen am Rand</string>
-    <string name="settings_account_abo_id">Abo-ID</string>
-    <string name="settings_account_password">Passwort</string>
-    <string name="settings_account_status">Status</string>
-    <string name="settings_account_status_subscriber">AbonnentIn</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Logout</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
@@ -118,7 +100,6 @@
     <string name="settings_terms"><u>AGB</u></string>
     <string name="settings_revocation"><u>Widerruf</u></string>
     <string name="settings_support_report_bug">Fehler melden</string>
-    <string name="settings_auto_downloads">Automatische Downloads</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s</string>
@@ -173,7 +154,6 @@
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
-    <string name="login_username_error_wrong_format">Nutzen Sie bitte ihre taz-ID oder Abo-ID.</string>
 
     <string name="login_comment_hint">Bemerkung</string>
 
@@ -189,8 +169,6 @@
 
     <string name="fragment_subscription_bank_title">Bankdaten</string>
     <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
-
-    <string name="fragment_subscription_confirm_email_header">Danke für Ihre Registrierung!\nWir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse.\nSobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
 
     <string name="street_hint">Straße/Hausnummer</string>
     <string name="postcode_hint">PLZ</string>
@@ -220,7 +198,6 @@
     <string name="fragment_login_missing_credentials_header_registration">Sie haben noch keine taz-ID? Hier können Sie sich selbst eine neue taz-ID mit einer E-Mail-Adresse und Ihrem persönlichen Passwort aussuchen.</string>
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
-    <string name="login_forgot_password_button">Hier klicken</string>
     <string name="fragment_login_missing_credentials_login">Anmelden</string>
     <string name="fragment_login_missing_credentials_switch_to_login">Ich habe schon eine taz-ID</string>
     <string name="fragment_login_missing_credentials_switch_to_registration">Ich habe noch keine taz-ID</string>
@@ -240,7 +217,6 @@
     <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>
     <string name="fragment_login_forgot_password_email_sent_back">Zurück zur Anmeldung/Registrierung</string>
 
-    <string name="fragment_login_success_login_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
     <string name="fragment_login_success_login_back_article">Zurück zum Artikel</string>
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
     <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
@@ -248,9 +224,6 @@
     <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer taz-ID verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
-
-    <string name="fragment_login_request_test_subscription_header">Hier können Sie die digitale taz 6 Wochen kostenlos testen:</string>
-    <string name="fragment_login_request_test_subscription_existing_account">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein (um dort Texte zu kommentieren oder das Archiv zu nutzen), geben Sie hier bitte diese Daten an.</string>
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
 
@@ -275,8 +248,6 @@
     <string name="terms_and_conditions_terms">AGB</string>
     <string name="terms_and_conditions_data_policy">Datenschutz</string>
     <string name="terms_and_conditions_revocation">Widerruf</string>
-
-    <string name="back">Zurück</string>
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>

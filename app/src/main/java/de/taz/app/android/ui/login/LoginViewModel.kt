@@ -324,7 +324,6 @@ class LoginViewModel(
                 surname = surName
             )
 
-            log.error(subscriptionInfo.toString())
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
                     saveToken(subscriptionInfo.token!!)
