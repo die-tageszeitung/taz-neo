@@ -26,8 +26,8 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
-import io.sentry.Sentry
-import io.sentry.event.UserBuilder
+import io.sentry.core.Sentry
+import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -128,9 +128,10 @@ class SplashActivity : BaseActivity() {
             applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
         val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
 
-        Sentry.getContext().user = UserBuilder()
-            .setId(installationId)
-            .build()
+        val user = User()
+        user.id = installationId
+
+        Sentry.setUser(user)
     }
 
 

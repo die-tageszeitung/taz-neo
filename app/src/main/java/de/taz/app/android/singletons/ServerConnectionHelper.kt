@@ -10,7 +10,6 @@ import de.taz.app.android.api.QueryType
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import io.sentry.connection.ConnectionException
 import kotlinx.coroutines.*
 import okhttp3.Request
 import java.io.EOFException
@@ -111,8 +110,6 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         MAX_CONNECTION_CHECK_INTERVAL
                     )
                 }
-            } catch (ce: ConnectionException) {
-                log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
             } catch (ste: SocketTimeoutException) {
                 log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
             } catch (uhe: UnknownHostException) {
@@ -155,8 +152,6 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         isGraphQlServerReachableLiveData.value = false
                     }
                 }
-            } catch (ce: ConnectionException) {
-                log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
             } catch (ste: SocketTimeoutException) {
                 log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
             } catch (uhe: UnknownHostException) {

@@ -33,7 +33,7 @@
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
-            android:noHistory="true"/>
+            android:noHistory="true" />
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />
@@ -51,6 +51,9 @@
             </intent-filter>
         </activity>
 
+        <meta-data
+            android:name="io.sentry.dsn"
+            android:value="https://944624716d7a46ce95bb22f5e34cfc2d@sentry.taz.de/3" />
         <uses-library
             android:name="android.test.runner"
             android:required="false" />

@@ -14,7 +14,7 @@ import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.singletons.OkHttp
 import de.taz.app.android.singletons.ServerConnectionHelper
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -70,7 +70,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     return@withContext if (wrapper?.errors?.isNotEmpty() == true) {
                         val errorString = "GraphQl-Error:\n ${wrapper.errors}"
                         log.error(errorString)
-                        Sentry.capture(errorString)
+                        Sentry.captureMessage(errorString)
                         serverConnectionHelper.isGraphQlServerReachable = false
                         null
                     } else {

@@ -11,7 +11,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
@@ -85,11 +85,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                     }
                     SubscriptionStatus.toManyPollTrys -> {
                         authHelper.isPolling = false
-                        Sentry.capture("ToManyPollTrys")
+                        Sentry.captureMessage("ToManyPollTrys")
                     }
                     else -> {
                         // should not happen
-                        Sentry.capture("subscriptionPoll returned ${subscriptionInfo.status}")
+                        Sentry.captureMessage("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
