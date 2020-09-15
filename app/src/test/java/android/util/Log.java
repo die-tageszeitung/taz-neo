@@ -1,7 +1,5 @@
 package android.util;
 
-import org.mockito.Mock;
-
 import de.taz.app.android.annotation.Mockable;
 
 @Mockable
