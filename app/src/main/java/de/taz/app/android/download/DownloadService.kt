@@ -10,7 +10,6 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
@@ -91,7 +90,11 @@ class DownloadService private constructor(val applicationContext: Context) {
      * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
      *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
      */
-    fun download(cacheableDownload: CacheableDownload, baseUrl: String? = null): Job =
+    fun download(
+        cacheableDownload: CacheableDownload,
+        baseUrl: String? = null,
+        isAutomatically: Boolean = false
+    ): Job =
         CoroutineScope(Dispatchers.IO).launch {
             val start = DateHelper.now
             var redoJob: Job? = null
@@ -106,7 +109,11 @@ class DownloadService private constructor(val applicationContext: Context) {
                 // if we download an issue tell the server we start downloading it
                 issue?.let {
                     downloadId = try {
-                        apiService.notifyServerOfDownloadStart(issue.feedName, issue.date)
+                        apiService.notifyServerOfDownloadStart(
+                            issue.feedName,
+                            issue.date,
+                            isAutomatically
+                        )
                     } catch (nie: ApiService.ApiServiceException.NoInternetException) {
                         null
                     }
