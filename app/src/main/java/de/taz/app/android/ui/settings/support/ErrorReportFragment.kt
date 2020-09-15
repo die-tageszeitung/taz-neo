@@ -11,7 +11,6 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceStringLiveData
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
