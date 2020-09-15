@@ -5,7 +5,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.*
