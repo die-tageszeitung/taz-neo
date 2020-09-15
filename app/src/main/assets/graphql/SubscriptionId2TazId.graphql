@@ -7,7 +7,6 @@ mutation SubscriptionId2TazId(
     $firstName: String,
     $installationId: String!,
     $pushToken: String,
-    $nameAffix: String,
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
