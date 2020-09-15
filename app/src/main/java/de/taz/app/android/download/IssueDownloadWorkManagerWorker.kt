@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 
 
@@ -38,11 +38,11 @@ class IssueDownloadWorkManagerWorker(
                 Result.success()
             } catch (e: Exception) {
                 log.debug("download failed")
-                Sentry.capture(e)
+                Sentry.captureException(e)
                 Result.failure()
             }
         } ?: run {
-            Sentry.capture("download failed - getLastIssues returned null")
+            Sentry.captureMessage("download failed - getLastIssues returned null")
             Result.failure()
         }
     }

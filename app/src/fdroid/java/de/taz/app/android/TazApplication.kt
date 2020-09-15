@@ -2,7 +2,7 @@ package de.taz.app.android
 
 import android.app.Application
 import com.facebook.stetho.Stetho
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import io.sentry.android.AndroidSentryClientFactory
 
 class TazApplication : Application() {
