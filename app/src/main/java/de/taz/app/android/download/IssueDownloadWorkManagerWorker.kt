@@ -29,7 +29,7 @@ class IssueDownloadWorkManagerWorker(
             val downloadService = DownloadService.getInstance(applicationContext)
 
             try {
-                downloadService.download(issue).join()
+                downloadService.download(issue, isAutomatically = true).join()
                 log.debug("successfully downloaded")
 
                 while (!issue.isDownloaded(applicationContext)) {

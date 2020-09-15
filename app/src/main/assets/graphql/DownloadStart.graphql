@@ -8,7 +8,8 @@ mutation DownloadStart(
     $deviceName: String!,
     $deviceType: DeviceType!,
     $deviceVersion: String!,
-    $deviceOS: String
+    $deviceOS: String,
+    $isAutomatically: Boolean!
 ) {
     downloadStart(
         feedName: $feedName,
@@ -20,6 +21,7 @@ mutation DownloadStart(
         deviceName: $deviceName,
         deviceType: $deviceType,
         deviceVersion: $deviceVersion,
-        deviceOS: $deviceOS
+        deviceOS: $deviceOS,
+        isAutomatically: $isAutomatically
     )
 }
