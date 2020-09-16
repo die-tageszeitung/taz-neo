@@ -39,7 +39,7 @@ class IssueDownloadWorkManagerWorker(
             } catch (e: Exception) {
                 log.debug("download failed")
                 Sentry.capture(e)
-                Result.failure()
+                Result.retry()
             }
         } ?: run {
             Sentry.capture("download failed - getLastIssues returned null")
