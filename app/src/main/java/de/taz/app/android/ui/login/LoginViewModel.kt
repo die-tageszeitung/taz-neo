@@ -39,6 +39,7 @@ class LoginViewModel(
     val noInternet by lazy { MutableLiveData(false) }
 
     // save call necessary for tests
+    @Suppress("UNNECESSARY_SAFE_CALL")
     var username: String? = application?.getSharedPreferences(
         PREFERENCES_AUTH,
         Context.MODE_PRIVATE
@@ -323,7 +324,6 @@ class LoginViewModel(
                 surname = surName
             )
 
-            log.error(subscriptionInfo.toString())
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
                     saveToken(subscriptionInfo.token!!)

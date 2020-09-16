@@ -30,6 +30,6 @@ class FeedFilterViewModel(application: Application) : AndroidViewModel(applicati
         )
 
     fun getInactiveFeedNames(): Set<String> {
-        return inactiveFeedNameLiveData.value ?: emptySet()
+        return inactiveFeedNameLiveData.value
     }
 }

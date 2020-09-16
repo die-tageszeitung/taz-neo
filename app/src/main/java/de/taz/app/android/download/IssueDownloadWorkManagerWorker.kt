@@ -5,7 +5,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -29,7 +28,7 @@ class IssueDownloadWorkManagerWorker(
             val downloadService = DownloadService.getInstance(applicationContext)
 
             try {
-                downloadService.download(issue).join()
+                downloadService.download(issue, isAutomatically = true).join()
                 log.debug("successfully downloaded")
 
                 while (!issue.isDownloaded(applicationContext)) {

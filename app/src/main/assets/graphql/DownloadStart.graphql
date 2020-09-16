@@ -5,10 +5,11 @@ mutation DownloadStart(
     $installationId: String!
     $appVersion: String!,
     $deviceFormat: DeviceFormat!,
-    $deviceName: String,
+    $deviceName: String!,
     $deviceType: DeviceType!,
-    $deviceVersion: String,
-    $deviceOS: String
+    $deviceVersion: String!,
+    $deviceOS: String,
+    $isAutomatically: Boolean!
 ) {
     downloadStart(
         feedName: $feedName,
@@ -20,6 +21,7 @@ mutation DownloadStart(
         deviceName: $deviceName,
         deviceType: $deviceType,
         deviceVersion: $deviceVersion,
-        deviceOS: $deviceOS
+        deviceOS: $deviceOS,
+        isAutomatically: $isAutomatically
     )
 }

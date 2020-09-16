@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,8 +43,6 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = IssueRepository.getInstance(applicationContext)
     private val toastHelper
         get() = ToastHelper.getInstance(applicationContext)
-    private val sectionRepository
-        get() = SectionRepository.getInstance(applicationContext)
     private val toDownloadIssueHelper
         get() = ToDownloadIssueHelper.getInstance(applicationContext)
 
@@ -60,13 +57,13 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
             ""
         )
     var token
-        get() = tokenLiveData.value ?: ""
+        get() = tokenLiveData.value
         set(value) = tokenLiveData.postValue(value)
 
     val installationId
         get() = SharedPreferenceStringLiveData(
             preferences, PREFERENCES_AUTH_INSTALLATION_ID, ""
-        ).value ?: ""
+        ).value
 
     var authStatusLiveData: MutableLiveData<AuthStatus> =
         SharedPreferencesAuthStatusLiveData(
@@ -93,7 +90,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     )
 
     var isPolling: Boolean
-        get() = isPollingLiveData.value ?: false
+        get() = isPollingLiveData.value
         set(value) = isPollingLiveData.postValue(value)
 
     private var deletionJob: Job? = null

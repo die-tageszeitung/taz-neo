@@ -84,7 +84,7 @@ class WelcomeActivity : AppCompatActivity() {
     private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
         lifecycleScope.launch(Dispatchers.IO) {
             isDownloadedLiveData =
-                resourceInfoRepository?.get()?.isDownloadedLiveData(applicationContext)
+                resourceInfoRepository?.getNewest()?.isDownloadedLiveData(applicationContext)
 
             downloadedObserver = Observer { isDownloaded ->
                 if (isDownloaded) {
