@@ -24,9 +24,6 @@ class ArticleWebViewFragment :
         fun createInstance(article: ArticleStub): ArticleWebViewFragment {
             val fragment = ArticleWebViewFragment()
             fragment.displayable = article
-            fragment.lifecycleScope.launch(Dispatchers.IO) {
-                fragment.issueOperations = article.getIssueOperations()
-            }
             return fragment
         }
     }
