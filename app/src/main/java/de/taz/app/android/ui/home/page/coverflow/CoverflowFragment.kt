@@ -73,6 +73,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         fragment_cover_flow_grid.apply {
             context?.let { context ->
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
