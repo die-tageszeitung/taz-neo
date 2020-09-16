@@ -34,9 +34,6 @@ class ImprintFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         displayable = issueContentViewModel?.imprint
-        lifecycleScope.launch(Dispatchers.IO) {
-            issueOperations = displayable?.getIssueOperations()
-        }
         super.onCreate(savedInstanceState)
     }
 
