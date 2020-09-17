@@ -640,7 +640,7 @@ class ApiService private constructor(applicationContext: Context) {
 
     private suspend
     fun <T> catchExceptions(block: suspend () -> T, tag: String): T? {
-        var exception: Exception = Exception()
+        var exception: Exception? = null
         try {
             return block()
         } catch (eofe: EOFException) {
@@ -678,7 +678,7 @@ class ApiService private constructor(applicationContext: Context) {
             log.debug("SSLHandshakeException ${she.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } finally {
-            if (exception.message != null) {
+            if (exception != null) {
                 Sentry.capture(exception)
             }
         }
