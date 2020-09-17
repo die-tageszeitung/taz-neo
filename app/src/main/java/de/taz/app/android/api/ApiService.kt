@@ -660,13 +660,11 @@ class ApiService private constructor(applicationContext: Context) {
             log.debug("SocketTimeoutException ${ste.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (jee: JsonEncodingException) {
-            exception = jee
             // inform sentry of malformed JSON response
             Sentry.capture(ApiServiceException.WrongDataException())
             toastHelper.showConnectionToServerFailedToast()
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (npe: NullPointerException) {
-            exception = npe
             // inform sentry of missing data in response
             Sentry.capture(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
