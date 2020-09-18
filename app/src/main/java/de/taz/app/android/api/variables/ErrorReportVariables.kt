@@ -28,6 +28,7 @@ data class ErrorReportVariables(
     val pushToken: String? = FirebaseHelper.getInstance().firebaseToken ?: "",
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,
+    val deviceName: String = android.os.Build.MODEL,
     val deviceFormat: DeviceFormat = DeviceFormat.mobile
 ): Variables {
     override fun toJson(): String = JsonHelper.toJson(this)
