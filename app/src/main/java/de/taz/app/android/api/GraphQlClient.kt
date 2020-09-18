@@ -68,7 +68,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     val wrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)
                     source.close()
                     return@withContext if (wrapper?.errors?.isNotEmpty() == true) {
-                        val errorString = "GraphQl-Error:\n ${wrapper.errors}"
+                        val errorString = "GraphQl-Error:\n $queryType ${wrapper.errors}"
                         log.error(errorString)
                         Sentry.capture(errorString)
                         serverConnectionHelper.isGraphQlServerReachable = false
