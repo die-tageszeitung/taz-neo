@@ -640,18 +640,23 @@ class ApiService private constructor(applicationContext: Context) {
 
     private suspend
     fun <T> catchExceptions(block: suspend () -> T, tag: String): T? {
+        var exception: Exception? = null
         try {
             return block()
         } catch (eofe: EOFException) {
+            exception = eofe
             log.debug("EOFException ${eofe.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (uhe: UnknownHostException) {
+            exception = uhe
             log.debug("UnknownHostException ${uhe.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (ce: ConnectException) {
+            exception = ce
             log.debug("ConnectException ${ce.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (ste: SocketTimeoutException) {
+            exception = ste
             log.debug("SocketTimeoutException ${ste.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (jee: JsonEncodingException) {
@@ -665,11 +670,15 @@ class ApiService private constructor(applicationContext: Context) {
             toastHelper.showSomethingWentWrongToast()
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (se: SSLException) {
+            exception = se
             log.debug("SSLException ${se.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (she: SSLHandshakeException) {
+            exception = she
             log.debug("SSLHandshakeException ${she.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
+        } finally {
+            exception?.let { Sentry.capture(it) }
         }
         return null
     }
