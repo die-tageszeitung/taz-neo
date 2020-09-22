@@ -10,16 +10,10 @@ import de.taz.app.android.api.QueryType
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import io.sentry.connection.ConnectionException
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import okhttp3.Request
-import java.io.EOFException
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.util.*
-import javax.net.ssl.SSLException
-import javax.net.ssl.SSLHandshakeException
 
 const val DEFAULT_CONNECTION_CHECK_INTERVAL = 1000L
 const val MAX_CONNECTION_CHECK_INTERVAL = 30000L
@@ -111,20 +105,9 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         MAX_CONNECTION_CHECK_INTERVAL
                     )
                 }
-            } catch (ce: ConnectionException) {
-                log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
-            } catch (ste: SocketTimeoutException) {
-                log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
-            } catch (uhe: UnknownHostException) {
-                log.debug("could not reach download server - UnknownHostException: ${uhe.localizedMessage}")
-            } catch (ce: ConnectException) {
-                log.debug("could not reach download server - ConnectException: ${ce.localizedMessage}")
-            } catch (eofe: EOFException) {
-                log.debug("could not reach download server - EOFException: ${eofe.localizedMessage}")
-            } catch (se: SSLException) {
-                log.debug("could not reach download server - SSLException: ${se.localizedMessage}")
-            } catch (she: SSLHandshakeException) {
-                log.debug("could not reach download server - SSLHandshakeException: ${she.localizedMessage}")
+            } catch (e: Exception) {
+                log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
+                Sentry.capture(e.localizedMessage)
             }
         }
     }
@@ -155,20 +138,9 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         isGraphQlServerReachableLiveData.value = false
                     }
                 }
-            } catch (ce: ConnectionException) {
-                log.debug("could not reach download server - ConnectionException: ${ce.localizedMessage}")
-            } catch (ste: SocketTimeoutException) {
-                log.debug("could not reach download server - SocketTimeOutException: ${ste.localizedMessage}")
-            } catch (uhe: UnknownHostException) {
-                log.debug("could not reach download server - UnknownHostException: ${uhe.localizedMessage}")
-            } catch (ce: ConnectException) {
-                log.debug("could not reach download server - ConnectException: ${ce.localizedMessage}")
-            } catch (eofe: EOFException) {
-                log.debug("could not reach download server - EOFException: ${eofe.localizedMessage}")
-            } catch (se: SSLException) {
-                log.debug("could not reach download server - SSLException: ${se.localizedMessage}")
-            } catch (she: SSLHandshakeException) {
-                log.debug("could not reach download server - SSLHandshakeException: ${she.localizedMessage}")
+            } catch (e: Exception) {
+                log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
+                Sentry.capture(e.localizedMessage)
             }
         }
     }
