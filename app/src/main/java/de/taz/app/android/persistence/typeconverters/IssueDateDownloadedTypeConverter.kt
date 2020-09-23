@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,7 +34,7 @@ class IssueDateDownloadTypeConverter {
             simpleDateFormat.parse(value)
         } catch (e: ParseException) {
             log.error("Problems parsing date as $FORMAT_STRING. ${e.message}")
-            Sentry.capture(e)
+            Sentry.captureException(e)
             return null
         }
     }

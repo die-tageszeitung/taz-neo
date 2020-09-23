@@ -16,8 +16,7 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import io.sentry.Sentry
-import io.sentry.connection.ConnectionException
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
@@ -262,7 +261,6 @@ class DownloadService private constructor(val applicationContext: Context) {
         } catch (e: Exception) {
             when (e) {
                 is UnknownHostException,
-                is ConnectionException,
                 is ConnectException -> {
                     serverConnectionHelper.isDownloadServerReachable = false
                     abortAndRetryDownload(download, doNotRestartDownload)
@@ -282,7 +280,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                 else -> {
                     DownloadService.log.warn("unknown error occurred - ${download.fileName}")
                     abortAndRetryDownload(download, doNotRestartDownload)
-                    Sentry.capture(e)
+                    Sentry.captureException(e)
                     throw e
                 }
             }
