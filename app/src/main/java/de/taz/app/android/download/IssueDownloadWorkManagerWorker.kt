@@ -32,6 +32,7 @@ class IssueDownloadWorkManagerWorker(
                 log.debug("successfully downloaded")
 
                 while (!issue.isDownloaded(applicationContext)) {
+                    log.debug("delaying")
                     delay(1000)
                 }
 
