@@ -134,6 +134,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         )
                     }
                 } catch (e: Exception) {
+                    Sentry.captureException(e)
                     withContext(Dispatchers.Main) {
                         isGraphQlServerReachableLiveData.value = false
                     }
