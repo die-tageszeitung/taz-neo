@@ -5,7 +5,7 @@ import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import java.io.IOException
 
 /**
@@ -56,7 +56,7 @@ class QueryService private constructor(applicationContext: Context) {
             }
         } catch (e: IOException) {
             log.error("reading $fileName.graphql failed")
-            Sentry.capture(e)
+            Sentry.captureException(e)
             return null
         })
     }

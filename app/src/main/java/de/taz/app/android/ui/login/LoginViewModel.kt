@@ -17,7 +17,7 @@ import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 
 class LoginViewModel(
@@ -281,7 +281,7 @@ class LoginViewModel(
                 }
                 else -> {
                     status.postValue(previousState)
-                    Sentry.capture("trialSubscription returned ${subscriptionInfo?.status}")
+                    Sentry.captureMessage("trialSubscription returned ${subscriptionInfo?.status}")
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
@@ -376,7 +376,7 @@ class LoginViewModel(
                 }
                 else -> {
                     // should not happen
-                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    Sentry.captureMessage("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
                     status.postValue(previousState)
                 }
@@ -453,11 +453,11 @@ class LoginViewModel(
                 }
                 SubscriptionStatus.toManyPollTrys -> {
                     authHelper.isPolling = false
-                    Sentry.capture("ToManyPollTrys")
+                    Sentry.captureMessage("ToManyPollTrys")
                 }
                 else -> {
                     // should not happen
-                    Sentry.capture("connect returned ${subscriptionInfo.status}")
+                    Sentry.captureMessage("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
                 }
             }
@@ -655,7 +655,7 @@ class LoginViewModel(
                         SubscriptionStatus.subscriptionIdNotValid,
                         SubscriptionStatus.elapsed -> {
                             // this should not happen
-                            Sentry.capture("subscription returned ${subscriptionInfo.status} ")
+                            Sentry.captureMessage("subscription returned ${subscriptionInfo.status} ")
                             toastHelper.showSomethingWentWrongToast()
                             status.postValue(previousState)
                         }
@@ -674,7 +674,7 @@ class LoginViewModel(
                     }
                 } ?: run {
                     toastHelper.showSomethingWentWrongToast()
-                    Sentry.capture("subscription returned null")
+                    Sentry.captureMessage("subscription returned null")
                     status.postValue(previousState)
                 }
             } catch (nie: ApiService.ApiServiceException.NoInternetException) {

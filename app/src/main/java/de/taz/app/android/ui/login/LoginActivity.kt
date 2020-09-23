@@ -30,7 +30,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragme
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
@@ -207,7 +207,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 )
                 LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
                 null -> {
-                    Sentry.capture("login status is null")
+                    Sentry.captureMessage("login status is null")
                     viewModel.status.postValue(LoginViewModelState.INITIAL)
                 }
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(

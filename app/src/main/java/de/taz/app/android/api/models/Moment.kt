@@ -11,7 +11,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 
 data class Moment(
     val issueFeedName: String,
@@ -109,7 +109,7 @@ data class Moment(
         return this@Moment.getIssueOperations(applicationContext)?.let {
             MomentRepository.getInstance(applicationContext).getLiveData(it)
         } ?: run {
-            Sentry.capture("Could not get IssueOperations for Moment: $this")
+            Sentry.captureMessage("Could not get IssueOperations for Moment: $this")
             MutableLiveData<Moment?>(null)
         }
     }
