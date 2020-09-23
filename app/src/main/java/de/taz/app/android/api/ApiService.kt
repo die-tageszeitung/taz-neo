@@ -678,7 +678,7 @@ class ApiService private constructor(applicationContext: Context) {
             log.debug("SSLHandshakeException ${she.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } finally {
-            exception?.let { Sentry.capture(it) }
+            exception?.let { Sentry.captureException(it) }
         }
         return null
     }
