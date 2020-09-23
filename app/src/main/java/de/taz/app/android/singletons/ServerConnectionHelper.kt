@@ -10,7 +10,7 @@ import de.taz.app.android.api.QueryType
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 import okhttp3.Request
 import java.util.*
@@ -107,7 +107,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                 }
             } catch (e: Exception) {
                 log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
-                Sentry.capture(e.localizedMessage)
+                Sentry.captureException(e)
             }
         }
     }
@@ -140,7 +140,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                 }
             } catch (e: Exception) {
                 log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
-                Sentry.capture(e.localizedMessage)
+                Sentry.captureException(e)
             }
         }
     }

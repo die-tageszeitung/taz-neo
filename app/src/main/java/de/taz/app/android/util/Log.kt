@@ -3,8 +3,7 @@ package de.taz.app.android.util
 import android.util.Log
 import de.taz.app.android.PREFERENCES_LOG_TRACE_LENGTH
 import de.taz.app.android.annotation.Mockable
-import io.sentry.Sentry
-import io.sentry.event.BreadcrumbBuilder
+import io.sentry.core.Sentry
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KProperty
@@ -49,10 +48,8 @@ class Log(private val tag: String) {
     }
 
     private fun setSentryBreadcrump(message: String, throwable: Throwable?) {
-        Sentry.getContext().recordBreadcrumb(
-            BreadcrumbBuilder().setMessage("$tag: $message").build()
-        )
-        throwable?.let { Sentry.capture(throwable) }
+        Sentry.addBreadcrumb("$tag: $message")
+        throwable?.let { Sentry.captureException(throwable) }
     }
 
     /**
