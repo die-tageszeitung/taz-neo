@@ -324,10 +324,34 @@ class DownloadService private constructor(val applicationContext: Context) {
             }
         } else {
             log.warn("Download was not successful ${response.code}")
-            if (response.code in 400..599) {
+            Sentry.captureMessage(response.message)
+            if (response.code in 500..599) {
                 serverConnectionHelper.isDownloadServerReachable = false
             }
+            else if (response.code in 400..499) {
+                currentDownloads.decrementAndGet()
+                currentDownloadList.remove(download.fileName)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val issue: Issue? = getCorrespondingIssue(download.baseUrl)
+                    issue?.deleteAndUpdateMetaData(applicationContext)
+                }
+            }
             abortAndRetryDownload(download, doNotRestartDownload)
+        }
+    }
+
+    /**
+     * try to extract date from baseUrl to get the corresponding issue if exists
+     * @param baseUrl eg. https://dl.taz.de/data/tApp/taz/content/2020/2020-07-01.public
+     * @return Issue if found in ApiService
+     */
+    private suspend fun getCorrespondingIssue(baseUrl: String): Issue? {
+        val regex = "\\d{4}-(0?[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])".toRegex()
+        val dateFromBaseUrl= regex.find(baseUrl)
+        return dateFromBaseUrl?.value?.let {
+            ApiService.getInstance(applicationContext).getIssueByFeedAndDate(
+                "taz", it
+            )
         }
     }
 
