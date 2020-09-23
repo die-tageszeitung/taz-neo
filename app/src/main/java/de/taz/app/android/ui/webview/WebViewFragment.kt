@@ -89,6 +89,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             viewModel.displayable = displayable
         }
 
+        if (viewModel.issueOperations == null) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.issueOperations =
+                    viewModel.displayable?.getIssueOperations(context?.applicationContext)
+            }
+        }
+
         configureWebView()
         viewModel.displayable?.let { displayable ->
             lifecycleScope.launch(Dispatchers.Main) {
@@ -202,13 +209,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private fun loadUrl() {
         lifecycleScope.launch(Dispatchers.IO) {
-            displayable?.getFile()?.let { file ->
+            viewModel.displayable?.getFile()?.let { file ->
                 if (file.exists()) {
                     loadUrl("file://${file.absolutePath}")
                 } else {
-                    displayable?.download(context?.applicationContext)
+                    viewModel.displayable?.download(context?.applicationContext)
                     withContext(Dispatchers.Main) {
-                        displayable?.isDownloadedLiveData(context?.applicationContext)
+                        viewModel.displayable?.isDownloadedLiveData(context?.applicationContext)
                             ?.observeUntil(
                                 this@WebViewFragment, { if (it) loadUrl() }, { it }
                             )
@@ -228,7 +235,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      */
     private fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean {
         return resourceInfo?.let {
-            val minResourceVersion = issueOperations?.minResourceVersion ?: Int.MAX_VALUE
+            val minResourceVersion = viewModel.issueOperations?.minResourceVersion ?: Int.MAX_VALUE
             minResourceVersion <= resourceInfo.resourceVersion
         } ?: false
     }
