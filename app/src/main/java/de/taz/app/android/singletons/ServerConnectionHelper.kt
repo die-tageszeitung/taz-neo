@@ -102,7 +102,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                     checkGraphQlConnection()
                     break
                 } else if (result.code.toString().firstOrNull() in listOf('4', '5')) {
-                    backOffTimeMillis = backOffMath(backOffTimeMillis)
+                    backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
                 }
             } catch (e: Exception) {
                 log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
@@ -128,10 +128,10 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
                         backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
                         break
                     } else {
-                        backOffTimeMillis = backOffMath(backOffTimeMillis)
+                        backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
                     }
                 } catch (e: Exception) {
-                    backOffTimeMillis = backOffMath(backOffTimeMillis)
+                    backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
                     withContext(Dispatchers.Main) {
                         isGraphQlServerReachableLiveData.value = false
                     }
@@ -143,7 +143,7 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
         }
     }
 
-    private fun backOffMath(backOffTime: Long): Long {
+    private fun incrementBackOffTime(backOffTime: Long): Long {
         return (BACK_OFF_FACTOR * backOffTime).toLong().coerceAtMost(
             MAX_CONNECTION_CHECK_INTERVAL
         )
