@@ -14,7 +14,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ServerConnectionHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 import java.io.EOFException
 import java.net.SocketTimeoutException
@@ -627,12 +627,12 @@ class ApiService private constructor(applicationContext: Context) {
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
             log.error("QraphQl-Error:\n", jee)
-            Sentry.capture(ApiServiceException.WrongDataException())
+            Sentry.captureException(ApiServiceException.WrongDataException())
             toastHelper.showConnectionToServerFailedToast()
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
             log.error("QraphQl-Error:\n", npe)
-            Sentry.capture(ApiServiceException.InsufficientDataException(tag))
+            Sentry.captureException(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showConnectionToServerFailedToast()
         }
         return null
@@ -661,12 +661,12 @@ class ApiService private constructor(applicationContext: Context) {
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (jee: JsonEncodingException) {
             // inform sentry of malformed JSON response
-            Sentry.capture(ApiServiceException.WrongDataException())
+            Sentry.captureException(ApiServiceException.WrongDataException())
             toastHelper.showConnectionToServerFailedToast()
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (npe: NullPointerException) {
             // inform sentry of missing data in response
-            Sentry.capture(ApiServiceException.InsufficientDataException(tag))
+            Sentry.captureException(ApiServiceException.InsufficientDataException(tag))
             toastHelper.showSomethingWentWrongToast()
             serverConnectionHelper.isGraphQlServerReachable = false
         } catch (se: SSLException) {
@@ -678,7 +678,7 @@ class ApiService private constructor(applicationContext: Context) {
             log.debug("SSLHandshakeException ${she.localizedMessage}")
             serverConnectionHelper.isGraphQlServerReachable = false
         } finally {
-            exception?.let { Sentry.capture(it) }
+            exception?.let { Sentry.captureException(it) }
         }
         return null
     }

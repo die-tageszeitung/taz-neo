@@ -13,7 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import java.lang.Exception
 import java.net.URLDecoder
 
@@ -177,7 +177,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebVie
             }
         } catch (e: Exception) {
             log.error("trying to open non-existent file $url")
-            Sentry.capture(e)
+            Sentry.captureException(e)
             null
         }
     }
