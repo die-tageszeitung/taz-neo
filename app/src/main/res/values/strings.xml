@@ -127,7 +127,7 @@
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_login_description">Bitte melden Sie sich an um weiterzulesen.</string>
-    <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.</string>
+    <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.\n\nWenn Sie bereits mit einer E-Mail-Adresse und Passwort bei der taz registriert sind, geben Sie sie bitte zur Anmeldung hier ein.</string>
 
     <string name="login_first_name_helper">Mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>

@@ -32,6 +32,7 @@ class IssueDownloadWorkManagerWorker(
                 log.debug("successfully downloaded")
 
                 while (!issue.isDownloaded(applicationContext)) {
+                    log.debug("delaying")
                     delay(1000)
                 }
 
@@ -39,7 +40,7 @@ class IssueDownloadWorkManagerWorker(
             } catch (e: Exception) {
                 log.debug("download failed")
                 Sentry.captureException(e)
-                Result.failure()
+                Result.retry()
             }
         } ?: run {
             Sentry.captureMessage("download failed - getLastIssues returned null")
