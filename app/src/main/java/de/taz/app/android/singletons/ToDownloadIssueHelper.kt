@@ -77,7 +77,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                                 withContext(Dispatchers.Main) {
                                     lastDownloadedDateLiveData.value = missingIssues.last().date
                                 }
-                            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                            } catch (e: ApiService.ApiServiceException) {
                                 log.warn("$e")
                                 break
                             }

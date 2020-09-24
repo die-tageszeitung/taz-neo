@@ -170,7 +170,7 @@ data class Issue(
                         null
                     }
                 }
-            } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+            } catch (nie: ApiService.ApiServiceException) {
                 null
             }
         }

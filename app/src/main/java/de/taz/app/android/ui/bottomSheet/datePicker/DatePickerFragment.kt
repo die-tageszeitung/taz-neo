@@ -159,7 +159,7 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                         toastHelper?.showToast(getString(R.string.issue_not_found))
                         dismiss()
                     }
-                } catch (e: ApiService.ApiServiceException.NoInternetException) {
+                } catch (e: ApiService.ApiServiceException) {
                     toastHelper?.showNoConnectionToast()
                     dismiss()
                 }

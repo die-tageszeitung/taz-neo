@@ -113,7 +113,7 @@ class DownloadService private constructor(val applicationContext: Context) {
                             issue.date,
                             isAutomatically
                         )
-                    } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+                    } catch (nie: ApiService.ApiServiceException) {
                         null
                     }
                     issueRepository.setDownloadDate(it, Date())

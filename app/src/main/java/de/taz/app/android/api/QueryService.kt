@@ -5,7 +5,7 @@ import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
+import de.taz.app.android.util.reportAndRethrowExceptions
 import java.io.IOException
 
 /**
@@ -46,19 +46,17 @@ class QueryService private constructor(applicationContext: Context) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val queryCache = mutableMapOf<String, String>()
 
-    fun get(queryType: QueryType): Query? {
+    @Throws(IOException::class)
+    fun get(queryType: QueryType): Query {
         val fileName = queryType.name
-        return Query(try {
+        return reportAndRethrowExceptions {
+            Query(
             queryCache[fileName] ?: let {
                 val queryString = readGraphQlQueryFromAssets(fileName)
                 queryCache[fileName] = queryString
                 queryString
-            }
-        } catch (e: IOException) {
-            log.error("reading $fileName.graphql failed")
-            Sentry.captureException(e)
-            return null
-        })
+            })
+        }
     }
 
     @Throws(IOException::class)
