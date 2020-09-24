@@ -40,7 +40,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val toastHelper: ToastHelper,
     private val firebaseHelper: FirebaseHelper,
     private val serverConnectionHelper: ServerConnectionHelper
-
 ) {
 
     private constructor(applicationContext: Context) : this(
