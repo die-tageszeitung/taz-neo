@@ -2,6 +2,7 @@ package de.taz.app.android.ui
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -60,12 +61,19 @@ class DataPolicyActivity : AppCompatActivity() {
                     log.debug("start welcome activity")
                     val intent = Intent(applicationContext, WelcomeActivity::class.java)
                     intent.putExtra(START_HOME_ACTIVITY, true)
-                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(Intent(intent))
                 } else {
                     log.debug("start main activity")
                     val intent = Intent(applicationContext, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(Intent(intent))
                 }
             }
@@ -74,7 +82,8 @@ class DataPolicyActivity : AppCompatActivity() {
         data_policy_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                    view?.loadUrl(url)
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(intent)
                     return true
                 }
             }
