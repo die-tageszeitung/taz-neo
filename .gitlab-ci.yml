@@ -53,7 +53,7 @@ unitTests:
   interruptible: true
   stage: test
   script:
-    - ./gradlew --no-daemon --console=plain :app:test
+    - ./gradlew --no-daemon --console=plain :app:testGoogleTazDebugUnitTest
 
 integrationTests:
   extends: .prepareEnv

@@ -3,7 +3,8 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Transformations
-import com.squareup.moshi.JsonEncodingException
+import de.taz.app.android.GRAPHQL_RETRY_LIMIT
+import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.ProductDto
@@ -14,7 +15,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ServerConnectionHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
+import de.taz.app.android.util.reportAndRethrowExceptionsAsync
 import kotlinx.coroutines.*
 import java.io.EOFException
 import java.net.SocketTimeoutException
@@ -33,24 +34,40 @@ import kotlin.coroutines.suspendCoroutine
  * The DTO objects returned by [GraphQlClient] will be transformed to models here
  */
 @Mockable
-class ApiService private constructor(applicationContext: Context) {
+class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
+    private val authHelper: AuthHelper,
+    private val graphQlClient: GraphQlClient,
+    private val toastHelper: ToastHelper,
+    private val firebaseHelper: FirebaseHelper,
+    private val serverConnectionHelper: ServerConnectionHelper
+
+) {
+
+    private constructor(applicationContext: Context) : this(
+        serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext),
+        toastHelper = ToastHelper.getInstance(applicationContext),
+        firebaseHelper = FirebaseHelper.getInstance(applicationContext),
+        authHelper = AuthHelper.getInstance(applicationContext),
+        graphQlClient = GraphQlClient.getInstance(applicationContext)
+    )
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var graphQlClient: GraphQlClient = GraphQlClient.getInstance(applicationContext)
+    private val recoverableNetworkExceptions = listOf(
+        ConnectException::class,
+        SocketTimeoutException::class,
+        GraphQlClient.GraphQlRecoverableServerException::class,
+        UnknownHostException::class
+    )
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    var authHelper: AuthHelper = AuthHelper.getInstance(applicationContext)
-
-    private val serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val networkExceptions = recoverableNetworkExceptions + listOf(
+        SSLException::class,
+        EOFException::class,
+        SSLHandshakeException::class,
+    )
     private val waitInternetList = mutableListOf<Continuation<Unit>>()
-
-    private val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
 
     init {
         Transformations.distinctUntilChanged(serverConnectionHelper.isGraphQlServerReachableLiveData)
@@ -78,7 +95,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param firstName - firstname of the user
      * return [SubscriptionInfo] indicating whether the connection has been successful
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun subscriptionId2TazId(
         tazId: String,
         idPassword: String,
@@ -88,7 +105,7 @@ class ApiService private constructor(applicationContext: Context) {
         firstName: String? = null
     ): SubscriptionInfo? {
         val tag = "subscriptionId2TazId"
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
@@ -103,11 +120,11 @@ class ApiService private constructor(applicationContext: Context) {
         }, tag)
     }
 
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun subscriptionPoll(): SubscriptionInfo? {
         val tag = "subscriptionPoll"
         log.debug(tag)
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.SubscriptionPoll,
                 SubscriptionPollVariables()
@@ -124,11 +141,11 @@ class ApiService private constructor(applicationContext: Context) {
     suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(user, password)
-            )?.data?.authentificationToken
+            ).data?.authentificationToken
         }, tag)
     }
 
@@ -138,18 +155,18 @@ class ApiService private constructor(applicationContext: Context) {
      * @param password - the password of the user
      * @return [AuthInfo] indicating if combination is valid, elapsed or invalid
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun checkSubscriptionId(
         subscriptionId: Int,
         password: String
     ): AuthInfo? {
         val tag = "checkSubscriptionId"
-        return transformExceptions(
+        return transformToApiServiceException(
             {
                 graphQlClient.query(
                     QueryType.CheckSubscriptionId,
                     CheckSubscriptionIdVariables(subscriptionId, password)
-                )?.data?.checkSubscriptionId
+                ).data?.checkSubscriptionId
             }, tag
         )
     }
@@ -161,30 +178,40 @@ class ApiService private constructor(applicationContext: Context) {
      */
     suspend fun getAppInfoAsync(): Deferred<AppInfo?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getAppInfo"
-        getDataDto(tag, QueryType.AppInfo).product?.let { AppInfo(it) }
+        try {
+            getDataDto(tag, QueryType.AppInfo).product?.let { AppInfo(it) }
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
+            null
+        }
     }
 
     /**
      * function to asynchronously get available feeds
      * @return List of [Feed]s
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun getFeedsAsync(): Deferred<List<Feed>> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getFeedsAsync"
         log.debug(tag)
-        getDataDto(tag, QueryType.Feed).product?.feedList?.map { Feed(it) } ?: emptyList()
+        try {
+            getDataDto(tag, QueryType.Feed).product?.feedList?.map { Feed(it) } ?: emptyList()
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
+            emptyList()
+        }
     }
 
     /**
      * function to get available feeds
      * @return List of [Feed]s
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun getFeeds(): List<Feed> {
         val tag = "getFeeds"
         log.debug(tag)
-        return transformExceptions({
-            graphQlClient.query(QueryType.Feed)?.data?.product?.feedList?.map { Feed(it) }
+        return transformToApiServiceException({
+            graphQlClient.query(QueryType.Feed).data?.product?.feedList?.map { Feed(it) }
         }, tag) ?: emptyList()
     }
 
@@ -210,7 +237,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param issueDate - the date of the issue
      * @return [Issue] of the feed at given date
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun getIssueByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date())
@@ -226,15 +253,15 @@ class ApiService private constructor(applicationContext: Context) {
      * @param limit - number of issues to get
      * @return [List]<[Issue]>
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun getLastIssues(limit: Int = 10): List<Issue> {
         val tag = "getLastIssues"
         val issues = mutableListOf<Issue>()
-        transformExceptions({
+        transformToApiServiceException({
             graphQlClient.query(
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
-            )?.data?.product?.feedList?.forEach { feed ->
+            ).data?.product?.feedList?.forEach { feed ->
                 issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
             }
         }, tag)
@@ -274,12 +301,16 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "getIssuesByDateAsync"
         log.debug("$tag issueDate: $issueDate limit: $limit")
         val issues = mutableListOf<Issue>()
-        getDataDto(
-            tag,
-            QueryType.IssueByFeedAndDate,
-            IssueVariables(issueDate = issueDate, limit = limit)
-        ).product?.feedList?.forEach { feed ->
-            issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+        try {
+            getDataDto(
+                tag,
+                QueryType.IssueByFeedAndDate,
+                IssueVariables(issueDate = issueDate, limit = limit)
+            ).product?.feedList?.forEach { feed ->
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+            }
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
         }
         issues
     }
@@ -296,7 +327,7 @@ class ApiService private constructor(applicationContext: Context) {
     ): List<Issue> {
         val tag = "getIssuesByDate"
         log.debug("$tag issueDate: $issueDate limit: $limit")
-        return transformExceptions(
+        return transformToApiServiceException(
             {
                 val issues = mutableListOf<Issue>()
                 graphQlClient.query(
@@ -324,11 +355,16 @@ class ApiService private constructor(applicationContext: Context) {
     ): Deferred<List<Issue>> = CoroutineScope(Dispatchers.IO).async {
         val tag = "getIssuesByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
-        getDataDto(
-            tag,
-            QueryType.IssueByFeedAndDate,
-            IssueVariables(feedName, issueDate, limit)
-        ).product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+        try {
+            getDataDto(
+                tag,
+                QueryType.IssueByFeedAndDate,
+                IssueVariables(feedName, issueDate, limit)
+            ).product?.feedList?.first()?.issueList?.map { Issue(feedName, it) } ?: emptyList()
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
+            emptyList()
+        }
     }
 
     /**
@@ -338,7 +374,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param limit - how many issues will be returned
      * @return [List]<[Issue]> of the issues of a feed at given date
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun getIssuesByFeedAndDate(
         feedName: String = "taz",
         issueDate: String = simpleDateFormat.format(Date()),
@@ -346,10 +382,10 @@ class ApiService private constructor(applicationContext: Context) {
     ): List<Issue> {
         val tag = "getIssuesByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate limit: $limit")
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
-            )?.data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
                 ?: emptyList()
         }, tag) ?: emptyList()
     }
@@ -362,7 +398,12 @@ class ApiService private constructor(applicationContext: Context) {
         CoroutineScope(Dispatchers.IO).async {
             val tag = "getResourceInfo"
             log.debug(tag)
-            getDataDto(tag, QueryType.ResourceInfo).product?.let { ResourceInfo(it) }
+            try {
+                getDataDto(tag, QueryType.ResourceInfo).product?.let { ResourceInfo(it) }
+            } catch (e: ApiServiceException) {
+                toastHelper.showConnectionToServerFailedToast()
+                null
+            }
         }
 
 
@@ -378,7 +419,7 @@ class ApiService private constructor(applicationContext: Context) {
         isAutomatically: Boolean
     ): String? {
         val tag = "notifyServerOfDownloadStart"
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.DownloadStart,
                 DownloadStartVariables(
@@ -386,7 +427,7 @@ class ApiService private constructor(applicationContext: Context) {
                     issueDate,
                     isAutomatically
                 )
-            )?.data?.downloadStart?.let { id ->
+            ).data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id")
                 id
             }
@@ -404,11 +445,16 @@ class ApiService private constructor(applicationContext: Context) {
     ): Deferred<Boolean?> = CoroutineScope(Dispatchers.IO).async {
         val tag = "notifyServerOfDownloadStop"
         log.debug("$tag downloadId: $id time: $time")
-        getDataDto(
-            tag,
-            QueryType.DownloadStop,
-            DownloadStopVariables(id, time)
-        ).downloadStop
+        try {
+            getDataDto(
+                tag,
+                QueryType.DownloadStop,
+                DownloadStopVariables(id, time)
+            ).downloadStop
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
+            null
+        }
     }
 
     /**
@@ -422,11 +468,16 @@ class ApiService private constructor(applicationContext: Context) {
 
             firebaseHelper.firebaseToken?.let { notificationToken ->
                 if (notificationToken.isNotBlank()) {
-                    getDataDto(
-                        tag,
-                        QueryType.Notification,
-                        NotificationVariables(notificationToken, oldToken = oldToken)
-                    ).notification
+                    try {
+                        getDataDto(
+                            tag,
+                            QueryType.Notification,
+                            NotificationVariables(notificationToken, oldToken = oldToken)
+                        ).notification
+                    } catch (e: ApiServiceException) {
+                        toastHelper.showConnectionToServerFailedToast()
+                        null
+                    }
                 } else {
                     false
                 }
@@ -440,7 +491,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param surname surname of the requesting person
      * @param firstName firstName of the requesting person
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun subscription(
         tazId: String,
         idPassword: String,
@@ -459,7 +510,7 @@ class ApiService private constructor(applicationContext: Context) {
     ): SubscriptionInfo? {
         val tag = "subscription"
         log.debug("$tag tazId: $tazId")
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.Subscription,
                 SubscriptionVariables(
@@ -478,7 +529,7 @@ class ApiService private constructor(applicationContext: Context) {
                     comment = comment,
                     nameAffix = nameAffix
                 )
-            )?.data?.subscription
+            ).data?.subscription
         }, tag)
     }
 
@@ -489,7 +540,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @param surname surname of the requesting person
      * @param firstName firstName of the requesting person
      */
-    @Throws(ApiServiceException.NoInternetException::class)
+    @Throws(ApiServiceException::class)
     suspend fun trialSubscription(
         tazId: String,
         idPassword: String,
@@ -499,7 +550,7 @@ class ApiService private constructor(applicationContext: Context) {
     ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
-        return transformExceptions(
+        return transformToApiServiceException(
             {
                 graphQlClient.query(
                     QueryType.TrialSubscription,
@@ -510,7 +561,7 @@ class ApiService private constructor(applicationContext: Context) {
                         firstName = firstName,
                         nameAffix = nameAffix
                     )
-                )?.data?.trialSubscription
+                ).data?.trialSubscription
             }, tag
         )
     }
@@ -524,24 +575,28 @@ class ApiService private constructor(applicationContext: Context) {
         errorProtocol: String?,
         ramUsed: String?,
         ramAvailable: String?
-    ): Deferred<Boolean?> = CoroutineScope(Dispatchers.IO).async {
+    ): Deferred<Unit> = CoroutineScope(Dispatchers.IO).async {
         val tag = "sendErrorReport"
         log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
-
-        getDataDto(
-            tag,
-            QueryType.ErrorReport,
-            ErrorReportVariables(
-                email,
-                message,
-                lastAction,
-                conditions,
-                storageType,
-                errorProtocol,
-                ramUsed = ramUsed,
-                ramAvailable = ramAvailable
-            )
-        ).errorReport
+        try {
+            getDataDto(
+                tag,
+                QueryType.ErrorReport,
+                ErrorReportVariables(
+                    email,
+                    message,
+                    lastAction,
+                    conditions,
+                    storageType,
+                    errorProtocol,
+                    ramUsed = ramUsed,
+                    ramAvailable = ramAvailable
+                )
+            ).errorReport
+            toastHelper.showToast(R.string.toast_error_report_sent)
+        } catch (e: ApiServiceException) {
+            toastHelper.showConnectionToServerFailedToast()
+        }
     }
 
     /**
@@ -550,7 +605,7 @@ class ApiService private constructor(applicationContext: Context) {
      * @return [PasswordResetInfo] information if requesting has been successful
      */
     @Throws(
-        ApiServiceException.NoInternetException::class
+        ApiServiceException::class
     )
     suspend fun requestCredentialsPasswordReset(
         email: String
@@ -558,18 +613,18 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "resetPassword"
         log.debug("$tag email: $email")
 
-        return transformExceptions({
+        return transformToApiServiceException({
             graphQlClient.query(
                 QueryType.PasswordReset,
                 PasswordResetVariables(
                     email
                 )
-            )?.data?.passwordReset
+            ).data?.passwordReset
         }, tag)
     }
 
     @Throws(
-        ApiServiceException.NoInternetException::class
+        ApiServiceException::class
     )
     suspend fun requestSubscriptionPassword(
         subscriptionId: Int
@@ -577,14 +632,14 @@ class ApiService private constructor(applicationContext: Context) {
         val tag = "resetPassword"
         log.debug("$tag email: $subscriptionId")
 
-        return transformExceptions(
+        return transformToApiServiceException(
             {
                 graphQlClient.query(
                     QueryType.SubscriptionReset,
                     SubscriptionResetVariables(
                         subscriptionId
                     )
-                )?.data?.subscriptionReset
+                ).data?.subscriptionReset
             },
             tag
         )
@@ -592,99 +647,32 @@ class ApiService private constructor(applicationContext: Context) {
 
     suspend fun getPriceList(): List<PriceInfo> {
         val tag = "getPriceList"
-        return transformExceptions(
+        return transformToApiServiceException(
             {
                 graphQlClient.query(
                     QueryType.PriceList
-                )?.data?.priceList
+                ).data?.priceList
             },
             tag
         ) ?: emptyList()
     }
 
-    @Throws(ApiServiceException.NoInternetException::class)
-    private suspend fun <T> transformExceptions(block: suspend () -> T, tag: String): T? {
+    @Throws(ApiServiceException::class)
+    private suspend fun <T> transformToApiServiceException(block: suspend () -> T, tag: String): T {
         try {
-            return block()
-        } catch (se: SSLException) {
-            log.debug("SSLException ${se.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (eofe: EOFException) {
-            log.debug("EOFException ${eofe.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (uhe: UnknownHostException) {
-            log.debug("UnknownHostException ${uhe.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (she: SSLHandshakeException) {
-            log.debug("SSLHandshakeException ${she.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (ce: ConnectException) {
-            log.debug("ConnectException ${ce.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (ste: SocketTimeoutException) {
-            log.debug("SocketTimeoutException ${ste.localizedMessage}")
-            throw ApiServiceException.NoInternetException()
-        } catch (jee: JsonEncodingException) {
-            // inform sentry of malformed JSON response
-            log.error("QraphQl-Error:\n", jee)
-            Sentry.captureException(ApiServiceException.WrongDataException())
-            toastHelper.showConnectionToServerFailedToast()
-        } catch (npe: NullPointerException) {
-            // inform sentry of missing data in response
-            log.error("QraphQl-Error:\n", npe)
-            Sentry.captureException(ApiServiceException.InsufficientDataException(tag))
-            toastHelper.showConnectionToServerFailedToast()
+            return reportAndRethrowExceptionsAsync { block() }
+        } catch (e: Exception) {
+            if (networkExceptions.contains(e::class)) {
+                log.warn("Connection issue encountered ${e.localizedMessage}")
+                throw ApiServiceException.NoInternetException(e)
+            } else {
+                log.error("API implementation issue encountered ${e.localizedMessage}")
+                throw ApiServiceException.ImplementationException(e)
+            }
         }
-        return null
     }
 
-    private suspend
-    fun <T> catchExceptions(block: suspend () -> T, tag: String): T? {
-        var exception: Exception? = null
-        try {
-            return block()
-        } catch (eofe: EOFException) {
-            exception = eofe
-            log.debug("EOFException ${eofe.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (uhe: UnknownHostException) {
-            exception = uhe
-            log.debug("UnknownHostException ${uhe.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (ce: ConnectException) {
-            exception = ce
-            log.debug("ConnectException ${ce.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (ste: SocketTimeoutException) {
-            exception = ste
-            log.debug("SocketTimeoutException ${ste.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (jee: JsonEncodingException) {
-            // inform sentry of malformed JSON response
-            Sentry.captureException(ApiServiceException.WrongDataException())
-            toastHelper.showConnectionToServerFailedToast()
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (npe: NullPointerException) {
-            // inform sentry of missing data in response
-            Sentry.captureException(ApiServiceException.InsufficientDataException(tag))
-            toastHelper.showSomethingWentWrongToast()
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (se: SSLException) {
-            exception = se
-            log.debug("SSLException ${se.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } catch (she: SSLHandshakeException) {
-            exception = she
-            log.debug("SSLHandshakeException ${she.localizedMessage}")
-            serverConnectionHelper.isGraphQlServerReachable = false
-        } finally {
-            exception?.let { Sentry.captureException(it) }
-        }
-        return null
-    }
-
-    private suspend
-    fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
+    private suspend fun waitForInternet(tag: String) = suspendCoroutine<Unit> { continuation ->
         if (serverConnectionHelper.isGraphQlServerReachable) {
             continuation.resume(Unit)
         } else {
@@ -693,24 +681,34 @@ class ApiService private constructor(applicationContext: Context) {
         }
     }
 
-    private suspend fun getDataDto(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @Throws(Exception::class)
+    suspend fun getDataDto(
         tag: String,
         queryType: QueryType,
         variables: Variables? = null
     ): DataDto {
-        log.debug(tag)
-        var result: DataDto? = null
-        while (result == null) {
-            waitForInternet(tag)
-            result = catchExceptions(
-                {
-                    val data = graphQlClient.query(queryType, variables)?.data
-                    updateAuthStatus(data?.product)
-                    data
-                }, tag
-            )
+        var retries = 0
+        while (retries <= GRAPHQL_RETRY_LIMIT) {
+            try {
+                waitForInternet(tag)
+                val data = transformToApiServiceException({
+                    graphQlClient.query(queryType, variables).data!!
+                }, tag)
+                updateAuthStatus(data.product)
+                return data
+            } catch (e: ApiServiceException.NoInternetException) {
+                if (
+                    e.cause?.let { recoverableNetworkExceptions.contains(it::class) } == true
+                ) {
+                    serverConnectionHelper.isGraphQlServerReachable = false
+                    retries++
+                } else {
+                    throw e
+                }
+            }
         }
-        return result
+        throw ApiServiceException.RetryLimitExceededException(tag)
     }
 
     /**
@@ -728,12 +726,19 @@ class ApiService private constructor(applicationContext: Context) {
         return product
     }
 
-    object ApiServiceException {
-        class InsufficientDataException(function: String) :
-            Exception("ApiService.$function failed.")
+    sealed class ApiServiceException(
+        message: String? = null,
+        override val cause: Throwable? = null
+    ) :
+        Exception(message, cause) {
+        class NoInternetException(cause: Throwable) :
+            ApiServiceException("no internet connection", cause)
 
-        class NoInternetException : Exception("no internet connection")
-        class WrongDataException : Exception("data could not be parsed")
+        class ImplementationException(cause: Throwable) :
+            ApiServiceException("Unexpected server response or malformed query", cause)
+
+        class RetryLimitExceededException(tag: String) :
+            ApiServiceException("Retry limit of $GRAPHQL_RETRY_LIMIT exceeded for $tag request")
     }
 
 }
