@@ -2,6 +2,7 @@ package de.taz.app.android.ui
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -74,7 +75,8 @@ class DataPolicyActivity : AppCompatActivity() {
         data_policy_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                    view?.loadUrl(url)
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(intent)
                     return true
                 }
             }
