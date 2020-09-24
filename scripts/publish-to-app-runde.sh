@@ -15,4 +15,4 @@ export APP_VERSION_CODE=${APP_VERSION_CODE:-`/opt/android/sdk/build-tools/29.0.2
 echo "Dumping vars for debug purposes"
 env
 
-http -v https://toolbox.alt.coop/misc/api/taz-release recipients:="[\"${RECIPIENT}\"]" version_code="${APP_VERSION_CODE}" version_name="${APP_VERSION}" release_note="${APP_RELEASE_MESSAGE}" link=\"${APP_URL}\" Authorization:"Token ${TOOLBOX_API_TOKEN}"
+http -v https://toolbox.alt.coop/misc/api/taz-release recipients:="[\"${RECIPIENT}\"]" version_code="${APP_VERSION_CODE}" version_name="${APP_VERSION}" release_note="${APP_RELEASE_MESSAGE}" link=\"${APP_URL}\" Authorization:"Token ${TOOLBOX_API_TOKEN}"  < /dev/tty
