@@ -61,12 +61,19 @@ class DataPolicyActivity : AppCompatActivity() {
                     log.debug("start welcome activity")
                     val intent = Intent(applicationContext, WelcomeActivity::class.java)
                     intent.putExtra(START_HOME_ACTIVITY, true)
-                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(Intent(intent))
                 } else {
                     log.debug("start main activity")
                     val intent = Intent(applicationContext, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(Intent(intent))
                 }
             }
