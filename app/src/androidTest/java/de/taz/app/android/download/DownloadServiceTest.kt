@@ -83,7 +83,7 @@ class DownloadServiceTest {
     @Test
     fun abortDownloadOn400Response() {
         val mockResponse = MockResponse().setResponseCode(400)
-        testAborted(mockResponse)
+        testFailed(mockResponse)
     }
 
     @Test
@@ -283,6 +283,34 @@ class DownloadServiceTest {
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
 
+    private fun testFailed(mockResponse: MockResponse) {
+        val mockFileEntry = FileEntry(
+            TEST_FILE_NAME,
+            StorageType.issue,
+            0,
+            "",
+            0,
+            "bla",
+            DownloadStatus.pending
+        )
+        val mockDownload =
+            Download(mockServer.url("").toString(), mockFileEntry, DownloadStatus.pending)
+
+        fileEntryRepository.saveOrReplace(mockFileEntry)
+        downloadRepository.save(mockDownload)
+
+        mockServer.enqueue(mockResponse)
+
+        downloadService.getBlockingFromServer(TEST_FILE_NAME)
+
+        assertEquals(DownloadStatus.failed, downloadRepository.get(TEST_FILE_NAME)?.status)
+        assertEquals(
+            DownloadStatus.failed,
+            fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus
+        )
+        assertEquals(0, downloadService.currentDownloads.get())
+        assertTrue(downloadService.currentDownloadList.isEmpty())
+    }
     @Test
     fun downloadAlreadyDownloadedFileEntry() {
         val mockFileSha = "4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703"
