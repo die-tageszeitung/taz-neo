@@ -84,6 +84,9 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             } catch (e: ApiService.ApiServiceException.NoInternetException) {
                 ToastHelper.getInstance(context?.applicationContext)
                     .showNoConnectionToast()
+            } catch (e: ApiService.ApiServiceException.ImplementationException) {
+                ToastHelper.getInstance(context?.applicationContext)
+                    .showSomethingWentWrongToast()
             }
         }
     }

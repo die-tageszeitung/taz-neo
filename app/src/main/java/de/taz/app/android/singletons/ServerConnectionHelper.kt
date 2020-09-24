@@ -1,8 +1,10 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.GraphQlClient
@@ -12,6 +14,7 @@ import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.*
 
@@ -20,21 +23,28 @@ const val MAX_CONNECTION_CHECK_INTERVAL = 30000L
 const val BACK_OFF_FACTOR = 2f
 
 @Mockable
-class ServerConnectionHelper private constructor(val applicationContext: Context) {
+class ServerConnectionHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
+    private val toastHelper: ToastHelper,
+    private val appInfoRepository: AppInfoRepository,
+    private val okHttpClient: OkHttpClient,
+    private val graphQlClient: Lazy<GraphQlClient>
+) {
+    private constructor(applicationContext: Context) : this(
+        toastHelper = ToastHelper.getInstance(applicationContext),
+        appInfoRepository = AppInfoRepository.getInstance(applicationContext),
+        okHttpClient = OkHttp.client,
+        graphQlClient = lazy { GraphQlClient.getInstance(applicationContext) }
+    )
 
     companion object : SingletonHolder<ServerConnectionHelper, Context>(::ServerConnectionHelper)
 
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
-    private val okHttpClient = OkHttp.client
-
-    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
 
     val isDownloadServerReachableLiveData = MutableLiveData(true)
     val isGraphQlServerReachableLiveData = MutableLiveData(true)
     private var isDownloadServerReachableLastChecked: Long = 0L
     private var isGraphQlServerReachableLastChecked: Long = 0L
 
-    private var backOffTimeMillis = 1000L
+    private var backOffTimeMillis = CONNECTION_FAILURE_BACKOFF_TIME_MS
 
     var isDownloadServerReachable: Boolean
         get() = isDownloadServerReachableLiveData.value ?: true
@@ -114,31 +124,28 @@ class ServerConnectionHelper private constructor(val applicationContext: Context
     private fun checkGraphQlConnection() = CoroutineScope(Dispatchers.IO).launch {
         while (!this@ServerConnectionHelper.isGraphQlServerReachable) {
             delay(backOffTimeMillis)
+            log.debug("checking graph ql server connection")
             try {
-                log.debug("checking graph ql server connection")
-                try {
-                    val wrapperDto =
-                        GraphQlClient.getInstance(applicationContext).query(QueryType.AppInfo)
-                    if (wrapperDto?.errors?.isEmpty() == true) {
-                        log.debug("graph ql server reached")
-                        withContext(Dispatchers.Main) {
-                            isGraphQlServerReachableLiveData.value = true
-                        }
-                        isGraphQlServerReachableLastChecked = Date().time
-                        backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
-                        break
-                    } else {
-                        backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
-                    }
-                } catch (e: Exception) {
-                    backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
+                val wrapperDto = graphQlClient.value.query(QueryType.AppInfo)
+                if (wrapperDto.errors.isEmpty()) {
+                    log.debug("graph ql server reached")
                     withContext(Dispatchers.Main) {
-                        isGraphQlServerReachableLiveData.value = false
+                        isGraphQlServerReachableLiveData.value = true
                     }
+                    isGraphQlServerReachableLastChecked = Date().time
+                    backOffTimeMillis = DEFAULT_CONNECTION_CHECK_INTERVAL
+                    break
+                } else {
+                    log.debug("graph ql server error, backing off")
+                    backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
                 }
             } catch (e: Exception) {
-                log.debug("could not reach download server - ${e.javaClass.name}: ${e.localizedMessage}")
+                log.debug("graph ql server unreachable, backing off")
+                backOffTimeMillis = incrementBackOffTime(backOffTimeMillis)
                 Sentry.captureException(e)
+                withContext(Dispatchers.Main) {
+                    isGraphQlServerReachableLiveData.value = false
+                }
             }
         }
     }

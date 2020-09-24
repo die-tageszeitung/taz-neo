@@ -90,8 +90,6 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 )
                 log.debug("Sending an error report")
             }
-            ToastHelper.getInstance(activity?.applicationContext)
-                .showToast(R.string.toast_error_report_sent)
             parentFragmentManager.popBackStack()
         }
     }

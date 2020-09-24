@@ -34,14 +34,10 @@ data class AppInfo (
         }
 
         suspend fun update(applicationContext: Context): AppInfo? = withContext(Dispatchers.IO) {
-            try {
-                ApiService.getInstance(applicationContext).getAppInfoAsync().await()?.let {
-                    AppInfoRepository.getInstance().save(it)
-                    log.info("Initialized AppInfo")
-                    return@withContext it
-                }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
-                null
+            ApiService.getInstance(applicationContext).getAppInfoAsync().await()?.let {
+                AppInfoRepository.getInstance().save(it)
+                log.info("Initialized AppInfo")
+                return@withContext it
             }
         }
     }

@@ -154,7 +154,7 @@ class LoginViewModel(
                     noInternet.postValue(true)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(LoginViewModelState.INITIAL)
             noInternet.postValue(true)
         }
@@ -186,7 +186,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.INITIAL)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(LoginViewModelState.INITIAL)
             noInternet.postValue(true)
         }
@@ -285,7 +285,7 @@ class LoginViewModel(
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(previousState)
             noInternet.postValue(true)
         }
@@ -381,7 +381,7 @@ class LoginViewModel(
                     status.postValue(previousState)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(previousState)
             noInternet.postValue(true)
         }
@@ -461,7 +461,7 @@ class LoginViewModel(
                     toastHelper.showSomethingWentWrongToast()
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             noInternet.postValue(true)
             if (runBlocking) {
                 poll(previousState, timeoutMillis, runBlocking).join()
@@ -518,7 +518,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
             noInternet.postValue(true)
         }
@@ -551,7 +551,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
             }
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             noInternet.postValue(true)
             status.postValue(LoginViewModelState.PASSWORD_REQUEST)
         }
@@ -677,7 +677,7 @@ class LoginViewModel(
                     Sentry.captureMessage("subscription returned null")
                     status.postValue(previousState)
                 }
-            } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+            } catch (nie: ApiService.ApiServiceException) {
                 noInternet.postValue(true)
                 status.postValue(previousState)
             }
@@ -688,7 +688,7 @@ class LoginViewModel(
         return try {
             val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
             authTokenInfo?.authInfo?.status != AuthStatus.notValid
-        } catch (e: ApiService.ApiServiceException.NoInternetException) {
+        } catch (e: ApiService.ApiServiceException) {
             status.postValue(LoginViewModelState.INITIAL)
             noInternet.postValue(true)
             null
