@@ -323,11 +323,17 @@ class DownloadService private constructor(val applicationContext: Context) {
                 abortAndRetryDownload(download, doNotRestartDownload)
             }
         } else {
-            log.warn("Download was not successful ${response.code}")
-            if (response.code in 400..599) {
+            log.warn("Download of ${download.fileName} not successful ${response.code}")
+            Sentry.captureMessage(response.message)
+            if (response.code in 400..499) {
+                download.file.setDownloadStatus(DownloadStatus.failed)
+                downloadRepository.setStatus(download, DownloadStatus.failed)
+                currentDownloads.decrementAndGet()
+                currentDownloadList.remove(download.fileName)
+            } else if (response.code in 500..599) {
                 serverConnectionHelper.isDownloadServerReachable = false
+                abortAndRetryDownload(download, doNotRestartDownload)
             }
-            abortAndRetryDownload(download, doNotRestartDownload)
         }
     }
 
