@@ -79,7 +79,6 @@ publishNextcloud:
   only:
     - tags
 
-
 publishGooglePlay:
   cache: {}
   extends: .prepareEnv
