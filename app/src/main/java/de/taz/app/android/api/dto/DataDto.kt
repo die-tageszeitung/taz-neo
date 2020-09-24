@@ -1,9 +1,11 @@
 package de.taz.app.android.api.dto
 
 import com.squareup.moshi.JsonClass
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 
 @JsonClass(generateAdapter = true)
+@Mockable
 data class DataDto (
     val authentificationToken: AuthTokenInfo? = null,
     val checkSubscriptionId: AuthInfo? = null,

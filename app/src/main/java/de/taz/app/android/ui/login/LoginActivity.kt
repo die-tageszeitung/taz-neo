@@ -347,6 +347,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
             } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
             null
+        } catch (ie: ApiService.ApiServiceException.ImplementationException) {
+            view?.let {
+                Snackbar.make(it, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
+            } ?: ToastHelper.getInstance(applicationContext).showSomethingWentWrongToast()
+            null
         }
     }
 

@@ -92,7 +92,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         Sentry.captureMessage("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            } catch (e: ApiService.ApiServiceException) {
                 // continue polling
                 poll(timeMillis * 2)
             }

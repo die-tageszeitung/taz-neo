@@ -12,13 +12,12 @@ object OkHttp : ViewModel() {
     val client: OkHttpClient
 
     init {
-        // TODO reduce timeouts
         val builder = OkHttpClient
             .Builder()
             .retryOnConnectionFailure(true)
-            .connectTimeout(2, TimeUnit.MINUTES)
-            .readTimeout(2, TimeUnit.MINUTES)
-            .writeTimeout(2, TimeUnit.MINUTES)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .dispatcher(Dispatcher().also { it.maxRequestsPerHost = CONCURRENT_DOWNLOAD_LIMIT })
 
         // disallow cleartext connections if not testing
