@@ -200,7 +200,6 @@ dependencies {
 
     // error reports
     implementation 'io.sentry:sentry-android:2.3.0'
-    implementation 'io.sentry:sentry-android-gradle-plugin:1.7.35'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     // testing
