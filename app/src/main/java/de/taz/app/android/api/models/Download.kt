@@ -28,5 +28,6 @@ enum class DownloadStatus {
     done,
     started,
     pending,
-    takeOld
+    takeOld,
+    failed
 }
