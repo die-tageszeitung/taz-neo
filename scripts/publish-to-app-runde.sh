@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 set -o xtrace
-RECIPIENT="jonatan@ctrl.alt.coop"
+RECIPIENT="app-runde@taz.de"
 
 
 
