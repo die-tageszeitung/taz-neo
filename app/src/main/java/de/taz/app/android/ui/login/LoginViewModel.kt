@@ -720,6 +720,10 @@ class LoginViewModel(
             getSubscription(previousState)
         }
     }
+    fun isElapsed(): Boolean {
+        return authHelper.isElapsed()
+    }
+
 }
 
 enum class LoginViewModelState {

@@ -102,7 +102,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
-                    viewModel.validCredentials = false
+                    viewModel.validCredentials = viewModel.isElapsed()
                     if (register) {
                         showSubscriptionPrice()
                     } else {
@@ -285,7 +285,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionInactiveFragment())
+        showFragment(SubscriptionElapsedDialogFragment())
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
