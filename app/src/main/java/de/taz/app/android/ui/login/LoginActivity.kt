@@ -170,7 +170,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
-                LoginViewModelState.REGISTRATION_EMAIL -> showConfirmEmail()
+                LoginViewModelState.REGISTRATION_EMAIL -> {
+                    showConfirmEmail()
+                    if (viewModel.isElapsed()) {
+                        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    }
+                }
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
                 LoginViewModelState.DONE -> done()
