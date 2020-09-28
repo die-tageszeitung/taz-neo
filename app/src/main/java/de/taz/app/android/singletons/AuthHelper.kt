@@ -75,6 +75,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = authStatusLiveData.value ?: AuthStatus.notValid
         set(value) = authStatusLiveData.postValue(value)
 
+    fun isElapsed(): Boolean = authStatus == AuthStatus.elapsed
     fun isLoggedIn(): Boolean = authStatus == AuthStatus.valid
 
     val emailLiveData = SharedPreferenceStringLiveData(

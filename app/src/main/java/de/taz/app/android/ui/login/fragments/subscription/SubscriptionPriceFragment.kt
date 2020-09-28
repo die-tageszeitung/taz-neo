@@ -142,5 +142,8 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
                     View.GONE
             }
         }
+        if (viewModel.isElapsed()) {
+            priceList.remove(testSubscriptionPriceInfo)
+        }
     }
 }
