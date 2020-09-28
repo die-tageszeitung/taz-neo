@@ -18,6 +18,12 @@ class ConfirmEmailFragment: LoginBaseFragment(R.layout.fragment_login_confirm_em
             )
         }
 
+        if (viewModel.isElapsed()) {
+            fragment_login_confirm_email_header.text = getString(
+                R.string.fragment_login_confirm_email_elapsed_header
+            )
+        }
+
         fragment_login_confirm_done.setOnClickListener {
             viewModel.startPolling()
         }
