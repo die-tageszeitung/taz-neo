@@ -233,8 +233,8 @@
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden.\nBitte wenden Sie sich an den Support:</string>
-    <string name="fragment_login_digiabo_mail">digiabo@taz.de</string>
-    <string name="fragment_login_digiabo_mail_underlined"><u>digiabo@taz.de</u></string>
+    <string name="fragment_login_taz_mail">app@taz.de</string>
+    <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
 
     <string name="button_close_text">×</string>
 

@@ -30,7 +30,7 @@
         style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_digiabo_mail_underlined"
+        android:text="@string/fragment_login_taz_mail_underlined"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_text" />
