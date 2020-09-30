@@ -72,11 +72,9 @@ class LoginViewModel(
         }
     }
 
-    fun startPolling() {
+    fun setDone(startPolling: Boolean = true) {
         authHelper.email = username ?: ""
-        if (!isElapsed()) {
-            authHelper.isPolling = true
-        }
+        authHelper.isPolling = startPolling
         status.postValue(LoginViewModelState.DONE)
     }
 

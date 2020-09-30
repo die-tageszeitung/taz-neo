@@ -25,7 +25,9 @@ class ConfirmEmailFragment: LoginBaseFragment(R.layout.fragment_login_confirm_em
         }
 
         fragment_login_confirm_done.setOnClickListener {
-            viewModel.startPolling()
+            viewModel.setDone(
+                startPolling = !viewModel.isElapsed()
+            )
         }
     }
 
