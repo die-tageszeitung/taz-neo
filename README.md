@@ -31,3 +31,15 @@ The following flavor creates a free release for *Die Tageszeitung* app:
 ```
 ./gradlew :app:assembleFreeTazUnminifiedRelease
 ```
+
+Be sure that your android sdk path is set correctly, for example by placing a `local.properties` file in the project root containing the following property:
+```
+sdk.dir=/home/me/Android/Sdk
+```
+Android Studio usually takes care of this if used.
+
+Also be aware that this will produce an unsigned release. For signing during build please place a `keystore.properties` in project root providing information about the signing configuration:
+```
+keystorePath=keystore.jks
+keyAlias=keyAlias
+```
