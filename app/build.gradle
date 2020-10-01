@@ -62,7 +62,7 @@ android {
         lintConfig file("lint.xml")
     }
 
-    flavorDimensions "store", "owner"
+    flavorDimensions "source", "owner"
 
     productFlavors {
         taz {
@@ -75,13 +75,13 @@ android {
             applicationId "de.monde_diplomatique.android.app"
         }
 
-        fdroid {
-            dimension "store"
-            applicationIdSuffix ".fdroid"
+        free {
+            dimension "source"
+            applicationIdSuffix ".free"
         }
 
-        google {
-            dimension "store"
+        nonfree {
+            dimension "source"
         }
 
     }
@@ -128,6 +128,12 @@ android {
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        unminifiedRelease {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+            minifyEnabled false
         }
     }
 
@@ -242,7 +248,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.2.4'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:20.2.4'
 }
 
 sentry {

@@ -28,39 +28,50 @@ stages:
     paths:
       - app/build/outputs/
 
-assembleDebug:
+assembleNonfreeDebug:
   extends: .assemble
   interruptible: true
   script:
-    - ./gradlew --no-daemon assembleGoogleTazDebug
+    - ./gradlew --no-daemon assembleNonfreeTazDebug
 
-assembleRelease:
+assembleNonfreeRelease:
   extends: .assemble
   interruptible: true
   script:
-    - ./gradlew --no-daemon assembleGoogleTazRelease
+    - ./gradlew --no-daemon assembleNonfreeTazRelease
 
+assembleFreeDebug:
+  extends: .assemble
+  interruptible: true
+  script:
+    - ./gradlew --no-daemon assembleFreeTazDebug
+
+assembleFreeUnminifiedRelease:
+  extends: .assemble
+  interruptible: true
+  script:
+    - ./gradlew --no-daemon assembleFreeTazUnminifiedRelease
 
 lint:
   extends: .prepareEnv
   interruptible: true
   stage: test
   script:
-    - ./gradlew --no-daemon --console=plain lintGoogleTazDebug lintGoogleTazRelease
+    - ./gradlew --no-daemon --console=plain lintNonFreeTazDebug lintNonfreeTazRelease
 
 unitTests:
   extends: .prepareEnv
   interruptible: true
   stage: test
   script:
-    - ./gradlew --no-daemon --console=plain :app:testGoogleTazDebugUnitTest
+    - ./gradlew --no-daemon --console=plain :app:testNonfreeTazDebugUnitTest
 
 integrationTests:
   extends: .prepareEnv
   stage: test
   script:
     - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
-    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:cAT
+    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazDebugAndroidTest
   tags:
     - powerhouse
 
@@ -69,12 +80,16 @@ publishNextcloud:
   stage: publish
   variables:
     RELEASE_FOLDER: releases/${CI_COMMIT_TAG}
-    DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-google-taz-debug.apk
-    RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-google-taz-release.apk
+    NONFREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-debug.apk
+    NONFREE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-release.apk
+    FREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-debug.apk
+    FREE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-unminifiedRelease.apk
   script:
     - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_FOLDER}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/googleTaz/debug/app-google-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/googleTaz/release/app-google-taz-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/debug/app-nonfree-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/release/app-nonfree-taz-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/debug/app-free-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/unminifiedRelease/app-free-taz-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - ./scripts/publish-to-app-runde.sh
   only:
     - tags
@@ -84,7 +99,7 @@ publishGooglePlay:
   extends: .prepareEnv
   stage: publish
   script:
-    - ./gradlew publishGoogleTazReleaseBundle
+    - ./gradlew publishNonfreeTazReleaseBundle
   only:
     - tags
   when: manual
