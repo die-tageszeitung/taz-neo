@@ -62,7 +62,7 @@ android {
         lintConfig file("lint.xml")
     }
 
-    flavorDimensions "store", "owner"
+    flavorDimensions "source", "owner"
 
     productFlavors {
         taz {
@@ -76,12 +76,12 @@ android {
         }
 
         free {
-            dimension "store"
-            applicationIdSuffix ".fdroid"
+            dimension "source"
+            applicationIdSuffix ".free"
         }
 
         nonfree {
-            dimension "store"
+            dimension "source"
         }
 
     }
@@ -128,6 +128,12 @@ android {
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        unminifiedRelease {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+            minifyEnabled false
         }
     }
 
