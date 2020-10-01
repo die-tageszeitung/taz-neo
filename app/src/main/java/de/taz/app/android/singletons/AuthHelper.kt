@@ -110,23 +110,29 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
-                if (authStatus == AuthStatus.elapsed) {
-                    cancelAndStartDownloadingPublicIssues()
-                    toastHelper.showToast(R.string.toast_logout_elapsed)
-                }
-                if (authStatus == AuthStatus.notValid) {
-                    cancelAndStartDownloadingPublicIssues()
-                    elapsedButWaiting = false
-                    toastHelper.showToast(R.string.toast_logout_invalid)
-                }
-                if (authStatus == AuthStatus.valid) {
-                    elapsedButWaiting = false
-                    CoroutineScope(Dispatchers.IO).launch {
-                        toDownloadIssueHelper.cancelDownloadsAndStartAgain()
-                        ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
-                        isPolling = false
-                        transformBookmarks()
+                when (authStatus) {
+                    AuthStatus.elapsed -> {
+                        cancelAndStartDownloadingPublicIssues()
+                        toastHelper.showToast(R.string.toast_logout_elapsed)
 
+                    }
+                    AuthStatus.notValid -> {
+                        cancelAndStartDownloadingPublicIssues()
+                        elapsedButWaiting = false
+                        toastHelper.showToast(R.string.toast_logout_invalid)
+
+                    }
+                    AuthStatus.valid -> {
+                        elapsedButWaiting = false
+                        CoroutineScope(Dispatchers.IO).launch {
+                            toDownloadIssueHelper.cancelDownloadsAndStartAgain()
+                            ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
+                            isPolling = false
+                            transformBookmarks()
+
+                        }
+                    }
+                    else -> {
                     }
                 }
             }
