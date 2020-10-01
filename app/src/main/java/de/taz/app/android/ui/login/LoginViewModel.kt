@@ -72,9 +72,9 @@ class LoginViewModel(
         }
     }
 
-    fun startPolling() {
+    fun setDone(startPolling: Boolean = true) {
         authHelper.email = username ?: ""
-        authHelper.isPolling = true
+        authHelper.isPolling = startPolling
         status.postValue(LoginViewModelState.DONE)
     }
 
@@ -581,7 +581,7 @@ class LoginViewModel(
         authHelper.email = username ?: ""
     }
 
-    fun getSubscription(previousState: LoginViewModelState?) {
+    private fun getSubscription(previousState: LoginViewModelState?) {
         status.postValue(LoginViewModelState.LOADING)
         ioScope.launch {
             try {
@@ -695,7 +695,6 @@ class LoginViewModel(
         }
     }
 
-
     fun requestSubscription() = ioScope.launch {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
@@ -720,6 +719,11 @@ class LoginViewModel(
             getSubscription(previousState)
         }
     }
+
+    fun isElapsed(): Boolean {
+        return authHelper.isElapsed()
+    }
+
 }
 
 enum class LoginViewModelState {

@@ -102,7 +102,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
-                    viewModel.validCredentials = false
+                    viewModel.validCredentials = viewModel.isElapsed()
                     if (register) {
                         showSubscriptionPrice()
                     } else {
@@ -170,7 +170,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     toastHelper?.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
-                LoginViewModelState.REGISTRATION_EMAIL -> showConfirmEmail()
+                LoginViewModelState.REGISTRATION_EMAIL -> {
+                    showConfirmEmail()
+                    authHelper!!.elapsedButWaiting = viewModel.isElapsed()
+                }
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
                 LoginViewModelState.DONE -> done()
@@ -285,7 +288,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionInactiveFragment())
+        showFragment(SubscriptionElapsedDialogFragment())
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {

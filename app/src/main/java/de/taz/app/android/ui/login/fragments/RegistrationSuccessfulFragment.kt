@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_login_confirm_email.*
 
 class RegistrationSuccessfulFragment: LoginBaseFragment(R.layout.fragment_login_registration_successful) {
@@ -14,6 +15,10 @@ class RegistrationSuccessfulFragment: LoginBaseFragment(R.layout.fragment_login_
         hideKeyBoard()
 
         if (!viewModel.backToArticle) {
+            fragment_login_confirm_done.text = getString(
+                R.string.fragment_login_success_login_back_coverflow
+            )
+        } else if (viewModel.isElapsed()) {
             fragment_login_confirm_done.text = getString(
                 R.string.fragment_login_success_login_back_coverflow
             )

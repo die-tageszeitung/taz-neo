@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.login.*
 
 class SubscriptionElapsedDialogFragment : DialogFragment() {
 
@@ -36,9 +36,10 @@ class SubscriptionElapsedDialogFragment : DialogFragment() {
         }
         val orderButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_order_button)
         orderButton.setOnClickListener {
-            // TODO -> Go to order fragment which will be implemented soon
-            ToastHelper.getInstance().showToast("Bald können Sie aus der App heraus bestellen!")
             dismiss()
+            activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
+                putExtra(LOGIN_EXTRA_REGISTER, true)
+            }, ACTIVITY_LOGIN_REQUEST_CODE)
         }
         return view
     }
