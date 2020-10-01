@@ -109,7 +109,8 @@ data class Issue(
 
     override suspend fun deleteFiles() {
         val filesToDelete: MutableList<FileEntryOperations> = getAllLocalFiles().toMutableList()
-        val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>()) { acc, section ->
+        val filesToRetain = sectionList.fold(mutableListOf<String>()) { acc, section ->
+            // bookmarked articles should remain
             acc.addAll(
                 section.articleList
                     .filter { it.bookmarked }
@@ -127,7 +128,7 @@ data class Issue(
             )
             acc
         }
-        filesToDelete.removeAll { it.name in bookmarkedArticleFiles }
+        filesToDelete.removeAll { it.name in filesToRetain }
 
         // do not delete files of other issues of the day
         IssueRepository.getInstance().getDownloadedOrDownloadingIssuesForDayAndFeed(feedName, date)
