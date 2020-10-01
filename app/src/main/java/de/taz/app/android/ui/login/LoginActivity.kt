@@ -172,9 +172,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
                     showConfirmEmail()
-                    if (viewModel.isElapsed()) {
-                        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
-                    }
+                    authHelper!!.elapsedButWaiting = viewModel.isElapsed()
                 }
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)

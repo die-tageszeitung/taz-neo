@@ -26,6 +26,7 @@ const val PREFERENCES_AUTH_INSTALLATION_ID = "installation_id"
 const val PREFERENCES_AUTH_POLL = "poll"
 const val PREFERENCES_AUTH_STATUS = "status"
 const val PREFERENCES_AUTH_TOKEN = "token"
+const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
 
 /**
  * Singleton handling authentication
@@ -78,6 +79,13 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     fun isElapsed(): Boolean = authStatus == AuthStatus.elapsed
     fun isLoggedIn(): Boolean = authStatus == AuthStatus.valid
 
+    private val elapsedButWaitingLiveData = SharedPreferenceBooleanLiveData(
+        preferences, PREFERENCES_AUTH_ELAPSED_BUT_WAITING, false
+    )
+    var elapsedButWaiting
+        get() = elapsedButWaitingLiveData.value
+        set(value) = elapsedButWaitingLiveData.postValue(value)
+
     val emailLiveData = SharedPreferenceStringLiveData(
         preferences, PREFERENCES_AUTH_EMAIL, ""
     )
@@ -108,9 +116,11 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                 }
                 if (authStatus == AuthStatus.notValid) {
                     cancelAndStartDownloadingPublicIssues()
+                    elapsedButWaiting = false
                     toastHelper.showToast(R.string.toast_logout_invalid)
                 }
                 if (authStatus == AuthStatus.valid) {
+                    elapsedButWaiting = false
                     CoroutineScope(Dispatchers.IO).launch {
                         toDownloadIssueHelper.cancelDownloadsAndStartAgain()
                         ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
