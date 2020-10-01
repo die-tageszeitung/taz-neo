@@ -129,7 +129,11 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
     }
 
     private fun setPriceList(it: List<PriceInfo>) {
-        val priceList = mutableListOf(testSubscriptionPriceInfo)
+        val priceList = if (viewModel.isElapsed()) {
+            mutableListOf()
+        } else {
+            mutableListOf(testSubscriptionPriceInfo)
+        }
         priceList.addAll(it)
         if (priceInfoAdapter.itemCount == 0) {
             val position = viewModel.price?.let { selectedPrice ->
@@ -141,9 +145,6 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
                 activity?.findViewById<View>(R.id.loading_screen)?.visibility =
                     View.GONE
             }
-        }
-        if (viewModel.isElapsed()) {
-            priceList.remove(testSubscriptionPriceInfo)
         }
     }
 }
