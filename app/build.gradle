@@ -75,12 +75,12 @@ android {
             applicationId "de.monde_diplomatique.android.app"
         }
 
-        fdroid {
+        free {
             dimension "store"
             applicationIdSuffix ".fdroid"
         }
 
-        google {
+        nonfree {
             dimension "store"
         }
 
@@ -242,7 +242,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // google Flavor
-    googleImplementation 'com.google.firebase:firebase-messaging:20.2.4'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:20.2.4'
 }
 
 sentry {
