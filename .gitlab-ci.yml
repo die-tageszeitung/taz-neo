@@ -50,7 +50,7 @@ assembleFreeUnminifiedRelease:
   extends: .assemble
   interruptible: true
   script:
-    - ./gradlew --no-daemon assembleFreeTazRelease
+    - ./gradlew --no-daemon assembleFreeTazUnminifiedRelease
 
 lint:
   extends: .prepareEnv
