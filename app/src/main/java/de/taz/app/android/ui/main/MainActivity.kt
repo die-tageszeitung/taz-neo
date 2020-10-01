@@ -164,7 +164,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     private fun checkIfSubscriptionElapsed() {
         val authStatus = AuthHelper.getInstance(applicationContext).authStatus
-        if (authStatus == AuthStatus.elapsed) {
+        val isElapsedButWaiting = AuthHelper.getInstance(applicationContext).elapsedButWaiting
+        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting) {
             showSubscriptionElapsedPopup()
         }
     }

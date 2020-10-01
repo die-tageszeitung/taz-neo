@@ -36,10 +36,10 @@ class SubscriptionElapsedDialogFragment : DialogFragment() {
         }
         val orderButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_order_button)
         orderButton.setOnClickListener {
+            dismiss()
             activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
                 putExtra(LOGIN_EXTRA_REGISTER, true)
             }, ACTIVITY_LOGIN_REQUEST_CODE)
-            dismiss()
         }
         return view
     }

@@ -150,7 +150,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
         val authHelper = AuthHelper.getInstance(activity?.applicationContext)
         authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
-            if (authStatus == AuthStatus.valid) {
+            if (authStatus in arrayOf(
+                    AuthStatus.valid,
+                    AuthStatus.elapsed
+                )
+            ) {
                 showLogoutButton()
             } else {
                 showManageAccountButton()
