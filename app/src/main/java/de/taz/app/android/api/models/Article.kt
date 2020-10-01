@@ -4,11 +4,8 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueRepository
 
 data class Article(
     val articleHtml: FileEntry,
