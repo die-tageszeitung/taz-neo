@@ -9,6 +9,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
@@ -108,14 +109,26 @@ data class Issue(
 
     override suspend fun deleteFiles() {
         val filesToDelete: MutableList<FileEntryOperations> = getAllLocalFiles().toMutableList()
-        val bookmarkedArticleFiles = sectionList.fold(mutableListOf<String>(), { acc, section ->
+        val filesToRetain = sectionList.fold(mutableListOf<String>()) { acc, section ->
+            // bookmarked articles should remain
             acc.addAll(
-                section.articleList.filter { it.bookmarked }.map { it.getAllFileNames() }.flatten()
+                section.articleList
+                    .filter { it.bookmarked }
+                    .map { it.getAllFileNames() }
+                    .flatten()
                     .distinct()
             )
+            // author images are potentiall used globally so we retain them for now as they don't eat up much space
+            acc.addAll(
+                section.articleList
+                    .map { it.authorList }
+                    .flatten()
+                    .mapNotNull { it.imageAuthor }
+                    .map { it.name }
+            )
             acc
-        })
-        filesToDelete.removeAll { it.name in bookmarkedArticleFiles }
+        }
+        filesToDelete.removeAll { it.name in filesToRetain }
 
         // do not delete files of other issues of the day
         IssueRepository.getInstance().getDownloadedOrDownloadingIssuesForDayAndFeed(feedName, date)
