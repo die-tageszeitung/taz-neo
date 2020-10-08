@@ -23,6 +23,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeUntil
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -39,7 +40,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override val enableSideBar: Boolean = true
 
-    protected var displayable: DISPLAYABLE? = null
     protected var issueOperations: IssueOperations? = null
 
     abstract override val viewModel: VIEW_MODEL
@@ -66,6 +66,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -85,21 +86,19 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (viewModel.displayable == null) {
-            viewModel.displayable = displayable
-        }
-
-        if (viewModel.issueOperations == null) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.issueOperations =
-                    viewModel.displayable?.getIssueOperations(context?.applicationContext)
-            }
-        }
-
-        configureWebView()
-        viewModel.displayable?.let { displayable ->
+        viewModel.displayableLiveData.observe(this.viewLifecycleOwner) {
+            if (it == null) return@observe
+            log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
-                ensureDownloadedAndShow(displayable)
+                if (viewModel.issueOperations == null) {
+
+                    withContext(Dispatchers.IO) {
+                        viewModel.issueOperations =
+                            it.getIssueOperations(context?.applicationContext)
+                    }
+                }
+                configureWebView()
+                ensureDownloadedAndShow(it)
             }
         }
 
@@ -118,7 +117,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onStart() {
         super.onStart()
-        viewModel.displayable?.let { displayable ->
+        viewModel.displayableLiveData.observe(this) { displayable ->
+            if (displayable == null) return@observe
             setHeader(displayable)
         }
     }

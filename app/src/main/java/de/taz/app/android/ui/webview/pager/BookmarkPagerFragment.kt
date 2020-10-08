@@ -99,7 +99,6 @@ class BookmarkPagerFragment :
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
-        var firstSwipe = true
         var showButtonJob: Job? = null
 
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
@@ -115,21 +114,6 @@ class BookmarkPagerFragment :
             viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
                 setDrawerIssue(it)
             }
-            if (firstSwipe) {
-                firstSwipe = false
-            } else {
-                hasBeenSwiped = true
-                viewModel.sectionNameListLiveData.observeDistinctUntil(
-                    viewLifecycleOwner, {
-                        if (it.isNotEmpty()) {
-                            it[position]?.let { sectionName ->
-                                getMainView()?.setActiveDrawerSection(sectionName)
-                            }
-                        }
-                    }, { it.isNotEmpty() }
-                )
-            }
-
             viewModel.currentPositionLiveData.value = position
 
             showButtonJob?.cancel()
@@ -202,7 +186,7 @@ class BookmarkPagerFragment :
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
-            return ArticleWebViewFragment.createInstance(article)
+            return ArticleWebViewFragment.createInstance(article.articleFileName)
         }
 
         override fun getItemCount(): Int = articleStubs.size

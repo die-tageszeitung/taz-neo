@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.monkey.observeDistinctUntil
@@ -20,13 +21,10 @@ import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.webview.pager.ISSUE_DATE
-import de.taz.app.android.ui.webview.pager.ISSUE_FEED
-import de.taz.app.android.ui.webview.pager.ISSUE_STATUS
+import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
-import java.util.*
 
 const val ACTIVE_POSITION = "active position"
 
@@ -34,7 +32,13 @@ const val ACTIVE_POSITION = "active position"
  * Fragment used to display the list of sections in the navigation Drawer
  */
 class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
-
+    private val issueContentViewModel: IssueContentViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
+    }
     private var recyclerAdapter: SectionListAdapter? = null
 
     private var issueOperations: IssueOperations? = null
@@ -86,6 +90,39 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             getMainView()?.closeDrawer()
         }
 
+        fragment_drawer_sections_imprint.apply {
+            setOnClickListener {
+                showImprint()
+            }
+        }
+
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this.viewLifecycleOwner) { (issueStub, _) ->
+            lifecycleScope.launch(Dispatchers.Main) {
+                fragment_drawer_sections_imprint.apply {
+                    typeface = if (issueStub.isWeekend) {
+                        fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                    } else {
+                        defaultTypeface
+                    }
+                    visibility = View.VISIBLE
+                }
+            }
+        }
+
+        issueContentViewModel.activeSectionTitleLiveData.observe(this.viewLifecycleOwner) {
+            if (it != null) {
+                setActiveSection(it)
+            }
+        }
+
+        issueContentViewModel.imprintArticleLiveData.observe(this.viewLifecycleOwner) {
+            if (it != null) {
+                issueContentViewModel.displayableKeyLiveData.value?.let { displayableKey ->
+                    setActiveSection(displayableKey)
+                }
+            }
+        }
+
     }
 
     private fun restore(savedInstanceState: Bundle?) {
@@ -132,11 +169,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
             lifecycleScope.launchWhenResumed {
                 setMomentDate()
-                val imprintJob = showImprint()
+                showImprint()
                 val momentJob = showMoment()
                 recyclerAdapter?.show()
 
-                imprintJob?.join()
                 momentJob?.join()
             }
         }
@@ -144,7 +180,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         view?.animate()?.alpha(1f)?.duration = 500
     }
 
-    fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
+    private fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
         recyclerAdapter?.activePosition = activePosition
         if (activePosition != RecyclerView.NO_POSITION) {
             fragment_drawer_sections_imprint?.apply {
@@ -159,9 +195,40 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    fun setActiveSection(sectionFileName: String) {
-        recyclerAdapter?.positionOf(sectionFileName)?.let {
-            setActiveSection(it)
+    private fun setActiveSection(sectionFileName: String) {
+        if (sectionFileName == issueContentViewModel.imprintArticleLiveData.value?.key) {
+            setActiveSection(RecyclerView.NO_POSITION)
+            setImprintActive()
+        } else {
+            setImprintInactive()
+            recyclerAdapter?.positionOf(sectionFileName)?.let {
+                setActiveSection(it)
+            }
+        }
+
+    }
+
+    private fun setImprintActive() {
+        fragment_drawer_sections_imprint.apply {
+            setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.drawer_sections_item_highlighted,
+                    null
+                )
+            )
+        }
+    }
+
+    private fun setImprintInactive() {
+        fragment_drawer_sections_imprint.apply {
+            setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.drawer_sections_item,
+                    null
+                )
+            )
         }
     }
 
@@ -196,38 +263,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private fun showImprint(): Job? = lifecycleScope.launch(Dispatchers.IO) {
-        issueOperations?.let { issueOperations ->
-            val imprint = issueRepository?.getImprintStub(issueOperations)
-            imprint?.let { showImprint(it) }
+    private fun showImprint() {
+        issueContentViewModel.imprintArticleLiveData.value?.key?.let {
+            issueContentViewModel.setDisplayable(it)
+            getMainView()?.closeDrawer()
         }
     }
-
-    private suspend fun showImprint(imprint: ArticleOperations) = withContext(Dispatchers.Main) {
-        fragment_drawer_sections_imprint?.apply {
-            text = text.toString().toLowerCase(Locale.getDefault())
-            setOnClickListener {
-                getMainView()?.apply {
-                    showInWebView(imprint.key)
-                    closeDrawer()
-                }
-                setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.drawer_sections_item_highlighted,
-                        null
-                    )
-                )
-            }
-            typeface = if (issueOperations?.isWeekend == true) {
-                fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else {
-                defaultTypeface
-            }
-            visibility = View.VISIBLE
-        }
-    }
-
 
     private fun momentIsDownloadedObservationCallback(isDownloaded: Boolean?) {
         if (isDownloaded == true) {

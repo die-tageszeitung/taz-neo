@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.graphics.Point
+import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
@@ -16,8 +17,11 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,11 +41,29 @@ class SectionWebViewFragment :
 
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
+    private lateinit var sectionFileName: String
+
     companion object {
-        fun createInstance(section: SectionStub): SectionWebViewFragment {
-            val fragment = SectionWebViewFragment()
-            fragment.displayable = section
-            return fragment
+        private val log by Log
+        private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
+        fun createInstance(sectionFileName: String): SectionWebViewFragment {
+            val args = Bundle()
+            log.debug("SectionWebViewFragment.createInstance($sectionFileName)")
+            args.putString(SECTION_FILE_NAME, sectionFileName)
+            return SectionWebViewFragment().apply {
+                arguments = args
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
+        log.debug("Creating a SectionWebViewFragmen for $sectionFileName")
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.displayableLiveData.postValue(
+                SectionRepository.getInstance().getStubOrThrow(sectionFileName)
+            )
         }
     }
 
