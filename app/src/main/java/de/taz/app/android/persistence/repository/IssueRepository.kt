@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
@@ -14,10 +15,12 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -199,6 +202,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         }
     }
 
+    fun getIssueStubByIssueKey(issueKey: IssueKey): IssueStub? {
+        return getIssueStubByFeedAndDate(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
     private fun getAllIssuesList(): List<IssueStub> {
         return appDatabase.issueDao().getAllIssueStubs()
     }
@@ -256,6 +263,13 @@ class IssueRepository private constructor(val applicationContext: Context) :
             issueFeedName, issueDate, issueStatus
         )
         return imprintName?.let { articleRepository.get(it) }
+    }
+
+    fun getImprint(issueKey: IssueKey): ArticleStub? {
+        val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
+            issueKey.feedName, issueKey.date, issueKey.status
+        )
+        return imprintName?.let { articleRepository.getStub(it) }
     }
 
     fun setDownloadDate(issue: Issue, dateDownload: Date) {
@@ -510,3 +524,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
 }
+
+@Parcelize
+data class IssueKey(
+    val feedName: String,
+    val date: String,
+    val status: IssueStatus
+): Parcelable

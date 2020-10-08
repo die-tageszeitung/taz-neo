@@ -4,41 +4,45 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
-import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
-
 const val POSITION = "position"
 
-class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
+class SectionPagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
 ) {
+    private val log by Log
+
     override val enableSideBar: Boolean = true
 
     private var sectionPagerAdapter: SectionPagerAdapter? = null
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
-    private val issueContentViewModel: IssueContentViewModel? by lazy {
-        (parentFragment as? IssueContentFragment)?.viewModel
+
+    private val issueContentViewModel: IssueContentViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        savedInstanceState?.apply {
-            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,20 +50,20 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
-
-            (adapter as SectionPagerAdapter?)?.notifyDataSetChanged()
-            setCurrentItem(viewModel.currentPosition, false)
         }
         loading_screen?.visibility = View.GONE
 
-        viewModel.currentPositionLiveData.observeDistinct(this) {
-            if (webview_pager_viewpager.currentItem != it) {
-                webview_pager_viewpager.setCurrentItem(it, false)
+
+        issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
+            (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.let { viewPagerAdapter ->
+                viewPagerAdapter.sectionStubs = sectionStubs
+                // after receiving a new article list scroll to current displayKey if available
+                tryScrollToSection()
             }
         }
 
-        issueContentViewModel?.issueOperationsLiveData?.observeDistinct(this) { issueOperations ->
-            issueOperations?.let { setDrawerIssue(it) }
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (_, _) ->
+            tryScrollToSection()
         }
     }
 
@@ -68,29 +72,12 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
         setupViewPager()
     }
 
-    fun tryLoadSection(sectionFileName: String?) {
-        lifecycleScope.launchWhenResumed {
-            sectionFileName?.let {
-                issueContentViewModel?.sectionList?.indexOfFirst {
-                    it.key == sectionFileName
-                }?.let {
-                    if (it >= 0) {
-                        lifecycleScope.launchWhenResumed {
-                            webview_pager_viewpager.setCurrentItem(it, false)
-                            pageChangeListener.onPageSelected(it)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            if (adapter == null) {
-                sectionPagerAdapter = SectionPagerAdapter()
-                adapter = sectionPagerAdapter
-            }
+            sectionPagerAdapter = SectionPagerAdapter()
+            adapter = sectionPagerAdapter
+
+            adapter?.notifyDataSetChanged()
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
             offscreenPageLimit = 2
@@ -98,43 +85,25 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
+        private var lastPage: Int? = null
         override fun onPageSelected(position: Int) {
-            viewModel.currentPositionLiveData.value = position
-            getMainView()?.setActiveDrawerSection(position)
-            sectionPagerAdapter?.getSectionStub(position)?.let {
-                lifecycleScope.launchWhenResumed {
-                    val navButton = it.getNavButton()
-                    showNavButton(navButton)
+            if (lastPage != null && lastPage != position) {
+                runIfNotNull(
+                    issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                    issueContentViewModel.sectionListLiveData.value?.getOrNull(position)
+                ) { issueStub, displayable ->
+                    issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                }
+            }
+            lastPage = position
+
+
+            lifecycleScope.launchWhenResumed {
+                getCurrentSectionStub()?.getNavButton()?.let {
+                    showNavButton(it)
                 }
             }
         }
-    }
-
-    override fun onStop() {
-        webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
-        super.onStop()
-    }
-
-    private inner class SectionPagerAdapter : FragmentStateAdapter(this@SectionPagerFragment) {
-
-        private val sectionStubs: List<SectionStub>
-            get() = issueContentViewModel?.sectionList ?: emptyList()
-
-        override fun createFragment(position: Int): Fragment {
-            val section = sectionStubs[position]
-            return SectionWebViewFragment.createInstance(section)
-        }
-
-        override fun getItemCount(): Int = sectionStubs.size
-
-        fun getSectionStub(position: Int): SectionStub {
-            return sectionStubs[position]
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(POSITION, viewModel.currentPosition)
-        super.onSaveInstanceState(outState)
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
@@ -151,5 +120,56 @@ class SectionPagerFragment : BaseViewModelFragment<SectionPagerViewModel>(
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         super.onDestroyView()
+    }
+
+    override fun onStop() {
+        webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
+        super.onStop()
+    }
+
+    private inner class SectionPagerAdapter:
+        FragmentStateAdapter(this@SectionPagerFragment) {
+        var sectionStubs: List<SectionStub> = emptyList()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
+
+        override fun createFragment(position: Int): Fragment {
+            val sectionStub = sectionStubs[position]
+            return SectionWebViewFragment.createInstance(sectionStub.sectionFileName)
+        }
+
+        override fun getItemCount(): Int = sectionStubs.size
+    }
+
+    private fun tryScrollToSection() {
+        if (issueContentViewModel.displayableKeyLiveData.value?.startsWith("sec") == true) {
+            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
+            lifecycleScope.launchWhenStarted {
+                getCurrentPagerPosition()?.let {
+                    if (it >= 0) {
+                        webview_pager_viewpager.setCurrentItem(it, false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCurrentPagerPosition(): Int? {
+        val position = issueContentViewModel.sectionListLiveData.value?.indexOfFirst {
+            it.key == issueContentViewModel.displayableKeyLiveData.value
+        }
+        return if (position != null && position >= 0) {
+            position
+        } else {
+            null
+        }
+    }
+
+    private fun getCurrentSectionStub(): SectionStub? {
+        return getCurrentPagerPosition()?.let {
+            issueContentViewModel.sectionListLiveData.value?.get(it)
+        }
     }
 }

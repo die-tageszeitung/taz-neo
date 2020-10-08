@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.os.Bundle
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -20,11 +21,27 @@ class ArticleWebViewFragment :
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
+    private lateinit var articleFileName: String
+
     companion object {
-        fun createInstance(article: ArticleStub): ArticleWebViewFragment {
-            val fragment = ArticleWebViewFragment()
-            fragment.displayable = article
-            return fragment
+        private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
+        fun createInstance(articleFileName: String): ArticleWebViewFragment {
+            val args = Bundle()
+            args.putString(ARTICLE_FILE_NAME, articleFileName)
+            return ArticleWebViewFragment().apply {
+                arguments = args
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
+        log.debug("Creating an ArticleWebView for $articleFileName")
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.displayableLiveData.postValue(
+                ArticleRepository.getInstance().getStubOrThrow(articleFileName)
+            )
         }
     }
 

@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -11,13 +12,13 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.ui.webview.pager.IssueContentDisplayMode
 import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImprintFragment :
+class ImprintWebViewFragment :
     WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_imprint),
     BackFragment {
 
@@ -28,13 +29,31 @@ class ImprintFragment :
         ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
     }
 
-    private val issueContentViewModel: IssueContentViewModel? by lazy {
-        (parentFragment as? IssueContentFragment)?.viewModel
+    private val issueContentViewModel: IssueContentViewModel by lazy {
+        ViewModelProvider(
+            requireActivity().viewModelStore, SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        displayable = issueContentViewModel?.imprint
         super.onCreate(savedInstanceState)
+        issueContentViewModel.displayableKeyLiveData.observe(this) {
+            log.debug("I received displayable $it")
+            if (it.startsWith("art") && it == issueContentViewModel.imprintArticleLiveData.value?.key) {
+                issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Imprint)
+            }
+        }
+
+        issueContentViewModel.imprintArticleLiveData.observe(this) {
+            if (it != null) {
+                viewModel.displayableLiveData.postValue(it)
+            }
+            if (it?.key == issueContentViewModel.displayableKeyLiveData.value) {
+                issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Imprint)
+            }
+        }
     }
 
     override fun onResume() {
@@ -44,7 +63,6 @@ class ImprintFragment :
 
     override fun setHeader(displayable: ArticleStub) {
         lifecycleScope.launch(Dispatchers.IO) {
-
             val title = getString(R.string.imprint)
             activity?.runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {

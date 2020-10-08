@@ -225,4 +225,3 @@ enum class IssueStatus {
     locked,
     public
 }
-

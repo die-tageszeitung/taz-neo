@@ -15,6 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
@@ -39,6 +41,7 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -58,9 +61,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var toastHelper: ToastHelper? = null
     private val log by Log
 
+
+    private lateinit var issueContentViewModel: IssueContentViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        issueContentViewModel = ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
+            IssueContentViewModel::class.java
+        )
         fileHelper = FileHelper.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
@@ -106,7 +114,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             }
         })
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.IO) {
                 IssueRepository.getInstance(applicationContext).getLatestIssue()
                     ?.let { setDrawerIssue(it) }
@@ -125,15 +133,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun showDisplayable(articleName: String) {
+    private fun showDisplayable(displayableKey: String) {
         runOnUiThread {
-            if ((supportFragmentManager.fragments.lastOrNull() as? IssueContentFragment)?.show(
-                    articleName
-                ) != true
-            ) {
-                val fragment = IssueContentFragment.createInstance(articleName)
+            val currentIssueContentFragment = supportFragmentManager.fragments.lastOrNull()
+            if (currentIssueContentFragment !is IssueContentFragment) {
+                val fragment = IssueContentFragment()
                 showMainFragment(fragment)
             }
+            issueContentViewModel.setDisplayable(displayableKey)
         }
     }
 
@@ -144,20 +151,18 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showIssue(issueStub: IssueStub) {
+    fun showIssue(issueStub: IssueStub) = lifecycleScope.launch (Dispatchers.IO) {
         setDrawerIssue(issueStub)
         changeDrawerIssue()
 
-        runOnUiThread {
-            val fragment = IssueContentFragment.createInstance(issueStub)
-            showMainFragment(fragment)
-        }
-        lifecycleScope.launch {
-            delay(3000)
-            if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-                runOnUiThread {
-                    drawer_layout.closeDrawer(GravityCompat.START)
-                }
+        issueContentViewModel.setDisplayable(issueStub.getIssue())
+        val fragment = IssueContentFragment()
+        showMainFragment(fragment)
+        delay(3000)
+
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            runOnUiThread {
+                drawer_layout.closeDrawer(GravityCompat.START)
             }
         }
     }
@@ -286,18 +291,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     fun setDrawerIssue(issueOperations: IssueOperations) {
         (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
             setIssueOperations(issueOperations)
-        }
-    }
-
-    fun setActiveDrawerSection(activePosition: Int) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setActiveSection(activePosition)
-        }
-    }
-
-    fun setActiveDrawerSection(sectionFileName: String) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setActiveSection(sectionFileName)
         }
     }
 
