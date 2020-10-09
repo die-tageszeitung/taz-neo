@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
@@ -22,7 +22,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
-import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
 
@@ -39,23 +38,14 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             )
         ).get(IssueContentViewModel::class.java)
     }
-    private var recyclerAdapter: SectionListAdapter? = null
+    private lateinit var sectionListAdapter: SectionListAdapter
 
-    private var issueOperations: IssueOperations? = null
+    private lateinit var fontHelper: FontHelper
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var momentRepository: MomentRepository
 
-    // these variables exist only for recreation of the fragment
-    private var issueDate: String? = null
-    private var issueFeed: String? = null
-    private var issueStatus: IssueStatus? = null
-
-
-    private var fontHelper: FontHelper? = null
-    private var issueRepository: IssueRepository? = null
-    private var momentRepository: MomentRepository? = null
-
-    private var updated: Boolean = false
-
-    var defaultTypeface: Typeface? = null
+    private var defaultTypeface: Typeface? = null
+    private var weekendTypeface: Typeface? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -66,8 +56,22 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recyclerAdapter = recyclerAdapter ?: SectionListAdapter(this)
+        sectionListAdapter = SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
         defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.aktiv_grotesk_bold)
+        weekendTypeface = runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
+        sectionListAdapter.typeface = defaultTypeface
+
+        issueContentViewModel.sectionListLiveData.observe(this) { sectionList ->
+            sectionListAdapter.sectionList = sectionList
+        }
+
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this) { (issueStub, _ ) ->
+            if (issueStub.isWeekend) {
+                sectionListAdapter.typeface = weekendTypeface
+            } else {
+                sectionListAdapter.typeface = defaultTypeface
+            }
+        }
 
         restore(savedInstanceState)
     }
@@ -77,16 +81,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
-            if (layoutManager == null) {
-                layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
-            }
-            if (adapter == null) {
-                adapter = recyclerAdapter
-            }
+            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
+            adapter = sectionListAdapter
         }
 
         fragment_drawer_sections_moment.setOnClickListener {
-            getMainView()?.showHome(skipToIssue = issueOperations)
+            getMainView()?.showHome(skipToIssue = issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first)
             getMainView()?.closeDrawer()
         }
 
@@ -97,6 +97,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
 
         issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this.viewLifecycleOwner) { (issueStub, _) ->
+            showIssueStub(issueStub)
             lifecycleScope.launch(Dispatchers.Main) {
                 fragment_drawer_sections_imprint.apply {
                     typeface = if (issueStub.isWeekend) {
@@ -125,63 +126,28 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     }
 
+    private fun onSectionItemClickListener(clickedSection: SectionStub) {
+        issueContentViewModel.setDisplayable(clickedSection.key)
+        getMainView()?.closeDrawer()
+    }
+
     private fun restore(savedInstanceState: Bundle?) {
         savedInstanceState?.apply {
-            recyclerAdapter?.activePosition = getInt(ACTIVE_POSITION, RecyclerView.NO_POSITION)
-            runIfNotNull(
-                getString(ISSUE_FEED),
-                getString(ISSUE_DATE),
-                getString(ISSUE_STATUS)
-            ) { issueFeed, issueDate, issueStatus ->
-                this@SectionDrawerFragment.issueDate = issueDate
-                this@SectionDrawerFragment.issueFeed = issueFeed
-                this@SectionDrawerFragment.issueStatus = IssueStatus.valueOf(issueStatus)
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    issueRepository?.getIssueStubByFeedAndDate(
-                        issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
-                    )?.let {
-                        setIssueOperations(it)
-                        showIssueStub()
-                    }
-                }
-            }
+            sectionListAdapter.activePosition = getInt(ACTIVE_POSITION, RecyclerView.NO_POSITION)
         }
     }
 
-    fun setIssueOperations(issueOperations: IssueOperations) = activity?.runOnUiThread {
-        if (issueOperations != this.issueOperations) {
-            updated = true
-            view?.alpha = 0f
-
-            this.issueDate = issueOperations.date
-            this.issueStatus = issueOperations.status
-            this.issueFeed = issueOperations.feedName
-            this.issueOperations = issueOperations
-
-            recyclerAdapter?.setIssueOperations(issueOperations)
-        }
-    }
-
-    fun showIssueStub() = activity?.runOnUiThread {
-        if (updated) {
-            updated = false
-
-            lifecycleScope.launchWhenResumed {
-                setMomentDate()
-                showImprint()
-                val momentJob = showMoment()
-                recyclerAdapter?.show()
-
-                momentJob?.join()
-            }
+    private fun showIssueStub(issueStub: IssueStub) = activity?.runOnUiThread {
+        lifecycleScope.launchWhenResumed {
+            setMomentDate(issueStub)
+            showMoment(issueStub)
         }
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
     }
 
     private fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
-        recyclerAdapter?.activePosition = activePosition
+        sectionListAdapter.activePosition = activePosition
         if (activePosition != RecyclerView.NO_POSITION) {
             fragment_drawer_sections_imprint?.apply {
                 setTextColor(
@@ -201,7 +167,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             setImprintActive()
         } else {
             setImprintInactive()
-            recyclerAdapter?.positionOf(sectionFileName)?.let {
+            sectionListAdapter?.positionOf(sectionFileName)?.let {
                 setActiveSection(it)
             }
         }
@@ -233,10 +199,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate)
-        outState.putString(ISSUE_FEED, issueFeed)
-        outState.putString(ISSUE_STATUS, issueStatus?.toString())
-        recyclerAdapter?.activePosition?.let {
+        sectionListAdapter.activePosition.let {
             outState.putInt(ACTIVE_POSITION, it)
         }
         super.onSaveInstanceState(outState)
@@ -246,21 +209,27 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         return activity as? MainActivity
     }
 
-    private fun showMoment(): Job? = lifecycleScope.launch(Dispatchers.IO) {
-        issueOperations?.let { issueOperations ->
-            val moment = momentRepository?.get(issueOperations)
-            moment?.apply {
-                if (!isDownloaded(context?.applicationContext)) {
-                    download(context?.applicationContext)
-                }
-                lifecycleScope.launchWhenResumed {
-                    isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
-                        viewLifecycleOwner,
-                        { momentIsDownloadedObservationCallback(it) }, { it }
-                    )
-                }
+    private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
+        val moment = momentRepository?.get(issueStub)
+        moment?.apply {
+            if (!isDownloaded(context?.applicationContext)) {
+                download(context?.applicationContext)
+            }
+            lifecycleScope.launchWhenResumed {
+                isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
+                    viewLifecycleOwner,
+                    {
+                        if (it) {
+                            fragment_drawer_sections_moment?.apply {
+                                displayIssue(issueStub)
+                                visibility = View.VISIBLE
+                            }
+                        }
+                    }, { it }
+                )
             }
         }
+
     }
 
     private fun showImprint() {
@@ -270,22 +239,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private fun momentIsDownloadedObservationCallback(isDownloaded: Boolean?) {
-        if (isDownloaded == true) {
-            issueOperations?.let { issueOperations ->
-                fragment_drawer_sections_moment?.apply {
-                    displayIssue(issueOperations)
-                    visibility = View.VISIBLE
-                }
-            }
-        }
-    }
 
-    private fun setMomentDate() {
-        issueOperations?.let { issueOperations ->
-            fragment_drawer_sections_date?.text =
-                DateHelper.stringToLongLocalizedString(issueOperations.date)
-        }
+    private fun setMomentDate(issueStub: IssueStub) {
+        fragment_drawer_sections_date?.text =
+            DateHelper.stringToLongLocalizedString(issueStub.date)
     }
 
     override fun onDestroyView() {

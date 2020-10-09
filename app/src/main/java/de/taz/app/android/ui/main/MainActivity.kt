@@ -30,11 +30,9 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -98,7 +96,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 }
             }
 
-
             override fun onDrawerOpened(drawerView: View) {
                 opened = true
             }
@@ -107,19 +104,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 opened = false
             }
 
-            override fun onDrawerStateChanged(newState: Int) {
-                if (!opened) {
-                    changeDrawerIssue()
-                }
-            }
+            override fun onDrawerStateChanged(newState: Int) {}
         })
-
-        if (savedInstanceState == null) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                IssueRepository.getInstance(applicationContext).getLatestIssue()
-                    ?.let { setDrawerIssue(it) }
-            }
-        }
     }
 
     fun showInWebView(
@@ -152,9 +138,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showIssue(issueStub: IssueStub) = lifecycleScope.launch (Dispatchers.IO) {
-        setDrawerIssue(issueStub)
-        changeDrawerIssue()
-
         issueContentViewModel.setDisplayable(issueStub.getIssue())
         val fragment = IssueContentFragment()
         showMainFragment(fragment)
@@ -286,23 +269,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     fun getLifecycleOwner(): LifecycleOwner = this
 
-    fun getMainView(): MainActivity? = this
-
-    fun setDrawerIssue(issueOperations: IssueOperations) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setIssueOperations(issueOperations)
-        }
-    }
-
-    fun changeDrawerIssue() {
-        runOnUiThread {
-            (supportFragmentManager.findFragmentById(
-                R.id.drawer_menu_fragment_placeholder
-            ) as? SectionDrawerFragment)?.apply {
-                showIssueStub()
-            }
-        }
-    }
 
     private var navButton: Image? = null
     private var navButtonBitmap: Bitmap? = null
@@ -403,7 +369,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            switchToDisplayableAfterLogin(articleName)
+                            showBookmark(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -411,18 +377,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     }
                 }
             }
-        }
-    }
-
-
-    fun switchToDisplayableAfterLogin(displayableName: String) = lifecycleScope.launchWhenResumed {
-        runOnUiThread {
-            // clear fragment backstack before showing article
-            supportFragmentManager.popBackStackImmediate(
-                null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-            showDisplayable(displayableName)
         }
     }
 }

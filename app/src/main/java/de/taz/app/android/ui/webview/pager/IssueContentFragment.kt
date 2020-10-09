@@ -45,10 +45,6 @@ class IssueContentFragment :
 
     override val enableSideBar: Boolean = true
 
-    private var issueFeedName: String? = null
-    private var issueDate: String? = null
-    private var issueStatus: IssueStatus? = null
-
     private lateinit var sectionPagerFragment: SectionPagerFragment
     private lateinit var articlePagerFragment: ArticlePagerFragment
     private lateinit var imprintFragment: ImprintWebViewFragment
@@ -68,8 +64,6 @@ class IssueContentFragment :
             this,
             { (issueStub, _) ->
                 lifecycleScope.launchWhenResumed {
-                    setDrawerIssue(issueStub)
-                    getMainView()?.changeDrawerIssue()
                     val drawerShownLiveData = getShownDrawerNumberLiveData()
                     if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
                         drawerShown = true
@@ -81,7 +75,7 @@ class IssueContentFragment :
                     if (issueStub.dateDownload == null) {
                         withContext(Dispatchers.IO) {
                             IssueRepository.getInstance(context?.applicationContext)
-                                .getIssue(issueStub)?.let { issue ->
+                                .getIssue(issueStub).let { issue ->
                                     DownloadService.getInstance(context?.applicationContext)
                                         .download(issue)
                                 }
@@ -89,15 +83,12 @@ class IssueContentFragment :
                     }
                 }
             })
-
-        lifecycleScope.launchWhenResumed {
-            goToRegularIssueAfterLogin()
-        }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        observeAuthStatusAndChangeIssue()
         viewModel.activeDisplayMode.observe(this.viewLifecycleOwner) {
             setDisplayMode(it)
         }
@@ -108,7 +99,7 @@ class IssueContentFragment :
         childFragmentManager.fragments.forEach {
             transaction.hide(it)
         }
-        val fragmentClassToShow = when(displayMode) {
+        val fragmentClassToShow = when (displayMode) {
             IssueContentDisplayMode.Article -> ArticlePagerFragment::class.java
             IssueContentDisplayMode.Section -> SectionPagerFragment::class.java
             IssueContentDisplayMode.Imprint -> ImprintWebViewFragment::class.java
@@ -147,25 +138,28 @@ class IssueContentFragment :
         } ?: false
     }
 
-    private fun goToRegularIssueAfterLogin() {
-        if (issueStatus == IssueStatus.public) {
-            val authHelper = AuthHelper.getInstance(context?.applicationContext)
-            val apiService = ApiService.getInstance(context?.applicationContext)
-            val issueRepository = IssueRepository.getInstance(context?.applicationContext)
+    private fun observeAuthStatusAndChangeIssue() {
+        val authHelper = AuthHelper.getInstance(context?.applicationContext)
+        val apiService = ApiService.getInstance(context?.applicationContext)
+        val issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
-            authHelper.authStatusLiveData.observe(viewLifecycleOwner) { authStatus ->
-                if (authStatus == AuthStatus.valid) {
-                    runIfNotNull(issueFeedName, issueDate) { feedName, date ->
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            apiService.getIssueByFeedAndDate(feedName, date)?.let {
-                                issueRepository.saveIfDoesNotExist(it)
-                                getMainView()?.switchToDisplayableAfterLogin(
-                                    viewModel.issueStubAndDisplayableKeyLiveData.value?.second!!.replace("public.", "")
+        authHelper.authStatusLiveData.observe(viewLifecycleOwner) { authStatus ->
+            val issueStub = viewModel.issueStubAndDisplayableKeyLiveData.value?.first
+            if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
+                runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        apiService.getIssueByFeedAndDate(feedName, date)?.let {
+                            issueRepository.saveIfDoesNotExist(it)
+                            viewModel.setDisplayable(
+                                it.issueKey,
+                                viewModel.issueStubAndDisplayableKeyLiveData.value?.second!!.replace(
+                                    "public.",
+                                    ""
                                 )
-                                ToDownloadIssueHelper.getInstance().startMissingDownloads(
-                                    it.date
-                                )
-                            }
+                            )
+                            ToDownloadIssueHelper.getInstance().startMissingDownloads(
+                                it.date
+                            )
                         }
                     }
                 }
