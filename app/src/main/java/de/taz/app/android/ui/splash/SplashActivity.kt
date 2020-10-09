@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.common.api.ApiException
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
