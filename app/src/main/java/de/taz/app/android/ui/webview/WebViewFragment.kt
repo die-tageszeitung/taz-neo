@@ -23,15 +23,12 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeUntil
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
-
-const val SCROLL_POSITION = "scrollPosition"
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
     @LayoutRes layoutResourceId: Int
@@ -109,7 +106,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         savedInstanceState?.apply {
-            viewModel.scrollPosition = getInt(SCROLL_POSITION)
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
         view.findViewById<NestedScrollView>(nestedScrollViewId)
@@ -144,7 +140,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     abstract fun setHeader(displayable: DISPLAYABLE)
 
-    private fun onPageRendered() {
+    open fun onPageRendered() {
         isRendered = true
         val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         viewModel.scrollPosition?.let {
@@ -238,13 +234,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             val minResourceVersion = viewModel.issueOperations?.minResourceVersion ?: Int.MAX_VALUE
             minResourceVersion <= resourceInfo.resourceVersion
         } ?: false
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        viewModel.scrollPosition?.let {
-            outState.putInt(SCROLL_POSITION, it)
-        }
-        super.onSaveInstanceState(outState)
     }
 
 }

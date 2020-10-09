@@ -2,6 +2,8 @@ package de.taz.app.android.ui.webview
 
 import android.os.Bundle
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -10,13 +12,23 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
+import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment :
     WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_article) {
 
-    override val viewModel: ArticleWebViewViewModel by lazy {
-        ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
+    override val viewModel by lazy {
+        ViewModelProvider(this, SavedStateViewModelFactory(
+            this.requireActivity().application, this)
+        ).get(ArticleWebViewViewModel::class.java)
+    }
+
+    private val issueContentViewModel by lazy {
+        ViewModelProvider(this.requireActivity(), SavedStateViewModelFactory(
+            this.requireActivity().application, this.requireActivity())
+        ).get(IssueContentViewModel::class.java)
     }
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
@@ -39,9 +51,25 @@ class ArticleWebViewFragment :
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         log.debug("Creating an ArticleWebView for $articleFileName")
         lifecycleScope.launch(Dispatchers.IO) {
+            // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
+            withContext(Dispatchers.Main) { viewModel }
             viewModel.displayableLiveData.postValue(
                 ArticleRepository.getInstance().getStubOrThrow(articleFileName)
             )
+        }
+    }
+
+    override fun onPageRendered() {
+        super.onPageRendered()
+        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        issueContentViewModel.lastScrollPositionOnDisplayable?.let {
+            if (it.displayableKey == articleFileName) {
+                scrollView?.scrollY = it.scrollPosition
+            }
+        }
+        scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+            issueContentViewModel.lastScrollPositionOnDisplayable =
+                DisplayableScrollposition(articleFileName, scrollY)
         }
     }
 

@@ -10,24 +10,29 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.SectionStub
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
+import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
-class SectionWebViewViewModel : WebViewViewModel<SectionStub>()
+class SectionWebViewViewModel(savedStateHandle: SavedStateHandle) :
+    WebViewViewModel<SectionStub>(savedStateHandle)
 
 const val PADDING_RIGHT_OF_LOGO = 20
 const val BIG_HEADER_TEXT_SIZE = 30f
@@ -35,8 +40,21 @@ const val BIG_HEADER_TEXT_SIZE = 30f
 class SectionWebViewFragment :
     WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
+
     override val viewModel by lazy {
-        ViewModelProvider(this).get(SectionWebViewViewModel::class.java)
+        ViewModelProvider(
+            this, SavedStateViewModelFactory(
+                this.requireActivity().application, this
+            )
+        ).get(SectionWebViewViewModel::class.java)
+    }
+
+    private val issueContentViewModel by lazy {
+        ViewModelProvider(
+            this.requireActivity(), SavedStateViewModelFactory(
+                this.requireActivity().application, this.requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
     }
 
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
@@ -61,9 +79,26 @@ class SectionWebViewFragment :
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragmen for $sectionFileName")
         lifecycleScope.launch(Dispatchers.IO) {
+            // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
+            withContext(Dispatchers.Main) { viewModel }
             viewModel.displayableLiveData.postValue(
                 SectionRepository.getInstance().getStubOrThrow(sectionFileName)
             )
+        }
+    }
+
+    override fun onPageRendered() {
+        super.onPageRendered()
+        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        issueContentViewModel.lastScrollPositionOnDisplayable?.let {
+            if (it.displayableKey == sectionFileName) {
+                log.debug("The last scroll position was on this section, resetting to $it")
+                scrollView?.scrollY = it.scrollPosition
+            }
+        }
+        scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+            issueContentViewModel.lastScrollPositionOnDisplayable =
+                DisplayableScrollposition(sectionFileName, scrollY)
         }
     }
 
