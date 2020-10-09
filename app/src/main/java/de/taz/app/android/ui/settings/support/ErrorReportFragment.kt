@@ -22,10 +22,12 @@ import java.util.*
 class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
     private val log by Log
+    private lateinit var toastHelper: ToastHelper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        toastHelper = ToastHelper.getInstance()
         coordinator.moveContentBeneathStatusBar()
 
         view.apply {
@@ -78,17 +80,26 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
-                ApiService.getInstance(activity?.applicationContext).sendErrorReportAsync(
-                    email,
-                    message,
-                    lastAction,
-                    conditions,
-                    storageType,
-                    errorProtocol,
-                    usedRam,
-                    totalRam
-                )
-                log.debug("Sending an error report")
+                try {
+                    log.debug("Sending an error report")
+                    ApiService.getInstance(activity?.applicationContext).apply {
+                        retryApiCall("sendErrorReport") {
+                            sendErrorReport(
+                                email,
+                                message,
+                                lastAction,
+                                conditions,
+                                storageType,
+                                errorProtocol,
+                                usedRam,
+                                totalRam
+                            )
+                        }
+                    }
+                    toastHelper.showToast(R.string.toast_error_report_sent)
+                } catch (e: ApiService.ApiServiceException) {
+                    toastHelper.showNoConnectionToast()
+                }
             }
             parentFragmentManager.popBackStack()
         }

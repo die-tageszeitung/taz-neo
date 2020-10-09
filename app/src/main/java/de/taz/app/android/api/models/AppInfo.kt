@@ -8,6 +8,7 @@ import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,10 +35,15 @@ data class AppInfo (
         }
 
         suspend fun update(applicationContext: Context): AppInfo? = withContext(Dispatchers.IO) {
-            ApiService.getInstance(applicationContext).getAppInfoAsync().await()?.let {
-                AppInfoRepository.getInstance().save(it)
-                log.info("Initialized AppInfo")
-                return@withContext it
+            try {
+                ApiService.getInstance(applicationContext).getAppInfo()?.let {
+                    AppInfoRepository.getInstance().save(it)
+                    log.info("Initialized AppInfo")
+                    return@withContext it
+                }
+            } catch (e: ApiService.ApiServiceException) {
+                ToastHelper.getInstance().showNoConnectionToast()
+                null
             }
         }
     }

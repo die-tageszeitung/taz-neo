@@ -48,9 +48,17 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         CoroutineScope(Dispatchers.Main).launch {
                             authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
-                                    issueRepository.saveIfDoNotExist(
-                                        apiService.getLastIssuesAsync().await()
-                                    )
+                                    try {
+                                        apiService.apply {
+                                            retryApiCall("getIssuesAfterSubsciption") {
+                                                issueRepository.saveIfDoNotExist(
+                                                    getLastIssues()
+                                                )
+                                            }
+                                        }
+                                    } catch (e: ApiService.ApiServiceException) {
+                                        toastHelper.showNoConnectionToast()
+                                    }
                                 }
                             }
                         }

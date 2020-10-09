@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.common.api.ApiException
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
@@ -42,7 +43,7 @@ class SplashActivity : BaseActivity() {
         super.onResume()
         log.info("splashactivity onresume called")
 
-        lifecycleScope.launchWhenResumed {
+        lifecycleScope.launch (Dispatchers.IO) {
             setupSentry()
 
             generateInstallationId()
@@ -50,7 +51,7 @@ class SplashActivity : BaseActivity() {
 
             resetAllDownloads()
 
-            CoroutineScope(Dispatchers.IO).launch {
+            launch {
                 val initAppInfoJob = initAppInfoAndCheckAndroidVersion()
                 val initFeedJob = initFeedInformation()
 
@@ -140,9 +141,16 @@ class SplashActivity : BaseActivity() {
         val feedRepository = FeedRepository.getInstance(applicationContext)
 
         return CoroutineScope(Dispatchers.IO).launch {
-            val feeds = apiService.getFeedsAsync().await()
-            feedRepository.save(feeds)
-            log.debug("Initialized Feeds")
+            try {
+                apiService.apply {
+                    retryApiCall("initFeedInformation") {
+                        feedRepository.save(getFeeds())
+                    }
+                }
+                log.debug("Initialized Feeds")
+            } catch (e: ApiService.ApiServiceException) {
+                ToastHelper.getInstance().showNoConnectionToast()
+            }
         }
     }
 
@@ -153,11 +161,19 @@ class SplashActivity : BaseActivity() {
         val issueRepository = IssueRepository.getInstance(applicationContext)
         val toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
-        val issues = apiService.getLastIssuesAsync(number).await()
-        val newestDBIssueDate = issues.first().date
-        toDownloadIssueHelper.startMissingDownloads(
-            newestDBIssueDate
-        )
+        val issues = try {
+            apiService.retryApiCall("initIssues") {
+                apiService.getLastIssues(number)
+            }
+        } catch (e: ApiService.ApiServiceException) {
+            ToastHelper.getInstance().showNoConnectionToast()
+            emptyList()
+        }
+        issues.firstOrNull()?.let {
+            toDownloadIssueHelper.startMissingDownloads(
+                it.date
+            )
+        }
 
         issueRepository.saveIfDoNotExist(issues)
         log.debug("Initialized Issues: ${issues.size}")
@@ -194,10 +210,9 @@ class SplashActivity : BaseActivity() {
      * download resources, save to db and download necessary files
      */
     private suspend fun initResources() {
-        log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
 
-        val job = CoroutineScope(Dispatchers.IO).launch {
+        withContext(Dispatchers.IO) {
             ResourceInfo.update(applicationContext)
         }
 
@@ -218,7 +233,6 @@ class SplashActivity : BaseActivity() {
             fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
             log.debug("Created/updated tazApi.js")
         }
-        job.join()
     }
 
     private fun deleteUnnecessaryIssues() {
@@ -237,7 +251,15 @@ class SplashActivity : BaseActivity() {
         if (!firebaseHelper.hasTokenBeenSent) {
             if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
+                    ApiService.getInstance(applicationContext).apply {
+                        try {
+                            retryApiCall("ensurePushTokenSet") {
+                                sendNotificationInfo()
+                            }
+                        } catch (e: ApiService.ApiServiceException) {
+                            ToastHelper.getInstance().showNoConnectionToast()
+                        }
+                    }
                 }
             }
         }

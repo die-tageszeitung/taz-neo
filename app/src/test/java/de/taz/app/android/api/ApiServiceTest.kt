@@ -26,17 +26,22 @@ import kotlin.math.pow
 
 class ApiServiceTest {
     @Mock
-    private lateinit var authHelper: AuthHelper 
+    private lateinit var authHelper: AuthHelper
+
     @Mock
-    private lateinit var toastHelper: ToastHelper 
+    private lateinit var toastHelper: ToastHelper
+
     @Mock
-    private lateinit var firebaseHelper: FirebaseHelper 
+    private lateinit var firebaseHelper: FirebaseHelper
+
     @Mock
-    private lateinit var graphQlClient: GraphQlClient 
+    private lateinit var graphQlClient: GraphQlClient
+
     @Mock
-    private lateinit var appInfoRepository: AppInfoRepository 
+    private lateinit var appInfoRepository: AppInfoRepository
+
     @Mock
-    private lateinit var okHttpClent: OkHttpClient 
+    private lateinit var okHttpClent: OkHttpClient
 
     private lateinit var apiService: ApiService
     private lateinit var serverConnectionHelper: ServerConnectionHelper
@@ -80,7 +85,9 @@ class ApiServiceTest {
 
         Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
         val runQuery = launch {
-            apiService.getDataDto("test", QueryType.AppInfo)
+            apiService.retryApiCall("test") {
+                apiService.getAppInfo()
+            }
         }
 
         val verification = launch {
@@ -114,7 +121,9 @@ class ApiServiceTest {
 
         Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
         val runQuery = launch {
-            apiService.getDataDto("test", QueryType.AppInfo)
+            apiService.retryApiCall("test") {
+                apiService.getAppInfo()
+            }
         }
 
         val verification = launch {
@@ -137,7 +146,9 @@ class ApiServiceTest {
 
         Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
 
-        apiService.getDataDto("test", QueryType.AppInfo)
+        apiService.retryApiCall("test") {
+            apiService.getAppInfo()
+        }
     }
 
     @Test
@@ -148,7 +159,11 @@ class ApiServiceTest {
 
             Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
             Assert.assertThrows(ApiService.ApiServiceException.ImplementationException::class.java) {
-                runBlocking { apiService.getDataDto("test", QueryType.AppInfo) }
+                runBlocking {
+                    apiService.retryApiCall("test") {
+                        apiService.getAppInfo()
+                    }
+                }
             }
 
             // do not alter reachability

@@ -126,10 +126,23 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                         elapsedButWaiting = false
                         CoroutineScope(Dispatchers.IO).launch {
                             toDownloadIssueHelper.cancelDownloadsAndStartAgain()
-                            ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
+                            launch {
+                                apiService.apply {
+                                    try {
+                                        retryApiCall("sendNotificationInfo") {
+                                            sendNotificationInfo()
+                                        }
+                                    } catch (e: ApiService.ApiServiceException) {
+                                        toastHelper.showNoConnectionToast()
+                                    }
+                                }
+                            }
                             isPolling = false
-                            transformBookmarks()
-
+                            try {
+                                transformBookmarks()
+                            } catch (e: ApiService.ApiServiceException) {
+                                toastHelper.showNoConnectionToast()
+                            }
                         }
                     }
                     else -> {
@@ -168,8 +181,12 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     }
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue? {
-        return apiService.getIssueByFeedAndDateAsync(
-            articleStub.issueFeedName, articleStub.issueDate
-        ).await()
+        apiService.apply {
+            return retryApiCall("getArticleIssue") {
+                getIssueByFeedAndDate(
+                    articleStub.issueFeedName, articleStub.issueDate
+                )
+            }
+        }
     }
 }

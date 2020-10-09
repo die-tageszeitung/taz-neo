@@ -118,10 +118,15 @@ class DownloadService private constructor(val applicationContext: Context) {
                     }
                     issueRepository.setDownloadDate(it, Date())
                     redoJob = launch {
+
                         // check if metadata has changed and update db and restart download
-                        val fromServer = apiService.getIssueByFeedAndDateAsync(
-                            issue.feedName, issue.date
-                        ).await()
+                        val fromServer = try {
+                            apiService.getIssueByFeedAndDate(
+                                issue.feedName, issue.date
+                            )
+                        } catch (e: ApiService.ApiServiceException) {
+                            null
+                        }
                         if (
                             fromServer?.status == issue.status && fromServer.moTime != issue.moTime
                         ) {
@@ -152,15 +157,27 @@ class DownloadService private constructor(val applicationContext: Context) {
                                 downloadId?.let { downloadId ->
                                     val seconds: Float =
                                         (System.currentTimeMillis() - start) / 1000f
-                                    apiService.notifyServerOfDownloadStopAsync(
-                                        downloadId,
-                                        seconds
-                                    ).await()
+                                    launch {
+                                        apiService.apply {
+                                            try {
+                                                retryApiCall("notifyServerOfDownloadStop") {
+                                                    notifyServerOfDownloadStop(
+                                                        downloadId,
+                                                        seconds
+                                                    )
+                                                }
+                                            } catch (e: ApiService.ApiServiceException) {
+                                                log.error("Failed to notify server of download stop")
+                                                Sentry.captureException(e)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
                 withContext(Dispatchers.Main) { isDownloadedLiveData.observeForever(observer) }
 
                 // create Downloads

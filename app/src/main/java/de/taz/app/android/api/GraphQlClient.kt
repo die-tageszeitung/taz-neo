@@ -7,6 +7,7 @@ import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
+import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
@@ -94,8 +95,19 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     throw GraphQlRecoverableServerException(wrapper)
                 }
             }
+            maybeUpdateAuthStatus(wrapper.data?.product)
             wrapper
         }
+
+    /**
+     * if product returns authStatus update it in the authHelper
+     */
+    private fun maybeUpdateAuthStatus(product: ProductDto?): ProductDto? {
+        product?.authInfo?.let {
+            authHelper.authStatus = it.status
+        }
+        return product
+    }
 
     class MalformedServerResponseException(cause: Throwable? = null) :
         Exception("GraphQL server returned unexpected response", cause)

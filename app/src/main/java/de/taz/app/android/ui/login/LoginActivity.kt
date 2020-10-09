@@ -51,13 +51,13 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private var article: String? = null
 
-    private var apiService: ApiService? = null
-    private var articleRepository: ArticleRepository? = null
-    private var authHelper: AuthHelper? = null
-    private var issueRepository: IssueRepository? = null
-    private var sectionRepository: SectionRepository? = null
-    private var toastHelper: ToastHelper? = null
-    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
+    private lateinit var apiService: ApiService
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var authHelper: AuthHelper
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var sectionRepository: SectionRepository
+    private lateinit var toastHelper: ToastHelper
+    private lateinit var toDownloadIssueHelper: ToDownloadIssueHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -399,7 +399,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         showLoadingScreen()
 
         val data = Intent()
-        if (authHelper?.isLoggedIn() == true) {
+        if (authHelper.isLoggedIn()) {
             lifecycleScope.launch(Dispatchers.IO) {
                 DownloadService.getInstance(applicationContext).cancelIssueDownloads()
                 downloadNeededIssues()
@@ -425,18 +425,25 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private suspend fun downloadNeededIssues() {
         val articleIssue = getArticleIssue(article)?.also {
-            issueRepository?.saveIfDoesNotExist(it)
+            issueRepository.saveIfDoesNotExist(it)
         }
-        val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
-            issueRepository?.saveIfDoNotExist(it)
+        val lastIssues = try {
+            apiService.retryApiCall("downloadNeededIssues") {
+                apiService.getLastIssues().also {
+                    issueRepository.saveIfDoNotExist(it)
+                }
+            }
+        } catch (e: ApiService.ApiServiceException) {
+            toastHelper.showNoConnectionToast()
+            null
         }
 
         val lastIssueDate = lastIssues?.lastOrNull()?.date ?: ""
         val articleIssueDate = articleIssue?.date ?: ""
 
         if (articleIssueDate.isNotBlank() && lastIssueDate.isNotBlank() && articleIssueDate < lastIssueDate) {
-            lastIssues?.let {
-                toDownloadIssueHelper?.startMissingDownloads(
+            lastIssues.let {
+                toDownloadIssueHelper.startMissingDownloads(
                     articleIssueDate
                 )
             }
@@ -532,10 +539,17 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     private suspend fun getArticleIssue(articleFileName: String?): Issue? {
         return articleFileName?.let {
             val section = sectionRepository?.getSectionStubForArticle(articleFileName)
-            section?.getIssueOperations(applicationContext)?.let { issueOperations ->
-                apiService?.getIssueByFeedAndDateAsync(
-                    issueOperations.feedName, issueOperations.date
-                )?.await()
+            try {
+                section?.getIssueOperations(applicationContext)?.let { issueOperations ->
+                    apiService.retryApiCall("getArticleIssue") {
+                        apiService.getIssueByFeedAndDate(
+                            issueOperations.feedName, issueOperations.date
+                        )
+                    }
+                }
+            } catch (e: ApiService.ApiServiceException) {
+                toastHelper.showNoConnectionToast()
+                null
             }
         }
     }

@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -81,13 +82,18 @@ data class ResourceInfo(
         suspend fun update(applicationContext: Context? = null, force: Boolean = false) {
             if(force || lastUpdated < DateHelper.now - updateTimeOut) {
                 lastUpdated = DateHelper.now
-                CoroutineScope(Dispatchers.IO).launch {
+                withContext(Dispatchers.IO) {
                     log.info("ResourceInfo.update called")
                     val apiService = ApiService.getInstance(applicationContext)
                     val resourceInfoRepository =
                         ResourceInfoRepository.getInstance(applicationContext)
 
-                    val fromServer = apiService.getResourceInfoAsync().await()
+                    val fromServer = try {
+                        apiService.getResourceInfo()
+                    } catch (e: ApiService.ApiServiceException) {
+                        ToastHelper.getInstance().showNoConnectionToast()
+                        null
+                    }
                     val newest = resourceInfoRepository.getNewest()
 
                     fromServer?.let {
