@@ -111,9 +111,6 @@ class BookmarkPagerFragment :
         private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
-            viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
-                setDrawerIssue(it)
-            }
             viewModel.currentPositionLiveData.value = position
 
             showButtonJob?.cancel()

@@ -176,10 +176,6 @@ abstract class BaseMainFragment (
         (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
     }
 
-    fun setDrawerIssue(issueOperations: IssueOperations) {
-        (activity as? MainActivity)?.setDrawerIssue(issueOperations)
-    }
-
     fun showNavButton(navButton: Image) {
         (activity as? MainActivity)?.setDrawerNavButton(navButton)
     }

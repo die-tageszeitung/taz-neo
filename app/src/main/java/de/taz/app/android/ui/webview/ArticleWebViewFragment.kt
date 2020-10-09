@@ -53,9 +53,11 @@ class ArticleWebViewFragment :
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
-            viewModel.displayableLiveData.postValue(
-                ArticleRepository.getInstance().getStubOrThrow(articleFileName)
-            )
+            ArticleRepository.getInstance().getStub(articleFileName)?.let {
+                viewModel.displayableLiveData.postValue(
+                    it
+                )
+            }
         }
     }
 
