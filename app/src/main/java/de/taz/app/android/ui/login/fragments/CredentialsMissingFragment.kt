@@ -9,10 +9,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import de.taz.app.android.R
-import de.taz.app.android.WEBVIEW_HTML_FILE
-import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
-import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
+import de.taz.app.android.*
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
@@ -24,6 +21,7 @@ import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
+import java.util.regex.Pattern
 
 class CredentialsMissingFragment :
     SubscriptionBaseFragment(R.layout.fragment_login_missing_credentials) {
@@ -190,7 +188,7 @@ class CredentialsMissingFragment :
             )
             done = false
         } else {
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!Pattern.compile(RFC5322_PATTERN_STRING).matcher(email).matches()) {
                 fragment_login_missing_credentials_email_layout.setError(
                     R.string.login_email_error_invalid
                 )
