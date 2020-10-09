@@ -9,10 +9,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import de.taz.app.android.R
-import de.taz.app.android.WEBVIEW_HTML_FILE
-import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
-import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
+import de.taz.app.android.*
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
@@ -21,6 +18,7 @@ import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import kotlinx.android.synthetic.main.fragment_subscription_account.*
+import java.util.regex.Pattern
 
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment(R.layout.fragment_subscription_account) {
@@ -173,7 +171,9 @@ class SubscriptionAccountFragment :
 
         if (!viewModel.validCredentials) {
             val email = fragment_subscription_account_email.text?.toString()
-            if (email.isNullOrBlank()) {
+            if (email.isNullOrBlank() || !Pattern.compile(RFC5322_PATTERN_STRING).matcher(email)
+                    .matches()
+            ) {
                 done = false
                 setEmailError(R.string.login_email_error_empty)
             } else {

@@ -3,10 +3,12 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
+import de.taz.app.android.RFC5322_PATTERN_STRING
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import kotlinx.android.synthetic.main.fragment_login_forgot_password.*
+import java.util.regex.Pattern
 
 class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login_forgot_password) {
 
@@ -72,7 +74,7 @@ class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login
             done = false
         } else {
             if (username.toIntOrNull() == null) {
-                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                if (!Pattern.compile(RFC5322_PATTERN_STRING).matcher(username).matches()) {
                     done = false
                     fragment_login_forgot_password_username_layout.error =
                         getString(R.string.login_email_error_invalid)
