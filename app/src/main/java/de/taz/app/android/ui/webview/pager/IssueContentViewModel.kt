@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
-private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
+private const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 
 enum class IssueContentDisplayMode {
     Article, Section, Imprint
@@ -27,11 +27,21 @@ data class IssueKeyWithDisplayableKey(
     val displayableKey: String
 ): Parcelable
 
+@Parcelize
+data class DisplayableScrollposition(
+    val displayableKey: String,
+    val scrollPosition: Int
+): Parcelable
+
 class IssueContentViewModel(
     application: Application,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val log by Log
+
+    var lastScrollPositionOnDisplayable: DisplayableScrollposition?
+        get() = savedStateHandle.get(KEY_SCROLL_POSITION)
+        set(value) = savedStateHandle.set(KEY_SCROLL_POSITION, value)
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey) {
         issueKeyAndDisplayableKeyLiveData.postValue(

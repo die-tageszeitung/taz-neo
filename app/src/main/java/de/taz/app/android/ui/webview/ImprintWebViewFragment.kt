@@ -3,6 +3,7 @@ package de.taz.app.android.ui.webview
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +13,7 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
 import de.taz.app.android.ui.webview.pager.IssueContentDisplayMode
 import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,8 +27,10 @@ class ImprintWebViewFragment :
     override val nestedScrollViewId = R.id.nested_scroll_view
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
-    override val viewModel: ArticleWebViewViewModel by lazy {
-        ViewModelProvider(this).get(ArticleWebViewViewModel::class.java)
+    override val viewModel by lazy {
+        ViewModelProvider(this, SavedStateViewModelFactory(
+            this.requireActivity().application, this)
+        ).get(ArticleWebViewViewModel::class.java)
     }
 
     private val issueContentViewModel: IssueContentViewModel by lazy {
@@ -53,6 +57,20 @@ class ImprintWebViewFragment :
             if (it?.key == issueContentViewModel.displayableKeyLiveData.value) {
                 issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Imprint)
             }
+        }
+    }
+
+    override fun onPageRendered() {
+        super.onPageRendered()
+        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        issueContentViewModel.lastScrollPositionOnDisplayable?.let {
+            if (it.displayableKey == viewModel.displayable?.key) {
+                scrollView?.scrollY = it.scrollPosition
+            }
+        }
+        scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
+            issueContentViewModel.lastScrollPositionOnDisplayable =
+                DisplayableScrollposition(viewModel.displayable!!.key, scrollY)
         }
     }
 
