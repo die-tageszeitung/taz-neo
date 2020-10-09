@@ -1,0 +1,12 @@
+<p>taz. die tageszeitung</p>
+<p>Kritischer, unabhängiger Journalismus der linken tageszeitung: Nachrichten, Analysen, Hintergründe, Kommentare, Interviews, Reportagen. Genossenschaft seit 1992.</p>
+<ul>
+<p>Features:</p>
+<li>Lesen sie die tageszeitung schon am Vorabend</li>
+<li>Einmal heruntergeladen können sie Ausgaben offline lesen</li>
+<li>Speichern in der Leseliste</li>
+<li>Texte mit anderen teilen</li>
+<li>Schrifteinstellung direkt am Artikel ändern</li>
+<li>Navigation durch die Ausgaben im Karussell oder Archiv</li>
+<li>Navigieren durch eine Ausgabe mit neuen Ressortübersichten</li>
+</ul>
