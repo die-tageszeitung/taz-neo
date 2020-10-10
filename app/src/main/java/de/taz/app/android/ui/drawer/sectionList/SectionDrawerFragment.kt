@@ -112,7 +112,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
 
         fragment_drawer_sections_moment.setOnClickListener {
-            getMainView()?.showHome(skipToIssue = issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first)
+            getMainView()?.showHome(skipToIssue = currentIssueStub)
             getMainView()?.closeDrawer()
         }
 
@@ -132,6 +132,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         withContext(Dispatchers.IO) {
             when {
                 displayableKey == imprint.value?.articleFileName -> {
+                    sectionListAdapter.activePosition = RecyclerView.NO_POSITION
                     setImprintActive()
                 }
                 displayableKey.startsWith("art") -> {
@@ -164,16 +165,25 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private suspend fun showIssueStub(issueStub: IssueStub) = withContext(Dispatchers.Main) {
         setMomentDate(issueStub)
         showMoment(issueStub)
+        currentIssueStub = issueStub
         val sections = withContext(Dispatchers.IO) {
             sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
         }
         log.debug("SectionDrawer sets new sections: $sections")
         sectionListAdapter.sectionList = sections
-
         sectionListAdapter.typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
-
+        fragment_drawer_sections_imprint.apply {
+            typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+            withContext(Dispatchers.IO) {
+                visibility = if (issueRepository.getImprint(issueStub.issueKey) != null) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+            }
+        }
     }
 
     private fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
