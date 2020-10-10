@@ -38,6 +38,7 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
+import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
@@ -61,12 +62,20 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
 
     private lateinit var issueContentViewModel: IssueContentViewModel
+    private lateinit var bookmarkPagerViewModel: BookmarkPagerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        issueContentViewModel = ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
-            IssueContentViewModel::class.java
-        )
+        issueContentViewModel =
+            ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
+                IssueContentViewModel::class.java
+            )
+
+        bookmarkPagerViewModel =
+            ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
+                BookmarkPagerViewModel::class.java
+            )
+
         fileHelper = FileHelper.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
@@ -119,25 +128,28 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun showDisplayable(displayableKey: String) {
+    fun showDisplayable(displayableKey: String) {
         runOnUiThread {
             val currentIssueContentFragment = supportFragmentManager.fragments.lastOrNull()
             if (currentIssueContentFragment !is IssueContentFragment) {
                 val fragment = IssueContentFragment()
                 showMainFragment(fragment)
             }
-            issueContentViewModel.setDisplayable(displayableKey)
+            lifecycleScope.launch {
+                issueContentViewModel.setDisplayable(displayableKey)
+            }
         }
     }
 
     private fun showBookmark(articleName: String) {
         runOnUiThread {
-            val fragment = BookmarkPagerFragment.createInstance(articleName)
+            val fragment = BookmarkPagerFragment()
             showMainFragment(fragment)
+            bookmarkPagerViewModel.articleFileNameLiveData.postValue(articleName)
         }
     }
 
-    fun showIssue(issueStub: IssueStub) = lifecycleScope.launch (Dispatchers.IO) {
+    fun showIssue(issueStub: IssueStub) = lifecycleScope.launch(Dispatchers.IO) {
         issueContentViewModel.setDisplayable(issueStub.getIssue())
         val fragment = IssueContentFragment()
         showMainFragment(fragment)
@@ -369,7 +381,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            showBookmark(articleName)
+                            showDisplayable(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {

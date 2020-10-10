@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
+private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
     Article, Section, Imprint
@@ -66,12 +67,17 @@ class IssueContentViewModel(
     }
 
     /**
-     * If not specifying the issueKey we assume the displayable will be in the same issue
+     * If not specifying the issueKey we will derive it from the displayable
      */
-    fun setDisplayable(displayableKey: String) {
-        issueKeyLiveData.value?.let {
+    suspend fun setDisplayable(displayableKey: String) = withContext(Dispatchers.IO) {
+        val derrivedIssue = IssueRepository.getInstance().let {
+            it.getIssueStubForArticle(displayableKey) ?:
+            it.getIssueStubForSection(displayableKey) ?:
+            it.getIssueStubByImprintFileName(displayableKey)
+        }
+        derrivedIssue?.let {
             setDisplayable(
-                IssueKeyWithDisplayableKey(it, displayableKey)
+                IssueKeyWithDisplayableKey(it.issueKey, displayableKey)
             )
         } ?: throw IllegalStateException(
             "Setting a displayable on the IssueContentViewModel is illegal if no issue is set yet"
@@ -79,6 +85,10 @@ class IssueContentViewModel(
     }
 
     private var currentIssueStub: IssueStub? = null
+
+    var lastSectionKey: String?
+        set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
+        get() = savedStateHandle.get(KEY_LAST_SECTION)
 
     private val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
@@ -104,6 +114,9 @@ class IssueContentViewModel(
             }
         }
 
+    val currentIssue: IssueStub?
+        get() = issueStubAndDisplayableKeyLiveData.value?.first
+
     val displayableKeyLiveData: LiveData<String> =
         issueKeyAndDisplayableKeyLiveData.map { it.displayableKey }
 
@@ -124,35 +137,6 @@ class IssueContentViewModel(
                 }
             }
         }
-
-    private suspend fun determineActiveSection(displayableKey: String): String? =
-        withContext(Dispatchers.IO) {
-            when {
-                displayableKey == imprintArticleLiveData.value?.key -> displayableKey
-                displayableKey.startsWith("art") -> {
-                    articleListLiveData.value?.find {
-                        it.key == displayableKey
-                    }?.getSectionStub(null)?.key
-                }
-                displayableKey.startsWith("sec") -> {
-                    displayableKey
-                }
-                else -> null
-            }
-        }
-
-    val activeSectionTitleLiveData: LiveData<String?> = MediatorLiveData<String?>().apply {
-        addSource(displayableKeyLiveData) {
-            viewModelScope.launch {
-                postValue(determineActiveSection(it))
-            }
-        }
-        addSource(sectionListLiveData) {
-            displayableKeyLiveData.value?.let {
-                viewModelScope.launch { postValue(determineActiveSection(it)) }
-            }
-        }
-    }
 
     val imprintArticleLiveData: LiveData<ArticleStub?> = MediatorLiveData<ArticleStub?>().apply {
         addSource(issueKeyLiveData) {
