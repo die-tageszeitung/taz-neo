@@ -90,10 +90,14 @@ class SectionWebViewFragment :
     override fun onPageRendered() {
         super.onPageRendered()
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        issueContentViewModel.lastScrollPositionOnDisplayable?.let {
-            if (it.displayableKey == sectionFileName) {
-                log.debug("The last scroll position was on this section, resetting to $it")
-                scrollView?.scrollY = it.scrollPosition
+
+        // It is possible that this fragment is detached on page render - can't access the viewmodel then
+        if (!isDetached) {
+            issueContentViewModel.lastScrollPositionOnDisplayable?.let {
+                if (it.displayableKey == sectionFileName) {
+                    log.debug("The last scroll position was on this section, resetting to $it")
+                    scrollView?.scrollY = it.scrollPosition
+                }
             }
         }
         scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->

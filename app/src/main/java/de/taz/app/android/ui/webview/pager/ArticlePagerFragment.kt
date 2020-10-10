@@ -22,6 +22,7 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticlePagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
@@ -33,8 +34,7 @@ class ArticlePagerFragment : BaseMainFragment(
     override val enableSideBar: Boolean = true
 
     private var articlePagerAdapter: ArticlePagerAdapter? = null
-    private var hasBeenSwiped: Boolean = false
-
+    private var hasBeenSwiped = false
 
     private val issueContentViewModel: IssueContentViewModel by lazy {
         ViewModelProvider(
@@ -42,6 +42,28 @@ class ArticlePagerFragment : BaseMainFragment(
                 requireActivity().application, requireActivity()
             )
         ).get(IssueContentViewModel::class.java)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
+            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.let { viewPagerAdapter ->
+                viewPagerAdapter.articleStubs = articleStubs
+                // after receiving a new article list scroll to current displayKey if available
+                tryScrollToArticle()
+            }
+        }
+
+        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { _ ->
+            tryScrollToArticle()
+        }
+
+        issueContentViewModel.activeDisplayMode.observeDistinct(this) {
+            // reset swiped flag on navigating away from article pager
+            if (it != IssueContentDisplayMode.Article) {
+                hasBeenSwiped = false
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,19 +75,6 @@ class ArticlePagerFragment : BaseMainFragment(
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }
         loading_screen.visibility = View.GONE
-
-        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
-            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.let { viewPagerAdapter ->
-                viewPagerAdapter.articleStubs = articleStubs
-                // after receiving a new article list scroll to current displayKey if available
-                tryScrollToArticle()
-
-            }
-        }
-
-        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { _ ->
-            tryScrollToArticle()
-        }
     }
 
     override fun onStart() {
@@ -99,11 +108,14 @@ class ArticlePagerFragment : BaseMainFragment(
 
         override fun onPageSelected(position: Int) {
             if (lastPage != null && lastPage != position) {
+                hasBeenSwiped = true
                 runIfNotNull(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
                     issueContentViewModel.articleListLiveData.value?.getOrNull(position)
                 ) { issueStub, displayable ->
-                    issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                    if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
+                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                    }
                 }
             }
             lastPage = position
@@ -147,20 +159,22 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onBackPressed(): Boolean {
         return if (hasBeenSwiped) {
-            showSectionOrGoBack()
+            lifecycleScope.launch { showSectionOrGoBack() }
+            true
         } else {
-            false
+            return false
         }
     }
 
-    private fun showSectionOrGoBack(): Boolean {
-        return getCurrentArticleStub()?.let {
-            lifecycleScope.launch(Dispatchers.IO) {
-                it.getSectionStub(context?.applicationContext)?.key?.let { sectionKey ->
-                    showInWebView(sectionKey)
-                }
+    private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
+        getCurrentArticleStub()?.let { articleStub ->
+            runIfNotNull(
+                issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                articleStub.getSectionStub(null)
+            ) { issueStub, sectionStub ->
+                issueContentViewModel.setDisplayable(issueStub.issueKey, sectionStub.key)
+                true
             }
-            true
         } ?: false
     }
 
@@ -217,8 +231,8 @@ class ArticlePagerFragment : BaseMainFragment(
             issueContentViewModel.articleListLiveData.value?.map { it.key }?.contains(articleKey) == true
         ) {
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
-            lifecycleScope.launchWhenStarted {
-                log.debug("issueContentViewModel.articleListLiveData.value: ${issueContentViewModel.articleListLiveData.value}")
+            if (articleKey != getCurrentArticleStub()?.key) {
+                log.debug("I will now display $articleKey")
                 getCurrentPagerPosition()?.let {
                     if (it >= 0) {
                         webview_pager_viewpager.setCurrentItem(it, false)
@@ -229,8 +243,13 @@ class ArticlePagerFragment : BaseMainFragment(
     }
 
     private fun getCurrentPagerPosition(): Int? {
-        return issueContentViewModel.articleListLiveData.value?.indexOfFirst {
+        val position = issueContentViewModel.articleListLiveData.value?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyLiveData.value
+        }
+        return if (position != null && position >= 0) {
+            position
+        } else {
+            null
         }
     }
 

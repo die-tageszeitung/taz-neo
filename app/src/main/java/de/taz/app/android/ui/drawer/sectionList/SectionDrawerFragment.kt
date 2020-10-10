@@ -15,13 +15,16 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
 
@@ -38,42 +41,65 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             )
         ).get(IssueContentViewModel::class.java)
     }
+
+    private val bookmarkPagerViewModel: BookmarkPagerViewModel by lazy {
+        ViewModelProvider(
+            this.requireActivity(),
+            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
+        ).get(BookmarkPagerViewModel::class.java)
+    }
+
+    private val log by Log
+
     private lateinit var sectionListAdapter: SectionListAdapter
 
     private lateinit var fontHelper: FontHelper
     private lateinit var issueRepository: IssueRepository
     private lateinit var momentRepository: MomentRepository
+    private lateinit var sectionRepository: SectionRepository
 
     private var defaultTypeface: Typeface? = null
     private var weekendTypeface: Typeface? = null
+
+    private lateinit var currentIssueStub: IssueStub
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sectionListAdapter = SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
+        sectionListAdapter =
+            SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
         defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.aktiv_grotesk_bold)
-        weekendTypeface = runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
+        weekendTypeface =
+            runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
         sectionListAdapter.typeface = defaultTypeface
 
-        issueContentViewModel.sectionListLiveData.observe(this) { sectionList ->
-            sectionListAdapter.sectionList = sectionList
-        }
+        restore(savedInstanceState)
+    }
 
-        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this) { (issueStub, _ ) ->
-            if (issueStub.isWeekend) {
-                sectionListAdapter.typeface = weekendTypeface
-            } else {
-                sectionListAdapter.typeface = defaultTypeface
+    override fun onResume() {
+        super.onResume()
+        // Either the issueContentViewModel can change the content of this drawer ...
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+            lifecycleScope.launch {
+                log.debug("Set issue ${issueStub.issueKey} from IssueContent")
+                showIssueStub(issueStub)
+                maybeSetActiveSection(issueStub, displayableKey)
             }
         }
-
-        restore(savedInstanceState)
+        bookmarkPagerViewModel.currentIssueAndArticleLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+            lifecycleScope.launch {
+                log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
+                showIssueStub(issueStub)
+                maybeSetActiveSection(issueStub, displayableKey)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,42 +118,40 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_imprint.apply {
             setOnClickListener {
-                showImprint()
-            }
-        }
-
-        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this.viewLifecycleOwner) { (issueStub, _) ->
-            showIssueStub(issueStub)
-            lifecycleScope.launch(Dispatchers.Main) {
-                fragment_drawer_sections_imprint.apply {
-                    typeface = if (issueStub.isWeekend) {
-                        fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                    } else {
-                        defaultTypeface
-                    }
-                    visibility = View.VISIBLE
+                lifecycleScope.launch {
+                    showImprint()
                 }
             }
         }
+    }
 
-        issueContentViewModel.activeSectionTitleLiveData.observe(this.viewLifecycleOwner) {
-            if (it != null) {
-                setActiveSection(it)
-            }
-        }
-
-        issueContentViewModel.imprintArticleLiveData.observe(this.viewLifecycleOwner) {
-            if (it != null) {
-                issueContentViewModel.displayableKeyLiveData.value?.let { displayableKey ->
+    private suspend fun maybeSetActiveSection(issueStub: IssueStub, displayableKey: String) {
+        val imprint = lazy { issueRepository.getImprint(issueStub.issueKey) }
+        val section =
+            lazy { sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName }
+        withContext(Dispatchers.IO) {
+            when {
+                displayableKey == imprint.value?.articleFileName -> {
+                    setImprintActive()
+                }
+                displayableKey.startsWith("art") -> {
+                    setImprintInactive()
+                    section.value?.let { setActiveSection(it) }
+                }
+                displayableKey.startsWith("sec") -> {
+                    setImprintInactive()
                     setActiveSection(displayableKey)
                 }
+                else -> {
+                    setImprintInactive()
+                    setActiveSection(null)
+                }
             }
         }
-
     }
 
     private fun onSectionItemClickListener(clickedSection: SectionStub) {
-        issueContentViewModel.setDisplayable(clickedSection.key)
+        getMainView()?.showDisplayable(clickedSection.key)
         getMainView()?.closeDrawer()
     }
 
@@ -137,41 +161,35 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private fun showIssueStub(issueStub: IssueStub) = activity?.runOnUiThread {
-        lifecycleScope.launchWhenResumed {
-            setMomentDate(issueStub)
-            showMoment(issueStub)
+    private suspend fun showIssueStub(issueStub: IssueStub) = withContext(Dispatchers.Main) {
+        setMomentDate(issueStub)
+        showMoment(issueStub)
+        val sections = withContext(Dispatchers.IO) {
+            sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
         }
+        log.debug("SectionDrawer sets new sections: $sections")
+        sectionListAdapter.sectionList = sections
+
+        sectionListAdapter.typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
+
     }
 
     private fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
         sectionListAdapter.activePosition = activePosition
-        if (activePosition != RecyclerView.NO_POSITION) {
-            fragment_drawer_sections_imprint?.apply {
-                setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.drawer_sections_item,
-                        null
-                    )
-                )
-            }
-        }
     }
 
-    private fun setActiveSection(sectionFileName: String) {
-        if (sectionFileName == issueContentViewModel.imprintArticleLiveData.value?.key) {
-            setActiveSection(RecyclerView.NO_POSITION)
-            setImprintActive()
+    private fun setActiveSection(sectionFileName: String?) {
+        if (sectionFileName == null) {
+            sectionListAdapter.activePosition = RecyclerView.NO_POSITION
         } else {
-            setImprintInactive()
-            sectionListAdapter?.positionOf(sectionFileName)?.let {
+            sectionListAdapter.positionOf(sectionFileName)?.let {
                 setActiveSection(it)
+            } ?: run {
+                sectionListAdapter.activePosition = RecyclerView.NO_POSITION
             }
         }
-
     }
 
     private fun setImprintActive() {
@@ -210,7 +228,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
-        val moment = momentRepository?.get(issueStub)
+        val moment = momentRepository.get(issueStub)
         moment?.apply {
             if (!isDownloaded(context?.applicationContext)) {
                 download(context?.applicationContext)
@@ -232,7 +250,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     }
 
-    private fun showImprint() {
+    private suspend fun showImprint() {
         issueContentViewModel.imprintArticleLiveData.value?.key?.let {
             issueContentViewModel.setDisplayable(it)
             getMainView()?.closeDrawer()

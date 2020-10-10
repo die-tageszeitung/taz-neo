@@ -27,10 +27,6 @@ import de.taz.app.android.util.SharedPreferenceIntLiveData
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
 
-const val ISSUE_DATE = "issueDate"
-const val ISSUE_FEED = "issueFeed"
-const val ISSUE_STATUS = "issueStatus"
-
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
 
@@ -59,7 +55,10 @@ class IssueContentFragment :
         addFragment(sectionPagerFragment)
         addFragment(articlePagerFragment)
         addFragment(imprintFragment)
+    }
 
+    override fun onResume() {
+        super.onResume()
         viewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(
             this,
             { (issueStub, _) ->
@@ -83,15 +82,16 @@ class IssueContentFragment :
                     }
                 }
             })
+
+        viewModel.activeDisplayMode.observe(this.viewLifecycleOwner) {
+            setDisplayMode(it)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         observeAuthStatusAndChangeIssue()
-        viewModel.activeDisplayMode.observe(this.viewLifecycleOwner) {
-            setDisplayMode(it)
-        }
     }
 
     private fun setDisplayMode(displayMode: IssueContentDisplayMode) {
@@ -128,8 +128,8 @@ class IssueContentFragment :
             when ((it as? BackFragment?)?.onBackPressed()) {
                 true -> true
                 false -> {
-                    (it as? ArticlePagerFragment)?.let {
-                        setDisplayMode(IssueContentDisplayMode.Section)
+                    runIfNotNull(it as? ArticlePagerFragment, viewModel.currentIssue, viewModel.lastSectionKey) { _, currentIssue, lastSectionKey ->
+                        viewModel.setDisplayable(currentIssue.issueKey, lastSectionKey)
                         true
                     } ?: false
                 }

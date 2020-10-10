@@ -92,7 +92,9 @@ class SectionPagerFragment : BaseMainFragment(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
                     issueContentViewModel.sectionListLiveData.value?.getOrNull(position)
                 ) { issueStub, displayable ->
-                    issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                    if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
+                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                    }
                 }
             }
             lastPage = position
@@ -144,7 +146,10 @@ class SectionPagerFragment : BaseMainFragment(
     }
 
     private fun tryScrollToSection() {
-        if (issueContentViewModel.displayableKeyLiveData.value?.startsWith("sec") == true) {
+        val displayableKey = issueContentViewModel.displayableKeyLiveData.value
+        if (displayableKey?.startsWith("sec") == true) {
+            log.debug("Section selected: $displayableKey")
+            issueContentViewModel.lastSectionKey = displayableKey
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
             lifecycleScope.launchWhenStarted {
                 getCurrentPagerPosition()?.let {
