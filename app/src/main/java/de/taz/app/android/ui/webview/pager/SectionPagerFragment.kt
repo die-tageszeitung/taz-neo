@@ -31,9 +31,6 @@ class SectionPagerFragment : BaseMainFragment(
     private val log by Log
 
     override val enableSideBar: Boolean = true
-
-    private var sectionPagerAdapter: SectionPagerAdapter? = null
-
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
 
     private val issueContentViewModel: IssueContentViewModel by lazy {
@@ -56,14 +53,11 @@ class SectionPagerFragment : BaseMainFragment(
 
 
         issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
-            (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.let { viewPagerAdapter ->
-                viewPagerAdapter.sectionStubs = sectionStubs
-                // after receiving a new article list scroll to current displayKey if available
-                tryScrollToSection()
-            }
+            webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
+            tryScrollToSection()
         }
 
-        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (_, _) ->
+        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
             tryScrollToSection()
         }
     }
@@ -75,10 +69,6 @@ class SectionPagerFragment : BaseMainFragment(
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            sectionPagerAdapter = SectionPagerAdapter()
-            adapter = sectionPagerAdapter
-
-            adapter?.notifyDataSetChanged()
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             registerOnPageChangeCallback(pageChangeListener)
             offscreenPageLimit = 2
@@ -130,13 +120,8 @@ class SectionPagerFragment : BaseMainFragment(
         super.onStop()
     }
 
-    private inner class SectionPagerAdapter :
+    private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>):
         FragmentStateAdapter(this@SectionPagerFragment) {
-        var sectionStubs: List<SectionStub> = emptyList()
-            set(value) {
-                field = value
-                notifyDataSetChanged()
-            }
 
         override fun createFragment(position: Int): Fragment {
             val sectionStub = sectionStubs[position]
@@ -167,7 +152,7 @@ class SectionPagerFragment : BaseMainFragment(
     }
 
     private fun getSupposedPagerPosition(): Int? {
-        val position = sectionPagerAdapter?.sectionStubs?.indexOfFirst {
+        val position = (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyLiveData.value
         }
         return if (position != null && position >= 0) {
