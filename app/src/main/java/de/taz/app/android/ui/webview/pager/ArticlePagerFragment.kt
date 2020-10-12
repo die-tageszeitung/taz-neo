@@ -113,6 +113,7 @@ class ArticlePagerFragment : BaseMainFragment(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
                     issueContentViewModel.articleListLiveData.value?.getOrNull(position)
                 ) { issueStub, displayable ->
+                    log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
                         issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
                     }
@@ -233,7 +234,7 @@ class ArticlePagerFragment : BaseMainFragment(
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
             if (articleKey != getCurrentArticleStub()?.key) {
                 log.debug("I will now display $articleKey")
-                getCurrentPagerPosition()?.let {
+                getSupposedPagerPosition()?.let {
                     if (it >= 0) {
                         webview_pager_viewpager.setCurrentItem(it, false)
                     }
@@ -243,7 +244,11 @@ class ArticlePagerFragment : BaseMainFragment(
     }
 
     private fun getCurrentPagerPosition(): Int? {
-        val position = issueContentViewModel.articleListLiveData.value?.indexOfFirst {
+        return webview_pager_viewpager?.currentItem
+    }
+
+    private fun getSupposedPagerPosition(): Int? {
+        val position = articlePagerAdapter?.articleStubs?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyLiveData.value
         }
         return if (position != null && position >= 0) {
