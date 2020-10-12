@@ -225,7 +225,7 @@
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
-    <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben Ihnen eine Mail geschickt. Bitte öffnen Sie die Mail und bestätigen Sie Ihre Adresse. Sobald die Mail-Adresse bestätigt wurde können Sie die neue taz-App nutzen.</string>
+    <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben eine neue taz-ID für Sie angelegt und mit Ihren Kundendaten verknüpft. Bitte öffnen Sie ihr Mail-Postfach und bestätigen Sie Ihre Adresse. Sobald dies geschehen ist können Sie die neue taz-App nutzen.</string>
     <string name="fragment_login_confirm_email_elapsed_header">Danke für Ihre Registrierung! Sobald sie von unserer Abo-Verwaltung freigeschaltet sind erhalten Sie eine eMail, und können dann spätestens ab 19:00 Uhr wieder auf die aktuellen Ausgaben zugreifen.</string>
 
     <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
