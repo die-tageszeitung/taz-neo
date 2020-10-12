@@ -32,8 +32,6 @@ class ArticlePagerFragment : BaseMainFragment(
 
     private val log by Log
 
-    private lateinit var authHelper: AuthHelper
-
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     override val enableSideBar: Boolean = true
     private var hasBeenSwiped = false
@@ -44,11 +42,6 @@ class ArticlePagerFragment : BaseMainFragment(
                 requireActivity().application, requireActivity()
             )
         ).get(IssueContentViewModel::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        authHelper = AuthHelper.getInstance()
     }
 
     override fun onResume() {
@@ -62,11 +55,6 @@ class ArticlePagerFragment : BaseMainFragment(
             tryScrollToArticle()
         }
 
-        authHelper.authStatusLiveData.observeDistinct(this) {
-            if (it == AuthStatus.valid) {
-                    webview_pager_viewpager.adapter?.notifyDataSetChanged()
-            }
-        }
 
         issueContentViewModel.activeDisplayMode.observeDistinct(this) {
             // reset swiped flag on navigating away from article pager
