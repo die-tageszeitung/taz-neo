@@ -26,6 +26,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceIntLiveData
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
+import java.lang.Exception
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -143,11 +144,11 @@ class IssueContentFragment :
         val apiService = ApiService.getInstance(context?.applicationContext)
         val issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
-        authHelper.authStatusLiveData.observe(viewLifecycleOwner) { authStatus ->
+        authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
             val issueStub = viewModel.issueStubAndDisplayableKeyLiveData.value?.first
             if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
                 runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
-                    lifecycleScope.launch(Dispatchers.IO) {
+                    CoroutineScope(Dispatchers.IO).launch {
                         apiService.getIssueByFeedAndDate(feedName, date)?.let {
                             issueRepository.saveIfDoesNotExist(it)
                             viewModel.setDisplayable(
