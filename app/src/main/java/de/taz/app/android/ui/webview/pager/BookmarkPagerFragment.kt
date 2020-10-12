@@ -154,7 +154,6 @@ class BookmarkPagerFragment :
         ) {
             log.debug("I will now display $articleFileName")
             lifecycleScope.launchWhenResumed {
-                log.debug("viewModel.articleListLiveData.value: ${viewModel.articleListLiveData.value}")
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
                         webview_pager_viewpager.setCurrentItem(it, false)
