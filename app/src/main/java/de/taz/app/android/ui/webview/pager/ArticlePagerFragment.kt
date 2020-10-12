@@ -32,8 +32,6 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     override val enableSideBar: Boolean = true
-
-    private var articlePagerAdapter: ArticlePagerAdapter? = null
     private var hasBeenSwiped = false
 
     private val issueContentViewModel: IssueContentViewModel by lazy {
@@ -47,14 +45,11 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onResume() {
         super.onResume()
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
-            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.let { viewPagerAdapter ->
-                viewPagerAdapter.articleStubs = articleStubs
-                // after receiving a new article list scroll to current displayKey if available
-                tryScrollToArticle()
-            }
+            webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
+            tryScrollToArticle()
         }
 
-        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { _ ->
+        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
             tryScrollToArticle()
         }
 
@@ -85,10 +80,6 @@ class ArticlePagerFragment : BaseMainFragment(
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            if (adapter == null) {
-                articlePagerAdapter = ArticlePagerAdapter()
-                adapter = articlePagerAdapter
-            }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
@@ -122,7 +113,7 @@ class ArticlePagerFragment : BaseMainFragment(
             lastPage = position
 
             lifecycleScope.launchWhenResumed {
-                articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
+                getCurrentArticleStub()?.let { articleStub ->
                     articleStub.getNavButton(context?.applicationContext)?.let {
                         showNavButton(it)
                     }
@@ -137,14 +128,9 @@ class ArticlePagerFragment : BaseMainFragment(
         }
     }
 
-    private inner class ArticlePagerAdapter :
+    private inner class ArticlePagerAdapter(val articleStubs: List<ArticleStub>) :
         FragmentStateAdapter(this@ArticlePagerFragment) {
 
-        var articleStubs: List<ArticleStub> = emptyList()
-            set(value) {
-                field = value
-                notifyDataSetChanged()
-            }
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
@@ -248,7 +234,7 @@ class ArticlePagerFragment : BaseMainFragment(
     }
 
     private fun getSupposedPagerPosition(): Int? {
-        val position = articlePagerAdapter?.articleStubs?.indexOfFirst {
+        val position = (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyLiveData.value
         }
         return if (position != null && position >= 0) {
