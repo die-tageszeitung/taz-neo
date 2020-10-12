@@ -54,8 +54,6 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onResume() {
         super.onResume()
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
-            // we need to null the adapter first, otherwise the pager will keep outdated fragments around
-            webview_pager_viewpager.adapter = null
             webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
             tryScrollToArticle()
         }
@@ -153,6 +151,16 @@ class ArticlePagerFragment : BaseMainFragment(
             val article = articleStubs[position]
             return ArticleWebViewFragment.createInstance(article.articleFileName)
         }
+
+
+        override fun getItemId(position: Int): Long {
+            return articleStubs[position].key.hashCode().toLong()
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            return articleStubs.any { itemId == it.key.hashCode().toLong() }
+        }
+
 
         override fun getItemCount(): Int = articleStubs.size
     }

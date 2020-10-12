@@ -46,12 +46,12 @@ class IssueContentViewModel(
         set(value) = savedStateHandle.set(KEY_SCROLL_POSITION, value)
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey) {
+        log.debug("setDisplayable(${issueDisplayable.issueKey} ${issueDisplayable.displayableKey}")
         issueKeyAndDisplayableKeyLiveData.postValue(
             issueDisplayable
         )
     }
     fun setDisplayable(issueKey: IssueKey, displayableKey: String) {
-        log.debug("Setting displayable issueKey with displayableKey")
         setDisplayable(
             IssueKeyWithDisplayableKey(issueKey, displayableKey)
         )
