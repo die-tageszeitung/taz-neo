@@ -386,7 +386,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
             ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
                 ?: emptyList()
-        }, tag) ?: emptyList()
+        }, tag)
     }
 
     /**
