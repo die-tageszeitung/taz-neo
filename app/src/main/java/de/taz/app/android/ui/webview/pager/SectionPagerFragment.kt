@@ -23,8 +23,6 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
-const val POSITION = "position"
-
 class SectionPagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
 ) {
@@ -41,7 +39,6 @@ class SectionPagerFragment : BaseMainFragment(
         ).get(IssueContentViewModel::class.java)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -49,6 +46,8 @@ class SectionPagerFragment : BaseMainFragment(
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
+        setupViewPager()
+
         loading_screen?.visibility = View.GONE
 
 
@@ -60,11 +59,6 @@ class SectionPagerFragment : BaseMainFragment(
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
             tryScrollToSection()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setupViewPager()
     }
 
     private fun setupViewPager() {
@@ -81,7 +75,7 @@ class SectionPagerFragment : BaseMainFragment(
             if (lastPage != null && lastPage != position) {
                 runIfNotNull(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
-                    issueContentViewModel.sectionListLiveData.value?.getOrNull(position)
+                    getCurrentSectionStub()
                 ) { issueStub, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
                         issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
@@ -90,12 +84,12 @@ class SectionPagerFragment : BaseMainFragment(
             }
             lastPage = position
 
-
             lifecycleScope.launchWhenResumed {
                 getCurrentSectionStub()?.getNavButton()?.let {
                     showNavButton(it)
                 }
             }
+
         }
     }
 
@@ -120,7 +114,7 @@ class SectionPagerFragment : BaseMainFragment(
         super.onStop()
     }
 
-    private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>):
+    private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>) :
         FragmentStateAdapter(this@SectionPagerFragment) {
 
         override fun createFragment(position: Int): Fragment {
@@ -137,13 +131,13 @@ class SectionPagerFragment : BaseMainFragment(
             log.debug("Section selected: $displayableKey")
             issueContentViewModel.lastSectionKey = displayableKey
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
-            lifecycleScope.launchWhenStarted {
-                getSupposedPagerPosition()?.let {
-                    if (it >= 0) {
-                        webview_pager_viewpager.setCurrentItem(it, false)
-                    }
+
+            getSupposedPagerPosition()?.let {
+                if (it >= 0 && it != getCurrentPagerPosition()) {
+                    webview_pager_viewpager.setCurrentItem(it, false)
                 }
             }
+
         }
     }
 
@@ -152,9 +146,10 @@ class SectionPagerFragment : BaseMainFragment(
     }
 
     private fun getSupposedPagerPosition(): Int? {
-        val position = (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
-            it.key == issueContentViewModel.displayableKeyLiveData.value
-        }
+        val position =
+            (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
+                it.key == issueContentViewModel.displayableKeyLiveData.value
+            }
         return if (position != null && position >= 0) {
             position
         } else {
