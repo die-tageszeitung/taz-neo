@@ -138,10 +138,6 @@ class ArticlePagerFragment : BaseMainFragment(
         }
 
         override fun getItemCount(): Int = articleStubs.size
-
-        fun getArticleStub(position: Int): ArticleStub {
-            return articleStubs[position]
-        }
     }
 
     override fun onBackPressed(): Boolean {
