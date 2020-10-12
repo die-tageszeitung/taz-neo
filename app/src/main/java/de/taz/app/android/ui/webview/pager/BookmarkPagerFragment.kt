@@ -155,7 +155,7 @@ class BookmarkPagerFragment :
             log.debug("I will now display $articleFileName")
             lifecycleScope.launchWhenResumed {
                 log.debug("viewModel.articleListLiveData.value: ${viewModel.articleListLiveData.value}")
-                getCurrentPagerPosition()?.let {
+                getSupposedPagerPosition()?.let {
                     if (it >= 0) {
                         webview_pager_viewpager.setCurrentItem(it, false)
                     }
@@ -172,6 +172,10 @@ class BookmarkPagerFragment :
     }
 
     private fun getCurrentPagerPosition(): Int? {
+        return webview_pager_viewpager?.currentItem
+    }
+
+    private fun getSupposedPagerPosition(): Int? {
         val position = articlePagerAdapter.articleStubs.indexOfFirst {
             it.key == viewModel.articleFileNameLiveData.value
         }

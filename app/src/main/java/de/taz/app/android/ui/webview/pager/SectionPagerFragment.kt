@@ -22,6 +22,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
+
 const val POSITION = "position"
 
 class SectionPagerFragment : BaseMainFragment(
@@ -129,7 +130,7 @@ class SectionPagerFragment : BaseMainFragment(
         super.onStop()
     }
 
-    private inner class SectionPagerAdapter:
+    private inner class SectionPagerAdapter :
         FragmentStateAdapter(this@SectionPagerFragment) {
         var sectionStubs: List<SectionStub> = emptyList()
             set(value) {
@@ -152,7 +153,7 @@ class SectionPagerFragment : BaseMainFragment(
             issueContentViewModel.lastSectionKey = displayableKey
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
             lifecycleScope.launchWhenStarted {
-                getCurrentPagerPosition()?.let {
+                getSupposedPagerPosition()?.let {
                     if (it >= 0) {
                         webview_pager_viewpager.setCurrentItem(it, false)
                     }
@@ -162,7 +163,11 @@ class SectionPagerFragment : BaseMainFragment(
     }
 
     private fun getCurrentPagerPosition(): Int? {
-        val position = issueContentViewModel.sectionListLiveData.value?.indexOfFirst {
+        return webview_pager_viewpager?.currentItem
+    }
+
+    private fun getSupposedPagerPosition(): Int? {
+        val position = sectionPagerAdapter?.sectionStubs?.indexOfFirst {
             it.key == issueContentViewModel.displayableKeyLiveData.value
         }
         return if (position != null && position >= 0) {
