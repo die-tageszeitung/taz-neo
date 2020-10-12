@@ -11,8 +11,10 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -30,6 +32,8 @@ class ArticlePagerFragment : BaseMainFragment(
 
     private val log by Log
 
+    private lateinit var authHelper: AuthHelper
+
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     override val enableSideBar: Boolean = true
     private var hasBeenSwiped = false
@@ -42,15 +46,28 @@ class ArticlePagerFragment : BaseMainFragment(
         ).get(IssueContentViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        authHelper = AuthHelper.getInstance()
+    }
+
     override fun onResume() {
         super.onResume()
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
+            // we need to null the adapter first, otherwise the pager will keep outdated fragments around
+            webview_pager_viewpager.adapter = null
             webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
             tryScrollToArticle()
         }
 
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
             tryScrollToArticle()
+        }
+
+        authHelper.authStatusLiveData.observeDistinct(this) {
+            if (it == AuthStatus.valid) {
+                    webview_pager_viewpager.adapter?.notifyDataSetChanged()
+            }
         }
 
         issueContentViewModel.activeDisplayMode.observeDistinct(this) {
