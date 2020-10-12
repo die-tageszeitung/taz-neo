@@ -8,6 +8,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
@@ -122,9 +123,13 @@ class IssueContentViewModel(
 
     val articleListLiveData: LiveData<List<ArticleStub>> =
         MediatorLiveData<List<ArticleStub>>().apply {
+            var lastIssueKey: IssueKey? = null
             addSource(issueKeyLiveData) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    postValue(ArticleRepository.getInstance().getArticleStubListForIssue(it))
+                if (it != lastIssueKey) {
+                    lastIssueKey = it
+                    viewModelScope.launch(Dispatchers.IO) {
+                        postValue(ArticleRepository.getInstance().getArticleStubListForIssue(it))
+                    }
                 }
             }
         }

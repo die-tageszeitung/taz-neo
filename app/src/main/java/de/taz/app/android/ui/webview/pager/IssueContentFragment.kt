@@ -153,7 +153,7 @@ class IssueContentFragment :
                             issueRepository.saveIfDoesNotExist(it)
                             viewModel.setDisplayable(
                                 it.issueKey,
-                                viewModel.issueStubAndDisplayableKeyLiveData.value?.second!!.replace(
+                                viewModel.issueStubAndDisplayableKeyLiveData.value!!.second.replace(
                                     "public.",
                                     ""
                                 )
