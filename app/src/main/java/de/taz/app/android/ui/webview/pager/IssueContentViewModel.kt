@@ -64,7 +64,7 @@ class IssueContentViewModel(
     }
 
     /**
-     * If not specifying the displayableKey we assume to just display the very virst section
+     * If not specifying the displayableKey we assume to just display the very first section
      */
     fun setDisplayable(issue: Issue, immediate: Boolean = false) {
         log.debug("Showing issue defaulting to first section")
