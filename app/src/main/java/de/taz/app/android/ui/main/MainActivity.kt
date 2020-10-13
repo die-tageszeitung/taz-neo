@@ -135,8 +135,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 val fragment = IssueContentFragment()
                 showMainFragment(fragment)
             }
-            lifecycleScope.launch {
-                issueContentViewModel.setDisplayable(displayableKey)
+            lifecycleScope.launch(Dispatchers.Main) {
+                issueContentViewModel.setDisplayable(displayableKey, immediate = true)
             }
         }
     }

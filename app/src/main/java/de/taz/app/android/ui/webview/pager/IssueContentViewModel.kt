@@ -8,7 +8,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
@@ -27,13 +26,13 @@ enum class IssueContentDisplayMode {
 data class IssueKeyWithDisplayableKey(
     val issueKey: IssueKey,
     val displayableKey: String
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class DisplayableScrollposition(
     val displayableKey: String,
     val scrollPosition: Int
-): Parcelable
+) : Parcelable
 
 class IssueContentViewModel(
     application: Application,
@@ -45,45 +44,57 @@ class IssueContentViewModel(
         get() = savedStateHandle.get(KEY_SCROLL_POSITION)
         set(value) = savedStateHandle.set(KEY_SCROLL_POSITION, value)
 
-    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey) {
+    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey, immediate: Boolean = false) {
         log.debug("setDisplayable(${issueDisplayable.issueKey} ${issueDisplayable.displayableKey}")
-        issueKeyAndDisplayableKeyLiveData.postValue(
-            issueDisplayable
-        )
+        if (immediate) {
+            issueKeyAndDisplayableKeyLiveData.value = issueDisplayable
+
+        } else {
+            issueKeyAndDisplayableKeyLiveData.postValue(
+                issueDisplayable
+            )
+        }
     }
-    fun setDisplayable(issueKey: IssueKey, displayableKey: String) {
+
+    fun setDisplayable(issueKey: IssueKey, displayableKey: String, immediate: Boolean = false) {
         setDisplayable(
-            IssueKeyWithDisplayableKey(issueKey, displayableKey)
+            IssueKeyWithDisplayableKey(issueKey, displayableKey),
+            immediate
         )
     }
 
     /**
      * If not specifying the displayableKey we assume to just display the very virst section
      */
-    fun setDisplayable(issue: Issue) {
+    fun setDisplayable(issue: Issue, immediate: Boolean = false) {
         log.debug("Showing issue defaulting to first section")
         setDisplayable(
-            IssueKeyWithDisplayableKey(issue.issueKey, issue.sectionList.first().key)
+            IssueKeyWithDisplayableKey(issue.issueKey, issue.sectionList.first().key),
+            immediate
         )
     }
 
     /**
      * If not specifying the issueKey we will derive it from the displayable
      */
-    suspend fun setDisplayable(displayableKey: String) = withContext(Dispatchers.IO) {
-        val derrivedIssue = IssueRepository.getInstance().let {
-            it.getIssueStubForArticle(displayableKey) ?:
-            it.getIssueStubForSection(displayableKey) ?:
-            it.getIssueStubByImprintFileName(displayableKey)
-        }
-        derrivedIssue?.let {
-            setDisplayable(
-                IssueKeyWithDisplayableKey(it.issueKey, displayableKey)
+    suspend fun setDisplayable(displayableKey: String, immediate: Boolean = false) =
+        withContext(Dispatchers.IO) {
+            val derrivedIssue = IssueRepository.getInstance().let {
+                it.getIssueStubForArticle(displayableKey) ?: it.getIssueStubForSection(
+                    displayableKey
+                ) ?: it.getIssueStubByImprintFileName(displayableKey)
+            }
+            derrivedIssue?.let {
+                withContext(Dispatchers.Main) {
+                    setDisplayable(
+                        IssueKeyWithDisplayableKey(it.issueKey, displayableKey),
+                        immediate
+                    )
+                }
+            } ?: throw IllegalStateException(
+                "Setting a displayable on the IssueContentViewModel is illegal if no issue is set yet"
             )
-        } ?: throw IllegalStateException(
-            "Setting a displayable on the IssueContentViewModel is illegal if no issue is set yet"
-        )
-    }
+        }
 
     private var currentIssueStub: IssueStub? = null
 
@@ -93,7 +104,8 @@ class IssueContentViewModel(
 
     private val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
-    val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> = MutableLiveData(IssueContentDisplayMode.Section)
+    val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
+        MutableLiveData(IssueContentDisplayMode.Section)
 
     private val issueKeyLiveData: LiveData<IssueKey> =
         issueKeyAndDisplayableKeyLiveData.map { it.issueKey }
