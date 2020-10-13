@@ -52,8 +52,14 @@ class SectionPagerFragment : BaseMainFragment(
 
 
         issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
-            webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
-            tryScrollToSection()
+            if (
+                sectionStubs.map { it.key } !=
+                (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
+            ) {
+                log.debug("New set of sections: ${sectionStubs.map { it.key }}")
+                webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
+                tryScrollToSection()
+            }
         }
 
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
