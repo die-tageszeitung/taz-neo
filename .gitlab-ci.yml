@@ -86,10 +86,10 @@ publishNextcloud:
     FREE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-unminifiedRelease.apk
   script:
     - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_FOLDER}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/debug/app-nonfree-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/release/app-nonfree-taz-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/debug/app-free-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/unminifiedRelease/app-free-taz-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/debug/app-nonfree-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTaz/release/app-nonfree-taz-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/debug/app-free-taz-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTaz/unminifiedRelease/app-free-taz-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - ./scripts/publish-to-app-runde.sh
   only:
     - tags
