@@ -26,7 +26,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceIntLiveData
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 class IssueContentFragment :
     BaseViewModelFragment<IssueContentViewModel>(R.layout.fragment_issue_content), BackFragment {
@@ -84,7 +83,7 @@ class IssueContentFragment :
                 }
             })
 
-        viewModel.activeDisplayMode.observe(this.viewLifecycleOwner) {
+        viewModel.activeDisplayMode.observeDistinct(this.viewLifecycleOwner) {
             setDisplayMode(it)
         }
     }
@@ -129,7 +128,11 @@ class IssueContentFragment :
             when ((it as? BackFragment?)?.onBackPressed()) {
                 true -> true
                 false -> {
-                    runIfNotNull(it as? ArticlePagerFragment, viewModel.currentIssue, viewModel.lastSectionKey) { _, currentIssue, lastSectionKey ->
+                    runIfNotNull(
+                        it as? ArticlePagerFragment,
+                        viewModel.currentIssue,
+                        viewModel.lastSectionKey
+                    ) { _, currentIssue, lastSectionKey ->
                         viewModel.setDisplayable(currentIssue.issueKey, lastSectionKey)
                         true
                     } ?: false

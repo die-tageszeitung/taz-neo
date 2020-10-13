@@ -22,6 +22,7 @@ import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
@@ -83,8 +84,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayableLiveData.observe(this.viewLifecycleOwner) {
-            if (it == null) return@observe
+        viewModel.displayableLiveData.observeDistinct(this.viewLifecycleOwner) {
+            if (it == null) return@observeDistinct
             log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
                 if (viewModel.issueOperations == null) {

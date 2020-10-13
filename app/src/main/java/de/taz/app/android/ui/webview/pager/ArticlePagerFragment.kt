@@ -47,8 +47,14 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onResume() {
         super.onResume()
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
-            webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
-            tryScrollToArticle()
+            if (
+                articleStubs.map { it.key } !=
+                (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+            ) {
+                log.debug("New set of articles: ${articleStubs.map { it.key }}")
+                webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
+                tryScrollToArticle()
+            }
         }
 
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
@@ -102,32 +108,37 @@ class ArticlePagerFragment : BaseMainFragment(
         private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
+            val nextStub =
+                (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
             if (lastPage != null && lastPage != position) {
                 hasBeenSwiped = true
                 runIfNotNull(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
-                    (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
+                    nextStub
                 ) { issueStub, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
-                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key, immediate = true)
+                        issueContentViewModel.setDisplayable(
+                            issueStub.issueKey,
+                            displayable.key,
+                            immediate = true
+                        )
                     }
                 }
             }
             lastPage = position
 
             lifecycleScope.launchWhenResumed {
-                getCurrentArticleStub()?.let { articleStub ->
-                    articleStub.getNavButton(context?.applicationContext)?.let {
-                        showNavButton(it)
-                    }
-                    navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                        articleStub.onlineLink != null
-
-                    isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                    isBookmarkedLiveData = articleStub.isBookmarkedLiveData()
-                    isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
+                nextStub.getNavButton(context?.applicationContext)?.let {
+                    showNavButton(it)
                 }
+                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                    nextStub.onlineLink != null
+
+                isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+                isBookmarkedLiveData = nextStub.isBookmarkedLiveData()
+                isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
+
             }
         }
     }
@@ -225,7 +236,8 @@ class ArticlePagerFragment : BaseMainFragment(
         val articleKey = issueContentViewModel.displayableKeyLiveData.value
         if (
             articleKey?.startsWith("art") == true &&
-            issueContentViewModel.articleListLiveData.value?.map { it.key }?.contains(articleKey) == true
+            issueContentViewModel.articleListLiveData.value?.map { it.key }
+                ?.contains(articleKey) == true
         ) {
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
             if (articleKey != getCurrentArticleStub()?.key) {
@@ -244,9 +256,10 @@ class ArticlePagerFragment : BaseMainFragment(
     }
 
     private fun getSupposedPagerPosition(): Int? {
-        val position = (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
-            it.key == issueContentViewModel.displayableKeyLiveData.value
-        }
+        val position =
+            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
+                it.key == issueContentViewModel.displayableKeyLiveData.value
+            }
         return if (position != null && position >= 0) {
             position
         } else {
