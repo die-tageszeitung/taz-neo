@@ -176,12 +176,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         view?.animate()?.alpha(1f)?.duration = 500
         fragment_drawer_sections_imprint.apply {
             typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-            withContext(Dispatchers.IO) {
-                visibility = if (issueRepository.getImprint(issueStub.issueKey) != null) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
+            val isImprint = withContext(Dispatchers.IO) {
+                issueRepository.getImprint(issueStub.issueKey) != null
+            }
+            visibility = if (isImprint) {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
         }
     }
