@@ -89,6 +89,7 @@ class ArticlePagerFragment : BaseMainFragment(
         }
     }
 
+
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
@@ -109,7 +110,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 ) { issueStub, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
-                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key, immediate = true)
                     }
                 }
             }
