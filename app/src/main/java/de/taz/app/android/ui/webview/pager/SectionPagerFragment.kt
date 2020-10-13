@@ -75,7 +75,7 @@ class SectionPagerFragment : BaseMainFragment(
             if (lastPage != null && lastPage != position) {
                 runIfNotNull(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
-                    getCurrentSectionStub()
+                    (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
                 ) { issueStub, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
                         issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)

@@ -105,7 +105,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 hasBeenSwiped = true
                 runIfNotNull(
                     issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
-                    issueContentViewModel.articleListLiveData.value?.getOrNull(position)
+                    (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
                 ) { issueStub, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
