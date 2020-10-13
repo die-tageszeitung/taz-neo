@@ -1,6 +1,7 @@
 package de.taz.app.android.base
 
 import androidx.annotation.LayoutRes
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import java.lang.reflect.ParameterizedType
@@ -10,7 +11,10 @@ abstract class BaseViewModelFragment<VIEW_MODEL : ViewModel>(
 ) : BaseMainFragment(layoutResourceId) {
 
     open val viewModel: VIEW_MODEL by lazy {
-        ViewModelProvider(this).get(getViewModelClassByReflection())
+        ViewModelProvider(
+            this,
+            SavedStateViewModelFactory(this.requireActivity().application, this)).get(getViewModelClassByReflection()
+        )
     }
 
     @Suppress("UNCHECKED_CAST")

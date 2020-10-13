@@ -210,15 +210,19 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBookmarkedArticles(): LiveData<List<Article>> =
+    fun getBookmarkedArticlesLiveData(): LiveData<List<Article>> =
         appDatabase.articleDao().getBookmarkedArticlesLiveData().switchMap { input ->
             liveData(Dispatchers.IO) {
                 emit(input.map { articleStub -> articleStubToArticle(articleStub) })
             }
         }
 
-    fun getBookmarkedArticleStubList(): List<ArticleStub> {
+    fun getBookmarkedArticleStubs(): List<ArticleStub> {
         return appDatabase.articleDao().getBookmarkedArticlesList()
+    }
+
+    fun getBookmarkedArticleStubsLiveData(): LiveData<List<ArticleStub>> {
+        return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
     fun isBookmarked(articleStub: ArticleStub): Boolean {
@@ -328,6 +332,13 @@ class ArticleRepository private constructor(applicationContext: Context) :
     ): List<ArticleStub> {
         return appDatabase.articleDao()
             .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
+    }
+
+    fun getArticleStubListForIssue(
+        issueKey: IssueKey
+    ): List<ArticleStub> {
+        return appDatabase.articleDao()
+            .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     fun getBookmarkedArticleStubListForIssuesAtDate(

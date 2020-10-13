@@ -15,6 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
@@ -28,17 +30,17 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
+import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
+import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -58,8 +60,21 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var toastHelper: ToastHelper? = null
     private val log by Log
 
+
+    private lateinit var issueContentViewModel: IssueContentViewModel
+    private lateinit var bookmarkPagerViewModel: BookmarkPagerViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        issueContentViewModel =
+            ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
+                IssueContentViewModel::class.java
+            )
+
+        bookmarkPagerViewModel =
+            ViewModelProvider(this, SavedStateViewModelFactory(this.application, this)).get(
+                BookmarkPagerViewModel::class.java
+            )
 
         fileHelper = FileHelper.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
@@ -90,7 +105,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 }
             }
 
-
             override fun onDrawerOpened(drawerView: View) {
                 opened = true
             }
@@ -99,19 +113,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 opened = false
             }
 
-            override fun onDrawerStateChanged(newState: Int) {
-                if (!opened) {
-                    changeDrawerIssue()
-                }
-            }
+            override fun onDrawerStateChanged(newState: Int) {}
         })
-
-        if(savedInstanceState == null) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                IssueRepository.getInstance(applicationContext).getLatestIssue()
-                    ?.let { setDrawerIssue(it) }
-            }
-        }
     }
 
     fun showInWebView(
@@ -125,39 +128,36 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun showDisplayable(articleName: String) {
+    fun showDisplayable(displayableKey: String) {
         runOnUiThread {
-            if ((supportFragmentManager.fragments.lastOrNull() as? IssueContentFragment)?.show(
-                    articleName
-                ) != true
-            ) {
-                val fragment = IssueContentFragment.createInstance(articleName)
+            val currentIssueContentFragment = supportFragmentManager.fragments.lastOrNull()
+            if (currentIssueContentFragment !is IssueContentFragment) {
+                val fragment = IssueContentFragment()
                 showMainFragment(fragment)
+            }
+            lifecycleScope.launch(Dispatchers.Main) {
+                issueContentViewModel.setDisplayable(displayableKey, immediate = true)
             }
         }
     }
 
     private fun showBookmark(articleName: String) {
         runOnUiThread {
-            val fragment = BookmarkPagerFragment.createInstance(articleName)
+            val fragment = BookmarkPagerFragment()
             showMainFragment(fragment)
+            bookmarkPagerViewModel.articleFileNameLiveData.postValue(articleName)
         }
     }
 
-    fun showIssue(issueStub: IssueStub) {
-        setDrawerIssue(issueStub)
-        changeDrawerIssue()
+    fun showIssue(issueStub: IssueStub) = lifecycleScope.launch(Dispatchers.IO) {
+        issueContentViewModel.setDisplayable(issueStub.getIssue())
+        val fragment = IssueContentFragment()
+        showMainFragment(fragment)
+        delay(3000)
 
-        runOnUiThread {
-            val fragment = IssueContentFragment.createInstance(issueStub)
-            showMainFragment(fragment)
-        }
-        lifecycleScope.launch {
-            delay(3000)
-            if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-                runOnUiThread {
-                    drawer_layout.closeDrawer(GravityCompat.START)
-                }
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            runOnUiThread {
+                drawer_layout.closeDrawer(GravityCompat.START)
             }
         }
     }
@@ -281,35 +281,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     fun getLifecycleOwner(): LifecycleOwner = this
 
-    fun getMainView(): MainActivity? = this
-
-    fun setDrawerIssue(issueOperations: IssueOperations) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setIssueOperations(issueOperations)
-        }
-    }
-
-    fun setActiveDrawerSection(activePosition: Int) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setActiveSection(activePosition)
-        }
-    }
-
-    fun setActiveDrawerSection(sectionFileName: String) {
-        (supportFragmentManager.fragments.firstOrNull { it is SectionDrawerFragment } as? SectionDrawerFragment)?.apply {
-            setActiveSection(sectionFileName)
-        }
-    }
-
-    fun changeDrawerIssue() {
-        runOnUiThread {
-            (supportFragmentManager.findFragmentById(
-                R.id.drawer_menu_fragment_placeholder
-            ) as? SectionDrawerFragment)?.apply {
-                showIssueStub()
-            }
-        }
-    }
 
     private var navButton: Image? = null
     private var navButtonBitmap: Bitmap? = null
@@ -410,7 +381,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
                     if (it == MAIN_EXTRA_TARGET_ARTICLE) {
                         data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            switchToDisplayableAfterLogin(articleName)
+                            showDisplayable(articleName)
                         }
                     }
                     if (it == MAIN_EXTRA_TARGET_HOME) {
@@ -418,18 +389,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     }
                 }
             }
-        }
-    }
-
-
-    fun switchToDisplayableAfterLogin(displayableName: String) = lifecycleScope.launchWhenResumed {
-        runOnUiThread {
-            // clear fragment backstack before showing article
-            supportFragmentManager.popBackStackImmediate(
-                null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-            showDisplayable(displayableName)
         }
     }
 }

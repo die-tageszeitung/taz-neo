@@ -5,69 +5,80 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
+class ArticlePagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
 ), BackFragment {
 
-    val log by Log
-    override val enableSideBar: Boolean = true
-
-    private var articlePagerAdapter: ArticlePagerAdapter? = null
-
-    private var hasBeenSwiped: Boolean = false
+    private val log by Log
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    private val issueContentViewModel: IssueContentViewModel? by lazy {
-        (parentFragment as? IssueContentFragment)?.viewModel
+    override val enableSideBar: Boolean = true
+    private var hasBeenSwiped = false
+
+    private val issueContentViewModel: IssueContentViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        savedInstanceState?.apply {
-            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
+    override fun onResume() {
+        super.onResume()
+        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
+            if (
+                articleStubs.map { it.key } !=
+                (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+            ) {
+                log.debug("New set of articles: ${articleStubs.map { it.key }}")
+                webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
+                tryScrollToArticle()
+            }
+        }
+
+        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
+            tryScrollToArticle()
+        }
+
+
+        issueContentViewModel.activeDisplayMode.observeDistinct(this) {
+            // reset swiped flag on navigating away from article pager
+            if (it != IssueContentDisplayMode.Article) {
+                hasBeenSwiped = false
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
 
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
-            setCurrentItem(viewModel.currentPosition, false)
         }
         loading_screen.visibility = View.GONE
-
-        viewModel.currentPositionLiveData.observeDistinct(this) {
-            if (webview_pager_viewpager.currentItem != it) {
-                webview_pager_viewpager.setCurrentItem(it, false)
-            }
-        }
-
-        issueContentViewModel?.issueOperationsLiveData?.observeDistinct(this) { issueOperations ->
-            issueOperations?.let { setDrawerIssue(it) }
-        }
     }
 
     override fun onStart() {
@@ -78,18 +89,15 @@ class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            if (adapter == null) {
-                articlePagerAdapter = ArticlePagerAdapter()
-                adapter = articlePagerAdapter
-            }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
         }
     }
 
+
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
-        var firstSwipe = true
+        private var lastPage: Int? = null
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
             if (isBookmarked) {
                 setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
@@ -100,73 +108,81 @@ class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
         private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
-            if (firstSwipe) {
-                firstSwipe = false
-            } else {
+            val nextStub =
+                (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
+            if (lastPage != null && lastPage != position) {
                 hasBeenSwiped = true
-                issueContentViewModel?.sectionNameListLiveData?.observeDistinctUntil(
-                    viewLifecycleOwner, {
-                        if (it.isNotEmpty()) {
-                            it[position]?.let { sectionName ->
-                                getMainView()?.setActiveDrawerSection(sectionName)
-                            }
-                        }
-                    }, { it.isNotEmpty() }
-                )
+                runIfNotNull(
+                    issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                    nextStub
+                ) { issueStub, displayable ->
+                    log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
+                    if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
+                        issueContentViewModel.setDisplayable(
+                            issueStub.issueKey,
+                            displayable.key,
+                            immediate = true
+                        )
+                    }
+                }
             }
-
-            viewModel.currentPositionLiveData.value = position
+            lastPage = position
 
             lifecycleScope.launchWhenResumed {
-                articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
-                    articleStub.getNavButton(context?.applicationContext)?.let {
-                        showNavButton(it)
-                    }
-                    navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                        articleStub.onlineLink != null
-
-                    isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                    isBookmarkedLiveData = articleStub.isBookmarkedLiveData()
-                    isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
+                nextStub.getNavButton(context?.applicationContext)?.let {
+                    showNavButton(it)
                 }
+                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                    nextStub.onlineLink != null
+
+                isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+                isBookmarkedLiveData = nextStub.isBookmarkedLiveData()
+                isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
+
             }
         }
     }
 
-    private inner class ArticlePagerAdapter : FragmentStateAdapter(this@ArticlePagerFragment) {
+    private inner class ArticlePagerAdapter(val articleStubs: List<ArticleStub>) :
+        FragmentStateAdapter(this@ArticlePagerFragment) {
 
-        private val articleStubs
-            get() = issueContentViewModel?.articleList ?: emptyList()
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
-            return ArticleWebViewFragment.createInstance(article)
+            return ArticleWebViewFragment.createInstance(article.articleFileName)
         }
+
+
+        override fun getItemId(position: Int): Long {
+            return articleStubs[position].key.hashCode().toLong()
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            return articleStubs.any { itemId == it.key.hashCode().toLong() }
+        }
+
 
         override fun getItemCount(): Int = articleStubs.size
-
-        fun getArticleStub(position: Int): ArticleStub {
-            return articleStubs[position]
-        }
-
     }
 
     override fun onBackPressed(): Boolean {
         return if (hasBeenSwiped) {
-            showSectionOrGoBack()
+            lifecycleScope.launch { showSectionOrGoBack() }
+            true
         } else {
-            false
+            return false
         }
     }
 
-    private fun showSectionOrGoBack(): Boolean {
-        return articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let {
-            lifecycleScope.launch(Dispatchers.IO) {
-                it.getSectionStub(context?.applicationContext)?.key?.let { sectionKey ->
-                    showInWebView(sectionKey)
-                }
+    private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
+        getCurrentArticleStub()?.let { articleStub ->
+            runIfNotNull(
+                issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                articleStub.getSectionStub(null)
+            ) { issueStub, sectionStub ->
+                issueContentViewModel.setDisplayable(issueStub.issueKey, sectionStub.key)
+                true
             }
-            true
         } ?: false
     }
 
@@ -177,8 +193,8 @@ class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
             }
 
             R.id.bottom_navigation_action_bookmark -> {
-                articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.key?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it))
+                getCurrentArticleStub()?.let {
+                    showBottomSheet(BookmarkSheetFragment.create(it.key))
                 }
             }
 
@@ -193,7 +209,7 @@ class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
 
     fun share() {
         lifecycleScope.launch(Dispatchers.IO) {
-            articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let { articleStub ->
+            getCurrentArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
@@ -216,24 +232,49 @@ class ArticlePagerFragment : BaseViewModelFragment<ArticlePagerViewModel>(
         startActivity(shareIntent)
     }
 
-    fun tryLoadArticle(articleFileName: String) {
-        lifecycleScope.launchWhenStarted {
-            issueContentViewModel?.articleList?.indexOfFirst { it.key == articleFileName }?.let {
-                if (it >= 0) {
-                    webview_pager_viewpager.setCurrentItem(it, false)
+    private fun tryScrollToArticle() {
+        val articleKey = issueContentViewModel.displayableKeyLiveData.value
+        if (
+            articleKey?.startsWith("art") == true &&
+            issueContentViewModel.articleListLiveData.value?.map { it.key }
+                ?.contains(articleKey) == true
+        ) {
+            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
+            if (articleKey != getCurrentArticleStub()?.key) {
+                log.debug("I will now display $articleKey")
+                getSupposedPagerPosition()?.let {
+                    if (it >= 0) {
+                        webview_pager_viewpager.setCurrentItem(it, false)
+                    }
                 }
             }
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(POSITION, viewModel.currentPosition)
-        super.onSaveInstanceState(outState)
+    private fun getCurrentPagerPosition(): Int? {
+        return webview_pager_viewpager?.currentItem
+    }
+
+    private fun getSupposedPagerPosition(): Int? {
+        val position =
+            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
+                it.key == issueContentViewModel.displayableKeyLiveData.value
+            }
+        return if (position != null && position >= 0) {
+            position
+        } else {
+            null
+        }
+    }
+
+    private fun getCurrentArticleStub(): ArticleStub? {
+        return getCurrentPagerPosition()?.let {
+            issueContentViewModel.articleListLiveData.value?.get(it)
+        }
     }
 
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         super.onDestroyView()
     }
-
 }

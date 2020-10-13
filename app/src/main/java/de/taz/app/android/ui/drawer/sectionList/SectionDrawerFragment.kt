@@ -6,27 +6,27 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.webview.pager.ISSUE_DATE
-import de.taz.app.android.ui.webview.pager.ISSUE_FEED
-import de.taz.app.android.ui.webview.pager.ISSUE_STATUS
-import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.ui.webview.pager.*
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
-import java.util.*
 
 const val ACTIVE_POSITION = "active position"
 
@@ -34,38 +34,72 @@ const val ACTIVE_POSITION = "active position"
  * Fragment used to display the list of sections in the navigation Drawer
  */
 class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
+    private val issueContentViewModel: IssueContentViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueContentViewModel::class.java)
+    }
 
-    private var recyclerAdapter: SectionListAdapter? = null
+    private val bookmarkPagerViewModel: BookmarkPagerViewModel by lazy {
+        ViewModelProvider(
+            this.requireActivity(),
+            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
+        ).get(BookmarkPagerViewModel::class.java)
+    }
 
-    private var issueOperations: IssueOperations? = null
+    private val log by Log
 
-    // these variables exist only for recreation of the fragment
-    private var issueDate: String? = null
-    private var issueFeed: String? = null
-    private var issueStatus: IssueStatus? = null
+    private lateinit var sectionListAdapter: SectionListAdapter
 
+    private lateinit var fontHelper: FontHelper
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var momentRepository: MomentRepository
+    private lateinit var sectionRepository: SectionRepository
 
-    private var fontHelper: FontHelper? = null
-    private var issueRepository: IssueRepository? = null
-    private var momentRepository: MomentRepository? = null
+    private var defaultTypeface: Typeface? = null
+    private var weekendTypeface: Typeface? = null
 
-    private var updated: Boolean = false
-
-    var defaultTypeface: Typeface? = null
+    private lateinit var currentIssueStub: IssueStub
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recyclerAdapter = recyclerAdapter ?: SectionListAdapter(this)
+        sectionListAdapter =
+            SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
         defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.aktiv_grotesk_bold)
+        weekendTypeface =
+            runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
+        sectionListAdapter.typeface = defaultTypeface
 
         restore(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Either the issueContentViewModel can change the content of this drawer ...
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+            lifecycleScope.launch {
+                log.debug("Set issue ${issueStub.issueKey} from IssueContent")
+                showIssueStub(issueStub)
+                maybeSetActiveSection(issueStub, displayableKey)
+            }
+        }
+        bookmarkPagerViewModel.currentIssueAndArticleLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+            lifecycleScope.launch {
+                log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
+                showIssueStub(issueStub)
+                maybeSetActiveSection(issueStub, displayableKey)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,103 +107,128 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
-            if (layoutManager == null) {
-                layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
-            }
-            if (adapter == null) {
-                adapter = recyclerAdapter
-            }
+            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
+            adapter = sectionListAdapter
         }
 
         fragment_drawer_sections_moment.setOnClickListener {
-            getMainView()?.showHome(skipToIssue = issueOperations)
+            getMainView()?.showHome(skipToIssue = currentIssueStub)
             getMainView()?.closeDrawer()
         }
 
-    }
-
-    private fun restore(savedInstanceState: Bundle?) {
-        savedInstanceState?.apply {
-            recyclerAdapter?.activePosition = getInt(ACTIVE_POSITION, RecyclerView.NO_POSITION)
-            runIfNotNull(
-                getString(ISSUE_FEED),
-                getString(ISSUE_DATE),
-                getString(ISSUE_STATUS)
-            ) { issueFeed, issueDate, issueStatus ->
-                this@SectionDrawerFragment.issueDate = issueDate
-                this@SectionDrawerFragment.issueFeed = issueFeed
-                this@SectionDrawerFragment.issueStatus = IssueStatus.valueOf(issueStatus)
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    issueRepository?.getIssueStubByFeedAndDate(
-                        issueFeed, issueDate, IssueStatus.valueOf(issueStatus)
-                    )?.let {
-                        setIssueOperations(it)
-                        showIssueStub()
-                    }
+        fragment_drawer_sections_imprint.apply {
+            setOnClickListener {
+                lifecycleScope.launch {
+                    showImprint()
                 }
             }
         }
     }
 
-    fun setIssueOperations(issueOperations: IssueOperations) = activity?.runOnUiThread {
-        if (issueOperations != this.issueOperations) {
-            updated = true
-            view?.alpha = 0f
-
-            this.issueDate = issueOperations.date
-            this.issueStatus = issueOperations.status
-            this.issueFeed = issueOperations.feedName
-            this.issueOperations = issueOperations
-
-            recyclerAdapter?.setIssueOperations(issueOperations)
+    private suspend fun maybeSetActiveSection(issueStub: IssueStub, displayableKey: String) {
+        val imprint = lazy { issueRepository.getImprint(issueStub.issueKey) }
+        val section =
+            lazy { sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName }
+        withContext(Dispatchers.IO) {
+            when {
+                displayableKey == imprint.value?.articleFileName -> {
+                    sectionListAdapter.activePosition = RecyclerView.NO_POSITION
+                    setImprintActive()
+                }
+                displayableKey.startsWith("art") -> {
+                    setImprintInactive()
+                    section.value?.let { setActiveSection(it) }
+                }
+                displayableKey.startsWith("sec") -> {
+                    setImprintInactive()
+                    setActiveSection(displayableKey)
+                }
+                else -> {
+                    setImprintInactive()
+                    setActiveSection(null)
+                }
+            }
         }
     }
 
-    fun showIssueStub() = activity?.runOnUiThread {
-        if (updated) {
-            updated = false
+    private fun onSectionItemClickListener(clickedSection: SectionStub) {
+        getMainView()?.showDisplayable(clickedSection.key)
+        getMainView()?.closeDrawer()
+    }
 
-            lifecycleScope.launchWhenResumed {
-                setMomentDate()
-                val imprintJob = showImprint()
-                val momentJob = showMoment()
-                recyclerAdapter?.show()
-
-                imprintJob?.join()
-                momentJob?.join()
-            }
+    private fun restore(savedInstanceState: Bundle?) {
+        savedInstanceState?.apply {
+            sectionListAdapter.activePosition = getInt(ACTIVE_POSITION, RecyclerView.NO_POSITION)
         }
+    }
+
+    private suspend fun showIssueStub(issueStub: IssueStub) = withContext(Dispatchers.Main) {
+        setMomentDate(issueStub)
+        showMoment(issueStub)
+        currentIssueStub = issueStub
+        val sections = withContext(Dispatchers.IO) {
+            sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
+        }
+        log.debug("SectionDrawer sets new sections: $sections")
+        sectionListAdapter.sectionList = sections
+        sectionListAdapter.typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
-    }
-
-    fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
-        recyclerAdapter?.activePosition = activePosition
-        if (activePosition != RecyclerView.NO_POSITION) {
-            fragment_drawer_sections_imprint?.apply {
-                setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.drawer_sections_item,
-                        null
-                    )
-                )
+        fragment_drawer_sections_imprint.apply {
+            typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+            val isImprint = withContext(Dispatchers.IO) {
+                issueRepository.getImprint(issueStub.issueKey) != null
+            }
+            visibility = if (isImprint) {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
         }
     }
 
-    fun setActiveSection(sectionFileName: String) {
-        recyclerAdapter?.positionOf(sectionFileName)?.let {
-            setActiveSection(it)
+    private fun setActiveSection(activePosition: Int) = activity?.runOnUiThread {
+        sectionListAdapter.activePosition = activePosition
+    }
+
+    private fun setActiveSection(sectionFileName: String?) {
+        if (sectionFileName == null) {
+            sectionListAdapter.activePosition = RecyclerView.NO_POSITION
+        } else {
+            sectionListAdapter.positionOf(sectionFileName)?.let {
+                setActiveSection(it)
+            } ?: run {
+                sectionListAdapter.activePosition = RecyclerView.NO_POSITION
+            }
+        }
+    }
+
+    private fun setImprintActive() {
+        fragment_drawer_sections_imprint.apply {
+            setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.drawer_sections_item_highlighted,
+                    null
+                )
+            )
+        }
+    }
+
+    private fun setImprintInactive() {
+        fragment_drawer_sections_imprint.apply {
+            setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.drawer_sections_item,
+                    null
+                )
+            )
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ISSUE_DATE, issueDate)
-        outState.putString(ISSUE_FEED, issueFeed)
-        outState.putString(ISSUE_STATUS, issueStatus?.toString())
-        recyclerAdapter?.activePosition?.let {
+        sectionListAdapter.activePosition.let {
             outState.putInt(ACTIVE_POSITION, it)
         }
         super.onSaveInstanceState(outState)
@@ -179,72 +238,40 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         return activity as? MainActivity
     }
 
-    private fun showMoment(): Job? = lifecycleScope.launch(Dispatchers.IO) {
-        issueOperations?.let { issueOperations ->
-            val moment = momentRepository?.get(issueOperations)
-            moment?.apply {
-                if (!isDownloaded(context?.applicationContext)) {
-                    download(context?.applicationContext)
-                }
-                lifecycleScope.launchWhenResumed {
-                    isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
-                        viewLifecycleOwner,
-                        { momentIsDownloadedObservationCallback(it) }, { it }
-                    )
-                }
+    private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
+        val moment = momentRepository.get(issueStub)
+        moment?.apply {
+            if (!isDownloaded(context?.applicationContext)) {
+                download(context?.applicationContext)
             }
-        }
-    }
-
-    private fun showImprint(): Job? = lifecycleScope.launch(Dispatchers.IO) {
-        issueOperations?.let { issueOperations ->
-            val imprint = issueRepository?.getImprintStub(issueOperations)
-            imprint?.let { showImprint(it) }
-        }
-    }
-
-    private suspend fun showImprint(imprint: ArticleOperations) = withContext(Dispatchers.Main) {
-        fragment_drawer_sections_imprint?.apply {
-            text = text.toString().toLowerCase(Locale.getDefault())
-            setOnClickListener {
-                getMainView()?.apply {
-                    showInWebView(imprint.key)
-                    closeDrawer()
-                }
-                setTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.drawer_sections_item_highlighted,
-                        null
-                    )
+            lifecycleScope.launchWhenResumed {
+                isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
+                    viewLifecycleOwner,
+                    {
+                        if (it) {
+                            fragment_drawer_sections_moment?.apply {
+                                displayIssue(issueStub)
+                                visibility = View.VISIBLE
+                            }
+                        }
+                    }, { it }
                 )
             }
-            typeface = if (issueOperations?.isWeekend == true) {
-                fontHelper?.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-            } else {
-                defaultTypeface
-            }
-            visibility = View.VISIBLE
+        }
+
+    }
+
+    private suspend fun showImprint() {
+        issueContentViewModel.imprintArticleLiveData.value?.key?.let {
+            issueContentViewModel.setDisplayable(it)
+            getMainView()?.closeDrawer()
         }
     }
 
 
-    private fun momentIsDownloadedObservationCallback(isDownloaded: Boolean?) {
-        if (isDownloaded == true) {
-            issueOperations?.let { issueOperations ->
-                fragment_drawer_sections_moment?.apply {
-                    displayIssue(issueOperations)
-                    visibility = View.VISIBLE
-                }
-            }
-        }
-    }
-
-    private fun setMomentDate() {
-        issueOperations?.let { issueOperations ->
-            fragment_drawer_sections_date?.text =
-                DateHelper.stringToLongLocalizedString(issueOperations.date)
-        }
+    private fun setMomentDate(issueStub: IssueStub) {
+        fragment_drawer_sections_date?.text =
+            DateHelper.stringToLongLocalizedString(issueStub.date)
     }
 
     override fun onDestroyView() {

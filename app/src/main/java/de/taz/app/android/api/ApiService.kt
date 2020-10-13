@@ -386,7 +386,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, issueDate, limit)
             ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
                 ?: emptyList()
-        }, tag) ?: emptyList()
+        }, tag)
     }
 
     /**
@@ -660,6 +660,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private suspend fun <T> transformToApiServiceException(block: suspend () -> T, tag: String): T {
         try {
             return reportAndRethrowExceptionsAsync { block() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (networkExceptions.contains(e::class)) {
                 log.warn("Connection issue encountered ${e.localizedMessage}")
