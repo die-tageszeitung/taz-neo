@@ -148,7 +148,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     private suspend fun transformBookmarks() {
         val bookmarkedMinDate: String =
-            articleRepository.getBookmarkedArticleStubList().fold("") { acc, articleStub ->
+            articleRepository.getBookmarkedArticleStubs().fold("") { acc, articleStub ->
                 getArticleIssue(articleStub)?.let { issue ->
                     issueRepository.saveIfDoesNotExist(issue)
                     articleRepository.apply {

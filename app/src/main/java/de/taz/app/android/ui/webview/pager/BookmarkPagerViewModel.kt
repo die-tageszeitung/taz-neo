@@ -4,58 +4,34 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BookmarkPagerViewModel(application: Application) : AndroidViewModel(application) {
+private const val KEY_ARTICLE_FILE_NAME = "KEY_ARTICLE_FILE_NAME"
 
-    val articleNameLiveData = MutableLiveData<String?>(null)
-    val articleName: String?
-        get() = articleNameLiveData.value
+class BookmarkPagerViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
-    val currentPositionLiveData = MutableLiveData(0)
-    val currentPosition
-        get() = currentPositionLiveData.value ?: 0
+    val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
 
-    val articleList
-        get() = articleListLiveData.value ?: emptyList()
-    val articleListLiveData = MediatorLiveData<List<ArticleStub>>().apply {
-        addSource(articleNameLiveData) {
-            it?.let {
-                getBookmarkedArticles()
-            }
-        }
-    }
-
-    var sectionNameListLiveData = MutableLiveData<List<String?>>(emptyList())
-
-    var issueStubListLiveData = MutableLiveData<List<IssueOperations?>>(emptyList())
-
-    private fun getBookmarkedArticles() {
-        articleListLiveData.apply {
-            CoroutineScope(viewModelScope.coroutineContext + Dispatchers.IO).launch {
-                val bookmarkedArticles =
-                    ArticleRepository.getInstance(getApplication()).getBookmarkedArticleStubList()
-                postValue(bookmarkedArticles)
-                sectionNameListLiveData.postValue(bookmarkedArticles.map {
-                    it.getSectionStub(
-                        getApplication()
-                    )?.key
-                })
-                issueStubListLiveData.postValue(bookmarkedArticles.map {
-                    it.getIssueOperations(
-                        getApplication()
-                    )
-                })
-                if (currentPosition <= 0) {
-                    currentPositionLiveData.postValue(
-                        bookmarkedArticles.indexOfFirst { it.key == articleName }
-                    )
+    val currentIssueAndArticleLiveData: LiveData<Pair<IssueStub, String>> = MediatorLiveData<Pair<IssueStub, String>>().apply {
+        addSource(articleFileNameLiveData) { articleFileName ->
+            viewModelScope.launch(Dispatchers.IO) {
+                articleFileName?.let { articleFileName ->
+                    IssueRepository.getInstance().getIssueStubForArticle(articleFileName)?.let { issueStub ->
+                        postValue( issueStub to articleFileName)
+                    }
                 }
             }
         }
     }
+
+    val articleListLiveData = ArticleRepository.getInstance().getBookmarkedArticleStubsLiveData()
 
 }

@@ -5,12 +5,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -32,51 +29,36 @@ class BookmarkPagerFragment :
 
     override val enableSideBar = true
 
-    private var articlePagerAdapter: BookmarkPagerAdapter? = null
+    private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
 
-    private var articleName: String? = null
-    private var hasBeenSwiped: Boolean = false
-
-    companion object {
-        fun createInstance(
-            articleName: String
-        ): BookmarkPagerFragment {
-            val fragment = BookmarkPagerFragment()
-            fragment.articleName = articleName
-            return fragment
-        }
+    override val viewModel: BookmarkPagerViewModel by lazy {
+        ViewModelProvider(
+            this.requireActivity(),
+            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
+        ).get(BookmarkPagerViewModel::class.java)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        savedInstanceState?.apply {
-            articleName = getString(DISPLAYABLE_NAME)
-            viewModel.currentPositionLiveData.value = getInt(POSITION, 0)
+    override fun onResume() {
+        super.onResume()
+        viewModel.articleListLiveData.observeDistinct(this) {
+            log.debug("Set new stubs $it")
+            articlePagerAdapter.articleStubs = it
+            loading_screen.visibility = View.GONE
+            tryScrollToArticle()
+        }
+
+        viewModel.articleFileNameLiveData.observeDistinct(this) {
+            tryScrollToArticle()
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.articleNameLiveData.value = articleName
 
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
-        }
-
-        viewModel.articleListLiveData.observeDistinct(this) {
-            webview_pager_viewpager.apply {
-                (adapter as BookmarkPagerAdapter?)?.notifyDataSetChanged()
-                setCurrentItem(viewModel.currentPosition, false)
-            }
-            loading_screen.visibility = View.GONE
-        }
-
-        viewModel.currentPositionLiveData.observeDistinct(this) {
-            if (webview_pager_viewpager.currentItem != it) {
-                webview_pager_viewpager.setCurrentItem(it, false)
-            }
         }
     }
 
@@ -88,18 +70,15 @@ class BookmarkPagerFragment :
 
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
-            if (adapter == null) {
-                articlePagerAdapter = BookmarkPagerAdapter()
-                adapter = articlePagerAdapter
-            }
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
+            articlePagerAdapter = BookmarkPagerAdapter()
+            webview_pager_viewpager.adapter = articlePagerAdapter
         }
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
-        var firstSwipe = true
         var showButtonJob: Job? = null
 
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
@@ -112,29 +91,15 @@ class BookmarkPagerFragment :
         private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
-            viewModel.issueStubListLiveData.value?.getOrNull(position)?.let {
-                setDrawerIssue(it)
+            // If the pager is empty (no bookmarks left) we want to pop it off the stack and return to the last fragment
+            if (articlePagerAdapter.articleStubs.isEmpty()) {
+                this@BookmarkPagerFragment.parentFragmentManager.popBackStack()
+                return
             }
-            if (firstSwipe) {
-                firstSwipe = false
-            } else {
-                hasBeenSwiped = true
-                viewModel.sectionNameListLiveData.observeDistinctUntil(
-                    viewLifecycleOwner, {
-                        if (it.isNotEmpty()) {
-                            it[position]?.let { sectionName ->
-                                getMainView()?.setActiveDrawerSection(sectionName)
-                            }
-                        }
-                    }, { it.isNotEmpty() }
-                )
-            }
-
-            viewModel.currentPositionLiveData.value = position
-
+            viewModel.articleFileNameLiveData.value = articlePagerAdapter.getArticleStub(position).articleFileName
             showButtonJob?.cancel()
             showButtonJob = lifecycleScope.launchWhenResumed {
-                articlePagerAdapter?.getArticleStub(position)?.let { articleStub ->
+                articlePagerAdapter.getArticleStub(position).let { articleStub ->
                     articleStub.getNavButton(context?.applicationContext)?.let {
                         showNavButton(it)
                     }
@@ -156,8 +121,8 @@ class BookmarkPagerFragment :
             }
 
             R.id.bottom_navigation_action_bookmark -> {
-                articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.key?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it))
+                getCurrentlyDisplayedArticleStub()?.let {
+                    showBottomSheet(BookmarkSheetFragment.create(it.key))
                 }
             }
 
@@ -172,12 +137,51 @@ class BookmarkPagerFragment :
 
     fun share() {
         lifecycleScope.launch(Dispatchers.IO) {
-            articlePagerAdapter?.getArticleStub(viewModel.currentPosition)?.let { articleStub ->
+            getCurrentlyDisplayedArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
                 }
             }
+        }
+    }
+
+    private fun tryScrollToArticle() {
+        val articleFileName = viewModel.articleFileNameLiveData.value
+        if (
+            articleFileName?.startsWith("art") == true &&
+            viewModel.articleListLiveData.value?.map { it.key }?.contains(articleFileName) == true
+        ) {
+            log.debug("I will now display $articleFileName")
+            lifecycleScope.launchWhenResumed {
+                getSupposedPagerPosition()?.let {
+                    if (it >= 0) {
+                        webview_pager_viewpager.setCurrentItem(it, false)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCurrentlyDisplayedArticleStub(): ArticleStub? {
+        return getCurrentPagerPosition()?.let {
+            articlePagerAdapter.getArticleStub(it)
+
+        }
+    }
+
+    private fun getCurrentPagerPosition(): Int? {
+        return webview_pager_viewpager?.currentItem
+    }
+
+    private fun getSupposedPagerPosition(): Int? {
+        val position = articlePagerAdapter.articleStubs.indexOfFirst {
+            it.key == viewModel.articleFileNameLiveData.value
+        }
+        return if (position >= 0) {
+            position
+        } else {
+            null
         }
     }
 
@@ -195,28 +199,37 @@ class BookmarkPagerFragment :
         startActivity(shareIntent)
     }
 
-    private inner class BookmarkPagerAdapter : FragmentStateAdapter(this@BookmarkPagerFragment) {
+    private inner class BookmarkPagerAdapter(
+    ): FragmentStateAdapter(
+        this@BookmarkPagerFragment
+    ) {
 
-        private val articleStubs
-            get() = viewModel.articleList
+        var articleStubs: List<ArticleStub> = emptyList()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
-            return ArticleWebViewFragment.createInstance(article)
+            return ArticleWebViewFragment.createInstance(article.articleFileName)
+        }
+
+        override fun getItemId(position: Int): Long {
+            return articleStubs[position].key.hashCode().toLong()
+        }
+
+        override fun containsItem(itemId: Long): Boolean {
+            return articleStubs.any { itemId == it.key.hashCode().toLong() }
         }
 
         override fun getItemCount(): Int = articleStubs.size
+
 
         fun getArticleStub(position: Int): ArticleStub {
             return articleStubs[position]
         }
 
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(DISPLAYABLE_NAME, articleName)
-        outState.putInt(POSITION, viewModel.currentPosition)
-        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {

@@ -22,6 +22,7 @@ import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
@@ -30,8 +31,6 @@ import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
 
-const val SCROLL_POSITION = "scrollPosition"
-
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
     @LayoutRes layoutResourceId: Int
 ) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
@@ -39,7 +38,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override val enableSideBar: Boolean = true
 
-    protected var displayable: DISPLAYABLE? = null
     protected var issueOperations: IssueOperations? = null
 
     abstract override val viewModel: VIEW_MODEL
@@ -66,6 +64,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -85,21 +84,19 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (viewModel.displayable == null) {
-            viewModel.displayable = displayable
-        }
-
-        if (viewModel.issueOperations == null) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.issueOperations =
-                    viewModel.displayable?.getIssueOperations(context?.applicationContext)
-            }
-        }
-
-        configureWebView()
-        viewModel.displayable?.let { displayable ->
+        viewModel.displayableLiveData.observeDistinct(this.viewLifecycleOwner) {
+            if (it == null) return@observeDistinct
+            log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
-                ensureDownloadedAndShow(displayable)
+                if (viewModel.issueOperations == null) {
+
+                    withContext(Dispatchers.IO) {
+                        viewModel.issueOperations =
+                            it.getIssueOperations(context?.applicationContext)
+                    }
+                }
+                configureWebView()
+                ensureDownloadedAndShow(it)
             }
         }
 
@@ -110,7 +107,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         savedInstanceState?.apply {
-            viewModel.scrollPosition = getInt(SCROLL_POSITION)
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
         view.findViewById<NestedScrollView>(nestedScrollViewId)
@@ -118,7 +114,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override fun onStart() {
         super.onStart()
-        viewModel.displayable?.let { displayable ->
+        viewModel.displayableLiveData.observe(this) { displayable ->
+            if (displayable == null) return@observe
             setHeader(displayable)
         }
     }
@@ -144,7 +141,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     abstract fun setHeader(displayable: DISPLAYABLE)
 
-    private fun onPageRendered() {
+    open fun onPageRendered() {
         isRendered = true
         val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         viewModel.scrollPosition?.let {
@@ -238,13 +235,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             val minResourceVersion = viewModel.issueOperations?.minResourceVersion ?: Int.MAX_VALUE
             minResourceVersion <= resourceInfo.resourceVersion
         } ?: false
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        viewModel.scrollPosition?.let {
-            outState.putInt(SCROLL_POSITION, it)
-        }
-        super.onSaveInstanceState(outState)
     }
 
 }
