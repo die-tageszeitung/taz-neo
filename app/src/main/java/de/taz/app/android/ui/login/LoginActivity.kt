@@ -288,7 +288,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionElapsedDialogFragment())
+        showFragment(SubscriptionInactiveFragment())
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
