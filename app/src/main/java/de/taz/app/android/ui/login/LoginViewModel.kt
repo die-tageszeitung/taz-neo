@@ -109,7 +109,7 @@ class LoginViewModel(
             val tmpUsername = username ?: ""
             val tmpPassword = password
 
-            if (tmpUsername.isNullOrBlank()) {
+            if (tmpUsername.isBlank()) {
                 status.postValue(LoginViewModelState.USERNAME_MISSING)
                 null
             } else if (tmpPassword.isNullOrBlank()) {
@@ -437,7 +437,7 @@ class LoginViewModel(
                 null,
                 SubscriptionStatus.waitForProc -> {
                     if (runBlocking) {
-                        poll(previousState,timeoutMillis, runBlocking).join()
+                        poll(previousState, timeoutMillis, runBlocking).join()
                     } else {
                         poll(previousState, timeoutMillis)
                     }
