@@ -288,7 +288,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionElapsedDialogFragment())
+        val dialog = SubscriptionElapsedDialogFragment()
+        dialog.show(supportFragmentManager, dialog::class.java.name)
+        dialog.lifecycleScope.launchWhenResumed {
+            view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
+            hideLoadingScreen()
+        }
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
