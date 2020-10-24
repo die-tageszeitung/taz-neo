@@ -5,6 +5,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.monkey.observeDistinct
@@ -49,7 +50,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                             authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
                                     issueRepository.saveIfDoNotExist(
-                                        apiService.getLastIssuesAsync().await()
+                                        apiService.getLastIssues()
                                     )
                                 }
                             }
@@ -92,7 +93,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         Sentry.captureMessage("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
-            } catch (e: ApiService.ApiServiceException) {
+            } catch (e: ConnectivityException) {
                 // continue polling
                 poll(timeMillis * 2)
             }

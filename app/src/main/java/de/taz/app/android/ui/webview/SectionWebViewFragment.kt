@@ -19,7 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
@@ -32,13 +32,13 @@ import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
 class SectionWebViewViewModel(savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<SectionStub>(savedStateHandle)
+    WebViewViewModel<Section>(savedStateHandle)
 
 const val PADDING_RIGHT_OF_LOGO = 20
 const val BIG_HEADER_TEXT_SIZE = 30f
 
 class SectionWebViewFragment :
-    WebViewFragment<SectionStub, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
+    WebViewFragment<Section, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
 
     override val viewModel by lazy {
@@ -82,7 +82,7 @@ class SectionWebViewFragment :
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
             viewModel.displayableLiveData.postValue(
-                SectionRepository.getInstance().getStubOrThrow(sectionFileName)
+                SectionRepository.getInstance().get(sectionFileName)
             )
         }
     }
@@ -106,12 +106,12 @@ class SectionWebViewFragment :
         }
     }
 
-    override fun setHeader(displayable: SectionStub) {
+    override fun setHeader(displayable: Section) {
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.IO) {
-                val issueOperations = displayable.getIssueOperations(context?.applicationContext)
-                issueOperations?.apply {
+                val issueStub = displayable.getIssueStub()
+                issueStub?.apply {
                     if (isWeekend) {
                         withContext(Dispatchers.Main) {
                             view?.findViewById<TextView>(R.id.section)?.typeface =

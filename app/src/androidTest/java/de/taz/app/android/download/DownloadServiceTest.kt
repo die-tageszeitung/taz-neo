@@ -131,7 +131,7 @@ class DownloadServiceTest {
         downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
-        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus)
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
@@ -277,7 +277,7 @@ class DownloadServiceTest {
         assertEquals(DownloadStatus.aborted, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(
             DownloadStatus.aborted,
-            fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus
+            fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus
         )
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
@@ -306,7 +306,7 @@ class DownloadServiceTest {
         assertEquals(DownloadStatus.failed, downloadRepository.get(TEST_FILE_NAME)?.status)
         assertEquals(
             DownloadStatus.failed,
-            fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus
+            fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus
         )
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
@@ -332,7 +332,7 @@ class DownloadServiceTest {
         downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
-        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus)
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
@@ -358,7 +358,7 @@ class DownloadServiceTest {
         downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.started, downloadRepository.get(TEST_FILE_NAME)?.status)
-        assertEquals(DownloadStatus.started, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(DownloadStatus.started, fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus)
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }
@@ -389,7 +389,7 @@ class DownloadServiceTest {
         downloadService.getBlockingFromServer(TEST_FILE_NAME)
 
         assertEquals(DownloadStatus.done, downloadRepository.get(TEST_FILE_NAME)?.status)
-        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadedStatus)
+        assertEquals(DownloadStatus.done, fileEntryRepository.get(TEST_FILE_NAME)?.downloadStatus)
         assertEquals(0, downloadService.currentDownloads.get())
         assertTrue(downloadService.currentDownloadList.isEmpty())
     }

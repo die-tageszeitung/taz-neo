@@ -4,13 +4,13 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
+import java.util.*
 
 @Mockable
 class SectionRepository private constructor(applicationContext: Context) :
@@ -56,18 +56,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionDao().update(sectionStub)
     }
 
-    fun getStub(sectionFileName: String): SectionStub? {
+    fun getStub(sectionFileName: String): SectionStub {
         return appDatabase.sectionDao().get(sectionFileName)
-    }
-
-    @Throws(NotFoundException::class)
-    fun getStubOrThrow(sectionFileName: String): SectionStub {
-        return getStub(sectionFileName) ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getOrThrow(sectionFileName: String): Section {
-        return sectionStubToSection(getStubOrThrow(sectionFileName))
     }
 
     fun getStubLiveData(sectionFileName: String): LiveData<SectionStub?> {
@@ -82,12 +72,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(sectionFileName: String): Section? {
-        return try {
-            getOrThrow(sectionFileName)
-        } catch (nfe: NotFoundException) {
-            null
-        }
+    fun get(sectionFileName: String): Section {
+        return sectionStubToSection(getStub(sectionFileName))
     }
 
     fun getSectionStubForArticle(articleFileName: String): SectionStub? {
@@ -96,33 +82,6 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     fun getNextSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
-    }
-
-    fun getSectionStubsLiveDataForIssueOperations(issueOperations: IssueOperations) =
-        getSectionStubsLiveDataForIssueOperations(
-            issueOperations.feedName,
-            issueOperations.date,
-            issueOperations.status
-        )
-
-    fun getSectionStubsLiveDataForIssueOperations(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): LiveData<List<SectionStub>> {
-        return appDatabase.sectionDao().getSectionsLiveDataForIssue(
-            issueFeedName, issueDate, issueStatus
-        )
-    }
-
-    fun getSectionStubsForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): List<SectionStub> {
-        return appDatabase.sectionDao().getSectionsForIssue(
-            issueFeedName, issueDate, issueStatus
-        )
     }
 
     fun getSectionStubsForIssue(
@@ -149,8 +108,8 @@ class SectionRepository private constructor(applicationContext: Context) :
         val articles =
             appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)
                 ?.let {
-                    articleRepository.getOrThrow(it)
-                } ?: listOf()
+                    articleRepository.getList(it)
+                } ?: emptyList()
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
@@ -167,7 +126,7 @@ class SectionRepository private constructor(applicationContext: Context) :
                 articleList = articles,
                 imageList = images,
                 extendedTitle = sectionStub.extendedTitle,
-                downloadedStatus = sectionStub.downloadedStatus
+                dateDownload = sectionStub.dateDownload
             )
         }
     }
@@ -226,6 +185,14 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
         return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)
+    }
+
+    fun setDownloadDate(sectionStub: SectionStub, date: Date?) {
+        update(sectionStub.copy(dateDownload = date))
+    }
+
+    fun getDownloadDate(sectionStub: SectionStub): Date? {
+        return appDatabase.sectionDao().getDownloadDate(sectionStub.sectionFileName)
     }
 
 }

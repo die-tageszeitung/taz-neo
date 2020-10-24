@@ -2,7 +2,6 @@ package de.taz.app.android.api.models
 
 import androidx.room.Entity
 import de.taz.app.android.api.dto.ImageDto
-import de.taz.app.android.api.interfaces.CacheableDownload
 import kotlinx.serialization.Serializable
 
 @Entity(tableName = "Image", primaryKeys = ["fileEntryName"])

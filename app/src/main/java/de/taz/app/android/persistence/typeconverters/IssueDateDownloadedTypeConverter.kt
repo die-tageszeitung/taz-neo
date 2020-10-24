@@ -24,10 +24,10 @@ class IssueDateDownloadTypeConverter {
     }
 
     @TypeConverter
-    fun toIssueDateDownload(value: String): Date? {
+    fun toIssueDateDownload(value: String?): Date? {
         val simpleDateFormat = SimpleDateFormat(FORMAT_STRING, Locale.US)
 
-        if (value == "" || value == "null") {
+        if (value == "" || value == "null" || value == null) {
             return null
         }
         return try {

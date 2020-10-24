@@ -7,15 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_JQUERY_FILE
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.launch
 
 const val HTML_BACKGROUND_CONTAINER = """
 <html>
@@ -33,6 +37,8 @@ const val HTML_BACKGROUND_CONTAINER = """
 class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
     private var toDownloadImage: Image? = null
+    private lateinit var dataService: DataService
+    private lateinit var issueRepository: IssueRepository
     val log by Log
 
     fun newInstance(
@@ -45,6 +51,11 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         return fragment
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dataService = DataService.getInstance()
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,39 +63,36 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         val webView = view?.findViewById<WebView>(R.id.image_view)
-        webView?.let {
+        webView?.apply {
             image?.let {
                 showImageInWebView(it, webView)
-
             }
-            toDownloadImage?.isDownloadedLiveData(context?.applicationContext)
-                ?.observeDistinctUntil(
-                    this, { isDownloaded ->
-                        if (isDownloaded) {
-                            fadeInImageInWebView(toDownloadImage!!, webView)
-                        }
-                    }, { isDownloaded ->
-                        isDownloaded
-                    })
-
-            webView.apply {
-                webChromeClient = AppWebChromeClient {
-                    view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
-                }
-                settings?.apply {
-                    allowFileAccess = true
-                    builtInZoomControls = true
-                    displayZoomControls = false
-                    useWideViewPort = true
-                    loadWithOverviewMode = true
-                    domStorageEnabled = true
-                    javaScriptEnabled = true
-                }
-                context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
-                    setBackgroundColor(
-                        it
+            toDownloadImage?.let {
+                lifecycleScope.launch {
+                    dataService.ensureDownloaded(
+                        FileEntry(it),
+                        issueRepository.getIssueStubForImage(it).baseUrl
                     )
+                    fadeInImageInWebView(it, webView)
                 }
+            }
+
+            webChromeClient = AppWebChromeClient {
+                view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
+            }
+            settings?.apply {
+                allowFileAccess = true
+                builtInZoomControls = true
+                displayZoomControls = false
+                useWideViewPort = true
+                loadWithOverviewMode = true
+                domStorageEnabled = true
+                javaScriptEnabled = true
+            }
+            context?.applicationContext?.getColorFromAttr(R.color.backgroundColor)?.let {
+                setBackgroundColor(
+                    it
+                )
             }
         }
 
@@ -93,14 +101,15 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
 
     private fun showImageInWebView(toShowImage: Image, webView: WebView) {
         val fileHelper = FileHelper.getInstance(context)
-        val jqueryFile = "file://${fileHelper.getFileByPath("$RESOURCE_FOLDER/$WEBVIEW_JQUERY_FILE").path}"
+        val jqueryFile =
+            "file://${fileHelper.getFileByPath("$RESOURCE_FOLDER/$WEBVIEW_JQUERY_FILE").path}"
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             RESOURCE_FOLDER
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
                 val uri = "${image.folder}/${image.name}"
                 web.loadDataWithBaseURL(
                     fileDir,
-                    HTML_BACKGROUND_CONTAINER.format(jqueryFile,"$fileDir/$uri"),
+                    HTML_BACKGROUND_CONTAINER.format(jqueryFile, "$fileDir/$uri"),
                     "text/html",
                     "UTF-8",
                     null
@@ -108,6 +117,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
             }
         }
     }
+
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
         val fileHelper = FileHelper.getInstance(context)
         runIfNotNull(toShowImage, context, webView) { image, context, web ->

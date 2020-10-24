@@ -5,14 +5,12 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.api.models.ResourceInfoStub
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.util.*
 
 @Mockable
 class ResourceInfoRepository private constructor(applicationContext: Context) :
@@ -32,7 +30,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                     resourceInfo.resourceVersion,
                     resourceInfo.resourceBaseUrl,
                     resourceInfo.resourceZip,
-                    resourceInfo.downloadedStatus
+                    resourceInfo.dateDownload
                 )
             )
             // save file resourceList
@@ -57,9 +55,13 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().getNewest()
     }
 
-    @Throws(NotFoundException::class)
-    fun getNewestOrThrow(): ResourceInfo {
-        return resourceInfoStubToResourceInfo(appDatabase.resourceInfoDao().getNewest())
+    fun getNewest(): ResourceInfo? {
+        return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
+    }
+
+
+    fun getNewestStub(): ResourceInfoStub? {
+        return appDatabase.resourceInfoDao().getNewest()
     }
 
     fun getLiveData(): LiveData<ResourceInfo?> {
@@ -70,7 +72,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    private fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
+    fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )
@@ -86,20 +88,11 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                     it.sha256,
                     it.size,
                     RESOURCE_FOLDER,
-                    it.downloadedStatus
+                    it.dateDownload
                 )
             },
-            resourceInfoStub.downloadedStatus
+            resourceInfoStub.dateDownload
         )
-    }
-
-
-    fun getNewest(): ResourceInfo? {
-        return try {
-            getNewestOrThrow()
-        } catch (e: Exception) {
-            null
-        }
     }
 
     fun getNewestDownloaded(): ResourceInfo? {
@@ -127,16 +120,15 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
 
-    fun deleteAllButNewestAndNewestDownloaded() {
-        val allResourceInfos = appDatabase.resourceInfoDao().getAll().toMutableList()
-        val newestResourceInfo = appDatabase.resourceInfoDao().getNewest()
-        val newestDownloadedResourceInfo = appDatabase.resourceInfoDao().getNewestDownloaded()
-        allResourceInfos.remove(newestResourceInfo)
-        allResourceInfos.remove(newestDownloadedResourceInfo)
-        allResourceInfos.forEach { resourceInfo ->
-            delete(resourceInfoStubToResourceInfo(resourceInfo))
-        }
+    fun getDownloadStatus(resourceInfo: ResourceInfo): Date? {
+        return appDatabase.resourceInfoDao().getDownloadStatus(resourceInfo.resourceVersion)
     }
+
+
+    fun setDownloadStatus(resourceInfo: ResourceInfo, date: Date?) {
+        return update(ResourceInfoStub(resourceInfo).copy(dateDownload = date))
+    }
+
 
     fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean> {
         return appDatabase.resourceInfoDao().isDownloadedLiveData(resourceVersion)

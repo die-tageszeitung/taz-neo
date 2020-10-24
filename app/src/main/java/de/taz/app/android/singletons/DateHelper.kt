@@ -19,9 +19,6 @@ enum class AppTimeZone {
 @Mockable
 object DateHelper {
 
-    val now
-        get() = Date().time
-
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
     private val calDefaultTimeZone = Calendar.getInstance()
@@ -93,6 +90,26 @@ object DateHelper {
     }
 
     fun dayDelta(earlierDate: String, laterDate: String) : Long {
-        return TimeUnit.MILLISECONDS.toDays(stringToDate(laterDate)!!.time - stringToDate(earlierDate)!!.time)
+        return TimeUnit.MILLISECONDS.toDays(
+            stringToDate(laterDate)!!.time - stringToDate(
+                earlierDate
+            )!!.time
+        )
+    }
+
+    fun subDays(date: Date, days: Int): Date {
+        val calenderItem = Calendar.getInstance().apply {
+            time = date
+            roll(Calendar.DATE, days)
+        }
+        return Date(calenderItem.time.time)
+    }
+
+    fun addDays(date: Date, days: Int): Date {
+        val calenderItem = Calendar.getInstance().apply {
+            time = date
+            add(Calendar.DATE, days)
+        }
+        return Date(calenderItem.time.time)
     }
 }

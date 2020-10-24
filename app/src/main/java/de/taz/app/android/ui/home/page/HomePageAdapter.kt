@@ -88,21 +88,13 @@ abstract class HomePageAdapter(
 
         // show regular issue if user is logged out only if downloaded else demo issue else public
         filteredIssueList.forEach { item ->
-            if (!(item.status == IssueStatus.regular && item.downloadedStatus in listOf(
-                    DownloadStatus.done,
-                    DownloadStatus.started
-                )
-                        )
-            ) {
+            if (!(item.status == IssueStatus.regular && item.dateDownload != null)) {
                 val issuesAtSameDate = filteredIssueList.filter {
                     item.date == it.date && item.feedName == it.feedName
                 }
                 if (issuesAtSameDate.size > 1) {
                     issuesAtSameDate.firstOrNull {
-                        it.status == IssueStatus.regular && it.downloadedStatus in listOf(
-                            DownloadStatus.done,
-                            DownloadStatus.started
-                        )
+                        it.status == IssueStatus.regular && it.dateDownload != null
                     }?.let { mutableFilteredIssueList.remove(item) }
                         ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.demo }?.let {
                             mutableFilteredIssueList.remove(item)

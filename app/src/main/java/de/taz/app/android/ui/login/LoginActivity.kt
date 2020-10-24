@@ -12,10 +12,9 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -57,7 +56,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     private var issueRepository: IssueRepository? = null
     private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
-    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +66,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
-        toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
 
         view.moveContentBeneathStatusBar()
 
@@ -344,13 +341,13 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     private suspend fun getPriceList(): List<PriceInfo>? {
         return try {
             ApiService.getInstance(applicationContext).getPriceList()
-        } catch (nie: ApiService.ApiServiceException.NoInternetException) {
+        } catch (nie: ConnectivityException.NoInternetException) {
             view?.let {
                 Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
                     .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
             } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
             null
-        } catch (ie: ApiService.ApiServiceException.ImplementationException) {
+        } catch (ie: ConnectivityException.ImplementationException) {
             view?.let {
                 Snackbar.make(it, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
                     .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
@@ -401,8 +398,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         val data = Intent()
         if (authHelper?.isLoggedIn() == true) {
             lifecycleScope.launch(Dispatchers.IO) {
-                DownloadService.getInstance(applicationContext).cancelIssueDownloads()
-                downloadNeededIssues()
                 article = article?.replace("public.", "")
 
                 article?.let {
@@ -420,26 +415,6 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         } else {
             setResult(Activity.RESULT_OK, data)
             finish()
-        }
-    }
-
-    private suspend fun downloadNeededIssues() {
-        val articleIssue = getArticleIssue(article)?.also {
-            issueRepository?.saveIfDoesNotExist(it)
-        }
-        val lastIssues = apiService?.getLastIssuesAsync()?.await()?.also {
-            issueRepository?.saveIfDoNotExist(it)
-        }
-
-        val lastIssueDate = lastIssues?.lastOrNull()?.date ?: ""
-        val articleIssueDate = articleIssue?.date ?: ""
-
-        if (articleIssueDate.isNotBlank() && lastIssueDate.isNotBlank() && articleIssueDate < lastIssueDate) {
-            lastIssues?.let {
-                toDownloadIssueHelper?.startMissingDownloads(
-                    articleIssueDate
-                )
-            }
         }
     }
 
@@ -527,16 +502,5 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                 ibanNoSepa = ibanNoSepa
             )
         )
-    }
-
-    private suspend fun getArticleIssue(articleFileName: String?): Issue? {
-        return articleFileName?.let {
-            val section = sectionRepository?.getSectionStubForArticle(articleFileName)
-            section?.getIssueOperations(applicationContext)?.let { issueOperations ->
-                apiService?.getIssueByFeedAndDateAsync(
-                    issueOperations.feedName, issueOperations.date
-                )?.await()
-            }
-        }
     }
 }

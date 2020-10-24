@@ -5,12 +5,16 @@ import android.os.Environment
 import androidx.core.content.ContextCompat
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.security.MessageDigest
 import javax.net.ssl.SSLException
 
 
@@ -58,7 +62,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
     }
 
     /**
-     * writes data from [source] to file of [fileEntry] and return sha265
+     * writes data from [source] to file of [fileEntry] and return sha256
      * @throws SSLException when connection is terminated while writing to file
      */
     @Throws(SSLException::class, java.io.IOException::class)
@@ -186,4 +190,42 @@ class FileHelper private constructor(private val applicationContext: Context) {
         fileWriter.close()
     }
 
+    private suspend fun getSHA256(file: File): String = withContext(Dispatchers.Default) {
+        val bytes = file.readBytes()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        return@withContext digest.fold("", { str, it -> str + "%02x".format(it) })
+    }
+
+    suspend fun ensureFileIntegrity(filePath: String, checksum: String? = null): Boolean = withContext(
+        Dispatchers.IO) {
+        val file = getFileByPath(filePath)
+        // If we don't provide a checksum we assume the mere existence means it's ok
+        return@withContext if (file.exists()) {
+            checksum?.let { it == getSHA256(file) } ?: true
+        } else {
+            false
+        }
+    }
+
+    suspend fun ensureFileExists(fileEntry: FileEntry): Boolean = withContext(Dispatchers.IO) {
+        val file = getFileByPath(fileEntry.path)
+        return@withContext file.exists()
+    }
+
+    suspend fun getNonExistentFilesFromList(files: List<FileEntry>): List<FileEntry> = withContext(Dispatchers.IO) {
+        return@withContext files.filter { !ensureFileExists(it) }
+    }
+
+    suspend fun getCorruptedFilesFromList(files: List<FileEntry>): List<FileEntry> = withContext(Dispatchers.IO) {
+        return@withContext files.filter { !ensureFileIntegrity(it.path, it.sha256) }
+    }
+
+    suspend fun ensureFileListExists(files: List<FileEntry>): Boolean {
+        return getNonExistentFilesFromList(files).isEmpty()
+    }
+
+    suspend fun ensureFileListIntegrity(files: List<FileEntry>): Boolean {
+        return getCorruptedFilesFromList(files).isEmpty()
+    }
 }

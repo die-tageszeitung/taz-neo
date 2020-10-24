@@ -51,7 +51,6 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        DownloadRepository.getInstance().delete(image.name)
         FileEntryRepository.getInstance().apply {
             get(image.name)?.let { delete(it) }
         }

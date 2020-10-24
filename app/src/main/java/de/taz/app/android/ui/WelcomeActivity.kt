@@ -11,7 +11,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
@@ -20,6 +20,7 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
+import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ class WelcomeActivity : AppCompatActivity() {
     private val log by Log
 
     private var fileHelper: FileHelper? = null
+    private lateinit var dataService: DataService
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private var downloadedObserver: Observer<Boolean>? = null
@@ -47,6 +49,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         fileHelper = FileHelper.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+        dataService = DataService.getInstance()
 
         setContentView(R.layout.activity_welcome)
 
@@ -83,18 +86,10 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
         lifecycleScope.launch(Dispatchers.IO) {
-            isDownloadedLiveData =
-                resourceInfoRepository?.getNewest()?.isDownloadedLiveData(applicationContext)
-
-            downloadedObserver = Observer { isDownloaded ->
-                if (isDownloaded) {
-                    web_view_fullscreen_content.loadUrl(filePath)
-                }
-            }
+            val resourceInfo = dataService.getResourceInfo()
+            dataService.ensureDownloaded(resourceInfo)
             withContext(Dispatchers.Main) {
-                downloadedObserver?.let {
-                    isDownloadedLiveData?.observeDistinct(this@WelcomeActivity, it)
-                }
+                web_view_fullscreen_content.loadUrl(filePath)
             }
         }
 

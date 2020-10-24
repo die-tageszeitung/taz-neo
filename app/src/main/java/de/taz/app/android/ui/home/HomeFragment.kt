@@ -4,43 +4,33 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsFragment
-import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     private var refreshJob: Job? = null
-    private val issueContentViewModel: IssueContentViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        ).get(IssueContentViewModel::class.java)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,9 +60,9 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         coverflow_refresh_layout.setOnRefreshListener {
             refreshJob?.cancel()
             refreshJob = lifecycleScope.launchWhenResumed {
-                val start = DateHelper.now
+                val start = Date().time
                 onRefresh()
-                val end = DateHelper.now
+                val end = Date().time
                 // show animation at least 1000 ms so it looks smoother
                 if (end - start < 1000) {
                     delay(1000 - (end - start))
@@ -91,10 +81,10 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                     .save(apiService.getFeeds())
                 IssueRepository.getInstance(activity?.applicationContext)
                     .saveIfDoNotExist(apiService.getLastIssues())
-            } catch (e: ApiService.ApiServiceException.NoInternetException) {
+            } catch (e: ConnectivityException.NoInternetException) {
                 ToastHelper.getInstance(context?.applicationContext)
                     .showNoConnectionToast()
-            } catch (e: ApiService.ApiServiceException.ImplementationException) {
+            } catch (e: ConnectivityException.ImplementationException) {
                 ToastHelper.getInstance(context?.applicationContext)
                     .showSomethingWentWrongToast()
             }

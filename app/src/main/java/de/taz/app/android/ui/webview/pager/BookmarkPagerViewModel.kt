@@ -2,12 +2,9 @@ package de.taz.app.android.ui.webview.pager
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -34,4 +31,6 @@ class BookmarkPagerViewModel(
 
     val articleListLiveData = ArticleRepository.getInstance().getBookmarkedArticleStubsLiveData()
 
+    val currentIssue: IssueStub?
+        get() = currentIssueAndArticleLiveData.value?.first
 }

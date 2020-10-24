@@ -15,15 +15,14 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeUntil
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -38,8 +37,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     override val enableSideBar: Boolean = true
 
-    protected var issueOperations: IssueOperations? = null
-
     abstract override val viewModel: VIEW_MODEL
 
     protected val log by Log
@@ -47,8 +44,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     abstract val nestedScrollViewId: Int
     private lateinit var tazApiCssPreferences: SharedPreferences
 
-    private var apiService: ApiService? = null
-    private var downloadService: DownloadService? = null
+    private lateinit var apiService: ApiService
+    private lateinit var downloadService: DownloadService
+    private lateinit var dataService: DataService
 
     private var isRendered = false
 
@@ -69,6 +67,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
+        dataService = DataService.getInstance()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +78,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
             tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
         }
+        viewModel.displayableLiveData.observeDistinct(this) { displayable ->
+            if (displayable == null) return@observeDistinct
+            setHeader(displayable)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,15 +91,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             if (it == null) return@observeDistinct
             log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
-                if (viewModel.issueOperations == null) {
-
-                    withContext(Dispatchers.IO) {
-                        viewModel.issueOperations =
-                            it.getIssueOperations(context?.applicationContext)
-                    }
-                }
                 configureWebView()
-                ensureDownloadedAndShow(it)
+                ensureDownloadedAndShow()
             }
         }
 
@@ -110,14 +106,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
         view.findViewById<NestedScrollView>(nestedScrollViewId)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.displayableLiveData.observe(this) { displayable ->
-            if (displayable == null) return@observe
-            setHeader(displayable)
-        }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -176,48 +164,25 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
-    private suspend fun ensureDownloadedAndShow(displayable: DISPLAYABLE) {
-        ResourceInfo.update(context?.applicationContext)
-        downloadService?.download(displayable)
+    private suspend fun ensureDownloadedAndShow() {
+        var resourceInfo = dataService.getResourceInfo()
+        if (!isResourceInfoUpToDate(resourceInfo)) {
+            resourceInfo = dataService.getResourceInfo(allowCache = false)
+        }
 
-        ResourceInfo.getNewestDownloadedStubLiveData(context?.applicationContext).observeUntil(
-            this, { resourceInfo ->
-                lifecycleScope.launch(Dispatchers.Main) {
-                    resourceInfo?.let {
-                        if (isResourceInfoUpToDate(resourceInfo)) {
-                            displayable.isDownloadedLiveData(context?.applicationContext)
-                                .observeUntil(
-                                    this@WebViewFragment,
-                                    { isDownloaded ->
-                                        if (isDownloaded) {
-                                            log.info("displayable is ready")
-                                            loadUrl()
-                                        }
-                                    }, { isDownloaded -> isDownloaded }
-                                )
-                        } else {
-                            ResourceInfo.update(context?.applicationContext, true)
-                        }
-                    }
-                }
-            }, { isResourceInfoUpToDate(it) }
-        )
+        dataService.ensureDownloaded(resourceInfo)
+
+        log.info("displayable is ready")
+        loadUrl()
     }
 
-    private fun loadUrl() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.displayable?.getFile()?.let { file ->
-                if (file.exists()) {
-                    loadUrl("file://${file.absolutePath}")
-                } else {
-                    viewModel.displayable?.download(context?.applicationContext)
-                    withContext(Dispatchers.Main) {
-                        viewModel.displayable?.isDownloadedLiveData(context?.applicationContext)
-                            ?.observeUntil(
-                                this@WebViewFragment, { if (it) loadUrl() }, { it }
-                            )
-                    }
-                }
+    private suspend fun loadUrl(): Unit = withContext(Dispatchers.IO) {
+        viewModel.displayable?.let {
+            if (it.getFile()?.exists() == true) {
+                loadUrl("file://${it.getFile()!!.absolutePath}")
+            } else {
+                dataService.ensureDownloaded(it)
+                loadUrl()
             }
         }
     }
@@ -230,11 +195,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private fun isResourceInfoUpToDate(resourceInfo: ResourceInfoStub?): Boolean {
-        return resourceInfo?.let {
-            val minResourceVersion = viewModel.issueOperations?.minResourceVersion ?: Int.MAX_VALUE
+    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean = withContext(Dispatchers.IO) {
+        val issue = viewModel.displayable?.getIssueStub()
+        resourceInfo?.let {
+            val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
             minResourceVersion <= resourceInfo.resourceVersion
-        } ?: false
+        } ?: true
     }
 
 }

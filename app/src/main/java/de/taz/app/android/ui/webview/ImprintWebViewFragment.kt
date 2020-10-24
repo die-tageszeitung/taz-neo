@@ -9,7 +9,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -21,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ImprintWebViewFragment :
-    WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_imprint),
+    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_imprint),
     BackFragment {
 
     override val nestedScrollViewId = R.id.nested_scroll_view
@@ -41,8 +43,14 @@ class ImprintWebViewFragment :
         ).get(IssueContentViewModel::class.java)
     }
 
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var issueRepository: IssueRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        articleRepository = ArticleRepository.getInstance()
+        issueRepository = IssueRepository.getInstance()
+
         issueContentViewModel.displayableKeyLiveData.observe(this) {
             log.debug("I received displayable $it")
             if (it.startsWith("art") && it == issueContentViewModel.imprintArticleLiveData.value?.key) {
@@ -79,7 +87,7 @@ class ImprintWebViewFragment :
         showDefaultNavButton()
     }
 
-    override fun setHeader(displayable: ArticleStub) {
+    override fun setHeader(displayable: Article) {
         lifecycleScope.launch(Dispatchers.IO) {
             val title = getString(R.string.imprint)
             activity?.runOnUiThread {
@@ -91,8 +99,8 @@ class ImprintWebViewFragment :
                 }
             }
 
-            val issueOperations = displayable.getIssueOperations(context?.applicationContext)
-            issueOperations?.apply {
+            val issueStub = displayable.getIssueStub()
+            issueStub?.apply {
                 if (isWeekend) {
                     FontHelper.getInstance(context?.applicationContext)
                         .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->

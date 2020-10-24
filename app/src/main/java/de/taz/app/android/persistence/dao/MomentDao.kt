@@ -4,26 +4,27 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.MomentStub
+import java.util.*
 
 @Dao
 abstract class MomentDao: BaseDao<MomentStub>() {
 
     @Query(
         """
-        SELECT downloadedStatus FROM Moment
+        SELECT dateDownload FROM Moment
         WHERE Moment.issueStatus == :issueStatus
             AND Moment.issueFeedName == :issueFeedName
             AND Moment.issueDate == :issueDate
         """
     )
-    abstract fun getDownloadStatus(
+    abstract fun getDownloadDate(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): DownloadStatus?
+    ): Date?
+
 
     @Query(
         """

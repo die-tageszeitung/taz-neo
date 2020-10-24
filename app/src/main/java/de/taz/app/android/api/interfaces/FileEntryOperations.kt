@@ -1,31 +1,34 @@
 package de.taz.app.android.api.interfaces
 
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.GLOBAL_FOLDER
-import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.FileHelper
+import java.util.*
 
-interface FileEntryOperations: CacheableDownload {
+interface FileEntryOperations {
     val name: String
     val storageType: StorageType
     val moTime: Long
     val sha256: String
     val size: Long
     val folder: String
-    override val downloadedStatus: DownloadStatus?
+    val dateDownload: Date?
 
     val path
         get() = "$folder/$name"
 
     fun deleteFile() {
         val fileHelper = FileHelper.getInstance()
-        // TODO check return value of fileHelper.deleteFile function
         fileHelper.deleteFile(name)
-        DownloadRepository.getInstance().delete(name)
-        this.setDownloadStatus(DownloadStatus.pending)
+        val fileEntry = if (this is Image) {
+            FileEntry(this)
+        } else {
+            this as FileEntry
+        }
+        FileEntryRepository.getInstance().resetDownloadDate(fileEntry)
     }
+
 
     companion object {
         fun getStorageFolder(storageType: StorageType, folder: String): String {
@@ -36,6 +39,4 @@ interface FileEntryOperations: CacheableDownload {
             }
         }
     }
-    override fun getAllFileNames() = listOf(this.name)
-    override fun getAllLocalFileNames() = listOf(this.name)
 }

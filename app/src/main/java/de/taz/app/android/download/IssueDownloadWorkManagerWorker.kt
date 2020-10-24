@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
@@ -25,13 +26,13 @@ class IssueDownloadWorkManagerWorker(
 
             log.debug("starting to download - issueDate: ${issue.date} issueFeedName: ${issue.feedName} issueStatus: ${issue.status}")
 
-            val downloadService = DownloadService.getInstance(applicationContext)
+            val dataService = DataService.getInstance(applicationContext)
 
             try {
-                downloadService.download(issue, isAutomatically = true).join()
+                dataService.ensureDownloaded(issue, isAutomaticDownload = true)
                 log.debug("successfully downloaded")
 
-                while (!issue.isDownloaded(applicationContext)) {
+                while (!issue.isDownloaded()) {
                     log.debug("delaying")
                     delay(1000)
                 }

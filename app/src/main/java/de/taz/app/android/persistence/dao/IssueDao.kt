@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
+import java.util.*
 
 @Dao
 abstract class IssueDao : BaseDao<IssueStub>() {
@@ -23,6 +24,9 @@ abstract class IssueDao : BaseDao<IssueStub>() {
         status: IssueStatus
     ): IssueStub?
 
+    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :fromDate) AND feedName IN (:feedNames) AND status == :status  ORDER BY date DESC LIMIT :limit")
+    abstract fun getIssuesFromDateByFeed(fromDate: String, feedNames: List<String>, status: IssueStatus, limit: Int): List<IssueStub>
+    
     @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT 1 ")
     abstract fun getLatestByDate(date: String): IssueStub?
 
@@ -39,6 +43,9 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatest(): IssueStub?
 
+    @Query("SELECT * FROM Issue WHERE Issue.status == :status AND Issue.feedName IN (:feedName) ORDER BY date DESC LIMIT 1")
+    abstract fun getLatestByFeedAndStatus(status: IssueStatus, feedName: List<String>): IssueStub?
+
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatestLiveData(): LiveData<IssueStub?>
 
@@ -54,22 +61,19 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
 
-    @Query("SELECT * FROM Issue WHERE downloadedStatus == 'done' ORDER BY dateDownload ASC LIMIT 1")
+    @Query("SELECT * FROM Issue WHERE dateDownload != null ORDER BY dateDownload ASC LIMIT 1")
     abstract fun getEarliestDownloaded(): IssueStub?
 
     @Query("SELECT * FROM Issue ORDER BY date ASC LIMIT 1")
     abstract fun getEarliest(): IssueStub?
 
-    @Query("SELECT * FROM Issue WHERE dateDownload != \"\"")
+    @Query("SELECT * FROM Issue WHERE dateDownload != null")
     abstract fun getAllDownloaded(): List<IssueStub>?
 
-    @Query("SELECT * FROM Issue WHERE downloadedStatus == 'done'")
+    @Query("SELECT * FROM Issue WHERE dateDownload != null")
     abstract fun getAllDownloadedLiveData(): LiveData<List<IssueStub>?>
 
-    @Query("SELECT * FROM Issue WHERE downloadedStatus == 'started'")
-    abstract fun getDownloadStartedIssues(): List<IssueStub>
-
-    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE downloadedStatus == 'done' AND feedName == :feedName AND date == :date AND status == :status)")
+    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE dateDownload != null AND feedName == :feedName AND date == :date AND status == :status)")
     abstract fun isDownloadedLiveData(
         feedName: String,
         date: String,
@@ -104,12 +108,32 @@ abstract class IssueDao : BaseDao<IssueStub>() {
 
     @Query(
         """
-            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.downloadedStatus in ('done', 'started')
+            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.dateDownload != null
         """
     )
-    abstract fun getDownloadedOrDownloadingIssuesForDayAndFeed(
+    abstract fun getDownloadedIssuesForDayAndFeed(
         feedName: String,
         date: String
     ): List<IssueStub>
 
+
+    @Query("SELECT * FROM Issue WHERE Issue.feedName IN (:feedNames) AND strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT :limit")
+    abstract fun getIssueStubsByFeedsAndDate(
+        feedNames: List<String>,
+        date: String,
+        limit: Int
+    ): List<IssueStub>
+
+    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT :limit")
+    abstract fun getIssueStubsByDate(
+        date: String,
+        limit: Int
+    ): List<IssueStub>
+
+    @Query("SELECT dateDownload FROM Issue WHERE date = :date AND feedName = :feedName AND status = :status")
+    abstract fun getDownloadDate(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): Date?
 }

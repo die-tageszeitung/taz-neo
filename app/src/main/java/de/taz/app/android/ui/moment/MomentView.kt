@@ -15,7 +15,7 @@ import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -26,6 +26,7 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 import kotlinx.coroutines.*
+import java.util.*
 
 
 class MomentView @JvmOverloads constructor(
@@ -36,15 +37,16 @@ class MomentView @JvmOverloads constructor(
 
     private val log by Log
 
-    private var issueStubLiveData: LiveData<IssueStub?>? = null
+    private var issueDownloadStatusLiveData: LiveData<DownloadStatus>? = null
+    var currentIssueStub: IssueStub? = null
     private var dateFormat: DateFormat? = null
     private var lifecycleOwner: LifecycleOwner? = context as? LifecycleOwner
 
-    private val downloadService = DownloadService.getInstance(context.applicationContext)
     private val feedRepository = FeedRepository.getInstance(context.applicationContext)
     private val fileHelper = FileHelper.getInstance(context.applicationContext)
     private val issueRepository = IssueRepository.getInstance(context.applicationContext)
     private val momentRepository = MomentRepository.getInstance(context.applicationContext)
+    private val dataService = DataService.getInstance(context.applicationContext)
 
     private var shouldNotShowDownloadIcon: Boolean = false
 
@@ -85,7 +87,8 @@ class MomentView @JvmOverloads constructor(
         displayJob?.cancel()
         displayJob = null
 
-        issueStubLiveData = null
+        issueDownloadStatusLiveData = null
+        currentIssueStub = null
         dateFormat = null
         clearDate()
         hideBitmap()
@@ -100,54 +103,48 @@ class MomentView @JvmOverloads constructor(
         downloadJob = null
     }
 
-    fun displayIssue(issueOperations: IssueOperations, dateFormat: DateFormat? = null) {
-        this.clear()
+    suspend fun displayIssue(issueStub: IssueStub, dateFormat: DateFormat? = null) {
+        withContext(Dispatchers.Main) {
+            clear()
+        }
+        currentIssueStub = issueStub
 
-        this.dateFormat = dateFormat
-        this.issueStubLiveData = issueRepository.getStubLiveData(
-            issueOperations.feedName, issueOperations.date, issueOperations.status
-        )
+        withContext(Dispatchers.IO) {
+            this@MomentView.dateFormat = dateFormat
+            issueDownloadStatusLiveData = currentIssueStub?.let {
+                dataService.getDownloadLiveData(it.getIssue())
+            }
+
+        }
 
         displayJob = lifecycleOwner?.lifecycleScope?.launchWhenResumed {
             launch {
                 var feed: Feed?
-                withContext(Dispatchers.IO) { feed = feedRepository.get(issueOperations.feedName) }
+                withContext(Dispatchers.IO) { feed = feedRepository.get(issueStub.feedName) }
                 setDimension(feed)
             }
 
-            launch { setDate(issueOperations.date) }
+            launch { setDate(issueStub.date) }
 
             launch { hideOrShowDownloadIcon() }
 
-            launch { showMoment(issueOperations) }
+            launch { showMoment(issueStub) }
         }
     }
 
     private suspend fun showMoment(issueOperations: IssueOperations) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueOperations)
-        if (moment?.isDownloaded(context.applicationContext) == true) {
-            showMomentImage(moment)
-        } else {
-            moment?.apply {
-                download(context.applicationContext)
-                withContext(Dispatchers.Main) {
-                    isDownloadedLiveData(context.applicationContext).observeDistinct(
-                        lifecycleOwner!!
-                    ) { isDownloaded ->
-                        if (isDownloaded) {
-                            showMomentImage(moment)
-                        }
-                    }
-                }
-            }
-        }
+        dataService.ensureDownloaded(moment)
+        showMomentImage(moment)
+
     }
 
     private fun hideOrShowDownloadIcon() {
         if (!shouldNotShowDownloadIcon) {
             view_moment_download_icon_wrapper?.visibility = View.VISIBLE
-            issueStubLiveData?.observeDistinct(lifecycleOwner!!) { issueStub ->
-                when (issueStub?.downloadedStatus) {
+
+            issueDownloadStatusLiveData!!.observeDistinct(lifecycleOwner!!) { downloadStatus ->
+                when (downloadStatus) {
                     DownloadStatus.done ->
                         hideDownloadIcon()
                     DownloadStatus.started ->
@@ -231,10 +228,21 @@ class MomentView @JvmOverloads constructor(
 
         view_moment_download_icon_wrapper?.setOnClickListener {
             showLoadingIcon()
+
             lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
-                issueStubLiveData?.value?.let {
-                    issueRepository.getIssue(it).let { issue ->
-                        downloadService.download(issue)
+                currentIssueStub?.let { issueRepository.getIssue(it) }?.let { issue ->
+                    // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
+                    val updatedIssue =
+                        dataService.getIssue(issue.issueKey, allowCache = false)
+                    currentIssueStub = IssueStub(updatedIssue)
+                    // If the issue from database is older that the refreshed one
+                    if (
+                        Date(updatedIssue.moTime.toLong()) >
+                        Date(issue.moTime.toLong())
+                    ) {
+                        dataService.ensureDownloaded(updatedIssue)
+                    } else {
+                        dataService.ensureDownloaded(issue)
                     }
                 }
             }
@@ -271,23 +279,20 @@ class MomentView @JvmOverloads constructor(
         setDimension(dimensionString)
     }
 
-    private fun generateBitmapForMoment(moment: Moment): Bitmap? {
+    private suspend fun generateBitmapForMoment(moment: Moment): Bitmap? {
         return moment.getMomentImage()?.let {
             val file = fileHelper.getFile(it)
-            if (file.exists()) {
-                // scale image to reduce memory costs
-                val bitmapOptions = BitmapFactory.Options()
-                bitmapOptions.inSampleSize = (4 / resources.displayMetrics.density).toInt()
-                BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
-            } else {
-                log.error("imgFile of $moment does not exist")
-                downloadJob = CoroutineScope(Dispatchers.IO).launch {
-                    moment.deleteFiles()
-                    moment.download(context?.applicationContext).join()
-                    showMomentImage(moment)
+            if (!file.exists()) {
+                log.warn("imgFile of $moment does not exist, redownloading")
+
+                lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
+                    dataService.ensureDownloaded(moment)
                 }
-                null
             }
+            // scale image to reduce memory costs
+            val bitmapOptions = BitmapFactory.Options()
+            bitmapOptions.inSampleSize = (4 / resources.displayMetrics.density).toInt()
+            BitmapFactory.decodeFile(file.absolutePath, bitmapOptions)
         }
     }
 }

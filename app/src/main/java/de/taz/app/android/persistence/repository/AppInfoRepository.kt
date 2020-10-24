@@ -14,18 +14,14 @@ class AppInfoRepository private constructor(applicationContext: Context) :
         appDatabase.appInfoDao().insertOrReplace(appInfo)
     }
 
-    @Throws(NotFoundException::class)
-    fun getOrThrow(): AppInfo {
-        return get() ?: throw NotFoundException()
-    }
-
     fun get(): AppInfo? {
-        return appDatabase.appInfoDao().get()?.let { appInfoEntity ->
+        val appInfoEntity = appDatabase.appInfoDao().get()
+        return appInfoEntity?.let {
             AppInfo(
-                appInfoEntity.appName,
-                appInfoEntity.globalBaseUrl,
-                appInfoEntity.appType,
-                appInfoEntity.androidVersion
+                it.appName,
+                it.globalBaseUrl,
+                it.appType,
+                it.androidVersion
             )
         }
     }
