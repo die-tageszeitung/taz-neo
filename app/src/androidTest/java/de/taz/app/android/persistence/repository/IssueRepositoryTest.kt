@@ -62,7 +62,7 @@ class IssueRepositoryTest {
         val fromDB = issueRepository.getIssueByFeedAndDate(
             issue.feedName, issue.date, issue.status
         )
-        assertEquals(fromDB, issue)
+        assertEquals(fromDB?.issueKey, issue.issueKey)
     }
 
     @Test
@@ -88,15 +88,15 @@ class IssueRepositoryTest {
             issue2.feedName, issue2.date, issue.status
         )
 
-        assertEquals(fromDB, issue)
-        assertEquals(fromDB2, issue2)
+        assertEquals(fromDB?.issueKey, issue.issueKey)
+        assertEquals(fromDB2?.issueKey, issue2.issueKey)
     }
 
     @Test
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        assertEquals(issue, issueRepository.getLatestIssue())
+        assertEquals(IssueStub(issue), issueRepository.getLatestIssueStub())
     }
 
 
@@ -108,7 +108,7 @@ class IssueRepositoryTest {
             if (index == issue.sectionList.size - 1) {
                 assertNull(section.next())
             } else {
-                assertEquals(SectionStub(issue.sectionList[index + 1]), section.next())
+                assertEquals(issue.sectionList[index + 1].sectionHtml.sha256, section.next()?.sectionHtml?.sha256)
             }
 
         }
@@ -122,7 +122,7 @@ class IssueRepositoryTest {
             if (index == 0) {
                 assertNull(section.previous())
             } else {
-                assertEquals(SectionStub(issue.sectionList[index - 1]), section.previous())
+                assertEquals(issue.sectionList[index - 1].sectionHtml.sha256, section.previous()?.sectionHtml?.sha256)
             }
         }
     }
@@ -139,13 +139,13 @@ class IssueRepositoryTest {
                     assertNull(article.next())
                 } else if (articleIndex == section.articleList.size - 1) {
                     assertEquals(
-                        article.next(),
-                        ArticleStub(issue.sectionList[sectionIndex + 1].articleList.first())
+                        article.next()?.articleHtml?.sha256,
+                        issue.sectionList[sectionIndex + 1].articleList.first().articleHtml.sha256
                     )
                 } else {
                     assertEquals(
-                        article.next(),
-                        ArticleStub(section.articleList[articleIndex + 1])
+                        article.next()?.articleHtml?.sha256,
+                        section.articleList[articleIndex + 1].articleHtml.sha256
                     )
                 }
             }
@@ -162,13 +162,13 @@ class IssueRepositoryTest {
                     assertNull(article.previous())
                 } else if (articleIndex == 0) {
                     assertEquals(
-                        article.previous(),
-                        ArticleStub(issue.sectionList[sectionIndex - 1].articleList.last())
+                        article.previous()?.articleHtml?.sha256,
+                        issue.sectionList[sectionIndex - 1].articleList.last().articleHtml.sha256
                     )
                 } else {
                     assertEquals(
-                        article.previous(),
-                        ArticleStub(section.articleList[articleIndex - 1])
+                        article.previous()?.articleHtml?.sha256,
+                        section.articleList[articleIndex - 1].articleHtml.sha256
                     )
                 }
             }
