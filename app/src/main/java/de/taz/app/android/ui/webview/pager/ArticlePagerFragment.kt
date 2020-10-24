@@ -11,10 +11,8 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.*
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -53,12 +51,12 @@ class ArticlePagerFragment : BaseMainFragment(
             ) {
                 log.debug("New set of articles: ${articleStubs.map { it.key }}")
                 webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
-                tryScrollToArticle()
+                issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
             }
         }
 
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
-            tryScrollToArticle()
+            tryScrollToArticle(it)
         }
 
 
@@ -113,7 +111,7 @@ class ArticlePagerFragment : BaseMainFragment(
             if (lastPage != null && lastPage != position) {
                 hasBeenSwiped = true
                 runIfNotNull(
-                    issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                    issueContentViewModel.currentIssue,
                     nextStub
                 ) { issueStub, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
@@ -177,7 +175,7 @@ class ArticlePagerFragment : BaseMainFragment(
     private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
         getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
-                issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                issueContentViewModel.currentIssue,
                 articleStub.getSectionStub(null)
             ) { issueStub, sectionStub ->
                 issueContentViewModel.setDisplayable(issueStub.issueKey, sectionStub.key)
@@ -232,12 +230,11 @@ class ArticlePagerFragment : BaseMainFragment(
         startActivity(shareIntent)
     }
 
-    private fun tryScrollToArticle() {
-        val articleKey = issueContentViewModel.displayableKeyLiveData.value
+    private fun tryScrollToArticle(articleKey: String) {
+        val articleStubs = (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs
         if (
-            articleKey?.startsWith("art") == true &&
-            issueContentViewModel.articleListLiveData.value?.map { it.key }
-                ?.contains(articleKey) == true
+            articleKey.startsWith("art") &&
+            articleStubs?.map { it.key }?.contains(articleKey) == true
         ) {
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
             if (articleKey != getCurrentArticleStub()?.key) {

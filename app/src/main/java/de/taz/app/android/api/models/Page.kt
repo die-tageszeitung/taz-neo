@@ -1,66 +1,58 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.PageDto
-import de.taz.app.android.api.interfaces.CacheableDownload
+import de.taz.app.android.api.interfaces.DownloadableCollection
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.singletons.FileHelper
+import java.util.*
 
 
-data class Page (
+data class Page(
     val pagePdf: FileEntry,
     val title: String? = null,
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    override val downloadedStatus: DownloadStatus?
-) : CacheableDownload {
+    override val dateDownload: Date?
+) : DownloadableCollection {
 
-    constructor(issueFeedName: String, issueDate: String, pageDto: PageDto): this (
+    constructor(issueFeedName: String, issueDate: String, pageDto: PageDto) : this(
         FileEntry(pageDto.pagePdf, "$issueFeedName/$issueDate"),
         pageDto.title,
         pageDto.pagina,
         pageDto.type,
         pageDto.frameList,
-        DownloadStatus.pending
+        null
     )
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getDownloadDate(): Date? {
+        return PageRepository.getInstance().getDownloadDate(this)
+    }
+
+    override suspend fun setDownloadDate(date: Date?) {
+        return PageRepository.getInstance().setDownloadDate(this, date)
+    }
+
+    override fun getAllFiles(): List<FileEntry> {
         return listOf(pagePdf)
     }
 
     override fun getAllFileNames(): List<String> {
-        return listOf(pagePdf).map { it.name }.distinct()
+        return getAllFiles().map { it.name }.distinct()
     }
 
-    override fun getAllLocalFileNames(): List<String> {
-        return listOf(pagePdf)
-            .filter { it.downloadedStatus == DownloadStatus.done }
-            .map { it.name }
-            .distinct()
-    }
-
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        PageRepository.getInstance().apply {
-            getStub(this@Page.pagePdf.name)?.let {
-                update(it.copy(downloadedStatus = downloadStatus))
-            }
+    override suspend fun deleteFiles() {
+        getAllFiles().forEach {
+            FileEntryRepository.getInstance().resetDownloadDate(it)
+            FileHelper.getInstance().deleteFile(it)
         }
     }
 
-    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
-        return PageRepository.getInstance(applicationContext).isDownloadedLiveData(this)
+    override fun getDownloadTag(): String {
+        return "page/${pagePdf.sha256}"
     }
-
-    override fun getLiveData(applicationContext: Context?): LiveData<Page?> {
-        return PageRepository.getInstance(applicationContext).getLiveData(pagePdf.name)
-    }
-
-    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-       return PageRepository.getInstance(applicationContext).get(pagePdf.name)?.downloadedStatus
-    }
-
 }
 
 @JsonClass(generateAdapter = false)

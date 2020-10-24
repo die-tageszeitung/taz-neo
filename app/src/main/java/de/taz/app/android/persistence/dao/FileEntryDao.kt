@@ -23,6 +23,6 @@ abstract class FileEntryDao : BaseDao<FileEntry>() {
     @Query("SELECT FileEntry.name FROM FileEntry WHERE name LIKE :filterString")
     abstract fun getNamesContaining(filterString: String): List<String>
 
-    @Query("SELECT EXISTS(SELECT * FROM FileEntry WHERE name == :fileName AND downloadedStatus == 'done')")
-    abstract fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
+    @Query("DELETE FROM FileEntry WHERE name in (:fileNames)")
+    abstract fun deleteList(fileNames: List<String>)
 }

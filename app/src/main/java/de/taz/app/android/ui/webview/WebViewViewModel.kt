@@ -12,8 +12,6 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(private val savedS
 
     val displayableLiveData = MutableLiveData<DISPLAYABLE?>(null)
 
-    var issueOperations: IssueOperations? = null
-
     var displayable: DISPLAYABLE?
         get() = displayableLiveData.value
         set(value) { displayableLiveData.value = value }

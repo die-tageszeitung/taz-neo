@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FeedRepository
@@ -36,7 +37,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private var feedRepository: FeedRepository? = null
     private var issueRepository: IssueRepository? = null
     private var toastHelper: ToastHelper? = null
-    private var toDownloadIssueHelper: ToDownloadIssueHelper? = null
     private var authHelper: AuthHelper? = null
 
     companion object {
@@ -56,7 +56,6 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         feedRepository = FeedRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
     }
 
@@ -151,15 +150,12 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
                             toastHelper?.showToast(
                                 "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
                             )
-                            toDownloadIssueHelper?.startMissingDownloads(
-                                it.date
-                            )
                         }
                     } else {
                         toastHelper?.showToast(getString(R.string.issue_not_found))
                         dismiss()
                     }
-                } catch (e: ApiService.ApiServiceException) {
+                } catch (e: ConnectivityException) {
                     toastHelper?.showNoConnectionToast()
                     dismiss()
                 }

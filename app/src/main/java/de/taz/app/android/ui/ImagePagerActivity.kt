@@ -1,9 +1,6 @@
 package de.taz.app.android.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,9 +11,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -39,10 +38,13 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
     private var toDownloadImageList: List<Image> = emptyList()
     private var pagerAdapter: ImagePagerAdapter? = null
 
+    private lateinit var dataService: DataService
+
     val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dataService = DataService.getInstance()
 
         displayableName = intent.extras?.getString(DISPLAYABLE_NAME)
         imageName = intent.extras?.getString(IMAGE_NAME)
@@ -62,9 +64,9 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             runOnUiThread {
                 viewPager2.setCurrentItem(getPosition(imageName), false)
             }
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.IO) {
                 toDownloadImageList.forEach { img ->
-                    img.download(applicationContext)
+                    dataService.ensureDownloaded(FileEntry(img), img.getIssueStub().baseUrl)
                 }
             }
         }
@@ -93,7 +95,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             }
 
             val downloadedImages =
-                allImages.filter { it.downloadedStatus == DownloadStatus.done }.toMutableList()
+                allImages.filter { it.dateDownload != null }.toMutableList()
             val imagesToDownload = allImages.toMutableList()
             imagesToDownload.removeAll(downloadedImages)
 

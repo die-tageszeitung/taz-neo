@@ -14,9 +14,7 @@ import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import de.taz.app.android.singletons.OkHttp
-import de.taz.app.android.singletons.ServerConnectionHelper
 import de.taz.app.android.util.reportAndRethrowExceptions
-import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -32,15 +30,13 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val okHttpClient: OkHttpClient,
     private val url: String,
     private val queryService: QueryService,
-    private val authHelper: AuthHelper,
-    private val serverConnectionHelper: ServerConnectionHelper
+    private val authHelper: AuthHelper
 ) {
     private constructor(applicationContext: Context) : this(
         okHttpClient = OkHttp.client,
         url = GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext),
-        authHelper = AuthHelper.getInstance(applicationContext),
-        serverConnectionHelper = ServerConnectionHelper.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
     )
 
     private val unrecoverableGraphQlErrorCategories = listOf("businessLogic", "graphql ")
@@ -87,12 +83,17 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             if (wrapper.errors.isNotEmpty()) {
                 if (wrapper.errors.findLast { item ->
                         unrecoverableGraphQlErrorCategories.contains(item.extensions?.category)
-                    } !== null) {
+                    } != null) {
+                    log.error("A faulty response from graphQL received ${wrapper.errors}")
                     throw GraphQlImplementationException(wrapper)
                 } else {
-                    serverConnectionHelper.isGraphQlServerReachable = false
                     throw GraphQlRecoverableServerException(wrapper)
                 }
+            }
+
+            // if response carries authinfo we save it
+            wrapper.data?.product?.authInfo?.let {
+                authHelper.authStatus = it.status
             }
             wrapper
         }

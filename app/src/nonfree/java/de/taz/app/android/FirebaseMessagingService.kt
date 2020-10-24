@@ -105,7 +105,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         firebaseHelper.firebaseToken = token
         CoroutineScope(Dispatchers.IO).launch {
             firebaseHelper.hasTokenBeenSent =
-                apiService.sendNotificationInfoAsync(oldToken).await() ?: false
+                apiService.sendNotificationInfo(token, oldToken)
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }

@@ -1,11 +1,14 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.FileHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.*
 
 data class Article(
     val articleHtml: FileEntry,
@@ -22,8 +25,8 @@ data class Article(
     val bookmarked: Boolean,
     val position: Int,
     val percentage: Int,
-    override val downloadedStatus: DownloadStatus?
-) : ArticleOperations {
+    override val dateDownload: Date?
+) : ArticleOperations, WebViewDisplayable {
 
     constructor(
         issueFeedName: String,
@@ -45,33 +48,74 @@ data class Article(
         false,
         0,
         0,
-        DownloadStatus.pending
+        null
     )
 
     override val key: String
         get() = articleHtml.name
 
-    override suspend fun getAllFiles(): List<FileEntryOperations> {
-        val list = mutableListOf<FileEntryOperations>(articleHtml)
+    override fun getAllFiles(): List<FileEntry> {
+        val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
-        return list
-    }
-    override fun getAllFileNames(): List<String> {
-        val list = mutableListOf<FileEntryOperations>(articleHtml)
-        list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
-        return list.map { it.name }.distinct()
-    }
-    override fun getAllLocalFileNames(): List<String> {
-        val list = mutableListOf<FileEntryOperations>(articleHtml)
-        list.addAll(authorList.mapNotNull { it.imageAuthor })
-        list.addAll(imageList.filter { it.downloadedStatus == DownloadStatus.done })
-        return list.map { it.name }.distinct()
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
+            .map { FileEntry(it) })
+        return list.distinct()
     }
 
-    override fun getLiveData(applicationContext: Context?): LiveData<Article?> {
-        return ArticleRepository.getInstance(applicationContext).getLiveData(key)
+    override fun getAllFileNames(): List<String> {
+        return getAllFiles().map { it.name }.distinct()
+    }
+
+    override suspend fun deleteFiles() {
+        getAllFileNames().forEach { FileHelper.getInstance().deleteFile(it) }
+    }
+
+    override fun getDownloadTag(): String {
+        return articleHtml.name
+    }
+
+
+    fun nextArticle(): Article? {
+        val articleRepository = ArticleRepository.getInstance()
+        return articleRepository.nextArticleStub(key)?.let {
+            articleRepository.articleStubToArticle(it)
+        }
+    }
+
+
+    fun previousArticle(): Article? {
+        val articleRepository = ArticleRepository.getInstance()
+        return articleRepository.previousArticleStub(key)?.let {
+            articleRepository.articleStubToArticle(it)
+        }
+    }
+
+    override fun getFile(): File? {
+        return FileHelper.getInstance().getFile(this.key)
+    }
+
+    override fun getFilePath(): String? {
+        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
+    }
+
+    override fun previous(): Article? {
+        return previousArticle()
+    }
+
+    override fun next(): Article? {
+        return nextArticle()
+    }
+
+    override fun getIssueStub(): IssueStub? {
+        return super.getIssueStub()
+    }
+
+    override suspend fun getDownloadDate(): Date? = withContext(Dispatchers.IO) {
+        ArticleRepository.getInstance().getDownloadDate(ArticleStub(this@Article))
+    }
+
+    override suspend fun setDownloadDate(date: Date?) {
+        ArticleRepository.getInstance().setDownloadDate(ArticleStub(this@Article), date)
     }
 
 }

@@ -3,9 +3,11 @@ package de.taz.app.android.singletons
 import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
@@ -28,7 +30,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val apiService = ApiService.getInstance(applicationContext)
-    private val downloadService = DownloadService.getInstance(applicationContext)
+    private val dataService = DataService.getInstance(applicationContext)
 
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
@@ -51,7 +53,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
             downloadingJob = CoroutineScope(Dispatchers.IO).launch {
                 try {
                     if(lastDownloadedDateLiveData.value.isEmpty()) {
-                        val latestIssueDate = issueRepository.getLatestIssue()?.date ?: ""
+                        val latestIssueDate = issueRepository.getLatestIssueStub()?.date ?: ""
                         withContext(Dispatchers.Main) {
                             lastDownloadedDateLiveData.value = latestIssueDate
                         }
@@ -65,22 +67,15 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                             lastDownloadedDateLiveData.value
                         ).toInt() > 0
                     ) {
-                        if (downloadService.isDownloading()) {
-                            delay(1000)
-                        } else {
-                            try {
-                                val missingIssues =
-                                    apiService.getIssuesByDateAsync(
-                                        lastDownloadedDateLiveData.value
-                                    ).await()
-                                issueRepository.saveIfDoNotExist(missingIssues)
-                                withContext(Dispatchers.Main) {
-                                    lastDownloadedDateLiveData.value = missingIssues.last().date
-                                }
-                            } catch (e: ApiService.ApiServiceException) {
-                                log.warn("$e")
-                                break
+                        try {
+                            val missingIssues = dataService.getIssueStubs(simpleDateFormat.parse(lastDownloadedDateLiveData.value)!!, 10)
+
+                            withContext(Dispatchers.Main) {
+                                lastDownloadedDateLiveData.value = missingIssues.last().date
                             }
+                        } catch (e: ConnectivityException) {
+                            log.warn("$e")
+                            break
                         }
                     }
                 } finally {

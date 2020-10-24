@@ -78,7 +78,7 @@ class ApiServiceTest {
         // If we throw three connection problems the back off time should double three times. Add another second for safety
         val waitTime = 2f.pow(2) * CONNECTION_FAILURE_BACKOFF_TIME_MS + 1000L
 
-        Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+        Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
         val runQuery = launch {
             apiService.getDataDto("test", QueryType.AppInfo)
         }
@@ -86,13 +86,13 @@ class ApiServiceTest {
         val verification = launch {
             delay(200)
             // Because of connectexception the connection helper should be set to unreachable
-            Assert.assertFalse(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertFalse(serverConnectionHelper.isAPIServerReachable)
             delay(waitTime.toLong() / 2)
             // Should still be in unreachable state after half the wait time
-            Assert.assertFalse(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertFalse(serverConnectionHelper.isAPIServerReachable)
             delay(waitTime.toLong() / 2)
             // by now it should've been recovered
-            Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
         }
 
         runQuery.join()
@@ -112,7 +112,7 @@ class ApiServiceTest {
         // If we throw three connection problems the back off time should double three times. Add another second for safety
         val waitTime = 2f.pow(2) * CONNECTION_FAILURE_BACKOFF_TIME_MS + 1000L
 
-        Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+        Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
         val runQuery = launch {
             apiService.getDataDto("test", QueryType.AppInfo)
         }
@@ -120,22 +120,22 @@ class ApiServiceTest {
         val verification = launch {
             delay(waitTime.toLong() / 2)
             // Because of connectexception the connection helper should be set to unreachable
-            Assert.assertFalse(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertFalse(serverConnectionHelper.isAPIServerReachable)
             delay(waitTime.toLong() / 2)
             // by now it should've been recovered
-            Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
         }
 
         runQuery.join()
         verification.join()
     }
 
-    @Test(expected = ApiService.ApiServiceException.ImplementationException::class)
+    @Test(expected = ConnectivityException.ImplementationException::class)
     fun `getDataDto with missing data will throw exception`(): Unit = runBlocking {
         `when`(graphQlClient.query(QueryType.AppInfo))
             .thenThrow(GraphQlClient.GraphQlImplementationException(null))
 
-        Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+        Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
 
         apiService.getDataDto("test", QueryType.AppInfo)
     }
@@ -146,12 +146,12 @@ class ApiServiceTest {
             `when`(graphQlClient.query(QueryType.AppInfo))
                 .thenThrow(Exception())
 
-            Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
-            Assert.assertThrows(ApiService.ApiServiceException.ImplementationException::class.java) {
+            Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
+            Assert.assertThrows(ConnectivityException.ImplementationException::class.java) {
                 runBlocking { apiService.getDataDto("test", QueryType.AppInfo) }
             }
 
             // do not alter reachability
-            Assert.assertTrue(serverConnectionHelper.isGraphQlServerReachable)
+            Assert.assertTrue(serverConnectionHelper.isAPIServerReachable)
         }
 }

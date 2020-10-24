@@ -1,14 +1,13 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.interfaces.CacheableDownload
-import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.FileHelper
+import java.io.File
+import java.util.*
 
 data class Section(
     val sectionHtml: FileEntry,
@@ -19,8 +18,8 @@ data class Section(
     val articleList: List<Article>,
     val imageList: List<Image>,
     override val extendedTitle: String?,
-    override val downloadedStatus: DownloadStatus?
-) : SectionOperations {
+    override val dateDownload: Date?
+) : SectionOperations, WebViewDisplayable {
 
     constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
         sectionHtml = FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
@@ -33,33 +32,70 @@ data class Section(
         imageList = sectionDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") }
             ?: listOf(),
         extendedTitle = sectionDto.extendedTitle,
-        downloadedStatus = DownloadStatus.pending
+        dateDownload = null
     )
 
     override val key: String
         get() = sectionHtml.name
 
-    override suspend fun getAllFiles(): List<FileEntryOperations> {
-        val list = mutableListOf<FileEntryOperations>(sectionHtml)
-        list.addAll(imageList.filter { it.resolution == ImageResolution.normal })
+    override fun getAllFiles(): List<FileEntry> {
+        val list = mutableListOf(sectionHtml)
+        list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { FileEntry(it) })
         return list.distinct()
     }
 
     override fun getAllFileNames(): List<String> {
-        val list = mutableListOf(sectionHtml.name)
-        list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { it.name })
-        return list.distinct()
+        return getAllFiles().map { it.name }
     }
 
-    override fun getAllLocalFileNames(): List<String> {
-        val list = mutableListOf(sectionHtml.name)
-        list.addAll(imageList.filter { it.downloadedStatus == DownloadStatus.done }.map { it.name })
-        return list.distinct()
+    override suspend fun deleteFiles() {
+        getAllFiles().forEach { FileHelper.getInstance().deleteFile(it) }
     }
 
-    override fun getLiveData(applicationContext: Context?): LiveData<Section?> {
-        return SectionRepository.getInstance(applicationContext).getLiveData(sectionHtml.name)
+    override fun getDownloadTag(): String {
+        return sectionHtml.name
     }
 
+    fun nextSection(): Section? {
+        val sectionRepository = SectionRepository.getInstance()
+        return sectionRepository.getNextSectionStub(this.key)?.let {
+            sectionRepository.sectionStubToSection(it)
+        }
+    }
+
+    fun previousSection(): Section? {
+        val sectionRepository = SectionRepository.getInstance()
+        return sectionRepository.getPreviousSectionStub(this.key)?.let {
+            sectionRepository.sectionStubToSection(it)
+        }
+    }
+
+    override fun getFile(): File? {
+        return FileHelper.getInstance().getFile(this.key)
+    }
+
+    override fun getFilePath(): String? {
+        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
+    }
+
+    override fun previous(): Section? {
+        return previousSection()
+    }
+
+    override fun next(): Section? {
+        return nextSection()
+    }
+
+    override fun getIssueStub(): IssueStub? {
+        return super.getIssueStub()
+    }
+
+    override suspend fun getDownloadDate(): Date? {
+        return SectionRepository.getInstance().getDownloadDate(SectionStub(this))
+    }
+
+    override suspend fun setDownloadDate(date: Date?) {
+        SectionRepository.getInstance().setDownloadDate(SectionStub(this), date)
+    }
 }
 

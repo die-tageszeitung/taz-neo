@@ -11,8 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -28,15 +28,15 @@ import java.lang.ref.WeakReference
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-    private var afterDelete: Boolean = false
     private var issueStub: IssueStub? = null
     private var weakActivityReference: WeakReference<MainActivity>? = null
 
-    private var apiService: ApiService? = null
-    private var fileEntryRepository: FileEntryRepository? = null
-    private var fileHelper: FileHelper? = null
-    private var downloadService: DownloadService? = null
-    private var issueRepository: IssueRepository? = null
+    private lateinit var apiService: ApiService
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var fileHelper: FileHelper
+    private lateinit var downloadService: DownloadService
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var dataService: DataService
 
     companion object {
         fun create(
@@ -57,6 +57,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fileHelper = FileHelper.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -70,7 +71,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (issueStub?.downloadedStatus != DownloadStatus.done) {
+        if (issueStub?.dateDownload == null) {
             fragment_bottom_sheet_issue_delete?.visibility = View.GONE
             fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
         } else {
@@ -88,14 +89,14 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             issueStub?.let { issueStub ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val issue = issueRepository?.getIssue(issueStub)
-                    issue?.moment?.getMomentFileToShare()?.let { image ->
-                        fileEntryRepository?.get(
+                    val issue = issueRepository.getIssue(issueStub)
+                    issue.moment.getMomentFileToShare().let { image ->
+                        fileEntryRepository.get(
                             image.name
                         )?.let {
-                            downloadService?.download(it, issue.baseUrl)
+                            dataService.ensureDownloaded(it, issue.baseUrl)
                         }
-                        fileHelper?.getFile(image)?.let { imageAsFile ->
+                        fileHelper.getFile(image).let { imageAsFile ->
                             val applicationId = view.context.packageName
                             val imageUriNew = FileProvider.getUriForFile(
                                 view.context,
@@ -126,29 +127,29 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 fragment_bottom_sheet_issue_share?.setOnClickListener(null)
                 fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
 
-                afterDelete = true
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val issue = issueRepository?.getIssue(
-                        issueStub
-                    )
-                    issue?.deleteAndUpdateMetaData(context?.applicationContext)?.let { newIssue ->
-                        (activity as? MainActivity)?.showHome(skipToIssue = newIssue)
-                    }
+
+                    val issue = issueStub.getIssue()
+                    dataService.ensureDeleted(issue)
+
+
+
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }
+                    val newIssue = dataService.getIssue(issue.issueKey, allowCache = false)
+                    dataService.ensureDownloaded(newIssue.moment)
                 }
             }
+
         }
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 issueStub?.let {
-                    issueRepository?.getIssue(it).let { issue ->
-                        if (issue != null) {
-                            downloadService?.download(issue)
-                        }
+                    issueRepository.getIssue(it).let { issue ->
+                        dataService.ensureDownloaded(issue)
                     }
                 }
             }

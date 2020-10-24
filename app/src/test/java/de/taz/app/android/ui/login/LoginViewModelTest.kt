@@ -1,10 +1,10 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
-import android.widget.Toast
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FeedHelper
@@ -359,7 +359,7 @@ class LoginViewModelTest {
     @Test
     fun registerNoInternet() = runBlocking {
         val status = loginViewModel.status.value
-        doThrow(ApiService.ApiServiceException.NoInternetException(ConnectException())).`when`(apiService)
+        doThrow(ConnectivityException.NoInternetException(ConnectException())).`when`(apiService)
             .trialSubscription(username, password)
         loginViewModel.username = username
         loginViewModel.password = password
@@ -417,7 +417,7 @@ class LoginViewModelTest {
 
     @Test
     fun pollNoInternet() = runBlocking {
-        doThrow(ApiService.ApiServiceException.NoInternetException(ConnectException())).doReturn(
+        doThrow(ConnectivityException.NoInternetException(ConnectException())).doReturn(
             waitForMailSubscriptionInfo
         ).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(LoginViewModelState.INITIAL, 0, runBlocking = true).join()
@@ -510,7 +510,7 @@ class LoginViewModelTest {
 
     @Test
     fun requestSubscriptionPasswordNoInternet() = runBlocking {
-        doThrow(ApiService.ApiServiceException.NoInternetException(ConnectException())).`when`(apiService)
+        doThrow(ConnectivityException.NoInternetException(ConnectException())).`when`(apiService)
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
         assertTrue(loginViewModel.status.value == LoginViewModelState.PASSWORD_REQUEST)
@@ -556,7 +556,7 @@ class LoginViewModelTest {
 
     @Test
     fun requestCredentialsPasswordNoInternet() = runBlocking {
-        doThrow(ApiService.ApiServiceException.NoInternetException(ConnectException())).`when`(
+        doThrow(ConnectivityException.NoInternetException(ConnectException())).`when`(
             apiService
         ).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
@@ -723,7 +723,7 @@ class LoginViewModelTest {
     @Test
     fun connectNoInternet() = runBlocking {
         val status = loginViewModel.status.value
-        doThrow(ApiService.ApiServiceException.NoInternetException(ConnectException())).`when`(apiService)
+        doThrow(ConnectivityException.NoInternetException(ConnectException())).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.username = email
         loginViewModel.password = password

@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueCreditMomentJoin
 import de.taz.app.android.persistence.join.IssueImageMomentJoin
 import de.taz.app.android.util.SingletonHolder
+import java.util.*
 
 class MomentRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -52,12 +53,12 @@ class MomentRepository private constructor(applicationContext: Context) :
                 momentStub.issueDate,
                 momentStub.issueStatus
             ),
-            momentStub.downloadedStatus
+            momentStub.dateDownload
         )
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment {
+    fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment {
         return Moment(
             issueFeedName,
             issueDate,
@@ -72,13 +73,17 @@ class MomentRepository private constructor(applicationContext: Context) :
                 issueDate,
                 issueStatus
             ),
-            appDatabase.momentDao().getDownloadStatus(issueFeedName, issueDate, issueStatus)
+            appDatabase.momentDao().getDownloadDate(issueFeedName, issueDate, issueStatus)
         )
     }
 
-    @Throws(NotFoundException::class)
-    fun getOrThrow(issueOperations: IssueOperations): Moment {
-        return getOrThrow(issueOperations.feedName, issueOperations.date, issueOperations.status)
+    fun getDownloadDate(moment: Moment): Date? {
+        return appDatabase.momentDao()
+            .getDownloadDate(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+    }
+
+    fun setDownloadDate(moment: Moment, date: Date?) {
+        return update(MomentStub(moment).copy(dateDownload = date))
     }
 
     fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): MomentStub? {
@@ -89,15 +94,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
-        return try {
-            getOrThrow(issueFeedName, issueDate, issueStatus)
-        } catch (e: NotFoundException) {
-            null
-        }
-    }
-
-    fun get(issueOperations: IssueOperations): Moment? {
+    fun get(issueOperations: IssueOperations): Moment {
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
@@ -109,47 +106,36 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getDownloadedStatus(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): DownloadStatus? {
-        return appDatabase.momentDao().getDownloadStatus(
-            issueFeedName, issueDate, issueStatus
-        )
-    }
-
     fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
-        get(issueFeedName, issueDate, issueStatus)?.let { moment ->
-            appDatabase.issueImageMomentJoinDao().delete(
-                moment.imageList.mapIndexed { index, fileEntry ->
-                    IssueImageMomentJoin(
-                        issueFeedName,
-                        issueDate,
-                        issueStatus,
-                        fileEntry.name,
-                        index
-                    )
-                }
-            )
-            appDatabase.issueCreditMomentJoinDao().delete(
-                moment.creditList.mapIndexed { index, fileEntry ->
-                    IssueCreditMomentJoin(
-                        issueFeedName,
-                        issueDate,
-                        issueStatus,
-                        fileEntry.name,
-                        index
-                    )
-                }
-            )
-            try {
-                imageRepository.delete(moment.imageList)
-            } catch (e: SQLiteConstraintException) {
-                log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
-                // do not delete is used by another issue
+        val moment = get(issueFeedName, issueDate, issueStatus)
+        appDatabase.issueImageMomentJoinDao().delete(
+            moment.imageList.mapIndexed { index, fileEntry ->
+                IssueImageMomentJoin(
+                    issueFeedName,
+                    issueDate,
+                    issueStatus,
+                    fileEntry.name,
+                    index
+                )
             }
-            appDatabase.momentDao().delete(MomentStub(moment))
-        } ?: log.warn("moment for $issueFeedName $issueDate $issueStatus not deleted")
+        )
+        appDatabase.issueCreditMomentJoinDao().delete(
+            moment.creditList.mapIndexed { index, fileEntry ->
+                IssueCreditMomentJoin(
+                    issueFeedName,
+                    issueDate,
+                    issueStatus,
+                    fileEntry.name,
+                    index
+                )
+            }
+        )
+        try {
+            imageRepository.delete(moment.imageList)
+        } catch (e: SQLiteConstraintException) {
+            log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
+            // do not delete is used by another issue
+        }
+        appDatabase.momentDao().delete(MomentStub(moment))
     }
 }
