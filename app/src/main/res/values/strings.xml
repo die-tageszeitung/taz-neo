@@ -59,6 +59,7 @@
 
     <string name="fragment_bottom_sheet_text_size_decrease">Textgröße erhöhen</string>
     <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
+    <string name="fragment_bottom_sheet_text_size_justification">Blocksatz</string>
     <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
@@ -86,6 +87,7 @@
     <string name="settings_category_text">Darstellung</string>
     <string name="settings_category_account">Abo</string>
     <string name="settings_text_font_size">Textgröße</string>
+    <string name="settings_text_justification">Blocksatz</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Logout</u></string>

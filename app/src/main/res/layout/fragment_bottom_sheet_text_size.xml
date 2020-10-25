@@ -117,6 +117,42 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_text_size" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_bottom_sheet_text_size_justification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
+        android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal_switch"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_text_size">
+
+        <TextView
+            style="@style/TextAppearance.BottomSheet.Setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_bottom_sheet_text_size_justification"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/fragment_bottom_sheet_text_size_justification_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_justification" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_bottom_sheet_text_size_night_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -125,7 +161,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_text_size">
+            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_justification">
 
         <TextView
                 style="@style/TextAppearance.BottomSheet.Setting"

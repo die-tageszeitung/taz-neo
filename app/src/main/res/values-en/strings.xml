@@ -64,6 +64,7 @@
 
     <string name="fragment_bottom_sheet_text_size_decrease">decrease text size</string>
     <string name="fragment_bottom_sheet_text_size_increase">increase text size</string>
+    <string name="fragment_bottom_sheet_text_size_justification">Justify</string>
     <string name="fragment_bottom_sheet_text_night_mode">Night mode</string>
     <string name="fragment_bottom_sheet_text_size_settings">Settings</string>
 
@@ -84,6 +85,7 @@
     <string name="settings_category_text">display</string>
     <string name="settings_category_account">account</string>
     <string name="settings_text_font_size">Font size</string>
+    <string name="settings_text_justification">Justify</string>
     <string name="settings_text_night_mode">Night mode</string>
     <string name="settings_account_manage_account"><u>manage account</u></string>
     <string name="settings_account_logout"><u>Logout</u></string>
