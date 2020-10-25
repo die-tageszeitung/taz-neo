@@ -6,6 +6,7 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 const val SETTINGS_DATA_POLICY_ACCEPTED = "data_policy_accepted"
 const val SETTINGS_FIRST_TIME_APP_STARTS = "first_time_app_starts"
 const val DEFAULT_FONT_SIZE = 18
+const val SETTINGS_TEXT_JUSTIFICATION = "text_justification"
 const val SETTINGS_TEXT_NIGHT_MODE = "text_night_mode"
 const val SETTINGS_TEXT_FONT_SIZE = "text_font_size"
 const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
@@ -25,7 +26,14 @@ object TazApiCssHelper {
         return fontSize.toString()
     }
 
+    private fun computeJustification(justified: Boolean): String {
+        return if (justified) "justify" else "left"
+    }
+
     fun generateCssString(sharedPreferences: SharedPreferences): String {
+        val justification = computeJustification(
+                sharedPreferences.getBoolean(SETTINGS_TEXT_JUSTIFICATION, false)
+        )
         val nightModeCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/themeNight.css")
         val fontSizePx = computeFontSize(
             sharedPreferences.getString(
@@ -40,6 +48,7 @@ object TazApiCssHelper {
                 html, body {
                     background-color : ${SETTINGS_DEFAULT_NIGHT_COLOR};
                     font-size        : ${fontSizePx}px;
+                    text-align       : ${justification};
                 }
                 div.demoDiv:before {
                     background-image : --webkit_linear-gradient(0deg,${SETTINGS_DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
@@ -50,6 +59,7 @@ object TazApiCssHelper {
                 html, body {
                     background-color : ${SETTINGS_DEFAULT_DAY_COLOR};
                     font-size        : ${fontSizePx}px;
+                    text-align       : ${justification};
                 }""".trimIndent()
         }
     }
