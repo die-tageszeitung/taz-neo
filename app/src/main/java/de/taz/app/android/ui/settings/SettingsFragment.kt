@@ -101,6 +101,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 resetTextSize()
             }
 
+            fragment_settings_justification?.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        enableJustifiedText()
+                    } else {
+                        disableJustifiedText()
+                    }
+                }
+            }
+
             fragment_settings_night_mode?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
@@ -133,6 +143,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showTextSize(textSizeInt)
                 }
+            }
+            justificationLiveData.observeDistinct(viewLifecycleOwner) { justification ->
+                showJustification(justification)
             }
             nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
@@ -204,6 +217,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 
+    private fun showJustification(justification: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_justification)?.isChecked = justification
+    }
+
     private fun showNightMode(nightMode: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
@@ -248,6 +265,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private fun setStoredIssueNumber(number: Int) {
         log.debug("setKeepNumber: $number")
         viewModel.storedIssueNumberLiveData.postValue(number.toString())
+    }
+
+    private fun enableJustifiedText() {
+        log.debug("enableJustifiedText")
+        viewModel.justificationLiveData.postValue(true)
+    }
+
+    private fun disableJustifiedText() {
+        log.debug("disableJustifiedText")
+        viewModel.justificationLiveData.postValue(false)
     }
 
     private fun disableNightMode() {

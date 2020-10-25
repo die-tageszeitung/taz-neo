@@ -13,6 +13,7 @@ import de.taz.app.android.util.SharedPreferenceStringLiveData
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     lateinit var textSizeLiveData: SharedPreferenceStringLiveData
+    lateinit var justificationLiveData: SharedPreferenceBooleanLiveData
     lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
     lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
     lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
@@ -27,6 +28,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     SETTINGS_TEXT_FONT_SIZE,
                     SETTINGS_TEXT_FONT_SIZE_DEFAULT
                 )
+            justificationLiveData = SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_JUSTIFICATION, false)
             nightModeLiveData =
                 SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_NIGHT_MODE, false)
         }
