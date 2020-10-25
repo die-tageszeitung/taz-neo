@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.SETTINGS_TEXT_JUSTIFICATION
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
@@ -22,8 +23,16 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         SETTINGS_TEXT_FONT_SIZE,
         SETTINGS_TEXT_FONT_SIZE_DEFAULT
     )
+
+    private val justificationLiveData =
+            SharedPreferenceBooleanLiveData(sharedPreferences, SETTINGS_TEXT_JUSTIFICATION, false)
+
     private val nightModeLiveData =
             SharedPreferenceBooleanLiveData(sharedPreferences, SETTINGS_TEXT_NIGHT_MODE, false)
+
+    fun observeJustification(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
+        justificationLiveData.observe(lifecycleOwner, Observer(block))
+    }
 
     fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
         nightModeLiveData.observe(lifecycleOwner, Observer(block))
@@ -31,6 +40,10 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
 
     fun observeTextSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
         textSizeLiveData.observe(lifecycleOwner, Observer(block))
+    }
+
+    fun setJustification(activated: Boolean) {
+        justificationLiveData.postValue(activated)
     }
 
     fun setNightMode(activated: Boolean) {

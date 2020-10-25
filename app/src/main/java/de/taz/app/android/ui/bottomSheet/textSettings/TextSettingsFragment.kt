@@ -36,6 +36,18 @@ class TextSettingsFragment :
             increaseTextSize()
         }
 
+        fragment_bottom_sheet_text_size_justification?.setOnClickListener {
+            onJustificationChanged(
+                    !fragment_bottom_sheet_text_size_justification_switch.isChecked
+            )
+        }
+
+        fragment_bottom_sheet_text_size_justification_switch?.setOnClickListener {
+            onJustificationChanged(
+                    fragment_bottom_sheet_text_size_justification_switch.isChecked
+            )
+        }
+
         fragment_bottom_sheet_text_size_night_mode?.setOnClickListener {
             onNightModeChanged(
                 !fragment_bottom_sheet_text_size_night_mode_switch.isChecked
@@ -48,6 +60,10 @@ class TextSettingsFragment :
             )
         }
 
+        viewModel.observeJustification(this) { activated ->
+            setJustification(activated)
+        }
+
         viewModel.observeNightMode(this) { activated ->
             setNightMode(activated)
         }
@@ -57,12 +73,20 @@ class TextSettingsFragment :
         }
     }
 
+    private fun setJustification(active: Boolean) {
+        fragment_bottom_sheet_text_size_justification_switch?.isChecked = active
+    }
+
     private fun setNightMode(active: Boolean) {
         fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
     }
 
     private fun setTextSizePercentage(percent: String) {
         fragment_bottom_sheet_text_size_text_size_percentage?.text = "$percent%"
+    }
+
+    private fun onJustificationChanged(activated: Boolean) {
+        viewModel.setJustification(activated)
     }
 
     private fun onNightModeChanged(activated: Boolean) {
