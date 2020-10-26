@@ -65,7 +65,7 @@ class DataService(applicationContext: Context) {
     suspend fun getIssue(
         issueKey: IssueKey,
         allowCache: Boolean = true,
-        skipSaveCache: Boolean = false
+        saveOnlyIfNewerMoTime: Boolean = false
     ): Issue = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
@@ -73,8 +73,10 @@ class DataService(applicationContext: Context) {
             }
         }
         val issue = apiService.getIssueByKey(issueKey)
+
+        val existingIssue = issueRepository.get(issueKey)
         // cache issue after download
-        if (!skipSaveCache) {
+        if (!saveOnlyIfNewerMoTime || existingIssue?.let { it.moTime < issue.moTime } == true) {
             issueRepository.save(issue)
         }
         return@withContext issue

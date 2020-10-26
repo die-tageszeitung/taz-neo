@@ -32,7 +32,7 @@ data class FileEntry(
         sha256 = fileEntryDto.sha256,
         size = fileEntryDto.size,
         folder = FileEntryOperations.getStorageFolder(fileEntryDto.storageType, folder),
-        null
+        dateDownload = null
     )
 
     constructor(image: Image) : this(
