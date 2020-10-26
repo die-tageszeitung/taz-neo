@@ -171,7 +171,7 @@ class SubscriptionAccountFragment :
 
         if (!viewModel.validCredentials) {
             val email = fragment_subscription_account_email.text?.toString()
-            if (email.isNullOrBlank() || !Pattern.compile(RFC5322_PATTERN_STRING).matcher(email)
+            if (email.isNullOrBlank() || !Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
                     .matches()
             ) {
                 done = false
