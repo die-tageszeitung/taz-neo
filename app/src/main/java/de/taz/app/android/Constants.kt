@@ -1,7 +1,5 @@
 package de.taz.app.android
 
-import java.util.regex.Pattern
-
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
 
@@ -28,8 +26,7 @@ const val PREFERENCES_LOG_TRACE_LENGTH = 100
 const val DRAWER_SHOW_NUMBER = 1
 const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
 
-const val RFC5322_PATTERN_STRING =
-    """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
+const val W3C_EMAIL_PATTERN = """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
 
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 1000L
