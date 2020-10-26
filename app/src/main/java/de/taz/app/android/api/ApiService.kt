@@ -491,12 +491,15 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     suspend fun getIssueByKey(issueKey: IssueKey): Issue = withContext(Dispatchers.IO) {
-        val issues = graphQlClient.query(
-            QueryType.IssueByFeedAndDate,
-            IssueVariables(issueDate = issueKey.date, feedName = issueKey.feedName, limit = 1)
-        )
-        issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-            Issue(issueKey.feedName, it)
+        transformToConnectivityException {
+            val issues = graphQlClient.query(
+                QueryType.IssueByFeedAndDate,
+                IssueVariables(issueDate = issueKey.date, feedName = issueKey.feedName, limit = 1)
+            )
+
+            issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
+                Issue(issueKey.feedName, it)
+            }
         } ?: throw NotFoundException()
     }
 

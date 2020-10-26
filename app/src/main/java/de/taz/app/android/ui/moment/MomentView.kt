@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
@@ -23,6 +24,7 @@ import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 import kotlinx.coroutines.*
@@ -47,6 +49,7 @@ class MomentView @JvmOverloads constructor(
     private val issueRepository = IssueRepository.getInstance(context.applicationContext)
     private val momentRepository = MomentRepository.getInstance(context.applicationContext)
     private val dataService = DataService.getInstance(context.applicationContext)
+    private val toastHelper = ToastHelper.getInstance(context.applicationContext)
 
     private var shouldNotShowDownloadIcon: Boolean = false
 
@@ -232,20 +235,21 @@ class MomentView @JvmOverloads constructor(
             lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
                 currentIssueStub?.let { issueRepository.getIssue(it) }?.let { issue ->
                     // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                    val updatedIssue =
-                        dataService.getIssue(issue.issueKey, allowCache = false)
-                    currentIssueStub = IssueStub(updatedIssue)
-                    // If the issue from database is older that the refreshed one
-                    if (
-                        Date(updatedIssue.moTime.toLong()) >
-                        Date(issue.moTime.toLong())
-                    ) {
+                    try {
+                        val updatedIssue =
+                            dataService.getIssue(
+                                issue.issueKey,
+                                allowCache = false,
+                                saveOnlyIfNewerMoTime = true
+                            )
+                        currentIssueStub = IssueStub(updatedIssue)
                         dataService.ensureDownloaded(updatedIssue)
-                    } else {
-                        dataService.ensureDownloaded(issue)
+                    } catch (e: ConnectivityException.Recoverable) {
+                        toastHelper.showNoConnectionToast()
+                        withContext(Dispatchers.Main) { showDownloadIcon() }
                     }
-                }
-            }
+                } ?: withContext(Dispatchers.Main) { showDownloadIcon() }
+            } ?: showDownloadIcon()
         }
 
     }

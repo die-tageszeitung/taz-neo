@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
@@ -18,11 +19,13 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
+import java.lang.Exception
 import java.lang.ref.WeakReference
 
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
@@ -37,6 +40,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var downloadService: DownloadService
     private lateinit var issueRepository: IssueRepository
     private lateinit var dataService: DataService
+    private lateinit var toastHelper: ToastHelper
 
     companion object {
         fun create(
@@ -58,6 +62,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         downloadService = DownloadService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -133,14 +138,18 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
                     val issue = issueStub.getIssue()
                     dataService.ensureDeleted(issue)
-
-
-
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }
-                    val newIssue = dataService.getIssue(issue.issueKey, allowCache = false)
-                    dataService.ensureDownloaded(newIssue.moment)
+                    try {
+                        dataService.getIssue(
+                            issue.issueKey,
+                            allowCache = false,
+                            saveOnlyIfNewerMoTime = true
+                        )
+                    } catch (e: ConnectivityException.Recoverable) {
+                        log.warn("Redownloading after delete not possible as no internet connection is available")
+                    }
                 }
             }
 
@@ -148,8 +157,19 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 issueStub?.let {
+                    // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
                     issueRepository.getIssue(it).let { issue ->
-                        dataService.ensureDownloaded(issue)
+                        try {
+                            val updatedIssue =
+                                dataService.getIssue(
+                                    issue.issueKey,
+                                    allowCache = false,
+                                    saveOnlyIfNewerMoTime = true
+                                )
+                            dataService.ensureDownloaded(updatedIssue)
+                        } catch (e: ConnectivityException.Recoverable) {
+                            toastHelper.showNoConnectionToast()
+                        }
                     }
                 }
             }
