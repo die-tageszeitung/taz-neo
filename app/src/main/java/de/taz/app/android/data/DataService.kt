@@ -73,15 +73,11 @@ class DataService(applicationContext: Context) {
             }
         }
         val issue = apiService.getIssueByKey(issueKey)
-        if (issue.status == issueKey.status) {
-            // cache issue after download
-            if (!skipSaveCache) {
-                issueRepository.save(issue)
-            }
-            return@withContext issue
-        } else {
-            throw DataException.InconsistentRequestException("The requested issue ($issueKey) has status \"${issueKey.status}\" but server returned another one, probably because of out-of-sync auth status")
+        // cache issue after download
+        if (!skipSaveCache) {
+            issueRepository.save(issue)
         }
+        return@withContext issue
     }
 
 
@@ -152,22 +148,23 @@ class DataService(applicationContext: Context) {
         issues.map(::IssueStub)
     }
 
-    suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            appInfoRepository.get()?.let {
-                return@withContext it
-            } ?: run { log.info("Cache miss on getAppInfo") }
-        }
-        val appInfo = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure {
+    suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
+        withContext(Dispatchers.IO) {
+            if (allowCache) {
+                appInfoRepository.get()?.let {
+                    return@withContext it
+                } ?: run { log.info("Cache miss on getAppInfo") }
+            }
+            val appInfo = if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.getAppInfo()
+                }
+            } else {
                 apiService.getAppInfo()
             }
-        } else {
-            apiService.getAppInfo()
+            appInfoRepository.save(appInfo)
+            appInfo
         }
-        appInfoRepository.save(appInfo)
-        appInfo
-    }
 
     suspend fun getMoment(issue: Issue, allowCache: Boolean = true): Moment =
         withContext(Dispatchers.IO) {
@@ -241,9 +238,19 @@ class DataService(applicationContext: Context) {
         cleanUpLiveData()
     }
 
-    suspend fun sendNotificationInfo(token: String, oldToken: String? = null): Boolean =
+    suspend fun sendNotificationInfo(
+        token: String,
+        oldToken: String? = null,
+        retryOnFailure: Boolean = false
+    ): Boolean =
         withContext(Dispatchers.IO) {
-            apiService.sendNotificationInfo(token, oldToken)
+            if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.sendNotificationInfo(token, oldToken)
+                }
+            } else {
+                apiService.sendNotificationInfo(token, oldToken)
+            }
         }
 
     suspend fun getFeeds(allowCache: Boolean = true): List<Feed> = withContext(Dispatchers.IO) {

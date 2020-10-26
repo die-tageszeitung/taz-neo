@@ -34,7 +34,7 @@ data class Image(
         type = imageDto.type,
         alpha = imageDto.alpha,
         resolution = imageDto.resolution,
-        null
+        dateDownload = null
     )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
@@ -47,7 +47,7 @@ data class Image(
         type = imageStub.type,
         alpha = imageStub.alpha,
         resolution = imageStub.resolution,
-        null
+        dateDownload = fileEntry.dateDownload
     )
 
     fun getIssueStub(): IssueStub = IssueRepository.getInstance().getIssueStubForImage(this@Image)

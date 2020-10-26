@@ -23,6 +23,7 @@ import de.taz.app.android.util.awaitCallback
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 import kotlinx.serialization.ExperimentalSerializationApi
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.util.*
@@ -30,14 +31,24 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 
 @Mockable
-class DownloadService private constructor(val applicationContext: Context) {
+class DownloadService constructor(
+    val applicationContext: Context,
+    private val fileEntryRepository: FileEntryRepository,
+    private val apiService: ApiService,
+    private val fileHelper: FileHelper,
+    private val httpClient: OkHttpClient
+) {
+
+    private constructor(applicationContext: Context): this(
+        applicationContext,
+        FileEntryRepository.getInstance(applicationContext),
+        ApiService.getInstance(applicationContext),
+        FileHelper.getInstance(applicationContext),
+        OkHttp.client
+    )
 
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
-    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val apiService = ApiService.getInstance(applicationContext)
-    private val fileHelper = FileHelper.getInstance(applicationContext)
-    private val httpClient = OkHttp.client
     private val downloadQueue = ConcurrentLinkedDeque<TaggedDownloadJob>()
     private var downloaderJob: Job? = null
 

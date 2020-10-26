@@ -19,7 +19,9 @@ import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val HTML_BACKGROUND_CONTAINER = """
 <html>
@@ -54,6 +56,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dataService = DataService.getInstance()
+        issueRepository = IssueRepository.getInstance()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -68,12 +71,14 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                 showImageInWebView(it, webView)
             }
             toDownloadImage?.let {
-                lifecycleScope.launch {
+                lifecycleScope.launch(Dispatchers.IO) {
                     dataService.ensureDownloaded(
                         FileEntry(it),
                         issueRepository.getIssueStubForImage(it).baseUrl
                     )
-                    fadeInImageInWebView(it, webView)
+                    withContext(Dispatchers.Main) {
+                        fadeInImageInWebView(it, webView)
+                    }
                 }
             }
 
@@ -119,7 +124,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
-        val fileHelper = FileHelper.getInstance(context)
+        val fileHelper = FileHelper.getInstance()
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
                 val uri = "${image.folder}/${image.name}"

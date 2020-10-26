@@ -320,13 +320,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun sendNotificationInfo(token: String, oldToken: String? = null): Boolean =
         withContext(Dispatchers.IO) {
-
-            val notificationEnabled = graphQlClient.query(
-                QueryType.Notification,
-                NotificationVariables(token, oldToken = oldToken)
-            ).data?.notification
-            notificationEnabled
-                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
+            transformToConnectivityException {
+                val notificationEnabled = graphQlClient.query(
+                    QueryType.Notification,
+                    NotificationVariables(token, oldToken = oldToken)
+                ).data?.notification
+                notificationEnabled
+                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
+            }
         }
 
     /**

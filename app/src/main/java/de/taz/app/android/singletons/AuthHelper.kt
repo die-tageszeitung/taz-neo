@@ -12,15 +12,14 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.data.DataService
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 const val PREFERENCES_AUTH = "auth"
 const val PREFERENCES_AUTH_EMAIL = "email"
@@ -48,7 +47,8 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = ToastHelper.getInstance(applicationContext)
     private val toDownloadIssueHelper
         get() = ToDownloadIssueHelper.getInstance(applicationContext)
-
+    private val firebaseHelper
+        get() = FirebaseHelper.getInstance(applicationContext)
 
 
     private val preferences =
@@ -127,7 +127,11 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                         elapsedButWaiting = false
                         CoroutineScope(Dispatchers.IO).launch {
                             cancelAndStartDownloadingPublicIssues()
-                            dataService.sendNotificationInfo(token)
+                            launch {
+                                firebaseHelper.firebaseToken?.let {
+                                    dataService.sendNotificationInfo(it, retryOnFailure = true)
+                                }
+                            }
                             transformBookmarks()
                             isPolling = false
                         }
