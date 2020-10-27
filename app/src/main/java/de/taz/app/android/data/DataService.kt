@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
+import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.download.DownloadService
@@ -28,8 +29,6 @@ class DataService(applicationContext: Context) {
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
-    private val articleRepository = ArticleRepository.getInstance(applicationContext)
-    private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
@@ -273,6 +272,15 @@ class DataService(applicationContext: Context) {
         return downloadLiveDataMap[tag] ?: run {
             val downloadLiveData = MutableLiveData(status)
             downloadLiveDataMap[tag] = downloadLiveData as LiveData<DownloadStatus>
+            downloadLiveData
+        }
+    }
+
+    fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveData<DownloadStatus> {
+        val status = downloadableStub.dateDownload?.let { DownloadStatus.done } ?: DownloadStatus.pending
+        return downloadLiveDataMap[downloadableStub.getDownloadTag()] ?: run {
+            val downloadLiveData = MutableLiveData(status)
+            downloadLiveDataMap[downloadableStub.getDownloadTag()] = downloadLiveData as LiveData<DownloadStatus>
             downloadLiveData
         }
     }

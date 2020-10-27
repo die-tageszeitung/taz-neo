@@ -16,6 +16,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 
@@ -140,11 +141,6 @@ abstract class HomePageAdapter(
                 itemLayoutRes, parent, false
             ) as ConstraintLayout
         )
-    }
-
-    override fun onViewRecycled(holder: ViewHolder) {
-        holder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item).clear()
-        super.onViewRecycled(holder)
     }
 
     /**

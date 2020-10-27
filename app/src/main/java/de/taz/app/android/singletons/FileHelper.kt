@@ -86,7 +86,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return fileEntryRepository.get(fileEntryName)?.let { getAbsoluteFilePath(it) }
     }
 
-    private fun getAbsoluteFilePath(fileEntry: FileEntryOperations): String {
+    fun getAbsoluteFilePath(fileEntry: FileEntryOperations): String {
         return if (!isExternalStorageWritable())
             "file://${applicationContext.filesDir}/${fileEntry.path}"
         else {
