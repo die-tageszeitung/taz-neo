@@ -155,10 +155,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showIssue(issueStub: IssueStub) = lifecycleScope.launch(Dispatchers.IO) {
-        issueContentViewModel.setDisplayable(issueStub.getIssue())
         val fragment = IssueContentFragment()
         showMainFragment(fragment)
-        delay(3000)
+
+        issueContentViewModel.setDisplayable(issueStub)
 
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             runOnUiThread {
@@ -176,20 +176,19 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showMainFragment(fragment: Fragment) {
-        lifecycleScope.launchWhenResumed {
-            runOnUiThread {
-                supportFragmentManager.apply {
-                    beginTransaction()
-                        .replace(
-                            R.id.main_content_fragment_placeholder,
-                            fragment,
-                            backStackEntryCount.toString()
-                        )
-                        .addToBackStack(backStackEntryCount.toString())
-                        .commit()
-                }
+        runOnUiThread {
+            supportFragmentManager.apply {
+                beginTransaction()
+                    .replace(
+                        R.id.main_content_fragment_placeholder,
+                        fragment,
+                        backStackEntryCount.toString()
+                    )
+                    .addToBackStack(backStackEntryCount.toString())
+                    .commit()
             }
         }
+
     }
 
     fun lockNavigationView(gravity: Int) {

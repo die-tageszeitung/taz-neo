@@ -84,6 +84,15 @@ class IssueContentViewModel(
         )
     }
 
+    fun setDisplayable(issueStub: IssueStub, immediate: Boolean = false) {
+        log.debug("Showing issue defaulting to first section")
+        val firstSection = SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first()
+        setDisplayable(
+            IssueKeyWithDisplayableKey(issueStub.issueKey, firstSection.key),
+            immediate
+        )
+    }
+
     private var currentIssueStub: IssueStub? = null
 
     var lastSectionKey: String?

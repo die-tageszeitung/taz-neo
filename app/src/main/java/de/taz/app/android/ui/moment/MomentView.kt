@@ -117,8 +117,10 @@ class MomentView @JvmOverloads constructor(
     }
 
     suspend fun displayIssue(issueStub: IssueStub, dateFormat: DateFormat? = null) {
-        clear()
-        currentIssueKey = issueStub.issueKey
+        withContext(Dispatchers.Main) {
+            clear()
+            currentIssueKey = issueStub.issueKey
+        }
         CoroutineScope(Dispatchers.IO).launch {
             dataService.ensureDownloaded(momentRepository.get(issueStub))
         }
@@ -276,21 +278,27 @@ class MomentView @JvmOverloads constructor(
             val file = fileHelper.getFileByPath(image.path)
             momentElevation?.let { fragment_moment_image.elevation = it }
             momentDownloadStatusLiveData = dataService.getDownloadLiveData(moment)
-            momentDownloadStatusObserver = momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
-                if (currentIssueKey != IssueKey(moment.issueFeedName, moment.issueDate, moment.issueStatus)) {
-                    return@observeDistinct
+            momentDownloadStatusObserver =
+                momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
+                    if (currentIssueKey != IssueKey(
+                            moment.issueFeedName,
+                            moment.issueDate,
+                            moment.issueStatus
+                        )
+                    ) {
+                        return@observeDistinct
+                    }
+                    if (downloadStatus == DownloadStatus.done) {
+                        Glide
+                            .with(context)
+                            .load(file)
+                            .centerInside()
+                            .into(fragment_moment_image)
+                            .clearOnDetach()
+                        fragment_moment_image.animate().alpha(1f).duration = 100
+                        hideProgressBar()
+                    }
                 }
-                if (downloadStatus == DownloadStatus.done) {
-                    Glide
-                        .with(context)
-                        .load(file)
-                        .centerInside()
-                        .into(fragment_moment_image)
-                        .clearOnDetach()
-                    fragment_moment_image.animate().alpha(1f).duration = 100
-                    hideProgressBar()
-                }
-            }
 
 
         }
