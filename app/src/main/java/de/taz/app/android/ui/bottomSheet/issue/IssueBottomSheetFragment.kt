@@ -93,7 +93,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             issueStub?.let { issueStub ->
-                lifecycleScope.launch(Dispatchers.IO) {
+                CoroutineScope(Dispatchers.IO).launch {
                     val issue = issueRepository.getIssue(issueStub)
                     issue.moment.getMomentFileToShare().let { image ->
                         fileEntryRepository.get(

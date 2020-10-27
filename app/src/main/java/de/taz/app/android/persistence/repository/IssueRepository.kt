@@ -289,18 +289,36 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return imprintName?.let { articleRepository.get(it) }
     }
 
+    fun getDownloadDate(issue: IssueOperations): Date? {
+        return when (issue) {
+            is IssueStub -> getDownloadDate(issue)
+            is Issue -> getDownloadDate(issue)
+            else -> throw Exception("IssueOperations are either Issue or IssueStub")
+        }
+    }
+
     fun getDownloadDate(issue: Issue): Date? {
-        return appDatabase.issueDao().getDownloadDate(issue.feedName, issue.date, issue.status)
+        return getDownloadDate(IssueStub(issue))
+    }
+
+
+    fun getDownloadDate(issueStub: IssueStub): Date? {
+        return appDatabase.issueDao().getDownloadDate(issueStub.feedName, issueStub.date, issueStub.status)
+    }
+
+    fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {
+        when (issue) {
+            is IssueStub -> setDownloadDate(issue, dateDownload)
+            is Issue -> setDownloadDate(issue, dateDownload)
+        }
+    }
+
+    fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
+        update(issueStub.copy(dateDownload = dateDownload))
     }
 
     fun setDownloadDate(issue: Issue, dateDownload: Date?) {
         setDownloadDate(IssueStub(issue), dateDownload)
-    }
-
-    fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
-        getStub(issueStub.issueKey)?.let {
-            update(it.copy(dateDownload = dateDownload))
-        }
     }
 
     fun resetDownloadDate(issue: Issue) {

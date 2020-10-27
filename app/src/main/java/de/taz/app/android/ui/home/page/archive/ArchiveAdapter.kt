@@ -6,6 +6,8 @@ import de.taz.app.android.R
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.moment.MomentView
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class ArchiveAdapter(
@@ -15,13 +17,13 @@ class ArchiveAdapter(
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launchWhenResumed {
-                val momentView = viewHolder.itemView.findViewById<MomentView>(
-                        R.id.fragment_cover_flow_item
-                )
+            val momentView = viewHolder.itemView.findViewById<MomentView>(
+                R.id.fragment_cover_flow_item
+            )
+            fragment.lifecycleScope.launchWhenResumed {
                 momentView.displayIssue(
                     issueStub,
-                    dateFormat= DateFormat.LongWithoutWeekDay
+                    dateFormat = DateFormat.LongWithoutWeekDay
                 )
             }
         }

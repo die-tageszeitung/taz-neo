@@ -234,9 +234,7 @@ class DownloadService constructor(
         isAutomaticDownload: Boolean = false,
     ) = withContext(Dispatchers.IO) {
         val tag = downloadableCollection.getDownloadTag()
-        val downloadJob = downloadQueue.find { it.tag == tag }?.let {
-            it.downloadJob
-        } ?: run {
+        val downloadJob = downloadQueue.find { it.tag == tag }?.downloadJob ?: run {
             val newDownload = scheduleDownload(downloadableCollection, isAutomaticDownload)
             newDownload
         }
@@ -309,7 +307,7 @@ class DownloadService constructor(
                 while (downloadQueue.isNotEmpty()) {
                     val nextJob = downloadQueue.peekFirst()
                     nextJob?.downloadJob?.join()
-                    downloadQueue.remove(nextJob)
+                    nextJob?.let { downloadQueue.remove(it) }
                 }
             }
         }

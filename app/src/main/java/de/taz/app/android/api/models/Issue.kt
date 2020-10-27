@@ -64,18 +64,6 @@ data class Issue(
         return getAllFiles().map { it.name }
     }
 
-    override fun getDownloadTag(): String {
-        return tag
-    }
-
-    override suspend fun getDownloadDate(): Date? = withContext(Dispatchers.IO) {
-        IssueRepository.getInstance().getDownloadDate(this@Issue)
-    }
-
-    override suspend fun setDownloadDate(date: Date?) = withContext(Dispatchers.IO) {
-        IssueRepository.getInstance().setDownloadDate(this@Issue, date)
-    }
-
     private fun getArticleList(): List<Article> {
         val articleList = mutableListOf<Article>()
         sectionList.forEach {
