@@ -12,6 +12,7 @@ import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import io.sentry.core.Sentry
+import java.io.File
 
 data class Moment(
     val issueFeedName: String,
@@ -19,6 +20,7 @@ data class Moment(
     val issueStatus: IssueStatus,
     val imageList: List<Image> = emptyList(),
     val creditList: List<Image> = emptyList(),
+    val momentList: List<FileEntry> = emptyList(),
     override val downloadedStatus: DownloadStatus?
 ) : CacheableDownload {
 
@@ -30,6 +32,8 @@ data class Moment(
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+        momentDto.momentList
+            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         DownloadStatus.pending
     )
 
@@ -41,6 +45,8 @@ data class Moment(
             ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") } ?: emptyList(),
         momentDto.creditList
             ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") } ?: emptyList(),
+        momentDto.momentList
+            ?.map { FileEntry(it, "${issueOperations.feedName}/${issueOperations.date}") } ?: emptyList(),
         DownloadStatus.pending
     )
 
@@ -53,7 +59,13 @@ data class Moment(
     }
 
     override fun getAllFileNames(): List<String> {
-        return getImagesToDownload().map { it.name }
+        var list = getFilesForAnimatedDownload().map { it.name }
+        getImagesToDownload().forEach { image -> list = list.plus(image.name) }
+        return list
+    }
+
+    private fun getFilesForAnimatedDownload(): List<FileEntry> {
+        return momentList
     }
 
     override fun getAllLocalFileNames(): List<String> {

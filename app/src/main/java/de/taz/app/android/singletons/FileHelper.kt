@@ -40,8 +40,12 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return getFile(fileEntry).delete()
     }
 
-    fun getDir(fileEntry: FileEntryOperations): File {
-        return getFileByPath(fileEntry.folder)
+    private fun getDir(fileEntry: FileEntryOperations): File {
+        var extraFolder = ""
+        if (fileEntry.name.contains("/")) {
+            extraFolder = "/${fileEntry.name.substringBefore("/")}"
+        }
+        return getFileByPath(fileEntry.folder + extraFolder)
     }
 
     fun getFile(fileEntryName: String): File? {
