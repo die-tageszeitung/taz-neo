@@ -1,8 +1,6 @@
 package de.taz.app.android.ui.moment
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +20,6 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -32,7 +29,14 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 import kotlinx.coroutines.*
 
-
+/**
+ * TODO REFACTOR
+ *
+ * The practice handling loading state in this view leads to bad raceconditions that are
+ * prevented with some flaky workarounds. In extreme situations broken images can be produced
+ * This needs to be refactored while implementing a proper recyclerview with deferred loading
+ * managing loading state and populating views. The view should not handle this
+ */
 class MomentView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
