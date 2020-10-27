@@ -151,10 +151,8 @@ abstract class HomePageAdapter(
         init {
             itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.apply {
                 setOnClickListener {
-                    fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-                        getItem(adapterPosition)?.let {
-                            fragment.onItemSelected(it)
-                        }
+                    getItem(adapterPosition)?.let {
+                        fragment.onItemSelected(it)
                     }
                 }
 
