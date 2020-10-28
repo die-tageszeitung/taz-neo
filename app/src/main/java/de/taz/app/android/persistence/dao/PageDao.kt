@@ -17,6 +17,6 @@ abstract class PageDao : BaseDao<PageStub>() {
     @Query("SELECT dateDownload FROM Page WHERE pdfFileName == :fileName")
     abstract fun getDownloadDate(fileName: String): Date?
 
-    @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND dateDownload != null)")
+    @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
 }

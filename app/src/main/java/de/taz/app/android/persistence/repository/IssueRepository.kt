@@ -238,18 +238,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
     }
 
-    fun getAllStubsExceptPublicLiveData(): LiveData<List<IssueStub>> {
-        return Transformations.map(appDatabase.issueDao().getAllLiveDataExceptPublic()) { input ->
-            input ?: emptyList()
-        }
-    }
-
-    fun getAllDownloadedStubs(): List<IssueStub>? {
+    fun getAllDownloadedStubs(): List<IssueStub> {
         return appDatabase.issueDao().getAllDownloaded()
     }
 
     fun getAllDownloadedStubsLiveData(): LiveData<List<IssueStub>?> {
         return appDatabase.issueDao().getAllDownloadedLiveData()
+    }
+
+    fun getDownloadedIssuesCountLiveData(): LiveData<Int> {
+        return appDatabase.issueDao().getDownloadedIssuesCountLiveData()
     }
 
     fun getImprintStub(issueStub: IssueOperations) = getImprintStub(

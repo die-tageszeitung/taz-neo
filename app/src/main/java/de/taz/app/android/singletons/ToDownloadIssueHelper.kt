@@ -29,7 +29,6 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val apiService = ApiService.getInstance(applicationContext)
     private val dataService = DataService.getInstance(applicationContext)
 
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(

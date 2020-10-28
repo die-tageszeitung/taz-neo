@@ -12,10 +12,10 @@ abstract class ResourceInfoDao: BaseDao<ResourceInfoStub>() {
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
     abstract fun getNewest(): ResourceInfoStub?
 
-    @Query("SELECT * FROM ResourceInfo WHERE dateDownload != null ORDER BY resourceVersion DESC LIMIT 1")
+    @Query("SELECT * FROM ResourceInfo WHERE dateDownload IS NOT NULL ORDER BY resourceVersion DESC LIMIT 1")
     abstract fun getNewestDownloadedLiveData(): LiveData<ResourceInfoStub?>
 
-    @Query("SELECT * FROM ResourceInfo WHERE dateDownload != null ORDER BY resourceVersion DESC LIMIT 1")
+    @Query("SELECT * FROM ResourceInfo WHERE dateDownload IS NOT NULL ORDER BY resourceVersion DESC LIMIT 1")
     abstract fun getNewestDownloaded(): ResourceInfoStub?
 
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion DESC LIMIT 1")
@@ -24,7 +24,7 @@ abstract class ResourceInfoDao: BaseDao<ResourceInfoStub>() {
     @Query("SELECT * FROM ResourceInfo ORDER BY resourceVersion")
     abstract fun getAll(): List<ResourceInfoStub>
 
-    @Query("SELECT EXISTS (SELECT * FROM ResourceInfo WHERE resourceVersion == :resourceVersion AND dateDownload != null)")
+    @Query("SELECT EXISTS (SELECT * FROM ResourceInfo WHERE resourceVersion == :resourceVersion AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean>
 
     @Query("SELECT dateDownload FROM ResourceInfo WHERE resourceVersion == :resourceVersion")

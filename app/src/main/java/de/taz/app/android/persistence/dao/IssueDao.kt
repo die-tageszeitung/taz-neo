@@ -61,19 +61,22 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
 
-    @Query("SELECT * FROM Issue WHERE dateDownload != null ORDER BY dateDownload ASC LIMIT 1")
+    @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL ORDER BY dateDownload ASC LIMIT 1")
     abstract fun getEarliestDownloaded(): IssueStub?
 
     @Query("SELECT * FROM Issue ORDER BY date ASC LIMIT 1")
     abstract fun getEarliest(): IssueStub?
 
-    @Query("SELECT * FROM Issue WHERE dateDownload != null")
-    abstract fun getAllDownloaded(): List<IssueStub>?
+    @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL")
+    abstract fun getAllDownloaded(): List<IssueStub>
 
-    @Query("SELECT * FROM Issue WHERE dateDownload != null")
+    @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL")
     abstract fun getAllDownloadedLiveData(): LiveData<List<IssueStub>?>
 
-    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE dateDownload != null AND feedName == :feedName AND date == :date AND status == :status)")
+    @Query("SELECT COUNT(date) FROM Issue WHERE dateDownload IS NOT NULL")
+    abstract fun getDownloadedIssuesCountLiveData(): LiveData<Int>
+
+    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE dateDownload IS NOT NULL AND feedName == :feedName AND date == :date AND status == :status)")
     abstract fun isDownloadedLiveData(
         feedName: String,
         date: String,
@@ -108,7 +111,7 @@ abstract class IssueDao : BaseDao<IssueStub>() {
 
     @Query(
         """
-            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.dateDownload != null
+            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.dateDownload IS NOT NULL
         """
     )
     abstract fun getDownloadedIssuesForDayAndFeed(

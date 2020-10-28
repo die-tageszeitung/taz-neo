@@ -14,13 +14,13 @@ class IssueDateDownloadTypeConverter {
     private val log by Log
 
     @TypeConverter
-    fun toString(issueDateDownload: Date?): String {
+    fun toString(issueDateDownload: Date?): String? {
         val simpleDateFormat = SimpleDateFormat(FORMAT_STRING, Locale.US)
 
         issueDateDownload?.let {
             return simpleDateFormat.format(issueDateDownload)
         }
-        return ""
+        return null
     }
 
     @TypeConverter
