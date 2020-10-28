@@ -52,7 +52,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     )
     abstract fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
 
-    @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND dateDownload != null)")
+    @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
 
     @Query("SELECT dateDownload FROM Article WHERE articleFileName == :articleFileName")

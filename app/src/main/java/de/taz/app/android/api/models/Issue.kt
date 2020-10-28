@@ -104,7 +104,6 @@ data class Issue(
         filesToDelete.forEach { it.deleteFile() }
 
         this.setDownloadDate(null)
-        IssueRepository.getInstance().resetDownloadDate(this)
     }
 }
 
