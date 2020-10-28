@@ -136,7 +136,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
             .mapNotNull { it.authorFileName }
     }
 
-    @Throws(NotFoundException::class)
     fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)

@@ -245,6 +245,7 @@ class DataService(applicationContext: Context) {
         retryOnFailure: Boolean = false
     ): Boolean =
         withContext(Dispatchers.IO) {
+            log.info("Sending notification info")
             if (retryOnFailure) {
                 apiService.retryOnConnectionFailure {
                     apiService.sendNotificationInfo(token, oldToken)

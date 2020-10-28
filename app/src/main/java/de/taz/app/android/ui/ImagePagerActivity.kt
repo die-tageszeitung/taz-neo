@@ -18,6 +18,7 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
@@ -91,7 +92,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             }
 
             val downloadedImages =
-                allImages.filter { it.dateDownload != null }.toMutableList()
+                allImages.filter { it.getDownloadDate() != null }.toMutableList()
             val imagesToDownload = allImages.toMutableList()
             imagesToDownload.removeAll(downloadedImages)
 

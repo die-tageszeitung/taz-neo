@@ -160,7 +160,6 @@ class DownloadService constructor(
                 handleResponse(response, fileToDownload)
             }
         }
-        fileEntryRepository.setDownloadDate(fileToDownload, Date())
     }
 
     /**

@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.triplet.play' version '2.6.2'
+    id 'com.github.triplet.play' version '3.0.0'
 }
 
 apply plugin: 'com.android.application'
@@ -10,7 +10,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'io.sentry.android.gradle'
 
-if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("google")) {
+if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("nonfree")) {
     apply plugin: 'com.google.gms.google-services'
 }
 
@@ -143,7 +143,7 @@ android {
     }
 
     playConfigs {
-        register("googleTazRelease") {
+        register("nonfreeTazRelease") {
 
         }
     }
@@ -254,7 +254,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:20.2.4'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:21.0.0'
 }
 
 sentry {
