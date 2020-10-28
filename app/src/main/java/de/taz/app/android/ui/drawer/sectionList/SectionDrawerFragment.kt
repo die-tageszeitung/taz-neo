@@ -89,7 +89,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     override fun onResume() {
         super.onResume()
         // Either the issueContentViewModel can change the content of this drawer ...
-        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
             lifecycleScope.launch {
                 log.debug("Set issue ${issueStub.issueKey} from IssueContent")
                 if (issueStub.issueKey == issueContentViewModel.currentIssue?.issueKey) {

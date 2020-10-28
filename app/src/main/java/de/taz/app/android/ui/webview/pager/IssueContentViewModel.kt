@@ -121,10 +121,10 @@ class IssueContentViewModel(
                             )
                         )
                     } else {
-                        IssueStubWithDisplayableKey(
+                        postValue(IssueStubWithDisplayableKey(
                             issueStub = currentIssueStub!!,
                             displayableKey = displayableKey
-                        )
+                        ))
                     }
                 }
             }
