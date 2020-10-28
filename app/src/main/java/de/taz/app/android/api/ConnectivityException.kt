@@ -8,6 +8,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
+import kotlin.jvm.Throws
 
 private val networkExceptions = listOf(
     ConnectException::class,

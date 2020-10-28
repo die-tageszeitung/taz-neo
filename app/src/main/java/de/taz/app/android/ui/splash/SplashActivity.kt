@@ -201,16 +201,12 @@ class SplashActivity : BaseActivity() {
 
     private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
         try {
-            if (!firebaseHelper.hasTokenBeenSent) {
-                if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
-                    firebaseHelper.hasTokenBeenSent =
-                        dataService.sendNotificationInfo(firebaseHelper.firebaseToken!!)
-                }
+            if (!firebaseHelper.hasTokenBeenSent && !firebaseHelper.firebaseToken.isNullOrEmpty()) {
+                firebaseHelper.hasTokenBeenSent =
+                    dataService.sendNotificationInfo(firebaseHelper.firebaseToken!!)
             }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Sending notification token failed because no internet available")
-        } catch (e: Exception) {
-            log.error(e.localizedMessage)
         }
     }
 

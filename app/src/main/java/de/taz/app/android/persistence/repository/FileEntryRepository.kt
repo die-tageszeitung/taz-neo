@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
@@ -50,12 +51,10 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }
 
-    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryName: String): FileEntry {
         return get(fileEntryName) ?: throw NotFoundException()
     }
 
-    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
         return fileEntryNames.map { getOrThrow(it) }
     }
@@ -79,5 +78,9 @@ class FileEntryRepository private constructor(
 
     fun setDownloadDate(fileEntry: FileEntry, date: Date?) {
         update(fileEntry.copy(dateDownload = date))
+    }
+
+    fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
+        return appDatabase.fileEntryDao().getDownloadDate(fileEntry.name)
     }
 }

@@ -12,6 +12,7 @@ import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.NoSuchElementException
+import kotlin.Throws
 
 /**
  * Service class to get Models from GraphQl
@@ -321,11 +322,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun sendNotificationInfo(token: String, oldToken: String? = null): Boolean =
         withContext(Dispatchers.IO) {
             transformToConnectivityException {
-                val notificationEnabled = graphQlClient.query(
+                graphQlClient.query(
                     QueryType.Notification,
                     NotificationVariables(token, oldToken = oldToken)
                 ).data?.notification
-                notificationEnabled
                     ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
             }
         }

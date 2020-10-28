@@ -7,6 +7,7 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * Types of queries that are available

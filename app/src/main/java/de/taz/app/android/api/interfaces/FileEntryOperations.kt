@@ -39,4 +39,8 @@ interface FileEntryOperations {
             }
         }
     }
+
+    fun getDownloadDate(): Date? {
+        return FileEntryRepository.getInstance().getDownloadDate(this)
+    }
 }
