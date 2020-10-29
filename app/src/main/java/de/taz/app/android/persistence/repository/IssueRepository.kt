@@ -196,6 +196,14 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getIssueStubsByDate(date, limit)
     }
 
+    fun getLatestIssueStubsByDateAndStatus(
+        date: String,
+        status: IssueStatus,
+        limit: Int
+    ): List<IssueStub> {
+        return appDatabase.issueDao().getIssueStubsByDateAndStatus(date, status, limit)
+    }
+
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }

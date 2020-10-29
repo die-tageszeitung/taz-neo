@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -30,6 +31,7 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val dataService = DataService.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
 
     private var prefs: SharedPreferences = applicationContext.getSharedPreferences(
         SHARED_PREFERENCES_GAP_TO_DOWNLOAD, Context.MODE_PRIVATE
@@ -67,7 +69,8 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                         ).toInt() > 0
                     ) {
                         try {
-                            val missingIssues = dataService.getIssueStubs(simpleDateFormat.parse(lastDownloadedDateLiveData.value)!!, 10)
+                            val neededStatus = if (authHelper.isLoggedIn()) IssueStatus.regular else IssueStatus.public
+                            val missingIssues = dataService.getIssueStubs(simpleDateFormat.parse(lastDownloadedDateLiveData.value)!!, neededStatus, 10)
 
                             withContext(Dispatchers.Main) {
                                 lastDownloadedDateLiveData.value = missingIssues.last().date
