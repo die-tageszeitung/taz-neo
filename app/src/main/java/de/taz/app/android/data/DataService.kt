@@ -38,7 +38,8 @@ class DataService(applicationContext: Context) {
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
 
-    private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> = HashMap()
+    private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
+        HashMap()
 
     suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true): IssueStub? =
         withContext(Dispatchers.IO) {
@@ -91,7 +92,7 @@ class DataService(applicationContext: Context) {
             apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
         }.flatten()
         if (allowCache) {
-            issueRepository.saveIfDoNotExist(issues)
+            issueRepository.saveIfDoesNotExist(issues)
         } else {
             issueRepository.save(issues)
         }
@@ -119,25 +120,31 @@ class DataService(applicationContext: Context) {
         issues.map(::IssueStub)
     }
 
-    suspend fun getIssueStubsByFeed(
-        fromDate: Date = Date(),
+    suspend fun getNewestIssue(
         feedNames: List<String>,
         status: IssueStatus,
-        limit: Int = 1,
-        allowCache: Boolean = true
-    ): List<IssueStub> = withContext(Dispatchers.IO) {
+        allowCache: Boolean = true,
+        saveOnlyIfNewerMoTime: Boolean = false
+    ): IssueStub = withContext(Dispatchers.IO) {
         if (allowCache) {
-            val issues = issueRepository.getIssuesFromDate(fromDate, feedNames, status, limit)
-            if (issues.isNotEmpty()) {
-                return@withContext issues
+            val issue = issueRepository.getLatestIssueByFeedAndStatus(feedNames, status)
+            if (issue != null) {
+                return@withContext issue
             }
         }
-        val issues = feedNames.map { feedName ->
-            apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-                .filter { it.status == status }
-        }.flatten()
-        issueRepository.save(issues)
-        issues.map(::IssueStub)
+
+        val issue = apiService.getLastIssuesByFeeds(feedNames, 1)
+            .filter { it.status == status }
+            .first()
+
+        val existingIssue = issueRepository.get(issue.issueKey)
+
+        if (saveOnlyIfNewerMoTime && existingIssue != null && existingIssue.moTime < issue.moTime) {
+            issueRepository.save(issue)
+        } else {
+            issueRepository.saveIfDoesNotExist(issue)
+        }
+        IssueStub(issue)
     }
 
     suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
@@ -187,7 +194,7 @@ class DataService(applicationContext: Context) {
     suspend fun ensureDownloaded(
         collection: DownloadableCollection,
         isAutomaticDownload: Boolean = false
-    ) = withContext(Dispatchers.IO){
+    ) = withContext(Dispatchers.IO) {
         withDownloadLiveData(collection) { liveData ->
             downloadService.ensureCollectionDownloaded(
                 collection,
@@ -259,15 +266,15 @@ class DataService(applicationContext: Context) {
      */
     private fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {
         val tag = downloadableStub.getDownloadTag()
-            val status = downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
-                ?: DownloadStatus.pending
-            log.verbose("Requesting livedata for $tag")
-            return downloadLiveDataMap[tag] ?: run {
-                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
-                downloadLiveDataMap[tag] = downloadLiveData
-                log.verbose("Created livedata for $tag")
-                downloadLiveData
-            }
+        val status = downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
+            ?: DownloadStatus.pending
+        log.verbose("Requesting livedata for $tag")
+        return downloadLiveDataMap[tag] ?: run {
+            val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+            downloadLiveDataMap[tag] = downloadLiveData
+            log.verbose("Created livedata for $tag")
+            downloadLiveData
+        }
 
     }
 
@@ -280,7 +287,10 @@ class DataService(applicationContext: Context) {
      * @param downloadableStub: Object implementing [DownloadableStub]
      * @param block: Block executed where the LiveData is definitely safe of cleanup
      */
-    fun withDownloadLiveDataSync(downloadableStub: DownloadableStub, block: (LiveData<DownloadStatus>) -> Unit) {
+    fun withDownloadLiveDataSync(
+        downloadableStub: DownloadableStub,
+        block: (LiveData<DownloadStatus>) -> Unit
+    ) {
         val (liveData, referenceCount) = synchronized(downloadLiveDataMap) {
             val (liveData, referenceCount) = getDownloadLiveData(downloadableStub)
             referenceCount.incrementAndGet()
@@ -294,6 +304,7 @@ class DataService(applicationContext: Context) {
             }
         }
     }
+
     /**
      *
      * Wraps [withDownloadLiveDataSync] to work with suspended blocks
@@ -301,7 +312,10 @@ class DataService(applicationContext: Context) {
      * @param downloadableStub: Object implementing [DownloadableStub]
      * @param block: Block executed where the LiveData is definitely safe of cleanup
      */
-    suspend fun withDownloadLiveData(downloadableStub: DownloadableStub, block: suspend (LiveData<DownloadStatus>) -> Unit) {
+    suspend fun withDownloadLiveData(
+        downloadableStub: DownloadableStub,
+        block: suspend (LiveData<DownloadStatus>) -> Unit
+    ) {
         withDownloadLiveDataSync(downloadableStub) { liveData -> runBlocking { block(liveData) } }
     }
 }

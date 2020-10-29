@@ -42,17 +42,26 @@ class SplashActivity : BaseActivity() {
 
     private lateinit var dataService: DataService
     private lateinit var firebaseHelper: FirebaseHelper
+    private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dataService = DataService.getInstance()
         firebaseHelper = FirebaseHelper.getInstance()
+        authHelper = AuthHelper.getInstance()
+        toastHelper = ToastHelper.getInstance()
     }
 
     override fun onResume() {
         super.onResume()
         log.info("splashactivity onresume called")
 
+        CoroutineScope(Dispatchers.IO).launch {
+            launch { checkAppVersion() }
+            launch { checkForNewestIssue() }
+            launch { sendPushToken() }
+        }
         lifecycleScope.launch {
             setupSentry()
 
@@ -60,10 +69,8 @@ class SplashActivity : BaseActivity() {
             generateNotificationChannels()
             val initJob = launch {
                 launch { ensureAppInfo() }
-                launch { checkAppVersion() }
                 launch { initResources() }
                 launch { initFeedsAndFirstIssues() }
-                launch { sendPushToken() }
             }
             initJob.join()
 
@@ -93,6 +100,19 @@ class SplashActivity : BaseActivity() {
             dataService.getIssueStubsByFeed(Date(), feeds.map { it.name }, 3)
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Failed to retrieve feed and first issues during startup, no internet")
+        }
+    }
+
+    private suspend fun checkForNewestIssue() {
+        val status = if (authHelper.isLoggedIn()) IssueStatus.regular else IssueStatus.public
+        try {
+            dataService.getNewestIssue(
+                dataService.getFeeds().map { it.name },
+                status,
+                allowCache = false,
+            )
+        } catch (e: ConnectivityException.Recoverable) {
+            toastHelper.showNoConnectionToast()
         }
     }
 

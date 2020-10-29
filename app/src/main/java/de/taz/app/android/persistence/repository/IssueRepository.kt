@@ -106,7 +106,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         )?.let { true } ?: false
     }
 
-    fun saveIfDoNotExist(issues: List<Issue>) {
+    fun saveIfDoesNotExist(issues: List<Issue>) {
         issues.forEach { saveIfDoesNotExist(it) }
     }
 
@@ -150,6 +150,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getLatest()
     }
 
+    fun getLatestIssueStub(feedNames: List<String>, limit: Int): IssueStub? {
+        return appDatabase.issueDao().getLatest()
+    }
+
     fun getIssuesFromDate(
         fromDate: Date,
         feedNames: List<String>,
@@ -164,9 +168,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
         )
     }
 
-    fun getLatestIssueByFeedAndStatus(feedNames: List<String>, status: IssueStatus): Issue? {
+    fun getLatestIssueByFeedAndStatus(feedNames: List<String>, status: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getLatestByFeedAndStatus(status, feedNames)
-            ?.let { issueStubToIssue(it) }
     }
 
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
