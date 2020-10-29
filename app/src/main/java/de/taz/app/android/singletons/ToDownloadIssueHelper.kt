@@ -70,7 +70,8 @@ class ToDownloadIssueHelper private constructor(applicationContext: Context) {
                     ) {
                         try {
                             val neededStatus = if (authHelper.isLoggedIn()) IssueStatus.regular else IssueStatus.public
-                            val missingIssues = dataService.getIssueStubs(simpleDateFormat.parse(lastDownloadedDateLiveData.value)!!, neededStatus, 10)
+                            val lastDownloadDate = simpleDateFormat.parse(lastDownloadedDateLiveData.value)!!
+                            val missingIssues = dataService.getIssueStubs(lastDownloadDate, neededStatus, 10)
 
                             withContext(Dispatchers.Main) {
                                 lastDownloadedDateLiveData.value = missingIssues.last().date
