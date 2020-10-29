@@ -139,13 +139,13 @@ class IssueRepositoryTest {
                     assertNull(article.next())
                 } else if (articleIndex == section.articleList.size - 1) {
                     assertEquals(
-                        article.next()?.articleHtml?.sha256,
-                        issue.sectionList[sectionIndex + 1].articleList.first().articleHtml.sha256
+                        article.next(),
+                        issue.sectionList[sectionIndex + 1].articleList.first()
                     )
                 } else {
                     assertEquals(
-                        article.next()?.articleHtml?.sha256,
-                        section.articleList[articleIndex + 1].articleHtml.sha256
+                        article.next(),
+                        section.articleList[articleIndex + 1]
                     )
                 }
             }
@@ -162,13 +162,13 @@ class IssueRepositoryTest {
                     assertNull(article.previous())
                 } else if (articleIndex == 0) {
                     assertEquals(
-                        article.previous()?.articleHtml?.sha256,
-                        issue.sectionList[sectionIndex - 1].articleList.last().articleHtml.sha256
+                        article.previous(),
+                        issue.sectionList[sectionIndex - 1].articleList.last()
                     )
                 } else {
                     assertEquals(
-                        article.previous()?.articleHtml?.sha256,
-                        section.articleList[articleIndex - 1].articleHtml.sha256
+                        article.previous(),
+                        section.articleList[articleIndex - 1]
                     )
                 }
             }
