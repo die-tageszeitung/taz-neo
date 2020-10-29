@@ -22,12 +22,12 @@ import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.awaitCallback
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
-import kotlinx.serialization.ExperimentalSerializationApi
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.util.*
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.PriorityBlockingQueue
 
 
 @Mockable
@@ -39,7 +39,7 @@ class DownloadService constructor(
     private val httpClient: OkHttpClient
 ) {
 
-    private constructor(applicationContext: Context): this(
+    private constructor(applicationContext: Context) : this(
         applicationContext,
         FileEntryRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
@@ -49,10 +49,14 @@ class DownloadService constructor(
 
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
 
-    private val downloadQueue = ConcurrentLinkedDeque<TaggedDownloadJob>()
-    private var downloaderJob: Job? = null
+    private val collectionDownloadQueue = ConcurrentLinkedQueue<TaggedDownloadJob>()
+
+    private var collectionDownloaderJob: Job? = null
+    private var fileDownloaderJob: Job? = null
 
     private var maximumDownloadCounter = CounterLock(CONCURRENT_FILE_DOWNLOADS)
+
+    private val fileDownloadPriorityQueue = PriorityBlockingQueue<PrioritizedFileDownload>()
 
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
 
@@ -147,9 +151,14 @@ class DownloadService constructor(
 
     suspend fun downloadAndSaveFile(
         fileToDownload: FileEntry,
-        baseUrl: String
+        baseUrl: String,
+        force: Boolean = false
     ) {
         ensureDownloadHelper()
+        // skip this if we have the correct version downloaded
+        if (fileHelper.ensureFileIntegrity(fileToDownload.path) && !force) {
+            return
+        }
         downloadConnectionHelper.retryOnConnectivityFailure {
             transformToConnectivityException {
                 val response = awaitCallback(
@@ -217,9 +226,9 @@ class DownloadService constructor(
      * @param tag tag of download to cancel
      */
     suspend fun cancelDownloadForTag(tag: String) {
-        val job = downloadQueue.find { it.tag == tag }
+        val job = collectionDownloadQueue.find { it.tag == tag }
         job?.let {
-            downloadQueue.remove(it)
+            collectionDownloadQueue.remove(it)
             it.downloadJob.cancelAndJoin()
         }
     }
@@ -233,7 +242,7 @@ class DownloadService constructor(
         isAutomaticDownload: Boolean = false,
     ) = withContext(Dispatchers.IO) {
         val tag = downloadableCollection.getDownloadTag()
-        val downloadJob = downloadQueue.find { it.tag == tag }?.downloadJob ?: run {
+        val downloadJob = collectionDownloadQueue.find { it.tag == tag }?.downloadJob ?: run {
             val newDownload = scheduleDownload(downloadableCollection, isAutomaticDownload)
             newDownload
         }
@@ -247,44 +256,51 @@ class DownloadService constructor(
         isAutomaticDownload: Boolean = false
     ): Job =
         withContext(Dispatchers.IO) {
-            val job = launch(start = CoroutineStart.LAZY) {
-                val (start, downloadId) = if (downloadableCollection is Issue) {
-                    val start = Date().time
-                    val downloadId =
-                        notifyIssueDownloadStart(downloadableCollection, isAutomaticDownload)
-                    start to downloadId
-                } else {
-                    null to null
-                }
+            val (start, downloadId) = if (downloadableCollection is Issue) {
+                val start = Date().time
+                val downloadId =
+                    notifyIssueDownloadStart(downloadableCollection, isAutomaticDownload)
+                start to downloadId
+            } else {
+                null to null
+            }
+            val job = launch {
                 val filesToDownload =
                     fileEntryRepository.getList(downloadableCollection.getAllFileNames())
-                filesToDownload
+                val chunkJobs = filesToDownload
                     .map {
-                        launch {
-                            maximumDownloadCounter.withLock {
-                                log.debug("Downloading ${it.name} for ${downloadableCollection.getDownloadTag()}")
-                                downloadAndSaveFile(
-                                    it,
-                                    determineBaseUrl(downloadableCollection, it)
-                                )
-                            }
+                        launch(start = CoroutineStart.LAZY) {
+                            log.debug("Downloading ${it.name} for ${downloadableCollection.getDownloadTag()}")
+                            downloadAndSaveFile(
+                                it,
+                                determineBaseUrl(downloadableCollection, it)
+                            )
+                        }
+                    }.map {
+                        if (downloadableCollection is Issue) {
+                            PrioritizedFileDownload(it, DownloadPriority.Normal)
+                        } else {
+                            PrioritizedFileDownload(it, DownloadPriority.High)
                         }
                     }
-                    .map { it.join() }
+                fileDownloadPriorityQueue.addAll(chunkJobs)
+                ensureFileDownloaderRunning()
+            }
+            val taggedDownload = TaggedDownloadJob(downloadableCollection.getDownloadTag(), job)
+            collectionDownloadQueue.offer(taggedDownload)
 
+            job.invokeOnCompletion {
+                collectionDownloadQueue.remove(taggedDownload)
                 if (downloadableCollection is Issue) {
                     val secondsTaken = (Date().time - start!!).toFloat() / 1000
                     log.debug("It took $secondsTaken seconds for ${downloadableCollection.issueKey} to download all its assets (DownloadId: $downloadId")
-                    downloadId?.let { notifyIssueDownloadStop(it, secondsTaken) }
+                    downloadId?.let {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            notifyIssueDownloadStop(it, secondsTaken)
+                        }
+                    }
                 }
             }
-            val taggedDownload = TaggedDownloadJob(downloadableCollection.getDownloadTag(), job)
-            if (downloadableCollection is Issue) {
-                downloadQueue.offerLast(taggedDownload)
-            } else {
-                downloadQueue.offerFirst(taggedDownload)
-            }
-            ensureDownloaderRunning()
             return@withContext job
         }
 
@@ -298,15 +314,21 @@ class DownloadService constructor(
         }
     }
 
-    private fun ensureDownloaderRunning() {
-        if (downloaderJob?.isCompleted == false) {
+    private suspend fun ensureFileDownloaderRunning() {
+        if (fileDownloaderJob?.isCompleted == false) {
             return
         } else {
-            downloaderJob = CoroutineScope(Dispatchers.IO).launch {
-                while (downloadQueue.isNotEmpty()) {
-                    val nextJob = downloadQueue.peekFirst()
-                    nextJob?.downloadJob?.join()
-                    nextJob?.let { downloadQueue.remove(it) }
+            fileDownloaderJob = CoroutineScope(Dispatchers.IO).launch {
+                while (fileDownloadPriorityQueue.isNotEmpty()) {
+                    maximumDownloadCounter.withLock { release ->
+                        fileDownloadPriorityQueue.poll()?.let {
+                            launch {
+                                log.verbose("Scheduling file download with prio ${it.priority}")
+                                it.job.join()
+                                release()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -327,6 +349,22 @@ class DownloadService constructor(
             .build()
     }
 
+}
+
+/**
+ * Priorities for scheduling downloads
+ * Ordinal of enum is the natural comparable - so first item in list has highest prio, last item least
+ */
+enum class DownloadPriority {
+    High,
+    Normal
+}
+
+data class PrioritizedFileDownload(val job: Job, val priority: DownloadPriority) :
+    Comparable<PrioritizedFileDownload> {
+    override fun compareTo(other: PrioritizedFileDownload): Int {
+        return priority.compareTo(other.priority)
+    }
 }
 
 class TaggedDownloadJob(val tag: String, val downloadJob: Job)

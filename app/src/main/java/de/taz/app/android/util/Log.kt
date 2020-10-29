@@ -22,32 +22,40 @@ class Log(private val tag: String) {
         var trace: MutableList<String> = Collections.synchronizedList(mutableListOf<String>())
     }
 
+
+    fun verbose(message: String, throwable: Throwable? = null) {
+        Log.v(tag, message, throwable)
+        setSentryBreadcrumb(message, throwable)
+        addToTrace(message)
+    }
+
+
     fun debug(message: String, throwable: Throwable? = null) {
         Log.d(tag, message, throwable)
-        setSentryBreadcrump(message, throwable)
+        setSentryBreadcrumb(message, throwable)
         addToTrace(message)
     }
 
 
     fun error(message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
-        setSentryBreadcrump(message, throwable)
+        setSentryBreadcrumb(message, throwable)
         addToTrace(message)
     }
 
     fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
-        setSentryBreadcrump(message, throwable)
+        setSentryBreadcrumb(message, throwable)
         addToTrace(message)
     }
 
     fun warn(message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
-        setSentryBreadcrump(message, throwable)
+        setSentryBreadcrumb(message, throwable)
         addToTrace(message)
     }
 
-    private fun setSentryBreadcrump(message: String, throwable: Throwable?) {
+    private fun setSentryBreadcrumb(message: String, throwable: Throwable?) {
         Sentry.addBreadcrumb("$tag: $message")
         throwable?.let { Sentry.captureException(throwable) }
     }

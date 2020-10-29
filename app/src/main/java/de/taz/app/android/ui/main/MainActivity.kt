@@ -160,6 +160,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
         issueContentViewModel.setDisplayable(issueStub)
 
+        CoroutineScope(Dispatchers.IO).launch {
+            dataService.ensureDownloaded(issueStub.getIssue())
+        }
+
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             runOnUiThread {
                 drawer_layout.closeDrawer(GravityCompat.START)
