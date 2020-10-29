@@ -188,7 +188,7 @@ class CredentialsMissingFragment :
             )
             done = false
         } else {
-            if (!Pattern.compile(RFC5322_PATTERN_STRING).matcher(email).matches()) {
+            if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches()) {
                 fragment_login_missing_credentials_email_layout.setError(
                     R.string.login_email_error_invalid
                 )
