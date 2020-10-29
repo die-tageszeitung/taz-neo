@@ -211,6 +211,27 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
+     * function to get the last [Issue]s by feed
+     * @param limit - number of issues to get
+     * @return [List]<[Issue]>
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getLastIssuesByFeeds(feedNames: List<String>, limit: Int = 10): List<Issue> {
+        val tag = "getLastIssues"
+        val issues = mutableListOf<Issue>()
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.LastIssues,
+                IssueVariables(limit = limit)
+            ).data?.product?.feedList?.filter { feedNames.contains(it.name) }?.forEach { feed ->
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
+            }
+        }
+        return issues
+    }
+
+
+    /**
      * function to get [Issue]s by date
      * @param issueDate - the date of the issue last issue
      * @param limit - how many issues will be returned

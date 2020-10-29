@@ -80,7 +80,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                 FeedRepository.getInstance(activity?.applicationContext)
                     .save(apiService.getFeeds())
                 IssueRepository.getInstance(activity?.applicationContext)
-                    .saveIfDoNotExist(apiService.getLastIssues())
+                    .saveIfDoesNotExist(apiService.getLastIssues())
             } catch (e: ConnectivityException.NoInternetException) {
                 ToastHelper.getInstance(context?.applicationContext)
                     .showNoConnectionToast()
