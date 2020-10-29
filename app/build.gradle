@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.triplet.play' version '2.6.2'
+    id 'com.github.triplet.play' version '3.0.0'
 }
 
 apply plugin: 'com.android.application'
@@ -10,7 +10,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'io.sentry.android.gradle'
 
-if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("google")) {
+if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("nonfree")) {
     apply plugin: 'com.google.gms.google-services'
 }
 
@@ -56,6 +56,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
     lintOptions {
@@ -142,7 +143,7 @@ android {
     }
 
     playConfigs {
-        register("googleTazRelease") {
+        register("nonfreeTazRelease") {
 
         }
     }
@@ -165,8 +166,11 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
     implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
-    implementation 'androidx.core:core-ktx:1.3.1'
+    implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.fragment:fragment-ktx:1.2.5'
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 
     // before updating make sure the coverflow looks good on xperia sp as well
     // this also breaks skip to current icon in CoverflowFragment
@@ -174,6 +178,8 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+
+    implementation "androidx.paging:paging-runtime:3.0.0-alpha07"
 
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
@@ -248,7 +254,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:20.2.4'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:21.0.0'
 }
 
 sentry {
