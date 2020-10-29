@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -189,7 +190,9 @@ class MomentView @JvmOverloads constructor(
 
     private fun showMomentImage(moment: Moment) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.IO) {
-            generateBitmapForMoment(moment)?.let {
+            generateAnimatedForMoment(moment)?.let {
+                showAnimated(it)
+            } ?: generateBitmapForMoment(moment)?.let {
                 showBitmap(it)
             }
         }
@@ -198,6 +201,22 @@ class MomentView @JvmOverloads constructor(
     private suspend fun showBitmap(bitmap: Bitmap) = withContext(Dispatchers.Main) {
         fragment_moment_image.apply {
             setImageBitmap(bitmap)
+            animate().alpha(1f).duration = 100
+            momentElevation?.let { fragment_moment_image.elevation = it }
+        }
+        hideProgressBar()
+    }
+    private suspend fun showAnimated(fileEntry: FileEntry) = withContext(Dispatchers.Main) {
+        val file = fileHelper.getFileByPath(fileEntry.path)
+        fragment_moment_image.apply {
+            Glide
+                .with(context)
+                .load(file)
+                .centerInside()
+                .into(fragment_moment_image)
+                .clearOnDetach()
+            visibility = View.VISIBLE
+            log.info("SHOWING ANIMATED MOMENT: ${file.name}")
             animate().alpha(1f).duration = 100
             momentElevation?.let { fragment_moment_image.elevation = it }
         }
@@ -239,7 +258,6 @@ class MomentView @JvmOverloads constructor(
                 }
             }
         }
-
     }
 
     private fun hideDownloadIcon() {
@@ -289,5 +307,8 @@ class MomentView @JvmOverloads constructor(
                 null
             }
         }
+    }
+    private fun generateAnimatedForMoment(moment: Moment): FileEntry? {
+        return moment.momentList.find { it.name.endsWith(".gif") }
     }
 }
