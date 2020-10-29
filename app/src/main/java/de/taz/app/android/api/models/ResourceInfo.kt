@@ -24,11 +24,11 @@ data class ResourceInfo(
         null
     )
 
-    override suspend fun getDownloadDate(): Date? {
+    override fun getDownloadDate(): Date? {
         return ResourceInfoRepository.getInstance().getDownloadStatus(this)
     }
 
-    override suspend fun setDownloadDate(date: Date?) {
+    override fun setDownloadDate(date: Date?) {
         ResourceInfoRepository.getInstance().setDownloadStatus(this, date)
     }
 

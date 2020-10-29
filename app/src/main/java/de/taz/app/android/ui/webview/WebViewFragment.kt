@@ -173,17 +173,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         dataService.ensureDownloaded(resourceInfo)
 
         log.info("displayable is ready")
-        loadUrl()
-    }
-
-    private suspend fun loadUrl(): Unit = withContext(Dispatchers.IO) {
         viewModel.displayable?.let {
-            if (it.getFile()?.exists() == true) {
-                loadUrl("file://${it.getFile()!!.absolutePath}")
-            } else {
-                dataService.ensureDownloaded(it)
-                loadUrl()
-            }
+            dataService.ensureDownloaded(it)
+            val path = withContext(Dispatchers.IO) { it.getFile()!!.absolutePath }
+            loadUrl("file://$path")
         }
     }
 
@@ -195,12 +188,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      * Check if minimal resource version of the issue is <= the current resource version.
      * @return Boolean if resource info is up to date or not
      */
-    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean = withContext(Dispatchers.IO) {
-        val issue = viewModel.displayable?.getIssueStub()
-        resourceInfo?.let {
-            val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
-            minResourceVersion <= resourceInfo.resourceVersion
-        } ?: true
-    }
+    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean =
+        withContext(Dispatchers.IO) {
+            val issue = viewModel.displayable?.getIssueStub()
+            resourceInfo?.let {
+                val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
+                minResourceVersion <= resourceInfo.resourceVersion
+            } ?: true
+        }
 
 }

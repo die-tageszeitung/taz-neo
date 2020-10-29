@@ -156,9 +156,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                issueStub?.let {
+                issueStub?.let { issueStub ->
                     // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                    issueRepository.getIssue(it).let { issue ->
+                    issueRepository.getIssue(issueStub).let { issue ->
                         try {
                             val updatedIssue =
                                 dataService.getIssue(
@@ -166,7 +166,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                                     allowCache = false,
                                     saveOnlyIfNewerMoTime = true
                                 )
-                            dataService.ensureDownloaded(updatedIssue)
+                            updatedIssue?.let { dataService.ensureDownloaded(it) }
                         } catch (e: ConnectivityException.Recoverable) {
                             toastHelper.showNoConnectionToast()
                         }

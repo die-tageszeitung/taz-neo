@@ -68,11 +68,11 @@ data class Moment(
         return "moment/$issueFeedName/$issueDate"
     }
 
-    override suspend fun getDownloadDate(): Date? = withContext(Dispatchers.IO) {
-        return@withContext MomentRepository.getInstance().getDownloadDate(this@Moment)
+    override fun getDownloadDate(): Date? {
+        return MomentRepository.getInstance().getDownloadDate(this@Moment)
     }
 
-    override suspend fun setDownloadDate(date: Date?) = withContext(Dispatchers.IO) {
+    override fun setDownloadDate(date: Date?) {
         MomentRepository.getInstance().setDownloadDate(this@Moment, date)
     }
 

@@ -3,6 +3,7 @@ package de.taz.app.android.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -14,8 +15,13 @@ import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.HashMap
 
+data class LiveDataWithReferenceCount<T>(
+    val liveData: LiveData<T>,
+    val referenceCount: AtomicInteger = AtomicInteger(0)
+)
 
 /**
  * A central service providing data intransparent if from cache or remotely fetched
@@ -33,17 +39,16 @@ class DataService(applicationContext: Context) {
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
 
-    private val downloadLiveDataMap: ConcurrentHashMap<String, LiveData<DownloadStatus>> =
-        ConcurrentHashMap()
+    private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> = HashMap()
 
-    suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true): IssueStub =
+    suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true): IssueStub? =
         withContext(Dispatchers.IO) {
             if (allowCache) {
                 issueRepository.getStub(issueKey)?.let { return@withContext it } ?: run {
                     log.info("Cache miss on $issueKey")
                 }
             }
-            IssueStub(getIssue(issueKey, allowCache))
+            getIssue(issueKey, allowCache)?.let(::IssueStub)
         }
 
     suspend fun getLatestIssue(
@@ -65,20 +70,21 @@ class DataService(applicationContext: Context) {
         issueKey: IssueKey,
         allowCache: Boolean = true,
         saveOnlyIfNewerMoTime: Boolean = false
-    ): Issue = withContext(Dispatchers.IO) {
+    ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
                 log.info("Cache miss on $issueKey")
             }
         }
         val issue = apiService.getIssueByKey(issueKey)
-
         val existingIssue = issueRepository.get(issueKey)
         // cache issue after download
-        if (!saveOnlyIfNewerMoTime || existingIssue?.let { it.moTime < issue.moTime } == true) {
+        return@withContext if (!saveOnlyIfNewerMoTime || existingIssue?.let { it.moTime < issue.moTime } == true) {
             issueRepository.save(issue)
+            issue
+        } else {
+            existingIssue
         }
-        return@withContext issue
     }
 
 
@@ -208,22 +214,27 @@ class DataService(applicationContext: Context) {
     suspend fun ensureDownloaded(
         collection: DownloadableCollection,
         isAutomaticDownload: Boolean = false
-    ) {
-        downloadService.ensureCollectionDownloaded(
-            collection,
-            getDownloadLiveData(collection) as MutableLiveData<DownloadStatus>,
-            isAutomaticDownload = isAutomaticDownload
-        )
+    ) = withContext(Dispatchers.IO){
+        withDownloadLiveData(collection) { liveData ->
+            downloadService.ensureCollectionDownloaded(
+                collection,
+                liveData as MutableLiveData<DownloadStatus>,
+                isAutomaticDownload = isAutomaticDownload
+            )
+        }
+
         cleanUpLiveData()
     }
 
-    private fun cleanUpLiveData() {
-        downloadLiveDataMap.forEach { (tag, liveData) ->
-            if (!liveData.hasObservers()) {
-                downloadLiveDataMap.remove(tag)
-            }
+    /**
+     * Iterate the livedata map to see if we can clean up LiveData that have neither references nor observers
+     */
+    private fun cleanUpLiveData() = synchronized(downloadLiveDataMap) {
+        downloadLiveDataMap.entries.removeAll { (_, liveDataWithReferenceCount) ->
+            liveDataWithReferenceCount.referenceCount.get() <= 0 && !liveDataWithReferenceCount.liveData.hasObservers()
         }
     }
+
 
     suspend fun ensureDownloaded(fileEntry: FileEntry, baseUrl: String) {
         if (!fileHelper.ensureFileIntegrity(fileEntry.path, fileEntry.sha256)) {
@@ -232,9 +243,11 @@ class DataService(applicationContext: Context) {
     }
 
     suspend fun ensureDeleted(collection: DownloadableCollection) {
-        val statusLiveData = getDownloadLiveData(collection) as MutableLiveData<DownloadStatus>
-        collection.setDownloadDate(null)
-        statusLiveData.postValue(DownloadStatus.pending)
+        withDownloadLiveData(collection) { liveData ->
+            collection.setDownloadDate(null)
+            (liveData as MutableLiveData<DownloadStatus>).postValue(DownloadStatus.pending)
+        }
+
         collection.getAllFiles().forEach { fileHelper.deleteFile(it) }
         cleanUpLiveData()
     }
@@ -266,23 +279,56 @@ class DataService(applicationContext: Context) {
         feeds
     }
 
-    fun getDownloadLiveData(downloadableCollection: DownloadableCollection): LiveData<DownloadStatus> {
-        val tag = downloadableCollection.getDownloadTag()
-        val status = downloadableCollection.dateDownload?.let { DownloadStatus.done }
-            ?: DownloadStatus.pending
-        return downloadLiveDataMap[tag] ?: run {
-            val downloadLiveData = MutableLiveData(status)
-            downloadLiveDataMap[tag] = downloadLiveData as LiveData<DownloadStatus>
-            downloadLiveData
-        }
+    /**
+     * Gets or creates a LiveData observing the download progress of [downloadableStub].
+     * ATTENTION: As any call to [ensureDownloaded] and [ensureDeleted] will attempt to cleanup non-observed LiveDatas
+     * you only should access it via [withDownloadLiveData] that manages locking and reference count
+     */
+    private fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {
+        val tag = downloadableStub.getDownloadTag()
+            val status = downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
+                ?: DownloadStatus.pending
+            log.verbose("Requesting livedata for $tag")
+            return downloadLiveDataMap[tag] ?: run {
+                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+                downloadLiveDataMap[tag] = downloadLiveData
+                log.verbose("Created livedata for $tag")
+                downloadLiveData
+            }
+
     }
 
-    fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveData<DownloadStatus> {
-        val status = downloadableStub.dateDownload?.let { DownloadStatus.done } ?: DownloadStatus.pending
-        return downloadLiveDataMap[downloadableStub.getDownloadTag()] ?: run {
-            val downloadLiveData = MutableLiveData(status)
-            downloadLiveDataMap[downloadableStub.getDownloadTag()] = downloadLiveData as LiveData<DownloadStatus>
-            downloadLiveData
+    /**
+     * If you want to listen in to a download state you'll have to do it with this wrapper function.
+     * There is some racyness involved between creating the livedata and observing to it and possibly cleaning it up.
+     * Therefore this service counts references of routines accessing the livedata so it doesn't get cleaned up
+     * before we manage to .observe it. Cleanup respects either actual observers or active references to retain a LiveData.
+     *
+     * @param downloadableStub: Object implementing [DownloadableStub]
+     * @param block: Block executed where the LiveData is definitely safe of cleanup
+     */
+    fun withDownloadLiveDataSync(downloadableStub: DownloadableStub, block: (LiveData<DownloadStatus>) -> Unit) {
+        val (liveData, referenceCount) = synchronized(downloadLiveDataMap) {
+            val (liveData, referenceCount) = getDownloadLiveData(downloadableStub)
+            referenceCount.incrementAndGet()
+            liveData to referenceCount
         }
+        try {
+            block(liveData)
+        } finally {
+            synchronized(downloadLiveDataMap) {
+                referenceCount.decrementAndGet()
+            }
+        }
+    }
+    /**
+     *
+     * Wraps [withDownloadLiveDataSync] to work with suspended blocks
+     *
+     * @param downloadableStub: Object implementing [DownloadableStub]
+     * @param block: Block executed where the LiveData is definitely safe of cleanup
+     */
+    suspend fun withDownloadLiveData(downloadableStub: DownloadableStub, block: suspend (LiveData<DownloadStatus>) -> Unit) {
+        withDownloadLiveDataSync(downloadableStub) { liveData -> runBlocking { block(liveData) } }
     }
 }

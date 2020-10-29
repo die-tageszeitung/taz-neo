@@ -27,12 +27,12 @@ data class Page(
         null
     )
 
-    override suspend fun getDownloadDate(): Date? {
+    override fun getDownloadDate(): Date? {
         return PageRepository.getInstance().getDownloadDate(this)
     }
 
-    override suspend fun setDownloadDate(date: Date?) {
-        return PageRepository.getInstance().setDownloadDate(this, date)
+    override fun setDownloadDate(date: Date?) {
+        PageRepository.getInstance().setDownloadDate(this, date)
     }
 
     override fun getAllFiles(): List<FileEntry> {

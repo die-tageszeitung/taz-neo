@@ -145,29 +145,35 @@ class MomentView @JvmOverloads constructor(
         showMomentImage(moment)
     }
 
-    private fun hideOrShowDownloadIcon(issueStub: IssueStub) {
+    private suspend fun hideOrShowDownloadIcon(issueStub: IssueStub) {
         currentIssueKey = issueStub.issueKey
         if (!shouldNotShowDownloadIcon) {
             view_moment_download_icon_wrapper?.visibility = View.VISIBLE
-            issueDownloadStatusLiveData = dataService.getDownloadLiveData(issueStub)
-            issueDownloadObserver =
-                issueDownloadStatusLiveData!!.observeDistinct(lifecycleOwner!!) { downloadStatus ->
-                    // it is possible that this observer is executed after the view has been recycled and cleared (race condition)
-                    // if we check if the issuekey is still the one the observer was setup with we can make sure
-                    if (currentIssueKey != issueStub.issueKey) {
-                        return@observeDistinct
-                    } else {
-                        log.warn("Race condition catched in MomentView")
-                    }
-                    when (downloadStatus) {
-                        DownloadStatus.done ->
-                            hideDownloadIcon()
-                        DownloadStatus.started ->
-                            showLoadingIcon()
-                        else ->
-                            showDownloadIcon(issueStub)
+            withContext(Dispatchers.IO) {
+                dataService.withDownloadLiveData(issueStub) {
+                    issueDownloadStatusLiveData = it
+                    withContext(Dispatchers.Main) {
+                        issueDownloadObserver =
+                            issueDownloadStatusLiveData!!.observeDistinct(lifecycleOwner!!) { downloadStatus ->
+                                // it is possible that this observer is executed after the view has been recycled and cleared (race condition)
+                                // if we check if the issuekey is still the one the observer was setup with we can make sure
+                                if (currentIssueKey != issueStub.issueKey) {
+                                    log.warn("Race condition catched in MomentView")
+                                    return@observeDistinct
+                                }
+                                when (downloadStatus) {
+                                    DownloadStatus.done ->
+                                        hideDownloadIcon()
+                                    DownloadStatus.started ->
+                                        showLoadingIcon()
+                                    else ->
+                                        showDownloadIcon(issueStub)
+                                }
+                            }
                     }
                 }
+            }
+
         } else {
             view_moment_download_icon_wrapper?.visibility = View.GONE
         }
@@ -235,7 +241,9 @@ class MomentView @JvmOverloads constructor(
                             allowCache = false,
                             saveOnlyIfNewerMoTime = true
                         )
-                    dataService.ensureDownloaded(updatedIssue)
+                    updatedIssue?.let {
+                        dataService.ensureDownloaded(updatedIssue)
+                    }
                 } catch (e: ConnectivityException.Recoverable) {
                     toastHelper.showNoConnectionToast()
                 }
@@ -277,28 +285,34 @@ class MomentView @JvmOverloads constructor(
         moment.getMomentImage()?.let { image ->
             val file = fileHelper.getFileByPath(image.path)
             momentElevation?.let { fragment_moment_image.elevation = it }
-            momentDownloadStatusLiveData = dataService.getDownloadLiveData(moment)
-            momentDownloadStatusObserver =
-                momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
-                    if (currentIssueKey != IssueKey(
-                            moment.issueFeedName,
-                            moment.issueDate,
-                            moment.issueStatus
-                        )
-                    ) {
-                        return@observeDistinct
-                    }
-                    if (downloadStatus == DownloadStatus.done) {
-                        Glide
-                            .with(context)
-                            .load(file)
-                            .centerInside()
-                            .into(fragment_moment_image)
-                            .clearOnDetach()
-                        fragment_moment_image.animate().alpha(1f).duration = 100
-                        hideProgressBar()
+            withContext(Dispatchers.IO) {
+                dataService.withDownloadLiveData(moment) {
+                    momentDownloadStatusLiveData = it
+                    withContext(Dispatchers.Main) {
+                        momentDownloadStatusObserver =
+                            momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
+                                if (currentIssueKey != IssueKey(
+                                        moment.issueFeedName,
+                                        moment.issueDate,
+                                        moment.issueStatus
+                                    )
+                                ) {
+                                    return@observeDistinct
+                                }
+                                if (downloadStatus == DownloadStatus.done) {
+                                    Glide
+                                        .with(context)
+                                        .load(file)
+                                        .centerInside()
+                                        .into(fragment_moment_image)
+                                        .clearOnDetach()
+                                    fragment_moment_image.animate().alpha(1f).duration = 100
+                                    hideProgressBar()
+                                }
+                            }
                     }
                 }
+            }
 
 
         }
