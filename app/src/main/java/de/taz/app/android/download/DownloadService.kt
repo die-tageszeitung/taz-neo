@@ -377,10 +377,5 @@ data class PrioritizedFileDownload(val job: Job, val priority: DownloadPriority)
 
 class TaggedDownloadJob(val tag: String, val downloadJob: Job)
 
-class DownloadJobSuperseededException(
-    val newJob: Job,
-    message: String = "The download for this tag was superseeded by a new job"
-) : CancellationException(message)
-
 class CannotDetermineBaseUrlException(message: String, cause: Throwable? = null) :
     Exception(message, cause)

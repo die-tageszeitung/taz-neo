@@ -164,6 +164,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             dataService.ensureDownloaded(issueStub.getIssue())
         }
 
+        // After 3 seconds close the drawer
+        delay(3000)
+
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             runOnUiThread {
                 drawer_layout.closeDrawer(GravityCompat.START)

@@ -3,7 +3,6 @@ package de.taz.app.android.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -50,21 +49,6 @@ class DataService(applicationContext: Context) {
             }
             getIssue(issueKey, allowCache)?.let(::IssueStub)
         }
-
-    suspend fun getLatestIssue(
-        feedNames: List<String>,
-        status: IssueStatus,
-        allowCache: Boolean = false
-    ): Issue? = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            issueRepository.getLatestIssueByFeedAndStatus(feedNames, status)?.let {
-                return@withContext it
-            }
-        }
-        val issue = apiService.getLastIssuesByFeed(feedNames, 1)
-        issueRepository.save(issue)
-        issue.first()
-    }
 
     suspend fun getIssue(
         issueKey: IssueKey,
@@ -199,18 +183,6 @@ class DataService(applicationContext: Context) {
         resourceInfoRepository.save(resourceInfo)
         return@withContext resourceInfo
     }
-
-    suspend fun getResourceInfoStub(allowCache: Boolean = true): ResourceInfoStub =
-        withContext(Dispatchers.IO) {
-            if (allowCache) {
-                resourceInfoRepository.getNewestStub()?.let {
-                    return@withContext it
-                }
-            }
-            val resourceInfo = apiService.getResourceInfo()
-            resourceInfoRepository.save(resourceInfo)
-            ResourceInfoStub(resourceInfo)
-        }
 
     suspend fun ensureDownloaded(
         collection: DownloadableCollection,
