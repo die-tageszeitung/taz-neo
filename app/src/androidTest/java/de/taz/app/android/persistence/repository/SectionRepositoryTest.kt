@@ -78,7 +78,7 @@ class SectionRepositoryTest {
             log.debug("checking section ${section.sectionHtml.name}")
             sectionRepository.save(section)
             val fromDB = sectionRepository.get(section.sectionHtml.name)
-            assertEquals(fromDB.sectionHtml.sha256, section.sectionHtml.sha256)
+            assertEquals(fromDB, section)
         }
     }
 

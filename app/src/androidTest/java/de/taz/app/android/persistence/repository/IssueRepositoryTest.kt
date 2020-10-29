@@ -62,7 +62,7 @@ class IssueRepositoryTest {
         val fromDB = issueRepository.getIssueByFeedAndDate(
             issue.feedName, issue.date, issue.status
         )
-        assertEquals(fromDB?.issueKey, issue.issueKey)
+        assertEquals(fromDB, issue)
     }
 
     @Test
@@ -88,8 +88,8 @@ class IssueRepositoryTest {
             issue2.feedName, issue2.date, issue.status
         )
 
-        assertEquals(fromDB?.issueKey, issue.issueKey)
-        assertEquals(fromDB2?.issueKey, issue2.issueKey)
+        assertEquals(fromDB, issue)
+        assertEquals(fromDB2, issue2)
     }
 
     @Test
