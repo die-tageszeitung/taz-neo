@@ -133,6 +133,13 @@ abstract class IssueDao : BaseDao<IssueStub>() {
         limit: Int
     ): List<IssueStub>
 
+    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) AND status = :status ORDER BY date DESC LIMIT :limit")
+    abstract fun getIssueStubsByDateAndStatus(
+        date: String,
+        status: IssueStatus,
+        limit: Int
+    ): List<IssueStub>
+
     @Query("SELECT dateDownload FROM Issue WHERE date = :date AND feedName = :feedName AND status = :status")
     abstract fun getDownloadDate(
         feedName: String,

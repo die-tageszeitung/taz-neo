@@ -90,12 +90,13 @@ class DataService(applicationContext: Context) {
 
     suspend fun getIssueStubs(
         fromDate: Date = Date(),
+        status: IssueStatus,
         limit: Int = 1,
         allowCache: Boolean = true
     ): List<IssueStub> = withContext(Dispatchers.IO) {
         if (allowCache) {
-            val issues = issueRepository.getLatestIssueStubsByDate(
-                simpleDateFormat.format(fromDate), limit
+            val issues = issueRepository.getLatestIssueStubsByDateAndStatus(
+                simpleDateFormat.format(fromDate), status, limit
             )
             if (issues.size == limit) {
                 return@withContext issues
