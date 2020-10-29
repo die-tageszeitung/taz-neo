@@ -106,10 +106,9 @@ class SectionRepository private constructor(applicationContext: Context) :
         val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
 
         val articles =
-            appDatabase.sectionArticleJoinDao().getArticleFileNamesForSection(sectionFileName)
-                ?.let {
-                    articleRepository.getList(it)
-                } ?: emptyList()
+            appDatabase.sectionArticleJoinDao().getArticlesForSection(sectionFileName)
+                ?.map(articleRepository::articleStubToArticle)
+                ?: emptyList()
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
