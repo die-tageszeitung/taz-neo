@@ -4,6 +4,7 @@ import de.taz.app.android.util.reportAndRethrowExceptionsAsync
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
 import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
@@ -18,6 +19,7 @@ private val networkExceptions = listOf(
     SSLException::class,
     EOFException::class,
     SSLHandshakeException::class,
+    SocketException::class
 )
 
 sealed class ConnectivityException(

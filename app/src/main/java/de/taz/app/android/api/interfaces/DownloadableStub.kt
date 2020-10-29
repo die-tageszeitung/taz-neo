@@ -10,8 +10,8 @@ interface DownloadableStub {
         return getDownloadDate() != null
     }
 
-    suspend fun getDownloadDate(): Date?
-    suspend fun setDownloadDate(date: Date?)
+    fun getDownloadDate(): Date?
+    fun setDownloadDate(date: Date?)
 
     // the download tag can be used to cancel downloads
     fun getDownloadTag(): String

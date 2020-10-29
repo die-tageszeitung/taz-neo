@@ -90,11 +90,11 @@ data class Section(
         return super.getIssueStub()
     }
 
-    override suspend fun getDownloadDate(): Date? {
+    override fun getDownloadDate(): Date? {
         return SectionRepository.getInstance().getDownloadDate(SectionStub(this))
     }
 
-    override suspend fun setDownloadDate(date: Date?) {
+    override fun setDownloadDate(date: Date?) {
         SectionRepository.getInstance().setDownloadDate(SectionStub(this), date)
     }
 }

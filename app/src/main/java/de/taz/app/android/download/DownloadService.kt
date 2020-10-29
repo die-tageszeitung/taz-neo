@@ -84,13 +84,19 @@ class DownloadService constructor(
                 return@withContext
             }
         }
-        statusLiveData.postValue(DownloadStatus.started)
-        scheduleDownloadOrListenToRunning(
-            downloadableCollection,
-            isAutomaticDownload = isAutomaticDownload
-        )
-        statusLiveData.postValue(DownloadStatus.done)
-        downloadableCollection.setDownloadDate(Date())
+        try {
+            statusLiveData.postValue(DownloadStatus.started)
+            scheduleDownloadOrListenToRunning(
+                downloadableCollection,
+                isAutomaticDownload = isAutomaticDownload
+            )
+            statusLiveData.postValue(DownloadStatus.done)
+            downloadableCollection.setDownloadDate(Date())
+
+        } catch (e: Exception) {
+            log.warn("Hello")
+            statusLiveData.postValue(DownloadStatus.pending)
+        }
 
     }
 
@@ -182,7 +188,7 @@ class DownloadService constructor(
                 // ensure folders are created
                 fileHelper.createFileDirs(downloadedFile)
                 val sha256 = fileHelper.writeFile(downloadedFile, body.source())
-                log.debug("${downloadedFile.name} saved")
+                log.verbose("${downloadedFile.name} saved")
                 if (sha256 == downloadedFile.sha256) {
                     fileEntryRepository.setDownloadDate(downloadedFile, Date())
                 } else {
@@ -264,7 +270,7 @@ class DownloadService constructor(
             } else {
                 null to null
             }
-            val job = launch {
+            val job = CoroutineScope(Dispatchers.IO).launch {
                 val filesToDownload =
                     fileEntryRepository.getList(downloadableCollection.getAllFileNames())
                 val chunkJobs = filesToDownload
@@ -288,19 +294,21 @@ class DownloadService constructor(
             }
             val taggedDownload = TaggedDownloadJob(downloadableCollection.getDownloadTag(), job)
             collectionDownloadQueue.offer(taggedDownload)
-
-            job.invokeOnCompletion {
-                collectionDownloadQueue.remove(taggedDownload)
-                if (downloadableCollection is Issue) {
-                    val secondsTaken = (Date().time - start!!).toFloat() / 1000
-                    log.debug("It took $secondsTaken seconds for ${downloadableCollection.issueKey} to download all its assets (DownloadId: $downloadId")
-                    downloadId?.let {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            notifyIssueDownloadStop(it, secondsTaken)
+            CoroutineScope(Dispatchers.IO).launch {
+                job.invokeOnCompletion {
+                    collectionDownloadQueue.remove(taggedDownload)
+                    if (downloadableCollection is Issue) {
+                        val secondsTaken = (Date().time - start!!).toFloat() / 1000
+                        log.debug("It took $secondsTaken seconds for ${downloadableCollection.issueKey} to download all its assets (DownloadId: $downloadId")
+                        downloadId?.let {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                notifyIssueDownloadStop(it, secondsTaken)
+                            }
                         }
                     }
                 }
             }
+
             return@withContext job
         }
 
@@ -314,7 +322,7 @@ class DownloadService constructor(
         }
     }
 
-    private suspend fun ensureFileDownloaderRunning() {
+    private fun ensureFileDownloaderRunning() {
         if (fileDownloaderJob?.isCompleted == false) {
             return
         } else {

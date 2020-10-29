@@ -110,12 +110,12 @@ data class Article(
         return super.getIssueStub()
     }
 
-    override suspend fun getDownloadDate(): Date? = withContext(Dispatchers.IO) {
-        ArticleRepository.getInstance().getDownloadDate(ArticleStub(this@Article))
+    override fun getDownloadDate(): Date? {
+        return ArticleRepository.getInstance().getDownloadDate(ArticleStub(this@Article))
     }
 
-    override suspend fun setDownloadDate(date: Date?) {
-        ArticleRepository.getInstance().setDownloadDate(ArticleStub(this@Article), date)
+    override fun setDownloadDate(date: Date?) {
+        return ArticleRepository.getInstance().setDownloadDate(ArticleStub(this@Article), date)
     }
 
 }
