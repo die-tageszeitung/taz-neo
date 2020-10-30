@@ -10,6 +10,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
@@ -17,7 +18,7 @@ import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment :
-    WebViewFragment<ArticleStub, WebViewViewModel<ArticleStub>>(R.layout.fragment_webview_article) {
+    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_article) {
 
     override val viewModel by lazy {
         ViewModelProvider(this, SavedStateViewModelFactory(
@@ -45,15 +46,17 @@ class ArticleWebViewFragment :
             }
         }
     }
+    private lateinit var issueRepository: IssueRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        issueRepository = IssueRepository.getInstance()
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         log.debug("Creating an ArticleWebView for $articleFileName")
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
-            ArticleRepository.getInstance().getStub(articleFileName)?.let {
+            ArticleRepository.getInstance().get(articleFileName)?.let {
                 viewModel.displayableLiveData.postValue(
                     it
                 )
@@ -79,7 +82,7 @@ class ArticleWebViewFragment :
         }
     }
 
-    override fun setHeader(displayable: ArticleStub) {
+    override fun setHeader(displayable: Article) {
         lifecycleScope.launch(Dispatchers.IO) {
             val index = displayable.getIndexInSection() ?: 0
             val count = ArticleRepository.getInstance(
@@ -92,8 +95,8 @@ class ArticleWebViewFragment :
             val sectionStub = displayable.getSectionStub(context?.applicationContext)
             setHeaderForSection(index, count, sectionStub)
 
-            val issueOperations = displayable.getIssueOperations(context?.applicationContext)
-            issueOperations?.apply {
+            val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
+            issueStub?.apply {
                 if (isWeekend) {
                     FontHelper.getInstance(context?.applicationContext)
                         .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
@@ -129,7 +132,7 @@ class ArticleWebViewFragment :
     override fun hideLoadingScreen() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let { article ->
-                if (article.getIssueStub(context?.applicationContext)?.status == IssueStatus.public) {
+                if (article.getIssueStub()?.status == IssueStatus.public) {
                     withContext(Dispatchers.Main) {
                         try {
                             childFragmentManager.beginTransaction().replace(

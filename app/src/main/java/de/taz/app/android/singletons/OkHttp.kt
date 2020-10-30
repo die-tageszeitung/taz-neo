@@ -1,8 +1,8 @@
 package de.taz.app.android.singletons
 
 import androidx.lifecycle.ViewModel
+import de.taz.app.android.CONCURRENT_FILE_DOWNLOADS
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.download.CONCURRENT_DOWNLOAD_LIMIT
 import okhttp3.*
 import java.util.concurrent.TimeUnit
 
@@ -14,11 +14,10 @@ object OkHttp : ViewModel() {
     init {
         val builder = OkHttpClient
             .Builder()
-            .retryOnConnectionFailure(true)
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(20, TimeUnit.SECONDS)
-            .dispatcher(Dispatcher().also { it.maxRequestsPerHost = CONCURRENT_DOWNLOAD_LIMIT })
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .dispatcher(Dispatcher().also { it.maxRequestsPerHost = CONCURRENT_FILE_DOWNLOADS })
 
         // disallow cleartext connections if not testing
         try {

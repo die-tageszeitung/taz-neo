@@ -80,7 +80,7 @@ class SectionPagerFragment : BaseMainFragment(
         override fun onPageSelected(position: Int) {
             if (lastPage != null && lastPage != position) {
                 runIfNotNull(
-                    issueContentViewModel.issueStubAndDisplayableKeyLiveData.value?.first,
+                    issueContentViewModel.currentIssue,
                     (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
                 ) { issueStub, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {

@@ -10,13 +10,15 @@ data class Feed(
     @PrimaryKey val name: String,
     val cycle: Cycle,
     val momentRatio: Float,
-    val issueMinDate: String
+    val issueMinDate: String,
+    val issueMaxDate: String
 ) {
     constructor(feedDto: FeedDto) : this(
         feedDto.name!!,
         feedDto.cycle!!,
         feedDto.momentRatio!!,
-        feedDto.issueMinDate!!
+        feedDto.issueMinDate!!,
+        feedDto.issueMaxDate!!
     )
 
     fun momentRatioAsDimensionRatioString(): String {

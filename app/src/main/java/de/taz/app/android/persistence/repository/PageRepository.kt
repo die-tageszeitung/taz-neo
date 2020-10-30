@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.util.SingletonHolder
+import java.util.*
 
 class PageRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -26,7 +27,7 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.pagina,
                 page.type,
                 page.frameList,
-                page.downloadedStatus
+                page.dateDownload
             )
         )
         fileEntryRepository.save(page.pagePdf)
@@ -77,7 +78,7 @@ class PageRepository private constructor(applicationContext: Context) :
                 pageStub.pagina,
                 pageStub.type,
                 pageStub.frameList,
-                pageStub.downloadedStatus
+                pageStub.dateDownload
             )
         }
     }
@@ -93,7 +94,15 @@ class PageRepository private constructor(applicationContext: Context) :
         appDatabase.pageDao().delete(
             pages.mapNotNull { getStub(it.pagePdf.name) }
         )
-        fileEntryRepository.delete(pages.map { it.pagePdf })
+        fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
+    }
+
+    fun getDownloadDate(page: Page): Date? {
+        return appDatabase.pageDao().getDownloadDate(page.pagePdf.name)
+    }
+
+    fun setDownloadDate(page: Page, date: Date?) {
+        update(PageStub(page).copy(dateDownload = date))
     }
 
     fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)

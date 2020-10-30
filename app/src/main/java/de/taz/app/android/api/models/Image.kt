@@ -1,20 +1,16 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.interfaces.CacheableDownload
 import de.taz.app.android.api.interfaces.FileEntryOperations
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import kotlinx.coroutines.*
+import de.taz.app.android.persistence.serializers.DateSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import java.util.*
 
-@Serializable
+@ExperimentalSerializationApi
+@Serializable(with=DateSerializer::class)
 data class Image(
     override val name: String,
     override val storageType: StorageType,
@@ -25,7 +21,7 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
-    override val downloadedStatus: DownloadStatus?
+    override val dateDownload: Date?
 ) : FileEntryOperations {
 
     constructor(imageDto: ImageDto, folder: String) : this(
@@ -38,7 +34,7 @@ data class Image(
         type = imageDto.type,
         alpha = imageDto.alpha,
         resolution = imageDto.resolution,
-        downloadedStatus = DownloadStatus.pending
+        dateDownload = null
     )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
@@ -51,38 +47,10 @@ data class Image(
         type = imageStub.type,
         alpha = imageStub.alpha,
         resolution = imageStub.resolution,
-        downloadedStatus = fileEntry.downloadedStatus
+        dateDownload = fileEntry.dateDownload
     )
 
-    override fun setDownloadStatus(downloadStatus: DownloadStatus) {
-        FileEntryRepository.getInstance().apply {
-            get(this@Image.name)?.let {
-                update(it.copy(downloadedStatus = downloadStatus))
-            }
-        }
-    }
-
-    override fun isDownloadedLiveData(applicationContext: Context?): LiveData<Boolean> {
-        return FileEntryRepository.getInstance(applicationContext).isDownloadedLiveData(this.name)
-    }
-
-    override fun getLiveData(applicationContext: Context?): LiveData<out CacheableDownload?> {
-        return ImageRepository.getInstance(applicationContext).getLiveData(name)
-    }
-
-    override fun download(applicationContext: Context?): Job =
-        CoroutineScope(Dispatchers.IO).launch {
-            DownloadService.getInstance(applicationContext)
-                .download(this@Image, getIssueOperations(applicationContext)?.baseUrl)
-        }
-
-    override fun getIssueOperations(applicationContext: Context?): IssueOperations? =
-        IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
-
-    override fun getDownloadedStatus(applicationContext: Context?): DownloadStatus? {
-        return FileEntryRepository.getInstance(applicationContext).get(name)?.downloadedStatus
-    }
-
+    fun getIssueStub(): IssueStub = IssueRepository.getInstance().getIssueStubForImage(this@Image)
 }
 
 enum class ImageType {

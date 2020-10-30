@@ -23,8 +23,14 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
     private val log by Log
 
+    private lateinit var apiService: ApiService
+    private lateinit var toastHelper: ToastHelper
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        toastHelper = ToastHelper.getInstance()
+        apiService = ApiService.getInstance()
 
         coordinator.moveContentBeneathStatusBar()
 
@@ -78,17 +84,22 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
             CoroutineScope(Dispatchers.IO).launch {
-                ApiService.getInstance(activity?.applicationContext).sendErrorReportAsync(
-                    email,
-                    message,
-                    lastAction,
-                    conditions,
-                    storageType,
-                    errorProtocol,
-                    usedRam,
-                    totalRam
-                )
                 log.debug("Sending an error report")
+                apiService.apply {
+                    retryOnConnectionFailure {
+                        sendErrorReport(
+                            email,
+                            message,
+                            lastAction,
+                            conditions,
+                            storageType,
+                            errorProtocol,
+                            usedRam,
+                            totalRam
+                        )
+                    }
+                }
+                toastHelper.showToast(R.string.toast_error_report_sent)
             }
             parentFragmentManager.popBackStack()
         }

@@ -8,8 +8,8 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.util.Log

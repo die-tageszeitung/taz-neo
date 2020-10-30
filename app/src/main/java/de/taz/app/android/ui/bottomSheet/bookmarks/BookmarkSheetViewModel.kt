@@ -15,11 +15,11 @@ class BookmarkSheetViewModel(application: Application) : AndroidViewModel(applic
         get() = articleFileNameLiveData.value
         set(value) { articleFileNameLiveData.value = value }
 
-    private val articleLiveData: LiveData<ArticleStub?> = articleFileNameLiveData.switchMap {
+    private val articleLiveData: LiveData<ArticleStub> = articleFileNameLiveData.switchMap {
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             it?.let {
                 emitSource(articleRepository.getStubLiveData(it))
-            } ?: emit(null)
+            }
         }
     }
 

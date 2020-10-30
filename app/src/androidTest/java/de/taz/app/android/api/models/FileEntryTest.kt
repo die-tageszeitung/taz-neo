@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.persistence.AppDatabase
-import de.taz.app.android.persistence.repository.DownloadRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.FileHelper
 import org.junit.After
@@ -23,7 +22,6 @@ class FileEntryTest {
     private lateinit var context: Context
     private lateinit var db: AppDatabase
     private lateinit var fileEntryRepository: FileEntryRepository
-    private lateinit var downloadRepository: DownloadRepository
 
     @Before
     fun setup() {
@@ -32,8 +30,6 @@ class FileEntryTest {
             context, AppDatabase::class.java).build()
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
-        downloadRepository = DownloadRepository.getInstance(context)
-        downloadRepository.appDatabase = db
         fileHelper = FileHelper.createInstance(context)
     }
 
@@ -50,11 +46,6 @@ class FileEntryTest {
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fileEntryTest, fromDB)
 
-        val download = Download(
-            "https://example.com",
-            fileEntryTest
-        )
-        downloadRepository.save(download)
 
         fileHelper.createFile(fileEntryTest)
         val createdFile = fileHelper.getFile(fileEntryTest)
@@ -68,4 +59,4 @@ class FileEntryTest {
     }
 }
 
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "fodlr", downloadedStatus = DownloadStatus.pending)
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "fodlr", null)

@@ -7,15 +7,13 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.RESOURCE_FOLDER
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.DownloadRepository
+import de.taz.app.android.data.DataService
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
@@ -24,21 +22,21 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_data_policy.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
 const val FINISH_ON_CLOSE = "FINISH ON CLOSE"
+
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
-    private fun getLifecycleOwner(): LifecycleOwner = this
     private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
-    private val dataPolicyHeader = "welcomeSlidesImgHeader.png"
 
-    private var downloadRepository: DownloadRepository? = null
     private var fileHelper: FileHelper? = null
+    private lateinit var dataService: DataService
 
     private var finishOnClose = false
 
@@ -47,14 +45,14 @@ class DataPolicyActivity : AppCompatActivity() {
 
         finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
-        downloadRepository = DownloadRepository.getInstance(applicationContext)
         fileHelper = FileHelper.getInstance(applicationContext)
+        dataService = DataService.getInstance(applicationContext)
 
         setContentView(R.layout.activity_data_policy)
 
         data_policy_accept_button?.setOnClickListener {
             acceptDataPolicy()
-            if(finishOnClose) {
+            if (finishOnClose) {
                 finish()
             } else {
                 if (isFirstTimeStart()) {
@@ -114,21 +112,15 @@ class DataPolicyActivity : AppCompatActivity() {
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloadedLiveData = downloadRepository?.isDownloadedLiveData(
-                listOf(dataPolicyPage, dataPolicyHeader)
-            )
 
-            withContext(Dispatchers.Main) {
-                isDownloadedLiveData?.observeDistinct(
-                    getLifecycleOwner(),
-                    Observer { isDownloaded ->
-                        if (isDownloaded) {
-                            data_policy_fullscreen_content.loadUrl(filePath)
-                        }
-                    }
-                )
-            }
+        val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
+        try {
+            dataService.ensureDownloaded(resourceInfo)
+        } catch (e: CancellationException) {
+            throw e
+        }
+        withContext(Dispatchers.Main) {
+            data_policy_fullscreen_content.loadUrl(filePath)
         }
     }
 

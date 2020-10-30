@@ -3,9 +3,11 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
+import java.util.*
 
 @Mockable
 class FileEntryRepository private constructor(
@@ -23,9 +25,7 @@ class FileEntryRepository private constructor(
         fromDB?.let {
             if (fromDB.moTime < fileEntry.moTime) {
                 appDatabase.fileEntryDao().insertOrReplace(
-                    fileEntry.copy(
-                        downloadedStatus = fromDB.downloadedStatus
-                    )
+                    fileEntry
                 )
             }
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
@@ -47,16 +47,14 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getLiveDataByName(fileEntryName)
     }
 
-    fun get(fileEntryNames: List<String>): List<FileEntry> {
+    fun getList(fileEntryNames: List<String>): List<FileEntry> {
         return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }
 
-    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryName: String): FileEntry {
         return get(fileEntryName) ?: throw NotFoundException()
     }
 
-    @Throws(NotFoundException::class)
     fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
         return fileEntryNames.map { getOrThrow(it) }
     }
@@ -66,27 +64,23 @@ class FileEntryRepository private constructor(
     }
 
     fun delete(fileEntry: FileEntry) {
-        appDatabase.downloadDao().apply {
-            get(fileEntry.name)?.let {
-                delete(it)
-            }
-        }
         appDatabase.fileEntryDao().delete(fileEntry)
     }
 
-    fun delete(fileEntries: List<FileEntry>) {
-        fileEntries.map { delete(it) }
+
+    fun deleteList(fileEntryNames: List<String>) {
+        appDatabase.fileEntryDao().deleteList(fileEntryNames)
     }
 
-    fun isDownloadedLiveData(fileEntry: FileEntry) = isDownloadedLiveData(fileEntry.name)
-
-    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
-        return appDatabase.fileEntryDao().isDownloadedLiveData(fileName)
+    fun resetDownloadDate(fileEntry: FileEntry) {
+        update(fileEntry.copy(dateDownload = null))
     }
 
-    fun setDownloadStatus(fileName: String, downloadStatus: DownloadStatus) {
-        get(fileName)?.let {
-            update(it.copy(downloadedStatus = downloadStatus))
-        }
+    fun setDownloadDate(fileEntry: FileEntry, date: Date?) {
+        update(fileEntry.copy(dateDownload = date))
+    }
+
+    fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
+        return appDatabase.fileEntryDao().getDownloadDate(fileEntry.name)
     }
 }

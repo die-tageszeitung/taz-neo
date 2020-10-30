@@ -13,7 +13,7 @@ import de.taz.app.android.persistence.join.IssueCreditMomentJoin
 abstract class IssueCreditMomentJoinDao : BaseDao<IssueCreditMomentJoin>() {
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
         ON FileEntry.name == IssueCreditMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueCreditMomentJoin.momentFileName
         WHERE  IssueCreditMomentJoin.issueDate == :date AND IssueCreditMomentJoin.issueFeedName == :feedName
@@ -25,7 +25,7 @@ abstract class IssueCreditMomentJoinDao : BaseDao<IssueCreditMomentJoin>() {
 
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
         ON FileEntry.name == IssueCreditMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueCreditMomentJoin.momentFileName
         WHERE  IssueCreditMomentJoin.issueDate == :date AND IssueCreditMomentJoin.issueFeedName == :feedName
@@ -47,7 +47,7 @@ abstract class IssueCreditMomentJoinDao : BaseDao<IssueCreditMomentJoin>() {
     abstract fun getIssueStub(momentFileName: String): IssueStub
 
     @Query(
-        """SELECT name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
+        """SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN IssueCreditMomentJoin
         ON FileEntry.name == IssueCreditMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueCreditMomentJoin.momentFileName
         INNER JOIN IssueCreditMomentJoin as IMJ2 ON IssueCreditMomentJoin.issueDate == IMJ2.issueDate

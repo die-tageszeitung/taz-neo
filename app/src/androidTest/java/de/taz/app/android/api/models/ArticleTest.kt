@@ -1,7 +1,6 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.IssueTestUtil
@@ -51,8 +50,8 @@ class ArticleTest {
 
         article.imageList
             .filter { it.name.contains(".norm") }
-            .forEach { fileEntry ->
-                assertTrue(fileList.filter { it == fileEntry }.size == 1)
+            .forEach { image ->
+                assertTrue(fileList.filter { it.name == image.name }.size == 1)
             }
     }
 }

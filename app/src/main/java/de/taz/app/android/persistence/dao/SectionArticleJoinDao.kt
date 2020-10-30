@@ -14,7 +14,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     @Query(
         """ SELECT Article.* FROM Article INNER JOIN SectionArticleJoin
             ON Article.articleFileName == SectionArticleJoin.articleFileName
-            WHERE SectionArticleJoin.sectionFileName == :sectionFileName
+            WHERE SectionArticleJoin.sectionFileName == :sectionFileName ORDER BY SectionArticleJoin.`index` ASC
         """
     )
     abstract fun getArticlesForSection(sectionFileName: String): List<ArticleStub>?

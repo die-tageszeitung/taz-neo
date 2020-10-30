@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
+import java.util.*
 
 @Dao
 abstract class ArticleDao : BaseDao<ArticleStub>() {
@@ -12,7 +13,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     abstract fun get(articleFileName: String): ArticleStub?
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    abstract fun getLiveData(articleFileName: String): LiveData<ArticleStub?>
+    abstract fun getLiveData(articleFileName: String): LiveData<ArticleStub>
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     abstract fun get(articleFileNames: List<String>): List<ArticleStub>
@@ -51,8 +52,11 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     )
     abstract fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
 
-    @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND downloadedStatus == 'done')")
+    @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
+
+    @Query("SELECT dateDownload FROM Article WHERE articleFileName == :articleFileName")
+    abstract fun getDownloadStatus(articleFileName: String): Date?
 
     @Query(
         """SELECT Article.* FROM Article

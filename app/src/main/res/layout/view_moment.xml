@@ -12,7 +12,7 @@
         android:id="@+id/fragment_moment_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="0"
+        android:alpha="1"
         android:elevation="@dimen/moment_elevation"
         android:outlineProvider="paddedBounds"
         app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
@@ -20,7 +20,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_play_arrow"
         tools:ignore="ContentDescription" />
 
     <ProgressBar

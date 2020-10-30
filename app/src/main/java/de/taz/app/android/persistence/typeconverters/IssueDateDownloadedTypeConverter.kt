@@ -14,20 +14,20 @@ class IssueDateDownloadTypeConverter {
     private val log by Log
 
     @TypeConverter
-    fun toString(issueDateDownload: Date?): String {
+    fun toString(issueDateDownload: Date?): String? {
         val simpleDateFormat = SimpleDateFormat(FORMAT_STRING, Locale.US)
 
         issueDateDownload?.let {
             return simpleDateFormat.format(issueDateDownload)
         }
-        return ""
+        return null
     }
 
     @TypeConverter
-    fun toIssueDateDownload(value: String): Date? {
+    fun toIssueDateDownload(value: String?): Date? {
         val simpleDateFormat = SimpleDateFormat(FORMAT_STRING, Locale.US)
 
-        if (value == "" || value == "null") {
+        if (value == "" || value == "null" || value == null) {
             return null
         }
         return try {

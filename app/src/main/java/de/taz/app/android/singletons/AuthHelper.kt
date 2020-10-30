@@ -7,18 +7,19 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.data.DataService
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 const val PREFERENCES_AUTH = "auth"
 const val PREFERENCES_AUTH_EMAIL = "email"
@@ -36,8 +37,8 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
-    private val apiService
-        get() = ApiService.getInstance(applicationContext)
+    private val dataService
+        get() = DataService.getInstance(applicationContext)
     private val articleRepository
         get() = ArticleRepository.getInstance(applicationContext)
     private val issueRepository
@@ -46,6 +47,8 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = ToastHelper.getInstance(applicationContext)
     private val toDownloadIssueHelper
         get() = ToDownloadIssueHelper.getInstance(applicationContext)
+    private val firebaseHelper
+        get() = FirebaseHelper.getInstance(applicationContext)
 
 
     private val preferences =
@@ -112,12 +115,10 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
                     AuthStatus.elapsed -> {
-                        cancelAndStartDownloadingPublicIssues()
                         toastHelper.showToast(R.string.toast_logout_elapsed)
 
                     }
                     AuthStatus.notValid -> {
-                        cancelAndStartDownloadingPublicIssues()
                         elapsedButWaiting = false
                         toastHelper.showToast(R.string.toast_logout_invalid)
 
@@ -125,11 +126,14 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                     AuthStatus.valid -> {
                         elapsedButWaiting = false
                         CoroutineScope(Dispatchers.IO).launch {
-                            toDownloadIssueHelper.cancelDownloadsAndStartAgain()
-                            ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
-                            isPolling = false
+                            cancelAndStartDownloadingPublicIssues()
+                            launch {
+                                firebaseHelper.firebaseToken?.let {
+                                    dataService.sendNotificationInfo(it, retryOnFailure = true)
+                                }
+                            }
                             transformBookmarks()
-
+                            isPolling = false
                         }
                     }
                     else -> {
@@ -138,6 +142,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
             }
         }
     }
+
 
     private fun cancelAndStartDownloadingPublicIssues() = CoroutineScope(Dispatchers.IO).launch {
         toDownloadIssueHelper.cancelDownloadsAndStartAgain()
@@ -168,8 +173,12 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     }
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue? {
-        return apiService.getIssueByFeedAndDateAsync(
-            articleStub.issueFeedName, articleStub.issueDate
-        ).await()
+        return dataService.getIssue(
+            IssueKey(
+                articleStub.issueFeedName,
+                articleStub.issueDate,
+                IssueStatus.regular
+            )
+        )
     }
 }

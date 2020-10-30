@@ -16,7 +16,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import de.taz.app.android.api.dto.SectionType
-import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.allMigrations
