@@ -254,6 +254,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showHome(skipToFirst: Boolean = false, skipToIssue: IssueOperations? = null) {
+        /*
         runOnUiThread {
             supportFragmentManager.popBackStackImmediate(
                 null,
@@ -272,8 +273,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 skipToIssue?.let { coverFlowFragment?.skipToItem(skipToIssue) }
             }
         }
-    }
 
+         */
+    }
     fun showToast(stringId: Int) {
         toastHelper?.showToast(stringId)
     }

@@ -7,6 +7,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.HomePageAdapter
+import de.taz.app.android.ui.home.page.IssueFeedPagingAdapter
 import de.taz.app.android.ui.moment.MomentView
 import java.util.*
 
@@ -15,30 +16,14 @@ const val MAX_VIEWHOLDER_WIDTH_OF_PARENT = 0.8
 class CoverflowAdapter(
     private val fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    dateOnClickListener: ((Date) -> Unit)?
-) : HomePageAdapter(fragment, itemLayoutRes, dateOnClickListener) {
+    val dateOnClickListener: ((Date) -> Unit)?
+) : IssueFeedPagingAdapter(fragment, itemLayoutRes) {
 
-    override fun setIssueStubs(issues: List<IssueStub>) {
-        val skipToLast = visibleIssueStubList.isEmpty()
-        super.setIssueStubs(issues)
-        if (skipToLast) {
-            if (fragment.hasSetItem()) {
-                if(!fragment.skipToCurrentItem()) {
-                    fragment.skipToHome()
-                }
-            } else {
-                fragment.skipToHome()
-            }
-        }
+    override fun dateOnClickListener(issueDate: Date) {
+        this.dateOnClickListener(issueDate)
     }
 
-    override fun setInactiveFeedNames(inactiveFeedNames: Set<String>) {
-        val skipToLast = visibleIssueStubList.isEmpty()
-        super.setInactiveFeedNames(inactiveFeedNames)
-        if (skipToLast) {
-            fragment.skipToHome()
-        }
-    }
+    override val dateFormat: DateFormat = DateFormat.LongWithWeekDay
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewHolder = super.onCreateViewHolder(parent, viewType)
@@ -52,15 +37,5 @@ class CoverflowAdapter(
         }
 
         return viewHolder
-    }
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launchWhenResumed {
-                val momentView =
-                    viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.displayIssue(issueStub, dateFormat = DateFormat.LongWithWeekDay)
-            }
-        }
     }
 }

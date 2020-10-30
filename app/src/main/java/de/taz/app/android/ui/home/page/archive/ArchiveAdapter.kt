@@ -1,31 +1,12 @@
 package de.taz.app.android.ui.home.page.archive
 
 import androidx.annotation.LayoutRes
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.home.page.HomePageAdapter
-import de.taz.app.android.ui.moment.MomentView
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-
+import de.taz.app.android.ui.home.page.IssueFeedPagingAdapter
 
 class ArchiveAdapter(
     private val fragment: ArchiveFragment,
     @LayoutRes private val itemLayoutRes: Int
-) : HomePageAdapter(fragment, itemLayoutRes) {
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            val momentView = viewHolder.itemView.findViewById<MomentView>(
-                R.id.fragment_cover_flow_item
-            )
-            fragment.lifecycleScope.launchWhenResumed {
-                momentView.displayIssue(
-                    issueStub,
-                    dateFormat = DateFormat.LongWithoutWeekDay
-                )
-            }
-        }
-    }
+) : IssueFeedPagingAdapter(fragment, itemLayoutRes) {
+    override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
 }

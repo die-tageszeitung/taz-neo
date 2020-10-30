@@ -3,16 +3,11 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.ui.home.page.HomePageOnScrollListener
-import de.taz.app.android.ui.home.page.HomePageAdapter
 import de.taz.app.android.ui.home.page.HomePageFragment
+import de.taz.app.android.ui.home.page.IssueFeedPagingAdapter
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
@@ -20,40 +15,31 @@ import kotlinx.android.synthetic.main.fragment_archive.*
  */
 class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
-    override var adapter: HomePageAdapter? = null
+    override lateinit var adapter: IssueFeedPagingAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        adapter = ArchiveAdapter(
+            this,
+            R.layout.fragment_archive_item
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = adapter ?: ArchiveAdapter(
-            this,
-            R.layout.fragment_archive_item
-        )
+        fragment_archive_grid.adapter = adapter
 
         context?.let { context ->
             fragment_archive_grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns(context))
         }
-        fragment_archive_grid.adapter = adapter
 
-        fragment_archive_grid.addOnScrollListener(
-            HomePageOnScrollListener(
-                this
-            )
-        )
         fragment_archive_to_cover_flow.setOnClickListener {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
         }
-    }
-
-    fun getLifecycleOwner(): LifecycleOwner {
-        return viewLifecycleOwner
-    }
-
-    override fun onDataSetChanged(issueStubs: List<IssueStub>) {
-        (fragment_archive_grid?.adapter as? HomePageAdapter)?.setIssueStubs(issueStubs)
     }
 
     private fun calculateNoOfColumns(context: Context): Int {
@@ -65,22 +51,8 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
         return (screenWidthDp / columnWidthDp).toInt()
     }
 
-    override fun setAuthStatus(authStatus: AuthStatus) {
-        adapter?.setAuthStatus(authStatus)
-    }
-
-    override fun setFeeds(feeds: List<Feed>) {
-        adapter?.setFeeds(feeds)
-    }
-
-    override fun setInactiveFeedNames(feedNames: Set<String>) {
-        adapter?.setInactiveFeedNames(feedNames)
-    }
-
     override fun onDestroyView() {
         fragment_archive_grid.adapter = null
         super.onDestroyView()
     }
-
-
 }
