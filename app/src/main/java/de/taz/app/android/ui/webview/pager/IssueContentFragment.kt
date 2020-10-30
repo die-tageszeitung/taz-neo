@@ -8,18 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.DRAWER_SHOW_NUMBER
-import de.taz.app.android.PREFERENCES_GENERAL
-import de.taz.app.android.PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.ToDownloadIssueHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.util.Log
@@ -44,6 +40,7 @@ class IssueContentFragment :
     private lateinit var sectionPagerFragment: SectionPagerFragment
     private lateinit var articlePagerFragment: ArticlePagerFragment
     private lateinit var imprintFragment: ImprintWebViewFragment
+    private lateinit var dataService: DataService
 
     private var drawerShown: Boolean = false
 
@@ -52,6 +49,7 @@ class IssueContentFragment :
         sectionPagerFragment = SectionPagerFragment()
         articlePagerFragment = ArticlePagerFragment()
         imprintFragment = ImprintWebViewFragment()
+        dataService = DataService.getInstance()
         addFragment(sectionPagerFragment)
         addFragment(articlePagerFragment)
         addFragment(imprintFragment)
@@ -61,7 +59,7 @@ class IssueContentFragment :
         super.onResume()
         viewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(
             this,
-            { (issueStub, _) ->
+            { (_, _) ->
                 lifecycleScope.launchWhenResumed {
                     val drawerShownLiveData = getShownDrawerNumberLiveData()
                     if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
@@ -69,16 +67,6 @@ class IssueContentFragment :
                         delay(100)
                         getMainView()?.openDrawer(GravityCompat.START)
                         drawerShownLiveData.postValue(drawerShownLiveData.value + 1)
-                    }
-
-                    if (issueStub.dateDownload == null) {
-                        withContext(Dispatchers.IO) {
-                            IssueRepository.getInstance(context?.applicationContext)
-                                .getIssue(issueStub).let { issue ->
-                                    DownloadService.getInstance(context?.applicationContext)
-                                        .download(issue)
-                                }
-                        }
                     }
                 }
             })
@@ -148,21 +136,18 @@ class IssueContentFragment :
         val issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
         authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
-            val issueStub = viewModel.issueStubAndDisplayableKeyLiveData.value?.first
+            val issueStub = viewModel.currentIssue
             if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
                 runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        apiService.getIssueByFeedAndDate(feedName, date)?.let {
+                        apiService.getIssueByFeedAndDate(feedName, simpleDateFormat.parse(date)!!).let {
                             issueRepository.saveIfDoesNotExist(it)
                             viewModel.setDisplayable(
                                 it.issueKey,
-                                viewModel.issueStubAndDisplayableKeyLiveData.value!!.second.replace(
+                                viewModel.currentDisplayable!!.replace(
                                     "public.",
                                     ""
                                 )
-                            )
-                            ToDownloadIssueHelper.getInstance().startMissingDownloads(
-                                it.date
                             )
                         }
                     }

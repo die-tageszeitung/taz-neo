@@ -13,7 +13,7 @@ import de.taz.app.android.persistence.join.IssueImageMomentJoin
 abstract class IssueImageMomentJoinDao : BaseDao<IssueImageMomentJoin>() {
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN IssueImageMomentJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN IssueImageMomentJoin
         ON FileEntry.name == IssueImageMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueImageMomentJoin.momentFileName
         WHERE  IssueImageMomentJoin.issueDate == :date AND IssueImageMomentJoin.issueFeedName == :feedName
@@ -25,7 +25,7 @@ abstract class IssueImageMomentJoinDao : BaseDao<IssueImageMomentJoin>() {
 
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution FROM FileEntry INNER JOIN IssueImageMomentJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN IssueImageMomentJoin
         ON FileEntry.name == IssueImageMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueImageMomentJoin.momentFileName
         WHERE  IssueImageMomentJoin.issueDate == :date AND IssueImageMomentJoin.issueFeedName == :feedName
@@ -51,7 +51,7 @@ abstract class IssueImageMomentJoinDao : BaseDao<IssueImageMomentJoin>() {
     abstract fun getIssueStub(momentFileName: String): IssueStub
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, downloadedStatus, type, alpha, resolution 
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution 
         FROM FileEntry INNER JOIN IssueImageMomentJoin
         ON FileEntry.name == IssueImageMomentJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == IssueImageMomentJoin.momentFileName

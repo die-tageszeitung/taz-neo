@@ -16,6 +16,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import de.taz.app.android.ui.moment.MomentView
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 
@@ -88,21 +89,13 @@ abstract class HomePageAdapter(
 
         // show regular issue if user is logged out only if downloaded else demo issue else public
         filteredIssueList.forEach { item ->
-            if (!(item.status == IssueStatus.regular && item.downloadedStatus in listOf(
-                    DownloadStatus.done,
-                    DownloadStatus.started
-                )
-                        )
-            ) {
+            if (!(item.status == IssueStatus.regular && item.dateDownload != null)) {
                 val issuesAtSameDate = filteredIssueList.filter {
                     item.date == it.date && item.feedName == it.feedName
                 }
                 if (issuesAtSameDate.size > 1) {
                     issuesAtSameDate.firstOrNull {
-                        it.status == IssueStatus.regular && it.downloadedStatus in listOf(
-                            DownloadStatus.done,
-                            DownloadStatus.started
-                        )
+                        it.status == IssueStatus.regular && it.dateDownload != null
                     }?.let { mutableFilteredIssueList.remove(item) }
                         ?: issuesAtSameDate.firstOrNull { it.status == IssueStatus.demo }?.let {
                             mutableFilteredIssueList.remove(item)
@@ -150,11 +143,6 @@ abstract class HomePageAdapter(
         )
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        holder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item).clear()
-        super.onViewRecycled(holder)
-    }
-
     /**
      * ViewHolder for this Adapter
      */
@@ -163,10 +151,8 @@ abstract class HomePageAdapter(
         init {
             itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.apply {
                 setOnClickListener {
-                    fragment.viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-                        getItem(adapterPosition)?.let {
-                            fragment.onItemSelected(it)
-                        }
+                    getItem(adapterPosition)?.let {
+                        fragment.onItemSelected(it)
                     }
                 }
 

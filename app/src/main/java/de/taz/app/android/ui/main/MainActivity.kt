@@ -23,13 +23,11 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.*
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.BackFragment
@@ -58,6 +56,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var imageRepository: ImageRepository? = null
     private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
+    private lateinit var dataService: DataService
+    private lateinit var issueRepository: IssueRepository
     private val log by Log
 
 
@@ -76,6 +76,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 BookmarkPagerViewModel::class.java
             )
 
+        issueRepository = IssueRepository.getInstance()
+        dataService = DataService.getInstance()
         fileHelper = FileHelper.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
@@ -135,8 +137,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 val fragment = IssueContentFragment()
                 showMainFragment(fragment)
             }
+
             lifecycleScope.launch(Dispatchers.Main) {
-                issueContentViewModel.setDisplayable(displayableKey, immediate = true)
+                issueContentViewModel.currentIssue?.let {
+                    issueContentViewModel.setDisplayable(it.issueKey, displayableKey, immediate = true)
+                }
             }
         }
     }
@@ -150,9 +155,16 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showIssue(issueStub: IssueStub) = lifecycleScope.launch(Dispatchers.IO) {
-        issueContentViewModel.setDisplayable(issueStub.getIssue())
         val fragment = IssueContentFragment()
         showMainFragment(fragment)
+
+        issueContentViewModel.setDisplayable(issueStub)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            dataService.ensureDownloaded(issueStub.getIssue())
+        }
+
+        // After 3 seconds close the drawer
         delay(3000)
 
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
@@ -171,20 +183,19 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     }
 
     fun showMainFragment(fragment: Fragment) {
-        lifecycleScope.launchWhenResumed {
-            runOnUiThread {
-                supportFragmentManager.apply {
-                    beginTransaction()
-                        .replace(
-                            R.id.main_content_fragment_placeholder,
-                            fragment,
-                            backStackEntryCount.toString()
-                        )
-                        .addToBackStack(backStackEntryCount.toString())
-                        .commit()
-                }
+        runOnUiThread {
+            supportFragmentManager.apply {
+                beginTransaction()
+                    .replace(
+                        R.id.main_content_fragment_placeholder,
+                        fragment,
+                        backStackEntryCount.toString()
+                    )
+                    .addToBackStack(backStackEntryCount.toString())
+                    .commit()
             }
         }
+
     }
 
     fun lockNavigationView(gravity: Int) {
@@ -311,24 +322,12 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private suspend fun suspendSetDrawerNavButton(navButton: Image) {
         if (this.navButton != navButton) {
             withContext(Dispatchers.IO) {
-
                 val image: Image = navButton
-                if (image.downloadedStatus == DownloadStatus.done ||
-                    image.downloadedStatus == DownloadStatus.takeOld
-                ) {
-                    showNavButton(image)
-                } else {
-                    // if image exists wait for it to be downloaded and show it
-                    image.download(applicationContext)
-                    val isDownloadedLiveData = image.isDownloadedLiveData(applicationContext)
-                    withContext(Dispatchers.Main) {
-                        isDownloadedLiveData.observeDistinct(getLifecycleOwner()) { isDownloaded ->
-                            if (isDownloaded) {
-                                showNavButton(image)
-                            }
-                        }
-                    }
-                }
+                dataService.ensureDownloaded(
+                    FileEntry(image),
+                    dataService.getResourceInfo().resourceBaseUrl
+                )
+                showNavButton(image)
             }
         }
     }

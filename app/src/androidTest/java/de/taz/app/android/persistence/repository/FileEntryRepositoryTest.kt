@@ -91,7 +91,7 @@ class FileEntryRepositoryTest {
     }
 }
 
-val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0, "folder1", DownloadStatus.pending)
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "folder2", DownloadStatus.pending)
-val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0, "folder3", DownloadStatus.pending)
-val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0, "folder4", DownloadStatus.pending)
+val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0, "folder1", null)
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "folder2", null)
+val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0, "folder3", null)
+val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0, "folder4", null)

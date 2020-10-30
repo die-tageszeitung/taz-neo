@@ -2,6 +2,7 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import de.taz.app.android.PREFERENCES_GENERAL
+import de.taz.app.android.data.DataService
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -19,6 +20,7 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<DownloadedIssueHelper, Context>(::DownloadedIssueHelper)
 
+    private val dataService = DataService.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     private val generalSettings = applicationContext.getSharedPreferences(
@@ -33,18 +35,25 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
             SETTINGS_GENERAL_KEEP_ISSUES,
             SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
         )
-    private val downloadIssueNumberLiveData = issueRepository.getAllDownloadedStubsLiveData()
+
+    private val downloadedIssuesCountLiveData = issueRepository.getDownloadedIssuesCountLiveData()
 
     init {
         storedIssueNumberLiveData.observeForever { ensureIssueCount() }
-        downloadIssueNumberLiveData.observeForever { ensureIssueCount() }
+        downloadedIssuesCountLiveData.observeForever {
+            ensureIssueCount()
+        }
     }
 
     private fun ensureIssueCount() {
         if (!downloadedIssueBoolean.getAndSet(true)) {
             CoroutineScope(Dispatchers.IO).launch {
-                while (downloadIssueNumberLiveData.value?.size ?: 0 > getStoredIssuesNumber()) {
-                    issueRepository.getEarliestDownloadedIssue()?.deleteFiles()
+                while (downloadedIssuesCountLiveData.value ?: 0 > getStoredIssuesNumber()) {
+                    issueRepository.getEarliestDownloadedIssue()?.let {
+                        dataService.ensureDeleted(
+                            it
+                        )
+                    }
                 }
                 downloadedIssueBoolean.set(false)
             }

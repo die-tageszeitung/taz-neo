@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -25,7 +26,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private lateinit var apiService: ApiService
+    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var downloadService: DownloadService
     private lateinit var firebaseHelper: FirebaseHelper
@@ -36,7 +37,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
-        apiService = ApiService.getInstance(applicationContext)
+        dataService = DataService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         downloadService = DownloadService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
@@ -105,7 +106,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         firebaseHelper.firebaseToken = token
         CoroutineScope(Dispatchers.IO).launch {
             firebaseHelper.hasTokenBeenSent =
-                apiService.sendNotificationInfoAsync(oldToken).await() ?: false
+                dataService.sendNotificationInfo(token, oldToken, retryOnFailure = true)
             log.debug("hasTokenBeenSent set to ${firebaseHelper.hasTokenBeenSent}")
         }
     }

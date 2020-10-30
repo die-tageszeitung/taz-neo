@@ -12,6 +12,7 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
@@ -71,7 +72,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         webViewFragment?.viewModel?.displayable?.let {
             if (it is Article) {
                 ArticleRepository.getInstance(applicationContext)
-                    .saveScrollingPosition(it, percentage, position)
+                    .saveScrollingPosition(ArticleStub(it), percentage, position)
             }
         }
     }

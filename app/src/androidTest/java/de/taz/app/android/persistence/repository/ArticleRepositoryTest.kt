@@ -31,9 +31,6 @@ class ArticleRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
 
-        val downloadRepository = DownloadRepository.createInstance(context)
-        downloadRepository.appDatabase = db
-
         val fileEntryRepository = FileEntryRepository.createInstance(context)
         fileEntryRepository.appDatabase = db
 

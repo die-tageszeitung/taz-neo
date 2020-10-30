@@ -96,7 +96,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun getLatest() {
         writeAndReadMultiple()
-        assertEquals(issue, issueRepository.getLatestIssue())
+        assertEquals(IssueStub(issue), issueRepository.getLatestIssueStub())
     }
 
 
@@ -108,7 +108,7 @@ class IssueRepositoryTest {
             if (index == issue.sectionList.size - 1) {
                 assertNull(section.next())
             } else {
-                assertEquals(SectionStub(issue.sectionList[index + 1]), section.next())
+                assertEquals(issue.sectionList[index + 1].sectionHtml.sha256, section.next()?.sectionHtml?.sha256)
             }
 
         }
@@ -122,7 +122,7 @@ class IssueRepositoryTest {
             if (index == 0) {
                 assertNull(section.previous())
             } else {
-                assertEquals(SectionStub(issue.sectionList[index - 1]), section.previous())
+                assertEquals(issue.sectionList[index - 1].sectionHtml.sha256, section.previous()?.sectionHtml?.sha256)
             }
         }
     }
@@ -140,12 +140,12 @@ class IssueRepositoryTest {
                 } else if (articleIndex == section.articleList.size - 1) {
                     assertEquals(
                         article.next(),
-                        ArticleStub(issue.sectionList[sectionIndex + 1].articleList.first())
+                        issue.sectionList[sectionIndex + 1].articleList.first()
                     )
                 } else {
                     assertEquals(
                         article.next(),
-                        ArticleStub(section.articleList[articleIndex + 1])
+                        section.articleList[articleIndex + 1]
                     )
                 }
             }
@@ -163,12 +163,12 @@ class IssueRepositoryTest {
                 } else if (articleIndex == 0) {
                     assertEquals(
                         article.previous(),
-                        ArticleStub(issue.sectionList[sectionIndex - 1].articleList.last())
+                        issue.sectionList[sectionIndex - 1].articleList.last()
                     )
                 } else {
                     assertEquals(
                         article.previous(),
-                        ArticleStub(section.articleList[articleIndex - 1])
+                        section.articleList[articleIndex - 1]
                     )
                 }
             }

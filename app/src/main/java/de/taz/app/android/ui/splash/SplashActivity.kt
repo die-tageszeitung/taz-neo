@@ -9,18 +9,19 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
@@ -30,6 +31,7 @@ import io.sentry.core.Sentry
 import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.Exception
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
@@ -38,32 +40,39 @@ class SplashActivity : BaseActivity() {
 
     private val log by Log
 
+    private lateinit var dataService: DataService
+    private lateinit var firebaseHelper: FirebaseHelper
+    private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dataService = DataService.getInstance()
+        firebaseHelper = FirebaseHelper.getInstance()
+        authHelper = AuthHelper.getInstance()
+        toastHelper = ToastHelper.getInstance()
+    }
+
     override fun onResume() {
         super.onResume()
         log.info("splashactivity onresume called")
 
-        lifecycleScope.launchWhenResumed {
+        CoroutineScope(Dispatchers.IO).launch {
+            launch { checkAppVersion() }
+            launch { checkForNewestIssue() }
+            launch { sendPushToken() }
+        }
+        lifecycleScope.launch {
             setupSentry()
 
             generateInstallationId()
             generateNotificationChannels()
-
-            resetAllDownloads()
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val initAppInfoJob = initAppInfoAndCheckAndroidVersion()
-                val initFeedJob = initFeedInformation()
-
-                initAppInfoJob.join()
-                initFeedJob.join()
-
-                initResources()
-
-                initLastIssues()
-                deleteUnnecessaryIssues()
-                ensurePushTokenSent()
-                startNotDownloadedIssues()
+            val initJob = launch {
+                launch { ensureAppInfo() }
+                launch { initResources() }
+                launch { initFeedsAndFirstIssues() }
             }
+            initJob.join()
 
             if (isDataPolicyAccepted()) {
                 if (isFirstTimeStart()) {
@@ -85,12 +94,25 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private suspend fun resetAllDownloads() = withContext(Dispatchers.IO) {
-        val downloadRepository = DownloadRepository.getInstance(applicationContext)
-        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-        downloadRepository.getAllStartedStubs().forEach {
-            downloadRepository.setStatus(it, DownloadStatus.pending)
-            fileEntryRepository.setDownloadStatus(it.fileName, DownloadStatus.pending)
+    private suspend fun initFeedsAndFirstIssues() {
+        try {
+            val feeds = dataService.getFeeds()
+            dataService.getIssueStubsByFeed(Date(), feeds.map { it.name }, 3)
+        } catch (e: ConnectivityException.NoInternetException) {
+            log.warn("Failed to retrieve feed and first issues during startup, no internet")
+        }
+    }
+
+    private suspend fun checkForNewestIssue() {
+        val status = if (authHelper.isLoggedIn()) IssueStatus.regular else IssueStatus.public
+        try {
+            dataService.getNewestIssue(
+                dataService.getFeeds().map { it.name },
+                status,
+                allowCache = false,
+            )
+        } catch (e: ConnectivityException.Recoverable) {
+            toastHelper.showNoConnectionToast()
         }
     }
 
@@ -135,42 +157,20 @@ class SplashActivity : BaseActivity() {
     }
 
 
-    private fun initFeedInformation(): Job {
-        val apiService = ApiService.getInstance(applicationContext)
-        val feedRepository = FeedRepository.getInstance(applicationContext)
-
-        return CoroutineScope(Dispatchers.IO).launch {
-            val feeds = apiService.getFeedsAsync().await()
-            feedRepository.save(feeds)
-            log.debug("Initialized Feeds")
-        }
+    /**
+     * download AppInfo and persist it
+     */
+    private suspend fun ensureAppInfo() {
+        dataService.getAppInfo(retryOnFailure = true)
     }
-
-    private fun initLastIssues() = CoroutineScope(Dispatchers.IO).launch { initIssues(10) }
-
-    private suspend fun initIssues(number: Int) = withContext(Dispatchers.IO) {
-        val apiService = ApiService.getInstance(applicationContext)
-        val issueRepository = IssueRepository.getInstance(applicationContext)
-        val toDownloadIssueHelper = ToDownloadIssueHelper.getInstance(applicationContext)
-
-        val issues = apiService.getLastIssuesAsync(number).await()
-        val newestDBIssueDate = issues.first().date
-        toDownloadIssueHelper.startMissingDownloads(
-            newestDBIssueDate
-        )
-
-        issueRepository.saveIfDoNotExist(issues)
-        log.debug("Initialized Issues: ${issues.size}")
-        issues.reversed().forEach { it.moment.download(applicationContext) }
-    }
-
 
     /**
      * download AppInfo and persist it
      */
-    private fun initAppInfoAndCheckAndroidVersion() = CoroutineScope(Dispatchers.IO).launch {
-        AppInfo.update(applicationContext)?.let {
-            if (BuildConfig.DEBUG && it.androidVersion > BuildConfig.VERSION_CODE) {
+    private suspend fun checkAppVersion() {
+        try {
+            val appInfo = dataService.getAppInfo(allowCache = false)
+            if (BuildConfig.DEBUG && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
                     R.string.notification_new_version_body,
@@ -183,6 +183,8 @@ class SplashActivity : BaseActivity() {
                     )
                 )
             }
+        } catch (e: Exception) {
+            log.warn("Start up check for new version failed because no internet available")
         }
     }
 
@@ -193,13 +195,9 @@ class SplashActivity : BaseActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private suspend fun initResources() {
+    private fun initResources() {
         log.info("initializing resources")
         val fileHelper = FileHelper.getInstance(applicationContext)
-
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            ResourceInfo.update(applicationContext)
-        }
 
         fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()
         val tazApiCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
@@ -218,28 +216,17 @@ class SplashActivity : BaseActivity() {
             fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
             log.debug("Created/updated tazApi.js")
         }
-        job.join()
+
     }
 
-    private fun deleteUnnecessaryIssues() {
-        // TODO implement deletion service
-/*        val issueRepository = IssueRepository.getInstance(applicationContext)
-        if (AuthHelper.getInstance(applicationContext).isLoggedIn()) {
-            log.debug("Deleting public Issues")
-            issueRepository.deletePublicIssues()
-        } else {
-            issueRepository.deleteNotDownloadedRegularIssues()
-        }*/
-    }
-
-    private fun ensurePushTokenSent() {
-        val firebaseHelper = FirebaseHelper.getInstance(applicationContext)
-        if (!firebaseHelper.hasTokenBeenSent) {
-            if (!firebaseHelper.firebaseToken.isNullOrEmpty()) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ApiService.getInstance(applicationContext).sendNotificationInfoAsync()
-                }
+    private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
+        try {
+            if (!firebaseHelper.hasTokenBeenSent && !firebaseHelper.firebaseToken.isNullOrEmpty()) {
+                firebaseHelper.hasTokenBeenSent =
+                    dataService.sendNotificationInfo(firebaseHelper.firebaseToken!!)
             }
+        } catch (e: ConnectivityException.NoInternetException) {
+            log.warn("Sending notification token failed because no internet available")
         }
     }
 
@@ -294,14 +281,6 @@ class SplashActivity : BaseActivity() {
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private fun startNotDownloadedIssues() {
-        CoroutineScope(Dispatchers.IO).launch {
-            IssueRepository.getInstance(applicationContext).getDownloadStartedIssues().forEach {
-                it.download(applicationContext)
-            }
-        }
     }
 }
 

@@ -12,6 +12,7 @@ import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import java.lang.Exception
+import java.util.*
 
 @Mockable
 class ArticleRepository private constructor(applicationContext: Context) :
@@ -64,44 +65,41 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getStub(articleName: String): ArticleStub? {
-        return appDatabase.articleDao().get(articleName)
+    fun get(articleFileName: String): Article? {
+        return getStub(articleFileName)?.let {articleStubToArticle(it) }
     }
 
-    fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
+    fun getList(articleFileNames: List<String>): List<Article> {
+        return getStubList(articleFileNames).map(this::articleStubToArticle)
+    }
+
+    fun getStub(articleFileName: String): ArticleStub? {
+        return appDatabase.articleDao().get(articleFileName)
+    }
+
+    fun getStubList(articleFileNames: List<String>): List<ArticleStub> {
+        return appDatabase.articleDao().get(articleFileNames)
+    }
+
+    fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
         return appDatabase.articleDao().getLiveData(articleName)
     }
 
-    @Throws(NotFoundException::class)
-    fun getStubOrThrow(articleName: String): ArticleStub {
-        return getStub(articleName) ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getOrThrow(articleName: String): Article {
-        return appDatabase.articleDao().get(articleName)?.let {
-            articleStubToArticle(it)
-        } ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getOrThrow(articleNames: List<String>): List<Article> {
-        return articleNames.map { getOrThrow(it) }
-    }
-
-    fun get(articleName: String): Article? {
-        return try {
-            getOrThrow(articleName)
-        } catch (e: NotFoundException) {
-            null
+    fun getLiveData(articleName: String): LiveData<Article> {
+        return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
+            liveData(Dispatchers.IO) {
+                emit(articleStubToArticle(articleStub))
+            }
         }
     }
 
-    fun getLiveData(articleName: String): LiveData<Article?> {
-        return appDatabase.articleDao().getLiveData(articleName).switchMap { input ->
-            liveData(Dispatchers.IO) {
-                emit(input?.let { articleStubToArticle(input) })
-            }
+    fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
+        val refreshedArticleStub = getStub(articleStub.articleFileName)
+        if (refreshedArticleStub?.bookmarked == true) {
+            log.debug("save scrolling position for article ${articleStub.articleFileName}")
+            appDatabase.articleDao().update(
+                articleStub.copy(percentage = percentage, position = position)
+            )
         }
     }
 
@@ -138,7 +136,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
             .mapNotNull { it.authorFileName }
     }
 
-    @Throws(NotFoundException::class)
     fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
@@ -175,7 +172,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.bookmarked,
             articleStub.position,
             articleStub.percentage,
-            articleStub.downloadedStatus
+            articleStub.dateDownload
         )
     }
 
@@ -235,21 +232,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
-    }
-
-    fun saveScrollingPosition(article: Article, percentage: Int, position: Int) {
-        saveScrollingPosition(ArticleStub(article), percentage, position)
-    }
-
-    fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
-        val articleStubLive = getStubOrThrow(articleStub.articleFileName)
-        if (isBookmarked(articleStubLive)) {
-            log.debug("save scrolling position for article ${articleStub.articleFileName}")
-            appDatabase.articleDao().update(
-                articleStubLive.copy(percentage = percentage, position = position)
-            )
-        }
-
     }
 
     fun deleteArticle(article: Article) {
@@ -349,4 +331,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
             .getBookmarkedArticleStubListForIssue(issueFeedName, issueDate)
     }
 
+
+    fun setDownloadDate(
+        articleStub: ArticleStub,
+        date: Date?
+    ) {
+        update(articleStub.copy(dateDownload = date))
+    }
+
+    fun getDownloadDate(
+        articleStub: ArticleStub
+    ): Date? {
+        return appDatabase.articleDao().getDownloadStatus(articleStub.articleFileName)
+    }
 }

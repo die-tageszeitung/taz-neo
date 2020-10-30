@@ -61,8 +61,8 @@ class SectionTest {
 
         section.imageList
             .filter { it.resolution == ImageResolution.normal }
-            .forEach { fileEntry ->
-                assertTrue(fileList.filter { it == fileEntry }.size == 1)
+            .forEach { image ->
+                assertTrue(fileList.filter { it.name == image.name }.size == 1)
             }
     }
 }

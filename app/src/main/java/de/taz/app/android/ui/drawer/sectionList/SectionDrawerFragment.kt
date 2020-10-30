@@ -15,8 +15,8 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinctUntil
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.coroutines.*
 
@@ -54,6 +55,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var sectionListAdapter: SectionListAdapter
 
     private lateinit var fontHelper: FontHelper
+    private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
@@ -69,6 +71,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,17 +89,23 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     override fun onResume() {
         super.onResume()
         // Either the issueContentViewModel can change the content of this drawer ...
-        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
+        issueContentViewModel.issueStubAndDisplayableKeyLiveData.observe(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
             lifecycleScope.launch {
                 log.debug("Set issue ${issueStub.issueKey} from IssueContent")
-                showIssueStub(issueStub)
+                if (issueStub.issueKey == issueContentViewModel.currentIssue?.issueKey) {
+                    showIssueStub(issueStub)
+                }
                 maybeSetActiveSection(issueStub, displayableKey)
             }
         }
+
+        // or the bookmarkpager
         bookmarkPagerViewModel.currentIssueAndArticleLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
             lifecycleScope.launch {
                 log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
-                showIssueStub(issueStub)
+                if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
+                    showIssueStub(issueStub)
+                }
                 maybeSetActiveSection(issueStub, displayableKey)
             }
         }
@@ -131,7 +140,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             lazy { sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName }
         withContext(Dispatchers.IO) {
             when {
-                displayableKey == imprint.value?.articleFileName -> {
+                displayableKey == imprint.value?.key -> {
                     sectionListAdapter.activePosition = RecyclerView.NO_POSITION
                     setImprintActive()
                 }
@@ -240,30 +249,24 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueStub)
-        moment?.apply {
-            if (!isDownloaded(context?.applicationContext)) {
-                download(context?.applicationContext)
+        moment.apply {
+            if (!isDownloaded()) {
+                dataService.ensureDownloaded(moment)
             }
-            lifecycleScope.launchWhenResumed {
-                isDownloadedLiveData(context?.applicationContext).observeDistinctUntil(
-                    viewLifecycleOwner,
-                    {
-                        if (it) {
-                            fragment_drawer_sections_moment?.apply {
-                                displayIssue(issueStub)
-                                visibility = View.VISIBLE
-                            }
-                        }
-                    }, { it }
-                )
+            fragment_drawer_sections_moment.apply {
+                displayIssue(issueStub)
+                visibility = View.VISIBLE
             }
         }
 
     }
 
-    private suspend fun showImprint() {
-        issueContentViewModel.imprintArticleLiveData.value?.key?.let {
-            issueContentViewModel.setDisplayable(it)
+    private fun showImprint() {
+        runIfNotNull(
+            issueContentViewModel.currentIssue,
+            issueContentViewModel.imprintArticleLiveData.value?.key
+        ) { issueStub, displayKey ->
+            issueContentViewModel.setDisplayable(issueStub.issueKey, displayKey)
             getMainView()?.closeDrawer()
         }
     }

@@ -2,6 +2,7 @@ package de.taz.app.android.api.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity(tableName = "Page")
 data class PageStub(
@@ -10,7 +11,7 @@ data class PageStub(
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    val downloadedStatus: DownloadStatus?
+    val dateDownload: Date?
 ) {
     constructor(page: Page) : this(
         page.pagePdf.name,
@@ -18,6 +19,6 @@ data class PageStub(
         page.pagina,
         page.type,
         page.frameList,
-        page.downloadedStatus
+        page.dateDownload
     )
 }

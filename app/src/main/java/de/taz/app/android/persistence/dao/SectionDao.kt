@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
+import java.util.*
 
 @Dao
 abstract class SectionDao : BaseDao<SectionStub>() {
@@ -84,7 +85,9 @@ abstract class SectionDao : BaseDao<SectionStub>() {
     )
     abstract fun getNext(sectionFileName: String): SectionStub?
 
-    @Query("SELECT EXISTS(SELECT * FROM Section WHERE sectionFileName == :sectionFileName AND downloadedStatus == 'done')")
+    @Query("SELECT EXISTS(SELECT * FROM Section WHERE sectionFileName == :sectionFileName AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(sectionFileName: String): LiveData<Boolean>
 
+    @Query("SELECT dateDownload FROM Section WHERE sectionFileName == :sectionFileName")
+    abstract fun getDownloadDate(sectionFileName: String): Date?
 }
