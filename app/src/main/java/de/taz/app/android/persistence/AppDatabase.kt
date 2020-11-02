@@ -28,7 +28,8 @@ val allMigrations = arrayOf(
     Migration10to11,
     Migration11to12,
     Migration12to13,
-    Migration13to14
+    Migration13to14,
+    Migration14to15
 )
 
 @Database(
