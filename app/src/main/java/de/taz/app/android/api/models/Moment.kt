@@ -6,8 +6,6 @@ import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.FileHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 data class Moment(
@@ -16,6 +14,7 @@ data class Moment(
     val issueStatus: IssueStatus,
     val imageList: List<Image> = emptyList(),
     val creditList: List<Image> = emptyList(),
+    val momentList: List<FileEntry> = emptyList(),
     override val dateDownload: Date?
 ) : DownloadableCollection {
 
@@ -32,6 +31,8 @@ data class Moment(
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+        momentDto.momentList
+            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         null
     )
 
@@ -45,6 +46,9 @@ data class Moment(
         momentDto.creditList
             ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") }
             ?: emptyList(),
+        momentDto.momentList
+            ?.map { FileEntry(it, "${issueOperations.feedName}/${issueOperations.date}") }
+            ?: emptyList(),
         null
     )
 
@@ -53,15 +57,23 @@ data class Moment(
     }
 
     override fun getAllFiles(): List<FileEntry> {
-        return getImagesToDownload().map { FileEntry(it) }
+        val list  = getFilesForAnimatedDownload().map { it }
+        getImagesToDownload().forEach { image -> list.plus(image) }
+        return list
     }
 
     override fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }
+        val list  = getFilesForAnimatedDownload().map { it.name }
+        getImagesToDownload().forEach { image -> list.plus(image.name) }
+        return list
     }
 
     override suspend fun deleteFiles() {
         getAllFiles().forEach { FileHelper.getInstance().deleteFile(it) }
+    }
+
+    private fun getFilesForAnimatedDownload(): List<FileEntry> {
+        return momentList
     }
 
     override fun getDownloadTag(): String {
