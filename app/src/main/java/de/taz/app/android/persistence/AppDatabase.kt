@@ -44,6 +44,7 @@ val allMigrations = arrayOf(
         IssueStub::class,
         IssueImprintJoin::class,
         IssueCreditMomentJoin::class,
+        IssueFilesMomentJoin::class,
         IssueImageMomentJoin::class,
         IssuePageJoin::class,
         IssueSectionJoin::class,
@@ -100,6 +101,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issueCreditMomentJoinDao(): IssueCreditMomentJoinDao
     abstract fun issueImageMomentJoinDao(): IssueImageMomentJoinDao
+    abstract fun issueFilesMomentJoinDao(): IssueFilesMomentJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
     abstract fun issueSectionJoinDao(): IssueSectionJoinDao
     abstract fun momentDao(): MomentDao

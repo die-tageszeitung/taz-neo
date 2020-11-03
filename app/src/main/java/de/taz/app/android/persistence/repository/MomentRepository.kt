@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueCreditMomentJoin
+import de.taz.app.android.persistence.join.IssueFilesMomentJoin
 import de.taz.app.android.persistence.join.IssueImageMomentJoin
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
@@ -17,6 +18,7 @@ class MomentRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<MomentRepository, Context>(::MomentRepository)
 
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     fun update(momentStub: MomentStub) {
         appDatabase.momentDao().insertOrReplace(momentStub)
@@ -25,6 +27,7 @@ class MomentRepository private constructor(applicationContext: Context) :
     fun save(moment: Moment, issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
+        fileEntryRepository.save(moment.momentList)
         appDatabase.momentDao().insertOrReplace(MomentStub(moment))
         appDatabase.issueImageMomentJoinDao().insertOrReplace(
             moment.imageList.mapIndexed { index, image ->
@@ -34,6 +37,11 @@ class MomentRepository private constructor(applicationContext: Context) :
         appDatabase.issueCreditMomentJoinDao().insertOrReplace(
             moment.creditList.mapIndexed { index, image ->
                 IssueCreditMomentJoin(issueFeedName, issueDate, issueStatus, image.name, index)
+            }
+        )
+        appDatabase.issueFilesMomentJoinDao().insertOrReplace(
+            moment.momentList.mapIndexed { index, file ->
+                IssueFilesMomentJoin(issueFeedName, issueDate, issueStatus, file.name, index)
             }
         )
     }
@@ -53,7 +61,12 @@ class MomentRepository private constructor(applicationContext: Context) :
                 momentStub.issueDate,
                 momentStub.issueStatus
             ),
-            momentStub.dateDownload
+            appDatabase.issueFilesMomentJoinDao().getMomentFiles(
+                momentStub.issueFeedName,
+                momentStub.issueDate,
+                momentStub.issueStatus
+            ),
+            null
         )
     }
 
@@ -73,7 +86,12 @@ class MomentRepository private constructor(applicationContext: Context) :
                 issueDate,
                 issueStatus
             ),
-            appDatabase.momentDao().getDownloadDate(issueFeedName, issueDate, issueStatus)
+            appDatabase.issueFilesMomentJoinDao().getMomentFiles(
+                issueFeedName,
+                issueDate,
+                issueStatus
+            ),
+            null
         )
     }
 
@@ -122,6 +140,17 @@ class MomentRepository private constructor(applicationContext: Context) :
         appDatabase.issueCreditMomentJoinDao().delete(
             moment.creditList.mapIndexed { index, fileEntry ->
                 IssueCreditMomentJoin(
+                    issueFeedName,
+                    issueDate,
+                    issueStatus,
+                    fileEntry.name,
+                    index
+                )
+            }
+        )
+        appDatabase.issueFilesMomentJoinDao().delete(
+            moment.momentList.mapIndexed { index, fileEntry ->
+                IssueFilesMomentJoin(
                     issueFeedName,
                     issueDate,
                     issueStatus,
