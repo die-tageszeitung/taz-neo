@@ -17,6 +17,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -199,13 +200,12 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun hideBitmap() {
-        fragment_moment_image.apply {
-            alpha = 0f
-        }
+        fragment_moment_image.alpha = 0f
     }
 
     private fun showProgressBar() {
         fragment_moment_image.elevation = 0f
+        fragment_moment_web_view.elevation = 0f
         fragment_moment_image_progressbar.visibility = View.VISIBLE
     }
 
@@ -216,6 +216,11 @@ class MomentView @JvmOverloads constructor(
     private fun setDimension(dimensionString: String) {
         lifecycleOwner?.lifecycleScope?.launch(Dispatchers.Main) {
             fragment_moment_image.apply {
+                (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
+                requestLayout()
+                forceLayout()
+            }
+            fragment_moment_web_view.apply {
                 (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
                 requestLayout()
                 forceLayout()
@@ -282,39 +287,65 @@ class MomentView @JvmOverloads constructor(
     }
 
     private suspend fun showMomentImage(moment: Moment) = withContext(Dispatchers.Main) {
-        moment.getMomentImage()?.let { image ->
-            val file = fileHelper.getFileByPath(image.path)
-            momentElevation?.let { fragment_moment_image.elevation = it }
-            withContext(Dispatchers.IO) {
-                dataService.withDownloadLiveData(moment) {
-                    momentDownloadStatusLiveData = it
-                    withContext(Dispatchers.Main) {
-                        momentDownloadStatusObserver =
-                            momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
-                                if (currentIssueKey != IssueKey(
-                                        moment.issueFeedName,
-                                        moment.issueDate,
-                                        moment.issueStatus
-                                    )
-                                ) {
-                                    return@observeDistinct
-                                }
-                                if (downloadStatus == DownloadStatus.done) {
-                                    Glide
-                                        .with(context)
-                                        .load(file)
-                                        .centerInside()
-                                        .into(fragment_moment_image)
-                                        .clearOnDetach()
-                                    fragment_moment_image.animate().alpha(1f).duration = 100
-                                    hideProgressBar()
-                                }
-                            }
-                    }
-                }
-            }
-
-
+        moment.getIndexHtmlForAnimated()?.let {fileEntry ->
+            fragment_moment_image.visibility = GONE
+            fragment_moment_web_view.visibility = VISIBLE
+            showAnimatedImage(moment, fileEntry)
+        } ?:  moment.getMomentImage()?.let { image ->
+            fragment_moment_image.visibility = VISIBLE
+            fragment_moment_web_view.visibility = GONE
+            showStaticImage(moment, image)
         }
     }
+
+    private fun showAnimatedImage(moment: Moment, fileEntry: FileEntry) {
+        log.debug("show animated: ${fileEntry.path}")
+        fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+            fragment_moment_web_view.apply {
+                setInitialScale(30)
+                settings.apply {
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    loadsImagesAutomatically = true
+                }
+                setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
+                loadUrl(fileDir+"/"+fileEntry.path)
+            }
+            hideProgressBar()
+        }
+    }
+
+    private suspend fun showStaticImage(moment: Moment, image: Image) {
+        val file = fileHelper.getFileByPath(image.path)
+        momentElevation?.let { fragment_moment_image.elevation = it }
+        withContext(Dispatchers.IO) {
+            dataService.withDownloadLiveData(moment) {
+                momentDownloadStatusLiveData = it
+                withContext(Dispatchers.Main) {
+                    momentDownloadStatusObserver =
+                        momentDownloadStatusLiveData!!.observeDistinct(this@MomentView.lifecycleOwner!!) { downloadStatus ->
+                            if (currentIssueKey != IssueKey(
+                                    moment.issueFeedName,
+                                    moment.issueDate,
+                                    moment.issueStatus
+                                )
+                            ) {
+                                return@observeDistinct
+                            }
+                            if (downloadStatus == DownloadStatus.done) {
+                                Glide
+                                    .with(context)
+                                    .load(file)
+                                    .centerInside()
+                                    .into(fragment_moment_image)
+                                    .clearOnDetach()
+                                fragment_moment_image.animate().alpha(1f).duration = 100
+                                hideProgressBar()
+                            }
+                        }
+                }
+            }
+        }
+    }
+
 }
