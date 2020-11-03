@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "d4acac77a95499d9a0181443901415c0",
+    "identityHash": "372613cb5f3fa4b97df7402f1d82d376",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -741,6 +741,89 @@
         ]
       },
       {
+        "tableName": "IssueFilesMomentJoin",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `momentFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `momentFileName`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`momentFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "issueFeedName",
+            "columnName": "issueFeedName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueStatus",
+            "columnName": "issueStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "momentFileName",
+            "columnName": "momentFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "issueFeedName",
+            "issueDate",
+            "issueStatus",
+            "momentFileName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_IssueFilesMomentJoin_momentFileName",
+            "unique": false,
+            "columnNames": [
+              "momentFileName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueFilesMomentJoin_momentFileName` ON `${TABLE_NAME}` (`momentFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Issue",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "issueFeedName",
+              "issueDate",
+              "issueStatus"
+            ],
+            "referencedColumns": [
+              "feedName",
+              "date",
+              "status"
+            ]
+          },
+          {
+            "table": "FileEntry",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "momentFileName"
+            ],
+            "referencedColumns": [
+              "name"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "IssueImageMomentJoin",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `momentFileName` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `momentFileName`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`momentFileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
@@ -1433,7 +1516,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4acac77a95499d9a0181443901415c0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '372613cb5f3fa4b97df7402f1d82d376')"
     ]
   }
 }
