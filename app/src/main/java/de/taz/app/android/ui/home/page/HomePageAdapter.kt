@@ -11,6 +11,7 @@ import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.MAX_CLICK_DURATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Feed
@@ -153,6 +154,7 @@ abstract class HomePageAdapter(
     inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
+            var startTime = 0L
             itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.apply {
                 setOnClickListener {
                     getItem(bindingAdapterPosition)?.let {
@@ -176,13 +178,21 @@ abstract class HomePageAdapter(
                 }
             }
             itemView.findViewById<WebView>(R.id.fragment_moment_web_view)?.apply {
-                setOnTouchListener { view, event ->
-                    if (event.action == MotionEvent.ACTION_UP) {
-                        getItem(bindingAdapterPosition)?.let {
-                            fragment.onItemSelected(it)
-                            true
+                setOnTouchListener { _, event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            startTime = Date().time
                         }
-                        log.debug("touchClick triggered for view: $view!")
+                        MotionEvent.ACTION_UP -> {
+                            val clickTime = Date().time - startTime
+                            log.debug("clickTime = $clickTime")
+                            if (clickTime < MAX_CLICK_DURATION) {
+                                getItem(bindingAdapterPosition)?.let {
+                                    fragment.onItemSelected(it)
+                                    true
+                                }
+                            }
+                        }
                     }
                     false
                 }
