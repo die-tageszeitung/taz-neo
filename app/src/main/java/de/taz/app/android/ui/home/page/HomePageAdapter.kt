@@ -185,7 +185,6 @@ abstract class HomePageAdapter(
                         }
                         MotionEvent.ACTION_UP -> {
                             val clickTime = Date().time - startTime
-                            log.debug("clickTime = $clickTime")
                             if (clickTime < MAX_CLICK_DURATION) {
                                 getItem(bindingAdapterPosition)?.let {
                                     fragment.onItemSelected(it)
