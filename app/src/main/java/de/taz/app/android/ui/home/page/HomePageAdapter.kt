@@ -1,22 +1,25 @@
 package de.taz.app.android.ui.home.page
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.util.Log
-import java.lang.IndexOutOfBoundsException
 import de.taz.app.android.R
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
-import de.taz.app.android.ui.moment.MomentView
-import kotlinx.coroutines.runBlocking
+import de.taz.app.android.ui.home.page.HomePageAdapter.ViewHolder
+import de.taz.app.android.util.Log
 import java.util.*
 
 
@@ -146,6 +149,7 @@ abstract class HomePageAdapter(
     /**
      * ViewHolder for this Adapter
      */
+    @SuppressLint("ClickableViewAccessibility")
     inner class ViewHolder constructor(itemView: ConstraintLayout) :
         RecyclerView.ViewHolder(itemView) {
         init {
@@ -154,6 +158,33 @@ abstract class HomePageAdapter(
                     getItem(bindingAdapterPosition)?.let {
                         fragment.onItemSelected(it)
                     }
+                }
+
+                setOnLongClickListener { view ->
+                    log.debug("onLongClickListener triggered for view: $view!")
+                    getItem(bindingAdapterPosition)?.let { item ->
+                        fragment.getMainView()?.let { mainView ->
+                            fragment.showBottomSheet(
+                                IssueBottomSheetFragment.create(
+                                    mainView,
+                                    item
+                                )
+                            )
+                        }
+                    }
+                    true
+                }
+            }
+            itemView.findViewById<WebView>(R.id.fragment_moment_web_view)?.apply {
+                setOnTouchListener { view, event ->
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        getItem(bindingAdapterPosition)?.let {
+                            fragment.onItemSelected(it)
+                            true
+                        }
+                        log.debug("touchClick triggered for view: $view!")
+                    }
+                    false
                 }
 
                 setOnLongClickListener { view ->
