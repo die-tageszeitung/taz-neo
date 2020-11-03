@@ -66,7 +66,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 momentStub.issueDate,
                 momentStub.issueStatus
             ),
-            null
+            momentStub.dateDownload
         )
     }
 
@@ -91,7 +91,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 issueDate,
                 issueStatus
             ),
-            null
+            appDatabase.momentDao().getDownloadDate(issueFeedName, issueDate, issueStatus)
         )
     }
 

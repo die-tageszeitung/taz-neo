@@ -57,15 +57,13 @@ data class Moment(
     }
 
     override fun getAllFiles(): List<FileEntry> {
-        val list  = getFilesForAnimatedDownload().map { it }
-        getImagesToDownload().forEach { image -> list.plus(image) }
-        return list
+        val animatedList  = getFilesForAnimatedDownload().toMutableList()
+        val bitmapList = getImagesToDownload().map { img -> FileEntry(img)}
+        return animatedList + bitmapList
     }
 
     override fun getAllFileNames(): List<String> {
-        val list  = getFilesForAnimatedDownload().map { it.name }
-        getImagesToDownload().forEach { image -> list.plus(image.name) }
-        return list
+        return getAllFiles().map { it.name }
     }
 
     override suspend fun deleteFiles() {
