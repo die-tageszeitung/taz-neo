@@ -94,7 +94,7 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
-    suspend fun clear() {
+    private suspend fun clear() {
         displayJob?.cancelAndJoin()
         displayJob = null
 
@@ -287,38 +287,6 @@ class MomentView @JvmOverloads constructor(
     }
 
     private suspend fun showMomentImage(moment: Moment) = withContext(Dispatchers.Main) {
-        moment.getIndexHtmlForAnimated()?.let {fileEntry ->
-            fragment_moment_image.visibility = INVISIBLE
-            fragment_moment_web_view.visibility = VISIBLE
-            showAnimatedImage(moment, fileEntry)
-        } ?:  moment.getMomentImage()?.let { image ->
-            fragment_moment_image.visibility = VISIBLE
-            fragment_moment_web_view.visibility = GONE
-            showStaticImage(moment, image)
-        }
-    }
-
-    private fun showAnimatedImage(moment: Moment, fileEntry: FileEntry) {
-        log.debug("show animated: ${fileEntry.path}")
-        fileHelper.getFileDirectoryUrl(context).let { fileDir ->
-            fragment_moment_web_view.apply {
-                momentElevation?.let { this.elevation = it }
-                setInitialScale(30)
-                settings.apply {
-                    useWideViewPort = true
-                    loadWithOverviewMode = true
-                    loadsImagesAutomatically = true
-                }
-                setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
-                loadUrl(fileDir+"/"+fileEntry.path)
-            }
-            hideProgressBar()
-        }
-    }
-
-    private suspend fun showStaticImage(moment: Moment, image: Image) {
-        val file = fileHelper.getFileByPath(image.path)
-        momentElevation?.let { fragment_moment_image.elevation = it }
         withContext(Dispatchers.IO) {
             dataService.withDownloadLiveData(moment) {
                 momentDownloadStatusLiveData = it
@@ -334,14 +302,15 @@ class MomentView @JvmOverloads constructor(
                                 return@observeDistinct
                             }
                             if (downloadStatus == DownloadStatus.done) {
-                                Glide
-                                    .with(context)
-                                    .load(file)
-                                    .centerInside()
-                                    .into(fragment_moment_image)
-                                    .clearOnDetach()
-                                fragment_moment_image.animate().alpha(1f).duration = 100
-                                hideProgressBar()
+                                moment.getIndexHtmlForAnimated()?.let { fileEntry ->
+                                    fragment_moment_image.visibility = INVISIBLE
+                                    fragment_moment_web_view.visibility = VISIBLE
+                                    showAnimatedImage(fileEntry)
+                                } ?: moment.getMomentImage()?.let { image ->
+                                    fragment_moment_image.visibility = VISIBLE
+                                    fragment_moment_web_view.visibility = GONE
+                                    showStaticImage(image)
+                                }
                             }
                         }
                 }
@@ -349,4 +318,34 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
+    private fun showAnimatedImage(fileEntry: FileEntry) {
+        fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+            fragment_moment_web_view.apply {
+                momentElevation?.let { this.elevation = it }
+                setInitialScale(30)
+                settings.apply {
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    loadsImagesAutomatically = true
+                }
+                setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
+                loadUrl(fileDir + "/" + fileEntry.path)
+            }
+            fragment_moment_web_view.animate().alpha(1f).duration = 100
+            hideProgressBar()
+        }
+    }
+
+    private fun showStaticImage(image: Image) {
+        val file = fileHelper.getFileByPath(image.path)
+        momentElevation?.let { fragment_moment_image.elevation = it }
+        Glide
+            .with(context)
+            .load(file)
+            .centerInside()
+            .into(fragment_moment_image)
+            .clearOnDetach()
+        fragment_moment_image.animate().alpha(1f).duration = 100
+        hideProgressBar()
+    }
 }
