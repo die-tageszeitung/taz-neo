@@ -94,7 +94,7 @@ class DownloadService constructor(
             downloadableCollection.setDownloadDate(Date())
 
         } catch (e: Exception) {
-            log.warn("Hello")
+            log.warn("Exception caught on ensureCollectionDownloaded(). Set state pending")
             statusLiveData.postValue(DownloadStatus.pending)
         }
 
