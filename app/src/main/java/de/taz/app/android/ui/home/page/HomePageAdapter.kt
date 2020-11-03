@@ -151,14 +151,14 @@ abstract class HomePageAdapter(
         init {
             itemView.findViewById<ImageView>(R.id.fragment_moment_image)?.apply {
                 setOnClickListener {
-                    getItem(adapterPosition)?.let {
+                    getItem(bindingAdapterPosition)?.let {
                         fragment.onItemSelected(it)
                     }
                 }
 
                 setOnLongClickListener { view ->
                     log.debug("onLongClickListener triggered for view: $view!")
-                    getItem(adapterPosition)?.let { item ->
+                    getItem(bindingAdapterPosition)?.let { item ->
                         fragment.getMainView()?.let { mainView ->
                             fragment.showBottomSheet(
                                 IssueBottomSheetFragment.create(
@@ -173,7 +173,7 @@ abstract class HomePageAdapter(
             }
             dateOnClickListenerFunction?.let { dateOnClickListenerFunction ->
                 itemView.findViewById<TextView>(R.id.fragment_moment_date).setOnClickListener {
-                    getItem(adapterPosition)?.let { issueStub ->
+                    getItem(bindingAdapterPosition)?.let { issueStub ->
                         val issueDate = DateHelper.stringToDate(issueStub.date)
                         issueDate?.let {
                             dateOnClickListenerFunction(issueDate)
