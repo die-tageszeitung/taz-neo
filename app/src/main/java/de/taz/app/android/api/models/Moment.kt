@@ -94,10 +94,13 @@ data class Moment(
         }
     }
 
-
     fun getMomentImage(): Image? {
         return imageList.firstOrNull { it.resolution == ImageResolution.high }
             ?: imageList.firstOrNull { it.resolution == ImageResolution.normal }
             ?: imageList.firstOrNull { it.resolution == ImageResolution.small }
+    }
+
+    fun getIndexHtmlForAnimated(): FileEntry? {
+        return momentList.firstOrNull { it.name.endsWith(".html") }
     }
 }
