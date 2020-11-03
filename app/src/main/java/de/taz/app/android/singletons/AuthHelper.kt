@@ -45,8 +45,6 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = IssueRepository.getInstance(applicationContext)
     private val toastHelper
         get() = ToastHelper.getInstance(applicationContext)
-    private val toDownloadIssueHelper
-        get() = ToDownloadIssueHelper.getInstance(applicationContext)
     private val firebaseHelper
         get() = FirebaseHelper.getInstance(applicationContext)
 
@@ -93,6 +91,8 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         preferences, PREFERENCES_AUTH_EMAIL, ""
     )
 
+    val eligibleIssueStatus get() = if (isLoggedIn()) IssueStatus.regular else IssueStatus.public
+
     var email
         get() = emailLiveData.value
         set(value) = emailLiveData.postValue(value)
@@ -126,7 +126,6 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                     AuthStatus.valid -> {
                         elapsedButWaiting = false
                         CoroutineScope(Dispatchers.IO).launch {
-                            cancelAndStartDownloadingPublicIssues()
                             launch {
                                 firebaseHelper.firebaseToken?.let {
                                     dataService.sendNotificationInfo(it, retryOnFailure = true)
@@ -143,32 +142,15 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         }
     }
 
-
-    private fun cancelAndStartDownloadingPublicIssues() = CoroutineScope(Dispatchers.IO).launch {
-        toDownloadIssueHelper.cancelDownloadsAndStartAgain()
-        issueRepository.getEarliestIssue()?.let { earliest ->
-            toDownloadIssueHelper.startMissingDownloads(earliest.date)
-        }
-    }
-
     private suspend fun transformBookmarks() {
-        val bookmarkedMinDate: String =
-            articleRepository.getBookmarkedArticleStubs().fold("") { acc, articleStub ->
-                getArticleIssue(articleStub)?.let { issue ->
-                    issueRepository.saveIfDoesNotExist(issue)
-                    articleRepository.apply {
-                        debookmarkArticle(articleStub)
-                        bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
-                    }
-                    if (acc == "" || issue.date < acc) {
-                        issue.date
-                    } else {
-                        acc
-                    }
-                } ?: ""
+        articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
+            getArticleIssue(articleStub)?.let { issue ->
+                issueRepository.saveIfDoesNotExist(issue)
+                articleRepository.apply {
+                    debookmarkArticle(articleStub)
+                    bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
+                }
             }
-        if (bookmarkedMinDate.isNotBlank()) {
-            toDownloadIssueHelper.startMissingDownloads(bookmarkedMinDate)
         }
     }
 

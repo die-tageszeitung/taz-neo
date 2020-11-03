@@ -11,7 +11,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.ui.home.page.IssueStubViewData
+import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 
@@ -71,7 +71,7 @@ class MomentView @JvmOverloads constructor(
         showProgressBar()
     }
 
-    fun show(data: IssueStubViewData, dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay) {
+    fun show(data: MomentViewData, dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay) {
         showMomentImage(data.momentImageUri)
         setDownloadIconForStatus(data.downloadStatus)
         setDimension(data.dimension)
@@ -90,7 +90,7 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_date.text = ""
     }
 
-    private fun setDate(date: String?, dateFormat: DateFormat?) {
+    fun setDate(date: String?, dateFormat: DateFormat?) {
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->

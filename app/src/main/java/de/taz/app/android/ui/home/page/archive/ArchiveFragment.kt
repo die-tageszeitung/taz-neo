@@ -3,32 +3,32 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.data.DataService
 import de.taz.app.android.ui.home.page.HomePageFragment
-import de.taz.app.android.ui.home.page.IssueFeedPagingAdapter
+import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import kotlinx.android.synthetic.main.fragment_archive.*
+import kotlinx.android.synthetic.main.fragment_coverflow.*
+import kotlinx.coroutines.launch
 
 /**
  * Fragment to show the archive - a GridView of available issues
  */
 class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
-    override lateinit var adapter: IssueFeedPagingAdapter
+    override lateinit var adapter: IssueFeedAdapter
+    private lateinit var dataService: DataService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ArchiveAdapter(
-            this,
-            R.layout.fragment_archive_item
-        )
+        dataService = DataService.getInstance()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        fragment_archive_grid.adapter = adapter
 
         context?.let { context ->
             fragment_archive_grid.layoutManager =
@@ -39,6 +39,16 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
+        }
+
+        lifecycleScope.launchWhenResumed {
+            val feed = dataService.getFeeds().first()
+            adapter = ArchiveAdapter(
+                this@ArchiveFragment,
+                R.layout.fragment_archive_item,
+                feed
+            )
+            fragment_archive_grid.adapter = adapter
         }
     }
 

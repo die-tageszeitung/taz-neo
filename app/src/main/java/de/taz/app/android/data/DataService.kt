@@ -41,27 +41,34 @@ class DataService(applicationContext: Context) {
     private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         HashMap()
 
-    suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true): IssueStub? =
+    suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true, retryOnFailure: Boolean = false): IssueStub? =
         withContext(Dispatchers.IO) {
             if (allowCache) {
                 issueRepository.getStub(issueKey)?.let { return@withContext it } ?: run {
                     log.info("Cache miss on $issueKey")
                 }
             }
-            getIssue(issueKey, allowCache)?.let(::IssueStub)
+            getIssue(issueKey, allowCache, retryOnFailure = retryOnFailure)?.let(::IssueStub)
         }
 
     suspend fun getIssue(
         issueKey: IssueKey,
         allowCache: Boolean = true,
-        saveOnlyIfNewerMoTime: Boolean = false
+        saveOnlyIfNewerMoTime: Boolean = false,
+        retryOnFailure: Boolean = false
     ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
                 log.info("Cache miss on $issueKey")
             }
         }
-        val issue = apiService.getIssueByKey(issueKey)
+        val issue = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
+                apiService.getIssueByKey(issueKey)
+            }
+        } else {
+            apiService.getIssueByKey(issueKey)
+        }
         val existingIssue = issueRepository.get(issueKey)
         // cache issue after download
         return@withContext if (!saveOnlyIfNewerMoTime || existingIssue?.let { it.moTime < issue.moTime } == true) {
@@ -103,7 +110,8 @@ class DataService(applicationContext: Context) {
         fromDate: Date = Date(),
         feedNames: List<String>,
         limit: Int = 1,
-        allowCache: Boolean = true
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
     ): List<IssueStub> = withContext(Dispatchers.IO) {
         if (allowCache) {
             val issues = issueRepository.getLatestIssueStubsByFeedAndDate(
@@ -113,9 +121,18 @@ class DataService(applicationContext: Context) {
                 return@withContext issues
             }
         }
-        val issues = feedNames.map { feedName ->
-            apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-        }.flatten()
+        val issues = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
+                feedNames.map { feedName ->
+                    apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
+                }.flatten()
+            }
+        } else {
+            feedNames.map { feedName ->
+                apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
+            }.flatten()
+        }
+
         issueRepository.save(issues)
         issues.map(::IssueStub)
     }

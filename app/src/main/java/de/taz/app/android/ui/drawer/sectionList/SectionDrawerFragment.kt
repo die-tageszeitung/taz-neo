@@ -26,7 +26,7 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.FontHelper
-import de.taz.app.android.ui.home.page.IssueStubViewData
+import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
@@ -273,7 +273,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             fragment_drawer_sections_moment.apply {
                 withContext(Dispatchers.Main) {
                     show(
-                        IssueStubViewData(
+                        MomentViewData(
                             issueStub,
                             DownloadStatus.unknown,
                             imageUri,

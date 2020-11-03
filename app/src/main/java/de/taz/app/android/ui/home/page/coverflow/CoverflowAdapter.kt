@@ -2,25 +2,24 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
-import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.home.page.HomePageAdapter
-import de.taz.app.android.ui.home.page.IssueFeedPagingAdapter
-import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.ui.home.page.DUMMY_FEED_LIST
+import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import java.util.*
 
 const val MAX_VIEWHOLDER_WIDTH_OF_PARENT = 0.8
 
 class CoverflowAdapter(
-    private val fragment: CoverflowFragment,
+    fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    val dateOnClickListener: ((Date) -> Unit)?
-) : IssueFeedPagingAdapter(fragment, itemLayoutRes) {
+    feed: Feed,
+    private val onDateClicked: (Date) -> Unit,
+) : IssueFeedAdapter(fragment, itemLayoutRes, feed, DUMMY_FEED_LIST.map { simpleDateFormat.parse(it) }) {
 
     override fun dateOnClickListener(issueDate: Date) {
-        this.dateOnClickListener(issueDate)
+        onDateClicked.invoke(issueDate)
     }
 
     override val dateFormat: DateFormat = DateFormat.LongWithWeekDay
