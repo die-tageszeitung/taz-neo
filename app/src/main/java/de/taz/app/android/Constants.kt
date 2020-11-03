@@ -18,7 +18,7 @@ const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
 const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
 const val WEBVIEW_JQUERY_FILE = "jquery-3.min.js"
 const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME="knile-semibold-webfont.woff"
-
+const val MAX_CLICK_DURATION = 100
 // Preferences
 const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
