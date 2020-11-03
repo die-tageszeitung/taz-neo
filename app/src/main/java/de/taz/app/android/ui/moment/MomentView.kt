@@ -288,7 +288,7 @@ class MomentView @JvmOverloads constructor(
 
     private suspend fun showMomentImage(moment: Moment) = withContext(Dispatchers.Main) {
         moment.getIndexHtmlForAnimated()?.let {fileEntry ->
-            fragment_moment_image.visibility = GONE
+            fragment_moment_image.visibility = INVISIBLE
             fragment_moment_web_view.visibility = VISIBLE
             showAnimatedImage(moment, fileEntry)
         } ?:  moment.getMomentImage()?.let { image ->
