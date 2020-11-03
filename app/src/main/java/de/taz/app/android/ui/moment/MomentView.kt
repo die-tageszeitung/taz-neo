@@ -69,7 +69,7 @@ class MomentView @JvmOverloads constructor(
     init {
         LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
         if (momentElevation == null) {
-            momentElevation = fragment_moment_image.elevation
+            momentElevation = maxOf(fragment_moment_image.elevation, fragment_moment_web_view.elevation)
         }
 
         attrs?.let {
@@ -302,6 +302,7 @@ class MomentView @JvmOverloads constructor(
         log.debug("show animated: ${fileEntry.path}")
         fileHelper.getFileDirectoryUrl(context).let { fileDir ->
             fragment_moment_web_view.apply {
+                momentElevation?.let { this.elevation = it }
                 setInitialScale(30)
                 settings.apply {
                     useWideViewPort = true
