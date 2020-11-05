@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.moment
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.view_moment.view.*
  * This needs to be refactored while implementing a proper recyclerview with deferred loading
  * managing loading state and populating views. The view should not handle this
  */
+@SuppressLint("ClickableViewAccessibility")
 class MomentView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -89,9 +91,6 @@ class MomentView @JvmOverloads constructor(
             loadUrl("about:blank")
             alpha = 0f
         }
-        moment_web_view.apply {
-            alpha = 0f
-        }
         clearDate()
         hideDownloadIcon()
         showProgressBar()
@@ -140,7 +139,6 @@ class MomentView @JvmOverloads constructor(
         moment_image.alpha = 0f
         moment_web_view.alpha = 0f
         moment_progressbar.visibility = View.VISIBLE
-
     }
 
     private fun hideProgressBar() {
@@ -222,7 +220,6 @@ class MomentView @JvmOverloads constructor(
         moment_web_view.apply {
             loadUrl(uri)
         }
-
     }
 
     private fun showStaticImage(uri: String?) {
