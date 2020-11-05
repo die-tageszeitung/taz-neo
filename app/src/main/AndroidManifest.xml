@@ -53,6 +53,7 @@
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://944624716d7a46ce95bb22f5e34cfc2d@sentry.taz.de/3" />
+
         <uses-library
             android:name="android.test.runner"
             android:required="false" />
