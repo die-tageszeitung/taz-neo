@@ -47,7 +47,7 @@ class FileHelper private constructor(private val applicationContext: Context) {
     private fun getDir(fileEntry: FileEntryOperations): File {
         var extraFolder = ""
         if (fileEntry.name.contains("/")) {
-            extraFolder = "/${fileEntry.name.substringBefore("/")}"
+            extraFolder = "/${fileEntry.name.substringBeforeLast("/")}"
         }
         return getFileByPath(fileEntry.folder + extraFolder)
     }
