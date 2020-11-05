@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
@@ -114,7 +116,7 @@ class MomentView @JvmOverloads constructor(
         hideBitmap()
         hideDownloadIcon()
         showProgressBar()
-
+        fragment_moment_web_view.clearCache(true)
     }
 
     suspend fun displayIssue(issueStub: IssueStub, dateFormat: DateFormat? = null) {
@@ -322,6 +324,14 @@ class MomentView @JvmOverloads constructor(
         fileHelper.getFileDirectoryUrl(context).let { fileDir ->
             fragment_moment_web_view.apply {
                 momentElevation?.let { this.elevation = it }
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        fragment_moment_web_view.animate().alpha(1f).duration = 100
+                        hideProgressBar()
+                        log.debug("ANIMATED MOMENT SHOWN!!!!!!!!!!!!")
+                    }
+                }
                 setInitialScale(30)
                 settings.apply {
                     useWideViewPort = true
@@ -331,8 +341,6 @@ class MomentView @JvmOverloads constructor(
                 setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
                 loadUrl(fileDir + "/" + fileEntry.path)
             }
-            fragment_moment_web_view.animate().alpha(1f).duration = 100
-            hideProgressBar()
         }
     }
 
