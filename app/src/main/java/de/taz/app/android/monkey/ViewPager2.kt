@@ -3,6 +3,7 @@ package de.taz.app.android.monkey
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.android.synthetic.main.fragment_error_report.view.*
 
 
 /**
@@ -67,8 +68,6 @@ fun ViewGroup.moveContentBeneathStatusBar() {
             rightMargin = insets.systemWindowInsetRight
             bottomMargin = insets.systemWindowInsetBottom
         }
-        // trigger for recyclerview as well
-        for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
         insets.consumeSystemWindowInsets()
     }
 
