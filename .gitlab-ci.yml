@@ -16,7 +16,7 @@ stages:
     key: android-base
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
-    - echo $SECRET_BUNDLE_BASE64 | base64 -d > bundle.tar
+    - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
     - sudo tar --same-owner -xf bundle.tar
     - sudo chown -R circleci:circleci .
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
