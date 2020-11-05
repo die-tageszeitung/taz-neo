@@ -11,8 +11,8 @@
 
     <de.taz.app.android.ui.moment.MomentView
         android:id="@+id/fragment_cover_flow_item"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

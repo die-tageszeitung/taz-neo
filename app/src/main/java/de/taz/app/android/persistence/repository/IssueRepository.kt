@@ -360,7 +360,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return Issue(
             issueStub.feedName,
             issueStub.date,
-            moment,
+            moment!!,
             issueStub.key,
             issueStub.baseUrl,
             issueStub.status,

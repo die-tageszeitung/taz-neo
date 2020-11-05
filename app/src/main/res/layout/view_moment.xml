@@ -8,44 +8,44 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <ImageView
-        android:id="@+id/fragment_moment_image"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/moment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="1"
         android:elevation="@dimen/moment_elevation"
-        android:outlineProvider="paddedBounds"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
         app:layout_constraintDimensionRatio="1:1.5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <WebView
-        android:id="@+id/fragment_moment_web_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="1"
-        android:elevation="@dimen/moment_elevation"
-        android:outlineProvider="paddedBounds"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
-        app:layout_constraintDimensionRatio="1:1.5"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/moment_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0"
+            tools:ignore="ContentDescription" />
 
-    <ProgressBar
-        android:id="@+id/fragment_moment_image_progressbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminateTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <de.taz.app.android.ui.home.page.MomentWebView
+            android:id="@+id/moment_web_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0"
+            android:outlineProvider="paddedBounds"
+            tools:ignore="ContentDescription" />
+
+        <ProgressBar
+            android:id="@+id/moment_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            android:indeterminateTint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/fragment_moment_date"
@@ -57,7 +57,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image" />
+        app:layout_constraintTop_toBottomOf="@+id/moment_container" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/view_moment_download_icon_wrapper"
@@ -66,8 +66,8 @@
         android:padding="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="@+id/fragment_moment_image"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_moment_image">
+        app:layout_constraintRight_toRightOf="@+id/moment_container"
+        app:layout_constraintTop_toBottomOf="@+id/moment_container">
 
         <ImageView
             android:id="@+id/fragment_moment_download"
