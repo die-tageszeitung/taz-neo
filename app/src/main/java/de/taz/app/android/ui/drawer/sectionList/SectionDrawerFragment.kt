@@ -136,24 +136,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
 
         fragment_drawer_sections_moment.apply{
-            moment_image.setOnClickListener {
+            moment_container.setOnClickListener {
                 getMainView()?.showHome(skipToIssue = currentIssueStub)
                 getMainView()?.closeDrawer()
-            }
-            moment_web_view.setOnTouchListener { _, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        startTime = Date().time
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        val clickTime = Date().time - startTime
-                        if (clickTime < MAX_CLICK_DURATION) {
-                            getMainView()?.showHome(skipToIssue = currentIssueStub)
-                            getMainView()?.closeDrawer()
-                        }
-                    }
-                }
-                false
             }
         }
 
@@ -303,6 +288,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                         )
                     )
                     visibility = View.VISIBLE
+                    fragment_moment_date.visibility = View.GONE
                 }
             }
         }
