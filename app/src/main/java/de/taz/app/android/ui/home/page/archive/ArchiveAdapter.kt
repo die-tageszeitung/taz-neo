@@ -1,28 +1,16 @@
 package de.taz.app.android.ui.home.page.archive
 
 import androidx.annotation.LayoutRes
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.home.page.HomePageAdapter
-import de.taz.app.android.ui.moment.MomentView
-
+import de.taz.app.android.ui.home.page.DUMMY_FEED_LIST
+import de.taz.app.android.ui.home.page.IssueFeedAdapter
 
 class ArchiveAdapter(
-    private val fragment: ArchiveFragment,
-    @LayoutRes private val itemLayoutRes: Int
-) : HomePageAdapter(fragment, itemLayoutRes) {
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        getItem(position)?.let { issueStub ->
-            fragment.getLifecycleOwner().lifecycleScope.launchWhenResumed {
-                val momentView=
-                    viewHolder.itemView.findViewById<MomentView>(R.id.fragment_cover_flow_item)
-                momentView.displayIssue(
-                    issueStub,
-                    dateFormat = DateFormat.LongWithoutWeekDay
-                )
-            }
-        }
-    }
+    fragment: ArchiveFragment,
+    @LayoutRes private val itemLayoutRes: Int,
+    feed: Feed
+) : IssueFeedAdapter(fragment, itemLayoutRes, feed, DUMMY_FEED_LIST.map { simpleDateFormat.parse(it) }) {
+    override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
 }

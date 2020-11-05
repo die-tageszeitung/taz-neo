@@ -16,15 +16,21 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.MAX_CLICK_DURATION
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.ui.home.page.MomentType
+import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
@@ -64,6 +70,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var issueRepository: IssueRepository
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
+    private lateinit var feedRepository: FeedRepository
+
+    private lateinit var fileHelper: FileHelper
 
     private var defaultTypeface: Typeface? = null
     private var weekendTypeface: Typeface? = null
@@ -77,6 +86,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
+        fileHelper = FileHelper.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,11 +140,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
 
         fragment_drawer_sections_moment.apply{
-            fragment_moment_image.setOnClickListener {
+            moment_image.setOnClickListener {
                 getMainView()?.showHome(skipToIssue = currentIssueStub)
                 getMainView()?.closeDrawer()
             }
-            fragment_moment_web_view.setOnTouchListener { _, event ->
+            moment_web_view.setOnTouchListener { _, event ->
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         startTime = Date().time
@@ -273,13 +285,29 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueStub)
-        moment.apply {
+        moment?.apply {
             if (!isDownloaded()) {
                 dataService.ensureDownloaded(moment)
             }
+            val imageUri = getMomentImage()?.let {
+                fileHelper.getAbsoluteFilePath(FileEntry(it))
+            }
+
+            val dimension = feedRepository.get(issueFeedName).momentRatioAsDimensionRatioString()
+
             fragment_drawer_sections_moment.apply {
-                displayIssue(issueStub)
-                visibility = View.VISIBLE
+                withContext(Dispatchers.Main) {
+                    show(
+                        MomentViewData(
+                            issueStub,
+                            DownloadStatus.unknown,
+                            MomentType.STATIC,
+                            imageUri,
+                            dimension
+                        )
+                    )
+                    visibility = View.VISIBLE
+                }
             }
         }
 
