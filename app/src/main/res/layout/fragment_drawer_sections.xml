@@ -21,11 +21,12 @@
             android:id="@+id/fragment_drawer_sections_moment"
             android:layout_width="@dimen/fragment_drawer_moment_width"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:clipToPadding="false"
-            android:clipChildren="false"
             android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
-            app:do_not_show_download_icon="true"/>
+            android:background="@color/white"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:elevation="@dimen/moment_elevation"
+            app:do_not_show_download_icon="true" />
 
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
