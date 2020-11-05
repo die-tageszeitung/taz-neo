@@ -97,10 +97,19 @@ object DateHelper {
         )
     }
 
+    fun sameDays(date: Date, other: Date): Boolean {
+        val cal1 = Calendar.getInstance()
+        val cal2 = Calendar.getInstance()
+        cal1.time = date
+        cal2.time = other
+        return cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR] &&
+            cal1[Calendar.YEAR] == cal2[Calendar.YEAR]
+    }
+
     fun subDays(date: Date, days: Int): Date {
         val calenderItem = Calendar.getInstance().apply {
             time = date
-            roll(Calendar.DATE, days)
+            add(Calendar.DATE, -days)
         }
         return Date(calenderItem.time.time)
     }

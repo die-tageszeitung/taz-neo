@@ -269,11 +269,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             if (skipToFirst) {
                 coverFlowFragment?.skipToHome()
             } else {
-                skipToIssue?.let { coverFlowFragment?.skipToItem(skipToIssue) }
+                skipToIssue?.let { coverFlowFragment?.skipToKey(skipToIssue.issueKey) }
             }
         }
     }
-
     fun showToast(stringId: Int) {
         toastHelper?.showToast(stringId)
     }

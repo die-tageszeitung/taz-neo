@@ -112,8 +112,12 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(issueOperations: IssueOperations): Moment {
+    fun get(issueOperations: IssueOperations): Moment? {
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
+    }
+
+    fun get(issueKey: IssueKey): Moment? {
+        return get(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
