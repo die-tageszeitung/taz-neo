@@ -208,4 +208,4 @@ play-publish.json
 
 # nonfree fonts should not be put in the repo
 app/src/nonfree/res/font/aktiv_grotesk_regular.ttf
-app/src/nonfree/res/font/aktiv_grotesk_bold.ttf.ttf
+app/src/nonfree/res/font/aktiv_grotesk_bold.ttf
