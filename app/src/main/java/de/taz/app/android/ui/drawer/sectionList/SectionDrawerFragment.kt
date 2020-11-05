@@ -78,7 +78,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onCreate(savedInstanceState)
         sectionListAdapter =
             SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
-        defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.aktiv_grotesk_bold)
+        defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.appFontBold)
         weekendTypeface =
             runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
         sectionListAdapter.typeface = defaultTypeface

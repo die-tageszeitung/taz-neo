@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="appFontRegular" format="reference" type="font">@font/aktiv_grotesk_regular</item>
+    <item name="appFontBold" format="reference" type="font">@font/aktiv_grotesk_bold</item>
+</resources>
