@@ -101,6 +101,8 @@ data class Moment(
     }
 
     fun getIndexHtmlForAnimated(): FileEntry? {
-        return momentList.firstOrNull { it.name.endsWith(".html") }
+        return momentList.firstOrNull {
+            it.name.toLowerCase(Locale.ENGLISH).endsWith("index.html")
+        }
     }
 }
