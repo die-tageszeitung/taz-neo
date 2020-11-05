@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -23,8 +22,8 @@
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">@color/white</item>
-        <item name="fontFamily">@font/aktiv_grotesk_regular</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="colorButtonNormal">@color/tazRed</item>
         <item name="android:colorButtonNormal">@color/tazRed</item>
@@ -34,8 +33,8 @@
     </style>
 
     <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="fontFamily">@font/aktiv_grotesk_bold</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
         <item name="backgroundTint">@color/backgroundColor</item>
@@ -72,11 +71,11 @@
         <item name="android:textColor">@color/drawer_sections_date</item>
         <item name="android:textSize" tools:ignore="SpUsage">15dp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:minHeight">@dimen/fragment_drawer_sections_item_height</item>
@@ -91,7 +90,7 @@
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
@@ -103,7 +102,7 @@
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
@@ -111,7 +110,7 @@
 
     <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
@@ -121,16 +120,9 @@
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:maxLines">1</item>
         <item name="android:includeFontPadding">true</item>
-    </style>
-
-    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:lineSpacingExtra">32pt</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
     </style>
 
     <style name="TextAppearance.Archive.NavigationEnd.Heading" parent="TextAppearance.AppCompat">
@@ -184,7 +176,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="firstBaselineToTopHeight">0dp</item>
         <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:paddingBottom">1sp</item>
@@ -200,10 +192,18 @@
         <item name="android:paddingBottom">2sp</item>
     </style>
 
+
+    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
     <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
         <item name="android:paddingBottom">@dimen/fragment_settings_padding_bottom</item>
     </style>
@@ -211,7 +211,7 @@
     <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">23sp</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
         <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_bottom</item>
     </style>
@@ -219,7 +219,7 @@
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">17sp</item>
         <item name="android:paddingBottom">3dp</item>
         <item name="android:paddingTop">5dp</item>
@@ -228,7 +228,7 @@
 
     <style name="TextAppearance.Bookmarks.Entry.Date" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/aktiv_grotesk_regular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">16sp</item>
     </style>
 
