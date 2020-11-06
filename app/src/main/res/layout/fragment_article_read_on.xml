@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/fragment_padding_horizontal"
     android:paddingEnd="@dimen/fragment_padding_horizontal"
-    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
+    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom"
+    tools:context=".ui.WebViewActivity">
 
     <TextView
         android:id="@+id/fragment_article_read_on_description"

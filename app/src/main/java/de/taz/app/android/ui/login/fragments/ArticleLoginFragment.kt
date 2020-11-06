@@ -2,9 +2,13 @@ package de.taz.app.android.ui.login.fragments
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.view.autofill.AutofillId
+import android.view.autofill.AutofillManager
 import android.view.inputmethod.InputMethodManager
+import androidx.autofill.HintConstants
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.listener.OnEditorActionDoneListener
