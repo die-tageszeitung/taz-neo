@@ -4,7 +4,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
-
 /**
  * Monkey patching ViewPager2 adding a function to reduce the drag sensitivity.
  * Kudos: https://medium.com/@al.e.shevelev/how-to-reduce-scroll-sensitivity-of-viewpager2-widget-87797ad02414
@@ -67,8 +66,6 @@ fun ViewGroup.moveContentBeneathStatusBar() {
             rightMargin = insets.systemWindowInsetRight
             bottomMargin = insets.systemWindowInsetBottom
         }
-        // trigger for recyclerview as well
-        for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
         insets.consumeSystemWindowInsets()
     }
 
