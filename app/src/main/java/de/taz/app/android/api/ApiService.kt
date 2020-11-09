@@ -142,11 +142,27 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getFeeds(): List<Feed> {
-        val tag = "getFeeds"
-        log.debug(tag)
         return transformToConnectivityException {
-            graphQlClient.query(QueryType.Feed).data?.product?.feedList?.map { Feed(it) }
+            graphQlClient.query(QueryType.Feed).data?.product?.feedList?.map {
+                Feed(it)
+            }
         } ?: emptyList()
+    }
+
+    /**
+     * function to get available feeds
+     * @return List of [Feed]s
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getFeedByName(name: String): Feed? {
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Feed,
+                FeedVariables(feedName = name)
+            ).data?.product?.feedList?.map {
+                Feed(it)
+            }?.firstOrNull()
+        }
     }
 
     /**
@@ -176,14 +192,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return [List]<[Issue]>
      */
     @Throws(ConnectivityException::class)
-    suspend fun getLastIssuesByFeed(feedNames: List<String>, limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
+    suspend fun getLastIssuesByFeed(feedNames: String, limit: Int = 10): List<Issue> {
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.filter {
-                feedNames.contains(it.name)
+                feedNames == it.name
             }?.map { feed ->
                 (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) }
             }?.flatten() ?: emptyList()

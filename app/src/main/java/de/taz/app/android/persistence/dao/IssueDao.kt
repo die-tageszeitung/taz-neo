@@ -43,8 +43,8 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatest(): IssueStub?
 
-    @Query("SELECT * FROM Issue WHERE Issue.status == :status AND Issue.feedName IN (:feedName) ORDER BY date DESC LIMIT 1")
-    abstract fun getLatestByFeedAndStatus(status: IssueStatus, feedName: List<String>): IssueStub?
+    @Query("SELECT * FROM Issue WHERE Issue.status == :status AND Issue.feedName == :feedName ORDER BY date DESC LIMIT 1")
+    abstract fun getLatestByFeedAndStatus(status: IssueStatus, feedName: String): IssueStub?
 
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     abstract fun getLatestLiveData(): LiveData<IssueStub?>

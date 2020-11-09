@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.DownloadStatus
@@ -274,7 +275,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 fileHelper.getAbsoluteFilePath(FileEntry(it))
             }
 
-            val dimension = feedRepository.get(issueFeedName).momentRatioAsDimensionRatioString()
+            val dimension = feedRepository.get(issueFeedName)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
 
             fragment_drawer_sections_moment.apply {
                 withContext(Dispatchers.Main) {

@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
 import de.taz.app.android.ui.home.page.HomePageFragment
@@ -42,7 +43,8 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
         }
 
         lifecycleScope.launchWhenResumed {
-            val feed = dataService.getFeeds().first()
+            val feed = dataService.getFeedByName(DISPLAYED_FEED)!!
+
             adapter = ArchiveAdapter(
                 this@ArchiveFragment,
                 R.layout.fragment_archive_item,

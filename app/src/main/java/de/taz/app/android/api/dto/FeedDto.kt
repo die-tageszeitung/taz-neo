@@ -7,6 +7,7 @@ data class FeedDto (
     val name: String? = null,
     val cycle: Cycle? = null,
     val momentRatio: Float? = null,
+    val publicationDates: List<String>,
     val issueCnt: Int? = null,
     val issueMaxDate: String? = null,
     val issueMinDate: String? = null,

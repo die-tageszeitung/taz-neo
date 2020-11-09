@@ -18,14 +18,6 @@ import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 
-/**
- * TODO REFACTOR
- *
- * The practice handling loading state in this view leads to bad raceconditions that are
- * prevented with some flaky workarounds. In extreme situations broken images can be produced
- * This needs to be refactored while implementing a proper recyclerview with deferred loading
- * managing loading state and populating views. The view should not handle this
- */
 @SuppressLint("ClickableViewAccessibility")
 class MomentView @JvmOverloads constructor(
     context: Context,

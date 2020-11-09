@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -23,7 +24,9 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
@@ -79,8 +82,8 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 currentItem += 1
             }
         }
-        lifecycleScope.launchWhenResumed {
-            val feed = dataService.getFeeds().first()
+        runBlocking {
+            val feed = dataService.getFeedByName(DISPLAYED_FEED)!!
             adapter = CoverflowAdapter(
                 this@CoverflowFragment,
                 R.layout.fragment_cover_flow_item,
@@ -106,7 +109,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
 
     fun skipToHome() {
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+        lifecycleScope.launchWhenResumed {
             setCurrentItem(adapter.getItem(0))
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
             snapHelper.scrollToPosition(0)
@@ -198,10 +201,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     private fun setCurrentItem(date: Date?) {
         currentDate = date
-    }
-
-    fun hasSetItem(): Boolean {
-        return currentDate != null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
