@@ -7,7 +7,6 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
