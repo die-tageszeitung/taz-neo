@@ -2,14 +2,20 @@ package de.taz.app.android.ui.settings.support
 
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.PREFERENCES_AUTH
+import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.android.synthetic.main.fragment_header_default.view.*
@@ -46,6 +52,14 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 ).getString(PREFERENCES_AUTH_EMAIL, "")
             )
 
+            fragment_error_report_upload.setOnClickListener(View.OnClickListener {
+                log.debug("start picker activity !!!")
+                val galleryIntent =
+                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                // Start the Intent
+                getImageFromGallery.launch("image/*")
+            })
+
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
                 val email = fragment_error_report_email.text.toString().trim()
@@ -62,6 +76,15 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         }
 
     }
+
+    private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {uri ->
+        if (uri != null) {
+            log.debug("bitmap: $uri !!!")
+        } else {
+            log.debug("no image selected!!!")
+        }
+    }
+
 
     private fun sendErrorReport(
         email: String?,

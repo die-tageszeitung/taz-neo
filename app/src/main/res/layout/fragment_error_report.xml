@@ -141,6 +141,16 @@
                     android:inputType="textMultiLine"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions_title" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragment_error_report_upload"
+                    style="@style/AppTheme.ButtonStyle.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/login_button_margin_top"
+                    android:text="@string/fragment_error_report_upload"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions" />
+
                 <Button
                     android:id="@+id/fragment_error_report_send_button"
                     android:layout_width="wrap_content"
