@@ -144,8 +144,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     try {
                         dataService.getIssue(
                             issue.issueKey,
-                            allowCache = false,
-                            saveOnlyIfNewerMoTime = true
+                            allowCache = false
                         )
                     } catch (e: ConnectivityException.Recoverable) {
                         log.warn("Redownloading after delete not possible as no internet connection is available")
@@ -163,8 +162,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                             val updatedIssue =
                                 dataService.getIssue(
                                     issue.issueKey,
-                                    allowCache = false,
-                                    saveOnlyIfNewerMoTime = true
+                                    allowCache = false
                                 )
                             updatedIssue?.let { dataService.ensureDownloaded(it) }
                         } catch (e: ConnectivityException.Recoverable) {

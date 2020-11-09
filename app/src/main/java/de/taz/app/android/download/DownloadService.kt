@@ -51,7 +51,6 @@ class DownloadService constructor(
 
     private val collectionDownloadQueue = ConcurrentLinkedQueue<TaggedDownloadJob>()
 
-    private var collectionDownloaderJob: Job? = null
     private var fileDownloaderJob: Job? = null
 
     private var maximumDownloadCounter = CounterLock(CONCURRENT_FILE_DOWNLOADS)
@@ -322,20 +321,14 @@ class DownloadService constructor(
         }
     }
 
-    private fun ensureFileDownloaderRunning() {
-        if (fileDownloaderJob?.isCompleted == false) {
-            return
-        } else {
-            fileDownloaderJob = CoroutineScope(Dispatchers.IO).launch {
-                while (fileDownloadPriorityQueue.isNotEmpty()) {
-                    maximumDownloadCounter.withLock { release ->
-                        fileDownloadPriorityQueue.poll()?.let {
-                            launch {
-                                log.verbose("Scheduling file download with prio ${it.priority}")
-                                it.job.join()
-                                release()
-                            }
-                        }
+    private suspend fun ensureFileDownloaderRunning() {
+        fileDownloaderJob?.join()
+        fileDownloaderJob = CoroutineScope(Dispatchers.IO).launch {
+            while (fileDownloadPriorityQueue.isNotEmpty()) {
+                fileDownloadPriorityQueue.poll()?.let {
+                    maximumDownloadCounter.dispatchWithLock {
+                        log.verbose("Scheduling file download with prio ${it.priority}")
+                        it.job.join()
                     }
                 }
             }

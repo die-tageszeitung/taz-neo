@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.Feed
@@ -56,7 +57,7 @@ class MomentViewDataBinding(
                 issueStub?.let { issueStub ->
                     dataService.getMoment(issueStub.issueKey)?.let { moment ->
                         val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
-                            .momentRatioAsDimensionRatioString()
+                            ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
                         val momentImageUri = moment.getMomentImage()?.let {
                             FileHelper.getInstance().getAbsoluteFilePath(FileEntry(it))
                         }
@@ -127,8 +128,7 @@ class MomentViewDataBinding(
                         val updatedIssue =
                             dataService.getIssue(
                                 issue.issueKey,
-                                allowCache = false,
-                                saveOnlyIfNewerMoTime = true
+                                allowCache = false
                             )
                         updatedIssue?.let {
                             dataService.ensureDownloaded(updatedIssue)

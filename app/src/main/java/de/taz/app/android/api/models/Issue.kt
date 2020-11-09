@@ -25,8 +25,6 @@ data class Issue(
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val moTime: String,
-
-    // internal
     override val dateDownload: Date?
 ) : IssueOperations, DownloadableCollection {
 

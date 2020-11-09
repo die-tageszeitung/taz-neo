@@ -3,9 +3,7 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.ui.home.page.DUMMY_FEED_LIST
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import java.util.*
 
@@ -15,8 +13,8 @@ class CoverflowAdapter(
     fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
-    private val onDateClicked: (Date) -> Unit,
-) : IssueFeedAdapter(fragment, itemLayoutRes, feed, DUMMY_FEED_LIST.map { simpleDateFormat.parse(it) }) {
+    private val onDateClicked: (Date) -> Unit
+) : IssueFeedAdapter(fragment, itemLayoutRes, feed) {
 
     override fun dateOnClickListener(issueDate: Date) {
         onDateClicked.invoke(issueDate)

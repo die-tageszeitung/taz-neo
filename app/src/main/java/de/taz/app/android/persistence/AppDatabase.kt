@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 15
+const val DATABASE_VERSION = 16
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -76,7 +76,8 @@ val allMigrations = arrayOf(
     StringListTypeConverter::class,
     SectionTypeTypeConverter::class,
     UUIDTypeConverter::class,
-    SectionTypeTypeConverter::class
+    SectionTypeTypeConverter::class,
+    DateListTypeConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->

@@ -106,14 +106,34 @@ class IssueRepository private constructor(val applicationContext: Context) :
         )?.let { true } ?: false
     }
 
-    fun saveIfDoesNotExist(issues: List<Issue>) {
-        issues.forEach { saveIfDoesNotExist(it) }
+    fun saveIfNotExistOrOutdated(issue: Issue): Issue {
+        val existing = get(issue.issueKey)
+        return existing?.let {
+            when {
+                existing.moTime < issue.moTime -> {
+                    save(issue)
+                    issue
+                }
+                else -> {
+                    existing
+                }
+            }
+        } ?: saveIfDoesNotExist(issue)
     }
 
-    fun saveIfDoesNotExist(issue: Issue) {
+    fun saveIfNotExistOrOutdated(issues: List<Issue>): List<Issue> {
+        return issues.map { saveIfNotExistOrOutdated(it) }
+    }
+
+    fun saveIfDoesNotExist(issues: List<Issue>): List<Issue> {
+        return issues.map { saveIfDoesNotExist(it) }
+    }
+
+    fun saveIfDoesNotExist(issue: Issue): Issue {
         if (!exists(issue)) {
             save(issue)
         }
+        return issue
     }
 
     fun update(issueStub: IssueStub) {
@@ -168,8 +188,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
         )
     }
 
-    fun getLatestIssueByFeedAndStatus(feedNames: List<String>, status: IssueStatus): IssueStub? {
-        return appDatabase.issueDao().getLatestByFeedAndStatus(status, feedNames)
+    fun getLatestIssueByFeedAndStatus(feedName: String, status: IssueStatus): IssueStub? {
+        return appDatabase.issueDao().getLatestByFeedAndStatus(status, feedName)
     }
 
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
@@ -312,7 +332,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
 
     fun getDownloadDate(issueStub: IssueStub): Date? {
-        return appDatabase.issueDao().getDownloadDate(issueStub.feedName, issueStub.date, issueStub.status)
+        return appDatabase.issueDao()
+            .getDownloadDate(issueStub.feedName, issueStub.date, issueStub.status)
     }
 
     fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {

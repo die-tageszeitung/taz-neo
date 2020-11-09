@@ -7,10 +7,12 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -77,8 +79,8 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         withContext(Dispatchers.IO) {
             try {
                 val apiService = ApiService.getInstance(activity?.applicationContext)
-                FeedRepository.getInstance(activity?.applicationContext)
-                    .save(apiService.getFeeds())
+                DataService.getInstance(activity?.applicationContext)
+                    .getFeedByName(DISPLAYED_FEED, allowCache = false)
                 IssueRepository.getInstance(activity?.applicationContext)
                     .saveIfDoesNotExist(apiService.getLastIssues())
             } catch (e: ConnectivityException.NoInternetException) {

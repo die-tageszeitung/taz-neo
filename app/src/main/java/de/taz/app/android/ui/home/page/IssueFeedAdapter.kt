@@ -31,8 +31,7 @@ data class MomentViewData(
 abstract class IssueFeedAdapter(
     private val fragment: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    private val feed: Feed,
-    private val dates: List<Date>
+    private val feed: Feed
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
     private val log by Log
 
@@ -48,7 +47,7 @@ abstract class IssueFeedAdapter(
     }
 
     override fun getItemCount(): Int {
-        return dates.size
+        return feed.publicationDates.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -59,11 +58,11 @@ abstract class IssueFeedAdapter(
     }
 
     fun getItem(position: Int): Date? {
-        return dates[position]
+        return feed.publicationDates[position]
     }
 
     fun getPosition(date: Date): Int {
-        return dates.indexOf(date)
+        return feed.publicationDates.indexOf(date)
     }
 
     /**

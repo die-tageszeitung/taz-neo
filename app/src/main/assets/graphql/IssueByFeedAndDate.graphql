@@ -8,6 +8,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
             name
             cycle
             momentRatio
+            publicationDates
             issueCnt
             issueMaxDate
             issueMinDate

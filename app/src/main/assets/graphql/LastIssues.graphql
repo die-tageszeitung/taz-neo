@@ -8,6 +8,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
             name
             cycle
             momentRatio
+            publicationDates
             issueCnt
             issueMaxDate
             issueMinDate
