@@ -9,7 +9,6 @@ import kotlinx.coroutines.sync.withPermit
 class CounterLock(maxValue: Int) {
     private val semaphore = Semaphore(maxValue)
 
-
     suspend fun dispatchWithLock(block: suspend () -> Unit) = CoroutineScope(Dispatchers.IO).launch {
         semaphore.withPermit {
             block()
