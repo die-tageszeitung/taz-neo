@@ -3,8 +3,6 @@ package de.taz.app.android.monkey
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import kotlinx.android.synthetic.main.fragment_error_report.view.*
-
 
 /**
  * Monkey patching ViewPager2 adding a function to reduce the drag sensitivity.
