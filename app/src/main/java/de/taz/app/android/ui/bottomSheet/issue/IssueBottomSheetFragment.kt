@@ -138,7 +138,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
 
                 loading_screen?.visibility = View.VISIBLE
-
+                val viewModel = ::homeViewModel.get()
                 CoroutineScope(Dispatchers.IO).launch {
                     val issue = issueStub.getIssue()
                     dataService.ensureDeleted(issue)
@@ -152,7 +152,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                             retryOnFailure = true,
                             forceUpdate = true
                         )
-                        homeViewModel.notifyMomentChanged(simpleDateFormat.parse(issue.issueKey.date)!!)
+                        viewModel.notifyMomentChanged(simpleDateFormat.parse(issue.issueKey.date)!!)
                     } catch (e: ConnectivityException.Recoverable) {
                         log.warn("Redownloading after delete not possible as no internet connection is available")
                     }
