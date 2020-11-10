@@ -12,22 +12,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
-import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.CoverflowMomentActionListener
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.runBlocking
 import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
@@ -63,7 +60,6 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
-
         }
 
         fragment_cover_flow_grid.addOnChildAttachStateChangeListener(object :
@@ -80,9 +76,9 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 currentItem += 1
             }
         }
-        runBlocking {
+
+        viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this@CoverflowFragment)
-            val feed = dataService.getFeedByName(DISPLAYED_FEED)!!
             adapter = CoverflowAdapter(
                 this@CoverflowFragment,
                 R.layout.fragment_cover_flow_item,
@@ -114,15 +110,19 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
 
 
     fun skipToHome() {
-        lifecycleScope.launchWhenResumed {
-            setCurrentItem(adapter.getItem(0))
-            fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
-            snapHelper.scrollToPosition(0)
-            (parentFragment as? HomeFragment)?.setHomeIconFilled()
+        if (!::adapter.isInitialized) {
+            return
         }
+        setCurrentItem(adapter.getItem(0))
+        fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
+        snapHelper.scrollToPosition(0)
+        (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
     fun skipToCurrentItem(): Boolean {
+        if (!::adapter.isInitialized) {
+            return false
+        }
         return currentDate?.let {
             val position = adapter.getPosition(it)
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager

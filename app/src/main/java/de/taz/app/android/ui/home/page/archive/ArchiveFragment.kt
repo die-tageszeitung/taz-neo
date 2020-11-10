@@ -3,18 +3,15 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
-import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import kotlinx.android.synthetic.main.fragment_archive.*
-import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.launch
 
 /**
  * Fragment to show the archive - a GridView of available issues
@@ -43,14 +40,13 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             }
         }
 
-        lifecycleScope.launchWhenResumed {
-            val feed = dataService.getFeedByName(DISPLAYED_FEED)!!
-
+        viewModel.feed.observeDistinct(this) { feed ->
+            val requestManager = Glide.with(this@ArchiveFragment)
             adapter = ArchiveAdapter(
                 this@ArchiveFragment,
                 R.layout.fragment_archive_item,
                 feed,
-                Glide.with(this@ArchiveFragment)
+                requestManager
             )
             fragment_archive_grid.adapter = adapter
         }

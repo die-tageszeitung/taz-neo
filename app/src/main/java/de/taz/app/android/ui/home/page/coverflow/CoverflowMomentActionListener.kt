@@ -1,8 +1,9 @@
-package de.taz.app.android.ui.home.page
+package de.taz.app.android.ui.home.page.coverflow
 
 import de.taz.app.android.data.DataService
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.home.page.HomeMomentViewActionListener
+import de.taz.app.android.ui.home.page.MomentViewData
 
 open class CoverflowMomentActionListener(
     private val coverflowFragment: CoverflowFragment,

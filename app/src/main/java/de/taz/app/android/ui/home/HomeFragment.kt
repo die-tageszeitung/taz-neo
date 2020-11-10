@@ -13,7 +13,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
