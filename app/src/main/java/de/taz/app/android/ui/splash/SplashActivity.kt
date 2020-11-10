@@ -10,6 +10,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
@@ -24,6 +25,7 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
+import de.taz.app.android.ui.home.page.HomePageViewModel
 import io.sentry.core.Sentry
 import io.sentry.core.protocol.User
 import kotlinx.coroutines.*

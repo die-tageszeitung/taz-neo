@@ -20,7 +20,7 @@ class IssueDownloadWorkManagerWorker(
 
     override suspend fun doWork(): Result = coroutineScope {
         val dataService = DataService.getInstance(applicationContext)
-        val oldFeed = dataService.getFeedByName(DISPLAYABLE_NAME)
+        val oldFeed = dataService.getFeedByName(DISPLAYED_FEED)
         val feed = dataService.getFeedByName(DISPLAYED_FEED, allowCache = false)
         try {
             // determine whether a new issue was published
