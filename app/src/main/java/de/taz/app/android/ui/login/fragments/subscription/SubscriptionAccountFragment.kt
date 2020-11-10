@@ -1,12 +1,14 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
+import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import de.taz.app.android.*
@@ -120,11 +122,19 @@ class SubscriptionAccountFragment :
                 imeOptions = EditorInfo.IME_ACTION_NEXT
                 nextFocusForwardId = R.id.fragment_subscription_account_password_confirm
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                fragment_subscription_account_email.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
+                fragment_subscription_account_password.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
+            }
         } else {
             fragment_subscription_account_forgot_password_text.visibility = View.VISIBLE
             fragment_subscription_account_switch_new_account.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_registration)
             fragment_subscription_account_password_confirm_layout.visibility = View.GONE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                fragment_subscription_account_email.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
+                fragment_subscription_account_password.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
+            }
         }
 
         if (viewModel.price == 0) {

@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:imeOptions="actionNext"
+            android:autofillHints="emailAddress"
             android:inputType="textEmailAddress"
             android:nextFocusForward="@id/fragment_login_password" />
 
@@ -44,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:imeOptions="actionDone"
+            android:autofillHints="password"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 

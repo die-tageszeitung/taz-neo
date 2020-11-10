@@ -6,6 +6,7 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -88,8 +89,14 @@ class CredentialsMissingFragment :
         }
 
         if (viewModel.createNewAccount) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                fragment_login_missing_credentials_password.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
+            }
             fragment_login_missing_credentials_forgot_password.visibility = View.GONE
         } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                fragment_login_missing_credentials_password.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
+            }
             fragment_login_missing_credentials_switch.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_registration)
 
