@@ -23,6 +23,7 @@
             android:id="@+id/fragment_login_missing_subscription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="username"
             android:hint="@string/login_subscription_hint"
             android:imeOptions="actionNext"
             android:inputType="numberDecimal"
@@ -41,6 +42,7 @@
             android:id="@+id/fragment_login_missing_subscription_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="password"
             android:hint="@string/login_password_hint"
             android:imeOptions="actionDone"
             android:inputType="textPassword" />

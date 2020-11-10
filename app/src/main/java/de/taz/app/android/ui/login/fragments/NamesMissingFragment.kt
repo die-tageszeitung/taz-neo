@@ -2,8 +2,10 @@ package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.monkey.markRequired
+import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import kotlinx.android.synthetic.main.fragment_login_missing_names.*
 
 class NamesMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_names) {
@@ -17,7 +19,17 @@ class NamesMissingFragment : LoginBaseFragment(R.layout.fragment_login_missing_n
         fragment_login_missing_names_login.setOnClickListener {
             getTrialSubscriptionWithFullName()
         }
-    }
+
+        fragment_login_missing_first_name.doAfterTextChanged { text ->
+            fragment_login_missing_surname_layout.counterMaxLength =
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
+        }
+
+        fragment_login_missing_surname.doAfterTextChanged { text ->
+            fragment_login_missing_first_name_layout.counterMaxLength =
+                (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
+        }
+   }
 
     private fun getTrialSubscriptionWithFullName() {
         val firstName = fragment_login_missing_first_name.text.toString().trim()
