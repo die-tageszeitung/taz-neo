@@ -4,6 +4,12 @@ These contribution guidelines are inspired by
 [https://github.com/americanexpress/nodes/blob/master/CONTRIBUTING.md](https://github.com/americanexpress/nodes/blob/master/CONTRIBUTING.md)
 and [https://chris.beams.io/posts/git-commit/](https://chris.beams.io/posts/git-commit/).
 
+## Who decides what gets merged?
+
+This app is authored by an internal product team at "die tageszeitung". There is a feature plan and a dedicated team implementing those.
+So to save potential contributers the disappointment of a disregarded submission we'd like to ask anyone with ideas to propose this feature to app@taz.de.
+If the product team then decides to include the feature we are more than happy to accept pull requests.
+
 ## Code Style Guidelines
 
 * IDs used in the XML layouts MUST be in `snake_case`
