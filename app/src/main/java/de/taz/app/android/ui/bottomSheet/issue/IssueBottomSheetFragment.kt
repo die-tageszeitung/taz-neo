@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
@@ -18,8 +19,10 @@ import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
@@ -41,6 +44,8 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var issueRepository: IssueRepository
     private lateinit var dataService: DataService
     private lateinit var toastHelper: ToastHelper
+
+    private val homeViewModel: HomePageViewModel by activityViewModels()
 
     companion object {
         fun create(
@@ -135,7 +140,6 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 loading_screen?.visibility = View.VISIBLE
 
                 CoroutineScope(Dispatchers.IO).launch {
-
                     val issue = issueStub.getIssue()
                     dataService.ensureDeleted(issue)
                     withContext(Dispatchers.Main) {
@@ -145,8 +149,10 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                         dataService.getIssue(
                             issue.issueKey,
                             allowCache = false,
+                            retryOnFailure = true,
                             forceUpdate = true
                         )
+                        homeViewModel.notifyMomentChanged(simpleDateFormat.parse(issue.issueKey.date)!!)
                     } catch (e: ConnectivityException.Recoverable) {
                         log.warn("Redownloading after delete not possible as no internet connection is available")
                     }

@@ -288,7 +288,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 feed!!,
                 DateFormat.LongWithoutWeekDay,
                 Glide.with(this@SectionDrawerFragment),
-                object : MomentViewActionListener {}
+                object : MomentViewActionListener {
+                    override fun onImageClicked(momentViewData: MomentViewData) {
+                        getMainView()?.showHome(skipToIssue = issueStub)
+                    }
+                }
             )
             withContext(Dispatchers.Main) {
                 momentBinder?.bindView(fragment_drawer_sections_moment)

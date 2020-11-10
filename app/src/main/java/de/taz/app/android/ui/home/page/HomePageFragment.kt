@@ -1,7 +1,10 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
-import com.bumptech.glide.RequestManager
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.activityViewModels
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
@@ -9,6 +12,8 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 abstract class HomePageFragment(
     layoutID: Int
@@ -21,7 +26,19 @@ abstract class HomePageFragment(
     private lateinit var authHelper: AuthHelper
     private lateinit var feedRepository: FeedRepository
 
+    private lateinit var momentChangedListener: MomentChangedListener
+
+    override val viewModel: HomePageViewModel by activityViewModels()
+
     abstract var adapter: IssueFeedAdapter
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        runBlocking(Dispatchers.IO) {
+            viewModel.setFeed(DISPLAYED_FEED)
+        }
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -29,6 +46,18 @@ abstract class HomePageFragment(
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance()
         feedRepository = FeedRepository.getInstance()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        momentChangedListener = viewModel.addNotifyMomentChangedListener { date ->
+            adapter.notifyItemChanged(adapter.getPosition(date))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.removeNotifyMomentChangedListener(momentChangedListener)
     }
 
     fun onItemSelected(issueStub: IssueStub) {
