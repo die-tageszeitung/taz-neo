@@ -28,6 +28,7 @@ import okhttp3.Response
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.TimeUnit
 
 
 @Mockable
@@ -211,22 +212,6 @@ class DownloadService constructor(
     }
 
     /**
-     * download new issue in background
-     */
-    fun scheduleNewestIssueDownload(tag: String): Operation? {
-        val requestBuilder =
-            OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
-                .setConstraints(getConstraints())
-                .addTag(tag)
-
-        return WorkManager.getInstance(applicationContext).enqueueUniqueWork(
-            tag,
-            ExistingWorkPolicy.KEEP,
-            requestBuilder.build()
-        )
-    }
-
-    /**
      * Cancel all scheduled or running downloads in queue
      * @param tag tag of download to cancel
      */
@@ -338,7 +323,7 @@ class DownloadService constructor(
     /**
      * get Constraints for [WorkRequest] of [WorkManager]
      */
-    private fun getConstraints(): Constraints {
+    fun getBackgroundDownloadConstraints(): Constraints {
         val onlyWifi: Boolean =
             applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)
                 ?.let {
@@ -350,6 +335,25 @@ class DownloadService constructor(
             .build()
     }
 
+    /**
+     * download new issue in background
+     */
+    fun scheduleNewestIssueDownload(tag: String, polling: Boolean = false, delay: Long = 0L): Operation? {
+        val requestBuilder =
+            OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
+                .setConstraints(getBackgroundDownloadConstraints())
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setInputData(workDataOf(
+                    KEY_SCHEDULE_NEXT to polling
+                ))
+                .addTag(tag)
+
+        return WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            tag,
+            ExistingWorkPolicy.KEEP,
+            requestBuilder.build()
+        )
+    }
 }
 
 /**
