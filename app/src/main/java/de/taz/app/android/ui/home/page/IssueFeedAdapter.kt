@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
@@ -31,11 +32,12 @@ data class MomentViewData(
 abstract class IssueFeedAdapter(
     private val fragment: HomePageFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    private val feed: Feed
+    private val feed: Feed,
+    private val glideRequestManager: RequestManager,
+    private val onMomentViewActionListener: MomentViewActionListener
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
     private val log by Log
 
-    open fun dateOnClickListener(issueDate: Date): Unit = Unit
     abstract val dateFormat: DateFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -75,10 +77,12 @@ abstract class IssueFeedAdapter(
             binder = MomentViewDataBinding(
                 fragment,
                 date,
-                dateClickedListener = ::dateOnClickListener,
-                dateFormat = dateFormat
+                feed,
+                dateFormat = dateFormat,
+                glideRequestManager = glideRequestManager,
+                onMomentViewActionListener
             ).apply {
-                bindView(itemView.findViewById(R.id.fragment_cover_flow_item), feed)
+                bindView(itemView.findViewById(R.id.fragment_cover_flow_item))
             }
         }
 

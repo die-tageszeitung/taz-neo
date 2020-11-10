@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
@@ -48,7 +49,8 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             adapter = ArchiveAdapter(
                 this@ArchiveFragment,
                 R.layout.fragment_archive_item,
-                feed
+                feed,
+                Glide.with(this@ArchiveFragment)
             )
             fragment_archive_grid.adapter = adapter
         }

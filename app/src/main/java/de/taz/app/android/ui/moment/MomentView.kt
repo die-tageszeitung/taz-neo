@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.getColorFromAttr
@@ -17,6 +17,9 @@ import de.taz.app.android.ui.home.page.MomentType
 import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
+
+
+private const val MOMENT_FADE_DURATION_MS = 500L
 
 @SuppressLint("ClickableViewAccessibility")
 class MomentView @JvmOverloads constructor(
@@ -74,10 +77,10 @@ class MomentView @JvmOverloads constructor(
         showProgressBar()
     }
 
-    fun clear() {
-        Glide
-            .with(this)
+    fun clear(glideRequestManager: RequestManager) {
+        glideRequestManager
             .clear(moment_image)
+
         moment_web_view.apply {
             webViewClient = null
             loadUrl("about:blank")
@@ -88,8 +91,12 @@ class MomentView @JvmOverloads constructor(
         showProgressBar()
     }
 
-    fun show(data: MomentViewData, dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay) {
-        showMomentImage(data.momentUri, data.momentType)
+    fun show(
+        data: MomentViewData,
+        dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay,
+        glideRequestManager: RequestManager
+    ) {
+        showMomentImage(data.momentUri, data.momentType, glideRequestManager)
         setDownloadIconForStatus(data.downloadStatus)
         setDimension(data.dimension)
         setDate(data.issueStub.date, dateFormat)
@@ -174,7 +181,7 @@ class MomentView @JvmOverloads constructor(
                 alpha = 1f
                 visibility = View.VISIBLE
                 animate().alpha(0f).apply {
-                    duration = 1000L
+                    duration = MOMENT_FADE_DURATION_MS
                     startDelay = 2000L
                 }
             }
@@ -188,20 +195,20 @@ class MomentView @JvmOverloads constructor(
         view_moment_download_icon_wrapper.setOnClickListener(null)
     }
 
-    private fun showMomentImage(uri: String?, type: MomentType) {
+    private fun showMomentImage(uri: String?, type: MomentType, glideRequestManager: RequestManager) {
         when (type) {
             MomentType.ANIMATED -> {
                 showAnimatedImage(uri)
                 moment_web_view?.apply {
                     hideProgressBar()
-                    animate().alpha(1f).duration = 1000L
+                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
                 }
             }
             MomentType.STATIC -> {
-                showStaticImage(uri)
+                showStaticImage(uri, glideRequestManager)
                 moment_image?.apply {
                     hideProgressBar()
-                    animate().alpha(1f).duration = 1000L
+                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
                 }
             }
         }
@@ -214,9 +221,8 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
-    private fun showStaticImage(uri: String?) {
-        Glide
-            .with(this)
+    private fun showStaticImage(uri: String?, glideRequestManager: RequestManager) {
+        glideRequestManager
             .load(uri)
             .into(moment_image)
 

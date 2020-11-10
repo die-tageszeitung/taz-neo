@@ -2,10 +2,11 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import com.bumptech.glide.RequestManager
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
-import java.util.*
+import de.taz.app.android.ui.home.page.MomentViewActionListener
 
 const val MAX_VIEWHOLDER_WIDTH_OF_PARENT = 0.8
 
@@ -13,13 +14,9 @@ class CoverflowAdapter(
     fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
-    private val onDateClicked: (Date) -> Unit
-) : IssueFeedAdapter(fragment, itemLayoutRes, feed) {
-
-    override fun dateOnClickListener(issueDate: Date) {
-        onDateClicked.invoke(issueDate)
-    }
-
+    glideRequestManager: RequestManager,
+    onMomentViewActionListener: MomentViewActionListener
+) : IssueFeedAdapter(fragment, itemLayoutRes, feed, glideRequestManager, onMomentViewActionListener) {
     override val dateFormat: DateFormat = DateFormat.LongWithWeekDay
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

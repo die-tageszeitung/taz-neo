@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
@@ -21,23 +23,19 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.CoverflowMomentActionListener
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
 
-class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
+class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
-    private val openDatePicker: (Date) -> Unit = { issueDate ->
-        showBottomSheet(DatePickerFragment.create(this, issueDate))
-    }
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
 
@@ -83,21 +81,28 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
         }
         runBlocking {
+            val requestManager = Glide.with(this@CoverflowFragment)
             val feed = dataService.getFeedByName(DISPLAYED_FEED)!!
             adapter = CoverflowAdapter(
                 this@CoverflowFragment,
                 R.layout.fragment_cover_flow_item,
                 feed,
-                openDatePicker
+                requestManager,
+                CoverflowMomentActionListener(this@CoverflowFragment, dataService)
             )
             fragment_cover_flow_grid.adapter = adapter
         }
     }
 
     override fun onResume() {
+
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         skipToCurrentItem()
         super.onResume()
+    }
+
+    fun openDatePicker(issueDate: Date) {
+        showBottomSheet(DatePickerFragment.create(this, issueDate))
     }
 
     override fun onPause() {
