@@ -2,7 +2,7 @@ package de.taz.app.android.ui.settings.support
 
 import android.app.ActivityManager
 import android.content.Context
-import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
@@ -22,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 
 
@@ -37,6 +38,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
         toastHelper = ToastHelper.getInstance()
         apiService = ApiService.getInstance()
+        var uploadedFile: File? = null
 
         coordinator.moveContentBeneathStatusBar()
 
@@ -54,8 +56,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
             fragment_error_report_upload.setOnClickListener(View.OnClickListener {
                 log.debug("start picker activity !!!")
-                val galleryIntent =
-                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
                 // Start the Intent
                 getImageFromGallery.launch("image/*")
             })
@@ -66,6 +67,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 val message = fragment_error_report_message.text.toString().trim()
                 val lastAction = fragment_error_report_last_action.text.toString().trim()
                 val conditions = fragment_error_report_conditions.text.toString().trim()
+                val screenshot = fragment_error_report_screenshot_thumbnail
 
                 if (email.isNotEmpty() || message.isNotEmpty() || lastAction.isNotEmpty() || conditions.isNotEmpty()) {
                     sendErrorReport(email, message, lastAction, conditions)
@@ -74,17 +76,15 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 }
             }
         }
-
     }
-
-    private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {uri ->
+    private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            log.debug("bitmap: $uri !!!")
+            log.debug("bitmap: ${uri.path} !!!")
+            fragment_error_report_screenshot_thumbnail.setImageURI(uri)
         } else {
             log.debug("no image selected!!!")
         }
     }
-
 
     private fun sendErrorReport(
         email: String?,
