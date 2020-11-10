@@ -3,12 +3,15 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
+import java.util.*
+
+const val KEY_SCHEDULE_NEXT = "KEY_SCHEDULE_NEXT"
 
 
 class IssueDownloadWorkManagerWorker(
@@ -20,7 +23,16 @@ class IssueDownloadWorkManagerWorker(
 
     override suspend fun doWork(): Result = coroutineScope {
         val dataService = DataService.getInstance(applicationContext)
+        val downloadService = DownloadService.getInstance(applicationContext)
         val oldFeed = dataService.getFeedByName(DISPLAYED_FEED)
+
+        val scheduleNext = inputData.getBoolean(KEY_SCHEDULE_NEXT, false)
+
+        if (scheduleNext) {
+            val nextPollDelay = NewIssuePollingScheduler.getDelayForNextPoll()
+            downloadService.scheduleNewestIssueDownload("poll/${Date().time}/$nextPollDelay", true, nextPollDelay)
+        }
+
         val feed = dataService.getFeedByName(DISPLAYED_FEED, allowCache = false)
         try {
             // determine whether a new issue was published
@@ -36,26 +48,28 @@ class IssueDownloadWorkManagerWorker(
                     val issue = issueStub?.getIssue()
                     issue?.let { issue ->
                         dataService.ensureDownloaded(issue)
+                        val moment = dataService.getMoment(issue.issueKey)
+                        dataService.ensureDownloaded(moment!!)
                         log.info("Downloaded new issue automatically: ${issueStub.getDownloadDate()}")
-                        Result.success()
-                    }?.run {
-                        log.error("Expected issue ${issueStub.getDownloadDate()} not Fount")
-                        Result.failure()
+                        return@coroutineScope Result.success()
+                    } ?: run {
+                        log.error("Expected issue ${it.publicationDates[0]} not found")
+                        return@coroutineScope Result.failure()
                     }
                 } ?: run {
                     val hint = "feed $DISPLAYED_FEED not found"
                     log.error(hint)
                     Sentry.captureMessage(hint)
-                    Result.failure()
+                    return@coroutineScope Result.failure()
                 }
             } else {
                 log.info("No new issue found, last issue is ${oldFeed?.publicationDates?.get(0)}")
-                Result.success()
+                return@coroutineScope Result.success()
             }
         } catch (e: Exception) {
             log.error("Error during automatic download")
             Sentry.captureException(e)
-            Result.failure()
+            return@coroutineScope Result.failure()
         }
     }
 }
