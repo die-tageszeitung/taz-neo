@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 14
+const val DATABASE_VERSION = 16
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -28,7 +28,9 @@ val allMigrations = arrayOf(
     Migration10to11,
     Migration11to12,
     Migration12to13,
-    Migration13to14
+    Migration13to14,
+    Migration14to15,
+    Migration15to16
 )
 
 @Database(
@@ -44,6 +46,7 @@ val allMigrations = arrayOf(
         IssueStub::class,
         IssueImprintJoin::class,
         IssueCreditMomentJoin::class,
+        IssueFilesMomentJoin::class,
         IssueImageMomentJoin::class,
         IssuePageJoin::class,
         IssueSectionJoin::class,
@@ -74,7 +77,8 @@ val allMigrations = arrayOf(
     StringListTypeConverter::class,
     SectionTypeTypeConverter::class,
     UUIDTypeConverter::class,
-    SectionTypeTypeConverter::class
+    SectionTypeTypeConverter::class,
+    DateListTypeConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
@@ -100,6 +104,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issueCreditMomentJoinDao(): IssueCreditMomentJoinDao
     abstract fun issueImageMomentJoinDao(): IssueImageMomentJoinDao
+    abstract fun issueFilesMomentJoinDao(): IssueFilesMomentJoinDao
     abstract fun issuePageJoinDao(): IssuePageJoinDao
     abstract fun issueSectionJoinDao(): IssueSectionJoinDao
     abstract fun momentDao(): MomentDao

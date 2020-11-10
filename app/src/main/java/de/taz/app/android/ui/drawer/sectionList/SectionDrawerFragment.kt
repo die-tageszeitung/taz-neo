@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.drawer.sectionList
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
@@ -11,22 +12,35 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.ui.home.page.MomentType
+import de.taz.app.android.ui.home.page.MomentViewActionListener
+import de.taz.app.android.ui.home.page.MomentViewData
+import de.taz.app.android.ui.home.page.MomentViewDataBinding
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
+import kotlinx.android.synthetic.main.view_moment.*
 import kotlinx.coroutines.*
 
 const val ACTIVE_POSITION = "active position"
@@ -59,9 +73,14 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var issueRepository: IssueRepository
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
+    private lateinit var feedRepository: FeedRepository
+
+    private lateinit var fileHelper: FileHelper
 
     private var defaultTypeface: Typeface? = null
     private var weekendTypeface: Typeface? = null
+
+    private var momentBinder: MomentViewDataBinding? = null
 
     private lateinit var currentIssueStub: IssueStub
 
@@ -72,6 +91,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
+        fileHelper = FileHelper.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,6 +133,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -120,9 +143,11 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             adapter = sectionListAdapter
         }
 
-        fragment_drawer_sections_moment.setOnClickListener {
-            getMainView()?.showHome(skipToIssue = currentIssueStub)
-            getMainView()?.closeDrawer()
+        fragment_drawer_sections_moment.apply {
+            moment_container.setOnClickListener {
+                getMainView()?.showHome(skipToIssue = currentIssueStub)
+                getMainView()?.closeDrawer()
+            }
         }
 
         fragment_drawer_sections_imprint.apply {
@@ -249,17 +274,34 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showMoment(issueStub: IssueStub) = withContext(Dispatchers.IO) {
         val moment = momentRepository.get(issueStub)
-        moment.apply {
+        moment?.apply {
+            withContext(Dispatchers.Main) {
+                momentBinder?.unbind()
+            }
             if (!isDownloaded()) {
                 dataService.ensureDownloaded(moment)
             }
-            fragment_drawer_sections_moment.apply {
-                displayIssue(issueStub)
-                visibility = View.VISIBLE
+            val feed = feedRepository.get(issueStub.feedName)
+            momentBinder = MomentViewDataBinding(
+                this@SectionDrawerFragment,
+                simpleDateFormat.parse(issueStub.date)!!,
+                feed!!,
+                DateFormat.LongWithoutWeekDay,
+                Glide.with(this@SectionDrawerFragment),
+                object : MomentViewActionListener {
+                    override fun onImageClicked(momentViewData: MomentViewData) {
+                        getMainView()?.showHome(skipToIssue = issueStub)
+                    }
+                }
+            )
+            withContext(Dispatchers.Main) {
+                momentBinder?.bindView(fragment_drawer_sections_moment)
+                fragment_drawer_sections_moment.visibility = View.VISIBLE
+                fragment_moment_date.visibility = View.GONE
             }
         }
-
     }
+
 
     private fun showImprint() {
         runIfNotNull(

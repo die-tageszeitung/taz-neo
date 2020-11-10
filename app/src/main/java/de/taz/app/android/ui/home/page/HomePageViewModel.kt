@@ -3,41 +3,41 @@ package de.taz.app.android.ui.home.page
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.PREFERENCES_FEEDS_INACTIVE
-import de.taz.app.android.singletons.FeedHelper
-import de.taz.app.android.util.SharedPreferenceStringSetLiveData
+import java.util.*
 
-open class HomePageViewModel(application: Application) : AndroidViewModel(application) {
+typealias MomentChangedListener = (Date) -> Unit
 
-    /**
-     * issues to be shown
-     */
-    val issueStubsLiveData: LiveData<List<IssueStub>> =
-        IssueRepository.getInstance(this.getApplication()).getAllStubsLiveData()
+class HomePageViewModel(application: Application) : AndroidViewModel(application) {
+    private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
 
-    /**
-     * authentication status
-     */
-    val authStatusLiveData = AuthHelper.getInstance(this.getApplication()).authStatusLiveData
+    private var currentFeed: String? = null
 
-    /**
-     * feeds to be used in filtering and endNavigationView
-     */
-    val feedsLiveData: LiveData<List<Feed>> =
-        FeedRepository.getInstance(this.getApplication()).getAllLiveData()
+    fun setFeed(feedName: String) {
+        if (currentFeed != feedName) {
+            FeedRepository.getInstance().get(feedName)?.let {
+                mutableFeedLiveData.postValue(it)
+            }
+        }
+    }
 
-    /**
-     * Set of [String] corresponding to the deactivated [Feed]'s [Feed.name]
-     */
-    val inactiveFeedNameLiveData =
-        SharedPreferenceStringSetLiveData(
-            FeedHelper.getInstance(this.getApplication()).feedPreferences,
-            PREFERENCES_FEEDS_INACTIVE,
-            emptySet()
-        )
+    fun setFeed(feed: Feed) {
+        mutableFeedLiveData.postValue(feed)
+    }
 
+    private val mutableFeedLiveData = MutableLiveData<Feed>()
+    val feed: LiveData<Feed> = mutableFeedLiveData
+
+    fun addNotifyMomentChangedListener(listener: MomentChangedListener): MomentChangedListener {
+        notifyMomentChangedListeners.add(listener)
+        return listener
+    }
+
+    fun removeNotifyMomentChangedListener(listener: MomentChangedListener) {
+        notifyMomentChangedListeners.remove(listener)
+    }
+
+    fun notifyMomentChanged(date: Date) {
+        notifyMomentChangedListeners.forEach { it.invoke(date) }
+    }
 }

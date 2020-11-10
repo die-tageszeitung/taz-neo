@@ -35,8 +35,14 @@ const val CONCURRENT_FILE_DOWNLOADS = 8
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 1000L
 
+// feed
+const val DISPLAYED_FEED = "taz"
+
 // onSaveInstanceState
 const val DISPLAYABLE_NAME = "displayableName"
 
 const val RESOURCE_CACHE_TIMEOUT = 3600000L // 1 hour
-val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+// SimpleDateFormat is not thread safe!!! We need to create to create a instance for every thread context
+val simpleDateFormat
+        get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)

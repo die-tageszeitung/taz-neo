@@ -10,12 +10,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
-import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
@@ -27,6 +25,7 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
+import de.taz.app.android.ui.home.page.HomePageViewModel
 import io.sentry.core.Sentry
 import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
@@ -72,7 +71,14 @@ class SplashActivity : BaseActivity() {
                 launch { initResources() }
                 launch { initFeedsAndFirstIssues() }
             }
-            initJob.join()
+            try {
+                initJob.join()
+            } catch (e: InitializationException) {
+                toastHelper.showSomethingWentWrongToast()
+                Sentry.captureException(e)
+                finish()
+                return@launch
+            }
 
             if (isDataPolicyAccepted()) {
                 if (isFirstTimeStart()) {
@@ -96,21 +102,36 @@ class SplashActivity : BaseActivity() {
 
     private suspend fun initFeedsAndFirstIssues() {
         try {
-            val feeds = dataService.getFeeds()
-            dataService.getIssueStubsByFeed(Date(), feeds.map { it.name }, 3)
+            val feed = dataService.getFeedByName(DISPLAYED_FEED)
+            feed?.let {
+                dataService.getIssueStubsByFeed(Date(), listOf(it.name), 3)
+            } ?: run {
+                val hint = "Could not retrieve $DISPLAYED_FEED Feed"
+                log.error(hint)
+                throw InitializationException(hint)
+            }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Failed to retrieve feed and first issues during startup, no internet")
         }
     }
 
     private suspend fun checkForNewestIssue() {
-        val status = if (authHelper.isLoggedIn()) IssueStatus.regular else IssueStatus.public
         try {
-            dataService.getNewestIssue(
-                dataService.getFeeds().map { it.name },
-                status,
-                allowCache = false,
-            )
+            val oldFeed = dataService.getFeedByName(DISPLAYABLE_NAME)
+            val feed = dataService.getFeedByName(DISPLAYED_FEED, allowCache = false)
+            // determine whether a new issue was published
+            if (oldFeed?.publicationDates?.get(0) != feed?.publicationDates?.get(0)) {
+                // download that new issue
+                feed?.let {
+                    val issueStub = dataService.getIssueStubsByFeed(
+                        it.publicationDates[0],
+                        listOf(it.name),
+                        1,
+                        allowCache = false
+                    ).firstOrNull()
+                    issueStub?.getIssue()?.let { issue -> dataService.ensureDownloaded(issue) }
+                }
+            }
         } catch (e: ConnectivityException.Recoverable) {
             toastHelper.showNoConnectionToast()
         }
@@ -284,3 +305,4 @@ class SplashActivity : BaseActivity() {
     }
 }
 
+class InitializationException(message: String, override val cause: Throwable? = null): Exception(message, cause)

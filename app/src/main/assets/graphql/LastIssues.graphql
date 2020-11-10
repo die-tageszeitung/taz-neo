@@ -8,6 +8,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
             name
             cycle
             momentRatio
+            publicationDates
             issueCnt
             issueMaxDate
             issueMinDate
@@ -24,6 +25,24 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         type
                         alpha
                     }
+                    creditList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        resolution
+                        type
+                        alpha
+                    }
+                    momentList {
+                        name
+                        storageType
+                        moTime
+                        sha256
+                        size
+                    }
+                    duration
                 }
                 key
                 baseUrl
