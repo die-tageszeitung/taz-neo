@@ -34,6 +34,6 @@ class HomePageViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun notifyMomentChanged(date: Date) {
-        notifyMomentChangedListeners.forEach { it.invoke(date) }
+        //notifyMomentChangedListeners.forEach { it.invoke(date) }
     }
 }
