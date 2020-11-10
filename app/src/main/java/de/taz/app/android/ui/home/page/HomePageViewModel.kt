@@ -21,6 +21,10 @@ class HomePageViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setFeed(feed: Feed) {
+        mutableFeedLiveData.postValue(feed)
+    }
+
     private val mutableFeedLiveData = MutableLiveData<Feed>()
     val feed: LiveData<Feed> = mutableFeedLiveData
 
@@ -34,6 +38,6 @@ class HomePageViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun notifyMomentChanged(date: Date) {
-        //notifyMomentChangedListeners.forEach { it.invoke(date) }
+        notifyMomentChangedListeners.forEach { it.invoke(date) }
     }
 }

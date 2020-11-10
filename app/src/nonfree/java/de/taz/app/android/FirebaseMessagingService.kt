@@ -46,7 +46,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
         // sometimes messages are sent multiple times - only execute once
         val sentTime = remoteMessage.sentTime
         if (sentTime !in messageTimestamps) {

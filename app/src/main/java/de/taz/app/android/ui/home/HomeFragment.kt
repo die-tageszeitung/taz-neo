@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -18,6 +20,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarksFragment
+import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsFragment
 import de.taz.app.android.util.Log
@@ -32,6 +35,8 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     private var refreshJob: Job? = null
+
+    private val homePageViewModel: HomePageViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,11 +82,12 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     private suspend fun onRefresh() {
         withContext(Dispatchers.IO) {
             try {
-                val apiService = ApiService.getInstance(activity?.applicationContext)
                 DataService.getInstance(activity?.applicationContext)
-                    .getFeedByName(DISPLAYED_FEED, allowCache = false)
-                IssueRepository.getInstance(activity?.applicationContext)
-                    .saveIfDoesNotExist(apiService.getLastIssues())
+                    .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
+                        homePageViewModel.setFeed(
+                            it
+                        )
+                    }
             } catch (e: ConnectivityException.NoInternetException) {
                 ToastHelper.getInstance(context?.applicationContext)
                     .showNoConnectionToast()
