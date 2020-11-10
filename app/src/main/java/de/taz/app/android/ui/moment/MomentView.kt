@@ -32,6 +32,8 @@ class MomentView @JvmOverloads constructor(
     private var shouldNotShowDownloadIcon: Boolean = false
     private var momentElevation: Float? = null
 
+    private var downloadButtonListener: ((View) -> Unit)? = null
+
     init {
         LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
         if (momentElevation == null) {
@@ -152,7 +154,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     fun setOnDownloadClickedListener(listener: ((View) -> Unit)?) {
-        view_moment_download_icon_wrapper?.setOnClickListener(listener)
+        downloadButtonListener = listener
     }
 
     fun setOnDateClickedListener(listener: ((View) -> Unit)?) {
@@ -163,10 +165,21 @@ class MomentView @JvmOverloads constructor(
         moment_container.setOnClickListener(listener)
     }
 
+    fun activateDownloadButtonListener() {
+        downloadButtonListener?.let {
+            view_moment_download_icon_wrapper.setOnClickListener(it)
+        }
+    }
+
+    private fun deactivateDownloadButtonListener() {
+        view_moment_download_icon_wrapper.setOnLongClickListener(null)
+    }
+
     private fun showDownloadIcon() {
         fragment_moment_downloading?.visibility = View.GONE
         fragment_moment_download_finished?.visibility = View.GONE
         fragment_moment_download?.visibility = View.VISIBLE
+        activateDownloadButtonListener()
     }
 
     private fun hideDownloadIcon() {
@@ -174,7 +187,7 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_downloading?.visibility = View.GONE
         fragment_moment_download?.visibility = View.GONE
         fragment_moment_download_finished?.visibility = View.GONE
-        view_moment_download_icon_wrapper.setOnClickListener(null)
+        deactivateDownloadButtonListener()
 
         if (wasDownloading) {
             fragment_moment_download_finished?.apply {
@@ -195,7 +208,11 @@ class MomentView @JvmOverloads constructor(
         view_moment_download_icon_wrapper.setOnClickListener(null)
     }
 
-    private fun showMomentImage(uri: String?, type: MomentType, glideRequestManager: RequestManager) {
+    private fun showMomentImage(
+        uri: String?,
+        type: MomentType,
+        glideRequestManager: RequestManager
+    ) {
         when (type) {
             MomentType.ANIMATED -> {
                 showAnimatedImage(uri)
