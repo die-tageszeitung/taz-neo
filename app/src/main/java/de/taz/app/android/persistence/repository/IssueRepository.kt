@@ -39,7 +39,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         issues.forEach { save(it) }
     }
 
-    fun save(issue: Issue) {
+    fun save(issue: Issue): Issue {
         log.info("saving issue: ${issue.tag}")
         appDatabase.runInTransaction<Void> {
             appDatabase.issueDao().insertOrReplace(
@@ -94,6 +94,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
             }
             null
         }
+        return issue
     }
 
     fun exists(issueOperations: IssueOperations): Boolean {

@@ -58,6 +58,7 @@ class DataService(applicationContext: Context) {
     suspend fun getIssue(
         issueKey: IssueKey,
         allowCache: Boolean = true,
+        forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false
     ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
@@ -72,7 +73,12 @@ class DataService(applicationContext: Context) {
         } else {
             apiService.getIssueByKey(issueKey)
         }
-        return@withContext issueRepository.saveIfNotExistOrOutdated(issue)
+        if (forceUpdate) {
+            return@withContext issueRepository.save(issue)
+        } else {
+            return@withContext issueRepository.saveIfNotExistOrOutdated(issue)
+        }
+
     }
 
 

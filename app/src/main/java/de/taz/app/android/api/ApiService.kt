@@ -192,13 +192,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return [List]<[Issue]>
      */
     @Throws(ConnectivityException::class)
-    suspend fun getLastIssuesByFeed(feedNames: String, limit: Int = 10): List<Issue> {
+    suspend fun getLastIssuesByFeed(feedName: String, limit: Int = 10): List<Issue> {
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.filter {
-                feedNames == it.name
+                feedName == it.name
             }?.map { feed ->
                 (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) }
             }?.flatten() ?: emptyList()

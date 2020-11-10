@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
+import com.bumptech.glide.RequestManager
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment

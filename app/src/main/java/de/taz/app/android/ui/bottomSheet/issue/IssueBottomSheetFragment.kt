@@ -144,7 +144,8 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     try {
                         dataService.getIssue(
                             issue.issueKey,
-                            allowCache = false
+                            allowCache = false,
+                            forceUpdate = true
                         )
                     } catch (e: ConnectivityException.Recoverable) {
                         log.warn("Redownloading after delete not possible as no internet connection is available")
