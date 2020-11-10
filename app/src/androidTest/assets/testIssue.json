@@ -11,6 +11,7 @@
           "cycle": "daily",
           "momentRatio": 0.670219,
           "issueCnt": 47,
+          "publicationDates": [],
           "issueMaxDate": "2020-04-27",
           "issueMinDate": "2020-03-02",
           "issueList": [

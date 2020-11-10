@@ -41,35 +41,44 @@ class DataService(applicationContext: Context) {
     private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         HashMap()
 
-    suspend fun getIssueStub(issueKey: IssueKey, allowCache: Boolean = true): IssueStub? =
+    suspend fun getIssueStub(
+        issueKey: IssueKey,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): IssueStub? =
         withContext(Dispatchers.IO) {
             if (allowCache) {
                 issueRepository.getStub(issueKey)?.let { return@withContext it } ?: run {
                     log.info("Cache miss on $issueKey")
                 }
             }
-            getIssue(issueKey, allowCache)?.let(::IssueStub)
+            getIssue(issueKey, allowCache, retryOnFailure = retryOnFailure)?.let(::IssueStub)
         }
 
     suspend fun getIssue(
         issueKey: IssueKey,
         allowCache: Boolean = true,
-        saveOnlyIfNewerMoTime: Boolean = false
+        forceUpdate: Boolean = false,
+        retryOnFailure: Boolean = false
     ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
                 log.info("Cache miss on $issueKey")
             }
         }
-        val issue = apiService.getIssueByKey(issueKey)
-        val existingIssue = issueRepository.get(issueKey)
-        // cache issue after download
-        return@withContext if (!saveOnlyIfNewerMoTime || existingIssue?.let { it.moTime < issue.moTime } == true) {
-            issueRepository.save(issue)
-            issue
+        val issue = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
+                apiService.getIssueByKey(issueKey)
+            }
         } else {
-            existingIssue
+            apiService.getIssueByKey(issueKey)
         }
+        if (forceUpdate) {
+            return@withContext issueRepository.save(issue)
+        } else {
+            return@withContext issueRepository.saveIfNotExistOrOutdated(issue)
+        }
+
     }
 
 
@@ -88,22 +97,21 @@ class DataService(applicationContext: Context) {
             }
         }
         val feedNames = feedRepository.getAll().map { it.name }
-        val issues = feedNames.map { feedName ->
-            apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-        }.flatten()
-        if (allowCache) {
-            issueRepository.saveIfDoesNotExist(issues)
-        } else {
-            issueRepository.save(issues)
-        }
-        issues.map(::IssueStub)
+        return@withContext feedNames
+            .map { feedName ->
+                apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
+            }
+            .flatten()
+            .map(issueRepository::saveIfNotExistOrOutdated)
+            .map(::IssueStub)
     }
 
     suspend fun getIssueStubsByFeed(
         fromDate: Date = Date(),
         feedNames: List<String>,
         limit: Int = 1,
-        allowCache: Boolean = true
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
     ): List<IssueStub> = withContext(Dispatchers.IO) {
         if (allowCache) {
             val issues = issueRepository.getLatestIssueStubsByFeedAndDate(
@@ -113,38 +121,19 @@ class DataService(applicationContext: Context) {
                 return@withContext issues
             }
         }
-        val issues = feedNames.map { feedName ->
-            apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-        }.flatten()
-        issueRepository.save(issues)
-        issues.map(::IssueStub)
-    }
-
-    suspend fun getNewestIssue(
-        feedNames: List<String>,
-        status: IssueStatus,
-        allowCache: Boolean = true,
-        saveOnlyIfNewerMoTime: Boolean = false
-    ): IssueStub = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            val issue = issueRepository.getLatestIssueByFeedAndStatus(feedNames, status)
-            if (issue != null) {
-                return@withContext issue
+        val issues = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
+                feedNames.map { feedName ->
+                    apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
+                }.flatten()
             }
-        }
-
-        val issue = apiService.getLastIssuesByFeeds(feedNames, 1)
-            .filter { it.status == status }
-            .first()
-
-        val existingIssue = issueRepository.get(issue.issueKey)
-
-        if (saveOnlyIfNewerMoTime && existingIssue != null && existingIssue.moTime < issue.moTime) {
-            issueRepository.save(issue)
         } else {
-            issueRepository.saveIfDoesNotExist(issue)
+            feedNames.map { feedName ->
+                apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
+            }.flatten()
         }
-        IssueStub(issue)
+
+        issueRepository.saveIfNotExistOrOutdated(issues).map(::IssueStub)
     }
 
     suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
@@ -165,9 +154,9 @@ class DataService(applicationContext: Context) {
             appInfo
         }
 
-    suspend fun getMoment(issue: Issue, allowCache: Boolean = true): Moment =
+    suspend fun getMoment(issueKey: IssueKey, allowCache: Boolean = true): Moment? =
         withContext(Dispatchers.IO) {
-            return@withContext momentRepository.get(issue)
+            return@withContext momentRepository.get(issueKey)
         }
 
 
@@ -248,6 +237,21 @@ class DataService(applicationContext: Context) {
             }
         }
 
+
+    suspend fun getFeedByName(name: String, allowCache: Boolean = true): Feed? =
+        withContext(Dispatchers.IO) {
+            if (allowCache) {
+                feedRepository.get(name)?.let {
+                    return@withContext it
+                }
+            }
+            val feed = apiService.getFeedByName(name)
+            feed?.let {
+                feedRepository.save(feed)
+            }
+            feed
+        }
+
     suspend fun getFeeds(allowCache: Boolean = true): List<Feed> = withContext(Dispatchers.IO) {
         if (allowCache) {
             feedRepository.getAll().let {
@@ -264,9 +268,11 @@ class DataService(applicationContext: Context) {
      * ATTENTION: As any call to [ensureDownloaded] and [ensureDeleted] will attempt to cleanup non-observed LiveDatas
      * you only should access it via [withDownloadLiveData] that manages locking and reference count
      */
-    private fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {
+    private suspend fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {
         val tag = downloadableStub.getDownloadTag()
-        val status = downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
+        val status = withContext(Dispatchers.IO) {
+            downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
+        }
             ?: DownloadStatus.pending
         log.verbose("Requesting livedata for $tag")
         return downloadLiveDataMap[tag] ?: run {
@@ -292,7 +298,7 @@ class DataService(applicationContext: Context) {
         block: (LiveData<DownloadStatus>) -> Unit
     ) {
         val (liveData, referenceCount) = synchronized(downloadLiveDataMap) {
-            val (liveData, referenceCount) = getDownloadLiveData(downloadableStub)
+            val (liveData, referenceCount) = runBlocking { getDownloadLiveData(downloadableStub) }
             referenceCount.incrementAndGet()
             liveData to referenceCount
         }
