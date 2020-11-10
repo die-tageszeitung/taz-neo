@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.IssueStub
@@ -13,6 +14,7 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 abstract class HomePageFragment(
@@ -51,7 +53,9 @@ abstract class HomePageFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         momentChangedListener = viewModel.addNotifyMomentChangedListener { date ->
-            adapter.notifyItemChanged(adapter.getPosition(date))
+            lifecycleScope.launch(Dispatchers.Main) {
+                adapter.notifyItemChanged(adapter.getPosition(date))
+            }
         }
     }
 

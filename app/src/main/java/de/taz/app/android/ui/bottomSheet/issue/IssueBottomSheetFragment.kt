@@ -152,6 +152,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                             retryOnFailure = true,
                             forceUpdate = true
                         )
+
                         viewModel.notifyMomentChanged(simpleDateFormat.parse(issue.issueKey.date)!!)
                     } catch (e: ConnectivityException.Recoverable) {
                         log.warn("Redownloading after delete not possible as no internet connection is available")
