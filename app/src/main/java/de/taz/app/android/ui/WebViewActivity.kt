@@ -66,7 +66,7 @@ class WebViewActivity : AppCompatActivity() {
     }
 
     private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             val resourceInfo = dataService.getResourceInfo()
             dataService.ensureDownloaded(resourceInfo)
             web_view_fullscreen_content.loadUrl(filePath)
