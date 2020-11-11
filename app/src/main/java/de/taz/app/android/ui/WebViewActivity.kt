@@ -20,6 +20,7 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -69,7 +70,9 @@ class WebViewActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val resourceInfo = dataService.getResourceInfo()
             dataService.ensureDownloaded(resourceInfo)
-            web_view_fullscreen_content.loadUrl(filePath)
+            withContext(Dispatchers.Main) {
+                web_view_fullscreen_content.loadUrl(filePath)
+            }
         }
 
     private fun hideLoadingScreen() {
