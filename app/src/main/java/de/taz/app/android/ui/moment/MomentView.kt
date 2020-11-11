@@ -84,7 +84,6 @@ class MomentView @JvmOverloads constructor(
             .clear(moment_image)
 
         moment_web_view.apply {
-            webViewClient = null
             loadUrl("about:blank")
             alpha = 0f
         }
@@ -98,7 +97,9 @@ class MomentView @JvmOverloads constructor(
         dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay,
         glideRequestManager: RequestManager
     ) {
-        showMomentImage(data.momentUri, data.momentType, glideRequestManager)
+        data.momentUri?.let {
+            showMomentImage(it, data.momentType, glideRequestManager)
+        }
         setDownloadIconForStatus(data.downloadStatus)
         setDimension(data.dimension)
         setDate(data.issueStub.date, dateFormat)
@@ -209,7 +210,7 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showMomentImage(
-        uri: String?,
+        uri: String,
         type: MomentType,
         glideRequestManager: RequestManager
     ) {
@@ -232,7 +233,7 @@ class MomentView @JvmOverloads constructor(
         momentElevation?.let { moment_container.elevation = it }
     }
 
-    private fun showAnimatedImage(uri: String?) {
+    private fun showAnimatedImage(uri: String) {
         moment_web_view.apply {
             loadUrl(uri)
         }
