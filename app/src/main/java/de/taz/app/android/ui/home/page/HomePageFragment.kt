@@ -28,7 +28,7 @@ abstract class HomePageFragment(
     private lateinit var authHelper: AuthHelper
     private lateinit var feedRepository: FeedRepository
 
-    private lateinit var momentChangedListener: MomentChangedListener
+    private var momentChangedListener: MomentChangedListener? = null
 
     override val viewModel: HomePageViewModel by activityViewModels()
 
@@ -61,7 +61,9 @@ abstract class HomePageFragment(
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.removeNotifyMomentChangedListener(momentChangedListener)
+        momentChangedListener?.let {
+            viewModel.removeNotifyMomentChangedListener(it)
+        }
     }
 
     fun onItemSelected(issueStub: IssueStub) {
