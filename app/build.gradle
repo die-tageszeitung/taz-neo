@@ -34,7 +34,7 @@ def getVersionCode = { ->
             commandLine 'git', 'tag', '--list'
             standardOutput = code
         }
-        def versionCode = code.toString().split("\n").size() + 100
+        def versionCode = code.toString().split("\n").size() + 200
         println "This build has versionCode: $versionCode"
         return versionCode
     }
