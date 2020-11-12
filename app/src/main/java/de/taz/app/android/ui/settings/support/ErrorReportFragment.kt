@@ -2,9 +2,11 @@ package de.taz.app.android.ui.settings.support
 
 import android.app.ActivityManager
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
@@ -16,6 +18,7 @@ import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 
 
@@ -46,6 +49,12 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 ).getString(PREFERENCES_AUTH_EMAIL, "")
             )
 
+            fragment_error_report_upload.setOnClickListener(View.OnClickListener {
+                log.debug("start picker activity !!!")
+
+                getImageFromGallery.launch("image/*")
+            })
+
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
                 val email = fragment_error_report_email.text.toString().trim()
@@ -61,6 +70,23 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
             }
         }
 
+    }
+    private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            log.debug("bitmap: ${uri.path} !!!")
+            fragment_error_report_screenshot_thumbnail.setImageURI(uri)
+            val file = File(uri.path)
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            var outputStream: OutputStream
+            inputStream?.toFile("screenshot.jpg")
+            log.debug("file exists? ${File("screenshot.jpg").exists()}")
+        } else {
+            log.debug("no image selected!!!")
+        }
+    }
+
+    fun InputStream.toFile(path: String) {
+        File(path).outputStream().use { this.copyTo(it) }
     }
 
     private fun sendErrorReport(
