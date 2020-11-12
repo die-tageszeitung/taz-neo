@@ -72,7 +72,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/settings_text_increase_wrapper"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/fragment_settings_text_font_size_increase_big_a"
             android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/settings_text_size_wrapper"
