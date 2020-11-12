@@ -2,12 +2,13 @@ package de.taz.app.android.ui.settings.support
 
 import android.app.ActivityManager
 import android.content.Context
-import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toFile
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
@@ -23,6 +24,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 
 
@@ -57,7 +61,6 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
             fragment_error_report_upload.setOnClickListener(View.OnClickListener {
                 log.debug("start picker activity !!!")
 
-                // Start the Intent
                 getImageFromGallery.launch("image/*")
             })
 
@@ -81,9 +84,18 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         if (uri != null) {
             log.debug("bitmap: ${uri.path} !!!")
             fragment_error_report_screenshot_thumbnail.setImageURI(uri)
+            val file = File(uri.path)
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            var outputStream: OutputStream
+            inputStream?.toFile("screenshot.jpg")
+            log.debug("file exists? ${File("screenshot.jpg").exists()}")
         } else {
             log.debug("no image selected!!!")
         }
+    }
+
+    fun InputStream.toFile(path: String) {
+        File(path).outputStream().use { this.copyTo(it) }
     }
 
     private fun sendErrorReport(
