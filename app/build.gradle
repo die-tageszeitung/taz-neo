@@ -27,15 +27,45 @@ play {
     track = 'internal'
     serviceAccountCredentials = file('../play-publish.json')
 }
+def getVersionCode = { ->
+    try {
+        def code = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'tag', '--list'
+            standardOutput = code
+        }
+        def versionCode = code.toString().split("\n").size() + 100
+        println "This build has versionCode: $versionCode"
+        return versionCode
+    }
+    catch (ignored) {
+        return -1
+    }
+}
+def getVersionName = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--dirty'
+            standardOutput = stdout
+        }
+        def versionName = stdout.toString().trim()
+        println "This build has versionName: $versionName"
+        return
+    }
+    catch (ignored) {
+        return null
+    }
+}
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 64
-        versionName "0.9.13"
+        targetSdkVersion 30
+        versionCode getVersionCode()
+        versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -170,7 +200,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.2.5'
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     // before updating make sure the coverflow looks good on xperia sp as well
     // this also breaks skip to current icon in CoverflowFragment
