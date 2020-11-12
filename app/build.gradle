@@ -28,34 +28,19 @@ play {
     serviceAccountCredentials = file('../play-publish.json')
 }
 def getVersionCode = { ->
-    try {
-        def code = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'tag', '--list'
-            standardOutput = code
-        }
-        def versionCode = code.toString().split("\n").size() + 100
-        println "This build has versionCode: $versionCode"
-        return versionCode
-    }
-    catch (ignored) {
-        return -1
-    }
+    def proc = 'git tag'.execute() | 'wc -l'.execute()
+    proc.waitFor()
+    def versionCode = 200 + proc.text.toInteger()
+    println "This build has versionCode: $versionCode"
+    return versionCode
 }
+
 def getVersionName = { ->
-    try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'describe', '--tags', '--dirty'
-            standardOutput = stdout
-        }
-        def versionName = stdout.toString().trim()
-        println "This build has versionName: $versionName"
-        return versionName
-    }
-    catch (ignored) {
-        return null
-    }
+    def proc = 'git describe --tags --dirty'.execute()
+    proc.waitFor()
+    def versionName = proc.text.trim()
+    println "This build has versionName: $versionName"
+    return versionName
 }
 
 android {

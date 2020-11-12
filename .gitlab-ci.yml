@@ -1,5 +1,7 @@
 image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 
+variables:
+  GIT_DEPTH: 0
 
 stages:
   - test
