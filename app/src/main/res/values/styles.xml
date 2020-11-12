@@ -169,7 +169,7 @@
         <item name="android:textSize">@dimen/fragment_settings_text_font_size_increase_big_a</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingBottom">0sp</item>
+        <item name="android:layout_marginBottom">5sp</item>
     </style>
 
     <style name="TextAppearance.Settings.TextSize.Size" parent="TextAppearance.AppCompat">
