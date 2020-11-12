@@ -52,8 +52,8 @@ class WebViewActivity : AppCompatActivity() {
 
         web_view_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                    view?.loadUrl(url)
+                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                    view.loadUrl(url)
                     return true
                 }
             }
