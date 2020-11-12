@@ -57,7 +57,6 @@
                 android:id="@+id/fragment_settings_general_keep_issues"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_general_keep_number_issues"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_general" />
 
@@ -66,7 +65,6 @@
                 android:id="@+id/fragment_settings_auto_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_auto_downloads_switch"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_general_keep_issues" />
 
@@ -74,7 +72,6 @@
                 android:id="@+id/fragment_settings_auto_download_wifi_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_auto_downloads_wifi_switch"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_auto_download_switch" />
 
@@ -92,13 +89,13 @@
                 layout="@layout/settings_text_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_night_mode"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_text_night_mode"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
 
@@ -114,7 +111,6 @@
                 android:id="@+id/fragment_settings_faq"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_faq"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_support" />
@@ -123,7 +119,6 @@
                 android:id="@+id/fragment_settings_welcome_slides"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_welcome_slides"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_faq" />
 
@@ -131,6 +126,7 @@
                 android:id="@+id/fragment_settings_support_report_bug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:text="@string/settings_support_report_bug"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_welcome_slides" />
 
@@ -146,7 +142,6 @@
                 android:id="@+id/fragment_settings_account_manage_account"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_account_manage_account"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_category_account" />
 
@@ -154,7 +149,6 @@
                 android:id="@+id/fragment_settings_account_email"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
 
@@ -162,7 +156,6 @@
                 android:id="@+id/fragment_settings_account_logout"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_account_logout"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_email" />
@@ -171,7 +164,6 @@
                 android:id="@+id/fragment_settings_terms"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_terms"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_account_logout" />
 
@@ -179,7 +171,6 @@
                 android:id="@+id/fragment_settings_revocation"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="@string/settings_revocation"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_terms" />
 
@@ -187,7 +178,6 @@
                 android:id="@+id/fragment_settings_version_number"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_settings_version_margin"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_revocation" />
 
