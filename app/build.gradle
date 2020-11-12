@@ -51,7 +51,7 @@ def getVersionName = { ->
         }
         def versionName = stdout.toString().trim()
         println "This build has versionName: $versionName"
-        return
+        return versionName
     }
     catch (ignored) {
         return null
