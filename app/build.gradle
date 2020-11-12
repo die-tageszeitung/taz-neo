@@ -38,7 +38,7 @@ def getVersionCode = { ->
 def getVersionName = { ->
     def proc = 'git describe --tags --dirty'.execute()
     proc.waitFor()
-    def versionName = proc.text
+    def versionName = proc.text.trim()
     println "This build has versionName: $versionName"
     return versionName
 }
