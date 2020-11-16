@@ -130,11 +130,15 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
                 val uri = "${image.folder}/${image.name}"
-                web.evaluateJavascript(
-                    """
+                if (web.url != null) {
+                    web.evaluateJavascript(
+                        """
                         document.getElementById("image").src="$fileDir/$uri";
                     """.trimIndent()
-                ) { log.debug("${image.name} replaced") }
+                    ) { log.debug("${image.name} replaced") }
+                } else {
+                    showImageInWebView(toShowImage, webView)
+                }
             }
         }
     }
