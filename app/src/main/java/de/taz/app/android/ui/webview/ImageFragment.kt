@@ -43,14 +43,16 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private lateinit var issueRepository: IssueRepository
     val log by Log
 
-    fun newInstance(
-        image: Image?,
-        toDownloadImage: Image?
-    ): ImageFragment {
-        val fragment = ImageFragment()
-        fragment.image = image
-        fragment.toDownloadImage = toDownloadImage
-        return fragment
+    companion object {
+        fun createInstance(
+            image: Image?,
+            toDownloadImage: Image?
+        ): ImageFragment {
+            val fragment = ImageFragment()
+            fragment.image = image
+            fragment.toDownloadImage = toDownloadImage
+            return fragment
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

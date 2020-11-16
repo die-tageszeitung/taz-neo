@@ -137,7 +137,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         override fun createFragment(position: Int): Fragment {
             val imageKey = uniqueImageKeys[position]
             val imageSet = getImageSet(imageKey)
-            return ImageFragment().newInstance(
+            return ImageFragment.createInstance(
                 imageSet.first,
                 imageSet.second
             )
