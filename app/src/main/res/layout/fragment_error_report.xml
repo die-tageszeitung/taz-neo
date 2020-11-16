@@ -151,9 +151,9 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/fragment_error_report_upload"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/AppTheme.ButtonStyle.Outlined"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/login_button_margin_top"

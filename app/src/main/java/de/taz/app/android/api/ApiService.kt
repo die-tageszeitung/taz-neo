@@ -459,7 +459,18 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         screenshot: String?
     ) {
         val tag = "sendErrorReport"
-        log.debug("$tag email: $email message: $message lastAction: $lastAction conditions: $conditions storageType: $storageType")
+        log.debug(
+            "$tag email: $email " +
+                    "message: $message " +
+                    "lastAction: $lastAction " +
+                    "conditions: $conditions " +
+                    "storageType: $storageType " +
+                    "errorProtocol: $errorProtocol " +
+                    "ramUsed: $ramUsed " +
+                    "ramAvailable: $ramAvailable " +
+                    "screenshotName: $screenshotName " +
+                    "screenshot: $screenshot "
+        )
         transformToConnectivityException {
             graphQlClient.query(
                 QueryType.ErrorReport,

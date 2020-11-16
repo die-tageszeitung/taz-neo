@@ -53,8 +53,6 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
             )
 
             fragment_error_report_upload.setOnClickListener(View.OnClickListener {
-                log.debug("start picker activity !!!")
-
                 getImageFromGallery.launch("image/*")
             })
 
@@ -83,15 +81,13 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
     }
     private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            log.debug("bitmap: ${uri.path} !!!")
-            fragment_error_report_screenshot_thumbnail.setImageURI(uri)
-
             // get the base64 encoded string:
             val inputStream = requireContext().contentResolver.openInputStream(uri)!!
             val base64StringTotal = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
 
             // Check if string is not longer than 2^32-1 bytes:
             if (base64StringTotal.encodeToByteArray().size < 2f.pow(32)) {
+                fragment_error_report_screenshot_thumbnail.setImageURI(uri)
                 base64String = base64StringTotal
             } else {
                 toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
@@ -108,7 +104,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 }
             }
         } else {
-            log.debug("no image selected!!!")
+            log.debug("No image from gallery selected")
         }
     }
 
