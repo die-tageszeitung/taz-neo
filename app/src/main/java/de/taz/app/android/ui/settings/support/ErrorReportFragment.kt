@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.math.pow
 
 
 class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
@@ -80,7 +81,14 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
             // get the base64 encoded string:
             val inputStream = requireContext().contentResolver.openInputStream(uri)!!
-            base64String = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+            val base64StringTotal = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+
+            // Check if string is not longer than 2^32-1 bytes:
+            if (base64StringTotal.encodeToByteArray().size < 2f.pow(32)) {
+                base64String = base64StringTotal
+            } else {
+                toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
+            }
 
             // get the filename from uri:
             requireContext().contentResolver.query(uri,null,null,null,null).use { cursor ->

@@ -27,6 +27,7 @@
     <string name="toast_login_successful">Login succeeded.</string>
     <string name="toast_login_with_email">Please login with your email-address.</string>
     <string name="toast_error_report_sent">Error report sent.</string>
+    <string name="toast_error_report_upload_file_too_big">Unfortunately the attached file is too big.</string>
 
     <string name="toast_unknown_error">Unknown error occurred.</string>
     <string name="toast_logout_elapsed">Your subscription has expired.</string>
