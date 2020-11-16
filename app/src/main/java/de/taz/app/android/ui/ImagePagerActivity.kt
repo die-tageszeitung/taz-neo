@@ -120,7 +120,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             highResolution?.dateDownload != null -> {
                 highResolution to null
             }
-            lowResolution?.dateDownload == null -> {
+            lowResolution?.dateDownload == null && highResolution != null -> {
                 null to highResolution
             }
             else -> {
