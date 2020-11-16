@@ -116,17 +116,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
                 ImageResolution.small
             )
         val highResolution = imageByKeyAndResolution(key, ImageResolution.high)
-        return when {
-            highResolution?.dateDownload != null -> {
-                highResolution to null
-            }
-            lowResolution?.dateDownload == null && highResolution != null -> {
-                null to highResolution
-            }
-            else -> {
-                lowResolution to highResolution
-            }
-        }
+        return lowResolution to highResolution
     }
 
     /**

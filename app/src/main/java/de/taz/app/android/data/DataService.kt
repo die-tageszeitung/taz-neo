@@ -206,9 +206,7 @@ class DataService(applicationContext: Context) {
 
 
     suspend fun ensureDownloaded(fileEntry: FileEntry, baseUrl: String) {
-        if (!fileHelper.ensureFileIntegrity(fileEntry.path, fileEntry.sha256)) {
-            downloadService.downloadAndSaveFile(fileEntry, baseUrl)
-        }
+        downloadService.downloadAndSaveFile(fileEntry, baseUrl)
     }
 
     suspend fun ensureDeleted(collection: DownloadableCollection) {
