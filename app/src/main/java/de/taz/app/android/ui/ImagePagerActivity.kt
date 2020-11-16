@@ -3,41 +3,41 @@ package de.taz.app.android.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
+import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.math.max
+import kotlinx.coroutines.runBlocking
 
 
 class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var viewPager2: ViewPager2
     private lateinit var tabLayout: TabLayout
-    private var displayableName: String? = null
-    private var imageName: String? = null
-    private var availableImageList: List<Image> = emptyList()
-    private var toDownloadImageList: List<Image> = emptyList()
+
+    private lateinit var availableImageList: List<Image>
+    private val uniqueImageKeys: List<String>
+        get() = availableImageList
+            .mapNotNull { it.name.split(".").getOrNull(1) }
+            .distinct()
+
+    private lateinit var displayableName: String
     private lateinit var pagerAdapter: ImagePagerAdapter
+    private var imageName: String? = null
 
     private lateinit var dataService: DataService
 
@@ -47,7 +47,15 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         super.onCreate(savedInstanceState)
         dataService = DataService.getInstance()
 
-        displayableName = intent.extras?.getString(DISPLAYABLE_NAME)
+        try {
+            displayableName = intent.extras!!.getString(DISPLAYABLE_NAME)!!
+        } catch (e: NullPointerException) {
+            val hint = "DISPLAYABLE_NAME not set, finishing ImagePagerActivity"
+            log.error(hint)
+            Sentry.captureMessage(hint)
+            finish()
+        }
+
         imageName = intent.extras?.getString(IMAGE_NAME)
 
         // Instantiate a ViewPager
@@ -57,15 +65,19 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         tabLayout = findViewById(R.id.activity_image_pager_tab_layout)
 
 
+        runBlocking(Dispatchers.IO) {
+            availableImageList = if (displayableName.startsWith("section.")) {
+                SectionRepository.getInstance().imagesForSectionStub(displayableName)
+            } else {
+                ArticleRepository.getInstance().getImagesForArticle(displayableName)
+            }
+        }
+
         // Instantiate pager adapter, which provides the pages to the view pager widget.
         pagerAdapter = ImagePagerAdapter(this)
-
         viewPager2.adapter = pagerAdapter
-        lifecycleScope.launch(Dispatchers.IO) {
-            setImages()
-            runOnUiThread {
-                viewPager2.setCurrentItem(getPosition(imageName), false)
-            }
+        imageName?.split(".")?.getOrNull(1)?.let { key ->
+            viewPager2.setCurrentItem(uniqueImageKeys.indexOf(key), false)
         }
 
         viewPager2.apply {
@@ -83,38 +95,38 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         super.onAttachedToWindow()
     }
 
-    private suspend fun setImages() = withContext(Dispatchers.IO) {
-        displayableName?.let { displayableName ->
-            val allImages = if (displayableName.startsWith("section.")) {
-                SectionRepository.getInstance().imagesForSectionStub(displayableName)
-            } else {
-                ArticleRepository.getInstance().getImagesForArticle(displayableName)
-            }
-
-            val downloadedImages =
-                allImages.filter { it.getDownloadDate() != null }.toMutableList()
-            val imagesToDownload = allImages.toMutableList()
-            imagesToDownload.removeAll(downloadedImages)
-
-            downloadedImages.removeAll { image ->
-                val name = image.name
-                name.contains("norm.")
-                        && downloadedImages.firstOrNull {
-                    it.name == name.replace("norm.", "high.")
-                } != null
-            }
-            availableImageList = downloadedImages
-            toDownloadImageList = imagesToDownload
+    private fun imageByKeyAndResolution(key: String, resolution: ImageResolution): Image? {
+        return availableImageList.findLast {
+            it.name.split(".").getOrNull(1) == key && it.resolution == resolution
         }
     }
 
-    private fun getPosition(imageName: String?): Int {
-        val highResPosition =
-            availableImageList.indexOfFirst { it.name == imageName?.replace("norm", "high") }
-                .coerceAtLeast(0)
-        val normalResPosition =
-            availableImageList.indexOfFirst { it.name == imageName }.coerceAtLeast(0)
-        return max(highResPosition, normalResPosition)
+    /**
+     * Get a pair of images, first being an image to display immediately as it should already be downloaded.
+     * Second an image image in a higher resolution that can be downloaded after displaying the item to enhance quality
+     * Both might be null as their might either be no already downloaded version or no high resoltion version of this image.
+     * If both are null the requested key was not found at all.
+     * @param key key of the requested image
+     * @return pair of one low and one high resolution version of the image
+     */
+    private fun getImageSet(key: String): Pair<Image?, Image?> {
+        val lowResolution =
+            imageByKeyAndResolution(key, ImageResolution.normal) ?: imageByKeyAndResolution(
+                key,
+                ImageResolution.small
+            )
+        val highResolution = imageByKeyAndResolution(key, ImageResolution.high)
+        return when {
+            highResolution?.dateDownload != null -> {
+                highResolution to null
+            }
+            lowResolution?.dateDownload == null && highResolution != null -> {
+                null to highResolution
+            }
+            else -> {
+                lowResolution to highResolution
+            }
+        }
     }
 
     /**
@@ -122,23 +134,17 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
      * sequence.
      */
     private inner class ImagePagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-
         override fun createFragment(position: Int): Fragment {
-            val image = availableImageList[position]
-            var toBeDownloadedImage: Image? = null
-            if (image.resolution != ImageResolution.high && toDownloadImageList.isNotEmpty()) {
-                toBeDownloadedImage = toDownloadImageList.firstOrNull { highRes ->
-                    image.name.replace("norm", "high") == highRes.name
-                }
-            }
-            return ImageFragment().newInstance(
-                image,
-                toBeDownloadedImage
+            val imageKey = uniqueImageKeys[position]
+            val imageSet = getImageSet(imageKey)
+            return ImageFragment.createInstance(
+                imageSet.first,
+                imageSet.second
             )
         }
 
         override fun getItemCount(): Int {
-            return availableImageList.size
+            return uniqueImageKeys.size
         }
     }
 }

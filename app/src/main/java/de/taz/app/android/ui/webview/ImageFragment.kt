@@ -43,14 +43,16 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private lateinit var issueRepository: IssueRepository
     val log by Log
 
-    fun newInstance(
-        image: Image?,
-        toDownloadImage: Image?
-    ): ImageFragment {
-        val fragment = ImageFragment()
-        fragment.image = image
-        fragment.toDownloadImage = toDownloadImage
-        return fragment
+    companion object {
+        fun createInstance(
+            image: Image?,
+            toDownloadImage: Image?
+        ): ImageFragment {
+            val fragment = ImageFragment()
+            fragment.image = image
+            fragment.toDownloadImage = toDownloadImage
+            return fragment
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,11 +130,15 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
                 val uri = "${image.folder}/${image.name}"
-                web.evaluateJavascript(
-                    """
+                if (web.url != null) {
+                    web.evaluateJavascript(
+                        """
                         document.getElementById("image").src="$fileDir/$uri";
                     """.trimIndent()
-                ) { log.debug("${image.name} replaced") }
+                    ) { log.debug("${image.name} replaced") }
+                } else {
+                    showImageInWebView(toShowImage, webView)
+                }
             }
         }
     }
