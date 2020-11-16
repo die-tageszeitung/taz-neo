@@ -29,7 +29,9 @@ data class ErrorReportVariables(
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,
     val deviceName: String = android.os.Build.MODEL,
-    val deviceFormat: DeviceFormat = DeviceFormat.mobile
+    val deviceFormat: DeviceFormat = DeviceFormat.mobile,
+    val screenshotName: String? = null,
+    val screenshot: String? = null
 ): Variables {
     override fun toJson(): String = JsonHelper.toJson(this)
 }

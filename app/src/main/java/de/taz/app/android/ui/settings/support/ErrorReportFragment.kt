@@ -66,7 +66,14 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 val conditions = fragment_error_report_conditions.text.toString().trim()
 
                 if (email.isNotEmpty() || message.isNotEmpty() || lastAction.isNotEmpty() || conditions.isNotEmpty()) {
-                    sendErrorReport(email, message, lastAction, conditions)
+                    sendErrorReport(
+                        email,
+                        message,
+                        lastAction,
+                        conditions,
+                        uploadedFileName,
+                        base64String
+                    )
                 } else {
                     loading_screen.visibility = View.GONE
                 }
@@ -109,7 +116,9 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         email: String?,
         message: String?,
         lastAction: String?,
-        conditions: String?
+        conditions: String?,
+        screenshotName: String?,
+        screenshot: String?
     ) {
         context?.let { context ->
             val storageType =
@@ -137,7 +146,9 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                             storageType,
                             errorProtocol,
                             usedRam,
-                            totalRam
+                            totalRam,
+                            screenshotName,
+                            screenshot
                         )
                     }
                 }
