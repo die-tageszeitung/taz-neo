@@ -163,6 +163,9 @@ class DownloadService constructor(
         ensureDownloadHelper()
         // skip this if we have the correct version downloaded
         if (fileHelper.ensureFileIntegrity(fileToDownload.path) && !force) {
+            if (fileToDownload.getDownloadDate() == null) {
+                fileToDownload.setDownloadDate(Date())
+            }
             return
         }
         downloadConnectionHelper.retryOnConnectivityFailure {
