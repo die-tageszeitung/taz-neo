@@ -387,10 +387,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                     }
                 }
             }
-        } else if (requestCode == 2) {
-            data?.let {
-                // todo
-            }
         }
     }
 }

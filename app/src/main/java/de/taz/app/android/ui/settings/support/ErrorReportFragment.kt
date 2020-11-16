@@ -2,8 +2,9 @@ package de.taz.app.android.ui.settings.support
 
 import android.app.ActivityManager
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.util.Base64
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,7 +19,6 @@ import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.*
 
 
@@ -28,6 +28,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
     private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
+    var base64String : String? = null
+    var uploadedFileName : String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -75,18 +77,24 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         if (uri != null) {
             log.debug("bitmap: ${uri.path} !!!")
             fragment_error_report_screenshot_thumbnail.setImageURI(uri)
-            val file = File(uri.path)
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            var outputStream: OutputStream
-            inputStream?.toFile("screenshot.jpg")
-            log.debug("file exists? ${File("screenshot.jpg").exists()}")
+
+            // get the base64 encoded string:
+            val inputStream = requireContext().contentResolver.openInputStream(uri)!!
+            base64String = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+
+            // get the filename from uri:
+            requireContext().contentResolver.query(uri,null,null,null,null).use { cursor ->
+                val nameIndex = cursor?.getColumnIndex(
+                    OpenableColumns.DISPLAY_NAME
+                )
+                cursor?.moveToFirst()
+                nameIndex?.let {
+                    uploadedFileName = cursor.getString(nameIndex)
+                }
+            }
         } else {
             log.debug("no image selected!!!")
         }
-    }
-
-    fun InputStream.toFile(path: String) {
-        File(path).outputStream().use { this.copyTo(it) }
     }
 
     private fun sendErrorReport(
