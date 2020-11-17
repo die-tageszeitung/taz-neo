@@ -65,7 +65,7 @@ class MomentViewDataBinding(
             )
 
             // check if we have a regular issue cached
-            val issueStub = if (dataService.isCached(regularIssueKey)) {
+            val issueStub = if (dataService.isCached(regularIssueKey) || AuthHelper.getInstance().eligibleIssueStatus == IssueStatus.regular) {
                 dataService.getIssueStub(regularIssueKey, retryOnFailure = true)
             } else {
                 dataService.getIssueStub(publicIssueKey, retryOnFailure = true)
