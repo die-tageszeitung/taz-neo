@@ -15,6 +15,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
+import io.sentry.core.Sentry
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -82,19 +83,30 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         }
 
     }
-    private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            try {
-                // get the base64 encoded string:
-                val inputStream = requireContext().contentResolver.openInputStream(uri)!!
-                val base64StringTotal = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+    private val getImageFromGallery =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                val inputStream = try {
+                    requireContext().contentResolver.openInputStream(uri)
+                } catch (e: Exception) {
+                    log.warn("Something went wrong opening input stream: ${e.localizedMessage}")
+                    Sentry.captureException(e)
+                    toastHelper.showToast(R.string.toast_error_report_upload_file_not_found)
+                    null
+                }
 
-                // Check if string is not longer than 2^32-1 bytes:
-                if (base64StringTotal.encodeToByteArray().size < MAX_BYTES) {
-                    fragment_error_report_screenshot_thumbnail.setImageURI(uri)
-                    base64String = base64StringTotal
-                } else {
-                    toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
+                inputStream?.let {
+                    // get the bas64 encoded String:
+                    val base64StringTotal =
+                        Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+
+                    // Check if string is not longer than 2^32-1 bytes:
+                    if (base64StringTotal.encodeToByteArray().size < MAX_BYTES) {
+                        fragment_error_report_screenshot_thumbnail.setImageURI(uri)
+                        base64String = base64StringTotal
+                    } else {
+                        toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
+                    }
                 }
 
                 // get the filename from uri:
@@ -107,13 +119,10 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                         uploadedFileName = cursor.getString(nameIndex)
                     }
                 }
-            } catch (e: Exception) {
-                log.warn("Something went wrong getting context: ${e.localizedMessage}")
+            } else {
+                log.debug("No image from gallery selected")
             }
-        } else {
-            log.debug("No image from gallery selected")
         }
-    }
 
     private fun sendErrorReport(
         email: String?,

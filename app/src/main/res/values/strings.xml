@@ -23,6 +23,7 @@
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer taz-ID ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
+    <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_elapsed">Ihr Abo ist abgelaufen.</string>
