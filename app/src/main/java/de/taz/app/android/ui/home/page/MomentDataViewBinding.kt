@@ -66,9 +66,9 @@ class MomentViewDataBinding(
 
             // check if we have a regular issue cached
             val issueStub = if (dataService.isCached(regularIssueKey)) {
-                dataService.getIssueStub(regularIssueKey)
+                dataService.getIssueStub(regularIssueKey, retryOnFailure = true)
             } else {
-                dataService.getIssueStub(publicIssueKey)
+                dataService.getIssueStub(publicIssueKey, retryOnFailure = true)
             }
 
             momentViewData = issueStub?.let { issueStub ->
