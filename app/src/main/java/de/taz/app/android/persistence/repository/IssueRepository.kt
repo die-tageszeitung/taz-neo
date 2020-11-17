@@ -107,6 +107,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         )?.let { true } ?: false
     }
 
+    fun exists(issueKey: IssueKey): Boolean {
+        return getStub(issueKey)?.let { true } ?: false
+    }
+
     fun saveIfNotExistOrOutdated(issue: Issue): Issue {
         val existing = get(issue.issueKey)
         return existing?.let {

@@ -5,13 +5,12 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.Feed
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateFormat
@@ -53,15 +52,25 @@ class MomentViewDataBinding(
 
         bindJob?.cancel()
         bindJob = lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val regularIssueKey = IssueKey(
+                feed.name,
+                simpleDateFormat.format(date),
+                IssueStatus.regular
+            )
 
-            val issueStub =
-                dataService.getIssueStub(
-                    IssueKey(
-                        feed.name,
-                        simpleDateFormat.format(date),
-                        AuthHelper.getInstance().eligibleIssueStatus
-                    ), retryOnFailure = true
-                )
+            val publicIssueKey = IssueKey(
+                feed.name,
+                simpleDateFormat.format(date),
+                IssueStatus.public
+            )
+
+            // check if we have a regular issue cached
+            val issueStub = if (dataService.isCached(regularIssueKey)) {
+                dataService.getIssueStub(regularIssueKey, retryOnFailure = true)
+            } else {
+                dataService.getIssueStub(publicIssueKey, retryOnFailure = true)
+            }
+
             momentViewData = issueStub?.let { issueStub ->
                 dataService.getMoment(issueStub.issueKey)?.let { moment ->
                     val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
