@@ -158,6 +158,7 @@ class MomentViewDataBinding(
         exBoundView?.setOnLongClickListener(null)
         exBoundView?.setOnDownloadClickedListener(null)
         exBoundView?.setOnDateClickedListener(null)
+        exBoundView?.resetDownloadIcon()
         exBoundView?.clear(glideRequestManager)
     }
 }
