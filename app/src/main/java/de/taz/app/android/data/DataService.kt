@@ -41,6 +41,10 @@ class DataService(applicationContext: Context) {
     private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         HashMap()
 
+    suspend fun isCached(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
+        issueRepository.exists(issueKey)
+    }
+
     suspend fun getIssueStub(
         issueKey: IssueKey,
         allowCache: Boolean = true,

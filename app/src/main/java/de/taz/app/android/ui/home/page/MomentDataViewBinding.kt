@@ -52,30 +52,24 @@ class MomentViewDataBinding(
 
         bindJob?.cancel()
         bindJob = lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            var issueStub : IssueStub? = null
-            val regularIssue = dataService.getIssueStub(
-                IssueKey(
-                    feed.name,
-                    simpleDateFormat.format(date),
-                    IssueStatus.regular
-                ), retryOnFailure = true
+            val regularIssueKey = IssueKey(
+                feed.name,
+                simpleDateFormat.format(date),
+                IssueStatus.regular
             )
 
-            val publicIssue = dataService.getIssueStub(
-                IssueKey(
-                    feed.name,
-                    simpleDateFormat.format(date),
-                    IssueStatus.public
-                ), retryOnFailure = true
+            val publicIssueKey = IssueKey(
+                feed.name,
+                simpleDateFormat.format(date),
+                IssueStatus.public
             )
-            issueStub = if (regularIssue?.let { IssueRepository.getInstance().exists(it) }!! ||
-                AuthHelper.getInstance().eligibleIssueStatus == IssueStatus.regular
-            ) {
-                regularIssue
+
+            // check if we have a regular issue cached
+            val issueStub = if (dataService.isCached(regularIssueKey)) {
+                dataService.getIssueStub(regularIssueKey)
             } else {
-                publicIssue
+                dataService.getIssueStub(publicIssueKey)
             }
-
 
             momentViewData = issueStub?.let { issueStub ->
                 dataService.getMoment(issueStub.issueKey)?.let { moment ->
