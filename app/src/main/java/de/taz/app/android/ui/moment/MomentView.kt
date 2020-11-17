@@ -105,6 +105,10 @@ class MomentView @JvmOverloads constructor(
         setDate(data.issueStub.date, dateFormat)
     }
 
+    fun resetDownloadIcon() {
+        hideDownloadIcon(reset = true)
+    }
+
     fun setDownloadIconForStatus(downloadStatus: DownloadStatus) {
         when (downloadStatus) {
             DownloadStatus.done -> hideDownloadIcon()
@@ -183,14 +187,14 @@ class MomentView @JvmOverloads constructor(
         activateDownloadButtonListener()
     }
 
-    private fun hideDownloadIcon() {
+    private fun hideDownloadIcon(reset: Boolean = false) {
         val wasDownloading = fragment_moment_downloading?.visibility == View.VISIBLE
         fragment_moment_downloading?.visibility = View.GONE
         fragment_moment_download?.visibility = View.GONE
         fragment_moment_download_finished?.visibility = View.GONE
         deactivateDownloadButtonListener()
 
-        if (wasDownloading) {
+        if (wasDownloading && !reset) {
             fragment_moment_download_finished?.apply {
                 alpha = 1f
                 visibility = View.VISIBLE
