@@ -22,9 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.lang.NullPointerException
 import java.util.*
-import kotlin.math.pow
 
 
 class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
