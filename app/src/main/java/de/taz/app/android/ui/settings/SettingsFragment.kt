@@ -31,7 +31,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private var storedIssueNumber: String? = null
 
-    override val enableSideBar: Boolean = true
+    override val enableSideBar: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
