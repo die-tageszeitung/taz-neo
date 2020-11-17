@@ -8,6 +8,7 @@ import android.util.Base64
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
@@ -19,6 +20,8 @@ import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.lang.NullPointerException
 import java.util.*
 import kotlin.math.pow
 
@@ -81,27 +84,31 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
     }
     private val getImageFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            // get the base64 encoded string:
-            val inputStream = requireContext().contentResolver.openInputStream(uri)!!
-            val base64StringTotal = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
+            try {
+                // get the base64 encoded string:
+                val inputStream = requireContext().contentResolver.openInputStream(uri)!!
+                val base64StringTotal = Base64.encodeToString(inputStream.readBytes(), Base64.NO_WRAP)
 
-            // Check if string is not longer than 2^32-1 bytes:
-            if (base64StringTotal.encodeToByteArray().size < 2f.pow(32)) {
-                fragment_error_report_screenshot_thumbnail.setImageURI(uri)
-                base64String = base64StringTotal
-            } else {
-                toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
-            }
-
-            // get the filename from uri:
-            requireContext().contentResolver.query(uri,null,null,null,null).use { cursor ->
-                val nameIndex = cursor?.getColumnIndex(
-                    OpenableColumns.DISPLAY_NAME
-                )
-                cursor?.moveToFirst()
-                nameIndex?.let {
-                    uploadedFileName = cursor.getString(nameIndex)
+                // Check if string is not longer than 2^32-1 bytes:
+                if (base64StringTotal.encodeToByteArray().size < MAX_BYTES) {
+                    fragment_error_report_screenshot_thumbnail.setImageURI(uri)
+                    base64String = base64StringTotal
+                } else {
+                    toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
                 }
+
+                // get the filename from uri:
+                requireContext().contentResolver.query(uri, null, null, null, null).use { cursor ->
+                    val nameIndex = cursor?.getColumnIndex(
+                        OpenableColumns.DISPLAY_NAME
+                    )
+                    cursor?.moveToFirst()
+                    nameIndex?.let {
+                        uploadedFileName = cursor.getString(nameIndex)
+                    }
+                }
+            } catch (e: Exception) {
+                log.warn("Something went wrong getting context: ${e.localizedMessage}")
             }
         } else {
             log.debug("No image from gallery selected")
