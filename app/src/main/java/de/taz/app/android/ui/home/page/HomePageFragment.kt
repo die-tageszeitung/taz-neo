@@ -10,7 +10,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
@@ -19,7 +18,6 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import okhttp3.internal.notifyAll
 
 abstract class HomePageFragment(
     layoutID: Int
@@ -62,14 +60,12 @@ abstract class HomePageFragment(
             }
         }
         authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
-            when (it) {
-                AuthStatus.valid -> {
-                    lifecycleScope.launchWhenResumed { adapter.notifyDataSetChanged() }
-                }
-                else -> Unit
+            if (AuthStatus.valid == it) {
+                lifecycleScope.launchWhenResumed { adapter.notifyDataSetChanged() }
             }
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
