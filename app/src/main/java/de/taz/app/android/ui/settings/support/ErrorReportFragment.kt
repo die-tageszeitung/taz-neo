@@ -89,7 +89,6 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 } catch (e: Exception) {
                     log.warn("Something went wrong opening input stream: ${e.localizedMessage}")
                     Sentry.captureException(e)
-                    toastHelper.showToast(R.string.toast_error_report_upload_file_not_found)
                     null
                 }
 
@@ -105,17 +104,20 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                     } else {
                         toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)
                     }
-                }
 
-                // get the filename from uri:
-                requireContext().contentResolver.query(uri, null, null, null, null).use { cursor ->
-                    val nameIndex = cursor?.getColumnIndex(
-                        OpenableColumns.DISPLAY_NAME
-                    )
-                    cursor?.moveToFirst()
-                    nameIndex?.let {
-                        uploadedFileName = cursor.getString(nameIndex)
+                    // get the filename from uri:
+                    requireContext().contentResolver.query(uri, null, null, null, null).use { cursor ->
+                        val nameIndex = cursor?.getColumnIndex(
+                            OpenableColumns.DISPLAY_NAME
+                        )
+                        cursor?.moveToFirst()
+                        nameIndex?.let {
+                            uploadedFileName = cursor.getString(nameIndex)
+                        }
                     }
+                } ?: run {
+                    log.warn("input stream is null")
+                    toastHelper.showToast(R.string.toast_error_report_upload_file_not_found)
                 }
             } else {
                 log.debug("No image from gallery selected")
