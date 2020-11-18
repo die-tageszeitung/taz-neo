@@ -7,8 +7,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -57,7 +59,13 @@ abstract class HomePageFragment(
                 adapter.notifyItemChanged(adapter.getPosition(date))
             }
         }
+        authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
+            if (AuthStatus.valid == it) {
+                lifecycleScope.launchWhenResumed { adapter.notifyDataSetChanged() }
+            }
+        }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
