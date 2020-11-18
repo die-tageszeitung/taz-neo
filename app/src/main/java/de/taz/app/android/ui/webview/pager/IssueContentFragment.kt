@@ -140,15 +140,20 @@ class IssueContentFragment :
             if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
                 runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        apiService.getIssueByFeedAndDate(feedName, simpleDateFormat.parse(date)!!).let {
-                            issueRepository.saveIfDoesNotExist(it)
-                            viewModel.setDisplayable(
-                                it.issueKey,
-                                viewModel.currentDisplayable!!.replace(
-                                    "public.",
-                                    ""
+                        dataService.getIssue(
+                            IssueKey(feedName, date, IssueStatus.regular),
+                            retryOnFailure = true
+                        ).let { issue ->
+                            issue?.let {
+                                issueRepository.saveIfDoesNotExist(it)
+                                viewModel.setDisplayable(
+                                    it.issueKey,
+                                    viewModel.currentDisplayable!!.replace(
+                                        "public.",
+                                        ""
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
