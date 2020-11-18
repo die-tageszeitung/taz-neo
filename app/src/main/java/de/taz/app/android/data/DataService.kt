@@ -45,6 +45,16 @@ class DataService(applicationContext: Context) {
         issueRepository.exists(issueKey)
     }
 
+    /**
+     * This function returns IssueStub from a given [issueKey].
+     * ATTENTION! The issue returned from the called getIssue function has the status depending
+     * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
+     * specified in the [issueKey].
+     *
+     * @param issueKey Key of feed, date and status
+     * @param allowCache checks if issue already exists
+     * @param retryOnFailure calls getIssue again if unsuccessful
+     */
     suspend fun getIssueStub(
         issueKey: IssueKey,
         allowCache: Boolean = true,
