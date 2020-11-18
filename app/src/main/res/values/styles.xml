@@ -202,10 +202,11 @@
 
     <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
         <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
         <item name="android:paddingBottom">@dimen/fragment_settings_padding_bottom</item>
     </style>
