@@ -52,15 +52,12 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
 
-    var tokenLiveData =
-        SharedPreferenceStringLiveData(
-            preferences,
-            PREFERENCES_AUTH_TOKEN,
-            ""
-        )
     var token
-        get() = tokenLiveData.value
-        set(value) = tokenLiveData.postValue(value)
+        get() = preferences.getString(PREFERENCES_AUTH_TOKEN, null)
+        set(value) = with(preferences.edit()) {
+            putString(PREFERENCES_AUTH_TOKEN, value)
+            commit()
+        }
 
     val installationId
         get() = SharedPreferenceStringLiveData(
