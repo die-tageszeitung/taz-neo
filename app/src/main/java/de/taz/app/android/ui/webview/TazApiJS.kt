@@ -72,7 +72,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         webViewFragment?.viewModel?.displayable?.let {
             if (it is Article) {
                 ArticleRepository.getInstance(applicationContext)
-                    .saveScrollingPosition(ArticleStub(it), percentage, position)
+                    .saveScrollingPosition(it.key, percentage, position)
             }
         }
     }

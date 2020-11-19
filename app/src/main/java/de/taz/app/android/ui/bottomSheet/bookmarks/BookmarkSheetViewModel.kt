@@ -27,5 +27,5 @@ class BookmarkSheetViewModel(application: Application) : AndroidViewModel(applic
         get() = articleLiveData.value
 
     val isBookmarkedLiveData: LiveData<Boolean> =
-        articleLiveData.map { article -> article?.bookmarked ?: false }
+        articleLiveData.map { article -> article.bookmarked }
 }

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -19,8 +20,8 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BookmarkPagerFragment :
     BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
@@ -31,6 +32,15 @@ class BookmarkPagerFragment :
 
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+
+    private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+        if (isBookmarked) {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+        } else {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
+        }
+    }
+    private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
     override val viewModel: BookmarkPagerViewModel by lazy {
         ViewModelProvider(
@@ -76,39 +86,51 @@ class BookmarkPagerFragment :
             articlePagerAdapter = BookmarkPagerAdapter()
             webview_pager_viewpager.adapter = articlePagerAdapter
         }
+
+        articlePagerAdapter.registerAdapterDataObserver(object :
+            RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                lifecycleScope.launchWhenResumed {
+                    articlePagerAdapter.getArticleStub(
+                        webview_pager_viewpager.currentItem
+                    )?.let {
+                        rebindBottomNavigation(
+                            it
+                        )
+                    }
+                }
+            }
+        })
+    }
+
+    private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
+        withContext(Dispatchers.IO) {
+            articleToBindTo.getNavButton(context?.applicationContext)?.let {
+                showNavButton(it)
+            }
+
+        }
+        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+            articleToBindTo.onlineLink != null
+
+        isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+        isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData()
+        isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
+
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
-        var showButtonJob: Job? = null
-
-        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-            if (isBookmarked) {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-            } else {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-            }
-        }
-        private var isBookmarkedLiveData: LiveData<Boolean>? = null
-
         override fun onPageSelected(position: Int) {
             // If the pager is empty (no bookmarks left) we want to pop it off the stack and return to the last fragment
             if (articlePagerAdapter.articleStubs.isEmpty()) {
                 this@BookmarkPagerFragment.parentFragmentManager.popBackStack()
                 return
             }
-            viewModel.articleFileNameLiveData.value = articlePagerAdapter.getArticleStub(position).articleFileName
-            showButtonJob?.cancel()
-            showButtonJob = lifecycleScope.launchWhenResumed {
-                articlePagerAdapter.getArticleStub(position).let { articleStub ->
-                    articleStub.getNavButton(context?.applicationContext)?.let {
-                        showNavButton(it)
-                    }
-                    navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                        articleStub.onlineLink != null
-
-                    isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                    isBookmarkedLiveData = articleStub.isBookmarkedLiveData()
-                    isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
+            val articleStub = articlePagerAdapter.getArticleStub(position)
+            articleStub?.let {
+                viewModel.articleFileNameLiveData.value = it.articleFileName
+                lifecycleScope.launchWhenResumed {
+                    rebindBottomNavigation(it)
                 }
             }
         }
@@ -199,8 +221,7 @@ class BookmarkPagerFragment :
         startActivity(shareIntent)
     }
 
-    private inner class BookmarkPagerAdapter(
-    ): FragmentStateAdapter(
+    private inner class BookmarkPagerAdapter : FragmentStateAdapter(
         this@BookmarkPagerFragment
     ) {
 
@@ -226,8 +247,8 @@ class BookmarkPagerFragment :
         override fun getItemCount(): Int = articleStubs.size
 
 
-        fun getArticleStub(position: Int): ArticleStub {
-            return articleStubs[position]
+        fun getArticleStub(position: Int): ArticleStub? {
+            return articleStubs.getOrNull(position)
         }
 
     }
