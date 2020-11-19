@@ -93,9 +93,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun saveScrollingPosition(articleStub: ArticleStub, percentage: Int, position: Int) {
-        val refreshedArticleStub = getStub(articleStub.articleFileName)
-        if (refreshedArticleStub?.bookmarked == true) {
+    fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
+        val articleStub = getStub(articleFileName)
+        if (articleStub?.bookmarked == true) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
             appDatabase.articleDao().update(
                 articleStub.copy(percentage = percentage, position = position)
