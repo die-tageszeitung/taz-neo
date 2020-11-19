@@ -56,7 +56,9 @@ class ArticlePagerFragment : BaseMainFragment(
         }
 
         issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
-            tryScrollToArticle(it)
+            if (it != null) {
+                tryScrollToArticle(it)
+            }
         }
 
 
@@ -111,13 +113,13 @@ class ArticlePagerFragment : BaseMainFragment(
             if (lastPage != null && lastPage != position) {
                 hasBeenSwiped = true
                 runIfNotNull(
-                    issueContentViewModel.currentIssue,
+                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                     nextStub
-                ) { issueStub, displayable ->
+                ) { issueKey, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
                         issueContentViewModel.setDisplayable(
-                            issueStub.issueKey,
+                            issueKey,
                             displayable.key,
                             immediate = true
                         )
@@ -175,10 +177,10 @@ class ArticlePagerFragment : BaseMainFragment(
     private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
         getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
-                issueContentViewModel.currentIssue,
+                issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                 articleStub.getSectionStub(null)
-            ) { issueStub, sectionStub ->
-                issueContentViewModel.setDisplayable(issueStub.issueKey, sectionStub.key)
+            ) { issueKey, sectionStub ->
+                issueContentViewModel.setDisplayable(issueKey, sectionStub.key)
                 true
             }
         } ?: false
@@ -236,7 +238,6 @@ class ArticlePagerFragment : BaseMainFragment(
             articleKey.startsWith("art") &&
             articleStubs?.map { it.key }?.contains(articleKey) == true
         ) {
-            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
             if (articleKey != getCurrentArticleStub()?.key) {
                 log.debug("I will now display $articleKey")
                 getSupposedPagerPosition()?.let {
@@ -245,6 +246,7 @@ class ArticlePagerFragment : BaseMainFragment(
                     }
                 }
             }
+            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
         }
     }
 

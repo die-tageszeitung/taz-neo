@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -28,7 +27,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.lang.ref.WeakReference
 
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
@@ -141,7 +139,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 val viewModel = ::homeViewModel.get()
                 CoroutineScope(Dispatchers.IO).launch {
                     val issue = issueStub.getIssue()
-                    dataService.ensureDeleted(issue)
+                    dataService.ensureDeletedFiles(issue)
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }

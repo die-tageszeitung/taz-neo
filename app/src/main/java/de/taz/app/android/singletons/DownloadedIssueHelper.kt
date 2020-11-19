@@ -50,7 +50,7 @@ class DownloadedIssueHelper private constructor(applicationContext: Context) {
             CoroutineScope(Dispatchers.IO).launch {
                 while (downloadedIssuesCountLiveData.value ?: 0 > getStoredIssuesNumber()) {
                     issueRepository.getEarliestDownloadedIssue()?.let {
-                        dataService.ensureDeleted(
+                        dataService.ensureDeletedFiles(
                             it
                         )
                     }

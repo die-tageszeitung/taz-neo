@@ -18,7 +18,7 @@ private const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
-    Article, Section, Imprint
+    Article, Section, Imprint, Loading
 }
 
 @Parcelize
@@ -44,21 +44,20 @@ class IssueContentViewModel(
 ) : AndroidViewModel(application) {
     private val log by Log
 
-    val currentIssue: IssueStub?
-        get() = issueStubAndDisplayableKeyLiveData.value?.issueStub
-
     val currentDisplayable: String?
-        get() = issueStubAndDisplayableKeyLiveData.value?.displayableKey
+        get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
 
     var lastScrollPositionOnDisplayable: DisplayableScrollposition?
         get() = savedStateHandle.get(KEY_SCROLL_POSITION)
         set(value) = savedStateHandle.set(KEY_SCROLL_POSITION, value)
 
-    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey, immediate: Boolean = false) {
-        log.debug("setDisplayable(${issueDisplayable.issueKey} ${issueDisplayable.displayableKey}")
+    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?, immediate: Boolean = false) {
+        log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey}")
+        if (issueDisplayable == null) {
+            activeDisplayMode.value = IssueContentDisplayMode.Loading
+        }
         if (immediate) {
             issueKeyAndDisplayableKeyLiveData.value = issueDisplayable
-
         } else {
             issueKeyAndDisplayableKeyLiveData.postValue(
                 issueDisplayable
@@ -86,62 +85,44 @@ class IssueContentViewModel(
 
     fun setDisplayable(issueStub: IssueStub, immediate: Boolean = false) {
         log.debug("Showing issue defaulting to first section")
-        val firstSection = SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first()
+        val firstSection =
+            SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first()
         setDisplayable(
             IssueKeyWithDisplayableKey(issueStub.issueKey, firstSection.key),
             immediate
         )
     }
 
-    private var currentIssueStub: IssueStub? = null
-
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
         get() = savedStateHandle.get(KEY_LAST_SECTION)
 
-    private val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey> =
+    val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
         MutableLiveData(IssueContentDisplayMode.Section)
 
-    private val issueKeyLiveData: LiveData<IssueKey> =
-        issueKeyAndDisplayableKeyLiveData.map { it.issueKey }
+    private val issueKeyLiveData: LiveData<IssueKey?> =
+        issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }
 
-    val issueStubAndDisplayableKeyLiveData: LiveData<IssueStubWithDisplayableKey> =
-        MediatorLiveData<IssueStubWithDisplayableKey>().apply {
-            addSource(issueKeyAndDisplayableKeyLiveData) { (issueKey, displayableKey) ->
-                viewModelScope.launch(Dispatchers.IO) {
-                    if (currentIssueStub?.issueKey != issueKey) {
-                        currentIssueStub = IssueRepository.getInstance()
-                            .getIssueStubByIssueKey(issueKey)
-                        postValue(
-                            IssueStubWithDisplayableKey(
-                                issueStub = currentIssueStub!!,
-                                displayableKey = displayableKey
-                            )
-                        )
-                    } else {
-                        postValue(IssueStubWithDisplayableKey(
-                            issueStub = currentIssueStub!!,
-                            displayableKey = displayableKey
-                        ))
-                    }
-                }
-            }
-        }
-
-    val displayableKeyLiveData: LiveData<String> =
-        issueKeyAndDisplayableKeyLiveData.map { it.displayableKey }
+    val displayableKeyLiveData: LiveData<String?> =
+        issueKeyAndDisplayableKeyLiveData.map { it?.displayableKey }
 
     val articleListLiveData: LiveData<List<ArticleStub>> =
         MediatorLiveData<List<ArticleStub>>().apply {
             var lastIssueKey: IssueKey? = null
             addSource(issueKeyLiveData) {
-                if (it != lastIssueKey) {
-                    lastIssueKey = it
-                    viewModelScope.launch(Dispatchers.IO) {
-                        postValue(ArticleRepository.getInstance().getArticleStubListForIssue(it))
+                it?.let {
+                    if (it != lastIssueKey) {
+                        lastIssueKey = it
+                        viewModelScope.launch(Dispatchers.IO) {
+                            postValue(
+                                ArticleRepository.getInstance().getArticleStubListForIssue(it)
+                            )
+                        }
                     }
+                } ?: run {
+                    postValue(emptyList())
                 }
             }
         }
@@ -149,16 +130,22 @@ class IssueContentViewModel(
     val sectionListLiveData: LiveData<List<SectionStub>> =
         MediatorLiveData<List<SectionStub>>().apply {
             addSource(issueKeyLiveData) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    postValue(SectionRepository.getInstance().getSectionStubsForIssue(it))
+                it?.let {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        postValue(SectionRepository.getInstance().getSectionStubsForIssue(it))
+                    }
+                } ?: run {
+                    postValue(emptyList())
                 }
             }
         }
 
     val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
         addSource(issueKeyLiveData) {
-            viewModelScope.launch(Dispatchers.IO) {
-                postValue(IssueRepository.getInstance().getImprint(it))
+            it?.let {
+                viewModelScope.launch(Dispatchers.IO) {
+                    postValue(IssueRepository.getInstance().getImprint(it))
+                }
             }
         }
     }

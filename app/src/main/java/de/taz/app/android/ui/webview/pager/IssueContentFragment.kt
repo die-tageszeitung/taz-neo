@@ -13,9 +13,11 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceIntLiveData
@@ -39,6 +41,7 @@ class IssueContentFragment :
     private lateinit var sectionPagerFragment: SectionPagerFragment
     private lateinit var articlePagerFragment: ArticlePagerFragment
     private lateinit var imprintFragment: ImprintWebViewFragment
+    private lateinit var loaderFragment: IssueLoaderFragment
     private lateinit var dataService: DataService
 
     private var drawerShown: Boolean = false
@@ -48,17 +51,19 @@ class IssueContentFragment :
         sectionPagerFragment = SectionPagerFragment()
         articlePagerFragment = ArticlePagerFragment()
         imprintFragment = ImprintWebViewFragment()
+        loaderFragment = IssueLoaderFragment()
         dataService = DataService.getInstance()
         addFragment(sectionPagerFragment)
         addFragment(articlePagerFragment)
         addFragment(imprintFragment)
+        addFragment(loaderFragment)
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.issueStubAndDisplayableKeyLiveData.observeDistinct(
+        viewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(
             this,
-            { (_, _) ->
+            { _ ->
                 lifecycleScope.launchWhenResumed {
                     val drawerShownLiveData = getShownDrawerNumberLiveData()
                     if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
@@ -90,6 +95,7 @@ class IssueContentFragment :
             IssueContentDisplayMode.Article -> ArticlePagerFragment::class.java
             IssueContentDisplayMode.Section -> SectionPagerFragment::class.java
             IssueContentDisplayMode.Imprint -> ImprintWebViewFragment::class.java
+            IssueContentDisplayMode.Loading -> IssueLoaderFragment::class.java
         }
         childFragmentManager.findFragmentByTag(fragmentClassToShow.toString())?.let {
             log.debug("Show $fragmentClassToShow")
@@ -117,10 +123,10 @@ class IssueContentFragment :
                 false -> {
                     runIfNotNull(
                         it as? ArticlePagerFragment,
-                        viewModel.currentIssue,
+                        viewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                         viewModel.lastSectionKey
-                    ) { _, currentIssue, lastSectionKey ->
-                        viewModel.setDisplayable(currentIssue.issueKey, lastSectionKey)
+                    ) { _, currentIssueKey, lastSectionKey ->
+                        viewModel.setDisplayable(currentIssueKey, lastSectionKey)
                         true
                     } ?: false
                 }
@@ -132,28 +138,39 @@ class IssueContentFragment :
     private fun observeAuthStatusAndChangeIssue() {
         val authHelper = AuthHelper.getInstance(context?.applicationContext)
 
-        authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
-            val issueStub = viewModel.currentIssue
-            if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
-                runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        dataService.getIssue(
-                            IssueKey(feedName, date, IssueStatus.regular),
-                            retryOnFailure = true
-                        )?.let {
-                            dataService.ensureDownloaded(it)
-                            viewModel.setDisplayable(
-                                it.issueKey,
-                                viewModel.currentDisplayable!!.replace(
-                                    "public.",
-                                    ""
-                                )
-                            )
-
+        authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) { authStatus ->
+            val currentDisplayable = viewModel.currentDisplayable!!
+            viewModel.setDisplayable(null)
+            val issueKey = viewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey
+            issueKey?.let {
+                lifecycleScope.launch {
+                    val issueStub =
+                        withContext(Dispatchers.IO) { dataService.getIssueStub(issueKey) }
+                    if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
+                        runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                dataService.getIssue(
+                                    IssueKey(feedName, date, IssueStatus.regular),
+                                    retryOnFailure = true
+                                )?.let {
+                                    dataService.ensureDownloaded(it)
+                                    withContext(Dispatchers.Main) {
+                                        viewModel.setDisplayable(
+                                            it.issueKey,
+                                            currentDisplayable.replace(
+                                                "public.",
+                                                ""
+                                            ),
+                                            immediate = true
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 
