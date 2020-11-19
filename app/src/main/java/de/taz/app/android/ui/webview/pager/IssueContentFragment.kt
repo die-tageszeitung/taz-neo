@@ -9,7 +9,6 @@ import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
@@ -132,16 +131,17 @@ class IssueContentFragment :
 
     private fun observeAuthStatusAndChangeIssue() {
         val authHelper = AuthHelper.getInstance(context?.applicationContext)
-        val apiService = ApiService.getInstance(context?.applicationContext)
-        val issueRepository = IssueRepository.getInstance(context?.applicationContext)
 
         authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
             val issueStub = viewModel.currentIssue
             if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
                 runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        apiService.getIssueByFeedAndDate(feedName, simpleDateFormat.parse(date)!!).let {
-                            issueRepository.saveIfDoesNotExist(it)
+                        dataService.getIssue(
+                            IssueKey(feedName, date, IssueStatus.regular),
+                            retryOnFailure = true
+                        )?.let {
+                            dataService.ensureDownloaded(it)
                             viewModel.setDisplayable(
                                 it.issueKey,
                                 viewModel.currentDisplayable!!.replace(
@@ -149,6 +149,7 @@ class IssueContentFragment :
                                     ""
                                 )
                             )
+
                         }
                     }
                 }
