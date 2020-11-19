@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.adapter.FragmentViewHolder
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -22,7 +21,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class BookmarkPagerFragment :
@@ -36,7 +34,6 @@ class BookmarkPagerFragment :
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-        log.warn("Bookmark: $isBookmarked")
         if (isBookmarked) {
             setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
         } else {
@@ -117,16 +114,13 @@ class BookmarkPagerFragment :
             articleToBindTo.onlineLink != null
 
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-        log.warn("Removed bookmarkobserver: ${articleToBindTo.title}")
         isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData()
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
-        log.warn("Added observer for ${articleToBindTo.title} ($isBookmarkedLiveData)")
 
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            log.warn("PAGE SELECTED!")
             // If the pager is empty (no bookmarks left) we want to pop it off the stack and return to the last fragment
             if (articlePagerAdapter.articleStubs.isEmpty()) {
                 this@BookmarkPagerFragment.parentFragmentManager.popBackStack()
