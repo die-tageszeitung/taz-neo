@@ -137,12 +137,13 @@ class IssueContentFragment :
             if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
                 runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        dataService.getIssueStub(
+                        dataService.getIssue(
                             IssueKey(feedName, date, IssueStatus.regular),
                             retryOnFailure = true
                         ).let {
+                            dataService.ensureDownloaded(it!!)
                             viewModel.setDisplayable(
-                                it!!.issueKey,
+                                it.issueKey,
                                 viewModel.currentDisplayable!!.replace(
                                     "public.",
                                     ""
