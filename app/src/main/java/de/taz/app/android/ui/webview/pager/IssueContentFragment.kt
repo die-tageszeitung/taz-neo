@@ -140,8 +140,8 @@ class IssueContentFragment :
                         dataService.getIssue(
                             IssueKey(feedName, date, IssueStatus.regular),
                             retryOnFailure = true
-                        ).let {
-                            dataService.ensureDownloaded(it!!)
+                        )?.let {
+                            dataService.ensureDownloaded(it)
                             viewModel.setDisplayable(
                                 it.issueKey,
                                 viewModel.currentDisplayable!!.replace(
