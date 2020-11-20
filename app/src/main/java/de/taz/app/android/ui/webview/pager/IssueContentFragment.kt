@@ -140,14 +140,15 @@ class IssueContentFragment :
 
         authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) { authStatus ->
             val currentDisplayable = viewModel.currentDisplayable!!
-            viewModel.setDisplayable(null)
             val issueKey = viewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey
             issueKey?.let {
-                lifecycleScope.launch {
-                    val issueStub =
-                        withContext(Dispatchers.IO) { dataService.getIssueStub(issueKey) }
-                    if (authStatus == AuthStatus.valid && issueStub?.status == IssueStatus.public) {
-                        runIfNotNull(issueStub.feedName, issueStub.date) { feedName, date ->
+                if (authStatus == AuthStatus.valid && issueKey.status == IssueStatus.public) {
+                    log.verbose("Enter loading state")
+                    viewModel.setDisplayable(null)
+                    lifecycleScope.launch {
+                        val issueStub =
+                            withContext(Dispatchers.IO) { dataService.getIssueStub(issueKey) }
+                        runIfNotNull(issueStub?.feedName, issueStub?.date) { feedName, date ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 dataService.getIssue(
                                     IssueKey(feedName, date, IssueStatus.regular),
@@ -155,6 +156,7 @@ class IssueContentFragment :
                                 )?.let {
                                     dataService.ensureDownloaded(it)
                                     withContext(Dispatchers.Main) {
+                                        log.verbose("Set new displayable")
                                         viewModel.setDisplayable(
                                             it.issueKey,
                                             currentDisplayable.replace(
