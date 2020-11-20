@@ -224,6 +224,13 @@ class DataService(applicationContext: Context) {
     }
 
     suspend fun ensureDeleted(collection: DownloadableCollection) {
+        ensureDeletedFiles(collection)
+        if (collection is Issue) {
+            issueRepository.delete(collection)
+        }
+    }
+
+    suspend fun ensureDeletedFiles(collection: DownloadableCollection) {
         withDownloadLiveData(collection) { liveData ->
             collection.setDownloadDate(null)
             (liveData as MutableLiveData<DownloadStatus>).postValue(DownloadStatus.pending)
@@ -277,7 +284,7 @@ class DataService(applicationContext: Context) {
 
     /**
      * Gets or creates a LiveData observing the download progress of [downloadableStub].
-     * ATTENTION: As any call to [ensureDownloaded] and [ensureDeleted] will attempt to cleanup non-observed LiveDatas
+     * ATTENTION: As any call to [ensureDownloaded] and [ensureDeletedFiles] will attempt to cleanup non-observed LiveDatas
      * you only should access it via [withDownloadLiveData] that manages locking and reference count
      */
     private suspend fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {

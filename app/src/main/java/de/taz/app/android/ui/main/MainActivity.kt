@@ -139,7 +139,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             }
 
             lifecycleScope.launch(Dispatchers.Main) {
-                issueContentViewModel.currentIssue?.let {
+                issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.let {
                     issueContentViewModel.setDisplayable(it.issueKey, displayableKey, immediate = true)
                 }
             }

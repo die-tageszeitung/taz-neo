@@ -80,11 +80,11 @@ class SectionPagerFragment : BaseMainFragment(
         override fun onPageSelected(position: Int) {
             if (lastPage != null && lastPage != position) {
                 runIfNotNull(
-                    issueContentViewModel.currentIssue,
+                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                     (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
-                ) { issueStub, displayable ->
+                ) { issueKey, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
-                        issueContentViewModel.setDisplayable(issueStub.issueKey, displayable.key)
+                        issueContentViewModel.setDisplayable(issueKey, displayable.key)
                     }
                 }
             }
@@ -136,13 +136,13 @@ class SectionPagerFragment : BaseMainFragment(
         if (displayableKey?.startsWith("sec") == true) {
             log.debug("Section selected: $displayableKey")
             issueContentViewModel.lastSectionKey = displayableKey
-            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
 
             getSupposedPagerPosition()?.let {
                 if (it >= 0 && it != getCurrentPagerPosition()) {
                     webview_pager_viewpager.setCurrentItem(it, false)
                 }
             }
+            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
 
         }
     }

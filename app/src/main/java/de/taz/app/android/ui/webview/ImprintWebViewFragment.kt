@@ -7,6 +7,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
@@ -53,8 +54,10 @@ class ImprintWebViewFragment :
 
         issueContentViewModel.displayableKeyLiveData.observe(this) {
             log.debug("I received displayable $it")
-            if (it.startsWith("art") && it == issueContentViewModel.imprintArticleLiveData.value?.key) {
-                issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Imprint)
+            if (it != null) {
+                if (it.startsWith("art") && it == issueContentViewModel.imprintArticleLiveData.value?.key) {
+                    issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Imprint)
+                }
             }
         }
 
