@@ -3,6 +3,7 @@ package de.taz.app.android.ui.bottomSheet.issue
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.data.DataService
-import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
+import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -23,6 +24,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.PdfRenderActivity
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
@@ -117,7 +119,19 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
-            //TODO show pdf seite 1
+            issueStub?.let { issueStub ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    val issue = issueRepository.getIssue(issueStub)
+                    val intentFileName = issue.pageList.first().pagePdf.name
+
+                    val intent = Intent(view.context, PdfRenderActivity::class.java)
+                    intent.putExtra(Intent.EXTRA_TEXT, intentFileName)
+
+                    view.context.startActivity(
+                        intent
+                    )
+                }
+            }
             dismiss()
         }
         fragment_bottom_sheet_issue_share?.setOnClickListener {
