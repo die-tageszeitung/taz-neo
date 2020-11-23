@@ -116,6 +116,10 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             }
         }
 
+        fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
+            //TODO show pdf seite 1
+            dismiss()
+        }
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 var issue = dataService.getIssue(IssuePublication(issueKey))

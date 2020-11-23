@@ -24,6 +24,22 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read" />
 
     <TextView
+        android:id="@+id/fragment_bottom_sheet_issue_read_pdf"
+        style="@style/TextAppearance.BottomSheet.Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/fragment_bottom_sheet_issue_read_pdf"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read_pdf" />
+
+    <TextView
         android:id="@+id/fragment_bottom_sheet_issue_share"
         style="@style/TextAppearance.BottomSheet.Setting"
         android:layout_width="match_parent"
@@ -31,7 +47,7 @@
         android:gravity="center"
         android:text="@string/fragment_bottom_sheet_issue_share"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_read_pdf" />
 
     <View
         android:layout_width="match_parent"

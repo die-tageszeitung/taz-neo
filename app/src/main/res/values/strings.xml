@@ -65,6 +65,7 @@
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
+    <string name="fragment_bottom_sheet_issue_read_pdf">PDF lesen</string>
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
