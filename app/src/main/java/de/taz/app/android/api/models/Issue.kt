@@ -54,6 +54,9 @@ data class Issue(
                 files.add(article.getAllFiles())
             }
         }
+        pageList.forEach { page ->
+            files.add(page.getAllFiles())
+        }
         return files.flatten().distinct()
     }
 
