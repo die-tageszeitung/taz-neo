@@ -54,7 +54,7 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
                 pdfList = issue?.pageList?.map {
                     fileHelper.getFile(it.pagePdf)
                 } ?: emptyList()
-                log.debug("first of pdfList: ${pdfList.first().name}!!!")
+                log.debug("first of pdfList: ${pdfList.first().name} with length: ${pdfList.size}!!!")
             }
 
         } catch (e: NullPointerException) {
@@ -73,7 +73,7 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
             return PdfFragment.createInstance(
-                pdfList.first()
+                pdfList[position]
             )
         }
 
