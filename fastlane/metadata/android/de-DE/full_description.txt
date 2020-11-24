@@ -2,7 +2,7 @@
 <p>Kritischer, unabhängiger Journalismus der linken tageszeitung: Nachrichten, Analysen, Hintergründe, Kommentare, Interviews, Reportagen. Genossenschaft seit 1992.</p>
 <ul>
 <p>Features:</p>
-<li>Lesen sie die tageszeitung schon am Vorabend</li>
+<li>Lesen Sie die tageszeitung schon am Vorabend</li>
 <li>Einmal heruntergeladen können sie Ausgaben offline lesen</li>
 <li>Speichern in der Leseliste</li>
 <li>Texte mit anderen teilen</li>
@@ -10,3 +10,4 @@
 <li>Navigation durch die Ausgaben im Karussell oder Archiv</li>
 <li>Navigieren durch eine Ausgabe mit neuen Ressortübersichten</li>
 </ul>
+<p>Beachten Sie bitte: Vorerst wird es keinen direkten Support für die App im F-Droid-Store geben. Unter <a href="https://blogs.taz.de/app-faq/haeufige-fragen-und-antwortenzur-neuen-taz-app/">Taz app FAQ</a> finden Sie häufig gestellte Fragen und Antworten.</p>
