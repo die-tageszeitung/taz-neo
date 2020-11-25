@@ -14,7 +14,6 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -24,7 +23,6 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
     val log by Log
     private lateinit var viewPager2: ViewPager2
     private lateinit var pagerAdapter: PdfRenderActivity.PdfPagerAdapter
-    private var file: File? = null
     private var issue: Issue? = null
     private var pdfList: List<File> = emptyList()
 
@@ -32,41 +30,30 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
         super.onCreate(savedInstanceState)
 
         val fileHelper = FileHelper.getInstance()
-        try {
+        // Instantiate a ViewPager
+        viewPager2 = findViewById(R.id.activity_pdf_pager)
 
-            // Instantiate a ViewPager
-            viewPager2 = findViewById(R.id.activity_pdf_pager)
+        // Instantiate pager adapter, which provides the pages to the view pager widget
+        pagerAdapter = PdfPagerAdapter(this)
+        viewPager2.adapter = pagerAdapter
 
-            // Instantiate pager adapter, which provides the pages to the view pager widget.
-            pagerAdapter = PdfPagerAdapter(this@PdfRenderActivity)
-            viewPager2.adapter = pagerAdapter
-
-            viewPager2.apply {
-                reduceDragSensitivity(6)
-                offscreenPageLimit = 2
-            }
-
-            val issueKey = intent.getParcelableExtra<IssueKey>(ISSUE_KEY)
-            issueKey?.let {
-                runBlocking(Dispatchers.IO) {
-                    issue = IssueRepository.getInstance().get(it)
-                    pdfList = issue?.pageList?.map {
-                        fileHelper.getFile(it.pagePdf)
-                    } ?: emptyList()
-                    log.debug("first of pdfList: ${pdfList.first().name} with length: ${pdfList.size}!!!")
-               }
-            } ?: run {
-                log.warn("Could not fetch issue.")
-                finish()
-            }
-
-        } catch (e: NullPointerException) {
-            val hint = "no FILENAME given as parameter, finishing PdfRendererActivity"
-            log.error(hint)
-            Sentry.captureMessage(hint)
-            finish()
+        viewPager2.apply {
+            reduceDragSensitivity(6)
+            offscreenPageLimit = 2
         }
 
+        val issueKey = intent.getParcelableExtra<IssueKey>(ISSUE_KEY)
+        issueKey?.let {
+            runBlocking(Dispatchers.IO) {
+                issue = IssueRepository.getInstance().get(it)
+                pdfList = issue?.pageList?.map {
+                    fileHelper.getFile(it.pagePdf)
+                } ?: emptyList()
+            }
+        } ?: run {
+            log.warn("Could not fetch issue. IssueKey passed to activity?")
+            finish()
+        }
     }
 
     /**

@@ -105,6 +105,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         } else {
             fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
             fragment_bottom_sheet_issue_download?.visibility = View.GONE
+            if (issueStub?.status == IssueStatus.regular) {
+                fragment_bottom_sheet_issue_read_pdf?.visibility = View.VISIBLE
+            }
         }
 
         fragment_bottom_sheet_issue_read?.setOnClickListener {
