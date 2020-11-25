@@ -1,16 +1,16 @@
 package de.taz.app.android.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
@@ -46,15 +46,18 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
                 offscreenPageLimit = 2
             }
 
-            // TODO: get date and feed from intent eg = intent.extras?.getString(Intent.EXTRA_TEXT)
-            runBlocking(Dispatchers.IO) {
-                issue = IssueRepository.getInstance().getIssueByFeedAndDate(
-                    "taz", "2020-11-24", IssueStatus.regular
-                )
-                pdfList = issue?.pageList?.map {
-                    fileHelper.getFile(it.pagePdf)
-                } ?: emptyList()
-                log.debug("first of pdfList: ${pdfList.first().name} with length: ${pdfList.size}!!!")
+            val issueKey = intent.getParcelableExtra<IssueKey>(ISSUE_KEY)
+            issueKey?.let {
+                runBlocking(Dispatchers.IO) {
+                    issue = IssueRepository.getInstance().get(it)
+                    pdfList = issue?.pageList?.map {
+                        fileHelper.getFile(it.pagePdf)
+                    } ?: emptyList()
+                    log.debug("first of pdfList: ${pdfList.first().name} with length: ${pdfList.size}!!!")
+               }
+            } ?: run {
+                log.warn("Could not fetch issue.")
+                finish()
             }
 
         } catch (e: NullPointerException) {
