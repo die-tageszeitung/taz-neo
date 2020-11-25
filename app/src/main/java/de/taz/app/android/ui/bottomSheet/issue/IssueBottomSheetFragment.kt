@@ -25,7 +25,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.PdfRenderActivity
+import de.taz.app.android.ui.PdfPagerActivity
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
@@ -124,7 +124,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
             issueStub?.let { issueStub ->
-                val intent = Intent(view.context, PdfRenderActivity::class.java)
+                val intent = Intent(view.context, PdfPagerActivity::class.java)
                 intent.putExtra(ISSUE_KEY, issueStub.issueKey)
                 view.context.startActivity(intent)
             }
