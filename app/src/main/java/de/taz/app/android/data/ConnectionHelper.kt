@@ -3,6 +3,7 @@ package de.taz.app.android.data
 import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -23,6 +24,8 @@ abstract class ConnectionHelper {
     private var backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
 
     private var connectivityCheckJob: Job? = null
+    private val toastHelper
+        get() = ToastHelper.getInstance()
 
     suspend fun <T> retryOnConnectivityFailure(block: suspend () -> T): T {
         while (true) {
@@ -51,6 +54,8 @@ abstract class ConnectionHelper {
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
+            // TODO: add optional block to handle connection failures from outside this function
+            toastHelper.showNoConnectionToast()
             isCurrentlyReachable = checkConnectivity()
         }
         resetBackOffTime()
