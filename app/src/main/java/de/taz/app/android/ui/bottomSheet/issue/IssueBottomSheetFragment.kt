@@ -11,6 +11,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -120,17 +121,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
             issueStub?.let { issueStub ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    val issue = issueRepository.getIssue(issueStub)
-                    val intentFileName = issue.pageList.first().pagePdf.name
-
-                    val intent = Intent(view.context, PdfRenderActivity::class.java)
-                    intent.putExtra(Intent.EXTRA_TEXT, intentFileName)
-
-                    view.context.startActivity(
-                        intent
-                    )
-                }
+                val intent = Intent(view.context, PdfRenderActivity::class.java)
+                intent.putExtra(ISSUE_KEY, issueStub.issueKey)
+                view.context.startActivity(
+                    intent
+                )
             }
             dismiss()
         }
