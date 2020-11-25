@@ -323,6 +323,9 @@ dependencies {
     // stetho debug bridge
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
+    // PhotoView for zooming into imageViews
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+
     // error reports
     implementation 'io.sentry:sentry-android:4.2.0'
     implementation 'org.slf4j:slf4j-nop:1.7.30'

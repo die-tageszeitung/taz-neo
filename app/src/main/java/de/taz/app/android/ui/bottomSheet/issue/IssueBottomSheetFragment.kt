@@ -123,9 +123,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             issueStub?.let { issueStub ->
                 val intent = Intent(view.context, PdfRenderActivity::class.java)
                 intent.putExtra(ISSUE_KEY, issueStub.issueKey)
-                view.context.startActivity(
-                    intent
-                )
+                view.context.startActivity(intent)
             }
             dismiss()
         }
