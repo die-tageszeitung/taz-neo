@@ -18,11 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
+class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
 
     val log by Log
     private lateinit var viewPager2: ViewPager2
-    private lateinit var pagerAdapter: PdfRenderActivity.PdfPagerAdapter
+    private lateinit var pagerAdapter: PdfPagerActivity.PdfPagerAdapter
     private var issue: Issue? = null
     private var pdfList: List<File> = emptyList()
 
@@ -62,7 +62,7 @@ class PdfRenderActivity : NightModeActivity(R.layout.activity_pdf_renderer) {
      */
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
-            return PdfFragment.createInstance(
+            return PdfRenderFragment.createInstance(
                 pdfList[position]
             )
         }

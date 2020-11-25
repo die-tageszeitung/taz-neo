@@ -6,11 +6,11 @@ import android.os.ParcelFileDescriptor
 import androidx.fragment.app.Fragment
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_pdf_viewer.*
+import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import java.io.File
 import java.io.IOException
 
-class PdfFragment: Fragment(R.layout.fragment_pdf_viewer) {
+class PdfRenderFragment: Fragment(R.layout.fragment_pdf_render) {
 
     val log by Log
     var file: File? = null
@@ -22,8 +22,8 @@ class PdfFragment: Fragment(R.layout.fragment_pdf_viewer) {
     companion object {
         fun createInstance(
             file: File?
-        ): PdfFragment {
-            val fragment = PdfFragment()
+        ): PdfRenderFragment {
+            val fragment = PdfRenderFragment()
             fragment.file = file
             return fragment
         }
@@ -86,6 +86,6 @@ class PdfFragment: Fragment(R.layout.fragment_pdf_viewer) {
         currentPage!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
         // We are ready to show the Bitmap to user
-        pdf_image?.setImageBitmap(bitmap)
+        pdf_photo_view?.setImageBitmap(bitmap)
     }
 }
