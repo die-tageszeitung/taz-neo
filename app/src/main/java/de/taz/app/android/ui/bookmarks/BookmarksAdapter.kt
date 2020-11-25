@@ -47,7 +47,8 @@ class BookmarksAdapter(
         position: Int,
         bookmarkList: MutableList<Article>?
     ) {
-        if (bookmarks.isEmpty() && bookmarkList != null) {
+        // TODO: This is black magic - bookmarks is also written by a livedata observer in fragment, consistency unlear and lead to issues already - we need to clean this up and introduce a single point of truth
+        if (bookmarkList != null) {
             bookmarks = bookmarkList
         }
         val article = bookmarks[position]

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
@@ -50,9 +49,9 @@ class BookmarksFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.bookmarkedArticles.observe(viewLifecycleOwner, Observer { bookmarks ->
+        viewModel.bookmarkedArticles.observe(viewLifecycleOwner) { bookmarks ->
             recycleAdapter?.setData((bookmarks ?: emptyList()).toMutableList())
-        })
+        }
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
