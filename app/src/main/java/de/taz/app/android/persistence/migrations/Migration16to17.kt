@@ -15,7 +15,7 @@ object Migration16to17 : Migration(16, 17) {
                 """
                         CREATE TABLE ViewerState (
                             `displayableName` TEXT NOT NULL,
-                            `scrollPosition` DEFAULT 0,
+                            `scrollPosition` INTEGER NOT NULL DEFAULT 0,
                             PRIMARY KEY (`displayableName`)
                         )
                     """
