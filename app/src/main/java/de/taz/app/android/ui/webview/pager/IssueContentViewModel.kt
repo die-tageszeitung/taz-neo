@@ -4,12 +4,15 @@ import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -43,6 +46,7 @@ class IssueContentViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val log by Log
+    private val dataService = DataService.getInstance()
 
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
@@ -62,6 +66,12 @@ class IssueContentViewModel(
             issueKeyAndDisplayableKeyLiveData.postValue(
                 issueDisplayable
             )
+        }
+        issueDisplayable?.let {
+            // persist the last displayable in db
+            CoroutineScope(Dispatchers.IO).launch {
+                dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
+            }
         }
     }
 
@@ -83,12 +93,13 @@ class IssueContentViewModel(
         )
     }
 
-    fun setDisplayable(issueStub: IssueStub, immediate: Boolean = false) {
+    suspend fun setDisplayable(issueStub: IssueStub, immediate: Boolean = false) {
         log.debug("Showing issue defaulting to first section")
-        val firstSection =
-            SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first()
+        // Either fetch last displayable from DB or take first section
+        val displayableKey = dataService.getLastDisplayableOnIssue(issueStub.issueKey)
+            ?: SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first().key
         setDisplayable(
-            IssueKeyWithDisplayableKey(issueStub.issueKey, firstSection.key),
+            IssueKeyWithDisplayableKey(issueStub.issueKey, displayableKey),
             immediate
         )
     }

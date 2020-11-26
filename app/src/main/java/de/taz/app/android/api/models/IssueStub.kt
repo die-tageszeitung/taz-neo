@@ -22,7 +22,8 @@ data class IssueStub(
     @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
     override val moTime: String,
 
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    override val lastDisplayableName: String?
 ): IssueOperations {
 
     constructor(issue: Issue): this (
@@ -34,7 +35,8 @@ data class IssueStub(
         issue.minResourceVersion,
         issue.isWeekend,
         issue.moTime,
-        issue.dateDownload
+        issue.dateDownload,
+        issue.lastDisplayableName
     )
 
     suspend fun getIssue(): Issue {

@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 16
+const val DATABASE_VERSION = 17
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -30,7 +30,8 @@ val allMigrations = arrayOf(
     Migration12to13,
     Migration13to14,
     Migration14to15,
-    Migration15to16
+    Migration15to16,
+    Migration16to17
 )
 
 @Database(
@@ -44,6 +45,7 @@ val allMigrations = arrayOf(
         FileEntry::class,
         ImageStub::class,
         IssueStub::class,
+        ViewerState::class,
         IssueImprintJoin::class,
         IssueCreditMomentJoin::class,
         IssueFilesMomentJoin::class,
@@ -101,6 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun imageDao(): ImageDao
     abstract fun imageStubDao(): ImageStubDao
     abstract fun issueDao(): IssueDao
+    abstract fun viewerStateDao(): ViewerStateDao
     abstract fun issueImprintJoinDao(): IssueImprintJoinDao
     abstract fun issueCreditMomentJoinDao(): IssueCreditMomentJoinDao
     abstract fun issueImageMomentJoinDao(): IssueImageMomentJoinDao

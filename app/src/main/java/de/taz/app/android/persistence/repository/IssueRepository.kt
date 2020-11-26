@@ -32,6 +32,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+    private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
+
 
     private var deletePublicIssuesBoolean = AtomicBoolean(false)
 
@@ -143,6 +145,20 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     fun update(issueStub: IssueStub) {
         appDatabase.issueDao().update(issueStub)
+    }
+
+    fun getLastDisplayable(issueKey: IssueKey): String? {
+        return appDatabase.issueDao().getLastDisplayable(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
+    fun saveLastDisplayable(issueKey: IssueKey, displayableName: String) {
+        appDatabase.runInTransaction {
+            viewerStateRepository.saveIfNotExists(displayableName, 0)
+            val stub = getStub(issueKey)
+            stub?.copy(lastDisplayableName = displayableName)?.let {
+                update(it)
+            }
+        }
     }
 
     fun get(issueKey: IssueKey): Issue? {
@@ -396,7 +412,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
             sections,
             pageList,
             issueStub.moTime,
-            issueStub.dateDownload
+            issueStub.dateDownload,
+            issueStub.lastDisplayableName
         )
 
     }

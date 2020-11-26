@@ -71,20 +71,6 @@ class ImprintWebViewFragment :
         }
     }
 
-    override fun onPageRendered() {
-        super.onPageRendered()
-        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        issueContentViewModel.lastScrollPositionOnDisplayable?.let {
-            if (it.displayableKey == viewModel.displayable?.key) {
-                scrollView?.scrollY = it.scrollPosition
-            }
-        }
-        scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-            issueContentViewModel.lastScrollPositionOnDisplayable =
-                DisplayableScrollposition(viewModel.displayable!!.key, scrollY)
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         showDefaultNavButton()
