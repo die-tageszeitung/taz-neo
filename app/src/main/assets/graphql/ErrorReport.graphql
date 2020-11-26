@@ -17,7 +17,9 @@ mutation errorReport(
     $deviceName: String,
     $deviceOS: String,
     $deviceType: DeviceType!,
-    $deviceVersion: String
+    $deviceVersion: String,
+    $screenshotName: String,
+    $screenshot: String
 ) {
     errorReport(
         message: $message,
@@ -38,6 +40,8 @@ mutation errorReport(
         deviceName: $deviceName,
         deviceOS: $deviceOS,
         deviceType: $deviceType,
-        deviceVersion: $deviceVersion
+        deviceVersion: $deviceVersion,
+        screenshotName: $screenshotName,
+        screenshot: $screenshot
     )
 }

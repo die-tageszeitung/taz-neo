@@ -2,6 +2,7 @@ package de.taz.app.android
 
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.pow
 
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
@@ -34,6 +35,7 @@ const val W3C_EMAIL_PATTERN = """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-
 const val CONCURRENT_FILE_DOWNLOADS = 8
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 1000L
+const val MAX_BYTES = 4294967296 // = 2^32
 
 // feed
 const val DISPLAYED_FEED = "taz"
