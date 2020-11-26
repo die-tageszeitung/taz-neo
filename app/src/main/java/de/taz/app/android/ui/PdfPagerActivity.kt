@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -25,6 +26,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
     private lateinit var pagerAdapter: PdfPagerActivity.PdfPagerAdapter
     private var issue: Issue? = null
     private var pdfList: List<File> = emptyList()
+    private var listOfPdfWithFrameList : List<Pair<File, List<Frame>?>> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +48,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
         issueKey?.let {
             runBlocking(Dispatchers.IO) {
                 issue = IssueRepository.getInstance().get(it)
-                pdfList = issue?.pageList?.map {
-                    fileHelper.getFile(it.pagePdf)
-                } ?: emptyList()
+                pdfList = issue?.pageList
+                    ?.map { fileHelper.getFile(it.pagePdf) }
+                    ?: emptyList()
+                listOfPdfWithFrameList = issue?.pageList
+                    ?.map { fileHelper.getFile(it.pagePdf) to it.frameList }
+                    ?: emptyList()
             }
         } ?: run {
             log.warn("Could not fetch issue. IssueKey passed to activity?")
@@ -63,12 +68,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
             return PdfRenderFragment.createInstance(
-                pdfList[position]
+                listOfPdfWithFrameList[position]
             )
         }
 
         override fun getItemCount(): Int {
-            return pdfList.size
+            return listOfPdfWithFrameList.size
         }
     }
 }
