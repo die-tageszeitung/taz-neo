@@ -38,6 +38,7 @@ class DownloadService constructor(
     private val fileEntryRepository: FileEntryRepository,
     private val apiService: ApiService,
     private val fileHelper: FileHelper,
+    private val toastHelper: ToastHelper,
     private val httpClient: OkHttpClient
 ) {
 
@@ -46,6 +47,7 @@ class DownloadService constructor(
         FileEntryRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
+        ToastHelper.getInstance(applicationContext),
         OkHttp.client
     )
 
@@ -169,7 +171,9 @@ class DownloadService constructor(
             }
             return
         }
-        downloadConnectionHelper.retryOnConnectivityFailure {
+        downloadConnectionHelper.retryOnConnectivityFailure({
+            toastHelper.showNoConnectionToast()
+        }) {
             transformToConnectivityException {
                 val response = awaitCallback(
                     httpClient.newCall(
