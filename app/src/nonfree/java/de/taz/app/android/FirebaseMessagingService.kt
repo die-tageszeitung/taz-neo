@@ -3,14 +3,12 @@ package de.taz.app.android
 import android.content.Context
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.NotificationHelper
-import de.taz.app.android.singletons.SETTINGS_DOWNLOAD_ENABLED
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
