@@ -26,6 +26,12 @@ const val PREFERENCES_GENERAL = "preferences_general"
 const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
+// Settings
+const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
+const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
+const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
+const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
+
 // General Preferences
 const val DRAWER_SHOW_NUMBER = 1
 const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"

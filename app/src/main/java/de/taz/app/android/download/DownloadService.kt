@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import de.taz.app.android.CONCURRENT_FILE_DOWNLOADS
 import de.taz.app.android.PREFERENCES_DOWNLOADS
+import de.taz.app.android.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
