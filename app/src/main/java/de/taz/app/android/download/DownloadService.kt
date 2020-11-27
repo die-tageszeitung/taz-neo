@@ -165,7 +165,7 @@ class DownloadService constructor(
     ) {
         ensureDownloadHelper()
         // skip this if we have the correct version downloaded
-        if (fileHelper.ensureFileIntegrity(fileToDownload.path) && !force) {
+        if (fileHelper.ensureFileIntegrity(fileToDownload.path, fileToDownload.sha256) && !force) {
             if (fileToDownload.getDownloadDate() == null) {
                 fileToDownload.setDownloadDate(Date())
             }
