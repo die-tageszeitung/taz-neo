@@ -18,6 +18,8 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.data.DataService
+import de.taz.app.android.download.DownloadService
+import de.taz.app.android.download.IssueDownloadWorkManagerWorker
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.main.MainActivity

@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
-import java.util.*
 
 const val KEY_SCHEDULE_NEXT = "KEY_SCHEDULE_NEXT"
 
@@ -30,42 +30,35 @@ class IssueDownloadWorkManagerWorker(
 
         if (scheduleNext) {
             val nextPollDelay = NewIssuePollingScheduler.getDelayForNextPoll()
-            downloadService.scheduleNewestIssueDownload("poll/${Date().time}/$nextPollDelay", true, nextPollDelay)
+            downloadService.scheduleNewestIssueDownload(
+                "poll/$nextPollDelay",
+                true,
+                nextPollDelay
+            )
         }
 
-        val feed = dataService.getFeedByName(DISPLAYED_FEED, allowCache = false)
         try {
-            // determine whether a new issue was published
-            if (oldFeed?.publicationDates?.get(0) != feed?.publicationDates?.get(0)) {
-                // download that new issue
-                feed?.let {
-                    val issueStub = dataService.getIssueStubsByFeed(
-                        it.publicationDates[0],
-                        listOf(it.name),
-                        1,
-                        allowCache = false
-                    ).firstOrNull()
-                    val issue = issueStub?.getIssue()
-                    issue?.let { issue ->
-                        dataService.ensureDownloaded(issue)
-                        val moment = dataService.getMoment(issue.issueKey)
-                        dataService.ensureDownloaded(moment!!)
-                        log.info("Downloaded new issue automatically: ${issueStub.getDownloadDate()}")
-                        return@coroutineScope Result.success()
-                    } ?: run {
-                        log.error("Expected issue ${it.publicationDates[0]} not found")
-                        return@coroutineScope Result.failure()
-                    }
-                } ?: run {
-                    val hint = "feed $DISPLAYED_FEED not found"
-                    log.error(hint)
-                    Sentry.captureMessage(hint)
-                    return@coroutineScope Result.failure()
-                }
-            } else {
-                log.info("No new issue found, last issue is ${oldFeed?.publicationDates?.get(0)}")
+            // maybe get new issue
+            val newsestIssue = dataService.refreshFeedAndGetIssueIfNew(DISPLAYED_FEED)
+            if (newsestIssue == null) {
+                log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             }
+            dataService.ensureDownloaded(newsestIssue)
+            // pre download moment too
+            val moment = dataService.getMoment(newsestIssue.issueKey) ?: run {
+                val hint = "Did not find moment for issue at ${newsestIssue.date}"
+                Sentry.captureMessage(hint)
+                log.error(hint)
+                return@coroutineScope Result.failure()
+            }
+            dataService.ensureDownloaded(moment)
+
+            log.info("Downloaded new issue automatically: ${newsestIssue.date}")
+            return@coroutineScope Result.success()
+        } catch (e: ConnectivityException.Recoverable) {
+            log.warn("Connection Failure while trying to retrieve new issue")
+            return@coroutineScope Result.failure()
         } catch (e: Exception) {
             log.error("Error during automatic download")
             Sentry.captureException(e)
