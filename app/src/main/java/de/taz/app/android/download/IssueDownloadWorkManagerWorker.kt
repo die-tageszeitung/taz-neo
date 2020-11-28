@@ -43,19 +43,20 @@ class IssueDownloadWorkManagerWorker(
             if (newsestIssue == null) {
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
-            }
-            dataService.ensureDownloaded(newsestIssue)
-            // pre download moment too
-            val moment = dataService.getMoment(newsestIssue.issueKey) ?: run {
-                val hint = "Did not find moment for issue at ${newsestIssue.date}"
-                Sentry.captureMessage(hint)
-                log.error(hint)
-                return@coroutineScope Result.failure()
-            }
-            dataService.ensureDownloaded(moment)
+            } else {
+                dataService.ensureDownloaded(newsestIssue)
+                // pre download moment too
+                val moment = dataService.getMoment(newsestIssue.issueKey) ?: run {
+                    val hint = "Did not find moment for issue at ${newsestIssue.date}"
+                    Sentry.captureMessage(hint)
+                    log.error(hint)
+                    return@coroutineScope Result.failure()
+                }
+                dataService.ensureDownloaded(moment)
 
-            log.info("Downloaded new issue automatically: ${newsestIssue.date}")
-            return@coroutineScope Result.success()
+                log.info("Downloaded new issue automatically: ${newsestIssue.date}")
+                return@coroutineScope Result.success()
+            }
         } catch (e: ConnectivityException.Recoverable) {
             log.warn("Connection Failure while trying to retrieve new issue")
             return@coroutineScope Result.failure()
