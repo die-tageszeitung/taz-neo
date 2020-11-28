@@ -259,14 +259,20 @@ class DataService(applicationContext: Context) {
         }
 
 
-    suspend fun getFeedByName(name: String, allowCache: Boolean = true): Feed? =
+    suspend fun getFeedByName(name: String, allowCache: Boolean = true, retryOnFailure: Boolean = false): Feed? =
         withContext(Dispatchers.IO) {
             if (allowCache) {
                 feedRepository.get(name)?.let {
                     return@withContext it
                 }
             }
-            val feed = apiService.getFeedByName(name)
+            val feed = if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.getFeedByName(name)
+                }
+            } else {
+                apiService.getFeedByName(name)
+            }
             feed?.let {
                 feedRepository.save(feed)
             }

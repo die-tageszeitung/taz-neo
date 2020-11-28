@@ -106,6 +106,9 @@ class SplashActivity : BaseActivity() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             feed?.let {
+                if (it.publicationDates.isEmpty()) {
+                    dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
+                }
                 dataService.getIssueStubsByFeed(Date(), listOf(it.name), 3)
             } ?: run {
                 val hint = "Could not retrieve $DISPLAYED_FEED Feed"
