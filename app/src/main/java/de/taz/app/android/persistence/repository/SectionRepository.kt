@@ -56,7 +56,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionDao().update(sectionStub)
     }
 
-    fun getStub(sectionFileName: String): SectionStub {
+    fun getStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
@@ -72,8 +72,10 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(sectionFileName: String): Section {
-        return sectionStubToSection(getStub(sectionFileName))
+    fun get(sectionFileName: String): Section? {
+        return getStub(sectionFileName)?.let {
+            sectionStubToSection(it)
+        }
     }
 
     fun getSectionStubForArticle(articleFileName: String): SectionStub? {

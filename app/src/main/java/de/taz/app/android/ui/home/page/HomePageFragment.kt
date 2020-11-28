@@ -48,8 +48,8 @@ abstract class HomePageFragment(
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
-        authHelper = AuthHelper.getInstance()
-        feedRepository = FeedRepository.getInstance()
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

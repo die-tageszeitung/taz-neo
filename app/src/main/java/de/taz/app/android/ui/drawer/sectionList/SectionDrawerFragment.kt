@@ -240,7 +240,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private fun setImprintActive() {
+    private suspend fun setImprintActive() = withContext(Dispatchers.Main) {
         fragment_drawer_sections_imprint.apply {
             setTextColor(
                 ResourcesCompat.getColor(
@@ -252,7 +252,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private fun setImprintInactive() {
+    private suspend fun setImprintInactive() = withContext(Dispatchers.Main) {
         fragment_drawer_sections_imprint.apply {
             setTextColor(
                 ResourcesCompat.getColor(

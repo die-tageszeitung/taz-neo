@@ -59,7 +59,11 @@ abstract class ConnectionHelper {
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
         waitingCalls.forEach {
-            it.resume(Unit)
+            try {
+                it.resume(Unit)
+            } catch (e: IllegalStateException) {
+                log.warn("Connection helper tried to resume Job twice")
+            }
             waitingCalls.remove(it)
         }
     }
