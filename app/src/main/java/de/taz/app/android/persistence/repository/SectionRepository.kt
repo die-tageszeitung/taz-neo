@@ -10,6 +10,7 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.core.Sentry
 import java.util.*
 
 @Mockable
@@ -114,22 +115,27 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
+        // TODO: Although we expect a navbutton to be existent consistency issues happened in the past. We log them for now
         val navButton =
             appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
 
-        images.let {
-            return Section(
-                sectionHtml = sectionFile,
-                issueDate = sectionStub.issueDate,
-                title = sectionStub.title,
-                type = sectionStub.type,
-                navButton = navButton,
-                articleList = articles,
-                imageList = images,
-                extendedTitle = sectionStub.extendedTitle,
-                dateDownload = sectionStub.dateDownload
-            )
+        if (navButton == null) {
+            Sentry.captureMessage("Expected navbutton for $sectionFileName but found none")
         }
+
+
+        return Section(
+            sectionHtml = sectionFile,
+            issueDate = sectionStub.issueDate,
+            title = sectionStub.title,
+            type = sectionStub.type,
+            navButton = navButton!!,
+            articleList = articles,
+            imageList = images,
+            extendedTitle = sectionStub.extendedTitle,
+            dateDownload = sectionStub.dateDownload
+        )
+
     }
 
     fun delete(section: Section) {
@@ -180,7 +186,7 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionDao().delete(SectionStub(section))
     }
 
-    fun getNavButton(sectionFileName: String): Image {
+    fun getNavButton(sectionFileName: String): Image? {
         return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
     }
 

@@ -290,9 +290,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         )
     }
 
-    fun getLifecycleOwner(): LifecycleOwner = this
-
-
     private var navButton: Image? = null
     private var navButtonBitmap: Bitmap? = null
     private var navButtonAlpha = 255f
