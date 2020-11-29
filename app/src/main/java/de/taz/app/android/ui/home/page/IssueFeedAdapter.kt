@@ -9,6 +9,9 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
 import java.lang.IllegalStateException
 import java.util.*
@@ -18,7 +21,7 @@ enum class MomentType {
 }
 
 data class MomentViewData(
-    val issueStub: IssueStub,
+    val issueKey: IssueKey,
     val downloadStatus: DownloadStatus,
     val momentType: MomentType,
     val momentUri: String?,
@@ -41,6 +44,7 @@ abstract class IssueFeedAdapter(
     abstract val dateFormat: DateFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        log.verbose("CREATE HOLDER")
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
@@ -50,6 +54,10 @@ abstract class IssueFeedAdapter(
 
     override fun getItemCount(): Int {
         return feed.publicationDates.size
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.unbind()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -76,8 +84,7 @@ abstract class IssueFeedAdapter(
         fun bind(fragment: HomePageFragment, date: Date) {
             binder = MomentViewDataBinding(
                 fragment,
-                date,
-                feed,
+                IssuePublication(feed.name, simpleDateFormat.format(date)),
                 dateFormat = dateFormat,
                 glideRequestManager = glideRequestManager,
                 onMomentViewActionListener

@@ -13,22 +13,20 @@ open class HomeMomentViewActionListener(
 ) : MomentViewActionListener {
 
     override fun onImageClicked(momentViewData: MomentViewData) {
-        homePageFragment.onItemSelected(momentViewData.issueStub)
+        homePageFragment.onItemSelected(momentViewData.issueKey)
     }
 
     override fun onLongClicked(momentViewData: MomentViewData) {
         homePageFragment.lifecycleScope.launch(Dispatchers.IO) {
-            val issueStubRefresh =
-                dataService.getIssueStub(issueKey = momentViewData.issueStub.issueKey)
-            issueStubRefresh?.let {
-                withContext(Dispatchers.Main) {
-                    homePageFragment.showBottomSheet(
-                        IssueBottomSheetFragment.create(
-                            homePageFragment.getMainView()!!,
-                            it
-                        )
+            val isDownloaded = dataService.isIssueDownloaded(momentViewData.issueKey)
+            withContext(Dispatchers.Main) {
+                homePageFragment.showBottomSheet(
+                    IssueBottomSheetFragment.create(
+                        homePageFragment.getMainView()!!,
+                        momentViewData.issueKey,
+                        isDownloaded
                     )
-                }
+                )
             }
         }
     }

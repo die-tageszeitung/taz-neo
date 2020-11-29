@@ -10,6 +10,6 @@ open class CoverflowMomentActionListener(
     dataService: DataService
 ) : HomeMomentViewActionListener(coverflowFragment, dataService) {
     override fun onDateClicked(momentViewData: MomentViewData) {
-        coverflowFragment.openDatePicker(simpleDateFormat.parse(momentViewData.issueStub.date)!!)
+        coverflowFragment.openDatePicker(simpleDateFormat.parse(momentViewData.issueKey.date)!!)
     }
 }

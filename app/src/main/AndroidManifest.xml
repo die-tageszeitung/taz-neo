@@ -11,6 +11,13 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18"
         tools:ignore="ScopedStorage" />
+    <supports-screens
+        android:largeScreens="false"
+        android:largestWidthLimitDp="600"
+        android:normalScreens="true"
+        android:requiresSmallestWidthDp="200"
+        android:smallScreens="true"
+        android:xlargeScreens="false" />
 
     <application
         android:name=".TazApplication"
@@ -23,25 +30,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.WelcomeActivity"
-            android:noHistory="true"
-            android:screenOrientation="portrait" />
+            android:noHistory="true" />
         <activity
             android:name=".ui.WebViewActivity"
-            android:noHistory="true"
-            android:screenOrientation="portrait" />
+            android:noHistory="true"/>
         <activity
-            android:name=".ui.DataPolicyActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.DataPolicyActivity" />
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
         <activity
-            android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.main.MainActivity" />
         <activity
-            android:name=".ui.login.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"

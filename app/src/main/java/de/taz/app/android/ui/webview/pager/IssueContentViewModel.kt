@@ -103,6 +103,24 @@ class IssueContentViewModel(
         )
     }
 
+    fun setDisplayable(issueKey: IssueKey) {
+        log.debug("Showing issue defaulting to first section")
+        activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
+        viewModelScope.launch(Dispatchers.IO) {
+            val dataService = DataService.getInstance()
+
+            val issue = dataService.getIssue(issueKey, retryOnFailure = true)!!
+
+            dataService.ensureDownloaded(issue)
+            val firstSection =
+                SectionRepository.getInstance().getSectionStubsForIssue(issue.issueKey).first()
+            setDisplayable(
+                IssueKeyWithDisplayableKey(issue.issueKey, firstSection.key)
+            )
+        }
+    }
+
+
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
         get() = savedStateHandle.get(KEY_LAST_SECTION)

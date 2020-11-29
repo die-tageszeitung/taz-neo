@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -29,11 +30,11 @@ interface IssueOperations: DownloadableStub {
         return tag
     }
 
-    override fun getDownloadDate(): Date? {
-        return IssueRepository.getInstance().getDownloadDate(this@IssueOperations)
+    override fun getDownloadDate(context: Context?): Date? {
+        return IssueRepository.getInstance(context).getDownloadDate(this@IssueOperations)
     }
 
-    override fun setDownloadDate(date: Date?) {
-        return IssueRepository.getInstance().setDownloadDate(this@IssueOperations, date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        return IssueRepository.getInstance(context).setDownloadDate(this@IssueOperations, date)
     }
 }

@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
@@ -27,12 +28,12 @@ data class Page(
         null
     )
 
-    override fun getDownloadDate(): Date? {
-        return PageRepository.getInstance().getDownloadDate(this)
+    override fun getDownloadDate(context: Context?): Date? {
+        return PageRepository.getInstance(context).getDownloadDate(this)
     }
 
-    override fun setDownloadDate(date: Date?) {
-        PageRepository.getInstance().setDownloadDate(this, date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        PageRepository.getInstance(context).setDownloadDate(this, date)
     }
 
     override fun getAllFiles(): List<FileEntry> {

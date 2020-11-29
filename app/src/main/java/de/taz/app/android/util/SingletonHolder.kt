@@ -1,9 +1,11 @@
 package de.taz.app.android.util
 
+import androidx.annotation.VisibleForTesting
+
 /**
  * Singleton base class
  */
-open class SingletonHolder<out T, in A>(creator: (A) -> T) {
+open class SingletonHolder<T, in A>(creator: (A) -> T) {
     private var creator: ((A) -> T)? = creator
     @Volatile private var instance: T? = null
 
@@ -32,5 +34,10 @@ open class SingletonHolder<out T, in A>(creator: (A) -> T) {
                 created
             }
         }
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun inject(injectedInstance: T) {
+        this.instance = injectedInstance
     }
 }

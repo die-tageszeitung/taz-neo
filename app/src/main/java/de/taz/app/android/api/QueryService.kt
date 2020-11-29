@@ -22,6 +22,7 @@ enum class QueryType {
     ErrorReport,
     Feed,
     IssueByFeedAndDate,
+    Moment,
     LastIssues,
     Notification,
     PasswordReset,

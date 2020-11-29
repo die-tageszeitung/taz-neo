@@ -221,7 +221,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
         dataService.ensureDownloaded(resourceInfo)
 
-        log.info("displayable is ready")
         viewModel.displayable?.let {
             dataService.ensureDownloaded(it)
             val path = withContext(Dispatchers.IO) { it.getFile()!!.absolutePath }

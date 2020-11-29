@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.SectionOperations
@@ -90,12 +91,12 @@ data class Section(
         return super.getIssueStub()
     }
 
-    override fun getDownloadDate(): Date? {
-        return SectionRepository.getInstance().getDownloadDate(SectionStub(this))
+    override fun getDownloadDate(context: Context?): Date? {
+        return SectionRepository.getInstance(context).getDownloadDate(SectionStub(this))
     }
 
-    override fun setDownloadDate(date: Date?) {
-        SectionRepository.getInstance().setDownloadDate(SectionStub(this), date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        SectionRepository.getInstance(context).setDownloadDate(SectionStub(this), date)
     }
 }
 

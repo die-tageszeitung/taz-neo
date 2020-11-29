@@ -3,24 +3,21 @@ package de.taz.app.android.download
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.data.ConnectionHelper
-import de.taz.app.android.singletons.OkHttp
-import de.taz.app.android.util.awaitCallback
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 
 class DownloadConnectionHelper(
     private val downloadEndpoint: String,
-    private val httpClient: OkHttpClient = OkHttp.client
 ): ConnectionHelper() {
     override suspend fun checkConnectivity(): Boolean {
         return try {
             transformToConnectivityException {
-                val result = awaitCallback(
-                    httpClient.newCall(
-                        Request.Builder().url(downloadEndpoint).build()
-                    )::enqueue
-                )
-                result.isSuccessful
+                val response = HttpClient(CIO).use {
+                    it.get<HttpResponse>(downloadEndpoint)
+                }
+                response.status.value in 200..299
             }
         } catch (e: ConnectivityException.Recoverable) {
             false

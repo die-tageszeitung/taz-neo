@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -41,11 +42,11 @@ interface FileEntryOperations {
         }
     }
 
-    fun getDownloadDate(): Date? {
-        return FileEntryRepository.getInstance().getDownloadDate(this)
+    fun getDownloadDate(context: Context? = null): Date? {
+        return FileEntryRepository.getInstance(context).getDownloadDate(this)
     }
 
-    fun setDownloadDate(date: Date?) {
+    fun setDownloadDate(date: Date?, context: Context? = null) {
         val file = when (this) {
             is Image -> FileEntry(this)
             is FileEntry -> this

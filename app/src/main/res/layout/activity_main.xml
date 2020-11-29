@@ -17,15 +17,15 @@
         tools:showIn="@layout/activity_main" />
 
     <de.taz.app.android.ui.drawer.NavigationView
-            android:id="@+id/nav_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:background="@color/navigation_drawer_background"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/navigation_drawer_background"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -33,17 +33,17 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-        <ImageView
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:id="@+id/drawer_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:contentDescription="@string/navigation_drawer_open"
-            android:elevation="10dp"
-            android:focusable="true"
-            android:translationY="@dimen/drawer_logo_translation_y" />
+            <ImageView
+                android:id="@+id/drawer_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:contentDescription="@string/navigation_drawer_open"
+                android:elevation="10dp"
+                android:focusable="true"
+                android:translationY="@dimen/drawer_logo_translation_y"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

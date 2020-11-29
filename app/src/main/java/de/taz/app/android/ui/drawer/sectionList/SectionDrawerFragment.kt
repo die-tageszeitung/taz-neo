@@ -287,8 +287,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             val feed = feedRepository.get(issueStub.feedName)
             momentBinder = MomentViewDataBinding(
                 this@SectionDrawerFragment,
-                simpleDateFormat.parse(issueStub.date)!!,
-                feed!!,
+                IssuePublication(feed!!.name, issueStub.date),
                 DateFormat.LongWithoutWeekDay,
                 Glide.with(this@SectionDrawerFragment),
                 object : MomentViewActionListener {

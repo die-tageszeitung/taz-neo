@@ -1,13 +1,13 @@
 package de.taz.app.android.api
 
+import de.taz.app.android.GRAPHQL_ENDPOINT
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.singletons.AuthHelper
+import io.ktor.client.*
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -16,27 +16,37 @@ import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
 
 class GraphQlClientTest {
-    private val mockServer = MockWebServer()
-    @Mock private lateinit var queryServiceMock: QueryService
-    @Mock private lateinit var authHelper: AuthHelper
+    @Mock
+    private lateinit var queryServiceMock: QueryService
+    @Mock
+    private lateinit var authHelper: AuthHelper
 
     private lateinit var graphQlClient: GraphQlClient
 
-    @Before
-    fun setUp() {
-        mockServer.start()
-        MockitoAnnotations.initMocks(this)
-        graphQlClient = GraphQlClient(
-            okHttpClient = OkHttpClient(),
-            url = mockServer.url("").toString(),
-            queryService= queryServiceMock,
-            authHelper = authHelper
-        )
+    private val mockClient = HttpClient(MockEngine) {
+        engine {
+            addHandler { request ->
+                if (request.url.toString() == GRAPHQL_ENDPOINT) {
+                    val responseHeaders = headersOf("Content-Type" to listOf("application/json"))
+                    respond("{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}", headers = responseHeaders)
+
+                } else {
+                    throw IllegalStateException("This mock client does not handle ${request.url}")
+
+                }
+            }
+        }
     }
 
-    @After
-    fun tearDown() {
-        mockServer.shutdown()
+    @Before
+    fun setUp() {
+        MockitoAnnotations.initMocks(this)
+        graphQlClient = GraphQlClient(
+            mockClient,
+            GRAPHQL_ENDPOINT,
+            queryService = queryServiceMock,
+            authHelper = authHelper
+        )
     }
 
     @Test
@@ -46,15 +56,10 @@ class GraphQlClientTest {
 
         doReturn("").`when`(authHelper).token
 
-        val mockResponse = MockResponse()
-            .setHeader("Content-Type", "application/json")
-            .setBody("{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}")
-        mockServer.enqueue(mockResponse)
-
         runBlocking {
             val dataDto = graphQlClient.query(QueryType.AppInfo)
-            assertTrue(dataDto?.data?.authentificationToken == null)
-            assertTrue(dataDto?.data?.product!!.appName!! == AppName.taz)
+            assertTrue(dataDto.data?.authentificationToken == null)
+            assertTrue(dataDto.data?.product!!.appName!! == AppName.taz)
             assertTrue(dataDto.data?.product!!.appType!! == AppType.production)
         }
     }

@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -110,12 +111,12 @@ data class Article(
         return super.getIssueStub()
     }
 
-    override fun getDownloadDate(): Date? {
+    override fun getDownloadDate(context: Context?): Date? {
         return ArticleRepository.getInstance().getDownloadDate(ArticleStub(this@Article))
     }
 
-    override fun setDownloadDate(date: Date?) {
-        return ArticleRepository.getInstance().setDownloadDate(ArticleStub(this@Article), date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        return ArticleRepository.getInstance(context).setDownloadDate(ArticleStub(this@Article), date)
     }
 
 }

@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -24,12 +25,12 @@ data class ResourceInfo(
         null
     )
 
-    override fun getDownloadDate(): Date? {
-        return ResourceInfoRepository.getInstance().getDownloadStatus(this)
+    override fun getDownloadDate(context: Context?): Date? {
+        return ResourceInfoRepository.getInstance(context).getDownloadStatus(this)
     }
 
-    override fun setDownloadDate(date: Date?) {
-        ResourceInfoRepository.getInstance().setDownloadStatus(this, date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        ResourceInfoRepository.getInstance(context).setDownloadStatus(this, date)
     }
 
     override fun getAllFiles(): List<FileEntry> {

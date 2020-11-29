@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
@@ -16,12 +16,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.core.Sentry
 import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Mockable
 class IssueRepository private constructor(val applicationContext: Context) :
@@ -35,8 +30,6 @@ class IssueRepository private constructor(val applicationContext: Context) :
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
-
-    private var deletePublicIssuesBoolean = AtomicBoolean(false)
 
     fun save(issues: List<Issue>) {
         issues.forEach { save(it) }
@@ -66,7 +59,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
             )
 
             // save moment
-            momentRepository.save(issue.moment, issue.feedName, issue.date, issue.status)
+            momentRepository.save(issue.moment)
 
             // save imprint
             issue.imprint?.let { imprint ->
@@ -269,7 +262,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     fun getIssueStubForMoment(moment: Moment): IssueStub? {
         return moment.getMomentImage()?.let {
-            appDatabase.issueImageMomentJoinDao().getIssueStub(it.name)
+            appDatabase.momentImageJoinJoinDao().getIssueStub(it.name)
         }
     }
 
@@ -352,10 +345,17 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getDownloadDate(IssueStub(issue))
     }
 
+    fun isDownloaded(issueKey: IssueKey): Boolean {
+        return getDownloadDate(issueKey) != null
+    }
+
+    fun getDownloadDate(issueKey: IssueKey): Date? {
+        return appDatabase.issueDao()
+            .getDownloadDate(issueKey.feedName, issueKey.date, issueKey.status)
+    }
 
     fun getDownloadDate(issueStub: IssueStub): Date? {
-        return appDatabase.issueDao()
-            .getDownloadDate(issueStub.feedName, issueStub.date, issueStub.status)
+        return getDownloadDate(issueStub.issueKey)
     }
 
     fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {
@@ -521,28 +521,30 @@ class IssueRepository private constructor(val applicationContext: Context) :
             IssueStub(issue)
         )
     }
-
-    fun deletePublicIssues(): Job {
-        deletePublicIssuesBoolean.set(true)
-        return CoroutineScope(Dispatchers.IO).launch {
-            val publicIssues = getIssuesListByStatus(IssueStatus.public)
-            log.info("deleting ${publicIssues.size} public issues")
-            publicIssues.forEach {
-                if (!deletePublicIssuesBoolean.get()) {
-                    return@launch
-                }
-                DownloadService.getInstance().cancelDownloadForTag(it.tag)
-                val issue = issueStubToIssue(it)
-                issue.deleteFiles()
-                delete(issue)
-            }
-        }
-    }
 }
 
+
+/**
+ * The representation of a [feedName], [date] and [status] determining the exact
+ * identity of an issue
+ */
 @Parcelize
 data class IssueKey(
     val feedName: String,
     val date: String,
     val status: IssueStatus
+) : Parcelable, ObservableDownload {
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/$status"
+    }
+}
+
+/**
+ * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
+ * omitting the specification of an [IssueStatus]
+ */
+@Parcelize
+data class IssuePublication(
+    val feed: String,
+    val date: String
 ) : Parcelable

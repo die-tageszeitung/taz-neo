@@ -8,15 +8,13 @@ import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.SingletonHolder
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okio.*
-import java.io.BufferedReader
-import java.io.File
-import java.io.InputStreamReader
+import java.io.*
 import java.security.MessageDigest
-import javax.net.ssl.SSLException
 
+const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
 
 @Mockable
 class FileHelper private constructor(private val applicationContext: Context) {
@@ -60,30 +58,39 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return getFileByPath(fileEntry.path)
     }
 
-    fun writeFile(fileEntry: FileEntryOperations, byteArray: ByteArray) {
-        val file = getFile(fileEntry)
-        file.writeBytes(byteArray)
+    fun getFileOrCreate(fileEntry: FileEntryOperations): File {
+        return try {
+            getFileByPath(fileEntry.path)
+        } catch (e: FileNotFoundException) {
+            createFile(fileEntry)
+            getFileByPath(fileEntry.path)
+        }
     }
 
     /**
-     * writes data from [source] to file of [fileEntry] and return sha256
-     * @throws SSLException when connection is terminated while writing to file
+     * writes data from [channel] to file of [fileEntry] and return sha256
      */
-    @Throws(SSLException::class, java.io.IOException::class)
-    fun writeFile(fileEntry: FileEntryOperations, source: BufferedSource): String {
-        val fileSink = getFile(fileEntry).sink()
-        val hashingSink = HashingSink.sha256(fileSink)
-        val hashingSinkBuffer = hashingSink.buffer()
-        try {
-            hashingSinkBuffer.writeAll(source)
-        } finally {
-            hashingSinkBuffer.close()
-            hashingSink.close()
-            fileSink.flush()
-            fileSink.close()
-            source.close()
+    suspend fun writeFile(fileEntry: FileEntryOperations, channel: ByteReadChannel): String {
+        val file = getFileOrCreate(fileEntry)
+        // clear out file
+        file.writeBytes(ByteArray(0))
+        val fileStream = file.outputStream()
+        val hash = MessageDigest.getInstance("SHA-256")
+
+        fileStream.use {
+            val buffer = ByteArray(COPY_BUFFER_SIZE)
+            do {
+                val read = channel.readAvailable(buffer)
+                if (read > 0) {
+                    hash.update(buffer, 0, read)
+                    it.write(buffer, 0, read)
+                }
+            } while (read > 0)
         }
-        return hashingSink.hash.hex()
+
+        val digest = hash.digest()
+        return digest.fold("", { str, it -> str + "%02x".format(it) })
+
     }
 
     fun getAbsoluteFilePath(fileEntryName: String): String? {
@@ -129,7 +136,6 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
-    @Throws(IOException::class)
     fun readFileFromAssets(path: String): String {
         var bufferedReader: BufferedReader? = null
         var data = ""
@@ -201,29 +207,33 @@ class FileHelper private constructor(private val applicationContext: Context) {
         return@withContext digest.fold("", { str, it -> str + "%02x".format(it) })
     }
 
-    suspend fun ensureFileIntegrity(filePath: String, checksum: String? = null): Boolean = withContext(
-        Dispatchers.IO) {
-        val file = getFileByPath(filePath)
-        // If we don't provide a checksum we assume the mere existence means it's ok
-        return@withContext if (file.exists()) {
-            checksum?.let { it == getSHA256(file) } ?: true
-        } else {
-            false
+    suspend fun ensureFileIntegrity(filePath: String, checksum: String? = null): Boolean =
+        withContext(
+            Dispatchers.IO
+        ) {
+            val file = getFileByPath(filePath)
+            // If we don't provide a checksum we assume the mere existence means it's ok
+            return@withContext if (file.exists()) {
+                checksum?.let { it == getSHA256(file) } ?: true
+            } else {
+                false
+            }
         }
-    }
 
     suspend fun ensureFileExists(fileEntry: FileEntry): Boolean = withContext(Dispatchers.IO) {
         val file = getFileByPath(fileEntry.path)
         return@withContext file.exists()
     }
 
-    suspend fun getNonExistentFilesFromList(files: List<FileEntry>): List<FileEntry> = withContext(Dispatchers.IO) {
-        return@withContext files.filter { !ensureFileExists(it) }
-    }
+    suspend fun getNonExistentFilesFromList(files: List<FileEntry>): List<FileEntry> =
+        withContext(Dispatchers.IO) {
+            return@withContext files.filter { !ensureFileExists(it) }
+        }
 
-    suspend fun getCorruptedFilesFromList(files: List<FileEntry>): List<FileEntry> = withContext(Dispatchers.IO) {
-        return@withContext files.filter { !ensureFileIntegrity(it.path, it.sha256) }
-    }
+    suspend fun getCorruptedFilesFromList(files: List<FileEntry>): List<FileEntry> =
+        withContext(Dispatchers.IO) {
+            return@withContext files.filter { !ensureFileIntegrity(it.path, it.sha256) }
+        }
 
     suspend fun ensureFileListExists(files: List<FileEntry>): Boolean {
         return getNonExistentFilesFromList(files).isEmpty()

@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.FileEntryOperations
@@ -12,6 +13,7 @@ data class Moment(
     val issueFeedName: String,
     val issueDate: String,
     val issueStatus: IssueStatus,
+    val baseUrl: String,
     val imageList: List<Image> = emptyList(),
     val creditList: List<Image> = emptyList(),
     val momentList: List<FileEntry> = emptyList(),
@@ -22,11 +24,13 @@ data class Moment(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus,
+        baseUrl: String,
         momentDto: MomentDto
     ) : this(
         issueFeedName,
         issueDate,
         issueStatus,
+        baseUrl,
         momentDto.imageList
             ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
         momentDto.creditList
@@ -40,6 +44,7 @@ data class Moment(
         issueOperations.feedName,
         issueOperations.date,
         issueOperations.status,
+        issueOperations.baseUrl,
         momentDto.imageList
             ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") }
             ?: emptyList(),
@@ -78,12 +83,12 @@ data class Moment(
         return "moment/$issueFeedName/$issueDate"
     }
 
-    override fun getDownloadDate(): Date? {
-        return MomentRepository.getInstance().getDownloadDate(this@Moment)
+    override fun getDownloadDate(context: Context?): Date? {
+        return MomentRepository.getInstance(context).getDownloadDate(this@Moment)
     }
 
-    override fun setDownloadDate(date: Date?) {
-        MomentRepository.getInstance().setDownloadDate(this@Moment, date)
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        MomentRepository.getInstance(context).setDownloadDate(this@Moment, date)
     }
 
     fun getMomentFileToShare(): FileEntryOperations {

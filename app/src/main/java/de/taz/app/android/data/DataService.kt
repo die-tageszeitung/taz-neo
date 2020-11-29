@@ -3,9 +3,10 @@ package de.taz.app.android.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.api.interfaces.DownloadableStub
+import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.download.DownloadService
@@ -13,10 +14,10 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SingletonHolder
+import io.ktor.util.*
 import kotlinx.coroutines.*
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.HashMap
 
 data class LiveDataWithReferenceCount<T>(
     val liveData: LiveData<T>,
@@ -26,7 +27,8 @@ data class LiveDataWithReferenceCount<T>(
 /**
  * A central service providing data intransparent if from cache or remotely fetched
  */
-class DataService(applicationContext: Context) {
+@Mockable
+class DataService(private val applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
     private val apiService = ApiService.getInstance(applicationContext)
@@ -41,12 +43,82 @@ class DataService(applicationContext: Context) {
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
 
-    private val downloadLiveDataMap: HashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
-        HashMap()
+    private val downloadLiveDataMap: ConcurrentHashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
+        ConcurrentHashMap()
+
+    /**
+     * Returns an [IssueKey] derrived by an [issuePublication] determined by application state
+     * The missing [IssueStatus] will be determined by
+     * 1. If I have an [Issue] cached in DB with [IssueStatus.regular] status will be [IssueStatus.regular]
+     * 2. If [AuthHelper.eligibleIssueStatus] is [IssueStatus.regular] status will be [IssueStatus.regular]
+     * 3. In any other case the [IssueStatus] will be [IssueStatus.public]
+     * @param issuePublication Publication (feed and date)
+     * @return [IssueKey] with derrived [IssueStatus]
+     */
+    suspend fun determineIssueKey(issuePublication: IssuePublication) =
+        withContext(Dispatchers.IO) {
+            val regularKey =
+                IssueKey(issuePublication.feed, issuePublication.date, IssueStatus.regular)
+            val publicKey =
+                IssueKey(issuePublication.feed, issuePublication.date, IssueStatus.public)
+            val issueKey =
+                if (isCached(regularKey) || authHelper.eligibleIssueStatus == IssueStatus.regular) {
+                    regularKey
+                } else {
+                    publicKey
+                }
+            issueKey
+        }
 
     suspend fun isCached(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
         issueRepository.exists(issueKey)
     }
+
+    /**
+     * This function returns IssueStub from a given [issuePublication]. If [allowCache] is true a local copy
+     * will be returned if existent. If not server will be requested.
+     * By specifying only an [IssuePublication] you might receive the resulting [IssueStub] might have any
+     * [IssueStatus] depending on application state
+     *
+     * @param issuePublication Publication (feed and date)
+     * @param allowCache checks if issue already exists
+     * @param retryOnFailure when hitting server retry on recoverable (connection-) issues indefinitely
+     */
+    suspend fun getIssueStub(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): IssueStub? =
+        withContext(Dispatchers.IO) {
+            getIssueStub(
+                determineIssueKey(issuePublication),
+                allowCache = allowCache,
+                retryOnFailure = retryOnFailure
+            )
+        }
+
+    /**
+     * This function returns [IssueStub] from a given [issuePublication]. If [allowCache] is true a local copy
+     * will be returned if existent. If not server will be requested.
+     * By specifying only an [IssuePublication] you might receive the resulting [Issue] might have any
+     * [IssueStatus] depending on application state
+     *
+     * @param issuePublication Publication (feed and date)
+     * @param allowCache checks if issue already exists
+     * @param retryOnFailure when hitting server retry on recoverable (connection-) issues indefinitely
+     */
+    suspend fun getIssue(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Issue? =
+        withContext(Dispatchers.IO) {
+            getIssue(
+                determineIssueKey(issuePublication),
+                allowCache = allowCache,
+                retryOnFailure = retryOnFailure
+            )
+        }
 
     /**
      * This function returns IssueStub from a given [issueKey].
@@ -72,6 +144,16 @@ class DataService(applicationContext: Context) {
             getIssue(issueKey, allowCache, retryOnFailure = retryOnFailure)?.let(::IssueStub)
         }
 
+    /**
+     * This function returns [Issue] from a given [issueKey].
+     * ATTENTION! The issue returned from the called getIssue function has the status depending
+     * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
+     * specified in the [issueKey].
+     *
+     * @param issueKey Key of feed, date and status
+     * @param allowCache checks if issue already exists
+     * @param retryOnFailure calls getIssue again if unsuccessful
+     */
     suspend fun getIssue(
         issueKey: IssueKey,
         allowCache: Boolean = true,
@@ -98,31 +180,6 @@ class DataService(applicationContext: Context) {
 
     }
 
-
-    suspend fun getIssueStubs(
-        fromDate: Date = Date(),
-        status: IssueStatus,
-        limit: Int = 1,
-        allowCache: Boolean = true
-    ): List<IssueStub> = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            val issues = issueRepository.getLatestIssueStubsByDateAndStatus(
-                simpleDateFormat.format(fromDate), status, limit
-            )
-            if (issues.size == limit) {
-                return@withContext issues
-            }
-        }
-        val feedNames = feedRepository.getAll().map { it.name }
-        return@withContext feedNames
-            .map { feedName ->
-                apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-            }
-            .flatten()
-            .map(issueRepository::saveIfNotExistOrOutdated)
-            .map(::IssueStub)
-    }
-
     suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? = withContext(Dispatchers.IO) {
         issueRepository.getLastDisplayable(issueKey)
     }
@@ -140,36 +197,6 @@ class DataService(applicationContext: Context) {
             displayableName,
             scrollPosition
         )
-    }
-
-    suspend fun getIssueStubsByFeed(
-        fromDate: Date = Date(),
-        feedNames: List<String>,
-        limit: Int = 1,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): List<IssueStub> = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            val issues = issueRepository.getLatestIssueStubsByFeedAndDate(
-                simpleDateFormat.format(fromDate), feedNames, limit
-            )
-            if (issues.size == limit) {
-                return@withContext issues
-            }
-        }
-        val issues = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure {
-                feedNames.map { feedName ->
-                    apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-                }.flatten()
-            }
-        } else {
-            feedNames.map { feedName ->
-                apiService.getIssuesByFeedAndDate(feedName, fromDate, limit)
-            }.flatten()
-        }
-
-        issueRepository.saveIfNotExistOrOutdated(issues).map(::IssueStub)
     }
 
     suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
@@ -190,9 +217,33 @@ class DataService(applicationContext: Context) {
             appInfo
         }
 
-    suspend fun getMoment(issueKey: IssueKey, allowCache: Boolean = true): Moment? =
+    suspend fun getMoment(
+        issueKey: IssueKey,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Moment? =
         withContext(Dispatchers.IO) {
-            return@withContext momentRepository.get(issueKey)
+            if (allowCache) {
+                momentRepository.get(issueKey)?.let { return@withContext it }
+            }
+            val moment = if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.getMomentByFeedAndDate(
+                        issueKey.feedName,
+                        simpleDateFormat.parse(issueKey.date)!!
+                    )
+                }
+            } else {
+                apiService.getMomentByFeedAndDate(
+                    issueKey.feedName,
+                    simpleDateFormat.parse(issueKey.date)!!
+                )
+            }
+
+            moment?.let {
+                momentRepository.save(moment)
+            }
+            moment
         }
 
 
@@ -220,7 +271,7 @@ class DataService(applicationContext: Context) {
         collection: DownloadableCollection,
         isAutomaticDownload: Boolean = false
     ) = withContext(Dispatchers.IO) {
-        withDownloadLiveData(collection) { liveData ->
+        withDownloadLiveData(collection as ObservableDownload) { liveData ->
             downloadService.ensureCollectionDownloaded(
                 collection,
                 liveData as MutableLiveData<DownloadStatus>,
@@ -279,7 +330,11 @@ class DataService(applicationContext: Context) {
         }
 
 
-    suspend fun getFeedByName(name: String, allowCache: Boolean = true, retryOnFailure: Boolean = false): Feed? =
+    suspend fun getFeedByName(
+        name: String,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Feed? =
         withContext(Dispatchers.IO) {
             if (allowCache) {
                 feedRepository.get(name)?.let {
@@ -310,26 +365,53 @@ class DataService(applicationContext: Context) {
         feeds
     }
 
+    suspend fun isIssueDownloaded(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
+        issueRepository.isDownloaded(issueKey)
+    }
+
+    /**
+     * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
+     * @param feedName to refresh
+     */
+    suspend fun refreshFeedAndGetIssueIfNew(feedName: String): Issue? =
+        withContext(Dispatchers.IO) {
+            val cachedFeed = getFeedByName(feedName)
+            val refreshedFeed = getFeedByName(feedName, allowCache = false)
+            val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
+            newsestIssueDate?.let {
+                if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
+                    getIssue(IssuePublication(feedName, simpleDateFormat.format(it)))
+                } else {
+                    null
+                }
+            }
+        }
+
     /**
      * Gets or creates a LiveData observing the download progress of [downloadableStub].
      * ATTENTION: As any call to [ensureDownloaded] and [ensureDeletedFiles] will attempt to cleanup non-observed LiveDatas
      * you only should access it via [withDownloadLiveData] that manages locking and reference count
      */
-    private suspend fun getDownloadLiveData(downloadableStub: DownloadableStub): LiveDataWithReferenceCount<DownloadStatus> {
-        val tag = downloadableStub.getDownloadTag()
-        val status = withContext(Dispatchers.IO) {
-            downloadableStub.getDownloadDate()?.let { DownloadStatus.done }
-        }
-            ?: DownloadStatus.pending
-        log.verbose("Requesting livedata for $tag")
-        return downloadLiveDataMap[tag] ?: run {
-            val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
-            downloadLiveDataMap[tag] = downloadLiveData
-            log.verbose("Created livedata for $tag")
-            downloadLiveData
-        }
+    private suspend fun getDownloadLiveData(observableDownload: ObservableDownload): LiveDataWithReferenceCount<DownloadStatus> =
+        withContext(Dispatchers.IO) {
+            val tag = observableDownload.getDownloadTag()
 
-    }
+            log.verbose("Requesting livedata for $tag")
+            downloadLiveDataMap[tag] ?: run {
+                val status = when (observableDownload) {
+                    is IssueKey -> if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done else DownloadStatus.pending
+                    is DownloadableCollection -> observableDownload.getDownloadDate(
+                        applicationContext
+                    )
+                        ?.let { DownloadStatus.done } ?: DownloadStatus.pending
+                    else -> DownloadStatus.pending
+                }
+                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+                downloadLiveDataMap[tag] = downloadLiveData
+                log.verbose("Created livedata for $tag")
+                downloadLiveData
+            }
+        }
 
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
@@ -355,38 +437,22 @@ class DataService(applicationContext: Context) {
      * Therefore this service counts references of routines accessing the livedata so it doesn't get cleaned up
      * before we manage to .observe it. Cleanup respects either actual observers or active references to retain a LiveData.
      *
-     * @param downloadableStub: Object implementing [DownloadableStub]
-     * @param block: Block executed where the LiveData is definitely safe of cleanup
-     */
-    fun withDownloadLiveDataSync(
-        downloadableStub: DownloadableStub,
-        block: (LiveData<DownloadStatus>) -> Unit
-    ) {
-        val (liveData, referenceCount) = synchronized(downloadLiveDataMap) {
-            val (liveData, referenceCount) = runBlocking { getDownloadLiveData(downloadableStub) }
-            referenceCount.incrementAndGet()
-            liveData to referenceCount
-        }
-        try {
-            block(liveData)
-        } finally {
-            synchronized(downloadLiveDataMap) {
-                referenceCount.decrementAndGet()
-            }
-        }
-    }
-
-    /**
-     *
-     * Wraps [withDownloadLiveDataSync] to work with suspended blocks
-     *
-     * @param downloadableStub: Object implementing [DownloadableStub]
+     * @param observableDownload: Object implementing [ObservableDownload]
      * @param block: Block executed where the LiveData is definitely safe of cleanup
      */
     suspend fun withDownloadLiveData(
-        downloadableStub: DownloadableStub,
+        observableDownload: ObservableDownload,
         block: suspend (LiveData<DownloadStatus>) -> Unit
     ) {
-        withDownloadLiveDataSync(downloadableStub) { liveData -> runBlocking { block(liveData) } }
+
+        val (liveData, referenceCount) = getDownloadLiveData(observableDownload)
+        referenceCount.incrementAndGet()
+
+        try {
+            block(liveData)
+        } finally {
+            referenceCount.decrementAndGet()
+
+        }
     }
 }

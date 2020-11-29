@@ -13,6 +13,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
@@ -85,8 +86,8 @@ abstract class HomePageFragment(
         }
     }
 
-    fun onItemSelected(issueStub: IssueStub) {
-        showIssue(issueStub)
+    fun onItemSelected(issueKey: IssueKey) {
+        showIssue(issueKey)
     }
 
     /**

@@ -23,14 +23,20 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -43,7 +49,10 @@ import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.math.min
+
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
 const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
@@ -141,7 +150,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
             lifecycleScope.launch(Dispatchers.Main) {
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.let {
-                    issueContentViewModel.setDisplayable(it.issueKey, displayableKey, immediate = true)
+                    issueContentViewModel.setDisplayable(
+                        it.issueKey,
+                        displayableKey,
+                        immediate = true
+                    )
                 }
             }
         }
@@ -155,15 +168,11 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showIssue(issueStub: IssueStub) = lifecycleScope.launch(Dispatchers.IO) {
+    fun showIssue(issueKey: IssueKey) = lifecycleScope.launch(Dispatchers.IO) {
         val fragment = IssueContentFragment()
         showMainFragment(fragment)
 
-        issueContentViewModel.setDisplayable(issueStub)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            dataService.ensureDownloaded(issueStub.getIssue())
-        }
+        issueContentViewModel.setDisplayable(issueKey)
 
         // After 3 seconds close the drawer
         delay(3000)
