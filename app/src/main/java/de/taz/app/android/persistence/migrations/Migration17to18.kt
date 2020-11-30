@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration17to18 : Migration(16, 17) {
+object Migration17to18 : Migration(17, 18) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             // Rename IssueCreditMomentJoin To MomentCreditJoin as it drops FK to Issue and uses a FK to Moment instead
