@@ -3,6 +3,7 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
+import de.taz.app.android.DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE
 import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.annotation.Mockable
@@ -57,7 +58,7 @@ class DownloadService constructor(
             engine {
                 pipelining = true
                 endpoint {
-                    maxConnectionsPerRoute = 8
+                    maxConnectionsPerRoute = DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE
                 }
             }
         }

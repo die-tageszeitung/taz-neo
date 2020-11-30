@@ -44,7 +44,6 @@ abstract class IssueFeedAdapter(
     abstract val dateFormat: DateFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        log.verbose("CREATE HOLDER")
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false

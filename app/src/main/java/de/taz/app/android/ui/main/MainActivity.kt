@@ -44,7 +44,6 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlin.math.min

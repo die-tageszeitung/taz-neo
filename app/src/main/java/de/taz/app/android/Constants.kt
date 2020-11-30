@@ -38,7 +38,7 @@ const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
 
 const val W3C_EMAIL_PATTERN = """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
 
-const val CONCURRENT_FILE_DOWNLOADS = 8
+const val DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE = 8
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 1000L
 const val MAX_BYTES = 4294967296 // = 2^32
