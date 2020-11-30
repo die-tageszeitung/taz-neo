@@ -52,8 +52,10 @@ abstract class ConnectionHelper {
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
-            onConnectionFailure()
             isCurrentlyReachable = checkConnectivity()
+            if (!isCurrentlyReachable) {
+                onConnectionFailure()
+            }
         }
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
