@@ -30,24 +30,30 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.WelcomeActivity"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.WebViewActivity"
-            android:noHistory="true"/>
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.DataPolicyActivity" />
+            android:name=".ui.DataPolicyActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
         <activity
-            android:name=".ui.main.MainActivity" />
+            android:name=".ui.main.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.login.LoginActivity" />
+            android:name=".ui.login.LoginActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

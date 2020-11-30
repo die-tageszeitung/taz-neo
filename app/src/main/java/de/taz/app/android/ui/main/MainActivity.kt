@@ -86,8 +86,8 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
                 BookmarkPagerViewModel::class.java
             )
 
-        issueRepository = IssueRepository.getInstance()
-        dataService = DataService.getInstance()
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        dataService = DataService.getInstance(applicationContext)
         fileHelper = FileHelper.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
