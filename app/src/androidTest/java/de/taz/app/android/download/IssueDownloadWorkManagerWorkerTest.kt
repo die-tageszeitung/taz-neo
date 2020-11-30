@@ -144,9 +144,9 @@ class IssueDownloadWorkManagerWorkerTest {
 
         assert(nextPollDelay > 0)
         verify(mockDownloadService).scheduleNewestIssueDownload(
-            "poll/$nextPollDelay",
-            true,
-            nextPollDelay
+            any(String::class.java),
+            eq(true),
+            any(Long::class.java)
         )
         MatcherAssert.assertThat(result, `is`(ListenableWorker.Result.success()))
     }
