@@ -52,7 +52,6 @@ abstract class ConnectionHelper {
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
-            // TODO: add optional block to handle connection failures from outside this function
             onConnectionFailure()
             isCurrentlyReachable = checkConnectivity()
         }
