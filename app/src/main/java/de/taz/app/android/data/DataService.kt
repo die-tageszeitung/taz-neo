@@ -318,9 +318,9 @@ class DataService(applicationContext: Context) {
     suspend fun refreshFeedAndGetIssueIfNew(feedName: String): Issue? = withContext(Dispatchers.IO) {
         val cachedFeed = getFeedByName(feedName)
         val refreshedFeed = getFeedByName(feedName, allowCache = false)
-        val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
-        newsestIssueDate?.let {
-            if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
+        val newestIssue = refreshedFeed?.publicationDates?.getOrNull(0)
+        newestIssue?.let {
+            if (newestIssue != cachedFeed?.publicationDates?.getOrNull(0)) {
                 getIssue(IssueKey(feedName, simpleDateFormat.format(it), authHelper.eligibleIssueStatus))
             } else {
                 null
