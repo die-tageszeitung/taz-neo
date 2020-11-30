@@ -27,6 +27,7 @@ play {
     track = 'internal'
     serviceAccountCredentials = file('../play-publish.json')
 }
+
 def getVersionCode = { ->
     def proc = 'git tag'.execute() | 'wc -l'.execute()
     proc.waitFor()
@@ -36,7 +37,14 @@ def getVersionCode = { ->
 }
 
 def getVersionName = { ->
-    def proc = 'git describe --tags --dirty'.execute()
+    def ENV = System.getenv()
+    def ignoreDirty = ENV['VERSION_IGNORES_DIRTY_TREE']
+    def proc
+    if (ignoreDirty) {
+        proc = 'git describe --tags'.execute()
+    } else {
+        proc = 'git describe --tags --dirty'.execute()
+    }
     proc.waitFor()
     def versionName = proc.text.trim()
     println "This build has versionName: $versionName"
