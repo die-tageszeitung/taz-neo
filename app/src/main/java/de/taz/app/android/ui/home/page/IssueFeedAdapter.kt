@@ -60,7 +60,7 @@ abstract class IssueFeedAdapter(
     }
 
     fun getItem(position: Int): Date? {
-        return feed.publicationDates[position]
+        return feed.publicationDates.getOrNull(position)
     }
 
     fun getPosition(date: Date): Int {

@@ -3,10 +3,10 @@ package de.taz.app.android.ui.settings
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import de.taz.app.android.PREFERENCES_DOWNLOADS
-import de.taz.app.android.PREFERENCES_GENERAL
-import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.singletons.*
+import de.taz.app.android.*
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 

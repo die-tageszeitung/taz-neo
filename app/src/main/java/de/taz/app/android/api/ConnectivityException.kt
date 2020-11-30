@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import de.taz.app.android.util.reportAndRethrowExceptions
 import de.taz.app.android.util.reportAndRethrowExceptionsAsync
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
@@ -30,12 +31,12 @@ sealed class ConnectivityException(
     open class Recoverable(
         message: String,
         cause: Throwable? = null
-    ): ConnectivityException(message, cause)
+    ) : ConnectivityException(message, cause)
 
     open class Unrecoverable(
         message: String,
         cause: Throwable? = null
-    ): ConnectivityException(message, cause)
+    ) : ConnectivityException(message, cause)
 
     class NoInternetException(
         message: String = "Could not connect to server",
@@ -57,17 +58,20 @@ sealed class ConnectivityException(
 @Throws(ConnectivityException::class)
 suspend fun <T> transformToConnectivityException(block: suspend () -> T): T {
     try {
-        return reportAndRethrowExceptionsAsync { block() }
+        return block()
     } catch (e: CancellationException) {
         throw e
     } catch (e: ConnectivityException) {
         // If it's already a ConnectivityException pass it along
         throw e
-    }catch (e: Exception) {
+    } catch (e: Exception) {
         if (networkExceptions.contains(e::class)) {
             throw ConnectivityException.NoInternetException(cause = e)
         } else {
-            throw ConnectivityException.ImplementationException(cause = e)
+            // We want to know about non-connection or cancellation exceptions
+            reportAndRethrowExceptions {
+                throw ConnectivityException.ImplementationException(cause = e)
+            }
         }
     }
 }

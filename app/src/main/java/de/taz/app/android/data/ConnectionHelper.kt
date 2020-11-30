@@ -24,16 +24,14 @@ abstract class ConnectionHelper {
     private var backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
 
     private var connectivityCheckJob: Job? = null
-    private val toastHelper
-        get() = ToastHelper.getInstance()
 
-    suspend fun <T> retryOnConnectivityFailure(block: suspend () -> T): T {
+    suspend fun <T> retryOnConnectivityFailure(onConnectionFailure: suspend () -> Unit = {}, block: suspend () -> T): T {
         while (true) {
             try {
                 return block()
             } catch (e: ConnectivityException.Recoverable) {
                 isCurrentlyReachable = false
-                ensureConnectivityCheckRunning()
+                ensureConnectivityCheckRunning(onConnectionFailure)
                 suspendCoroutine<Unit> { continuation -> waitingCalls.offer(continuation) }
             } catch (e: Exception) {
                 throw e
@@ -41,27 +39,32 @@ abstract class ConnectionHelper {
         }
     }
 
-    private suspend fun ensureConnectivityCheckRunning() {
+    private suspend fun ensureConnectivityCheckRunning(onConnectionFailure: suspend () -> Unit = {}) {
         if (connectivityCheckJob?.isActive != true) {
             connectivityCheckJob = CoroutineScope(Dispatchers.IO).launch {
-                tryForConnectivity()
+                tryForConnectivity(onConnectionFailure)
             }
         }
     }
 
-    private suspend fun tryForConnectivity() {
+    private suspend fun tryForConnectivity(onConnectionFailure: suspend () -> Unit = {}) {
         while (!isCurrentlyReachable) {
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
-            // TODO: add optional block to handle connection failures from outside this function
-            toastHelper.showNoConnectionToast()
             isCurrentlyReachable = checkConnectivity()
+            if (!isCurrentlyReachable) {
+                onConnectionFailure()
+            }
         }
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
         waitingCalls.forEach {
-            it.resume(Unit)
+            try {
+                it.resume(Unit)
+            } catch (e: IllegalStateException) {
+                log.warn("Connection helper tried to resume Job twice")
+            }
             waitingCalls.remove(it)
         }
     }

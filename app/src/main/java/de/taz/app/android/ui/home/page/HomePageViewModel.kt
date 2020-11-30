@@ -4,6 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.persistence.repository.FeedRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit
@@ -15,14 +18,14 @@ class HomePageViewModel(application: Application) : AndroidViewModel(application
 
     fun setFeed(feedName: String) {
         if (currentFeed != feedName) {
-            FeedRepository.getInstance().get(feedName)?.let {
-                mutableFeedLiveData.postValue(it)
+            FeedRepository.getInstance(getApplication()).get(feedName)?.let {
+                mutableFeedLiveData.value = it
             }
         }
     }
 
     fun setFeed(feed: Feed) {
-        mutableFeedLiveData.postValue(feed)
+        mutableFeedLiveData.value = feed
     }
 
     private val mutableFeedLiveData = MutableLiveData<Feed>()
