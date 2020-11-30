@@ -14,7 +14,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,10 +25,8 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -47,10 +44,9 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.ui.webview.pager.IssueContentFragment
 import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.math.min
 
 
