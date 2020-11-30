@@ -16,4 +16,4 @@ export DEBUG_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-API
 export DEBUG_APP_VERSION=${CI_COMMIT_TAG}
 export DEBUG_APP_VERSION_CODE=${APP_VERSION_CODE:-`/opt/android/sdk/build-tools/29.0.2/aapt dump badging app/build/outputs/apk/freeTaz/debug/app-free-taz-debug.apk | grep "VersionCode" | sed -e "s/.*versionCode='//" -e "s/' .*//"`}
 
-http -v --ignore-stdin https://toolbox.alt.coop/misc/api/taz-release recipients:="[\"${RECIPIENT}\"]" debug_version_code="${DEBUG_APP_VERSION_CODE}" debug_version_name="${DEBUG_APP_VERSION_CODE}" debug_link=${DEBUG_APP_URL} free_version_code="${FREE_APP_VERSION_CODE}" free_version_name="${FREE_APP_VERSION}" free_link=${FREE_APP_URL} release_note="${RELEASE_MESSAGE}" Authorization:"Token ${TOOLBOX_API_TOKEN}"
+http -v --ignore-stdin https://toolbox.alt.coop/misc/api/taz-release recipients:="[\"${RECIPIENT}\"]" debug_version_code="${DEBUG_APP_VERSION_CODE}" debug_version_name="${DEBUG_APP_VERSION}" debug_link=${DEBUG_APP_URL} free_version_code="${FREE_APP_VERSION_CODE}" free_version_name="${FREE_APP_VERSION}" free_link=${FREE_APP_URL} release_note="${RELEASE_MESSAGE}" Authorization:"Token ${TOOLBOX_API_TOKEN}"
