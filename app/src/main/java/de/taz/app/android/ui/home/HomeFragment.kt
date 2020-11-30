@@ -84,9 +84,11 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             try {
                 DataService.getInstance(activity?.applicationContext)
                     .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
-                        homePageViewModel.setFeed(
-                            it
-                        )
+                        withContext(Dispatchers.Main) {
+                            homePageViewModel.setFeed(
+                                it
+                            )
+                        }
                     }
             } catch (e: ConnectivityException.NoInternetException) {
                 ToastHelper.getInstance(context?.applicationContext)

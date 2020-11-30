@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.core.Sentry
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -368,7 +369,18 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
-        val sections = sectionNames.map { sectionRepository.get(it) }
+        val sections =
+            sectionNames
+                .map { sectionRepository.get(it) }
+                .filterIndexed { index, section ->
+                    // TODO: We observed consistency errors in sentry but werent able to pin down the issue. Capture and ignore any expected section
+                    val isNull = section == null
+                    if (isNull) {
+                        Sentry.captureMessage("Expected section ${sectionNames[index]} not found in Database")
+                    }
+                    !isNull
+                }.filterNotNull()
+
 
         val imprint = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueStub.feedName, issueStub.date, issueStub.status

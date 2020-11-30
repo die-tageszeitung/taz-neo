@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import de.taz.app.android.CONCURRENT_FILE_DOWNLOADS
 import de.taz.app.android.PREFERENCES_DOWNLOADS
+import de.taz.app.android.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -37,6 +38,7 @@ class DownloadService constructor(
     private val fileEntryRepository: FileEntryRepository,
     private val apiService: ApiService,
     private val fileHelper: FileHelper,
+    private val toastHelper: ToastHelper,
     private val httpClient: OkHttpClient
 ) {
 
@@ -45,6 +47,7 @@ class DownloadService constructor(
         FileEntryRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
+        ToastHelper.getInstance(applicationContext),
         OkHttp.client
     )
 
@@ -69,16 +72,12 @@ class DownloadService constructor(
     suspend fun ensureCollectionDownloaded(
         downloadableCollection: DownloadableCollection,
         statusLiveData: MutableLiveData<DownloadStatus>,
-        ensureIntegrity: Boolean = false,
         isAutomaticDownload: Boolean = false,
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
         if (downloadableCollection.isDownloaded()) {
-            val isComplete = if (ensureIntegrity) {
-                fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
-            } else {
-                fileHelper.ensureFileListExists(downloadableCollection.getAllFiles())
-            }
+            val isComplete = fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
+
             if (isComplete) {
                 statusLiveData.postValue(DownloadStatus.done)
                 return@withContext
@@ -92,7 +91,6 @@ class DownloadService constructor(
             )
             statusLiveData.postValue(DownloadStatus.done)
             downloadableCollection.setDownloadDate(Date())
-
         } catch (e: Exception) {
             log.warn("Exception caught on ensureCollectionDownloaded(). Set state pending")
             statusLiveData.postValue(DownloadStatus.pending)
@@ -162,13 +160,15 @@ class DownloadService constructor(
     ) {
         ensureDownloadHelper()
         // skip this if we have the correct version downloaded
-        if (fileHelper.ensureFileIntegrity(fileToDownload.path) && !force) {
+        if (fileHelper.ensureFileIntegrity(fileToDownload.path, fileToDownload.sha256) && !force) {
             if (fileToDownload.getDownloadDate() == null) {
                 fileToDownload.setDownloadDate(Date())
             }
             return
         }
-        downloadConnectionHelper.retryOnConnectivityFailure {
+        downloadConnectionHelper.retryOnConnectivityFailure({
+            toastHelper.showNoConnectionToast()
+        }) {
             transformToConnectivityException {
                 val response = awaitCallback(
                     httpClient.newCall(

@@ -4,18 +4,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
-import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
@@ -142,17 +139,14 @@ class MomentViewDataBinding(
             CoroutineScope(Dispatchers.IO).launch {
                 val issue = momentViewData.issueStub.getIssue()
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                try {
-                    val updatedIssue =
-                        dataService.getIssue(
-                            issue.issueKey,
-                            allowCache = false
-                        )
-                    updatedIssue?.let {
-                        dataService.ensureDownloaded(updatedIssue)
-                    }
-                } catch (e: ConnectivityException.Recoverable) {
-                    ToastHelper.getInstance().showNoConnectionToast()
+                val updatedIssue =
+                    dataService.getIssue(
+                        issue.issueKey,
+                        retryOnFailure = true,
+                        allowCache = false
+                    )
+                updatedIssue?.let {
+                    dataService.ensureDownloaded(updatedIssue)
                 }
             }
         }

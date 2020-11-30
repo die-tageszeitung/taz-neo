@@ -8,6 +8,7 @@ import de.taz.app.android.api.variables.*
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import java.util.*
@@ -21,18 +22,23 @@ import kotlin.Throws
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
+    private val toastHelper: ToastHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
-        graphQlClient = GraphQlClient.getInstance(applicationContext)
+        graphQlClient = GraphQlClient.getInstance(applicationContext),
+        toastHelper = ToastHelper.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
 
     private val connectionHelper = APIConnectionHelper(graphQlClient)
 
+
     suspend fun <T> retryOnConnectionFailure(block: suspend () -> T): T {
-        return connectionHelper.retryOnConnectivityFailure {
+        return connectionHelper.retryOnConnectivityFailure({
+            toastHelper.showNoConnectionToast()
+        }) {
             block()
         }
     }

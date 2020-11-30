@@ -18,7 +18,7 @@ abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
         WHERE SectionNavButtonJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getNavButtonForSection(sectionFileName: String): Image
+    abstract fun getNavButtonForSection(sectionFileName: String): Image?
 
     @Query(
         """SELECT Image.fileEntryName FROM Image INNER JOIN SectionNavButtonJoin
@@ -27,9 +27,6 @@ abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
         WHERE SectionNavButtonJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getNavButtonNameForSection(sectionFileName: String): String
-
-    fun getNavButtonForSectionOperation(section: SectionOperations): Image =
-        getNavButtonForSection(section.key)
+    abstract fun getNavButtonNameForSection(sectionFileName: String): String?
 
 }

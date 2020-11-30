@@ -15,9 +15,11 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
+import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 abstract class HomePageFragment(
     layoutID: Int
@@ -39,8 +41,13 @@ abstract class HomePageFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        runBlocking(Dispatchers.IO) {
-            viewModel.setFeed(DISPLAYED_FEED)
+
+        try {
+            val feed = runBlocking(Dispatchers.IO) { feedRepository.get(DISPLAYED_FEED) }
+            viewModel.setFeed(feed!!)
+        } catch (e: NullPointerException) {
+            log.error("Illegal State! This fragment expects $DISPLAYED_FEED feed to be cached in database")
+            Sentry.captureException(e)
         }
     }
 
@@ -48,8 +55,8 @@ abstract class HomePageFragment(
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
-        authHelper = AuthHelper.getInstance()
-        feedRepository = FeedRepository.getInstance()
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        feedRepository = FeedRepository.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,7 +68,11 @@ abstract class HomePageFragment(
         }
         authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
             if (AuthStatus.valid == it) {
-                lifecycleScope.launchWhenResumed { adapter.notifyDataSetChanged() }
+                lifecycleScope.launchWhenResumed {
+                    withContext(Dispatchers.Main) {
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }
         }
     }
