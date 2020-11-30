@@ -174,7 +174,7 @@ class SplashActivity : BaseActivity() {
     private suspend fun checkAppVersion() {
         try {
             val appInfo = dataService.getAppInfo(allowCache = false)
-            if (BuildConfig.DEBUG && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
+            if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
                     R.string.notification_new_version_body,

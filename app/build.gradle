@@ -69,6 +69,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         resConfig "de"
 
+        buildConfigField "Boolean", "MANUAL_UPDATE", "false"
 
         def ENV = System.getenv()
         def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
@@ -160,6 +161,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         unminifiedRelease {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+            minifyEnabled false
+        }
+        manualUpdateRelease {
+            buildConfigField "Boolean", "MANUAL_UPDATE", "true"
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
             }
