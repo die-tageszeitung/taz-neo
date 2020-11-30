@@ -11,6 +11,13 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18"
         tools:ignore="ScopedStorage" />
+    <supports-screens
+        android:largeScreens="false"
+        android:largestWidthLimitDp="600"
+        android:normalScreens="true"
+        android:requiresSmallestWidthDp="200"
+        android:smallScreens="true"
+        android:xlargeScreens="false" />
 
     <application
         android:name=".TazApplication"
@@ -45,7 +52,8 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

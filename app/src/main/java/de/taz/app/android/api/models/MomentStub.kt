@@ -11,6 +11,7 @@ data class MomentStub(
     val issueFeedName: String,
     val issueDate: String,
     val issueStatus: IssueStatus,
+    val baseUrl: String,
     val dateDownload: Date?
 ) {
 
@@ -18,6 +19,7 @@ data class MomentStub(
         moment.issueFeedName,
         moment.issueDate,
         moment.issueStatus,
+        moment.baseUrl,
         moment.dateDownload
     )
 

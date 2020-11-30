@@ -18,6 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.ui.main.MainActivity
 import java.lang.IndexOutOfBoundsException
@@ -184,8 +185,8 @@ abstract class BaseMainFragment (
         (activity as? MainActivity)?.setDefaultDrawerNavButton()
     }
 
-    fun showIssue(issueStub: IssueStub) {
-        (activity as? MainActivity)?.showIssue(issueStub)
+    fun showIssue(issueKey: IssueKey) {
+        (activity as? MainActivity)?.showIssue(issueKey)
     }
 
     protected fun hideKeyBoard() {

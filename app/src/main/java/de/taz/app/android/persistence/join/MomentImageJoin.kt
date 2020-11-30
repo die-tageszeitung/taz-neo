@@ -5,14 +5,14 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.MomentStub
 
 @Entity(
-    tableName = "IssueImageMomentJoin",
+    tableName = "MomentImageJoin",
     foreignKeys = [
         ForeignKey(
-            entity = IssueStub::class,
-            parentColumns = ["feedName", "date", "status"],
+            entity = MomentStub::class,
+            parentColumns = ["issueFeedName", "issueDate", "issueStatus"],
             childColumns = ["issueFeedName", "issueDate", "issueStatus"]
         ),
         ForeignKey(
@@ -24,7 +24,7 @@ import de.taz.app.android.api.models.IssueStub
     primaryKeys = ["issueFeedName", "issueDate", "issueStatus", "momentFileName"],
     indices = [Index("momentFileName")]
 )
-data class IssueImageMomentJoin(
+data class MomentImageJoin(
     val issueFeedName: String,
     val issueDate: String,
     val issueStatus: IssueStatus,

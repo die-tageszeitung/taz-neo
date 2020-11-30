@@ -32,7 +32,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
-        Moment(feedName, issueDto.date, issueDto.status, issueDto.moment),
+        Moment(feedName, issueDto.date, issueDto.status, issueDto.baseUrl, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,

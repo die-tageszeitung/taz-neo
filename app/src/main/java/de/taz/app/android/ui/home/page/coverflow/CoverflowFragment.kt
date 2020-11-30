@@ -25,6 +25,7 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
+import kotlinx.coroutines.launch
 import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
@@ -98,7 +99,7 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     fun openDatePicker(issueDate: Date) {
-        showBottomSheet(DatePickerFragment.create(this, issueDate))
+        showBottomSheet(DatePickerFragment.create(this, viewModel.feed.value!!, issueDate))
     }
 
     override fun onPause() {

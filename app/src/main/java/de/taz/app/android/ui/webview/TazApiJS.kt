@@ -79,7 +79,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
 
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
-        log.debug("nextArticle $position")
+        log.verbose("nextArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.next()?.let { next ->
                 mainActivity?.showInWebView(next.key)
@@ -89,7 +89,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
 
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
-        log.debug("previousArticle $position")
+        log.verbose("previousArticle $position")
         mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.previous()?.let { previous ->
                 mainActivity?.showInWebView(previous.key)
@@ -99,7 +99,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
 
     @JavascriptInterface
     fun openUrl(url: String) {
-        log.debug("openUrl $url")
+        log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
         mainActivity?.apply {
@@ -134,7 +134,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
 
     @JavascriptInterface
     fun openImage(name: String) {
-        log.debug("openImage $name")
+        log.verbose("openImage $name")
 
         val intent = Intent(mainActivity, ImagePagerActivity::class.java)
         intent.putExtra(DISPLAYABLE_NAME, displayable?.key)

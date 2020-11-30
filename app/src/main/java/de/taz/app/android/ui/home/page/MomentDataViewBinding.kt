@@ -9,14 +9,13 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
-import java.util.*
+import kotlin.IllegalStateException
 
 interface MomentViewActionListener {
     fun onLongClicked(momentViewData: MomentViewData) = Unit
@@ -26,80 +25,58 @@ interface MomentViewActionListener {
 
 class MomentViewDataBinding(
     private val lifecycleOwner: LifecycleOwner,
-    private val date: Date,
-    private val feed: Feed,
+    private val issuePublication: IssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: MomentViewActionListener
 ) {
     private val log by Log
 
-    protected val dataService = DataService.getInstance()
+    private val dataService = DataService.getInstance()
     private var boundView: MomentView? = null
 
-    protected lateinit var momentViewData: MomentViewData
+    private lateinit var momentViewData: MomentViewData
+    private lateinit var issueKey: IssueKey
 
     private var bindJob: Job? = null
 
     fun bindView(momentView: MomentView) {
-
-
         boundView = momentView
-        boundView?.setDate(simpleDateFormat.format(date), dateFormat)
+        boundView?.setDate(issuePublication.date, dateFormat)
 
-        bindJob?.cancel()
         bindJob = lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val regularIssueKey = IssueKey(
-                feed.name,
-                simpleDateFormat.format(date),
-                IssueStatus.regular
-            )
+            issueKey = dataService.determineIssueKey(issuePublication)
 
-            val publicIssueKey = IssueKey(
-                feed.name,
-                simpleDateFormat.format(date),
-                IssueStatus.public
-            )
+            val moment = dataService.getMoment(issueKey, retryOnFailure = true)
+                ?: throw IllegalStateException("Issue for expected key $issueKey not found")
+            val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
+                ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
+            val momentImageUri = moment.getMomentImage()?.let {
+                FileHelper.getInstance().getAbsoluteFilePath(FileEntry(it))
+            }
+            val animatedMomentUri = moment.getIndexHtmlForAnimated()?.let {
+                FileHelper.getInstance().getAbsoluteFilePath(it)
+            }
+            dataService.ensureDownloaded(moment)
 
-            // check if we have a regular issue cached
-            val issueStub = if (dataService.isCached(regularIssueKey) || AuthHelper.getInstance().eligibleIssueStatus == IssueStatus.regular) {
-                dataService.getIssueStub(regularIssueKey, retryOnFailure = true)
+            val momentType = if (animatedMomentUri != null) {
+                MomentType.ANIMATED
             } else {
-                dataService.getIssueStub(publicIssueKey, retryOnFailure = true)
+                MomentType.STATIC
             }
 
-            momentViewData = issueStub?.let { issueStub ->
-                dataService.getMoment(issueStub.issueKey)?.let { moment ->
-                    val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
-                        ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
-                    val momentImageUri = moment.getMomentImage()?.let {
-                        FileHelper.getInstance().getAbsoluteFilePath(FileEntry(it))
-                    }
-                    val animatedMomentUri = moment.getIndexHtmlForAnimated()?.let {
-                        FileHelper.getInstance().getAbsoluteFilePath(it)
-                    }
-                    dataService.ensureDownloaded(moment)
+            val momentUri = when (momentType) {
+                MomentType.ANIMATED -> animatedMomentUri
+                MomentType.STATIC -> momentImageUri
+            }
 
-                    val momentType = if (animatedMomentUri != null) {
-                        MomentType.ANIMATED
-                    } else {
-                        MomentType.STATIC
-                    }
-
-                    val momentUri = when (momentType) {
-                        MomentType.ANIMATED -> animatedMomentUri
-                        MomentType.STATIC -> momentImageUri
-                    }
-
-                    MomentViewData(
-                        issueStub,
-                        if (issueStub.getDownloadDate() != null) DownloadStatus.done else DownloadStatus.pending,
-                        momentType,
-                        momentUri,
-                        dimension
-                    )
-                }
-            } ?: throw IllegalStateException("Expected an issue at date $date")
+            momentViewData = MomentViewData(
+                issueKey,
+                DownloadStatus.pending,
+                momentType,
+                momentUri,
+                dimension
+            )
 
             withContext(Dispatchers.Main) {
                 boundView?.show(momentViewData, dateFormat, glideRequestManager)
@@ -121,7 +98,7 @@ class MomentViewDataBinding(
 
                 boundView?.setOnDownloadClickedListener { onDownloadClicked() }
             }
-            dataService.withDownloadLiveData(momentViewData.issueStub) {
+            dataService.withDownloadLiveData(momentViewData.issueKey) {
                 withContext(Dispatchers.Main) {
                     it.observeDistinct(lifecycleOwner) { downloadStatus ->
                         boundView?.setDownloadIconForStatus(
@@ -137,17 +114,13 @@ class MomentViewDataBinding(
         if (::momentViewData.isInitialized) {
             boundView?.setDownloadIconForStatus(DownloadStatus.started)
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = momentViewData.issueStub.getIssue()
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                val updatedIssue =
-                    dataService.getIssue(
-                        issue.issueKey,
+                val issue = dataService.getIssue(
+                        issueKey,
                         retryOnFailure = true,
                         allowCache = false
-                    )
-                updatedIssue?.let {
-                    dataService.ensureDownloaded(updatedIssue)
-                }
+                    ) ?: throw IllegalStateException("No issue found for $issueKey")
+                dataService.ensureDownloaded(issue)
             }
         }
     }

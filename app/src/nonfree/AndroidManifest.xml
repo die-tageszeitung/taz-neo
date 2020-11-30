@@ -12,13 +12,6 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
 
-    <supports-screens
-        android:largeScreens="false"
-        android:largestWidthLimitDp="600"
-        android:normalScreens="true"
-        android:requiresSmallestWidthDp="200"
-        android:smallScreens="true"
-        android:xlargeScreens="false" />
 
     <application>
 

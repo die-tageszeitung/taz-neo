@@ -3,16 +3,14 @@ package de.taz.app.android.persistence.join
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.*
 
 @Entity(
-    tableName = "IssueCreditMomentJoin",
+    tableName = "MomentFilesJoin",
     foreignKeys = [
         ForeignKey(
-            entity = IssueStub::class,
-            parentColumns = ["feedName", "date", "status"],
+            entity = MomentStub::class,
+            parentColumns = ["issueFeedName", "issueDate", "issueStatus"],
             childColumns = ["issueFeedName", "issueDate", "issueStatus"]
         ),
         ForeignKey(
@@ -24,7 +22,7 @@ import de.taz.app.android.api.models.IssueStub
     primaryKeys = ["issueFeedName", "issueDate", "issueStatus", "momentFileName"],
     indices = [Index("momentFileName")]
 )
-data class IssueCreditMomentJoin(
+data class MomentFilesJoin(
     val issueFeedName: String,
     val issueDate: String,
     val issueStatus: IssueStatus,

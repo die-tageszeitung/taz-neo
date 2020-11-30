@@ -8,15 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.FileHelper
@@ -29,10 +30,14 @@ import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
+
+private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+private const val KEY_IS_DOWNLOADED = "KEY_IS_DOWNLOADED"
+
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-    private var issueStub: IssueStub? = null
+    private lateinit var issueKey: IssueKey
     private var weakActivityReference: WeakReference<MainActivity>? = null
 
     private lateinit var apiService: ApiService
@@ -43,17 +48,23 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var dataService: DataService
     private lateinit var toastHelper: ToastHelper
 
+    private var isDownloaded: Boolean = false
+
     private val homeViewModel: HomePageViewModel by activityViewModels()
 
     companion object {
         fun create(
             mainActivity: MainActivity,
-            issueStub: IssueStub
+            issueKey: IssueKey,
+            isDownloaded: Boolean
         ): IssueBottomSheetFragment {
-            val fragment = IssueBottomSheetFragment()
-            fragment.weakActivityReference = WeakReference(mainActivity)
-            fragment.issueStub = issueStub
-            return fragment
+            val args = Bundle()
+            args.putParcelable(KEY_ISSUE_PUBLICATION, issueKey)
+            args.putBoolean(KEY_IS_DOWNLOADED, isDownloaded)
+            return IssueBottomSheetFragment().apply {
+                arguments = args
+                weakActivityReference = WeakReference(mainActivity)
+            }
         }
     }
 
@@ -68,6 +79,14 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        issueKey = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
+        isDownloaded = requireArguments().getBoolean(KEY_IS_DOWNLOADED, false)
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,7 +98,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (issueStub?.dateDownload == null) {
+        if (!isDownloaded) {
             fragment_bottom_sheet_issue_delete?.visibility = View.GONE
             fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
         } else {
@@ -88,40 +107,41 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_issue_read?.setOnClickListener {
-            issueStub?.let { issueStub ->
-                weakActivityReference?.get()?.showIssue(issueStub)
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    weakActivityReference?.get()
+                        ?.showIssue(issueKey)
+                    dismiss()
+                }
             }
-            dismiss()
         }
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
-            issueStub?.let { issueStub ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    val issue = issueRepository.getIssue(issueStub)
-                    issue.moment.getMomentFileToShare().let { image ->
-                        fileEntryRepository.get(
-                            image.name
-                        )?.let {
-                            dataService.ensureDownloaded(it, issue.baseUrl)
-                        }
-                        fileHelper.getFile(image).let { imageAsFile ->
-                            val applicationId = view.context.packageName
-                            val imageUriNew = FileProvider.getUriForFile(
-                                view.context,
-                                "${applicationId}.contentProvider",
-                                imageAsFile
-                            )
+            CoroutineScope(Dispatchers.IO).launch {
+                val issue = dataService.getIssue(issueKey)
+                issue?.moment?.getMomentFileToShare()?.let { image ->
+                    fileEntryRepository.get(
+                        image.name
+                    )?.let {
+                        dataService.ensureDownloaded(it, issue.baseUrl)
+                    }
+                    fileHelper.getFile(image).let { imageAsFile ->
+                        val applicationId = view.context.packageName
+                        val imageUriNew = FileProvider.getUriForFile(
+                            view.context,
+                            "${applicationId}.contentProvider",
+                            imageAsFile
+                        )
 
-                            log.debug("imageUriNew: $imageUriNew")
-                            log.debug("imageAsFile: $imageAsFile")
-                            val sendIntent: Intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                                type = "image/jpg"
-                            }
-                            val shareIntent = Intent.createChooser(sendIntent, null)
-                            view.context.startActivity(shareIntent)
+                        log.debug("imageUriNew: $imageUriNew")
+                        log.debug("imageAsFile: $imageAsFile")
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                            type = "image/jpg"
                         }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        view.context.startActivity(shareIntent)
                     }
                 }
             }
@@ -129,17 +149,17 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_issue_delete?.setOnClickListener {
-            issueStub?.let { issueStub ->
-                preventDismissal()
-                fragment_bottom_sheet_issue_read?.setOnClickListener(null)
-                fragment_bottom_sheet_issue_share?.setOnClickListener(null)
-                fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
+            preventDismissal()
+            fragment_bottom_sheet_issue_read?.setOnClickListener(null)
+            fragment_bottom_sheet_issue_share?.setOnClickListener(null)
+            fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
 
-                loading_screen?.visibility = View.VISIBLE
-                val viewModel = ::homeViewModel.get()
-                CoroutineScope(Dispatchers.IO).launch {
-                    val issue = issueStub.getIssue()
-                    dataService.ensureDeletedFiles(issue)
+            loading_screen?.visibility = View.VISIBLE
+            val viewModel = ::homeViewModel.get()
+            CoroutineScope(Dispatchers.IO).launch {
+                val issue = dataService.getIssue(issueKey)
+                issue?.let {
+                    dataService.ensureDeletedFiles(it)
                     withContext(Dispatchers.Main) {
                         dismiss()
                     }
@@ -158,27 +178,22 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 }
             }
 
+
         }
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                issueStub?.let { issueStub ->
-                    // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                    issueRepository.getIssue(issueStub).let { issue ->
-                        try {
-                            val updatedIssue =
-                                dataService.getIssue(
-                                    issue.issueKey,
-                                    allowCache = false
-                                )
-                            updatedIssue?.let { dataService.ensureDownloaded(it) }
-                        } catch (e: ConnectivityException.Recoverable) {
-                            toastHelper.showNoConnectionToast()
-                        }
-                    }
+                try {
+                    val updatedIssue =
+                        dataService.getIssue(
+                            issueKey,
+                            allowCache = false
+                        )
+                    updatedIssue?.let { dataService.ensureDownloaded(it) }
+                } catch (e: ConnectivityException.Recoverable) {
+                    toastHelper.showNoConnectionToast()
                 }
             }
             dismiss()
         }
     }
-
 }

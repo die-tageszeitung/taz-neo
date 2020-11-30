@@ -12,15 +12,12 @@ import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.awaitCallback
-import de.taz.app.android.singletons.OkHttp
 import de.taz.app.android.util.reportAndRethrowExceptions
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
 import kotlin.Throws
 
 /**
@@ -28,13 +25,12 @@ import kotlin.Throws
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val okHttpClient: OkHttpClient,
+    private val httpClient: HttpClient = HttpClient(CIO),
     private val url: String,
     private val queryService: QueryService,
     private val authHelper: AuthHelper
 ) {
     private constructor(applicationContext: Context) : this(
-        okHttpClient = OkHttp.client,
         url = GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext)
@@ -60,24 +56,20 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val query = queryService.get(queryType)
             variables?.let { query.variables = variables }
 
-            val body = query.toJson().toRequestBody("application/json".toMediaType())
+            val queryBody = query.toJson()
 
-            // build request
-            val requestBuilder = Request.Builder()
-            authHelper.token?.let {
-                if (it.isNotEmpty()) {
-                    requestBuilder.addHeader(TAZ_AUTH_HEADER, it)
-                }
-            }
-
-            requestBuilder.addHeader("Accept", "application/json, */*").url(url).post(body)
-
-            val response = awaitCallback(okHttpClient.newCall(requestBuilder.build())::enqueue)
             val wrapper = try {
-                val source = response.body!!.source()
-                val dataWrapper = JsonHelper.adapter<WrapperDto>().fromJson(source)!!
-                source.close()
-                dataWrapper
+                val jsonText = httpClient.post<String>(url) {
+                    header("Accept", "application/json, */*")
+                    header("Content-Type", "application/json")
+                    body = queryBody
+                    authHelper.token?.let {
+                        if (it.isNotEmpty()) {
+                            header(TAZ_AUTH_HEADER, it)
+                        }
+                    }
+                }
+                JsonHelper.adapter<WrapperDto>().fromJson(jsonText)!!
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)

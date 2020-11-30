@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

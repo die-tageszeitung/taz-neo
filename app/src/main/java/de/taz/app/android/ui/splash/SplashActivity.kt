@@ -10,7 +10,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
@@ -18,8 +17,6 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.DownloadService
-import de.taz.app.android.download.IssueDownloadWorkManagerWorker
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.ui.main.MainActivity
@@ -27,9 +24,8 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.ui.home.page.HomePageViewModel
-import io.sentry.core.Sentry
-import io.sentry.core.protocol.User
+import io.sentry.Sentry
+import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.Exception
@@ -71,7 +67,7 @@ class SplashActivity : BaseActivity() {
             val initJob = launch {
                 launch { ensureAppInfo() }
                 launch { initResources() }
-                launch { initFeedsAndFirstIssues() }
+                launch { initFeed() }
             }
             try {
                 initJob.join()
@@ -102,18 +98,14 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private suspend fun initFeedsAndFirstIssues() {
+    private suspend fun initFeed() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
-            feed?.let {
-                if (it.publicationDates.isEmpty()) {
+            if (feed?.publicationDates?.isEmpty() == true) {
+                if (feed.publicationDates.isEmpty()) {
                     dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
                 }
-                dataService.getIssueStubsByFeed(Date(), listOf(it.name), 3)
-            } ?: run {
-                val hint = "Could not retrieve $DISPLAYED_FEED Feed"
-                log.error(hint)
-                throw InitializationException(hint)
+                dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
             }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Failed to retrieve feed and first issues during startup, no internet")
@@ -122,21 +114,7 @@ class SplashActivity : BaseActivity() {
 
     private suspend fun checkForNewestIssue() {
         try {
-            val oldFeed = dataService.getFeedByName(DISPLAYABLE_NAME)
-            val feed = dataService.getFeedByName(DISPLAYED_FEED, allowCache = false)
-            // determine whether a new issue was published
-            if (oldFeed?.publicationDates?.get(0) != feed?.publicationDates?.get(0)) {
-                // download that new issue
-                feed?.let {
-                    val issueStub = dataService.getIssueStubsByFeed(
-                        it.publicationDates[0],
-                        listOf(it.name),
-                        1,
-                        allowCache = false
-                    ).firstOrNull()
-                    issueStub?.getIssue()?.let { issue -> dataService.ensureDownloaded(issue) }
-                }
-            }
+            dataService.refreshFeedAndGetIssueIfNew(DISPLAYED_FEED)
         } catch (e: ConnectivityException.Recoverable) {
             toastHelper.showNoConnectionToast()
         }
@@ -196,7 +174,7 @@ class SplashActivity : BaseActivity() {
     private suspend fun checkAppVersion() {
         try {
             val appInfo = dataService.getAppInfo(allowCache = false)
-            if (BuildConfig.DEBUG && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
+            if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
                     R.string.notification_new_version_body,

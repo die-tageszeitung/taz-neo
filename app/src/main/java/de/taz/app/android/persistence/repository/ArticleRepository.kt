@@ -227,7 +227,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it?.bookmarked ?: false }
+        return getStubLiveData(articleName).map { it.bookmarked }
     }
 
     fun getIndexInSection(articleName: String): Int {

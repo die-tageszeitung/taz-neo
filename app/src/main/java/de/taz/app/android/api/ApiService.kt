@@ -218,7 +218,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getLastIssues(limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
         val issues = mutableListOf<Issue>()
         transformToConnectivityException {
             graphQlClient.query(
@@ -238,7 +237,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getLastIssuesByFeeds(feedNames: List<String>, limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
         val issues = mutableListOf<Issue>()
         transformToConnectivityException {
             graphQlClient.query(
@@ -299,6 +297,29 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 ?: emptyList()
         }
     }
+
+    /**
+     * function to get an [Issue] by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - the date of the issue
+     * @param limit - how many issues will be returned
+     * @return [List]<[Issue]> of the issues of a feed at given date
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getMomentByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: Date = Date()
+    ): Moment? {
+        val dateString = simpleDateFormat.format(issueDate)
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Moment, IssueVariables(feedName, dateString, 1)
+            ).data?.product?.feedList?.first()?.issueList?.first()?.let {
+                Moment(feedName, dateString, it.status, it.baseUrl, it.moment)
+            }
+        }
+    }
+
 
     /**
      * function to get information about the current resources

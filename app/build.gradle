@@ -1,6 +1,3 @@
-plugins {
-    id 'com.github.triplet.play' version '3.0.0'
-}
 
 apply plugin: 'com.android.application'
 
@@ -8,6 +5,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.github.triplet.play'
 apply plugin: 'io.sentry.android.gradle'
 
 if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("nonfree")) {
@@ -70,7 +68,16 @@ android {
         }
         vectorDrawables.useSupportLibrary = true
         resConfig "de"
+
+        buildConfigField "Boolean", "MANUAL_UPDATE", "false"
+
+        def ENV = System.getenv()
+        def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
+        println "Sentry environment: $sentryEnvironment"
+        buildConfigField "String", "SENTRY_ENVIRONMENT", "\"${sentryEnvironment}\""
     }
+
+
 
     compileOptions {
         sourceCompatibility 1.8
@@ -79,7 +86,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
+        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi,io.ktor.util.KtorExperimentalAPI"
     }
 
     lintOptions {
@@ -126,6 +133,7 @@ android {
     }
 
     buildTypes {
+
         leakCanary {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
@@ -149,11 +157,17 @@ android {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
             }
-
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         unminifiedRelease {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+            minifyEnabled false
+        }
+        manualUpdateRelease {
+            buildConfigField "Boolean", "MANUAL_UPDATE", "true"
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
             }
@@ -174,17 +188,24 @@ android {
     packagingOptions {
         pickFirst "META-INF/AL2.0"
         pickFirst "META-INF/LGPL2.1"
+
+        pickFirst 'win32-x86/attach_hotspot_windows.dll'
+        pickFirst 'win32-x86-64/attach_hotspot_windows.dll'
+        pickFirst 'META-INF/licenses/ASM'
     }
 }
 
 dependencies {
-    def room_version = '2.2.5'
+    def room_version = "2.2.5"
+    def ktor_version = "1.4.2"
+    def work_version = "2.4.0"
+    def mockito_version = "3.6.28"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     // this needs to be jdk 7 as otherwise it will not work on Android 5.1
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
@@ -216,9 +237,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.4.0"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation "io.ktor:ktor-client-android:$ktor_version"
+    implementation "io.ktor:ktor-client-cio:$ktor_version"
+    testImplementation "io.ktor:ktor-client-mock:$ktor_version"
+    androidTestImplementation "io.ktor:ktor-client-mock:$ktor_version"
+
     implementation 'org.conscrypt:conscrypt-android:2.5.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.10.0'
@@ -233,15 +258,19 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // error reports
-    implementation 'io.sentry:sentry-android:2.3.0'
+    implementation 'io.sentry:sentry-android:3.1.0'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'junit:junit:4.13'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
-    testImplementation 'org.mockito:mockito-core:3.5.2'
+    testImplementation "org.mockito:mockito-core:$mockito_version"
+    androidTestImplementation "org.mockito:mockito-core:$mockito_version"
+    androidTestImplementation "org.mockito:mockito-android:$mockito_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
 
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9'
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9'
@@ -292,13 +321,24 @@ sentry {
 }
 
 // Open all classes and their methods annotated with @Mockable if this is a test build
-def isTestTask = gradle.startParameter.taskNames.any { name -> name.split(':').last().startsWith 'test' }
-def isAndroidStudioTestTask = gradle.startParameter.taskNames.any { name -> name.endsWith 'UnitTestSources' }
+def isTestTask = gradle.startParameter.taskNames.any { name ->
+    name.split(':').last().startsWith('test') || name.split(':').last().endsWith('AndroidTest')
+}
+def isAndroidStudioTestTask = gradle.startParameter.taskNames.any { name ->
+    name.endsWith 'UnitTestSources'
+}
 if (isTestTask || isAndroidStudioTestTask) {
     println "ATTENTION: Test build detected: kotlin classes annotated with @Mockable and its methods are opened"
 
     apply plugin: 'kotlin-allopen'
     allOpen {
         annotation('de.taz.app.android.annotation.Mockable')
+    }
+}
+
+// This is a dependency of mockito - 3.x does not support apiLevel < 26, so we fix the dependency for now: https://github.com/mockito/mockito/issues/2007
+allprojects {
+    configurations.all {
+        resolutionStrategy.force 'org.objenesis:objenesis:2.6'
     }
 }

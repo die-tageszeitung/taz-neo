@@ -10,10 +10,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
-import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -27,24 +28,24 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 
-class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
+class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFragment() {
 
     private val log by Log
 
     private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
 
-    private var apiService: ApiService? = null
-    private var feedRepository: FeedRepository? = null
-    private var issueRepository: IssueRepository? = null
-    private var toastHelper: ToastHelper? = null
-    private var authHelper: AuthHelper? = null
+    private lateinit var apiService: ApiService
+    private lateinit var toastHelper: ToastHelper
+    private lateinit var authHelper: AuthHelper
+    private lateinit var dataService: DataService
 
     companion object {
         fun create(
             coverFlowFragment: CoverflowFragment?,
+            feed: Feed,
             date: Date
         ): DatePickerFragment {
-            val fragment = DatePickerFragment(date)
+            val fragment = DatePickerFragment(date, feed)
             fragment.coverFlowFragment = WeakReference(coverFlowFragment)
             return fragment
         }
@@ -53,10 +54,9 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
-        feedRepository = FeedRepository.getInstance(context.applicationContext)
-        issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -79,11 +79,9 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            val minDate = feedRepository?.getAll()?.fold(null) { acc: String?, feed ->
-                if (acc != null && acc < feed.issueMinDate) acc else feed.issueMinDate
-            }
+            val minDate = feed.issueMinDate
 
-            if (!minDate.isNullOrBlank()) {
+            if (!minDate.isBlank()) {
                 log.debug("minDate is $minDate")
                 DateHelper.stringToLong(minDate)?.let {
                     withContext(Dispatchers.Main) {
@@ -126,45 +124,27 @@ class DatePickerFragment(val date: Date) : BottomSheetDialogFragment() {
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
-            val issueStub = if (authHelper?.isLoggedIn() == true) {
-                issueRepository?.getLatestRegularIssueStubByDate(date)
-            } else {
-                issueRepository?.getLatestIssueStubByDate(date)
+            val issueStub = try {
+                 dataService.getIssueStub(
+                    dataService.determineIssueKey(
+                        IssuePublication(feed.name, date)
+                    )
+                )
+            } catch (e: ConnectivityException.Recoverable) {
+                toastHelper.showNoConnectionToast()
+                null
             }
-            if (issueStub != null && (issueStub.date == date ||
-                        DateHelper.dayDelta(issueStub.date, date).toInt() == 1 &&
-                        issueStub.isWeekend)
-            ) {
-                log.debug("issue is already local")
-                showIssue(issueStub)
+
+            if (issueStub != null) {
+                showIssue(issueStub.issueKey)
             } else {
-                try {
-                    val apiIssueList = apiService?.getIssuesByDate(date, 1)
-                    if (apiIssueList?.isNullOrEmpty() == false) {
-                        issueRepository?.saveIfDoesNotExist(apiIssueList)
-
-                        val selectedIssueStub = issueRepository?.getLatestIssueStubByDate(date)
-                        selectedIssueStub?.let {
-                            showIssue(it)
-
-                            toastHelper?.showToast(
-                                "${context?.getString(R.string.fragment_date_picker_selected_issue_toast)}: ${it.date}"
-                            )
-                        }
-                    } else {
-                        toastHelper?.showToast(getString(R.string.issue_not_found))
-                        dismiss()
-                    }
-                } catch (e: ConnectivityException) {
-                    toastHelper?.showNoConnectionToast()
-                    dismiss()
-                }
+                toastHelper.showToast(R.string.issue_not_found)
             }
         }
     }
 
-    private fun showIssue(issueStub: IssueStub) {
+    private fun showIssue(issueKey: IssueKey) {
         dismiss() //close datePicker
-        getMainView()?.showIssue(issueStub)
+        getMainView()?.showIssue(issueKey)
     }
 }

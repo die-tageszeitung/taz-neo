@@ -30,7 +30,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragme
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers

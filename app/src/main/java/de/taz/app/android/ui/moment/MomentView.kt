@@ -87,6 +87,7 @@ class MomentView @JvmOverloads constructor(
             loadUrl("about:blank")
             alpha = 0f
         }
+        moment_web_view.visibility = View.GONE
         clearDate()
         hideDownloadIcon()
         showProgressBar()
@@ -102,7 +103,7 @@ class MomentView @JvmOverloads constructor(
         }
         setDownloadIconForStatus(data.downloadStatus)
         setDimension(data.dimension)
-        setDate(data.issueStub.date, dateFormat)
+        setDate(data.issueKey.date, dateFormat)
     }
 
     fun resetDownloadIcon() {
@@ -238,7 +239,9 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun showAnimatedImage(uri: String) {
+        moment_web_view.visibility = View.VISIBLE
         moment_web_view.apply {
+
             loadUrl(uri)
         }
     }

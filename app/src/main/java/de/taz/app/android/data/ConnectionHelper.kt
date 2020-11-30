@@ -30,11 +30,10 @@ abstract class ConnectionHelper {
             try {
                 return block()
             } catch (e: ConnectivityException.Recoverable) {
+                onConnectionFailure()
                 isCurrentlyReachable = false
                 ensureConnectivityCheckRunning(onConnectionFailure)
                 suspendCoroutine<Unit> { continuation -> waitingCalls.offer(continuation) }
-            } catch (e: Exception) {
-                throw e
             }
         }
     }
