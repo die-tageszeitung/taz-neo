@@ -68,7 +68,15 @@ android {
         }
         vectorDrawables.useSupportLibrary = true
         resConfig "de"
+
+
+        def ENV = System.getenv()
+        def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
+        println "Sentry environment: $sentryEnvironment"
+        buildConfigField "String", "SENTRY_ENVIRONMENT", "\"${sentryEnvironment}\""
     }
+
+
 
     compileOptions {
         sourceCompatibility 1.8
@@ -124,6 +132,7 @@ android {
     }
 
     buildTypes {
+
         leakCanary {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
@@ -147,7 +156,6 @@ android {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
             }
-
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

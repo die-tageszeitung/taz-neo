@@ -11,7 +11,9 @@ class TazApplication : Application() {
         if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this)
         }
-        SentryAndroid.init(this)
+        SentryAndroid.init(this) { options ->
+            options.environment = BuildConfig.SENTRY_ENVIRONMENT
+        }
         FirebaseApp.initializeApp(this)
     }
 }
