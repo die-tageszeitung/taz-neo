@@ -49,14 +49,6 @@ class SectionWebViewFragment :
         ).get(SectionWebViewViewModel::class.java)
     }
 
-    private val issueContentViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(), SavedStateViewModelFactory(
-                this.requireActivity().application, this.requireActivity()
-            )
-        ).get(IssueContentViewModel::class.java)
-    }
-
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
     private lateinit var sectionFileName: String
@@ -84,25 +76,6 @@ class SectionWebViewFragment :
             viewModel.displayableLiveData.postValue(
                 SectionRepository.getInstance().get(sectionFileName)
             )
-        }
-    }
-
-    override fun onPageRendered() {
-        super.onPageRendered()
-        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-
-        // It is possible that this fragment is detached on page render - can't access the viewmodel then
-        if (isAdded) {
-            issueContentViewModel.lastScrollPositionOnDisplayable?.let {
-                if (it.displayableKey == sectionFileName) {
-                    log.debug("The last scroll position was on this section, resetting to $it")
-                    scrollView?.scrollY = it.scrollPosition
-                }
-            }
-        }
-        scrollView?.setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-            issueContentViewModel.lastScrollPositionOnDisplayable =
-                DisplayableScrollposition(sectionFileName, scrollY)
         }
     }
 

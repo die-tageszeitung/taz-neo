@@ -26,7 +26,10 @@ abstract class IssueDao : BaseDao<IssueStub>() {
 
     @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :fromDate) AND feedName IN (:feedNames) AND status == :status  ORDER BY date DESC LIMIT :limit")
     abstract fun getIssuesFromDateByFeed(fromDate: String, feedNames: List<String>, status: IssueStatus, limit: Int): List<IssueStub>
-    
+
+    @Query("SELECT lastDisplayableName FROM Issue WHERE strftime('%s', date) = strftime('%s', :fromDate) AND feedName = :feedName AND status == :status")
+    abstract fun getLastDisplayable(feedName: String, fromDate: String, status: IssueStatus): String?
+
     @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT 1 ")
     abstract fun getLatestByDate(date: String): IssueStub?
 

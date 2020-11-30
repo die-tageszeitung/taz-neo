@@ -25,7 +25,8 @@ data class Issue(
     val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val moTime: String,
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    override val lastDisplayableName: String?
 ) : IssueOperations, DownloadableCollection {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -41,6 +42,7 @@ data class Issue(
         issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList(),
         issueDto.moTime,
+        null,
         null
     )
 

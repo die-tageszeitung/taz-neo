@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
+import android.widget.LinearLayout
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
@@ -22,13 +23,14 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
+
+const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
 abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
     @LayoutRes layoutResourceId: Int
@@ -50,6 +52,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private var isRendered = false
 
+    private var saveScrollPositionJob: Job? = null
+
+    private val bottomNavigationViewLayout by lazy {
+        parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+    }
+
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("WebViewFragment: shared pref changed: $key")
@@ -63,6 +71,31 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
 
+    private fun saveScrollpositionDebounced(scrollPosition: Int) {
+        viewModel.displayable?.let {
+            val oldJob = saveScrollPositionJob
+            saveScrollPositionJob = lifecycleScope.launch(Dispatchers.IO) {
+                oldJob?.cancelAndJoin()
+                delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
+                // we need to offset the scroll position by the bottom navigation as it might be expanded
+                val bottomOffset = bottomNavigationViewLayout?.let {
+                    if (it.visibility == View.VISIBLE) {
+                        it.height - it.translationY.toInt()
+                    } else {
+                        0
+                    }
+                } ?: 0
+
+                val offsetPosition = scrollPosition - bottomOffset
+                viewModel.scrollPosition = offsetPosition
+                dataService.saveViewerStateForDisplayable(
+                    it.key,
+                    offsetPosition
+                )
+            }
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -75,7 +108,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
         getMainActivity()?.applicationContext?.let { applicationContext ->
             tazApiCssPreferences =
-                applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+                applicationContext.getSharedPreferences(
+                    PREFERENCES_TAZAPICSS,
+                    Context.MODE_PRIVATE
+                )
             tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
         }
         viewModel.displayableLiveData.observeDistinct(this) { displayable ->
@@ -97,8 +133,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
-            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-                viewModel.scrollPosition = scrollY
+            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, oldY: Int ->
+                saveScrollpositionDebounced(scrollY)
             }
         }
 
@@ -131,11 +167,24 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     open fun onPageRendered() {
         isRendered = true
-        val nestedScrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        viewModel.scrollPosition?.let {
-            nestedScrollView?.scrollY = it
-        } ?: view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
-        hideLoadingScreen()
+        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.displayable?.let {
+                val persistedScrollPosition =
+                    dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
+                viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
+            }
+            viewModel.scrollPosition?.let {
+                scrollView?.scrollY = it
+            } ?: run {
+                withContext(Dispatchers.Main) {
+                    view?.findViewById<AppBarLayout>(R.id.app_bar_layout)
+                        ?.setExpanded(true, false)
+                }
+            }
+            withContext(Dispatchers.Main) { hideLoadingScreen() }
+        }
+
     }
 
     override fun onPageFinishedLoading() {
@@ -196,5 +245,4 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 minResourceVersion <= resourceInfo.resourceVersion
             } ?: true
         }
-
 }

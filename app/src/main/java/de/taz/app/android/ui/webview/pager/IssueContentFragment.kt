@@ -61,19 +61,17 @@ class IssueContentFragment :
 
     override fun onResume() {
         super.onResume()
-        viewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(
-            this,
-            { _ ->
-                lifecycleScope.launchWhenResumed {
-                    val drawerShownLiveData = getShownDrawerNumberLiveData()
-                    if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
-                        drawerShown = true
-                        delay(100)
-                        getMainView()?.openDrawer(GravityCompat.START)
-                        drawerShownLiveData.postValue(drawerShownLiveData.value + 1)
-                    }
+        viewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this) { _ ->
+            lifecycleScope.launchWhenResumed {
+                val drawerShownLiveData = getShownDrawerNumberLiveData()
+                if (!drawerShown && drawerShownLiveData.value < DRAWER_SHOW_NUMBER) {
+                    drawerShown = true
+                    delay(100)
+                    getMainView()?.openDrawer(GravityCompat.START)
+                    drawerShownLiveData.postValue(drawerShownLiveData.value + 1)
                 }
-            })
+            }
+        }
 
         viewModel.activeDisplayMode.observeDistinct(this.viewLifecycleOwner) {
             setDisplayMode(it)

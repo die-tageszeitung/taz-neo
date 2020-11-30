@@ -34,6 +34,7 @@ class DataService(applicationContext: Context) {
 
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
@@ -120,6 +121,25 @@ class DataService(applicationContext: Context) {
             .flatten()
             .map(issueRepository::saveIfNotExistOrOutdated)
             .map(::IssueStub)
+    }
+
+    suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? = withContext(Dispatchers.IO) {
+        issueRepository.getLastDisplayable(issueKey)
+    }
+
+    suspend fun saveLastDisplayableOnIssue(issueKey: IssueKey, displayableName: String) = withContext(Dispatchers.IO) {
+        issueRepository.saveLastDisplayable(issueKey, displayableName)
+    }
+
+    suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? = withContext(Dispatchers.IO) {
+        viewerStateRepository.get(displayableName)
+    }
+
+    suspend fun saveViewerStateForDisplayable(displayableName: String, scrollPosition: Int) = withContext(Dispatchers.IO) {
+        viewerStateRepository.save(
+            displayableName,
+            scrollPosition
+        )
     }
 
     suspend fun getIssueStubsByFeed(

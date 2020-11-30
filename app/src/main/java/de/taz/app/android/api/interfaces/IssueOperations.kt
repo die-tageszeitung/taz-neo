@@ -17,6 +17,7 @@ interface IssueOperations: DownloadableStub {
     val minResourceVersion: Int
     val isWeekend: Boolean
     val moTime: String
+    val lastDisplayableName: String?
 
     val tag: String
         get() = "$feedName/$date/$status"
