@@ -105,7 +105,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onResume()
         // Either the issueContentViewModel can change the content of this drawer ...
         issueContentViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { issueKeyWithDisplayable ->
-            lifecycleScope.launch {
+            lifecycleScope.launchWhenResumed {
                 log.debug("Set issue issueKey from IssueContent")
                 if (!::currentIssueStub.isInitialized || issueKeyWithDisplayable?.issueKey != currentIssueStub.issueKey) {
                     showIssue(issueKeyWithDisplayable?.issueKey)
@@ -118,7 +118,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         // or the bookmarkpager
         bookmarkPagerViewModel.currentIssueAndArticleLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, displayableKey) ->
-            lifecycleScope.launch {
+            lifecycleScope.launchWhenResumed {
                 log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
                 if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
                     showIssue(issueStub.issueKey)
