@@ -72,16 +72,12 @@ class DownloadService constructor(
     suspend fun ensureCollectionDownloaded(
         downloadableCollection: DownloadableCollection,
         statusLiveData: MutableLiveData<DownloadStatus>,
-        ensureIntegrity: Boolean = false,
         isAutomaticDownload: Boolean = false,
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
         if (downloadableCollection.isDownloaded()) {
-            val isComplete = if (ensureIntegrity) {
-                fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
-            } else {
-                fileHelper.ensureFileListExists(downloadableCollection.getAllFiles())
-            }
+            val isComplete = fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
+
             if (isComplete) {
                 statusLiveData.postValue(DownloadStatus.done)
                 return@withContext
@@ -95,7 +91,6 @@ class DownloadService constructor(
             )
             statusLiveData.postValue(DownloadStatus.done)
             downloadableCollection.setDownloadDate(Date())
-
         } catch (e: Exception) {
             log.warn("Exception caught on ensureCollectionDownloaded(). Set state pending")
             statusLiveData.postValue(DownloadStatus.pending)

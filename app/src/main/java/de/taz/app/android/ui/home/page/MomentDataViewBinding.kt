@@ -142,17 +142,14 @@ class MomentViewDataBinding(
             CoroutineScope(Dispatchers.IO).launch {
                 val issue = momentViewData.issueStub.getIssue()
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                try {
-                    val updatedIssue =
-                        dataService.getIssue(
-                            issue.issueKey,
-                            allowCache = false
-                        )
-                    updatedIssue?.let {
-                        dataService.ensureDownloaded(updatedIssue)
-                    }
-                } catch (e: ConnectivityException.Recoverable) {
-                    ToastHelper.getInstance().showNoConnectionToast()
+                val updatedIssue =
+                    dataService.getIssue(
+                        issue.issueKey,
+                        retryOnFailure = true,
+                        allowCache = false
+                    )
+                updatedIssue?.let {
+                    dataService.ensureDownloaded(updatedIssue)
                 }
             }
         }
