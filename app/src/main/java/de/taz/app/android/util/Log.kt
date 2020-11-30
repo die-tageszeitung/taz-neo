@@ -3,7 +3,7 @@ package de.taz.app.android.util
 import android.util.Log
 import de.taz.app.android.PREFERENCES_LOG_TRACE_LENGTH
 import de.taz.app.android.annotation.Mockable
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KProperty

@@ -218,7 +218,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getLastIssues(limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
         val issues = mutableListOf<Issue>()
         transformToConnectivityException {
             graphQlClient.query(
@@ -238,7 +237,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getLastIssuesByFeeds(feedNames: List<String>, limit: Int = 10): List<Issue> {
-        val tag = "getLastIssues"
         val issues = mutableListOf<Issue>()
         transformToConnectivityException {
             graphQlClient.query(

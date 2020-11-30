@@ -413,23 +413,6 @@ class DataService(private val applicationContext: Context) {
             }
         }
 
-    /**
-     * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
-     * @param feedName to refresh
-     */
-    suspend fun refreshFeedAndGetIssueIfNew(feedName: String): Issue? = withContext(Dispatchers.IO) {
-        val cachedFeed = getFeedByName(feedName)
-        val refreshedFeed = getFeedByName(feedName, allowCache = false)
-        val newestIssue = refreshedFeed?.publicationDates?.getOrNull(0)
-        newestIssue?.let {
-            if (newestIssue != cachedFeed?.publicationDates?.getOrNull(0)) {
-                getIssue(IssueKey(feedName, simpleDateFormat.format(it), authHelper.eligibleIssueStatus))
-            } else {
-                null
-            }
-        }
-    }
-
 
     /**
      * If you want to listen in to a download state you'll have to do it with this wrapper function.

@@ -8,7 +8,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 const val KEY_SCHEDULE_NEXT = "KEY_SCHEDULE_NEXT"

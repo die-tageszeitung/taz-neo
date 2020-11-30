@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
@@ -12,9 +11,8 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -122,10 +120,6 @@ class IssueRepository private constructor(val applicationContext: Context) :
         } ?: saveIfDoesNotExist(issue)
     }
 
-    fun saveIfNotExistOrOutdated(issues: List<Issue>): List<Issue> {
-        return issues.map { saveIfNotExistOrOutdated(it) }
-    }
-
     fun saveIfDoesNotExist(issues: List<Issue>): List<Issue> {
         return issues.map { saveIfDoesNotExist(it) }
     }
@@ -173,73 +167,12 @@ class IssueRepository private constructor(val applicationContext: Context) :
             .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
     }
 
-    fun getEarliestIssueStub(): IssueStub? {
-        return appDatabase.issueDao().getEarliest()
-    }
-
-    fun getEarliestIssue(): Issue? {
-        return getEarliestIssueStub()?.let { issueStubToIssue(it) }
-    }
-
     fun getLatestIssueStub(): IssueStub? {
         return appDatabase.issueDao().getLatest()
     }
 
-    fun getLatestIssueStub(feedNames: List<String>, limit: Int): IssueStub? {
-        return appDatabase.issueDao().getLatest()
-    }
-
-    fun getIssuesFromDate(
-        fromDate: Date,
-        feedNames: List<String>,
-        status: IssueStatus,
-        limit: Int = 10
-    ): List<IssueStub> {
-        return appDatabase.issueDao().getIssuesFromDateByFeed(
-            simpleDateFormat.format(fromDate),
-            feedNames,
-            status,
-            limit
-        )
-    }
-
-    fun getLatestIssueByFeedAndStatus(feedName: String, status: IssueStatus): IssueStub? {
-        return appDatabase.issueDao().getLatestByFeedAndStatus(status, feedName)
-    }
-
     fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
-    }
-
-    fun getLatestIssueStubByDate(date: String): IssueStub? {
-        return appDatabase.issueDao().getLatestByDate(date)
-    }
-
-    fun getLatestRegularIssueStubByDate(date: String): IssueStub? {
-        return appDatabase.issueDao().getLatestRegularByDate(date)
-    }
-
-    fun getLatestIssueStubsByFeedAndDate(
-        date: String,
-        feedNames: List<String>,
-        limit: Int
-    ): List<IssueStub> {
-        return appDatabase.issueDao().getIssueStubsByFeedsAndDate(feedNames, date, limit)
-    }
-
-    fun getLatestIssueStubsByDate(
-        date: String,
-        limit: Int
-    ): List<IssueStub> {
-        return appDatabase.issueDao().getIssueStubsByDate(date, limit)
-    }
-
-    fun getLatestIssueStubsByDateAndStatus(
-        date: String,
-        status: IssueStatus,
-        limit: Int
-    ): List<IssueStub> {
-        return appDatabase.issueDao().getIssueStubsByDateAndStatus(date, status, limit)
     }
 
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
@@ -258,64 +191,6 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     fun getIssueStubForArticle(articleFileName: String): IssueStub? {
         return appDatabase.issueSectionJoinDao().getIssueStubForArticle(articleFileName)
-    }
-
-    fun getIssueStubForMoment(moment: Moment): IssueStub? {
-        return moment.getMomentImage()?.let {
-            appDatabase.momentImageJoinJoinDao().getIssueStub(it.name)
-        }
-    }
-
-    fun getAllStubsLiveData(): LiveData<List<IssueStub>> {
-        return Transformations.map(appDatabase.issueDao().getAllLiveData()) { input ->
-            input ?: emptyList()
-        }
-    }
-
-    fun getIssueStubByIssueKey(issueKey: IssueKey): IssueStub? {
-        return getIssueStubByFeedAndDate(issueKey.feedName, issueKey.date, issueKey.status)
-    }
-
-    private fun getAllIssuesList(): List<IssueStub> {
-        return appDatabase.issueDao().getAllIssueStubs()
-    }
-
-    fun getIssuesListByStatus(issueStatus: IssueStatus): List<IssueStub> {
-        return appDatabase.issueDao().getIssueStubsByStatus(issueStatus)
-    }
-
-    fun getAllDownloadedStubs(): List<IssueStub> {
-        return appDatabase.issueDao().getAllDownloaded()
-    }
-
-    fun getAllDownloadedStubsLiveData(): LiveData<List<IssueStub>?> {
-        return appDatabase.issueDao().getAllDownloadedLiveData()
-    }
-
-    fun getDownloadedIssuesCountLiveData(): LiveData<Int> {
-        return appDatabase.issueDao().getDownloadedIssuesCountLiveData()
-    }
-
-    fun getImprintStub(issueStub: IssueOperations) = getImprintStub(
-        issueStub.feedName,
-        issueStub.date,
-        issueStub.status
-    )
-
-    fun getImprintStub(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): ArticleStub? {
-        val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
-            issueFeedName, issueDate, issueStatus
-        )
-        return imprintName?.let { articleRepository.getStub(it) }
-    }
-
-
-    fun getEarliestDownloadedIssue(): Issue? {
-        return getEarliestDownloadedIssueStub()?.let { issueStubToIssue(it) }
     }
 
     private fun getEarliestDownloadedIssueStub(): IssueStub? {

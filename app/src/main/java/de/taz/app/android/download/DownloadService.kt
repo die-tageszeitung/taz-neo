@@ -26,7 +26,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -42,17 +42,15 @@ class DownloadService constructor(
     val applicationContext: Context,
     private val fileEntryRepository: FileEntryRepository,
     private val apiService: ApiService,
-    private val toastHelper: ToastHelper,
     private val fileHelper: FileHelper,
     private val toastHelper: ToastHelper,
-    private val httpClient: OkHttpClient
+    private val httpClient: HttpClient
 ) {
 
     private constructor(applicationContext: Context) : this(
         applicationContext,
         FileEntryRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
-        ToastHelper.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
         ToastHelper.getInstance(applicationContext),
         httpClient = HttpClient(CIO) {

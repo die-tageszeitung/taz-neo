@@ -13,7 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import java.lang.Exception
 import java.net.URLDecoder
 

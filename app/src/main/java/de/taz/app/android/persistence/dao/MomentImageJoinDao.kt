@@ -13,7 +13,7 @@ import de.taz.app.android.persistence.join.MomentImageJoin
 abstract class MomentImageJoinDao : BaseDao<MomentImageJoin>() {
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN MomentImageJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload FROM FileEntry INNER JOIN MomentImageJoin
         ON FileEntry.name == MomentImageJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == MomentImageJoin.momentFileName
         WHERE  MomentImageJoin.issueDate == :date AND MomentImageJoin.issueFeedName == :feedName
@@ -25,7 +25,7 @@ abstract class MomentImageJoinDao : BaseDao<MomentImageJoin>() {
 
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution FROM FileEntry INNER JOIN MomentImageJoin
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload FROM FileEntry INNER JOIN MomentImageJoin
         ON FileEntry.name == MomentImageJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == MomentImageJoin.momentFileName
         WHERE  MomentImageJoin.issueDate == :date AND MomentImageJoin.issueFeedName == :feedName
@@ -51,7 +51,7 @@ abstract class MomentImageJoinDao : BaseDao<MomentImageJoin>() {
     abstract fun getIssueStub(momentFileName: String): IssueStub
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution 
+        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload 
         FROM FileEntry INNER JOIN MomentImageJoin
         ON FileEntry.name == MomentImageJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == MomentImageJoin.momentFileName

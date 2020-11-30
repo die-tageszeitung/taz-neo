@@ -24,8 +24,8 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
-import io.sentry.core.Sentry
-import io.sentry.core.protocol.User
+import io.sentry.Sentry
+import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.Exception
@@ -102,7 +102,7 @@ class SplashActivity : BaseActivity() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             if (feed?.publicationDates?.isEmpty() == true) {
-                if (it.publicationDates.isEmpty()) {
+                if (feed.publicationDates.isEmpty()) {
                     dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
                 }
                 dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
