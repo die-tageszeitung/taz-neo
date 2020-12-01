@@ -13,11 +13,11 @@ data class DownloadStartVariables(
     val feedName: String,
     val issueDate: String,
     val isAutomatically: Boolean,
+    val installationId: String,
+    val isPush: Boolean,
     val deviceName: String = android.os.Build.MODEL,
     val deviceVersion: String = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,
-    val isPush: Boolean = FirebaseHelper.getInstance().isPush,
-    val installationId: String = AuthHelper.getInstance().installationId,
     val deviceFormat: DeviceFormat = DeviceFormat.mobile,
     val deviceType: DeviceType = DeviceType.android,
     val deviceOS: String? = System.getProperty("os.version")

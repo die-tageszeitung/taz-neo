@@ -5,9 +5,11 @@ import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
@@ -22,12 +24,16 @@ import kotlin.Throws
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
-    private val toastHelper: ToastHelper
+    private val toastHelper: ToastHelper,
+    private val authHelper: AuthHelper,
+    private val firebaseHelper: FirebaseHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
-        toastHelper = ToastHelper.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext),
+        authHelper = AuthHelper.getInstance(applicationContext),
+        firebaseHelper = FirebaseHelper.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
@@ -354,7 +360,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 DownloadStartVariables(
                     feedName,
                     issueDate,
-                    isAutomatically
+                    isAutomatically,
+                    installationId = authHelper.installationId,
+                    isPush = firebaseHelper.isPush
                 )
             ).data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id")
