@@ -99,7 +99,7 @@ def gerVersionCode = { ->
                 "Unable to determine versionCode from ${getVersionName()}, which is determined by the last git tag. " +
                 "Refer to the README to learn about a proper version format")
         e.printStackTrace()
-        return 0
+        return 1
     }
 }
 
