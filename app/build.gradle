@@ -26,12 +26,32 @@ play {
     serviceAccountCredentials = file('../play-publish.json')
 }
 
-def getVersionCode = { ->
-    def proc = 'git tag'.execute() | 'wc -l'.execute()
-    proc.waitFor()
-    def versionCode = 200 + proc.text.toInteger()
-    println "This build has versionCode: $versionCode"
-    return versionCode
+
+def versionNameToCode = { name ->
+    def majorFactor = 1000000000000
+    def minorFactor = 1000000000
+    def patchFactor = 1000000
+    def preReleaseTypeFactor = 1000
+    def identifierFactor = 100
+    def (semverCore, preReleaseIdentifier) = name.split('-')
+    def (major, minor, patch) = semverCore.split("\\.")
+    def (preReleaseType, preRelease) = preReleaseIdentifier.split('\\.')
+    // 9 is reserved for releases without pre-release identifier
+    def preReleaseTypeNumber = 9
+    switch (preReleaseType) {
+        case "alpha":
+            preReleaseTypeNumber = 1
+            break
+        case "beta":
+            preReleaseTypeNumber = 2
+            break
+        case "rc":
+            preReleaseNumber = 3
+            break
+        default:
+            throw Exception("Pre Release type need to be one of each 'alpha', 'beta' or 'rc'")
+    }
+    return major * majorFactor + minor * minorFactor + patch * patchFactor + preReleaseTypeNumber * preReleaseTypeFactor + preRelease * identifierFactor
 }
 
 def getVersionName = { ->
@@ -55,7 +75,7 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode getVersionCode()
+        versionCode versionNameToCode(getVersionName())
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
