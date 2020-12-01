@@ -216,7 +216,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private suspend fun ensureDownloadedAndShow() {
         var resourceInfo = dataService.getResourceInfo()
         if (!isResourceInfoUpToDate(resourceInfo)) {
-            resourceInfo = dataService.getResourceInfo(allowCache = false)
+            log.debug("ResourceInfo is outdated - request newest")
+            resourceInfo = dataService.getResourceInfo(allowCache = false, retryOnFailure = true)
         }
 
         dataService.ensureDownloaded(resourceInfo)
