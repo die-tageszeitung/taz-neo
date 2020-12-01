@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
@@ -29,6 +30,9 @@ class ArticleWebViewFragment :
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
     private lateinit var articleFileName: String
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var fontHelper: FontHelper
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -40,17 +44,22 @@ class ArticleWebViewFragment :
             }
         }
     }
-    private lateinit var issueRepository: IssueRepository
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        fontHelper = FontHelper.getInstance(requireContext().applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        issueRepository = IssueRepository.getInstance()
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         log.debug("Creating an ArticleWebView for $articleFileName")
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
-            ArticleRepository.getInstance().get(articleFileName)?.let {
+            articleRepository.get(articleFileName)?.let {
                 viewModel.displayableLiveData.postValue(
                     it
                 )
@@ -74,7 +83,7 @@ class ArticleWebViewFragment :
             val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
             issueStub?.apply {
                 if (isWeekend) {
-                    FontHelper.getInstance(context?.applicationContext)
+                    fontHelper
                         .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
                             withContext(Dispatchers.Main) {
                                 view?.findViewById<TextView>(R.id.section)?.typeface = typeface

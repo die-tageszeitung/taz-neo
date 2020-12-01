@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +42,8 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private var toDownloadImage: Image? = null
     private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var fileHelper: FileHelper
+
     val log by Log
 
     companion object {
@@ -55,10 +58,11 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
-        issueRepository = IssueRepository.getInstance()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dataService = DataService.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        fileHelper = FileHelper.getInstance(requireContext().applicationContext)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -126,7 +130,6 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
-        val fileHelper = FileHelper.getInstance()
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             fileHelper.getFileDirectoryUrl(context).let { fileDir ->
                 val uri = "${image.folder}/${image.name}"

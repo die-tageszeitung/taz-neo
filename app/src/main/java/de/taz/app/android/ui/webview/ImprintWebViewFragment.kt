@@ -49,8 +49,8 @@ class ImprintWebViewFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        articleRepository = ArticleRepository.getInstance()
-        issueRepository = IssueRepository.getInstance()
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
 
         issueContentViewModel.displayableKeyLiveData.observe(this) {
             log.debug("I received displayable $it")

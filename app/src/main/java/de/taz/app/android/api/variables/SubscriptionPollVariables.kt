@@ -9,7 +9,7 @@ import de.taz.app.android.singletons.JsonHelper
 
 @JsonClass(generateAdapter = true)
 data class SubscriptionPollVariables(
-    val installationId: String = AuthHelper.getInstance().installationId,
+    val installationId: String,
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,

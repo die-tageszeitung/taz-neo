@@ -72,6 +72,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
+                    installationId = authHelper.installationId,
+                    pushToken = firebaseHelper.firebaseToken,
                     tazId,
                     idPassword,
                     subscriptionId,
@@ -90,7 +92,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.SubscriptionPoll,
-                SubscriptionPollVariables()
+                SubscriptionPollVariables(authHelper.installationId)
             ).data?.subscriptionPoll
         }
     }
@@ -431,6 +433,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.Subscription,
                 SubscriptionVariables(
+                    installationId = authHelper.installationId,
+                    pushToken = firebaseHelper.firebaseToken,
                     tazId = tazId,
                     idPassword = idPassword,
                     surname = surname,
@@ -510,6 +514,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.ErrorReport,
                 ErrorReportVariables(
+                    installationId = authHelper.installationId,
+                    pushToken = firebaseHelper.firebaseToken,
                     email,
                     message,
                     lastAction,

@@ -34,12 +34,15 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
     var base64String : String? = null
     var uploadedFileName : String? = null
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        apiService = ApiService.getInstance(requireContext().applicationContext)
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        toastHelper = ToastHelper.getInstance()
-        apiService = ApiService.getInstance()
-
         coordinator.moveContentBeneathStatusBar()
 
         view.apply {

@@ -23,7 +23,7 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
+        dataService = DataService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

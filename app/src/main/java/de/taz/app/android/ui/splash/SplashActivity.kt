@@ -44,10 +44,10 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
-        firebaseHelper = FirebaseHelper.getInstance()
-        authHelper = AuthHelper.getInstance()
-        toastHelper = ToastHelper.getInstance()
+        dataService = DataService.getInstance(applicationContext)
+        firebaseHelper = FirebaseHelper.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
     }
 
     override fun onResume() {

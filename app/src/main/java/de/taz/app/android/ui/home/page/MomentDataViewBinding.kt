@@ -28,7 +28,7 @@ class MomentViewDataBinding(
     private val issuePublication: IssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: MomentViewActionListener
+    private val onMomentViewActionListener: MomentViewActionListener,
 ) {
     private val log by Log
 
