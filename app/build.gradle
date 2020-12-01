@@ -28,30 +28,50 @@ play {
 
 
 def versionNameToCode = { name ->
-    def majorFactor = 1000000000000
-    def minorFactor = 1000000000
-    def patchFactor = 1000000
-    def preReleaseTypeFactor = 1000
-    def identifierFactor = 100
-    def (semverCore, preReleaseIdentifier) = name.split('-')
-    def (major, minor, patch) = semverCore.split("\\.")
-    def (preReleaseType, preRelease) = preReleaseIdentifier.split('\\.')
+    def majorDigits = 2
+    def minorDigits = 2
+    def patchDigits = 2
+    def preReleaseTypeDigits = 1
+    def preReleaseVersionDigits = 2
+    def versionParts = name.split('-')
+    def semverCore = versionParts[0]
+    def preReleaseIdentifier = null
+    if (versionParts.length >= 2) {
+        preReleaseIdentifier = versionParts[1]
+    }
+    def versionNumbers = []
+    semverCore.split("\\.").eachWithIndex { item, idx ->
+        versionNumbers.add(Integer.parseInt(item))
+    }
+    def (major, minor, patch) = versionNumbers
     // 9 is reserved for releases without pre-release identifier
     def preReleaseTypeNumber = 9
-    switch (preReleaseType) {
-        case "alpha":
-            preReleaseTypeNumber = 1
-            break
-        case "beta":
-            preReleaseTypeNumber = 2
-            break
-        case "rc":
-            preReleaseNumber = 3
-            break
-        default:
-            throw Exception("Pre Release type need to be one of each 'alpha', 'beta' or 'rc'")
+    def preReleaseVersion = 0
+    if (preReleaseIdentifier != null) {
+        def (preReleaseType, preReleaseVersionParsed) = preReleaseIdentifier.split('\\.')
+        preReleaseVersionParsed = Integer.parseInt(preReleaseVersionParsed)
+        preReleaseVersion = preReleaseVersionParsed
+        switch (preReleaseType) {
+            case "alpha":
+                preReleaseTypeNumber = 1
+                break
+            case "beta":
+                preReleaseTypeNumber = 2
+                break
+            case "rc":
+                preReleaseNumber = 3
+                break
+            default:
+                throw Exception("Pre Release type need to be one of each 'alpha', 'beta' or 'rc'")
+        }
     }
-    return major * majorFactor + minor * minorFactor + patch * patchFactor + preReleaseTypeNumber * preReleaseTypeFactor + preRelease * identifierFactor
+    return Integer.parseInt(
+            major.toString().padLeft(majorDigits, '0') +
+            minor.toString().padLeft(minorDigits, '0') +
+            patch.toString().padLeft(patchDigits, '0') +
+            preReleaseTypeNumber.toString().padLeft(preReleaseTypeDigits, '0') +
+            preReleaseVersion.toString().padLeft(preReleaseVersionDigits, '0')
+    )
 }
 
 def getVersionName = { ->
@@ -69,13 +89,19 @@ def getVersionName = { ->
     return versionName
 }
 
+def gerVersionCode = { ->
+    def code = versionNameToCode(getVersionName())
+    println "This build has versionCode: $code"
+    return code
+}
+
 android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode versionNameToCode(getVersionName())
+        versionCode gerVersionCode()
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
