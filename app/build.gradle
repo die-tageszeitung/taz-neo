@@ -90,9 +90,17 @@ def getVersionName = { ->
 }
 
 def gerVersionCode = { ->
-    def code = versionNameToCode(getVersionName())
-    println "This build has versionCode: $code"
-    return code
+    try {
+        def code = versionNameToCode(getVersionName())
+        println "This build has versionCode: $code"
+        return code
+    } catch (e) {
+        logger.warn(
+                "Unable to determine versionCode from ${getVersionName()}, which is determined by the last git tag. " +
+                "Refer to the README to learn about a proper version format")
+        e.printStackTrace()
+        return 0
+    }
 }
 
 android {
