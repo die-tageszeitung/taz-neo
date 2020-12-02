@@ -25,7 +25,7 @@ class BookmarkPagerViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 articleFileName?.let { articleFileName ->
                     issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
-                        postValue( issueStub to articleFileName)
+                        postValue(issueStub to articleFileName)
                     }
                 }
             }
