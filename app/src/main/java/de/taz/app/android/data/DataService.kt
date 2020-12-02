@@ -3,6 +3,9 @@ package de.taz.app.android.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import de.taz.app.android.PREFERENCES_GENERAL
+import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES
+import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
@@ -13,9 +16,11 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
-import io.ktor.util.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -45,6 +50,38 @@ class DataService(private val applicationContext: Context) {
 
     private val downloadLiveDataMap: ConcurrentHashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         ConcurrentHashMap()
+    private val sharedPrefs =
+        applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+
+    private val maxStoredIssueNumberLiveData =
+        SharedPreferenceStringLiveData(
+            sharedPrefs,
+            SETTINGS_GENERAL_KEEP_ISSUES,
+            SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
+        )
+    private val downloadIssueNumberLiveData = issueRepository.getDownloadedIssuesCountLiveData()
+    private val ensureCountLock = Mutex()
+
+    init {
+        maxStoredIssueNumberLiveData.observeForever {
+            CoroutineScope(Dispatchers.IO).launch {
+                ensureIssueCount()
+            }
+        }
+        downloadIssueNumberLiveData.observeForever {
+            CoroutineScope(Dispatchers.IO).launch {
+                ensureIssueCount()
+            }
+        }
+    }
+
+    private suspend fun ensureIssueCount() = ensureCountLock.withLock {
+        while (downloadIssueNumberLiveData.value ?: 0 > maxStoredIssueNumberLiveData.value.toIntOrNull() ?: 20) {
+            issueRepository.getEarliestDownloadedIssueStub()?.let {
+                ensureDeletedFiles(it.getIssue())
+            }
+        }
+    }
 
     /**
      * Returns an [IssueKey] derrived by an [issuePublication] determined by application state
@@ -180,24 +217,28 @@ class DataService(private val applicationContext: Context) {
 
     }
 
-    suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? = withContext(Dispatchers.IO) {
-        issueRepository.getLastDisplayable(issueKey)
-    }
+    suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? =
+        withContext(Dispatchers.IO) {
+            issueRepository.getLastDisplayable(issueKey)
+        }
 
-    suspend fun saveLastDisplayableOnIssue(issueKey: IssueKey, displayableName: String) = withContext(Dispatchers.IO) {
-        issueRepository.saveLastDisplayable(issueKey, displayableName)
-    }
+    suspend fun saveLastDisplayableOnIssue(issueKey: IssueKey, displayableName: String) =
+        withContext(Dispatchers.IO) {
+            issueRepository.saveLastDisplayable(issueKey, displayableName)
+        }
 
-    suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? = withContext(Dispatchers.IO) {
-        viewerStateRepository.get(displayableName)
-    }
+    suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? =
+        withContext(Dispatchers.IO) {
+            viewerStateRepository.get(displayableName)
+        }
 
-    suspend fun saveViewerStateForDisplayable(displayableName: String, scrollPosition: Int) = withContext(Dispatchers.IO) {
-        viewerStateRepository.save(
-            displayableName,
-            scrollPosition
-        )
-    }
+    suspend fun saveViewerStateForDisplayable(displayableName: String, scrollPosition: Int) =
+        withContext(Dispatchers.IO) {
+            viewerStateRepository.save(
+                displayableName,
+                scrollPosition
+            )
+        }
 
     suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
         withContext(Dispatchers.IO) {
