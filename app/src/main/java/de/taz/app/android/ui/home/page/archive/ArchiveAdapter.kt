@@ -13,6 +13,6 @@ class ArchiveAdapter(
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
     glideRequestManager: RequestManager
-) : IssueFeedAdapter(fragment, itemLayoutRes, feed, glideRequestManager, HomeMomentViewActionListener(fragment, DataService.getInstance())) {
+) : IssueFeedAdapter(fragment, itemLayoutRes, feed, glideRequestManager, HomeMomentViewActionListener(fragment, DataService.getInstance(fragment.requireContext().applicationContext))) {
     override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
 }

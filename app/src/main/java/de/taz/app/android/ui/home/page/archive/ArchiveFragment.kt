@@ -21,9 +21,9 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dataService = DataService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

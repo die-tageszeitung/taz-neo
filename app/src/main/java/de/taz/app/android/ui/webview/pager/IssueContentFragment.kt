@@ -52,7 +52,7 @@ class IssueContentFragment :
         articlePagerFragment = ArticlePagerFragment()
         imprintFragment = ImprintWebViewFragment()
         loaderFragment = IssueLoaderFragment()
-        dataService = DataService.getInstance()
+        dataService = DataService.getInstance(requireContext().applicationContext)
         addFragment(sectionPagerFragment)
         addFragment(articlePagerFragment)
         addFragment(imprintFragment)

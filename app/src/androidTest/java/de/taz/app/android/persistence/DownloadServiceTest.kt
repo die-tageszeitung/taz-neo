@@ -6,6 +6,7 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.ToastHelper
 import io.ktor.client.*
@@ -35,6 +36,7 @@ class DownloadServiceTest {
         downloadService = DownloadService(
             context,
             FileEntryRepository.getInstance(context),
+            IssueRepository.getInstance(context),
             ApiService.getInstance(context),
             FileHelper.getInstance(context),
             ToastHelper.getInstance(context),

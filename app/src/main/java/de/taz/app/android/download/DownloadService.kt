@@ -42,6 +42,7 @@ import kotlin.coroutines.suspendCoroutine
 class DownloadService constructor(
     val applicationContext: Context,
     private val fileEntryRepository: FileEntryRepository,
+    private val issueRepository: IssueRepository,
     private val apiService: ApiService,
     private val fileHelper: FileHelper,
     private val toastHelper: ToastHelper,
@@ -51,6 +52,7 @@ class DownloadService constructor(
     private constructor(applicationContext: Context) : this(
         applicationContext,
         FileEntryRepository.getInstance(applicationContext),
+        IssueRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
         ToastHelper.getInstance(applicationContext),
@@ -134,7 +136,7 @@ class DownloadService constructor(
         collection: DownloadableCollection,
         fileEntry: FileEntry
     ): String = withContext(Dispatchers.IO) {
-        val dataService = DataService.getInstance()
+        val dataService = DataService.getInstance(applicationContext)
         when (fileEntry.storageType) {
             StorageType.global -> {
                 dataService.getAppInfo().globalBaseUrl
@@ -150,7 +152,7 @@ class DownloadService constructor(
                         val hint = "Moment.baseUrl was not properly migrated for ${collection.getDownloadTag()}"
                         Sentry.captureMessage(hint)
                         log.warn(hint)
-                        IssueRepository.getInstance().get(
+                        issueRepository.get(
                             IssueKey(
                                 collection.issueFeedName,
                                 collection.issueDate,
@@ -345,7 +347,7 @@ class DownloadService constructor(
     private suspend fun ensureDownloadHelper() {
         if (!::downloadConnectionHelper.isInitialized) {
             downloadConnectionHelper = DownloadConnectionHelper(
-                DataService.getInstance().getAppInfo().globalBaseUrl
+                DataService.getInstance(applicationContext).getAppInfo().globalBaseUrl
             )
             log.debug("Initialized downloadConnectionHelper")
         }

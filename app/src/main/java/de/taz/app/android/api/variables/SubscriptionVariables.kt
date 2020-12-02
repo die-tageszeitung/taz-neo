@@ -11,6 +11,8 @@ import de.taz.app.android.singletons.JsonHelper
 
 @JsonClass(generateAdapter = true)
 data class SubscriptionVariables(
+    val installationId: String,
+    val pushToken: String? = "",
     val tazId: String,
     val idPassword: String,
     val surname: String? = null,
@@ -25,8 +27,6 @@ data class SubscriptionVariables(
     val iban: String,
     val accountHolder: String? = null,
     val comment: String? = null,
-    val installationId: String = AuthHelper.getInstance().installationId,
-    val pushToken: String? = FirebaseHelper.getInstance().firebaseToken,
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,

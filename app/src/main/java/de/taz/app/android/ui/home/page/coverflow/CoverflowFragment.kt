@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -42,9 +43,9 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
 
     private var currentDate: Date? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dataService = DataService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

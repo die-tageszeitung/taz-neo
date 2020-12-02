@@ -100,7 +100,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
-        dataService = DataService.getInstance()
+        dataService = DataService.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

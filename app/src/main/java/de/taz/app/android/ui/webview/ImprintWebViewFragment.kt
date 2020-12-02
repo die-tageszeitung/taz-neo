@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
@@ -47,10 +48,15 @@ class ImprintWebViewFragment :
     private lateinit var articleRepository: ArticleRepository
     private lateinit var issueRepository: IssueRepository
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        articleRepository = ArticleRepository.getInstance()
-        issueRepository = IssueRepository.getInstance()
 
         issueContentViewModel.displayableKeyLiveData.observe(this) {
             log.debug("I received displayable $it")

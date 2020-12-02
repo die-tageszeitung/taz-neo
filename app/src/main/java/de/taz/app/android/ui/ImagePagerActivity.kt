@@ -45,7 +45,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance()
+        dataService = DataService.getInstance(applicationContext)
 
         try {
             displayableName = intent.extras!!.getString(DISPLAYABLE_NAME)!!
@@ -67,9 +67,9 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
         runBlocking(Dispatchers.IO) {
             availableImageList = if (displayableName.startsWith("section.")) {
-                SectionRepository.getInstance().imagesForSectionStub(displayableName)
+                SectionRepository.getInstance(applicationContext).imagesForSectionStub(displayableName)
             } else {
-                ArticleRepository.getInstance().getImagesForArticle(displayableName)
+                ArticleRepository.getInstance(applicationContext).getImagesForArticle(displayableName)
             }
         }
 

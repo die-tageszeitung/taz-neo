@@ -45,14 +45,14 @@ class IssueContentViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val log by Log
-    private val dataService = DataService.getInstance()
+    private val dataService = DataService.getInstance(application)
+    private val issueRepository = IssueRepository.getInstance(application)
+    private val sectionRepository = SectionRepository.getInstance(application)
+    private val articleRepository = ArticleRepository.getInstance(application)
 
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
 
-    var lastScrollPositionOnDisplayable: DisplayableScrollposition?
-        get() = savedStateHandle.get(KEY_SCROLL_POSITION)
-        set(value) = savedStateHandle.set(KEY_SCROLL_POSITION, value)
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?, immediate: Boolean = false) {
         log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey}")
@@ -96,7 +96,7 @@ class IssueContentViewModel(
         log.debug("Showing issue defaulting to first section")
         // Either fetch last displayable from DB or take first section
         val displayableKey = dataService.getLastDisplayableOnIssue(issueStub.issueKey)
-            ?: SectionRepository.getInstance().getSectionStubsForIssue(issueStub.issueKey).first().key
+            ?: sectionRepository.getSectionStubsForIssue(issueStub.issueKey).first().key
         setDisplayable(
             IssueKeyWithDisplayableKey(issueStub.issueKey, displayableKey),
             immediate
@@ -107,13 +107,11 @@ class IssueContentViewModel(
         log.debug("Showing issue defaulting to first section")
         activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
         viewModelScope.launch(Dispatchers.IO) {
-            val dataService = DataService.getInstance()
 
             val issue = dataService.getIssue(issueKey, retryOnFailure = true)!!
 
             dataService.ensureDownloaded(issue)
-            val firstSection =
-                SectionRepository.getInstance().getSectionStubsForIssue(issue.issueKey).first()
+            val firstSection = sectionRepository.getSectionStubsForIssue(issue.issueKey).first()
             setDisplayable(
                 IssueKeyWithDisplayableKey(issue.issueKey, firstSection.key)
             )
@@ -145,7 +143,7 @@ class IssueContentViewModel(
                         lastIssueKey = it
                         viewModelScope.launch(Dispatchers.IO) {
                             postValue(
-                                ArticleRepository.getInstance().getArticleStubListForIssue(it)
+                                articleRepository.getArticleStubListForIssue(it)
                             )
                         }
                     }
@@ -160,7 +158,7 @@ class IssueContentViewModel(
             addSource(issueKeyLiveData) {
                 it?.let {
                     viewModelScope.launch(Dispatchers.IO) {
-                        postValue(SectionRepository.getInstance().getSectionStubsForIssue(it))
+                        postValue(sectionRepository.getSectionStubsForIssue(it))
                     }
                 } ?: run {
                     postValue(emptyList())
@@ -172,7 +170,7 @@ class IssueContentViewModel(
         addSource(issueKeyLiveData) {
             it?.let {
                 viewModelScope.launch(Dispatchers.IO) {
-                    postValue(IssueRepository.getInstance().getImprint(it))
+                    postValue(issueRepository.getImprint(it))
                 }
             }
         }

@@ -49,7 +49,7 @@ class WelcomeActivity : AppCompatActivity() {
 
         fileHelper = FileHelper.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
-        dataService = DataService.getInstance()
+        dataService = DataService.getInstance(applicationContext)
 
         setContentView(R.layout.activity_welcome)
 

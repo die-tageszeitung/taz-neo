@@ -15,21 +15,24 @@ class BookmarkPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
+    val issueRepository = IssueRepository.getInstance(application)
+    val articleRepository = ArticleRepository.getInstance(application)
+
     val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
 
     val currentIssueAndArticleLiveData: LiveData<Pair<IssueStub, String>> = MediatorLiveData<Pair<IssueStub, String>>().apply {
         addSource(articleFileNameLiveData) { articleFileName ->
             viewModelScope.launch(Dispatchers.IO) {
                 articleFileName?.let { articleFileName ->
-                    IssueRepository.getInstance().getIssueStubForArticle(articleFileName)?.let { issueStub ->
-                        postValue( issueStub to articleFileName)
+                    issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
+                        postValue(issueStub to articleFileName)
                     }
                 }
             }
         }
     }
 
-    val articleListLiveData = ArticleRepository.getInstance().getBookmarkedArticleStubsLiveData()
+    val articleListLiveData = articleRepository.getBookmarkedArticleStubsLiveData()
 
     val currentIssue: IssueStub?
         get() = currentIssueAndArticleLiveData.value?.first

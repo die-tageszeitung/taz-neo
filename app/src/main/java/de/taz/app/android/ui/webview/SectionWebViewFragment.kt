@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Context
 import android.graphics.Point
 import android.os.Bundle
 import android.util.TypedValue
@@ -40,6 +41,7 @@ const val BIG_HEADER_TEXT_SIZE = 30f
 class SectionWebViewFragment :
     WebViewFragment<Section, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
+    private lateinit var sectionRepository: SectionRepository
 
     override val viewModel by lazy {
         ViewModelProvider(
@@ -74,9 +76,14 @@ class SectionWebViewFragment :
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
             viewModel.displayableLiveData.postValue(
-                SectionRepository.getInstance().get(sectionFileName)
+                sectionRepository.get(sectionFileName)
             )
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
