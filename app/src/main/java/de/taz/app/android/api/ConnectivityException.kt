@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import android.system.ErrnoException
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.client.statement.*
@@ -28,8 +29,9 @@ private val networkExceptions = listOf(
     UnresolvedAddressException::class,
     ConnectTimeoutException::class,
     NoRouteToHostException::class,
+    ClosedSelectorException::class,
     SSLPeerUnverifiedException::class,
-    ClosedSelectorException::class
+    ErrnoException::class
 )
 
 sealed class ConnectivityException(
