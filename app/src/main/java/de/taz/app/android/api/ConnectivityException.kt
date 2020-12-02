@@ -1,7 +1,6 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.util.reportAndRethrowExceptions
-import de.taz.app.android.util.reportAndRethrowExceptionsAsync
 import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.client.statement.*
 import io.ktor.network.sockets.*
