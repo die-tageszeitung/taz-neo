@@ -1,19 +1,17 @@
 package de.taz.app.android.api
 
 import de.taz.app.android.util.reportAndRethrowExceptions
-import de.taz.app.android.util.reportAndRethrowExceptionsAsync
 import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.client.statement.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
-import java.net.ConnectException
-import java.net.SocketException
+import java.net.*
 import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLPeerUnverifiedException
 import kotlin.jvm.Throws
 
 private val networkExceptions = listOf(
@@ -27,7 +25,9 @@ private val networkExceptions = listOf(
     SSLHandshakeException::class,
     SocketException::class,
     UnresolvedAddressException::class,
-    ConnectTimeoutException::class
+    ConnectTimeoutException::class,
+    NoRouteToHostException::class,
+    SSLPeerUnverifiedException::class
 )
 
 sealed class ConnectivityException(
