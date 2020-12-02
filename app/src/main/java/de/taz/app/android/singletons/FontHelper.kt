@@ -6,11 +6,13 @@ import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.WoffConverter
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileNotFoundException
 import java.lang.RuntimeException
 
 const val CONVERTED_FONT_FOLDER = "convertedFonts"
@@ -45,19 +47,26 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
     }
 
     private suspend fun fromFile(fileName: String): Typeface? = withContext(Dispatchers.IO) {
-        return@withContext fileHelper.getFile(fileName)?.let {
-            val ttfFile = File("${fontFolder}/${it.name.replace(".woff", ".ttf")}")
-            if (!ttfFile.exists()) {
-                ttfFile.writeBytes(
-                    WoffConverter().convertToTTFByteArray(it.inputStream())
-                )
+        val woffFile = fileHelper.getFile(fileName)
+        try {
+            woffFile?.inputStream()?.use {
+                val ttfFile = File("${fontFolder}/${fileName.replace(".woff", ".ttf")}")
+                if (!ttfFile.exists()) {
+                    ttfFile.writeBytes(
+                        WoffConverter().convertToTTFByteArray(it)
+                    )
+                }
+                try {
+                    Typeface.createFromFile(ttfFile)
+                } catch (re: RuntimeException) {
+                    ttfFile.delete()
+                    fromFile(fileName)
+                }
             }
-            try {
-                Typeface.createFromFile(ttfFile)
-            } catch (re: RuntimeException) {
-                ttfFile.delete()
-                fromFile(fileName)
-            }
+        } catch (e: FileNotFoundException) {
+            val hint = "Accessing $fileName threw $e"
+            Sentry.captureException(e, hint)
+            null
         }
     }
 }
