@@ -89,7 +89,7 @@ def getVersionName = { ->
     return versionName
 }
 
-def gerVersionCode = { ->
+def getVersionCode = { ->
     try {
         def code = versionNameToCode(getVersionName())
         println "This build has versionCode: $code"
@@ -109,7 +109,7 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode gerVersionCode()
+        versionCode getVersionCode()
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
