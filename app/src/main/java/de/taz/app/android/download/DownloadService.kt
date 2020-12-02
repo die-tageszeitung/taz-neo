@@ -1,6 +1,7 @@
 package de.taz.app.android.download
 
 import android.content.Context
+import android.system.ErrnoException
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import de.taz.app.android.DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE
@@ -31,6 +32,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.FileNotFoundException
 import java.util.*
 import java.util.concurrent.*
 import kotlin.coroutines.Continuation
@@ -228,18 +230,24 @@ class DownloadService constructor(
         channel: ByteReadChannel, downloadedFile: FileEntry
     ) = withContext(NonCancellable) {
 
-        // ensure folders are created
-        fileHelper.createFileDirs(downloadedFile)
-        val sha256 = fileHelper.writeFile(downloadedFile, channel)
-        if (sha256 == downloadedFile.sha256) {
-            fileEntryRepository.setDownloadDate(downloadedFile, Date())
-        } else {
-            val hint = "SHA-256 mismatch on ${downloadedFile.name}"
+        try {
+            // ensure folders are created
+            fileHelper.createFileDirs(downloadedFile)
+            val sha256 = fileHelper.writeFile(downloadedFile, channel)
+            if (sha256 == downloadedFile.sha256) {
+                fileEntryRepository.setDownloadDate(downloadedFile, Date())
+            } else {
+                val hint = "SHA-256 mismatch on ${downloadedFile.name}"
+                log.warn(hint)
+                Sentry.captureMessage(hint)
+                fileEntryRepository.resetDownloadDate(
+                        downloadedFile
+                )
+            }
+        } catch (e: Exception) {
+            val hint = "Couldn't write file ${downloadedFile.name}"
             log.warn(hint)
-            Sentry.captureMessage(hint)
-            fileEntryRepository.resetDownloadDate(
-                downloadedFile
-            )
+            Sentry.captureException(e, hint)
         }
     }
 
