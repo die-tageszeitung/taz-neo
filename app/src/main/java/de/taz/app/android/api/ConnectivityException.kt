@@ -8,6 +8,7 @@ import kotlinx.coroutines.CancellationException
 import java.io.EOFException
 import java.net.*
 import java.net.SocketTimeoutException
+import java.nio.channels.ClosedSelectorException
 import java.nio.channels.UnresolvedAddressException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
@@ -27,7 +28,8 @@ private val networkExceptions = listOf(
     UnresolvedAddressException::class,
     ConnectTimeoutException::class,
     NoRouteToHostException::class,
-    SSLPeerUnverifiedException::class
+    SSLPeerUnverifiedException::class,
+    ClosedSelectorException::class
 )
 
 sealed class ConnectivityException(
