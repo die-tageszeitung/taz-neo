@@ -7,10 +7,8 @@ import io.ktor.client.statement.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
-import java.net.ConnectException
-import java.net.SocketException
+import java.net.*
 import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
@@ -27,7 +25,8 @@ private val networkExceptions = listOf(
     SSLHandshakeException::class,
     SocketException::class,
     UnresolvedAddressException::class,
-    ConnectTimeoutException::class
+    ConnectTimeoutException::class,
+    NoRouteToHostException::class
 )
 
 sealed class ConnectivityException(
