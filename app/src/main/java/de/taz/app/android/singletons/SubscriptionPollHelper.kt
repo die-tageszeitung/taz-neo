@@ -12,7 +12,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctOnce
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {

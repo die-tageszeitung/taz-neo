@@ -18,7 +18,7 @@ import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import io.sentry.Sentry
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 
 class LoginViewModel(

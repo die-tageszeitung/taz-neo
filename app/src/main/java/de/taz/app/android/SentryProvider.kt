@@ -1,6 +1,7 @@
 package de.taz.app.android
 
 import android.content.Context
+import io.sentry.core.Sentry
 import io.sentry.android.core.SentryAndroid
 
 object SentryProvider {
@@ -8,5 +9,6 @@ object SentryProvider {
         SentryAndroid.init(context) { options ->
             options.environment = BuildConfig.SENTRY_ENVIRONMENT
         }
+
     }
 }

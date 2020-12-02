@@ -24,8 +24,8 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
-import io.sentry.Sentry
-import io.sentry.protocol.User
+import io.sentry.core.Sentry
+import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.Exception
