@@ -43,3 +43,24 @@ Also be aware that this will produce an unsigned release. For signing during bui
 keystorePath=keystore.jks
 keyAlias=keyAlias
 ```
+
+## Releasing / Versioning
+
+Our gradle build scripts automatically create versions based on the git tag. To reduce an integer we follow a strict pattern for release tags, that are a subset of [semver](https://semver.org/lang/de/):
+MAJOR.MINOR.PATCH[-PRE-RELEASE-TYPE].[PRE-RELEASE-VERSION]. Valid prerelease types are 'alpha', 'beta', 'rc'
+For example:
+
+```
+git tag -a 1.1.0 # ✓
+git tag -a 1.1.1-alpha.1 # ✓
+git tag -a 1.2.0 # ✓
+```
+
+The build script will possibly throw an error or generate garbage versions if the last tag is wrong like those bad examples:
+
+```
+
+git tag -a 1.2 # ✗
+git tag -a 1.1.1-alpha-1 # ✗
+git tag -a testtag # ✗
+```
