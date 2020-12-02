@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException
 import java.nio.channels.UnresolvedAddressException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLPeerUnverifiedException
 import kotlin.jvm.Throws
 
 private val networkExceptions = listOf(
@@ -26,7 +27,8 @@ private val networkExceptions = listOf(
     SocketException::class,
     UnresolvedAddressException::class,
     ConnectTimeoutException::class,
-    NoRouteToHostException::class
+    NoRouteToHostException::class,
+    SSLPeerUnverifiedException::class
 )
 
 sealed class ConnectivityException(
