@@ -41,9 +41,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val connectionHelper = APIConnectionHelper(graphQlClient)
 
 
-    suspend fun <T> retryOnConnectionFailure(block: suspend () -> T): T {
+    suspend fun <T> retryOnConnectionFailure(onConnectionFailure: suspend () -> Unit = {}, block: suspend () -> T): T {
         return connectionHelper.retryOnConnectivityFailure({
-            toastHelper.showNoConnectionToast()
+            onConnectionFailure()
         }) {
             block()
         }

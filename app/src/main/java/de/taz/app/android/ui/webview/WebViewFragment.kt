@@ -24,6 +24,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
@@ -49,6 +50,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private lateinit var apiService: ApiService
     private lateinit var downloadService: DownloadService
     private lateinit var dataService: DataService
+    private lateinit var toastHelper: ToastHelper
 
     private var isRendered = false
 
@@ -101,6 +103,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         apiService = ApiService.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
         dataService = DataService.getInstance(requireContext().applicationContext)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -220,10 +223,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             resourceInfo = dataService.getResourceInfo(allowCache = false, retryOnFailure = true)
         }
 
-        dataService.ensureDownloaded(resourceInfo)
+        dataService.ensureDownloaded(resourceInfo, onConnectionFailure = {
+            toastHelper.showNoConnectionToast()
+        })
 
         viewModel.displayable?.let {
-            dataService.ensureDownloaded(it)
+            dataService.ensureDownloaded(it, onConnectionFailure = {
+                toastHelper.showNoConnectionToast()
+            })
             val path = withContext(Dispatchers.IO) { it.getFile()!!.absolutePath }
             loadUrl("file://$path")
         }

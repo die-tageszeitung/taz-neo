@@ -16,6 +16,7 @@ import de.taz.app.android.download.DownloadService
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.runIfNotNull
@@ -48,6 +49,7 @@ class DataService(private val applicationContext: Context) {
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     private val downloadLiveDataMap: ConcurrentHashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         ConcurrentHashMap()
@@ -205,7 +207,8 @@ class DataService(private val applicationContext: Context) {
         issueKey: IssueKey,
         allowCache: Boolean = true,
         forceUpdate: Boolean = false,
-        retryOnFailure: Boolean = false
+        retryOnFailure: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
@@ -213,7 +216,9 @@ class DataService(private val applicationContext: Context) {
             }
         }
         val issue = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure {
+            apiService.retryOnConnectionFailure({
+                onConnectionFailure()
+            }) {
                 apiService.getIssueByKey(issueKey)
             }
         } else {
@@ -308,7 +313,9 @@ class DataService(private val applicationContext: Context) {
             }
         }
         val resourceInfo = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure {
+            apiService.retryOnConnectionFailure({
+                toastHelper.showNoConnectionToast()
+            }) {
                 apiService.getResourceInfo()
             }
         } else {
@@ -320,13 +327,15 @@ class DataService(private val applicationContext: Context) {
 
     suspend fun ensureDownloaded(
         collection: DownloadableCollection,
-        isAutomaticDownload: Boolean = false
+        isAutomaticDownload: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             downloadService.ensureCollectionDownloaded(
                 collection,
                 liveData as MutableLiveData<DownloadStatus>,
-                isAutomaticDownload = isAutomaticDownload
+                isAutomaticDownload = isAutomaticDownload,
+                onConnectionFailure = onConnectionFailure
             )
         }
 
