@@ -81,11 +81,13 @@ class DataService(private val applicationContext: Context) {
             downloadIssueNumberLiveData.value,
             maxStoredIssueNumberLiveData.value.toIntOrNull()
         ) { downloaded, max ->
-            runBlocking {
-                while (downloaded > max) {
+            var downloadedCounter = downloaded
+            while (downloadedCounter > max) {
+                runBlocking {
                     issueRepository.getEarliestDownloadedIssueStub()?.let {
                         ensureDeletedFiles(it.getIssue())
                     }
+                    downloadedCounter--
                 }
             }
         }
