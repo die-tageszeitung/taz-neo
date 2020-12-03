@@ -312,7 +312,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // error reports
-    implementation 'io.sentry:sentry-android:3.1.0'
+    implementation 'io.sentry:sentry-android:2.3.2'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     // testing
