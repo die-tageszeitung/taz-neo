@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.GRAPHQL_ENDPOINT
+import de.taz.app.android.MAX_SIMULTANIOUS_QUERIES
 import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
@@ -14,9 +15,11 @@ import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlin.Throws
 
@@ -25,7 +28,7 @@ import kotlin.Throws
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: HttpClient = HttpClient(CIO),
+    private val httpClient: HttpClient = HttpClient(Android),
     private val url: String,
     private val queryService: QueryService,
     private val authHelper: AuthHelper
@@ -39,6 +42,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val unrecoverableGraphQlErrorCategories = listOf("businessLogic", "graphql ")
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
+
+    private val maxSimulatanousRequestSemaphore = Semaphore(MAX_SIMULTANIOUS_QUERIES)
 
     /**
      * function to get DTO from query
@@ -59,13 +64,15 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val queryBody = query.toJson()
 
             val wrapper = try {
-                val jsonText = httpClient.post<String>(url) {
-                    header("Accept", "application/json, */*")
-                    header("Content-Type", "application/json")
-                    body = queryBody
-                    authHelper.token?.let {
-                        if (it.isNotEmpty()) {
-                            header(TAZ_AUTH_HEADER, it)
+                val jsonText = maxSimulatanousRequestSemaphore.withPermit {
+                    httpClient.post<String>(url) {
+                        header("Accept", "application/json, */*")
+                        header("Content-Type", "application/json")
+                        body = queryBody
+                        authHelper.token?.let {
+                            if (it.isNotEmpty()) {
+                                header(TAZ_AUTH_HEADER, it)
+                            }
                         }
                     }
                 }

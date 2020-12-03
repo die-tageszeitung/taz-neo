@@ -1,10 +1,9 @@
 package de.taz.app.android.download
 
 import android.content.Context
-import android.system.ErrnoException
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
-import de.taz.app.android.DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE
+import de.taz.app.android.MAX_SIMULTANIOUS_DOWNLOADS
 import de.taz.app.android.PREFERENCES_DOWNLOADS
 import de.taz.app.android.SETTINGS_DOWNLOAD_ONLY_WIFI
 import de.taz.app.android.annotation.Mockable
@@ -23,7 +22,7 @@ import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.util.*
@@ -31,8 +30,9 @@ import io.ktor.utils.io.*
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
-import java.io.FileNotFoundException
+import kotlinx.coroutines.sync.withPermit
 import java.util.*
 import java.util.concurrent.*
 import kotlin.coroutines.Continuation
@@ -50,7 +50,6 @@ class DownloadService constructor(
     private val toastHelper: ToastHelper,
     private val httpClient: HttpClient
 ) {
-
     private constructor(applicationContext: Context) : this(
         applicationContext,
         FileEntryRepository.getInstance(applicationContext),
@@ -58,14 +57,7 @@ class DownloadService constructor(
         ApiService.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
         ToastHelper.getInstance(applicationContext),
-        httpClient = HttpClient(CIO) {
-            engine {
-                pipelining = true
-                endpoint {
-                    maxConnectionsPerRoute = DOWNLOAD_MAX_CONNECTIONS_PER_ROUTE
-                }
-            }
-        }
+        httpClient = HttpClient(Android)
     )
 
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
@@ -75,6 +67,8 @@ class DownloadService constructor(
     private var fileDownloaderJob: Job? = null
     private val fileDownloadPriorityQueue = PriorityBlockingQueue<PrioritizedFileDownload>()
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
+
+    private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANIOUS_DOWNLOADS)
 
     /**
      * start download for cacheableDownload
@@ -89,7 +83,8 @@ class DownloadService constructor(
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
         if (downloadableCollection.isDownloaded()) {
-            val isComplete = fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
+            val isComplete =
+                fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
 
             if (isComplete) {
                 statusLiveData.postValue(DownloadStatus.done)
@@ -148,10 +143,13 @@ class DownloadService constructor(
             }
             StorageType.issue -> {
                 when (collection) {
-                    is Moment -> if (collection.baseUrl.isNotEmpty()) { collection.baseUrl } else {
+                    is Moment -> if (collection.baseUrl.isNotEmpty()) {
+                        collection.baseUrl
+                    } else {
                         // TODO: We migrated baseUrl from Issue in earlier versions to make the Moment standalone. To monitor this volatile migration report any inconsistency
                         // Can be removed if no problem occurs
-                        val hint = "Moment.baseUrl was not properly migrated for ${collection.getDownloadTag()}"
+                        val hint =
+                            "Moment.baseUrl was not properly migrated for ${collection.getDownloadTag()}"
                         Sentry.captureMessage(hint)
                         log.warn(hint)
                         issueRepository.get(
@@ -160,9 +158,10 @@ class DownloadService constructor(
                                 collection.issueDate,
                                 collection.issueStatus
                             )
-                        )?.baseUrl ?: throw IllegalStateException("Could not determine base url for ${collection.getDownloadTag()}")
+                        )?.baseUrl
+                            ?: throw IllegalStateException("Could not determine base url for ${collection.getDownloadTag()}")
                     }
-                    is IssueOperations-> collection.baseUrl
+                    is IssueOperations -> collection.baseUrl
                     is WebViewDisplayable -> collection.getIssueStub()?.baseUrl
                         ?: throw CannotDetermineBaseUrlException("${collection.key} has no issue")
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")
@@ -264,9 +263,9 @@ class DownloadService constructor(
         val tag = downloadableCollection.getDownloadTag()
         val downloadJob = downloadListMutex.withLock {
             val newOrExistingJob = taggedDownloadMap[tag] ?: scheduleDownload(
-                    downloadableCollection,
-                    isAutomaticDownload
-                )
+                downloadableCollection,
+                isAutomaticDownload
+            )
             taggedDownloadMap[tag] = newOrExistingJob
             newOrExistingJob
         }
@@ -327,10 +326,12 @@ class DownloadService constructor(
                 .map {
                     CoroutineScope(Dispatchers.IO).launch(start = CoroutineStart.LAZY) {
                         log.verbose("Downloading ${it.name} for $tag")
-                        downloadAndSaveFile(
-                            it,
-                            determineBaseUrl(downloadableCollection, it)
-                        )
+                        maxDownloadSemaphore.withPermit {
+                            downloadAndSaveFile(
+                                it,
+                                determineBaseUrl(downloadableCollection, it)
+                            )
+                        }
                     }
                 }.map {
                     if (downloadableCollection is Issue) {
