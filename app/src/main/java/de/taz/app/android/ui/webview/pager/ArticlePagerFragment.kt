@@ -4,9 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -16,7 +14,9 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.webview.ArticleWebViewFragment
+import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
@@ -31,15 +31,14 @@ class ArticlePagerFragment : BaseMainFragment(
     private val log by Log
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    override val enableSideBar: Boolean = true
     private var hasBeenSwiped = false
 
-    private val issueContentViewModel: IssueContentViewModel by lazy {
+    private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueContentViewModel::class.java)
+        ).get(IssueViewerViewModel::class.java)
     }
 
     override fun onResume() {
@@ -50,7 +49,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
             ) {
                 log.debug("New set of articles: ${articleStubs.map { it.key }}")
-                webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs)
+                webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs, this)
                 issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
             }
         }
@@ -130,7 +129,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
             lifecycleScope.launchWhenResumed {
                 nextStub.getNavButton(context?.applicationContext)?.let {
-                    showNavButton(it)
+                    issueContentViewModel
                 }
                 navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
                     nextStub.onlineLink != null
@@ -141,28 +140,6 @@ class ArticlePagerFragment : BaseMainFragment(
 
             }
         }
-    }
-
-    private inner class ArticlePagerAdapter(val articleStubs: List<ArticleStub>) :
-        FragmentStateAdapter(this@ArticlePagerFragment) {
-
-
-        override fun createFragment(position: Int): Fragment {
-            val article = articleStubs[position]
-            return ArticleWebViewFragment.createInstance(article.articleFileName)
-        }
-
-
-        override fun getItemId(position: Int): Long {
-            return articleStubs[position].key.hashCode().toLong()
-        }
-
-        override fun containsItem(itemId: Long): Boolean {
-            return articleStubs.any { itemId == it.key.hashCode().toLong() }
-        }
-
-
-        override fun getItemCount(): Int = articleStubs.size
     }
 
     override fun onBackPressed(): Boolean {
@@ -189,7 +166,8 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome(skipToNewestIssue = true)
+                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
+                requireActivity().finish()
             }
 
             R.id.bottom_navigation_action_bookmark -> {

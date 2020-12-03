@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -16,6 +17,8 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
@@ -27,8 +30,6 @@ class BookmarkPagerFragment :
     BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
 
     val log by Log
-
-    override val enableSideBar = true
 
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
@@ -49,9 +50,11 @@ class BookmarkPagerFragment :
         ).get(BookmarkPagerViewModel::class.java)
     }
 
+    private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
+
     override fun onResume() {
         super.onResume()
-        viewModel.articleListLiveData.observeDistinct(this) {
+        viewModel.bookmarkedArticleStubsLiveData.observeDistinct(this) {
             log.debug("Set new stubs $it")
             articlePagerAdapter.articleStubs = it
             loading_screen.visibility = View.GONE
@@ -106,7 +109,7 @@ class BookmarkPagerFragment :
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
         withContext(Dispatchers.IO) {
             articleToBindTo.getNavButton(context?.applicationContext)?.let {
-                showNavButton(it)
+                drawerViewModel.navButton.postValue(it)
             }
 
         }
@@ -139,7 +142,8 @@ class BookmarkPagerFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome(skipToNewestIssue = true)
+                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
+                requireActivity().finish()
             }
 
             R.id.bottom_navigation_action_bookmark -> {
@@ -172,7 +176,7 @@ class BookmarkPagerFragment :
         val articleFileName = viewModel.articleFileNameLiveData.value
         if (
             articleFileName?.startsWith("art") == true &&
-            viewModel.articleListLiveData.value?.map { it.key }?.contains(articleFileName) == true
+            viewModel.bookmarkedArticleStubsLiveData.value?.map { it.key }?.contains(articleFileName) == true
         ) {
             log.debug("I will now display $articleFileName")
             lifecycleScope.launchWhenResumed {

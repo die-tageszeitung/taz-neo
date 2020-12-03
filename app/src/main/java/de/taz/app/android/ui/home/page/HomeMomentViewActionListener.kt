@@ -22,7 +22,6 @@ open class HomeMomentViewActionListener(
             withContext(Dispatchers.Main) {
                 homePageFragment.showBottomSheet(
                     IssueBottomSheetFragment.create(
-                        homePageFragment.getMainView()!!,
                         momentViewData.issueKey,
                         isDownloaded
                     )

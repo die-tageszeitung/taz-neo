@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -15,6 +16,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -87,7 +89,10 @@ abstract class HomePageFragment(
     }
 
     fun onItemSelected(issueKey: IssueKey) {
-        showIssue(issueKey)
+        Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+            startActivity(this)
+        }
     }
 
     /**

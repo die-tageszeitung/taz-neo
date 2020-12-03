@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
-import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -24,8 +23,6 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
-import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
-import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

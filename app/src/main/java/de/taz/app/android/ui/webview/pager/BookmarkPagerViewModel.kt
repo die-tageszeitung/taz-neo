@@ -32,7 +32,8 @@ class BookmarkPagerViewModel(
         }
     }
 
-    val articleListLiveData = articleRepository.getBookmarkedArticleStubsLiveData()
+    val bookmarkedArticleStubsLiveData = articleRepository.getBookmarkedArticleStubsLiveData()
+    val bookmarkedArticlesLiveData = articleRepository.getBookmarkedArticlesLiveData()
 
     val currentIssue: IssueStub?
         get() = currentIssueAndArticleLiveData.value?.first

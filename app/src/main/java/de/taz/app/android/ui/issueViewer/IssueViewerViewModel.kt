@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.webview.pager
+package de.taz.app.android.ui.issueViewer
 
 import android.app.Application
 import android.os.Parcelable
@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
-private const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
@@ -30,18 +29,7 @@ data class IssueKeyWithDisplayableKey(
     val displayableKey: String
 ) : Parcelable
 
-data class IssueStubWithDisplayableKey(
-    val issueStub: IssueStub,
-    val displayableKey: String
-)
-
-@Parcelize
-data class DisplayableScrollposition(
-    val displayableKey: String,
-    val scrollPosition: Int
-) : Parcelable
-
-class IssueContentViewModel(
+class IssueViewerViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
@@ -51,6 +39,8 @@ class IssueContentViewModel(
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
     private val toastHelper = ToastHelper.getInstance(application)
+
+    private val navButton = MutableLiveData<Image?>(null)
 
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey

@@ -10,6 +10,7 @@ import android.webkit.WebSettings
 import android.widget.LinearLayout
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -23,8 +24,10 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
@@ -37,8 +40,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     @LayoutRes layoutResourceId: Int
 ) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
     AppWebViewClientCallBack {
-
-    override val enableSideBar: Boolean = true
 
     abstract override val viewModel: VIEW_MODEL
 
@@ -56,9 +57,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private var saveScrollPositionJob: Job? = null
 
+    private var currentIssueKey: IssueKey? = null
+
     private val bottomNavigationViewLayout by lazy {
         parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
     }
+
+    val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
@@ -109,7 +114,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        getMainActivity()?.applicationContext?.let { applicationContext ->
+        requireActivity().applicationContext?.let { applicationContext ->
             tazApiCssPreferences =
                 applicationContext.getSharedPreferences(
                     PREFERENCES_TAZAPICSS,
@@ -130,6 +135,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             if (it == null) return@observeDistinct
             log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
+                    currentIssueKey = it.getIssueStub()?.issueKey
+                }
                 configureWebView()
                 ensureDownloadedAndShow()
             }
@@ -206,10 +214,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
     }
 
-    fun getMainActivity(): MainActivity? {
-        return activity as? MainActivity
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         web_view?.destroy()
@@ -237,7 +241,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     }
 
     override fun onLinkClicked(displayableKey: String) {
-        getMainActivity()?.showInWebView(displayableKey)
+        setDisplayable(displayableKey)
+    }
+
+    fun setDisplayable(displayableKey: String) {
+        currentIssueKey?.let {
+            issueViewerViewModel.setDisplayable(it, displayableKey)
+        }
     }
 
     /**

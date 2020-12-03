@@ -15,10 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class BookmarksAdapter(
-    private val bookmarksFragment: BookmarksFragment
+class BookmarkListAdapter(
+    private val bookmarksFragment: BookmarkListFragment
 ) :
-    RecyclerView.Adapter<BookmarksViewHolder>() {
+    RecyclerView.Adapter<BookmarkListViewHolder>() {
 
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
@@ -76,11 +76,11 @@ class BookmarksAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): BookmarksViewHolder {
-        return BookmarksViewHolder(bookmarksFragment, parent)
+    ): BookmarkListViewHolder {
+        return BookmarkListViewHolder(bookmarksFragment, parent)
     }
 
-    override fun onBindViewHolder(holder: BookmarksViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BookmarkListViewHolder, position: Int) {
         val article = bookmarks[position]
         holder.setBookmarks(bookmarks)
         holder.bind(article)

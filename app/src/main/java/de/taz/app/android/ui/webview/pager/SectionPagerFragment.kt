@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,10 @@ import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -28,16 +33,17 @@ class SectionPagerFragment : BaseMainFragment(
 ) {
     private val log by Log
 
-    override val enableSideBar: Boolean = true
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
 
-    private val issueContentViewModel: IssueContentViewModel by lazy {
+    private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueContentViewModel::class.java)
+        ).get(IssueViewerViewModel::class.java)
     }
+
+    private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,7 +98,7 @@ class SectionPagerFragment : BaseMainFragment(
 
             lifecycleScope.launchWhenResumed {
                 getCurrentSectionStub()?.getNavButton()?.let {
-                    showNavButton(it)
+                    drawerViewModel.navButton.postValue(it)
                 }
             }
 
@@ -102,7 +108,8 @@ class SectionPagerFragment : BaseMainFragment(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome(skipToNewestIssue = true)
+                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
+                requireActivity().finish()
             }
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())

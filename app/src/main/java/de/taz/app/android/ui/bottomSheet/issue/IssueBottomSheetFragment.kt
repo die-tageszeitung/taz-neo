@@ -23,6 +23,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.HomePageViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
@@ -38,7 +39,6 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
     private lateinit var issueKey: IssueKey
-    private var weakActivityReference: WeakReference<MainActivity>? = null
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -54,7 +54,6 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
         fun create(
-            mainActivity: MainActivity,
             issueKey: IssueKey,
             isDownloaded: Boolean
         ): IssueBottomSheetFragment {
@@ -63,7 +62,6 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             args.putBoolean(KEY_IS_DOWNLOADED, isDownloaded)
             return IssueBottomSheetFragment().apply {
                 arguments = args
-                weakActivityReference = WeakReference(mainActivity)
             }
         }
     }
@@ -109,8 +107,10 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_read?.setOnClickListener {
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    weakActivityReference?.get()
-                        ?.showIssue(issueKey)
+                    Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+                        putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+                        startActivityForResult(this, 0)
+                    }
                     dismiss()
                 }
             }

@@ -46,6 +46,26 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.issueViewer.IssueViewerActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.bookmarks.BookmarkListActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.bookmarks.BookmarkViewerActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.settings.support.ErrorReportActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.login.LoginActivity"
             android:screenOrientation="portrait" />

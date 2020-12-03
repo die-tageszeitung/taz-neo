@@ -9,7 +9,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.activity_taz_viewer.view.*
 
 class DrawerLayout @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyle: Int = 0

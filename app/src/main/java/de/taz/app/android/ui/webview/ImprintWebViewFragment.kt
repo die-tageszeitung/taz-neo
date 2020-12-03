@@ -4,11 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
-import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.map
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
@@ -17,16 +16,16 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
-import de.taz.app.android.ui.webview.pager.IssueContentDisplayMode
-import de.taz.app.android.ui.webview.pager.IssueContentViewModel
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ImprintWebViewFragment :
-    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_imprint),
-    BackFragment {
+    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_imprint) {
 
     override val nestedScrollViewId = R.id.nested_scroll_view
 
@@ -37,13 +36,15 @@ class ImprintWebViewFragment :
         ).get(ArticleWebViewViewModel::class.java)
     }
 
-    private val issueContentViewModel: IssueContentViewModel by lazy {
+    private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity().viewModelStore, SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueContentViewModel::class.java)
+        ).get(IssueViewerViewModel::class.java)
     }
+
+    private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var issueRepository: IssueRepository
@@ -79,7 +80,7 @@ class ImprintWebViewFragment :
 
     override fun onResume() {
         super.onResume()
-        showDefaultNavButton()
+        drawerViewModel.setDefaultDrawerNavButton()
     }
 
     override fun setHeader(displayable: Article) {
@@ -89,7 +90,7 @@ class ImprintWebViewFragment :
                 view?.findViewById<TextView>(R.id.section)?.apply {
                     text = title
                     setOnClickListener {
-                        showHome()
+                        requireActivity().finish()
                     }
                 }
             }
@@ -112,16 +113,12 @@ class ImprintWebViewFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                showHome(skipToNewestIssue = true)
+                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
+                requireActivity().finish()
             }
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
             }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        showHome()
-        return true
     }
 }

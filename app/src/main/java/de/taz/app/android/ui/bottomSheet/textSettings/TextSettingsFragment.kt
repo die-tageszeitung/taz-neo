@@ -1,11 +1,12 @@
 package de.taz.app.android.ui.bottomSheet.textSettings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
-import de.taz.app.android.ui.settings.SettingsFragment
+import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
 
 const val MIN_TEXT_SIZE = 30
@@ -13,8 +14,6 @@ const val MAX_TEST_SIZE = 200
 
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel>(R.layout.fragment_bottom_sheet_text_size) {
-
-    override val enableSideBar: Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,7 +69,9 @@ class TextSettingsFragment :
     }
 
     private fun onSettingsSelected() {
-        showMainFragment(SettingsFragment())
+        Intent(requireActivity(), SettingsActivity::class.java).apply {
+            startActivity(this)
+        }
     }
 
     private fun decreaseTextSize() {
