@@ -193,7 +193,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueSectionJoinDao().getIssueStubForArticle(articleFileName)
     }
 
-    private fun getEarliestDownloadedIssueStub(): IssueStub? {
+    fun getEarliestDownloadedIssueStub(): IssueStub? {
         return appDatabase.issueDao().getEarliestDownloaded()
     }
 
@@ -324,6 +324,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
             delete(issue)
             save(issue)
         }
+    }
+
+    fun getDownloadedIssuesCountLiveData(): LiveData<Int> {
+        return appDatabase.issueDao().getDownloadedIssuesCountLiveData()
     }
 
     fun delete(issue: Issue) {
