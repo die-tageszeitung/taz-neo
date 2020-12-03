@@ -18,6 +18,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
+import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -76,9 +77,16 @@ class DataService(private val applicationContext: Context) {
     }
 
     private suspend fun ensureIssueCount() = ensureCountLock.withLock {
-        while (downloadIssueNumberLiveData.value ?: 0 > maxStoredIssueNumberLiveData.value.toIntOrNull() ?: 20) {
-            issueRepository.getEarliestDownloadedIssueStub()?.let {
-                ensureDeletedFiles(it.getIssue())
+        runIfNotNull(
+            downloadIssueNumberLiveData.value,
+            maxStoredIssueNumberLiveData.value.toIntOrNull()
+        ) { downloaded, max ->
+            runBlocking {
+                while (downloaded > max) {
+                    issueRepository.getEarliestDownloadedIssueStub()?.let {
+                        ensureDeletedFiles(it.getIssue())
+                    }
+                }
             }
         }
     }
