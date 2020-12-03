@@ -16,6 +16,7 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ class WebViewActivity : AppCompatActivity() {
     private var isDownloadedLiveData: LiveData<Boolean>? = null
 
     private lateinit var dataService: DataService
+    private lateinit var toastHelper: ToastHelper
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +43,7 @@ class WebViewActivity : AppCompatActivity() {
         fileHelper = FileHelper.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         setContentView(R.layout.activity_webview)
 
@@ -69,7 +72,9 @@ class WebViewActivity : AppCompatActivity() {
     private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
         lifecycleScope.launch(Dispatchers.IO) {
             val resourceInfo = dataService.getResourceInfo()
-            dataService.ensureDownloaded(resourceInfo)
+            dataService.ensureDownloaded(resourceInfo, onConnectionFailure = {
+                toastHelper.showNoConnectionToast()
+            })
             withContext(Dispatchers.Main) {
                 web_view_fullscreen_content.loadUrl(filePath)
             }

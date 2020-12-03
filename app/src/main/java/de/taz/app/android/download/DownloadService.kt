@@ -80,6 +80,7 @@ class DownloadService constructor(
         downloadableCollection: DownloadableCollection,
         statusLiveData: MutableLiveData<DownloadStatus>,
         isAutomaticDownload: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
         if (downloadableCollection.isDownloaded()) {
@@ -96,7 +97,8 @@ class DownloadService constructor(
             statusLiveData.postValue(DownloadStatus.started)
             scheduleDownloadOrListenToRunning(
                 downloadableCollection,
-                isAutomaticDownload = isAutomaticDownload
+                isAutomaticDownload = isAutomaticDownload,
+                onConnectionFailure
             )
             statusLiveData.postValue(DownloadStatus.done)
             downloadableCollection.setDownloadDate(Date())
@@ -175,7 +177,8 @@ class DownloadService constructor(
     suspend fun downloadAndSaveFile(
         fileToDownload: FileEntry,
         baseUrl: String,
-        force: Boolean = false
+        force: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ) {
         ensureDownloadHelper()
         // skip this if we have the correct version downloaded
@@ -186,7 +189,7 @@ class DownloadService constructor(
             return
         }
         val response = downloadConnectionHelper.retryOnConnectivityFailure({
-            toastHelper.showNoConnectionToast()
+            onConnectionFailure()
         }) {
             transformToConnectivityException {
                 httpClient.get<HttpStatement>(
@@ -259,12 +262,14 @@ class DownloadService constructor(
     private suspend fun scheduleDownloadOrListenToRunning(
         downloadableCollection: DownloadableCollection,
         isAutomaticDownload: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         val tag = downloadableCollection.getDownloadTag()
         val downloadJob = downloadListMutex.withLock {
             val newOrExistingJob = taggedDownloadMap[tag] ?: scheduleDownload(
                 downloadableCollection,
-                isAutomaticDownload
+                isAutomaticDownload,
+                onConnectionFailure
             )
             taggedDownloadMap[tag] = newOrExistingJob
             newOrExistingJob
@@ -304,7 +309,8 @@ class DownloadService constructor(
 
     private suspend fun scheduleDownload(
         downloadableCollection: DownloadableCollection,
-        isAutomaticDownload: Boolean = false
+        isAutomaticDownload: Boolean = false,
+        onConnectionFailure: suspend () -> Unit = {}
     ): TaggedDownloadJob =
         withContext(Dispatchers.IO) {
             log.info("Start download of ${downloadableCollection.getDownloadTag()}")
@@ -329,7 +335,8 @@ class DownloadService constructor(
                         maxDownloadSemaphore.withPermit {
                             downloadAndSaveFile(
                                 it,
-                                determineBaseUrl(downloadableCollection, it)
+                                determineBaseUrl(downloadableCollection, it),
+                                onConnectionFailure=onConnectionFailure
                             )
                         }
                     }

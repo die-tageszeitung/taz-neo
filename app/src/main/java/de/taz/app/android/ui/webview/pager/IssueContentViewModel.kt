@@ -9,6 +9,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +50,7 @@ class IssueContentViewModel(
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
+    private val toastHelper = ToastHelper.getInstance(application)
 
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
@@ -103,19 +105,27 @@ class IssueContentViewModel(
         )
     }
 
-    fun setDisplayable(issueKey: IssueKey) {
+    suspend fun setDisplayable(issueKey: IssueKey) {
+        var noConnectionShown = false
+        fun onConnectionFailure() {
+            if (!noConnectionShown) {
+                viewModelScope.launch {
+                    toastHelper.showNoConnectionToast()
+                    noConnectionShown = true
+                }
+            }
+        }
         log.debug("Showing issue defaulting to first section")
         activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
-        viewModelScope.launch(Dispatchers.IO) {
+        val issue = dataService.getIssue(issueKey, retryOnFailure = true, onConnectionFailure = {
+            onConnectionFailure()
+        })!!
 
-            val issue = dataService.getIssue(issueKey, retryOnFailure = true)!!
-
-            dataService.ensureDownloaded(issue)
-            val firstSection = sectionRepository.getSectionStubsForIssue(issue.issueKey).first()
-            setDisplayable(
-                IssueKeyWithDisplayableKey(issue.issueKey, firstSection.key)
-            )
-        }
+        dataService.ensureDownloaded(issue, onConnectionFailure = ::onConnectionFailure)
+        val firstSection = sectionRepository.getSectionStubsForIssue(issue.issueKey).first()
+        setDisplayable(
+            IssueKeyWithDisplayableKey(issue.issueKey, firstSection.key)
+        )
     }
 
 
