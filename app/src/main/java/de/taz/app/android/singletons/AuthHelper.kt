@@ -135,7 +135,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                         }
                     }
                     else -> {
-                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to uncaught status: $authStatus")
+                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to uncaught status: $authStatus of token: $token")
                     }
                 }
             }
