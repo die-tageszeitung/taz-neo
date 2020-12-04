@@ -198,9 +198,9 @@ class DownloadService constructor(
             }
         }
 
-        val channel = response.receive<ByteReadChannel>()
         when (response.status.value) {
             in 200..299 -> {
+                val channel = response.receive<ByteReadChannel>()
                 handleResponse(channel, fileToDownload)
             }
             in 400..499 -> {
