@@ -113,7 +113,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 AuthenticationVariables(user, password)
             ).data?.authentificationToken
         }
-        Sentry.captureMessage("[Debug #12895] authenticated with token: ${authTokenInfo.toString()}")
+        Sentry.captureMessage("[Debug #12895] authenticated with token: ${authTokenInfo?.token?.substring(0,10)}*********")
         return authTokenInfo
     }
 

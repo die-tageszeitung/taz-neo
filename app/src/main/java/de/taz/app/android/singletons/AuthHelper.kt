@@ -117,7 +117,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
                     }
                     AuthStatus.notValid -> {
-                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to notValid for token: $token")
+                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to notValid for token: ${token?.substring(0,10)}*********")
                         elapsedButWaiting = false
                         toastHelper.showToast(R.string.toast_logout_invalid)
 
@@ -135,7 +135,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                         }
                     }
                     else -> {
-                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to uncaught status: $authStatus of token: $token")
+                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to uncaught status: $authStatus of token: ${token?.substring(0,10)}*********")
                     }
                 }
             }
