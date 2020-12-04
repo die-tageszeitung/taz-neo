@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bookmarks
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +14,9 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
 
-class BookmarksViewHolder(
-    private val bookmarksFragment: BookmarksFragment,
-    parent: ViewGroup
+class BookmarkListViewHolder(
+    private val bookmarksFragment: BookmarkListFragment,
+    val parent: ViewGroup
 ) :
     RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(
@@ -32,7 +33,7 @@ class BookmarksViewHolder(
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
     private val fileHelper = FileHelper.getInstance(parent.context.applicationContext)
-    private val bookmarksAdapter = BookmarksAdapter(bookmarksFragment)
+    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {
@@ -68,7 +69,10 @@ class BookmarksViewHolder(
 
             bookmarkTitle?.text = article.title
             bookmarkBox?.setOnClickListener {
-                bookmarksFragment.showInWebView(article.key, bookmarksArticle = true)
+                Intent(parent.context, BookmarkViewerActivity::class.java).apply {
+                    putExtra(BookmarkViewerActivity.KEY_SHOWN_ARTICLE, article.key)
+                    parent.context.startActivity(this)
+                }
             }
 
             bookmarkShare.setOnClickListener {

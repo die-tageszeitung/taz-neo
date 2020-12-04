@@ -3,7 +3,7 @@ package de.taz.app.android.ui.webview
 import android.content.Context
 import android.os.Bundle
 import android.widget.TextView
-import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -13,17 +13,18 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
-import de.taz.app.android.ui.webview.pager.DisplayableScrollposition
-import de.taz.app.android.ui.webview.pager.IssueContentViewModel
 import kotlinx.coroutines.*
 
 class ArticleWebViewFragment :
     WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_article) {
 
     override val viewModel by lazy {
-        ViewModelProvider(this, SavedStateViewModelFactory(
-            this.requireActivity().application, this)
+        ViewModelProvider(
+            this, SavedStateViewModelFactory(
+                this.requireActivity().application, this
+            )
         ).get(ArticleWebViewViewModel::class.java)
     }
 
@@ -110,7 +111,14 @@ class ArticleWebViewFragment :
 
     private fun goBackToSection(sectionStub: SectionStub?) {
         sectionStub?.let {
-            showInWebView(it.key)
+            issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
+                lifecycleScope.launch {
+                    issueViewerViewModel.setDisplayable(
+                        issueStub.issueKey,
+                        sectionStub.sectionFileName
+                    )
+                }
+            }
         }
     }
 

@@ -144,12 +144,17 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     private suspend fun transformBookmarks() {
         articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
-            getArticleIssue(articleStub)?.let { issue ->
-                issueRepository.saveIfDoesNotExist(issue)
-                articleRepository.apply {
-                    debookmarkArticle(articleStub)
-                    bookmarkArticle(articleStub.articleFileName.replace("public.", ""))
-                }
+            getArticleIssue(articleStub)
+        }
+        articleRepository.appDatabase.runInTransaction<Unit> {
+            articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
+                articleRepository.debookmarkArticle(articleStub)
+                articleRepository.bookmarkArticle(
+                    articleStub.articleFileName.replace(
+                        "public.",
+                        ""
+                    )
+                )
             }
         }
     }

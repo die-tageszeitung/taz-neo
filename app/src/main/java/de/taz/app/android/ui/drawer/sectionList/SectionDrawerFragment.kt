@@ -2,11 +2,13 @@ package de.taz.app.android.ui.drawer.sectionList
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +22,6 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FileHelper
@@ -28,10 +29,12 @@ import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.home.page.MomentViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.ui.home.page.MomentViewDataBinding
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.android.synthetic.main.view_moment.*
 import kotlinx.coroutines.*
@@ -42,13 +45,15 @@ const val ACTIVE_POSITION = "active position"
  * Fragment used to display the list of sections in the navigation Drawer
  */
 class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
-    private val issueContentViewModel: IssueContentViewModel by lazy {
+    private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueContentViewModel::class.java)
+        ).get(IssueViewerViewModel::class.java)
     }
+
+    private val viewModel: SectionDrawerViewModel by activityViewModels()
 
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by lazy {
         ViewModelProvider(
@@ -140,8 +145,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_moment.apply {
             moment_container.setOnClickListener {
-                getMainView()?.showHome(skipToIssue = currentIssueStub)
-                getMainView()?.closeDrawer()
+                finishAndShowIssue(currentIssueStub.issueKey)
             }
         }
 
@@ -181,8 +185,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     private fun onSectionItemClickListener(clickedSection: SectionStub) {
-        getMainView()?.showDisplayable(clickedSection.key)
-        getMainView()?.closeDrawer()
+        lifecycleScope.launch {
+            issueContentViewModel.setDisplayable(
+                currentIssueStub.issueKey,
+                clickedSection.key
+            )
+        }
+        viewModel.drawerOpen.postValue(false)
     }
 
     private fun restore(savedInstanceState: Bundle?) {
@@ -271,8 +280,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onSaveInstanceState(outState)
     }
 
-    fun getMainView(): MainActivity? {
-        return activity as? MainActivity
+    private fun finishAndShowIssue(issueKey: IssueKey) {
+        Intent().apply {
+            putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
+            requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_ISSUE_KEY, this)
+            requireActivity().finish()
+        }
     }
 
     private suspend fun showMoment(issueStub: IssueStub?) = withContext(Dispatchers.IO) {
@@ -292,7 +305,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 Glide.with(this@SectionDrawerFragment),
                 object : MomentViewActionListener {
                     override fun onImageClicked(momentViewData: MomentViewData) {
-                        getMainView()?.showHome(skipToIssue = issueStub)
+                        finishAndShowIssue(issueStub.issueKey)
                     }
                 }
             )
@@ -312,14 +325,17 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
             issueContentViewModel.imprintArticleLiveData.value?.key
         ) { issueKey, displayKey ->
-            issueContentViewModel.setDisplayable(issueKey, displayKey)
-            getMainView()?.closeDrawer()
+            lifecycleScope.launch {
+                issueContentViewModel.setDisplayable(issueKey, displayKey)
+            }
+            viewModel.drawerOpen.postValue(false)
         }
     }
 
 
     private fun setMomentDate(issueStub: IssueStub?) {
-        fragment_drawer_sections_date?.text = issueStub?.date?.let(DateHelper::stringToLongLocalizedString) ?: ""
+        fragment_drawer_sections_date?.text =
+            issueStub?.date?.let(DateHelper::stringToLongLocalizedString) ?: ""
     }
 
     override fun onDestroyView() {

@@ -12,7 +12,6 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
@@ -36,18 +35,15 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     private val webViewFragment
         get() = webViewFragmentReference.get()
 
-    private val mainActivity
-        get() = webViewFragment?.getMainActivity()
-
     private val applicationContext
-        get() = mainActivity?.applicationContext
+        get() = webViewFragment?.activity?.applicationContext
 
     private val displayable
         get() = webViewFragment?.viewModel?.displayable
 
     @JavascriptInterface
     fun getConfiguration(name: String): String {
-        log.debug("getConfiguration $name")
+        log.verbose("getConfiguration $name")
         val sharedPreferences =
             applicationContext?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
         return sharedPreferences?.getString(name, "") ?: ""
@@ -80,9 +76,9 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.verbose("nextArticle $position")
-        mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
+        webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.next()?.let { next ->
-                mainActivity?.showInWebView(next.key)
+                webViewFragment?.setDisplayable(next.key)
             }
         }
     }
@@ -90,9 +86,9 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.verbose("previousArticle $position")
-        mainActivity?.lifecycleScope?.launch(Dispatchers.IO) {
+        webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
             displayable?.previous()?.let { previous ->
-                mainActivity?.showInWebView(previous.key)
+                webViewFragment?.setDisplayable(previous.key)
             }
         }
     }
@@ -102,10 +98,10 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
-        mainActivity?.apply {
-            lifecycleScope.launch(Dispatchers.IO) {
+        webViewFragment?.apply {
+            webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
                 if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
-                    showInWebView(url)
+                    webViewFragment?.setDisplayable(url)
                 } else {
                     openExternally(url)
                 }
@@ -114,15 +110,15 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     }
 
     private fun openExternally(url: String) {
-        runIfNotNull(applicationContext, mainActivity) { applicationContext, mainActivity ->
+        runIfNotNull(applicationContext, webViewFragment?.activity) { applicationContext: Context, activity ->
             val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
             try {
                 CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
-                    launchUrl(mainActivity, Uri.parse(url))
+                    launchUrl(activity, Uri.parse(url))
                 }
             } catch (e: ActivityNotFoundException) {
                 val toastHelper =
-                    ToastHelper.getInstance(webViewFragment?.context?.applicationContext)
+                    ToastHelper.getInstance(applicationContext)
                 if (url.startsWith("mailto:")) {
                     toastHelper.showToast(R.string.toast_no_email_client)
                 } else {
@@ -136,11 +132,11 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     fun openImage(name: String) {
         log.verbose("openImage $name")
 
-        val intent = Intent(mainActivity, ImagePagerActivity::class.java)
+        val intent = Intent(applicationContext, ImagePagerActivity::class.java)
         intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
         intent.putExtra(IMAGE_NAME, name)
 
-        mainActivity?.startActivity(
+        webViewFragment?.requireActivity()?.startActivity(
             intent
         )
     }

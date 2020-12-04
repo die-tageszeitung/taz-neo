@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.bottomSheet.datePicker
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
@@ -145,6 +147,9 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
 
     private fun showIssue(issueKey: IssueKey) {
         dismiss() //close datePicker
-        getMainView()?.showIssue(issueKey)
+        Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+            startActivityForResult(this, 0)
+        }
     }
 }

@@ -9,18 +9,12 @@ import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.MenuRes
-import androidx.core.view.GravityCompat
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
-import de.taz.app.android.ui.main.MainActivity
 import java.lang.IndexOutOfBoundsException
 
 abstract class BaseMainFragment (
@@ -29,8 +23,6 @@ abstract class BaseMainFragment (
 
     @MenuRes
     open val bottomNavigationMenuRes: Int? = null
-
-    open val enableSideBar = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -90,10 +82,6 @@ abstract class BaseMainFragment (
                 }
             }
         }
-    }
-
-    fun getMainView(): MainActivity? {
-        return (activity as? MainActivity)
     }
 
     fun toggleMenuItem(itemId: Int) {
@@ -162,48 +150,12 @@ abstract class BaseMainFragment (
         addBottomSheet.show(childFragmentManager, null)
     }
 
-    fun showMainFragment(fragment: Fragment) {
-        (activity as? MainActivity)?.showMainFragment(fragment)
-    }
-
-    fun showHome(skipToNewestIssue: Boolean = false) {
-        (activity as? MainActivity)?.showHome(skipToNewestIssue)
-    }
-
-    fun showInWebView(
-        webViewDisplayableKey: String,
-        bookmarksArticle: Boolean = false
-    ) {
-        (activity as? MainActivity)?.showInWebView(webViewDisplayableKey, bookmarksArticle)
-    }
-
-    fun showNavButton(navButton: Image) {
-        (activity as? MainActivity)?.setDrawerNavButton(navButton)
-    }
-
-    fun showDefaultNavButton() {
-        (activity as? MainActivity)?.setDefaultDrawerNavButton()
-    }
-
-    fun showIssue(issueKey: IssueKey) {
-        (activity as? MainActivity)?.showIssue(issueKey)
-    }
-
     protected fun hideKeyBoard() {
         activity?.apply {
             (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
                 val view = activity?.currentFocus ?: View(activity)
                 hideSoftInputFromWindow(view.windowToken, 0)
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if(enableSideBar) {
-            getMainView()?.unlockNavigationView(GravityCompat.START)
-        } else {
-            getMainView()?.lockNavigationView(GravityCompat.START)
         }
     }
 

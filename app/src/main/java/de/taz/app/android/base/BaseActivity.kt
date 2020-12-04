@@ -22,8 +22,6 @@ abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivit
         layoutId?.let { setContentView(layoutId) }
     }
 
-    private lateinit var downloadService: DownloadService
-
     private fun createSingletons() {
         log.info("creating singletons")
         applicationContext.let {
@@ -40,8 +38,6 @@ abstract class BaseActivity(private val layoutId: Int? = null): AppCompatActivit
             ToastHelper.createInstance(it)
 
             ApiService.createInstance(it)
-
-            downloadService = DownloadService.createInstance(it)
 
             FirebaseHelper.createInstance(it)
             DataService.createInstance(it)

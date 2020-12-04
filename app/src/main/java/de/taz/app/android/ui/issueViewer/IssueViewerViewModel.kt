@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.webview.pager
+package de.taz.app.android.ui.issueViewer
 
 import android.app.Application
 import android.os.Parcelable
@@ -15,9 +15,9 @@ import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
-private const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
@@ -30,18 +30,7 @@ data class IssueKeyWithDisplayableKey(
     val displayableKey: String
 ) : Parcelable
 
-data class IssueStubWithDisplayableKey(
-    val issueStub: IssueStub,
-    val displayableKey: String
-)
-
-@Parcelize
-data class DisplayableScrollposition(
-    val displayableKey: String,
-    val scrollPosition: Int
-) : Parcelable
-
-class IssueContentViewModel(
+class IssueViewerViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
@@ -76,36 +65,7 @@ class IssueContentViewModel(
         }
     }
 
-    fun setDisplayable(issueKey: IssueKey, displayableKey: String, immediate: Boolean = false) {
-        setDisplayable(
-            IssueKeyWithDisplayableKey(issueKey, displayableKey),
-            immediate
-        )
-    }
-
-    /**
-     * If not specifying the displayableKey we assume to just display the very first section
-     */
-    fun setDisplayable(issue: Issue, immediate: Boolean = false) {
-        log.debug("Showing issue defaulting to first section")
-        setDisplayable(
-            IssueKeyWithDisplayableKey(issue.issueKey, issue.sectionList.first().key),
-            immediate
-        )
-    }
-
-    suspend fun setDisplayable(issueStub: IssueStub, immediate: Boolean = false) {
-        log.debug("Showing issue defaulting to first section")
-        // Either fetch last displayable from DB or take first section
-        val displayableKey = dataService.getLastDisplayableOnIssue(issueStub.issueKey)
-            ?: sectionRepository.getSectionStubsForIssue(issueStub.issueKey).first().key
-        setDisplayable(
-            IssueKeyWithDisplayableKey(issueStub.issueKey, displayableKey),
-            immediate
-        )
-    }
-
-    suspend fun setDisplayable(issueKey: IssueKey) {
+    suspend fun setDisplayable(issueKey: IssueKey, displayableKey: String? = null, immediate: Boolean = false, loadIssue: Boolean = false) {
         var noConnectionShown = false
         fun onConnectionFailure() {
             if (!noConnectionShown) {
@@ -115,17 +75,29 @@ class IssueContentViewModel(
                 }
             }
         }
-        log.debug("Showing issue defaulting to first section")
-        activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
-        val issue = dataService.getIssue(issueKey, retryOnFailure = true, onConnectionFailure = {
-            onConnectionFailure()
-        })!!
+        if (loadIssue || displayableKey == null) {
+            activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
+            withContext(Dispatchers.IO) {
+                val issue = dataService.getIssue(issueKey, retryOnFailure = true, onConnectionFailure = {
+                    onConnectionFailure()
+                })!!
 
-        dataService.ensureDownloaded(issue, onConnectionFailure = ::onConnectionFailure)
-        val firstSection = sectionRepository.getSectionStubsForIssue(issue.issueKey).first()
-        setDisplayable(
-            IssueKeyWithDisplayableKey(issue.issueKey, firstSection.key)
-        )
+                dataService.ensureDownloaded(issue, onConnectionFailure = ::onConnectionFailure)
+
+                // either displayable is specified, persisted or defaulted to first section
+                val displayable = displayableKey
+                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
+                setDisplayable(
+                    IssueKeyWithDisplayableKey(issue.issueKey, displayable)
+                )
+            }
+        } else {
+            setDisplayable(
+                IssueKeyWithDisplayableKey(issueKey, displayableKey),
+                immediate
+            )
+        }
     }
 
 

@@ -20,7 +20,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.settings.support.ErrorReportFragment
+import de.taz.app.android.ui.settings.support.ErrorReportActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
@@ -30,8 +30,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private val log by Log
 
     private var storedIssueNumber: String? = null
-
-    override val enableSideBar: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -126,7 +124,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+
+
         }
+
 
         viewModel.apply {
             textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
@@ -163,11 +164,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         authHelper.emailLiveData.observeDistinct(viewLifecycleOwner) { email ->
             fragment_settings_account_email.text = email
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        showDefaultNavButton()
     }
 
     private fun showKeepIssuesDialog() {
@@ -241,7 +237,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            showHome(skipToNewestIssue = true)
+            requireActivity().finish()
         }
     }
 
@@ -286,7 +282,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun reportBug() {
-        showMainFragment(ErrorReportFragment())
+        Intent(requireActivity(), ErrorReportActivity::class.java).apply {
+            startActivity(this)
+        }
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {

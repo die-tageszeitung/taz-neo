@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 
 const val KEY_SCROLL_POSITION = "KEY_SCROLL_POSITION"

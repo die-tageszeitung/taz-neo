@@ -6,8 +6,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_content_fragment_placeholder"
-        android:name="de.taz.app.android.ui.home.HomeFragment"
+        android:name="de.taz.app.android.ui.bookmarks.BookmarkListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:showIn="@layout/activity_main" />
+        tools:showIn="@layout/activity_bookmarks" />
 </androidx.constraintlayout.widget.ConstraintLayout>
