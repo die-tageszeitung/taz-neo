@@ -149,7 +149,7 @@ class IssueViewerFragment :
                 false -> {
                     val lastSectionKey = viewModel.lastSectionKey ?: viewModel.currentDisplayable?.let { displayableKey ->
                         if (displayableKey.startsWith("art")) {
-                            sectionRepository.getSectionStubForArticle(displayableKey)?.key
+                            runBlocking (Dispatchers.IO) { sectionRepository.getSectionStubForArticle(displayableKey)?.key }
                         } else {
                             null
                         }
