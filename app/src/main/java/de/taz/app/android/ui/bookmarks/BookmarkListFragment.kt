@@ -6,12 +6,11 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
-import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
@@ -22,7 +21,7 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 class BookmarkListFragment :
-    Fragment(R.layout.fragment_bookmarks) {
+    BaseMainFragment(R.layout.fragment_bookmarks) {
 
     private var recycleAdapter: BookmarkListAdapter? = null
     private var articleRepository: ArticleRepository? = null
@@ -61,19 +60,6 @@ class BookmarkListFragment :
                 R.string.fragment_bookmarks_title
             ).toLowerCase(Locale.getDefault())
         }
-
-        navigation_bottom.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.bottom_navigation_action_home -> {
-                    Intent().apply {
-                        requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST, this)
-                        requireActivity().finish()
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
     fun shareArticle(articleFileName: String) {
@@ -87,6 +73,19 @@ class BookmarkListFragment :
             withContext(Dispatchers.Main) {
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 startActivity(shareIntent)
+            }
+        }
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                Intent().apply {
+                    Intent(requireActivity(), MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        startActivity(this)
+                    }
+                }
             }
         }
     }

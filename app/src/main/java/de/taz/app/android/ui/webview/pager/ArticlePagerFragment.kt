@@ -15,6 +15,7 @@ import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
+import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -22,6 +23,7 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class ArticlePagerFragment : BaseMainFragment(
@@ -118,8 +120,10 @@ class ArticlePagerFragment : BaseMainFragment(
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
                         issueContentViewModel.setDisplayable(
-                            issueKey,
-                            displayable.key,
+                            IssueKeyWithDisplayableKey(
+                                issueKey,
+                                displayable.key
+                            ),
                             immediate = true
                         )
                     }
@@ -157,7 +161,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                 articleStub.getSectionStub(null)
             ) { issueKey, sectionStub ->
-                issueContentViewModel.setDisplayable(issueKey, sectionStub.key)
+                issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey(issueKey, sectionStub.key))
                 true
             }
         } ?: false
@@ -166,8 +170,10 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
-                requireActivity().finish()
+                Intent(requireActivity(), MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(this)
+                }
             }
 
             R.id.bottom_navigation_action_bookmark -> {

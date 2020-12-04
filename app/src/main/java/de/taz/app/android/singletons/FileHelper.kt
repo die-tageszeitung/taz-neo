@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.*
+import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
@@ -214,7 +215,14 @@ class FileHelper private constructor(private val applicationContext: Context) {
             val file = getFileByPath(filePath)
             // If we don't provide a checksum we assume the mere existence means it's ok
             return@withContext if (file.exists()) {
-                checksum?.let { it == getSHA256(file) } ?: true
+                try {
+                    checksum?.let { it == getSHA256(file) } ?: true
+                } catch (e: FileNotFoundException) {
+                    val hint = "File not found during integrity check"
+                    log.error(hint)
+                    Sentry.captureException(e, hint)
+                    false
+                }
             } else {
                 false
             }

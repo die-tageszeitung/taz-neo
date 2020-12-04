@@ -246,7 +246,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     fun setDisplayable(displayableKey: String) {
         currentIssueKey?.let {
-            issueViewerViewModel.setDisplayable(it, displayableKey)
+            lifecycleScope.launch {
+                issueViewerViewModel.setDisplayable(it, displayableKey)
+            }
         }
     }
 

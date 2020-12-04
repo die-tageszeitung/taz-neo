@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
+import java.io.IOException
 import java.net.*
 import java.net.SocketTimeoutException
 import java.nio.channels.ClosedSelectorException
@@ -31,7 +32,8 @@ private val networkExceptions = listOf(
     NoRouteToHostException::class,
     ClosedSelectorException::class,
     SSLPeerUnverifiedException::class,
-    ErrnoException::class
+    ErrnoException::class,
+    IOException::class
 )
 
 sealed class ConnectivityException(

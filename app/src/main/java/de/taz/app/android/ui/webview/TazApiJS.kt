@@ -12,7 +12,6 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
@@ -44,7 +43,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
 
     @JavascriptInterface
     fun getConfiguration(name: String): String {
-        log.debug("getConfiguration $name")
+        log.verbose("getConfiguration $name")
         val sharedPreferences =
             applicationContext?.getSharedPreferences(PREFERENCES_TAZAPI, Context.MODE_PRIVATE)
         return sharedPreferences?.getString(name, "") ?: ""
@@ -137,7 +136,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
         intent.putExtra(IMAGE_NAME, name)
 
-        applicationContext?.startActivity(
+        webViewFragment?.requireActivity()?.startActivity(
             intent
         )
     }

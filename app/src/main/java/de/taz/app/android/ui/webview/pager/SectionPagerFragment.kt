@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -20,6 +21,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
+import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
@@ -90,7 +92,7 @@ class SectionPagerFragment : BaseMainFragment(
                     (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
                 ) { issueKey, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
-                        issueContentViewModel.setDisplayable(issueKey, displayable.key)
+                        issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey( issueKey, displayable.key))
                     }
                 }
             }
@@ -108,8 +110,10 @@ class SectionPagerFragment : BaseMainFragment(
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
-                requireActivity().finish()
+                Intent(requireActivity(), MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(this)
+                }
             }
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())

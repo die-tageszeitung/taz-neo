@@ -184,7 +184,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     private fun onSectionItemClickListener(clickedSection: SectionStub) {
-        issueContentViewModel.setDisplayable(currentIssueStub.issueKey, clickedSection.key)
+        lifecycleScope.launch {
+            issueContentViewModel.setDisplayable(
+                currentIssueStub.issueKey,
+                clickedSection.key
+            )
+        }
         viewModel.drawerOpen.postValue(false)
     }
 
@@ -319,14 +324,17 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
             issueContentViewModel.imprintArticleLiveData.value?.key
         ) { issueKey, displayKey ->
-            issueContentViewModel.setDisplayable(issueKey, displayKey)
+            lifecycleScope.launch {
+                issueContentViewModel.setDisplayable(issueKey, displayKey)
+            }
             viewModel.drawerOpen.postValue(false)
         }
     }
 
 
     private fun setMomentDate(issueStub: IssueStub?) {
-        fragment_drawer_sections_date?.text = issueStub?.date?.let(DateHelper::stringToLongLocalizedString) ?: ""
+        fragment_drawer_sections_date?.text =
+            issueStub?.date?.let(DateHelper::stringToLongLocalizedString) ?: ""
     }
 
     override fun onDestroyView() {

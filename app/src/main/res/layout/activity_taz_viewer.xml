@@ -41,6 +41,9 @@
                 android:elevation="10dp"
                 android:focusable="true"
                 android:translationY="@dimen/drawer_logo_translation_y"
+                android:maxWidth="100dp"
+                android:maxHeight="100dp"
+                android:adjustViewBounds="true"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

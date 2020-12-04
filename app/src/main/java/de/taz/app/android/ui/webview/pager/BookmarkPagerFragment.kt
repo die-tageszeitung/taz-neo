@@ -56,6 +56,7 @@ class BookmarkPagerFragment :
         super.onResume()
         viewModel.bookmarkedArticleStubsLiveData.observeDistinct(this) {
             log.debug("Set new stubs $it")
+
             articlePagerAdapter.articleStubs = it
             loading_screen.visibility = View.GONE
             tryScrollToArticle()
@@ -176,7 +177,8 @@ class BookmarkPagerFragment :
         val articleFileName = viewModel.articleFileNameLiveData.value
         if (
             articleFileName?.startsWith("art") == true &&
-            viewModel.bookmarkedArticleStubsLiveData.value?.map { it.key }?.contains(articleFileName) == true
+            viewModel.bookmarkedArticleStubsLiveData.value?.map { it.key }
+                ?.contains(articleFileName) == true
         ) {
             log.debug("I will now display $articleFileName")
             lifecycleScope.launchWhenResumed {

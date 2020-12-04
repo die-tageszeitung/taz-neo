@@ -21,8 +21,10 @@ class ArticleWebViewFragment :
     WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_article) {
 
     override val viewModel by lazy {
-        ViewModelProvider(this, SavedStateViewModelFactory(
-            this.requireActivity().application, this)
+        ViewModelProvider(
+            this, SavedStateViewModelFactory(
+                this.requireActivity().application, this
+            )
         ).get(ArticleWebViewViewModel::class.java)
     }
 
@@ -110,7 +112,12 @@ class ArticleWebViewFragment :
     private fun goBackToSection(sectionStub: SectionStub?) {
         sectionStub?.let {
             issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
-                issueViewerViewModel.setDisplayable(issueStub.issueKey, sectionStub.sectionFileName)
+                lifecycleScope.launch {
+                    issueViewerViewModel.setDisplayable(
+                        issueStub.issueKey,
+                        sectionStub.sectionFileName
+                    )
+                }
             }
         }
     }
