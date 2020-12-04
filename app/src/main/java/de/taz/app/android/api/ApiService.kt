@@ -12,6 +12,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.core.Sentry
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.NoSuchElementException
@@ -106,12 +107,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
-        return transformToConnectivityException {
+        val authTokenInfo = transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(user, password)
             ).data?.authentificationToken
         }
+        Sentry.captureMessage("[Debug #12895] authenticated with token: ${authTokenInfo?.token?.substring(0,10)}*********")
+        return authTokenInfo
     }
 
     /**
