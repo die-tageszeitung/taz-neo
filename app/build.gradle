@@ -59,7 +59,7 @@ def versionNameToCode = { name ->
                 preReleaseTypeNumber = 2
                 break
             case "rc":
-                preReleaseNumber = 3
+                preReleaseTypeNumber = 3
                 break
             default:
                 throw Exception("Pre Release type need to be one of each 'alpha', 'beta' or 'rc'")
