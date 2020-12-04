@@ -3,9 +3,11 @@ package de.taz.app.android.ui
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
 import androidx.activity.viewModels
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -68,6 +70,12 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
+        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            drawer_layout.updateDrawerLogoBoundingBox(
+                v.width,
+                v.height
+            )
+        }
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
@@ -110,10 +118,17 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     override fun onResume() {
         super.onResume()
 
-        sectionDrawerViewModel.setDefaultDrawerNavButton()
         sectionDrawerViewModel.navButton.observeDistinct(this) {
-            if (it != null) {
-                lifecycleScope.launch(Dispatchers.IO) { showNavButton(it) }
+            lifecycleScope.launch(Dispatchers.IO) {
+                if (it != null) {
+                    showNavButton(it)
+                } else {
+                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
+                        showNavButton(
+                            image
+                        )
+                    }
+                }
             }
         }
     }
@@ -128,15 +143,27 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
                     .submit()
                     .get()
             }
+
+            val scaleFactor = 1f / 3f
+            val logicalWidth = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                imageDrawable.intrinsicWidth.toFloat(),
+                resources.displayMetrics
+            ) * scaleFactor
+
+            val logicalHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                imageDrawable.intrinsicHeight.toFloat(),
+                resources.displayMetrics
+            ) * scaleFactor
+
             withContext(Dispatchers.Main) {
                 drawer_logo.setImageDrawable(imageDrawable)
                 drawer_logo.alpha = navButtonAlpha
                 drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
-                drawer_logo.requestLayout()
-                drawer_layout.updateDrawerLogoBoundingBox(
-                    imageDrawable.intrinsicWidth.coerceAtMost(drawer_logo.maxWidth),
-                    imageDrawable.intrinsicHeight.coerceAtMost(drawer_logo.maxHeight)
-                )
+                drawer_logo.layoutParams.width = logicalWidth.toInt()
+                drawer_logo.layoutParams.height = logicalHeight.toInt()
+                drawer_layout.requestLayout()
             }
         }
     }

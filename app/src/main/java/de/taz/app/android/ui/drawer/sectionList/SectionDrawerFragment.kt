@@ -34,6 +34,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.android.synthetic.main.view_moment.*
 import kotlinx.coroutines.*
