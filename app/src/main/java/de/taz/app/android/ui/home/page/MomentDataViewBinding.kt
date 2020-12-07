@@ -123,7 +123,10 @@ class MomentViewDataBinding(
                         allowCache = false,
                         onConnectionFailure = { toastHelper.showNoConnectionToast() }
                 ) ?: throw IllegalStateException("No issue found for $issueKey")
-                dataService.ensureDownloaded(issue)
+                dataService.ensureDownloaded(
+                        collection = issue,
+                        onConnectionFailure = { toastHelper.showNoConnectionToast() }
+                )
             }
         }
     }
