@@ -120,10 +120,12 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
             lifecycleScope.launch(Dispatchers.IO) {
+                val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
                 if (it != null) {
+                    dataService.ensureDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
-                    val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
+
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
                         dataService.ensureDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
