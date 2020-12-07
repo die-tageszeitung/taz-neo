@@ -13,10 +13,9 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.core.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
-import kotlin.NoSuchElementException
-import kotlin.Throws
 
 /**
  * Service class to get Models from GraphQl
@@ -42,7 +41,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val connectionHelper = APIConnectionHelper(graphQlClient)
 
 
-    suspend fun <T> retryOnConnectionFailure(onConnectionFailure: suspend () -> Unit = {}, block: suspend () -> T): T {
+    suspend fun <T> retryOnConnectionFailure(
+        onConnectionFailure: suspend () -> Unit = {},
+        block: suspend () -> T
+    ): T {
         return connectionHelper.retryOnConnectivityFailure({
             onConnectionFailure()
         }) {
@@ -114,7 +116,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ).data?.authentificationToken
         }
         val token = authTokenInfo?.token
-        Sentry.captureMessage("[Debug #12895] authenticated with token: ${token?.substring(0, 10.coerceAtMost(token!!.length))}*********")
+        Sentry.captureMessage(
+            "[Debug #12895] authenticated with token: ${
+                token?.substring(
+                    0,
+                    10.coerceAtMost(token!!.length)
+                )
+            }*********"
+        )
         return authTokenInfo
     }
 
@@ -382,14 +391,17 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @param id the id of the download received via [notifyServerOfDownloadStart]
      * @param time time in seconds needed for the download
      */
+    @Throws(ConnectivityException::class)
     suspend fun notifyServerOfDownloadStop(
         id: String,
         time: Float
     ) = withContext(Dispatchers.IO) {
-        graphQlClient.query(
-            QueryType.DownloadStop,
-            DownloadStopVariables(id, time)
-        )
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.DownloadStop,
+                DownloadStopVariables(id, time)
+            )
+        }
     }
 
     /**
