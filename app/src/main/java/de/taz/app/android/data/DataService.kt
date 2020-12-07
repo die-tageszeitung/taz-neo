@@ -209,7 +209,7 @@ class DataService(private val applicationContext: Context) {
         forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false,
         onConnectionFailure: suspend () -> Unit = {}
-    ): Issue = withContext(Dispatchers.IO) {
+    ): Issue? = withContext(Dispatchers.IO) {
         if (allowCache) {
             issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
                 log.info("Cache miss on $issueKey")
