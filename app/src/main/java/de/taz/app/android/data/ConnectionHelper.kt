@@ -32,29 +32,26 @@ abstract class ConnectionHelper {
             } catch (e: ConnectivityException.Recoverable) {
                 onConnectionFailure()
                 isCurrentlyReachable = false
-                ensureConnectivityCheckRunning(onConnectionFailure)
+                ensureConnectivityCheckRunning()
                 suspendCoroutine<Unit> { continuation -> waitingCalls.offer(continuation) }
             }
         }
     }
 
-    private suspend fun ensureConnectivityCheckRunning(onConnectionFailure: suspend () -> Unit = {}) {
+    private suspend fun ensureConnectivityCheckRunning() {
         if (connectivityCheckJob?.isActive != true) {
             connectivityCheckJob = CoroutineScope(Dispatchers.IO).launch {
-                tryForConnectivity(onConnectionFailure)
+                tryForConnectivity()
             }
         }
     }
 
-    private suspend fun tryForConnectivity(onConnectionFailure: suspend () -> Unit = {}) {
+    private suspend fun tryForConnectivity() {
         while (!isCurrentlyReachable) {
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
             isCurrentlyReachable = checkConnectivity()
-            if (!isCurrentlyReachable) {
-                onConnectionFailure()
-            }
         }
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
