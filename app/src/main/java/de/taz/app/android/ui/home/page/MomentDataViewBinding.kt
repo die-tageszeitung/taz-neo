@@ -12,6 +12,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
@@ -33,6 +34,7 @@ class MomentViewDataBinding(
     private val log by Log
 
     private val dataService = DataService.getInstance()
+    private val toastHelper =  ToastHelper.getInstance()
     private var boundView: MomentView? = null
 
     private lateinit var momentViewData: MomentViewData
@@ -110,7 +112,7 @@ class MomentViewDataBinding(
         }
     }
 
-    fun onDownloadClicked() {
+    private fun onDownloadClicked() {
         if (::momentViewData.isInitialized) {
             boundView?.setDownloadIconForStatus(DownloadStatus.started)
             CoroutineScope(Dispatchers.IO).launch {
@@ -118,9 +120,13 @@ class MomentViewDataBinding(
                 val issue = dataService.getIssue(
                         issueKey,
                         retryOnFailure = true,
-                        allowCache = false
-                    ) ?: throw IllegalStateException("No issue found for $issueKey")
-                dataService.ensureDownloaded(issue)
+                        allowCache = false,
+                        onConnectionFailure = { toastHelper.showNoConnectionToast() }
+                ) ?: throw IllegalStateException("No issue found for $issueKey")
+                dataService.ensureDownloaded(
+                        collection = issue,
+                        onConnectionFailure = { toastHelper.showNoConnectionToast() }
+                )
             }
         }
     }

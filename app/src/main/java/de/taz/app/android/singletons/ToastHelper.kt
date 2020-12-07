@@ -37,11 +37,7 @@ class ToastHelper private constructor(private val applicationContext: Context) {
     private var lastConnectionError = 0L
 
     fun showNoConnectionToast() {
-        val now = Date().time
-        if (now > lastConnectionError + 10000) {
-            lastConnectionError = now
-            showToast(R.string.toast_no_internet)
-        }
+        showToast(R.string.toast_no_internet)
     }
 
     fun showConnectionToServerFailedToast() {
