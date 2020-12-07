@@ -245,7 +245,7 @@ class DownloadService constructor(
                 log.warn(hint)
                 Sentry.captureMessage(hint)
                 fileEntryRepository.resetDownloadDate(
-                        downloadedFile
+                    downloadedFile
                 )
             }
         } catch (e: Exception) {
@@ -291,7 +291,15 @@ class DownloadService constructor(
                 log.debug("It took $secondsTaken seconds for ${taggedDownload.tag} to download all its assets (DownloadId: ${taggedDownload.downloadId}")
                 taggedDownload.downloadId?.let {
                     CoroutineScope(Dispatchers.IO).launch {
-                        notifyIssueDownloadStop(it, secondsTaken)
+                        try {
+                            apiService.retryOnConnectionFailure {
+                                notifyIssueDownloadStop(it, secondsTaken)
+                            }
+                        } catch (e: Exception) {
+                            val hint = "Exception during notifying download stop"
+                            log.error(hint)
+                            Sentry.captureException(e, hint)
+                        }
                     }
                 }
 
@@ -336,7 +344,7 @@ class DownloadService constructor(
                             downloadAndSaveFile(
                                 it,
                                 determineBaseUrl(downloadableCollection, it),
-                                onConnectionFailure=onConnectionFailure
+                                onConnectionFailure = onConnectionFailure
                             )
                         }
                     }
