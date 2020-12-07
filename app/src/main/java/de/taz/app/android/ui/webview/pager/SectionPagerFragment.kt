@@ -97,13 +97,6 @@ class SectionPagerFragment : BaseMainFragment(
                 }
             }
             lastPage = position
-
-            lifecycleScope.launchWhenResumed {
-                getCurrentSectionStub()?.getNavButton()?.let {
-                    drawerViewModel.navButton.postValue(it)
-                }
-            }
-
         }
     }
 

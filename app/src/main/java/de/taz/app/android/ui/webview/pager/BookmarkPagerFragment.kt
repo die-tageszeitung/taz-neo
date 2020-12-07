@@ -112,7 +112,6 @@ class BookmarkPagerFragment :
             articleToBindTo.getNavButton(context?.applicationContext)?.let {
                 drawerViewModel.navButton.postValue(it)
             }
-
         }
         navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
             articleToBindTo.onlineLink != null

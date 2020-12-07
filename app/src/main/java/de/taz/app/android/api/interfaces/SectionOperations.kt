@@ -22,7 +22,7 @@ interface SectionOperations {
     }
 
     suspend fun getNavButton(): Image? = withContext(Dispatchers.IO) {
-        return@withContext SectionRepository.getInstance().getNavButton(this@SectionOperations.key)
+        return@withContext SectionRepository.getInstance().getNavButtonForSection(this@SectionOperations.key)
     }
 
 

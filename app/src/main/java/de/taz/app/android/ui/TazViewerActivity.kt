@@ -125,7 +125,6 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
                     dataService.ensureDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
-
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
                         dataService.ensureDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
