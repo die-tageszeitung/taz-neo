@@ -13,6 +13,8 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -39,7 +41,7 @@ class IssueViewerActivity : TazViewerActivity() {
         }
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
-            lifecycleScope.launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 if (displayableKey != null) {
                     issueViewerViewModel.setDisplayable(issueKey, displayableKey, loadIssue = true)
                 } else {
