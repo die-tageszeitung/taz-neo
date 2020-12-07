@@ -14,6 +14,7 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -41,6 +42,14 @@ class ArticlePagerFragment : BaseMainFragment(
                 requireActivity().application, requireActivity()
             )
         ).get(IssueViewerViewModel::class.java)
+    }
+
+    private val drawerViewModel: SectionDrawerViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(SectionDrawerViewModel::class.java)
     }
 
     override fun onResume() {
@@ -130,7 +139,11 @@ class ArticlePagerFragment : BaseMainFragment(
                 }
             }
             lastPage = position
-
+            lifecycleScope.launchWhenResumed {
+                nextStub.getNavButton(requireContext())?.let {
+                    drawerViewModel.navButton.postValue(it)
+                }
+            }
             lifecycleScope.launchWhenResumed {
                 nextStub.getNavButton(context?.applicationContext)?.let {
                     issueContentViewModel
