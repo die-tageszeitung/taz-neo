@@ -115,17 +115,27 @@ class MomentViewDataBinding(
     private fun onDownloadClicked() {
         if (::momentViewData.isInitialized) {
             boundView?.setDownloadIconForStatus(DownloadStatus.started)
+            var noConnectionShown = false
+            fun onConnectionFailure() {
+                if (!noConnectionShown) {
+                    lifecycleOwner.lifecycleScope.launch {
+                        toastHelper.showNoConnectionToast()
+                        noConnectionShown = true
+                    }
+                }
+            }
+
             CoroutineScope(Dispatchers.IO).launch {
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
                 val issue = dataService.getIssue(
                         issueKey,
                         retryOnFailure = true,
                         allowCache = false,
-                        onConnectionFailure = { toastHelper.showNoConnectionToast() }
+                        onConnectionFailure = { onConnectionFailure() }
                 ) ?: throw IllegalStateException("No issue found for $issueKey")
                 dataService.ensureDownloaded(
                         collection = issue,
-                        onConnectionFailure = { toastHelper.showNoConnectionToast() }
+                        onConnectionFailure = { onConnectionFailure() }
                 )
             }
         }
