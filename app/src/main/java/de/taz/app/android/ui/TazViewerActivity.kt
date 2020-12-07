@@ -7,13 +7,13 @@ import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
 import androidx.activity.viewModels
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import de.taz.app.android.*
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
@@ -120,10 +120,14 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
             lifecycleScope.launch(Dispatchers.IO) {
+                val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
                 if (it != null) {
+                    dataService.ensureDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
+
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
+                        dataService.ensureDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
                             image
                         )
