@@ -6,7 +6,6 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.persistence.repository.ImageRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SectionDrawerViewModel(

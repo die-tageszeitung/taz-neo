@@ -139,15 +139,8 @@ class ArticlePagerFragment : BaseMainFragment(
                 }
             }
             lastPage = position
+
             lifecycleScope.launchWhenResumed {
-                nextStub.getNavButton(requireContext())?.let {
-                    drawerViewModel.navButton.postValue(it)
-                }
-            }
-            lifecycleScope.launchWhenResumed {
-                nextStub.getNavButton(context?.applicationContext)?.let {
-                    issueContentViewModel
-                }
                 navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
                     nextStub.onlineLink != null
 

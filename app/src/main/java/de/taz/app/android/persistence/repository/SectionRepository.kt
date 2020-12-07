@@ -186,9 +186,16 @@ class SectionRepository private constructor(applicationContext: Context) :
         appDatabase.sectionDao().delete(SectionStub(section))
     }
 
-    fun getNavButton(sectionFileName: String): Image? {
+    fun getNavButtonForSection(sectionFileName: String): Image? {
         return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
     }
+
+    fun getNavButtonForArticle(articleName: String): Image? {
+        return getSectionStubForArticle(articleName)?.let {
+            getNavButtonForSection(it.sectionFileName)
+        }
+    }
+
 
     fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
         return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)

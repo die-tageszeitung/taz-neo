@@ -11,12 +11,10 @@ import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
-import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -46,6 +44,8 @@ class IssueViewerFragment :
     private lateinit var dataService: DataService
     private lateinit var preferences: SharedPreferences
     private lateinit var sectionRepository: SectionRepository
+    private lateinit var imageRepository: ImageRepository
+    private lateinit var articleRepository: ArticleRepository
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -69,6 +69,8 @@ class IssueViewerFragment :
         super.onAttach(context)
         dataService = DataService.getInstance(requireContext().applicationContext)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
+        imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -112,6 +114,21 @@ class IssueViewerFragment :
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val navButton = when {
+                    it == null -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                    it.startsWith("art") -> sectionRepository.getNavButtonForArticle(it)
+                    it.startsWith("sec") -> sectionRepository.getNavButtonForSection(it)
+                    else -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                }
+                sectionDrawerViewModel.navButton.postValue(navButton)
+            }
+        }
+    }
+
     private fun setDisplayMode(displayMode: IssueContentDisplayMode) {
         val transaction = childFragmentManager.beginTransaction()
         childFragmentManager.fragments.forEach {
@@ -147,19 +164,29 @@ class IssueViewerFragment :
             when ((it as? BackFragment?)?.onBackPressed()) {
                 true -> true
                 false -> {
-                    val lastSectionKey = viewModel.lastSectionKey ?: viewModel.currentDisplayable?.let { displayableKey ->
-                        if (displayableKey.startsWith("art")) {
-                            runBlocking (Dispatchers.IO) { sectionRepository.getSectionStubForArticle(displayableKey)?.key }
-                        } else {
-                            null
+                    val lastSectionKey = viewModel.lastSectionKey
+                        ?: viewModel.currentDisplayable?.let { displayableKey ->
+                            if (displayableKey.startsWith("art")) {
+                                runBlocking(Dispatchers.IO) {
+                                    sectionRepository.getSectionStubForArticle(
+                                        displayableKey
+                                    )?.key
+                                }
+                            } else {
+                                null
+                            }
                         }
-                    }
                     runIfNotNull(
                         viewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                         lastSectionKey
                     ) { currentIssueKey, displayableKey ->
                         lifecycleScope.launch {
-                            viewModel.setDisplayable(IssueKeyWithDisplayableKey(currentIssueKey, displayableKey))
+                            viewModel.setDisplayable(
+                                IssueKeyWithDisplayableKey(
+                                    currentIssueKey,
+                                    displayableKey
+                                )
+                            )
                         }
                         true
                     } ?: false
