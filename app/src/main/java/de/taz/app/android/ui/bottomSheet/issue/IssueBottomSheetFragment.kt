@@ -122,13 +122,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
-            issueStub?.let { issueStub ->
-                val intent = Intent(view.context, PdfPagerActivity::class.java)
-                intent.putExtra(ISSUE_KEY, issueStub.issueKey)
-                view.context.startActivity(intent)
-            }
+            val intent = Intent(view.context, PdfPagerActivity::class.java)
+            intent.putExtra(ISSUE_KEY, issueKey)
+            view.context.startActivity(intent)
             dismiss()
         }
+        
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 var issue = dataService.getIssue(IssuePublication(issueKey))
