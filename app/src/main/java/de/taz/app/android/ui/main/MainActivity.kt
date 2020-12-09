@@ -10,6 +10,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -38,8 +39,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private val log by Log
 
     companion object {
-        const val KEY_RESULT_SKIP_TO_ISSUE_KEY = 13
-        const val KEY_RESULT_SKIP_TO_NEWEST = 14
         const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
     }
 
@@ -64,7 +63,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome(skipToFirst: Boolean = false, skipToIssue: IssueOperations? = null) {
+    fun showHome(skipToFirst: Boolean = false, issueKey: IssueKey? = null) {
         runOnUiThread {
             supportFragmentManager.popBackStackImmediate(
                 null,
@@ -80,7 +79,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             if (skipToFirst) {
                 coverFlowFragment?.skipToHome()
             } else {
-                skipToIssue?.let { coverFlowFragment?.skipToKey(skipToIssue.issueKey) }
+                issueKey?.let { coverFlowFragment?.skipToKey(it) }
             }
         }
     }

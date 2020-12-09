@@ -104,7 +104,9 @@ class ArticleWebViewFragment :
                 R.string.fragment_header_article, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                goBackToSection(sectionStub)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    goBackToSection(sectionStub)
+                }
             }
         }
     }

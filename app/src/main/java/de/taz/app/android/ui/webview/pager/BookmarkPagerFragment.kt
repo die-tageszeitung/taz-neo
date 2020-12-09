@@ -18,6 +18,8 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
@@ -50,6 +52,14 @@ class BookmarkPagerFragment :
         ).get(BookmarkPagerViewModel::class.java)
     }
 
+    private val issueViewerViewModel: IssueViewerViewModel by lazy {
+        ViewModelProvider(
+            this.requireActivity(),
+            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
+        ).get(IssueViewerViewModel::class.java)
+    }
+
+
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onResume() {
@@ -64,6 +74,18 @@ class BookmarkPagerFragment :
 
         viewModel.articleFileNameLiveData.observeDistinct(this) {
             tryScrollToArticle()
+        }
+
+        // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
+        issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this) {
+            if (it != null) {
+                Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+                    putExtra(IssueViewerActivity.KEY_ISSUE_KEY, it.issueKey)
+                    putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.displayableKey)
+                    startActivity(this)
+                }
+                requireActivity().finish()
+            }
         }
     }
 
@@ -142,7 +164,6 @@ class BookmarkPagerFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
                 requireActivity().finish()
             }
 

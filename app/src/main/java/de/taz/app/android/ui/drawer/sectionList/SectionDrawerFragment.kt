@@ -281,9 +281,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     private fun finishAndShowIssue(issueKey: IssueKey) {
-        Intent().apply {
+        Intent(requireActivity(), MainActivity::class.java).apply {
             putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
-            requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_ISSUE_KEY, this)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(this)
             requireActivity().finish()
         }
     }
