@@ -26,6 +26,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.PdfPagerActivity
+import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
@@ -123,9 +124,10 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
-            val intent = Intent(view.context, PdfPagerActivity::class.java)
-            intent.putExtra(ISSUE_KEY, issueKey)
-            view.context.startActivity(intent)
+            Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                putExtra(ISSUE_KEY, issueKey)
+                startActivity(this)
+            }
             dismiss()
         }
         
