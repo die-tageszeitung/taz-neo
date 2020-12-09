@@ -24,6 +24,7 @@ import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.launch
@@ -43,9 +44,18 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
 
     private var currentDate: Date? = null
 
+    private var initialIssueDisplay: IssueKey? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         dataService = DataService.getInstance(requireContext().applicationContext)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
+        initialIssueDisplay = requireActivity().intent.getParcelableExtra<IssueKey>(MainActivity.KEY_ISSUE_KEY)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,6 +91,7 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
 
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this@CoverflowFragment)
+            val fresh = !::adapter.isInitialized
             adapter = CoverflowAdapter(
                 this@CoverflowFragment,
                 R.layout.fragment_cover_flow_item,
@@ -89,6 +100,10 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 CoverflowMomentActionListener(this@CoverflowFragment, dataService)
             )
             fragment_cover_flow_grid.adapter = adapter
+            // If fragment was just constructed skip to issue in intent
+            if (fresh && savedInstanceState == null) {
+                initialIssueDisplay?.let { skipToKey(it) }
+            }
         }
     }
 

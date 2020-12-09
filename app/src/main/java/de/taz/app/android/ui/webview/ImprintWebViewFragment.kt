@@ -113,7 +113,6 @@ class ImprintWebViewFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                requireActivity().setResult(MainActivity.KEY_RESULT_SKIP_TO_NEWEST)
                 requireActivity().finish()
             }
             R.id.bottom_navigation_action_size -> {

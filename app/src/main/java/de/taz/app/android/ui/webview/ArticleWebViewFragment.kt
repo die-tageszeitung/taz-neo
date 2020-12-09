@@ -98,13 +98,15 @@ class ArticleWebViewFragment :
 
     private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub?) {
         val title = sectionStub?.title ?: getString(R.string.imprint)
-        activity?.runOnUiThread {
+        lifecycleScope.launch(Dispatchers.Main) {
             view?.findViewById<TextView>(R.id.section)?.text = title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
                 R.string.fragment_header_article, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                goBackToSection(sectionStub)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    goBackToSection(sectionStub)
+                }
             }
         }
     }

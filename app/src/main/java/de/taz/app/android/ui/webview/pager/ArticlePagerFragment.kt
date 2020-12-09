@@ -177,7 +177,7 @@ class ArticlePagerFragment : BaseMainFragment(
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
                 Intent(requireActivity(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     startActivity(this)
                 }
             }
