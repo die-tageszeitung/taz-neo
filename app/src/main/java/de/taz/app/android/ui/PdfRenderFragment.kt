@@ -1,7 +1,7 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
+import android.graphics.*
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import androidx.fragment.app.Fragment
@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import java.io.File
 import java.io.IOException
 
+
 class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
 
     val log by Log
@@ -21,14 +22,11 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
     private var pdfRenderer: PdfRenderer? = null
     private var currentPage: PdfRenderer.Page? = null
     private var parcelFileDescriptor: ParcelFileDescriptor? = null
-
-    // Math stuff
-    var startX = 0f
-    var startY = 0f
+    private var bitmap: Bitmap? = null
 
     companion object {
         fun createInstance(
-            pdfPageWithFrameList: Pair<File, List<Frame>?>
+                pdfPageWithFrameList: Pair<File, List<Frame>?>
         ): PdfRenderFragment {
             val fragment = PdfRenderFragment()
             fragment.pdfPage = pdfPageWithFrameList.first
@@ -40,14 +38,18 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onStart() {
         super.onStart()
-        pdf_photo_view?.setOnPhotoTapListener { _, x, y ->
-            showFrameIfPossible(x, y)
-        }
         try {
             openRenderer()
             showPage(pageIndex)
         } catch (e: IOException) {
             log.error("Something went wrong opening pdf renderer: ${e.localizedMessage}")
+        }
+
+        pdf_photo_view?.setOnPhotoTapListener { _, x, y ->
+            showFrameIfPossible(x, y)
+        }
+        pdf_photo_view?.setOnMatrixChangeListener {
+            outside_imageview?.setImageBitmap(null)
         }
     }
 
@@ -91,12 +93,14 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
         currentPage = pdfRenderer!!.openPage(index)
 
         // Important: the destination bitmap must be ARGB (not RGB)
-        val bitmap = Bitmap.createBitmap(
-            currentPage!!.width,
-            currentPage!!.height,
-            Bitmap.Config.ARGB_8888
+        bitmap = Bitmap.createBitmap(
+                currentPage!!.width*2,
+                currentPage!!.height*2,
+                Bitmap.Config.ARGB_8888
         )
-        currentPage!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        bitmap?.let {
+            currentPage!!.render(it, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        }
 
         // We are ready to show the Bitmap to user
         pdf_photo_view?.setImageBitmap(bitmap)
@@ -104,8 +108,40 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
 
     private fun showFrameIfPossible(x: Float, y: Float) {
         log.debug("Clicked on x: $x   y:$y")
-        frameList.forEach { log.verbose("possible frame: $it") }
+
         val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
         log.debug("found frame with link: ${frame?.link}")
+
+        // remove this line later on it just helps to show clickable frames
+        showPossibleFrames()
+    }
+
+    /**
+     * This is just a helper function to show the possible frames
+     * (as they are not correct at the moment)
+     */
+    private fun showPossibleFrames() {
+        val w = currentPage!!.width
+        val h = currentPage!!.height
+        val myPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        myPaint.color = Color.RED
+        myPaint.strokeWidth = 2f
+        myPaint.style = Paint.Style.STROKE
+        val tempBitmap = Bitmap.createBitmap(
+                w,
+                h,
+                Bitmap.Config.ARGB_8888)
+        val tempCanvas = Canvas(tempBitmap)
+        frameList.forEach {
+            log.verbose("possible frame: $it")
+            tempCanvas.drawRect(
+                    it.x1 * w,
+                    it.y1 * h,
+                    it.x2 * w,
+                    it.y2 * h,
+                    myPaint
+            )
+        }
+        outside_imageview?.setImageBitmap(tempBitmap)
     }
 }

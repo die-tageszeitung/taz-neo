@@ -14,6 +14,7 @@ import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
@@ -104,7 +105,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         } else {
             fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
             fragment_bottom_sheet_issue_download?.visibility = View.GONE
-            if (issueStub?.status == IssueStatus.regular) {
+            if (issueKey.status == IssueStatus.regular) {
                 fragment_bottom_sheet_issue_read_pdf?.visibility = View.VISIBLE
             }
         }
