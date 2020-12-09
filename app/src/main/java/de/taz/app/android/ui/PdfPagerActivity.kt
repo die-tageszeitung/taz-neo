@@ -8,29 +8,30 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
-class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
+class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
     val log by Log
     private lateinit var viewPager2: ViewPager2
     private lateinit var pagerAdapter: PdfPagerActivity.PdfPagerAdapter
-    private var issue: Issue? = null
+    private lateinit var dataService: DataService
+    private var issueKey: IssueKey? = null
     private var pdfList: List<File> = emptyList()
     private var listOfPdfWithFrameList : List<Pair<File, List<Frame>?>> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        dataService = DataService.getInstance(applicationContext)
         val fileHelper = FileHelper.getInstance()
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
@@ -44,10 +45,10 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
             offscreenPageLimit = 2
         }
 
-        val issueKey = intent.getParcelableExtra<IssueKey>(ISSUE_KEY)
-        issueKey?.let {
+        issueKey = intent.getParcelableExtra(ISSUE_KEY)
+        issueKey?.let { iK ->
             runBlocking(Dispatchers.IO) {
-                issue = IssueRepository.getInstance().get(it)
+                val issue = dataService.getIssue(iK)
                 pdfList = issue?.pageList
                     ?.map { fileHelper.getFile(it.pagePdf) }
                     ?: emptyList()
@@ -68,12 +69,19 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
             return PdfRenderFragment.createInstance(
-                listOfPdfWithFrameList[position]
+                listOfPdfWithFrameList[position],
+                issueKey!!
             )
         }
 
         override fun getItemCount(): Int {
             return listOfPdfWithFrameList.size
+        }
+
+        fun getPositionOfPDf(pdfFileName: String): Int {
+            return listOfPdfWithFrameList.indexOfFirst {
+                it.first.name == pdfFileName
+            }
         }
     }
 }
