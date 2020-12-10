@@ -47,7 +47,6 @@ class DownloadService constructor(
     private val issueRepository: IssueRepository,
     private val apiService: ApiService,
     private val fileHelper: FileHelper,
-    private val toastHelper: ToastHelper,
     private val httpClient: HttpClient
 ) {
     private constructor(applicationContext: Context) : this(
@@ -56,7 +55,6 @@ class DownloadService constructor(
         IssueRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
         FileHelper.getInstance(applicationContext),
-        ToastHelper.getInstance(applicationContext),
         httpClient = HttpClient(Android)
     )
 

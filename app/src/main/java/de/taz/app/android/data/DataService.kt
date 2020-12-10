@@ -51,6 +51,8 @@ class DataService(private val applicationContext: Context) {
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
 
+    private val downloadLiveDataLock = Mutex()
+
     private val downloadLiveDataMap: ConcurrentHashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         ConcurrentHashMap()
     private val sharedPrefs =
@@ -345,9 +347,11 @@ class DataService(private val applicationContext: Context) {
     /**
      * Iterate the livedata map to see if we can clean up LiveData that have neither references nor observers
      */
-    private fun cleanUpLiveData() = synchronized(downloadLiveDataMap) {
-        downloadLiveDataMap.entries.removeAll { (_, liveDataWithReferenceCount) ->
-            liveDataWithReferenceCount.referenceCount.get() <= 0 && !liveDataWithReferenceCount.liveData.hasObservers()
+    private suspend fun cleanUpLiveData() {
+        downloadLiveDataLock.withLock {
+            downloadLiveDataMap.entries.removeAll { (_, liveDataWithReferenceCount) ->
+                liveDataWithReferenceCount.referenceCount.get() <= 0 && !liveDataWithReferenceCount.liveData.hasObservers()
+            }
         }
     }
 
@@ -487,15 +491,15 @@ class DataService(private val applicationContext: Context) {
         observableDownload: ObservableDownload,
         block: suspend (LiveData<DownloadStatus>) -> Unit
     ) {
-
-        val (liveData, referenceCount) = getDownloadLiveData(observableDownload)
-        referenceCount.incrementAndGet()
-
+        val (liveData, referenceCount) = downloadLiveDataLock.withLock {
+            getDownloadLiveData(observableDownload).also {
+                it.referenceCount.incrementAndGet()
+            }
+        }
         try {
             block(liveData)
         } finally {
             referenceCount.decrementAndGet()
-
         }
     }
 }

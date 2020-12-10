@@ -39,7 +39,6 @@ class DownloadServiceTest {
             IssueRepository.getInstance(context),
             ApiService.getInstance(context),
             FileHelper.getInstance(context),
-            ToastHelper.getInstance(context),
             mockHttpClient
         )
     }
