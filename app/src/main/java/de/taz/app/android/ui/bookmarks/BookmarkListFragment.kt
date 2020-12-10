@@ -68,6 +68,7 @@ class BookmarkListFragment :
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, article?.onlineLink)
+                putExtra(Intent.EXTRA_SUBJECT, article?.title)
                 type = "text/plain"
             }
             withContext(Dispatchers.Main) {
