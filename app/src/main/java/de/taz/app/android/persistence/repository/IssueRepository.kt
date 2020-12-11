@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
@@ -136,7 +137,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun getLastDisplayable(issueKey: IssueKey): String? {
-        return appDatabase.issueDao().getLastDisplayable(issueKey.feedName, issueKey.date, issueKey.status)
+        return appDatabase.issueDao()
+            .getLastDisplayable(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     fun saveLastDisplayable(issueKey: IssueKey, displayableName: String) {
@@ -277,8 +279,20 @@ class IssueRepository private constructor(val applicationContext: Context) :
             issueStub.feedName, issueStub.date, issueStub.status
         )?.let { articleRepository.get(it) }
 
-        val moment = momentRepository.get(issueStub)
+        val moment = momentRepository.get(issueStub) ?: run {
+            val hint = "No moment for ${issueStub.issueKey} was found, this is unexpected"
+            log.error(hint)
+            Sentry.captureMessage(hint)
+            // use dummy moment
+            Moment(
+                issueStub.feedName,
+                issueStub.date,
+                issueStub.status,
+                issueStub.baseUrl,
+                MomentDto()
+            )
 
+        }
         val pageList =
             appDatabase.issuePageJoinDao()
                 .getPageNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
@@ -289,7 +303,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return Issue(
             issueStub.feedName,
             issueStub.date,
-            moment!!,
+            moment,
             issueStub.key,
             issueStub.baseUrl,
             issueStub.status,
@@ -302,8 +316,8 @@ class IssueRepository private constructor(val applicationContext: Context) :
             issueStub.dateDownload,
             issueStub.lastDisplayableName
         )
-
     }
+
 
     fun getIssueStubForImage(image: Image): IssueStub {
         return appDatabase.issueDao().getStubForArticleImageName(image.name)
