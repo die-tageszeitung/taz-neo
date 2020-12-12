@@ -169,7 +169,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 }
                 toastHelper.showToast(R.string.toast_error_report_sent)
             }
-            parentFragmentManager.popBackStack()
+            requireActivity().finish()
         }
     }
 
