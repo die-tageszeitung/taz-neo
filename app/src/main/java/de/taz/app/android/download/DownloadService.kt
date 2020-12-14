@@ -205,11 +205,11 @@ class DownloadService constructor(
                 log.warn("Download of ${fileToDownload.name} not successful ${response.status.value}")
                 Sentry.captureMessage(response.readText())
                 fileEntryRepository.resetDownloadDate(fileToDownload)
-                throw ConnectivityException.ImplementationException(
+                Sentry.captureException(ConnectivityException.ImplementationException(
                     "Response code ${response.status.value} while trying to download ${fileToDownload.name}",
                     null,
                     response
-                )
+                ))
             }
             in 500..599 -> {
                 log.warn("Download of ${fileToDownload.name} not successful ${response.status.value}")
