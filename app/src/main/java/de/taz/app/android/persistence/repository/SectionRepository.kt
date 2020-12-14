@@ -104,9 +104,9 @@ class SectionRepository private constructor(applicationContext: Context) :
     }
 
     @Throws(NotFoundException::class)
-    fun sectionStubToSection(sectionStub: SectionStub): Section {
+    fun sectionStubToSection(sectionStub: SectionStub): Section? {
         val sectionFileName = sectionStub.sectionFileName
-        val sectionFile = fileEntryRepository.getOrThrow(sectionFileName)
+        val sectionFile = fileEntryRepository.get(sectionFileName) ?: return null
 
         val articles =
             appDatabase.sectionArticleJoinDao().getArticlesForSection(sectionFileName)
