@@ -33,7 +33,8 @@ private val networkExceptions = listOf(
     ClosedSelectorException::class,
     SSLPeerUnverifiedException::class,
     ErrnoException::class,
-    IOException::class
+    IOException::class,
+    io.ktor.network.sockets.SocketTimeoutException::class
 )
 
 sealed class ConnectivityException(
