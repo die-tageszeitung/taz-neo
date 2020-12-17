@@ -68,6 +68,35 @@ class DownloadService constructor(
 
     private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANIOUS_DOWNLOADS)
 
+
+    /**
+     * Pages, Articles and Sections are parts of issues, which file lists are included by the corresponding Issue.
+     * So if their corresponding Issue already is downloaded we assume they are too
+     */
+    private fun checkIfDownloadeByIssue(collection: DownloadableCollection): Boolean {
+        return when (collection) {
+            is Article -> issueRepository.getIssueStubForArticle(collection.articleHtml.name)?.getDownloadDate(applicationContext)
+            is Section -> issueRepository.getIssueStubForSection(collection.sectionHtml.name)?.getDownloadDate(applicationContext)
+            is Page -> issueRepository.getIssueStubForPage(collection.pagePdf.name)?.getDownloadDate(applicationContext)
+            else -> null
+        }.let {
+            if (it != null) {
+                collection.setDownloadDate(it, applicationContext)
+            }
+            it != null
+        }
+    }
+
+    private fun checkIfDownloadded(collection: DownloadableCollection): Boolean {
+        val isDownloaded = collection.getDownloadDate(applicationContext) != null
+        // If the collection is not directly marked as download it still might part of a downloaded issue
+        if (!isDownloaded) {
+            return checkIfDownloadeByIssue(collection)
+        }
+        return isDownloaded
+    }
+
+
     /**
      * start download for cacheableDownload
      * @param downloadableCollection - [DownloadableCollection] to download
@@ -78,10 +107,16 @@ class DownloadService constructor(
         downloadableCollection: DownloadableCollection,
         statusLiveData: MutableLiveData<DownloadStatus>,
         isAutomaticDownload: Boolean = false,
+        skipIntegrityCheck: Boolean = false,
         onConnectionFailure: suspend () -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
-        if (downloadableCollection.isDownloaded()) {
+
+        if (checkIfDownloadded(downloadableCollection)) {
+            if (skipIntegrityCheck) {
+                return@withContext
+            }
+
             val isComplete =
                 fileHelper.ensureFileListIntegrity(downloadableCollection.getAllFiles())
 
@@ -415,7 +450,7 @@ class DownloadService constructor(
         tag: String,
         polling: Boolean = false,
         delay: Long = 0L
-    ): Operation? {
+    ): Operation {
         val requestBuilder =
             OneTimeWorkRequest.Builder(IssueDownloadWorkManagerWorker::class.java)
                 .setConstraints(getBackgroundDownloadConstraints())

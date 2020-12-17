@@ -330,6 +330,7 @@ class DataService(private val applicationContext: Context) {
     suspend fun ensureDownloaded(
         collection: DownloadableCollection,
         isAutomaticDownload: Boolean = false,
+        skipIntegrityCheck: Boolean = false,
         onConnectionFailure: suspend () -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
@@ -337,6 +338,7 @@ class DataService(private val applicationContext: Context) {
                 collection,
                 liveData as MutableLiveData<DownloadStatus>,
                 isAutomaticDownload = isAutomaticDownload,
+                skipIntegrityCheck = skipIntegrityCheck,
                 onConnectionFailure = onConnectionFailure
             )
         }

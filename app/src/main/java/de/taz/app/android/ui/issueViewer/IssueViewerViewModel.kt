@@ -82,7 +82,7 @@ class IssueViewerViewModel(
                     onConnectionFailure()
                 })!!
 
-                dataService.ensureDownloaded(issue, onConnectionFailure = ::onConnectionFailure)
+                dataService.ensureDownloaded(issue, skipIntegrityCheck = true, onConnectionFailure = ::onConnectionFailure)
 
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
