@@ -227,12 +227,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             resourceInfo = dataService.getResourceInfo(allowCache = false, retryOnFailure = true)
         }
 
-        dataService.ensureDownloaded(resourceInfo, onConnectionFailure = {
-            toastHelper.showNoConnectionToast()
-        })
+        dataService.ensureDownloaded(resourceInfo,
+            skipIntegrityCheck = true,
+            onConnectionFailure = {
+                toastHelper.showNoConnectionToast()
+            })
 
         viewModel.displayable?.let {
-            dataService.ensureDownloaded(it, onConnectionFailure = {
+            dataService.ensureDownloaded(it, skipIntegrityCheck = true, onConnectionFailure = {
                 toastHelper.showNoConnectionToast()
             })
             val path = withContext(Dispatchers.IO) { it.getFile()!!.absolutePath }

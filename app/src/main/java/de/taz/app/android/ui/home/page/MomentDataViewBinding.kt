@@ -59,7 +59,7 @@ class MomentViewDataBinding(
             val animatedMomentUri = moment.getIndexHtmlForAnimated()?.let {
                 FileHelper.getInstance().getAbsoluteFilePath(it)
             }
-            dataService.ensureDownloaded(moment)
+            dataService.ensureDownloaded(moment, skipIntegrityCheck = true)
 
             val momentType = if (animatedMomentUri != null) {
                 MomentType.ANIMATED

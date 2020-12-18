@@ -80,17 +80,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
             resourceInfoStub.resourceVersion,
             resourceInfoStub.resourceBaseUrl,
             resourceInfoStub.resourceZip,
-            resourceList.map {
-                FileEntry(
-                    it.name,
-                    it.storageType,
-                    it.moTime,
-                    it.sha256,
-                    it.size,
-                    RESOURCE_FOLDER,
-                    it.dateDownload
-                )
-            },
+            resourceList,
             resourceInfoStub.dateDownload
         )
     }

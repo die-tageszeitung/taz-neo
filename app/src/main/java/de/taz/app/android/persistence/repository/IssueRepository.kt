@@ -191,6 +191,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
     }
 
+    fun getIssueStubForPage(pageFileName: String): IssueStub? {
+        return appDatabase.issuePageJoinDao().getIssueStubForPage(pageFileName)
+    }
+
     fun getIssueStubForArticle(articleFileName: String): IssueStub? {
         return appDatabase.issueSectionJoinDao().getIssueStubForArticle(articleFileName)
     }

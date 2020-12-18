@@ -22,7 +22,7 @@ interface AppWebViewClientCallBack {
     fun onPageFinishedLoading()
 }
 
-class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebViewClient() {
+class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebViewClient() {
 
     private val log by Log
     private val fileHelper = FileHelper.getInstance()
@@ -75,7 +75,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebVie
                     true
                 }
                 it.startsWith("file:///") && it.contains("art") && it.endsWith(".html") -> {
-                   callBack.onLinkClicked(url.split("/").last())
+                    callBack.onLinkClicked(url.split("/").last())
                     true
                 }
                 else -> false
@@ -118,7 +118,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebVie
 
     private fun openInBrowser(webView: WebView, url: String) {
         val color = ContextCompat.getColor(webView.context, R.color.colorAccent)
-        CustomTabsIntent.Builder().setToolbarColor(color).build().apply{
+        CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
             launchUrl(webView.context, Uri.parse(url))
         }
     }
@@ -176,8 +176,9 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack ) : WebVie
                     WebResourceResponse("text/plain", "UTF-8", data.inputStream())
             }
         } catch (e: Exception) {
-            log.error("trying to open non-existent file $url")
-            Sentry.captureException(e)
+            val hint = "trying to open non-existent file $url"
+            log.error(hint)
+            Sentry.captureException(e, hint)
             null
         }
     }
