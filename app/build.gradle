@@ -324,7 +324,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // PhotoView for zooming into imageViews
-    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
     // error reports
     implementation 'io.sentry:sentry-android:4.2.0'
