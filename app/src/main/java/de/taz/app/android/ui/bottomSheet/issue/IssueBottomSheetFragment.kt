@@ -26,7 +26,6 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.PdfPagerActivity
-import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
