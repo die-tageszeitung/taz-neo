@@ -1,8 +1,10 @@
 package de.taz.app.android.ui.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Environment
+import android.os.StatFs
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -27,16 +29,26 @@ class StorageSelectionDialog(val context: Context, private val settingsViewModel
             options.forEach { add(it.key) }
         }
 
-        override fun areAllItemsEnabled(): Boolean {
-            return false
-        }
-
+        @SuppressLint("SetTextI18n")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             return super.getView(position, convertView, parent).apply {
+
+                val textView = this as? CheckedTextView
                 if (!isEnabled(position)) {
-                    (this as? CheckedTextView)?.setTextColor(ContextCompat.getColor(context, R.color.textColorAccent))
+                    textView?.setTextColor(ContextCompat.getColor(context, R.color.textColorAccent))
                 } else {
-                    (this as? CheckedTextView)?.setTextColor(ContextCompat.getColor(context, R.color.textColor))
+                    textView?.setTextColor(ContextCompat.getColor(context, R.color.textColor))
+                }
+                when (options[getItem(position)]) {
+                    StorageLocation.EXTERNAL -> {
+                        val externalFreeBytes = context.getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes } ?: 0
+                        textView?.text = "${textView?.text} (${externalFreeBytes / 1024 / 1024}MB frei)"
+                    }
+                    StorageLocation.INTERNAL -> {
+                        val internalFreeBytes = StatFs(context.filesDir.path).availableBytes
+                        textView?.text = "${textView?.text} (${internalFreeBytes / 1024 / 1024}MB frei)"
+                    }
+                    else -> Unit
                 }
             }
         }
@@ -66,7 +78,6 @@ class StorageSelectionDialog(val context: Context, private val settingsViewModel
                 settingsViewModel.storageLocationLiveData.postValue(
                         options[listAdapter.getItem(which)] ?: StorageLocation.INTERNAL
                 )
-
                 dialog.dismiss()
             }.show()
 
