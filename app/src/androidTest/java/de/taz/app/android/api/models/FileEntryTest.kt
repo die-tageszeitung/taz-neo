@@ -54,7 +54,7 @@ class FileEntryTest {
         assertNotNull(
             fileEntryRepository.get(fileEntryDtoTest.name)
         )
-        assertTrue(createdFile.exists())
+        assertTrue(createdFile!!.exists())
 
         val fromDB = fileEntryRepository.get(createdFileEntry.name)
 
