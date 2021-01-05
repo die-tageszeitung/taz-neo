@@ -24,8 +24,10 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -50,8 +52,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private lateinit var apiService: ApiService
     private lateinit var downloadService: DownloadService
+    private lateinit var storageService: StorageService
     private lateinit var dataService: DataService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var fileEntryRepository: FileEntryRepository
 
     private var isRendered = false
 
@@ -68,12 +72,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     private val tazApiCssPrefListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             log.debug("WebViewFragment: shared pref changed: $key")
-            web_view?.injectCss(sharedPreferences)
-            if (
-                key == SETTINGS_TEXT_NIGHT_MODE &&
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
-            ) {
-                web_view?.reload()
+            CoroutineScope(Dispatchers.Main).launch {
+                web_view?.injectCss(sharedPreferences)
+                if (
+                    key == SETTINGS_TEXT_NIGHT_MODE &&
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
+                ) {
+                    web_view?.reload()
+                }
             }
         }
 
@@ -109,6 +115,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         downloadService = DownloadService.getInstance(context.applicationContext)
         dataService = DataService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -220,7 +228,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
-    private suspend fun ensureDownloadedAndShow() {
+    private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.IO) {
         var resourceInfo = dataService.getResourceInfo()
         if (!isResourceInfoUpToDate(resourceInfo)) {
             log.debug("ResourceInfo is outdated - request newest")
@@ -233,12 +241,18 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 toastHelper.showNoConnectionToast()
             })
 
-        viewModel.displayable?.let {
-            dataService.ensureDownloaded(it, skipIntegrityCheck = true, onConnectionFailure = {
-                toastHelper.showNoConnectionToast()
-            })
-            val path = withContext(Dispatchers.IO) { it.getFile()!!.absolutePath }
-            loadUrl("file://$path")
+        viewModel.displayable?.let { displayable ->
+            dataService.ensureDownloaded(
+                displayable,
+                skipIntegrityCheck = true,
+                onConnectionFailure = {
+                    toastHelper.showNoConnectionToast()
+                })
+            val displayableFile = fileEntryRepository.get(displayable.key)
+            val path = displayableFile?.let {
+                storageService.getFileUri(it)
+            }
+            path?.let { loadUrl(it) }
         }
     }
 

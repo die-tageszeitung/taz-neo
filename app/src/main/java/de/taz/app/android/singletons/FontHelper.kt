@@ -21,8 +21,8 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
 
     companion object : SingletonHolder<FontHelper, Context>(::FontHelper)
 
-    private val fileHelper = FileHelper.getInstance(applicationContext)
-    private val fontFolder = fileHelper.getFileByPath("$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val fontFolder = File("${storageService.getInternalFilesDir().absolutePath}/$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
 
     private val cache: MutableMap<String, Typeface?> = mutableMapOf()
     private val mutex = Mutex()
@@ -33,24 +33,23 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
         }
     }
 
-    suspend fun getTypeFace(fileName: String): Typeface? {
-        return if (cache.containsKey(fileName)) {
-            cache[fileName]
+    suspend fun getTypeFace(file: File): Typeface? {
+        return if (cache.containsKey(file.name)) {
+            cache[file.name]
         } else {
             mutex.withLock {
-                if (!cache.containsKey(fileName)) {
-                    cache[fileName] = fromFile(fileName)
+                if (!cache.containsKey(file.name)) {
+                    cache[file.name] = fromFile(file)
                 }
-                cache[fileName]
+                cache[file.name]
             }
         }
     }
 
-    private suspend fun fromFile(fileName: String): Typeface? = withContext(Dispatchers.IO) {
-        val woffFile = fileHelper.getFile(fileName)
+    private suspend fun fromFile(file: File): Typeface? = withContext(Dispatchers.IO) {
         try {
-            woffFile?.inputStream()?.use {
-                val ttfFile = File("${fontFolder}/${fileName.replace(".woff", ".ttf")}")
+            file.inputStream().use {
+                val ttfFile = File("${fontFolder}/${file.name.replace(".woff", ".ttf")}")
                 if (!ttfFile.exists()) {
                     ttfFile.writeBytes(
                         WoffConverter().convertToTTFByteArray(it)
@@ -60,11 +59,11 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
                     Typeface.createFromFile(ttfFile)
                 } catch (re: RuntimeException) {
                     ttfFile.delete()
-                    fromFile(fileName)
+                    fromFile(file)
                 }
             }
         } catch (e: FileNotFoundException) {
-            val hint = "Accessing $fileName threw $e"
+            val hint = "Accessing ${file.name} threw $e"
             Sentry.captureException(e, hint)
             null
         }

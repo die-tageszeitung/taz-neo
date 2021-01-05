@@ -31,8 +31,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
     private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
-    var base64String : String? = null
-    var uploadedFileName : String? = null
+    var base64String: String? = null
+    var uploadedFileName: String? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -84,6 +84,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         }
 
     }
+
     private val getImageFromGallery =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
@@ -109,15 +110,16 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                     }
 
                     // get the filename from uri:
-                    requireContext().contentResolver.query(uri, null, null, null, null).use { cursor ->
-                        val nameIndex = cursor?.getColumnIndex(
-                            OpenableColumns.DISPLAY_NAME
-                        )
-                        cursor?.moveToFirst()
-                        nameIndex?.let {
-                            uploadedFileName = cursor.getString(nameIndex)
+                    requireContext().contentResolver.query(uri, null, null, null, null)
+                        .use { cursor ->
+                            val nameIndex = cursor?.getColumnIndex(
+                                OpenableColumns.DISPLAY_NAME
+                            )
+                            cursor?.moveToFirst()
+                            nameIndex?.let {
+                                uploadedFileName = cursor.getString(nameIndex)
+                            }
                         }
-                    }
                 } ?: run {
                     log.warn("input stream is null")
                     toastHelper.showToast(R.string.toast_error_report_upload_file_not_found)
@@ -135,42 +137,41 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         screenshotName: String?,
         screenshot: String?
     ) {
-        context?.let { context ->
-            val storageType =
-                FileHelper.getInstance(activity?.applicationContext).getFilesDir(context)
-            val errorProtocol = Log.trace.toString()
+        val storageType =
+            StorageService.getInstance(activity?.applicationContext).getInternalFilesDir().absolutePath
+        val errorProtocol = Log.trace.toString()
 
-            val activityManager =
-                this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val memoryInfo = ActivityManager.MemoryInfo()
-            activityManager.getMemoryInfo(memoryInfo)
+        val activityManager =
+            this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val memoryInfo = ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memoryInfo)
 
-            val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
-            val usedRam =
-                "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
+        val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
+        val usedRam =
+            "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                log.debug("Sending an error report")
-                apiService.apply {
-                    retryOnConnectionFailure {
-                        sendErrorReport(
-                            email,
-                            message,
-                            lastAction,
-                            conditions,
-                            storageType,
-                            errorProtocol,
-                            usedRam,
-                            totalRam,
-                            screenshotName,
-                            screenshot
-                        )
-                    }
+        CoroutineScope(Dispatchers.IO).launch {
+            log.debug("Sending an error report")
+            apiService.apply {
+                retryOnConnectionFailure {
+                    sendErrorReport(
+                        email,
+                        message,
+                        lastAction,
+                        conditions,
+                        storageType,
+                        errorProtocol,
+                        usedRam,
+                        totalRam,
+                        screenshotName,
+                        screenshot
+                    )
                 }
-                toastHelper.showToast(R.string.toast_error_report_sent)
             }
-            requireActivity().finish()
+            toastHelper.showToast(R.string.toast_error_report_sent)
         }
+        requireActivity().finish()
+
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {

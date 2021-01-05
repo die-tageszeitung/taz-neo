@@ -5,6 +5,7 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.singletons.JsonHelper
+import de.taz.app.android.singletons.StorageService
 import java.io.IOException
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -17,7 +18,7 @@ object IssueTestUtil {
 
     fun getIssue(fullFilePath: String = "testIssue"): Issue {
         val issueDto: IssueDto = jsonAdapter.fromJson(readIssueFromAssets(fullFilePath))!!.data!!.product!!.feedList!!.first().issueList!!.first()
-        return Issue("taz", issueDto)
+        return Issue("taz", issueDto, StorageService.getInstance(context))
     }
 
     @Throws(IOException::class)

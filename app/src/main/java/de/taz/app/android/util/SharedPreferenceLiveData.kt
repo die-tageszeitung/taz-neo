@@ -2,7 +2,9 @@ package de.taz.app.android.util
 
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
+import io.sentry.core.Sentry
 
 abstract class SharedPreferenceLiveData<T>(
     val sharedPreferences: SharedPreferences,
@@ -69,6 +71,37 @@ class SharedPreferenceStringLiveData(
     override fun saveValueToPreferences(value: String) {
         with (sharedPreferences.edit()) {
             putString(key, value)
+            commit()
+        }
+    }
+}
+
+class SharedPreferenceStorageLocationLiveData(
+    sharedPrefs: SharedPreferences,
+    key: String,
+    defValue: StorageLocation
+) :
+    SharedPreferenceLiveData<StorageLocation>(sharedPrefs, key, defValue) {
+    val log by Log
+
+    override fun getValueFromPreferences(key: String, defValue: StorageLocation): StorageLocation {
+        val ordinal = try {
+            sharedPreferences.getInt(key, StorageLocation.INTERNAL.ordinal)
+        } catch (e: Exception) {
+            log.error("Bad state in shared prefenrence for StorageLocation")
+            Sentry.captureException(e)
+            with (sharedPreferences.edit()) {
+                putInt(key, defValue.ordinal)
+                commit()
+            }
+            defValue.ordinal
+        }
+        return StorageLocation.values()[ordinal]
+    }
+
+    override fun saveValueToPreferences(value: StorageLocation) {
+        with (sharedPreferences.edit()) {
+            putInt(key, value.ordinal)
             commit()
         }
     }

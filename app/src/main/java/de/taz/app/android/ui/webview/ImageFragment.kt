@@ -17,7 +17,8 @@ import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,8 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private var toDownloadImage: Image? = null
     private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
-    private lateinit var fileHelper: FileHelper
+    private lateinit var storageService: StorageService
+    private lateinit var fileEntryRepository: FileEntryRepository
 
     val log by Log
 
@@ -62,7 +64,8 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         super.onAttach(context)
         dataService = DataService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
-        fileHelper = FileHelper.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -111,15 +114,15 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun showImageInWebView(toShowImage: Image, webView: WebView) {
-        val fileHelper = FileHelper.getInstance(context)
-        val jqueryFile =
-            "file://${fileHelper.getFileByPath("$RESOURCE_FOLDER/$WEBVIEW_JQUERY_FILE").path}"
+        val fileHelper = StorageService.getInstance(context)
+        val jqueryFileEntry = fileEntryRepository.get(WEBVIEW_JQUERY_FILE)
+        val jqueryFile = jqueryFileEntry?.let(storageService::getFile)
         runIfNotNull(toShowImage, context, webView) { image, context, web ->
             RESOURCE_FOLDER
-            fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+            fileHelper.getInternalFilesDir().let { fileDir ->
                 val uri = "${image.folder}/${image.name}"
                 web.loadDataWithBaseURL(
-                    fileDir,
+                    fileDir.path,
                     HTML_BACKGROUND_CONTAINER.format(jqueryFile, "$fileDir/$uri"),
                     "text/html",
                     "UTF-8",
@@ -130,8 +133,8 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
-        runIfNotNull(toShowImage, context, webView) { image, context, web ->
-            fileHelper.getFileDirectoryUrl(context).let { fileDir ->
+        runIfNotNull(toShowImage, webView) { image, web ->
+            storageService.getInternalFilesDir().let { fileDir ->
                 val uri = "${image.folder}/${image.name}"
                 if (web.url != null) {
                     web.evaluateJavascript(

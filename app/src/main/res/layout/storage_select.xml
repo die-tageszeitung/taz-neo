@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/settings_storage_location_caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_storage_type"
+        android:textAppearance="@style/TextAppearance.Settings.Entry"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/settings_storage_location_value" />
+    <TextView
+        android:id="@+id/settings_storage_location_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:baselineAlignBottom="true"
+        app:layout_constraintBaseline_toBaselineOf="@+id/settings_storage_location_caption"
+        android:textAppearance="@style/TextAppearance.Settings.Value"
+        android:textColor="@color/colorAccent"
+        android:gravity="end"
+        android:textAlignment="gravity"
+        app:layout_constraintLeft_toRightOf="@id/settings_storage_location_caption"
+        app:layout_constraintRight_toRightOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

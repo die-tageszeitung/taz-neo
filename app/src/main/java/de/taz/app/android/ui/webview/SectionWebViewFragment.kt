@@ -20,9 +20,11 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +41,8 @@ class SectionWebViewFragment :
     WebViewFragment<Section, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
 
     private lateinit var sectionRepository: SectionRepository
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var storageService: StorageService
 
     override val viewModel by lazy {
         ViewModelProvider(
@@ -68,7 +72,7 @@ class SectionWebViewFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
-        log.debug("Creating a SectionWebViewFragmen for $sectionFileName")
+        log.debug("Creating a SectionWebViewFragment for $sectionFileName")
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
@@ -81,6 +85,8 @@ class SectionWebViewFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
@@ -90,10 +96,16 @@ class SectionWebViewFragment :
                 val issueStub = displayable.getIssueStub()
                 issueStub?.apply {
                     if (isWeekend) {
+                        val weekendTypefaceFileEntry =
+                            fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+                        val weekendTypeface = weekendTypefaceFile?.let {
+                            FontHelper.getInstance(context?.applicationContext)
+                                .getTypeFace(it)
+                        }
+
                         withContext(Dispatchers.Main) {
-                            view?.findViewById<TextView>(R.id.section)?.typeface =
-                                FontHelper.getInstance(context?.applicationContext)
-                                    .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                            view?.findViewById<TextView>(R.id.section)?.typeface = weekendTypeface
                             //following two lines align header/dotted line in weekend issues
                             //with text in taz logo; TODO check whether we can get rid of them later
                             view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY =

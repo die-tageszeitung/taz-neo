@@ -106,6 +106,12 @@
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
+    <string name="settings_storage_type">Speicherort</string>
+    <string name="settings_storage_type_internal">Interner Speicher</string>
+    <string name="settings_storage_type_external">Externer Speicher</string>
+    <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehenden Dateien migriert.</string>
+    <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
+
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>

@@ -7,8 +7,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.singletons.FileHelper
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.StorageService
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import org.junit.Assert
@@ -38,7 +37,7 @@ class DownloadServiceTest {
             FileEntryRepository.getInstance(context),
             IssueRepository.getInstance(context),
             ApiService.getInstance(context),
-            FileHelper.getInstance(context),
+            StorageService.getInstance(context),
             mockHttpClient
         )
     }

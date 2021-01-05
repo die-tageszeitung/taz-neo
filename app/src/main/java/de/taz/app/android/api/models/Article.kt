@@ -5,9 +5,8 @@ import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.singletons.FileHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.singletons.StorageService
 import java.io.File
 import java.util.*
 
@@ -29,22 +28,25 @@ data class Article(
     override val dateDownload: Date?
 ) : ArticleOperations, WebViewDisplayable {
 
+    override val path: String
+        get() = articleHtml.path
+
     constructor(
-        issueFeedName: String,
-        issueDate: String,
+        issueKey: IssueKey,
+        storageService: StorageService,
         articleDto: ArticleDto,
         articleType: ArticleType = ArticleType.STANDARD
     ) : this(
-        FileEntry(articleDto.articleHtml, "$issueFeedName/$issueDate"),
-        issueFeedName,
-        issueDate,
+        FileEntry(articleDto.articleHtml, storageService.determineFilePath(articleDto.articleHtml, issueKey)),
+        issueKey.feedName,
+        issueKey.date,
         articleDto.title,
         articleDto.teaser,
         articleDto.onlineLink,
-        articleDto.audioFile?.let { FileEntry(it, "$issueFeedName/$issueDate") },
+        articleDto.audioFile?.let { FileEntry(articleDto.audioFile, storageService.determineFilePath(it, issueKey)) },
         articleDto.pageNameList ?: emptyList(),
-        articleDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
-        articleDto.authorList?.map { Author(it) } ?: emptyList(),
+        articleDto.imageList?.map { storageService.createOrUpdateImage(it, issueKey) } ?: emptyList(),
+        articleDto.authorList?.map { Author(it, storageService) } ?: emptyList(),
         articleType,
         false,
         0,
@@ -67,10 +69,6 @@ data class Article(
         return getAllFiles().map { it.name }.distinct()
     }
 
-    override suspend fun deleteFiles() {
-        getAllFileNames().forEach { FileHelper.getInstance().deleteFile(it) }
-    }
-
     override fun getDownloadTag(): String {
         return articleHtml.name
     }
@@ -89,14 +87,6 @@ data class Article(
         return articleRepository.previousArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
         }
-    }
-
-    override fun getFile(): File? {
-        return FileHelper.getInstance().getFile(this.key)
-    }
-
-    override fun getFilePath(): String? {
-        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
     }
 
     override fun previous(): Article? {

@@ -11,10 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
@@ -26,17 +26,17 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 const val FINISH_ON_CLOSE = "FINISH ON CLOSE"
 
 class DataPolicyActivity : AppCompatActivity() {
 
     private val log by Log
-    private val dataPolicyPage = "welcomeSlidesDataPolicy.html"
+    private val dataPolicyPageName = "welcomeSlidesDataPolicy.html"
 
-    private var fileHelper: FileHelper? = null
+    private var storageService: StorageService? = null
     private lateinit var dataService: DataService
+    private lateinit var fileEntryRepository: FileEntryRepository
 
     private var finishOnClose = false
 
@@ -45,8 +45,9 @@ class DataPolicyActivity : AppCompatActivity() {
 
         finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
-        fileHelper = FileHelper.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
         setContentView(R.layout.activity_data_policy)
 
@@ -87,12 +88,18 @@ class DataPolicyActivity : AppCompatActivity() {
             }
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-            fileHelper?.getFileDirectoryUrl(this.context)?.let { fileDir ->
-                val file = File("$fileDir/$RESOURCE_FOLDER/$dataPolicyPage")
-                lifecycleScope.launch(Dispatchers.IO) {
-                    ensureResourceInfoIsDownloadedAndShow(file.path)
+            lifecycleScope.launch(Dispatchers.IO) {
+                val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
+                dataService.ensureDownloaded(resourceInfo)
+                val dataPolicyPageFileEntry = fileEntryRepository.get(dataPolicyPageName)
+                val filePath = dataPolicyPageFileEntry?.let {
+                    storageService?.getFileUri(it)
+                }
+                filePath?.let {
+                    ensureResourceInfoIsDownloadedAndShow(it)
                 }
             }
+
         }
     }
 
@@ -114,11 +121,8 @@ class DataPolicyActivity : AppCompatActivity() {
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
 
         val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
-        try {
-            dataService.ensureDownloaded(resourceInfo)
-        } catch (e: CancellationException) {
-            throw e
-        }
+        dataService.ensureDownloaded(resourceInfo)
+
         withContext(Dispatchers.Main) {
             data_policy_fullscreen_content.loadUrl(filePath)
         }

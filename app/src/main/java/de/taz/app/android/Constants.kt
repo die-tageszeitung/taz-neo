@@ -1,5 +1,6 @@
 package de.taz.app.android
 
+import de.taz.app.android.api.interfaces.StorageLocation
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.pow
@@ -18,7 +19,7 @@ const val WEBVIEW_HTML_FILE = "htmlFile"
 const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
 const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
 const val WEBVIEW_JQUERY_FILE = "jquery-3.min.js"
-const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME="knile-semibold-webfont.woff"
+const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
 
 // Preferences
 const val PREFERENCES_DOWNLOADS = "preferences_downloads"
@@ -28,6 +29,8 @@ const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
 // Settings
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
+const val SETTINGS_GENERAL_STORAGE_LOCATION = "general_storage_location"
+val SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
 const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
@@ -36,7 +39,8 @@ const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
 const val DRAWER_SHOW_NUMBER = 1
 const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
 
-const val W3C_EMAIL_PATTERN = """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
+const val W3C_EMAIL_PATTERN =
+    """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
 
 const val MAX_SIMULTANIOUS_QUERIES = 8
 const val MAX_SIMULTANIOUS_DOWNLOADS = 8
@@ -50,9 +54,11 @@ const val DISPLAYED_FEED = "taz"
 // onSaveInstanceState
 const val DISPLAYABLE_NAME = "displayableName"
 
+const val PUBLIC_FOLDER = "public"
+
 const val RESOURCE_CACHE_TIMEOUT = 3600000L // 1 hour
 
 // SimpleDateFormat is not thread safe!!! We need to create to create a instance for every thread context
 val simpleDateFormat
-        get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 

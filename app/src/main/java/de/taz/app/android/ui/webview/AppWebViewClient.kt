@@ -5,7 +5,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import java.io.File
 import android.net.Uri
@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import io.sentry.core.Sentry
 import java.lang.Exception
 import java.net.URLDecoder
@@ -25,7 +26,8 @@ interface AppWebViewClientCallBack {
 class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebViewClient() {
 
     private val log by Log
-    private val fileHelper = FileHelper.getInstance()
+    private val storageService = StorageService.getInstance()
+    private val fileEntryRepository = FileEntryRepository.getInstance()
 
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")
@@ -59,9 +61,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebView
     private fun handleLinks(webView: WebView?, url: String?): Boolean {
         url?.let { urlString ->
             webView?.let {
-                if (urlString.startsWith(fileHelper.getFileDirectoryUrl(webView.context))) {
-                    return true
-                }
+                return urlString.startsWith("file:///")
             }
         }
         return false
@@ -129,15 +129,13 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebView
     private fun overrideInternalLinks(view: WebView?, url: String?): String? {
         view?.let {
             url?.let {
-                val fileDir = fileHelper.getFileDirectoryUrl(view.context)
-
                 var newUrl = url.replace(
-                    "$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/resources/".toRegex(),
-                    "$fileDir/resources/"
+                    "\\w+/\\d{4}-\\d{2}-\\d{2}/(public/|regular/)?resources/".toRegex(),
+                    "resources/"
                 )
                 newUrl = newUrl.replace(
-                    "$fileDir/\\w+/\\d{4}-\\d{2}-\\d{2}/global/".toRegex(),
-                    "$fileDir/global/"
+                    "\\w+/\\d{4}-\\d{2}-\\d{2}/(public/|regular/)?global/".toRegex(),
+                    "global/"
                 )
 
                 return newUrl
@@ -156,7 +154,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebView
         url: String?
     ): WebResourceResponse? {
         val newUrl = overrideInternalLinks(view, url)
-        val data = File(newUrl.toString().removePrefix("file:///"))
+        val data = File(newUrl.toString().removePrefix("file://"))
 
         return try {
             when {
@@ -176,7 +174,7 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebView
                     WebResourceResponse("text/plain", "UTF-8", data.inputStream())
             }
         } catch (e: Exception) {
-            val hint = "trying to open non-existent file $url"
+            val hint = "trying to open non-existent file $newUrl"
             log.error(hint)
             Sentry.captureException(e, hint)
             null

@@ -3,12 +3,9 @@ package de.taz.app.android.api.models
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.singletons.StorageService
 
 import java.util.*
 
@@ -29,18 +26,18 @@ data class Issue(
     override val lastDisplayableName: String?
 ) : IssueOperations, DownloadableCollection {
 
-    constructor(feedName: String, issueDto: IssueDto) : this(
+    constructor(feedName: String, issueDto: IssueDto, storageService: StorageService) : this(
         feedName,
         issueDto.date,
-        Moment(feedName, issueDto.date, issueDto.status, issueDto.baseUrl, issueDto.moment),
+        Moment(IssueKey(feedName, issueDto.date, issueDto.status), storageService, issueDto.baseUrl, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,
         issueDto.minResourceVersion,
-        issueDto.imprint?.let { Article(feedName, issueDto.date, it, ArticleType.IMPRINT) },
+        issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
-        issueDto.sectionList?.map { Section(feedName, issueDto.date, it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(feedName, issueDto.date, it) } ?: emptyList(),
+        issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it) } ?: emptyList(),
+        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, storageService) } ?: emptyList(),
         issueDto.moTime,
         null,
         null
@@ -70,40 +67,6 @@ data class Issue(
             articleList.addAll(it.articleList)
         }
         return articleList
-    }
-
-    override suspend fun deleteFiles() {
-        val filesToDelete: MutableList<FileEntryOperations> = getAllFiles().toMutableList()
-        val filesToRetain = sectionList.fold(mutableListOf<String>()) { acc, section ->
-            // bookmarked articles should remain
-            acc.addAll(
-                section.articleList
-                    .filter { it.bookmarked }
-                    .map { it.getAllFileNames() }
-                    .flatten()
-                    .distinct()
-            )
-            // author images are potentially used globally so we retain them for now as they don't eat up much space
-            acc.addAll(
-                section.articleList
-                    .map { it.authorList }
-                    .flatten()
-                    .mapNotNull { it.imageAuthor }
-                    .map { it.name }
-            )
-            acc
-        }
-        filesToDelete.removeAll { it.name in filesToRetain }
-
-        // do not delete bookmarked files
-        ArticleRepository.getInstance().apply {
-            getBookmarkedArticleStubListForIssuesAtDate(feedName, date).forEach {
-                filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
-            }
-        }
-        filesToDelete.forEach { it.deleteFile() }
-
-        this.setDownloadDate(null)
     }
 }
 

@@ -6,9 +6,7 @@ import java.io.File
 interface WebViewDisplayable: DownloadableCollection {
 
     val key: String
-
-    fun getFile(): File?
-    fun getFilePath(): String?
+    val path: String
 
     fun previous(): WebViewDisplayable?
 

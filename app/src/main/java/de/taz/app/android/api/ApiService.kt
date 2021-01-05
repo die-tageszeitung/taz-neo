@@ -10,6 +10,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.core.Sentry
@@ -24,14 +25,14 @@ import java.util.*
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
-    private val toastHelper: ToastHelper,
+    private val storageService: StorageService,
     private val authHelper: AuthHelper,
     private val firebaseHelper: FirebaseHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
-        toastHelper = ToastHelper.getInstance(applicationContext),
+        storageService = StorageService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
     )
@@ -120,7 +121,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             "[Debug #12895] authenticated with token: ${
                 token?.substring(
                     0,
-                    10.coerceAtMost(token!!.length)
+                    10.coerceAtMost(token.length)
                 )
             }*********"
         )
@@ -227,7 +228,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ).data?.product?.feedList?.filter {
                 feedName == it.name
             }?.map { feed ->
-                (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) }
+                (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) }
             }?.flatten() ?: emptyList()
         }
     }
@@ -245,7 +246,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) })
             }
         }
         return issues
@@ -264,7 +265,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.filter { feedNames.contains(it.name) }?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) })
             }
         }
         return issues
@@ -289,7 +290,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate,
                 IssueVariables(issueDate = issueDate, limit = limit)
             ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it, storageService) })
             }
             issues.toList()
         }
@@ -314,7 +315,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, limit)
-            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it, storageService) }
                 ?: emptyList()
         }
     }
@@ -336,7 +337,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.Moment, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let {
-                Moment(feedName, dateString, it.status, it.baseUrl, it.moment)
+                Moment(IssueKey(feedName, dateString, it.status), storageService, it.baseUrl, it.moment)
             }
         }
     }
@@ -351,7 +352,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
         if (productDto != null) {
-            ResourceInfo(productDto)
+            ResourceInfo(productDto, storageService)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
@@ -606,7 +607,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             )
 
             issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                Issue(issueKey.feedName, it)
+                Issue(issueKey.feedName, it, storageService)
             }
         } ?: throw NotFoundException()
     }

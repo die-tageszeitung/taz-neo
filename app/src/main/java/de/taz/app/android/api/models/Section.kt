@@ -5,8 +5,9 @@ import de.taz.app.android.api.dto.SectionDto
 import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import java.io.File
 import java.util.*
 
@@ -22,15 +23,15 @@ data class Section(
     override val dateDownload: Date?
 ) : SectionOperations, WebViewDisplayable {
 
-    constructor(issueFeedName: String, issueDate: String, sectionDto: SectionDto) : this(
-        sectionHtml = FileEntry(sectionDto.sectionHtml, "$issueFeedName/$issueDate"),
-        issueDate = issueDate,
+    constructor(issueKey: IssueKey, storageService: StorageService, sectionDto: SectionDto) : this(
+        sectionHtml = FileEntry(sectionDto.sectionHtml, storageService.determineFilePath(sectionDto.sectionHtml, issueKey)),
+        issueDate = issueKey.date,
         title = sectionDto.title,
         type = sectionDto.type,
-        navButton = Image(sectionDto.navButton, "$issueFeedName/$issueDate"),
-        articleList = sectionDto.articleList?.map { Article(issueFeedName, issueDate, it) }
+        navButton = Image(sectionDto.navButton, storageService.determineFilePath(sectionDto.navButton, issueKey)),
+        articleList = sectionDto.articleList?.map { Article(issueKey, storageService, it) }
             ?: listOf(),
-        imageList = sectionDto.imageList?.map { Image(it, "$issueFeedName/$issueDate") }
+        imageList = sectionDto.imageList?.map { Image(it, storageService.determineFilePath(it, issueKey)) }
             ?: listOf(),
         extendedTitle = sectionDto.extendedTitle,
         dateDownload = null
@@ -38,6 +39,9 @@ data class Section(
 
     override val key: String
         get() = sectionHtml.name
+
+    override val path: String
+        get() = sectionHtml.path
 
     override fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
@@ -47,10 +51,6 @@ data class Section(
 
     override fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
-    }
-
-    override suspend fun deleteFiles() {
-        getAllFiles().forEach { FileHelper.getInstance().deleteFile(it) }
     }
 
     override fun getDownloadTag(): String {
@@ -69,14 +69,6 @@ data class Section(
         return sectionRepository.getPreviousSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
-    }
-
-    override fun getFile(): File? {
-        return FileHelper.getInstance().getFile(this.key)
-    }
-
-    override fun getFilePath(): String? {
-        return FileHelper.getInstance().getAbsoluteFilePath(this.key)
     }
 
     override fun previous(): Section? {

@@ -11,7 +11,7 @@ import de.taz.app.android.persistence.join.SectionNavButtonJoin
 abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
 
     @Query(
-        """SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload
+        """SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation
         FROM Image INNER JOIN SectionNavButtonJoin
         ON Image.fileEntryName = SectionNavButtonJoin.navButtonFileName
         INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName 

@@ -3,7 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import java.io.IOException
@@ -43,7 +43,7 @@ class QueryService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<QueryService, Context>(::QueryService)
 
-    private val fileHelper = FileHelper.getInstance(applicationContext)
+    private val fileHelper = StorageService.getInstance(applicationContext)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val queryCache = mutableMapOf<String, String>()

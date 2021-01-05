@@ -4,7 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 const val RESOURCE_FOLDER = "resources"
@@ -17,11 +17,11 @@ data class ResourceInfo(
     val resourceList: List<FileEntry>,
     override val dateDownload: Date?
 ) : DownloadableCollection {
-    constructor(productDto: ProductDto) : this(
+    constructor(productDto: ProductDto, storageService: StorageService) : this(
         productDto.resourceVersion!!,
         productDto.resourceBaseUrl!!,
         productDto.resourceZip!!,
-        productDto.resourceList!!.map { FileEntry(it, RESOURCE_FOLDER) },
+        productDto.resourceList!!.map { FileEntry(it, storageService.determineFilePath(it, null)) },
         null
     )
 
@@ -39,10 +39,6 @@ data class ResourceInfo(
 
     override fun getAllFileNames(): List<String> {
         return resourceList.map { it.name }
-    }
-
-    override suspend fun deleteFiles() {
-        getAllFiles().forEach { FileHelper.getInstance().deleteFile(it) }
     }
 
     override fun getDownloadTag(): String {

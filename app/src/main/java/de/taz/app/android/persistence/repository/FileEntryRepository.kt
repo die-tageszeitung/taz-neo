@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
@@ -31,8 +32,9 @@ class FileEntryRepository private constructor(
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
-    fun saveOrReplace(fileEntry: FileEntry) {
+    fun saveOrReplace(fileEntry: FileEntry): FileEntry {
         appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+        return fileEntry
     }
 
     fun save(fileEntries: List<FileEntry>) {
@@ -41,6 +43,22 @@ class FileEntryRepository private constructor(
 
     fun get(fileEntryName: String): FileEntry? {
         return appDatabase.fileEntryDao().getByName(fileEntryName)
+    }
+
+    fun getDownloaded(): List<FileEntry> {
+        return appDatabase.fileEntryDao().getDownloaded()
+    }
+
+    fun getByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
+        return appDatabase.fileEntryDao().getByStorageLocation(storageLocation)
+    }
+
+    fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
+        return appDatabase.fileEntryDao().getByStorageLocation(storageLocation)
+    }
+
+    fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
+        return appDatabase.fileEntryDao().getDownloadedExceptStorageLocation(storageLocation)
     }
 
     fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
@@ -73,7 +91,7 @@ class FileEntryRepository private constructor(
     }
 
     fun resetDownloadDate(fileEntry: FileEntry) {
-        update(fileEntry.copy(dateDownload = null))
+        update(fileEntry.copy(dateDownload = null, storageLocation = StorageLocation.NOT_STORED))
     }
 
     fun setDownloadDate(fileEntry: FileEntry, date: Date?) {

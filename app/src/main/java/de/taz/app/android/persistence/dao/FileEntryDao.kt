@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import java.util.*
 
@@ -17,6 +18,18 @@ abstract class FileEntryDao : BaseDao<FileEntry>() {
 
     @Query("SELECT dateDownload FROM FileEntry WHERE name == :name")
     abstract fun getDownloadDate(name: String): Date?
+
+    @Query("SELECT * FROM FileEntry WHERE dateDownload IS NOT NULL")
+    abstract fun getDownloaded(): List<FileEntry>
+
+    @Query("SELECT * FROM FileEntry WHERE storageLocation = :storageLocation")
+    abstract fun getByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
+
+    @Query("SELECT * FROM FileEntry WHERE storageLocation = :storageLocation AND dateDownload IS NOT NULL")
+    abstract fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
+
+    @Query("SELECT * FROM FileEntry WHERE storageLocation != :storageLocation AND dateDownload IS NOT NULL")
+    abstract fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry>
 
     @Query("SELECT * FROM FileEntry WHERE name IN (:names)")
     abstract fun getByNames(names: List<String>): List<FileEntry>

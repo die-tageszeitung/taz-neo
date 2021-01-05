@@ -12,35 +12,36 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE
-import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 
 class WebViewActivity : AppCompatActivity() {
 
-    private var fileHelper: FileHelper? = null
+    private lateinit var storageService: StorageService
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private var downloadedObserver: Observer<Boolean>? = null
     private var isDownloadedLiveData: LiveData<Boolean>? = null
 
     private lateinit var dataService: DataService
+    private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fileHelper = FileHelper.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
@@ -51,7 +52,10 @@ class WebViewActivity : AppCompatActivity() {
             finish()
         }
 
-        val htmlFile = intent.extras?.getString(WEBVIEW_HTML_FILE)
+        val htmlFileName = intent.extras?.getString(WEBVIEW_HTML_FILE)
+        val htmlFileEntry = htmlFileName?.let {
+            fileEntryRepository.get(it)
+        }
 
         web_view_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
@@ -63,9 +67,10 @@ class WebViewActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            val fileDir = fileHelper?.getFileDirectoryUrl(this.context)
-            val file = File("$fileDir/$RESOURCE_FOLDER/$htmlFile")
-            ensureResourceInfoIsDownloadedAndShow(file.path)
+            val filePath = htmlFileEntry?.let { storageService.getFileUri(it) }
+            filePath?.let {
+                ensureResourceInfoIsDownloadedAndShow(it)
+            }
         }
     }
 

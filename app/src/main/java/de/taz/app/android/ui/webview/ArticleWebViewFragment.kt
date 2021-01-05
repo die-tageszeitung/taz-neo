@@ -11,8 +11,10 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
@@ -34,6 +36,8 @@ class ArticleWebViewFragment :
     private lateinit var articleRepository: ArticleRepository
     private lateinit var issueRepository: IssueRepository
     private lateinit var fontHelper: FontHelper
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var storageService: StorageService
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -51,6 +55,8 @@ class ArticleWebViewFragment :
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         fontHelper = FontHelper.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,13 +90,19 @@ class ArticleWebViewFragment :
             val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
             issueStub?.apply {
                 if (isWeekend) {
-                    fontHelper
-                        .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
-                            withContext(Dispatchers.Main) {
-                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                    val weekendTypefaceFileEntry =
+                        fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                    val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+                    weekendTypefaceFile?.let {
+                        fontHelper
+                            .getTypeFace(it)?.let { typeface ->
+                                withContext(Dispatchers.Main) {
+                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                                    view?.findViewById<TextView>(R.id.article_num)?.typeface =
+                                        typeface
+                                }
                             }
-                        }
+                    }
                 }
             }
         }
