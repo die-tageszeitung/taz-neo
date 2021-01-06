@@ -18,7 +18,7 @@ object IssueTestUtil {
 
     fun getIssue(fullFilePath: String = "testIssue"): Issue {
         val issueDto: IssueDto = jsonAdapter.fromJson(readIssueFromAssets(fullFilePath))!!.data!!.product!!.feedList!!.first().issueList!!.first()
-        return Issue("taz", issueDto, StorageService.getInstance(context))
+        return Issue("taz", issueDto)
     }
 
     @Throws(IOException::class)

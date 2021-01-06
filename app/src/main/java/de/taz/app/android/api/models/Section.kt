@@ -23,13 +23,13 @@ data class Section(
     override val dateDownload: Date?
 ) : SectionOperations, WebViewDisplayable {
 
-    constructor(issueKey: IssueKey, storageService: StorageService, sectionDto: SectionDto) : this(
+    constructor(issueKey: IssueKey, sectionDto: SectionDto) : this(
         sectionHtml = FileEntry(sectionDto.sectionHtml, StorageService.determineFilePath(sectionDto.sectionHtml, issueKey)),
         issueDate = issueKey.date,
         title = sectionDto.title,
         type = sectionDto.type,
         navButton = Image(sectionDto.navButton, StorageService.determineFilePath(sectionDto.navButton, issueKey)),
-        articleList = sectionDto.articleList?.map { Article(issueKey, storageService, it) }
+        articleList = sectionDto.articleList?.map { Article(issueKey, it) }
             ?: listOf(),
         imageList = sectionDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) }
             ?: listOf(),

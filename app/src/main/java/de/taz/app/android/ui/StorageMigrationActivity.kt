@@ -77,7 +77,7 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
             listOf(currentStorageLocation, StorageLocation.NOT_STORED)
         )
         val fileCount = allFilesNotOnDesiredStorage.size
-        migrationProgress.max = fileCount
+        migration_progress.max = fileCount
 
         allFilesNotOnDesiredStorage.map { fileEntry ->
             val movedFileEntry = fileEntryRepository.saveOrReplace(fileEntry.copy(storageLocation = currentStorageLocation))
@@ -111,7 +111,7 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
             }
 
             withContext(Dispatchers.Main) {
-                migrationProgress.progress = index + 1
+                migration_progress.progress = index + 1
                 numericProgress.text = "${index + 1} / $fileCount"
             }
         }

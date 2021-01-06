@@ -228,7 +228,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ).data?.product?.feedList?.filter {
                 feedName == it.name
             }?.map { feed ->
-                (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) }
+                (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) }
             }?.flatten() ?: emptyList()
         }
     }
@@ -246,7 +246,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) })
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
             }
         }
         return issues
@@ -265,7 +265,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.filter { feedNames.contains(it.name) }?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it, storageService) })
+                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
             }
         }
         return issues
@@ -290,7 +290,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate,
                 IssueVariables(issueDate = issueDate, limit = limit)
             ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it, storageService) })
+                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues.toList()
         }
@@ -315,7 +315,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, limit)
-            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it, storageService) }
+            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
                 ?: emptyList()
         }
     }
@@ -607,7 +607,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             )
 
             issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                Issue(issueKey.feedName, it, storageService)
+                Issue(issueKey.feedName, it)
             }
         } ?: throw NotFoundException()
     }

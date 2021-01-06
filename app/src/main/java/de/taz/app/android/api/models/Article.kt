@@ -7,7 +7,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
-import java.io.File
 import java.util.*
 
 data class Article(
@@ -33,7 +32,6 @@ data class Article(
 
     constructor(
         issueKey: IssueKey,
-        storageService: StorageService,
         articleDto: ArticleDto,
         articleType: ArticleType = ArticleType.STANDARD
     ) : this(
@@ -45,7 +43,7 @@ data class Article(
         articleDto.onlineLink,
         articleDto.audioFile?.let { FileEntry(articleDto.audioFile, StorageService.determineFilePath(it, issueKey)) },
         articleDto.pageNameList ?: emptyList(),
-        articleDto.imageList?.map { storageService.createOrUpdateImage(it, issueKey) } ?: emptyList(),
+        articleDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
         articleType,
         false,

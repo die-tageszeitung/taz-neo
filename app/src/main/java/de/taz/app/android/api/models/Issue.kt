@@ -26,7 +26,7 @@ data class Issue(
     override val lastDisplayableName: String?
 ) : IssueOperations, DownloadableCollection {
 
-    constructor(feedName: String, issueDto: IssueDto, storageService: StorageService) : this(
+    constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
         Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
@@ -34,9 +34,9 @@ data class Issue(
         issueDto.baseUrl,
         issueDto.status,
         issueDto.minResourceVersion,
-        issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it, ArticleType.IMPRINT) },
+        issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
-        issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it) } ?: emptyList(),
+        issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
         issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
         issueDto.moTime,
         null,
