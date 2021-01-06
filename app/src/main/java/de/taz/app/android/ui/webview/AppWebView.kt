@@ -11,6 +11,8 @@ import android.view.View
 import android.webkit.WebView
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 
 
@@ -74,7 +76,7 @@ class AppWebView @JvmOverloads constructor(
      * This method will help to re-inject css into the WebView upon changes
      * to the corresponding shared preferences
      */
-    fun injectCss(sharedPreferences: SharedPreferences) {
+    suspend fun injectCss(sharedPreferences: SharedPreferences) = withContext(Dispatchers.Main) {
         log.debug("Injecting css")
 
         val cssString = TazApiCssHelper.generateCssString(sharedPreferences)

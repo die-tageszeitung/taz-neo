@@ -11,7 +11,7 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.moment.MomentView
 import de.taz.app.android.util.Log
@@ -34,7 +34,8 @@ class MomentViewDataBinding(
     private val log by Log
 
     private val dataService = DataService.getInstance()
-    private val toastHelper =  ToastHelper.getInstance()
+    private val toastHelper = ToastHelper.getInstance()
+    private val storageService = StorageService.getInstance()
     private var boundView: MomentView? = null
 
     private lateinit var momentViewData: MomentViewData
@@ -53,13 +54,17 @@ class MomentViewDataBinding(
                 ?: throw IllegalStateException("Issue for expected key $issueKey not found")
             val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
-            val momentImageUri = moment.getMomentImage()?.let {
-                FileHelper.getInstance().getAbsoluteFilePath(FileEntry(it))
-            }
-            val animatedMomentUri = moment.getIndexHtmlForAnimated()?.let {
-                FileHelper.getInstance().getAbsoluteFilePath(it)
-            }
+
             dataService.ensureDownloaded(moment, skipIntegrityCheck = true)
+
+            // refresh moment after download
+            val downloadedMoment = dataService.getMoment(issueKey, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issueKey not found")
+            val momentImageUri = downloadedMoment.getMomentImage()?.let {
+                storageService.getFileUri(FileEntry(it))
+            }
+            val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
+                storageService.getFileUri(it)
+            }
 
             val momentType = if (animatedMomentUri != null) {
                 MomentType.ANIMATED
@@ -128,14 +133,14 @@ class MomentViewDataBinding(
             CoroutineScope(Dispatchers.IO).launch {
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
                 val issue = dataService.getIssue(
-                        issueKey,
-                        retryOnFailure = true,
-                        allowCache = false,
-                        onConnectionFailure = { onConnectionFailure() }
+                    issueKey,
+                    retryOnFailure = true,
+                    allowCache = false,
+                    onConnectionFailure = { onConnectionFailure() }
                 ) ?: throw IllegalStateException("No issue found for $issueKey")
                 dataService.ensureDownloaded(
-                        collection = issue,
-                        onConnectionFailure = { onConnectionFailure() }
+                    collection = issue,
+                    onConnectionFailure = { onConnectionFailure() }
                 )
             }
         }

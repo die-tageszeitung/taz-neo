@@ -5,7 +5,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
@@ -14,7 +13,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -30,7 +29,7 @@ const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 @Mockable
 class MainActivity : NightModeActivity(R.layout.activity_main) {
 
-    private var fileHelper: FileHelper? = null
+    private var fileHelper: StorageService? = null
     private var imageRepository: ImageRepository? = null
     private var sectionRepository: SectionRepository? = null
     private var toastHelper: ToastHelper? = null
@@ -47,7 +46,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
         issueRepository = IssueRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
-        fileHelper = FileHelper.getInstance(applicationContext)
+        fileHelper = StorageService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         sectionRepository = SectionRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)

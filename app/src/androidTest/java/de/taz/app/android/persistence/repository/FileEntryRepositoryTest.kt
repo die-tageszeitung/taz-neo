@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
@@ -91,7 +92,7 @@ class FileEntryRepositoryTest {
     }
 }
 
-val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0, "folder1", null)
-val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "folder2", null)
-val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0, "folder3", null)
-val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0, "folder4", null)
+val fileEntryTestWithLowerMoTime = FileEntry("Ⓐ", StorageType.global, 0L, "sha256", 0, "folder1", null, "folder1/Ⓐ", StorageLocation.INTERNAL)
+val fileEntryTest = FileEntry("Ⓐ", StorageType.global, 1L, "sha256", 0, "folder2", null, "folder2/Ⓐ", StorageLocation.INTERNAL)
+val fileEntryTestWithHigherMoTime = FileEntry("Ⓐ", StorageType.global, 3L, "sha256", 0, "folder3", null, "folder3/Ⓐ", StorageLocation.INTERNAL)
+val fileEntryTest2 = FileEntry("☭", StorageType.issue, 1L, "sha256", 0, "folder4", null, "folder4/☭", StorageLocation.INTERNAL)

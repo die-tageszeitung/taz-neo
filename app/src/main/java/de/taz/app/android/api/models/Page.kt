@@ -5,8 +5,9 @@ import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.PageRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 
@@ -19,8 +20,8 @@ data class Page(
     override val dateDownload: Date?
 ) : DownloadableCollection {
 
-    constructor(issueFeedName: String, issueDate: String, pageDto: PageDto) : this(
-        FileEntry(pageDto.pagePdf, "$issueFeedName/$issueDate"),
+    constructor(issueKey: IssueKey, pageDto: PageDto) : this(
+        FileEntry(pageDto.pagePdf, StorageService.determineFilePath(pageDto.pagePdf, issueKey)),
         pageDto.title,
         pageDto.pagina,
         pageDto.type,
@@ -42,13 +43,6 @@ data class Page(
 
     override fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }.distinct()
-    }
-
-    override suspend fun deleteFiles() {
-        getAllFiles().forEach {
-            FileEntryRepository.getInstance().resetDownloadDate(it)
-            FileHelper.getInstance().deleteFile(it)
-        }
     }
 
     override fun getDownloadTag(): String {

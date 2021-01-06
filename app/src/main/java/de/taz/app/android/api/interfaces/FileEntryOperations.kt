@@ -4,43 +4,21 @@ import android.content.Context
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.singletons.FileHelper
-import java.io.File
+import de.taz.app.android.singletons.Storable
+
 import java.util.*
 
-interface FileEntryOperations {
-    val name: String
-    val storageType: StorageType
+interface FileEntryOperations: Storable {
+    override val name: String
+    override val storageType: StorageType
     val moTime: Long
     val sha256: String
     val size: Long
+    @Deprecated("folder field deprecated, file path now stored in path")
     val folder: String
     val dateDownload: Date?
-
-    val path
-        get() = "$folder/$name"
-
-    fun deleteFile() {
-        val fileHelper = FileHelper.getInstance()
-        fileHelper.deleteFile(name)
-        val fileEntry = if (this is Image) {
-            FileEntry(this)
-        } else {
-            this as FileEntry
-        }
-        FileEntryRepository.getInstance().resetDownloadDate(fileEntry)
-    }
-
-
-    companion object {
-        fun getStorageFolder(storageType: StorageType, folder: String): String {
-            return when (storageType) {
-                StorageType.global -> GLOBAL_FOLDER
-                StorageType.resource -> RESOURCE_FOLDER
-                else -> folder
-            }
-        }
-    }
+    val path: String
+    val storageLocation: StorageLocation
 
     fun getDownloadDate(context: Context? = null): Date? {
         return FileEntryRepository.getInstance(context).getDownloadDate(this)
@@ -54,4 +32,10 @@ interface FileEntryOperations {
         }
         return FileEntryRepository.getInstance().setDownloadDate(file, date)
     }
+}
+
+enum class StorageLocation {
+    NOT_STORED,
+    EXTERNAL,
+    INTERNAL;
 }

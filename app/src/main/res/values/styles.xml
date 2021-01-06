@@ -211,6 +211,11 @@
         <item name="android:paddingBottom">@dimen/fragment_settings_padding_bottom</item>
     </style>
 
+    <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
+    </style>
+
     <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">23sp</item>

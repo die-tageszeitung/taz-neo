@@ -5,8 +5,9 @@ import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.MomentRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 data class Moment(
@@ -21,22 +22,20 @@ data class Moment(
 ) : DownloadableCollection {
 
     constructor(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus,
+        issueKey: IssueKey,
         baseUrl: String,
         momentDto: MomentDto
     ) : this(
-        issueFeedName,
-        issueDate,
-        issueStatus,
+        issueKey.feedName,
+        issueKey.date,
+        issueKey.status,
         baseUrl,
         momentDto.imageList
-            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         momentDto.creditList
-            ?.map { Image(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         momentDto.momentList
-            ?.map { FileEntry(it, "$issueFeedName/$issueDate") } ?: emptyList(),
+            ?.map { FileEntry(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         null
     )
 
@@ -69,10 +68,6 @@ data class Moment(
 
     override fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
-    }
-
-    override suspend fun deleteFiles() {
-        getAllFiles().forEach { FileHelper.getInstance().deleteFile(it) }
     }
 
     private fun getFilesForAnimatedDownload(): List<FileEntry> {

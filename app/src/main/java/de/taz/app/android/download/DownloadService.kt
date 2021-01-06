@@ -3,15 +3,14 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
-import de.taz.app.android.MAX_SIMULTANIOUS_DOWNLOADS
-import de.taz.app.android.PREFERENCES_DOWNLOADS
-import de.taz.app.android.SETTINGS_DOWNLOAD_ONLY_WIFI
+import de.taz.app.android.*
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.transformToConnectivityException
@@ -19,6 +18,7 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -46,7 +46,7 @@ class DownloadService constructor(
     private val fileEntryRepository: FileEntryRepository,
     private val issueRepository: IssueRepository,
     private val apiService: ApiService,
-    private val fileHelper: FileHelper,
+    private val fileHelper: StorageService,
     private val httpClient: HttpClient
 ) {
     private constructor(applicationContext: Context) : this(
@@ -54,7 +54,7 @@ class DownloadService constructor(
         FileEntryRepository.getInstance(applicationContext),
         IssueRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
-        FileHelper.getInstance(applicationContext),
+        StorageService.getInstance(applicationContext),
         httpClient = HttpClient(Android)
     )
 
@@ -66,6 +66,9 @@ class DownloadService constructor(
     private val fileDownloadPriorityQueue = PriorityBlockingQueue<PrioritizedFileDownload>()
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
 
+    private val preferences =
+        applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+
     private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANIOUS_DOWNLOADS)
 
 
@@ -75,9 +78,12 @@ class DownloadService constructor(
      */
     private fun checkIfDownloadeByIssue(collection: DownloadableCollection): Boolean {
         return when (collection) {
-            is Article -> issueRepository.getIssueStubForArticle(collection.articleHtml.name)?.getDownloadDate(applicationContext)
-            is Section -> issueRepository.getIssueStubForSection(collection.sectionHtml.name)?.getDownloadDate(applicationContext)
-            is Page -> issueRepository.getIssueStubForPage(collection.pagePdf.name)?.getDownloadDate(applicationContext)
+            is Article -> issueRepository.getIssueStubForArticle(collection.articleHtml.name)
+                ?.getDownloadDate(applicationContext)
+            is Section -> issueRepository.getIssueStubForSection(collection.sectionHtml.name)
+                ?.getDownloadDate(applicationContext)
+            is Page -> issueRepository.getIssueStubForPage(collection.pagePdf.name)
+                ?.getDownloadDate(applicationContext)
             else -> null
         }.let {
             if (it != null) {
@@ -87,13 +93,14 @@ class DownloadService constructor(
         }
     }
 
-    private fun checkIfDownloadded(collection: DownloadableCollection): Boolean {
+    private fun checkIfDownloaded(collection: DownloadableCollection): Boolean {
         val isDownloaded = collection.getDownloadDate(applicationContext) != null
+        val contentsAreDownloaded = collection.getAllFiles().all { it.dateDownload != null && it.storageLocation != StorageLocation.NOT_STORED }
         // If the collection is not directly marked as download it still might part of a downloaded issue
         if (!isDownloaded) {
             return checkIfDownloadeByIssue(collection)
         }
-        return isDownloaded
+        return isDownloaded && contentsAreDownloaded
     }
 
 
@@ -112,7 +119,7 @@ class DownloadService constructor(
     ) = withContext(Dispatchers.IO) {
         ensureDownloadHelper()
 
-        if (checkIfDownloadded(downloadableCollection)) {
+        if (checkIfDownloaded(downloadableCollection)) {
             if (skipIntegrityCheck) {
                 return@withContext
             }
@@ -214,10 +221,21 @@ class DownloadService constructor(
         onConnectionFailure: suspend () -> Unit = {}
     ) {
         ensureDownloadHelper()
+        val currentStorage = SharedPreferenceStorageLocationLiveData(
+            preferences,
+            SETTINGS_GENERAL_STORAGE_LOCATION,
+            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
+        ).value
+        val updatedFileEntry = if (fileToDownload.storageLocation != currentStorage) {
+            // If file is not stored determine desired location
+            fileEntryRepository.saveOrReplace(fileToDownload.copy(
+                storageLocation = currentStorage
+            ))
+        } else { fileToDownload }
         // skip this if we have the correct version downloaded
-        if (fileHelper.ensureFileIntegrity(fileToDownload.path, fileToDownload.sha256) && !force) {
-            if (fileToDownload.getDownloadDate() == null) {
-                fileToDownload.setDownloadDate(Date())
+        if (fileHelper.ensureFileIntegrity(updatedFileEntry, updatedFileEntry.sha256) && !force) {
+            if (updatedFileEntry.getDownloadDate() == null) {
+                updatedFileEntry.setDownloadDate(Date())
             }
             return
         }
@@ -226,7 +244,7 @@ class DownloadService constructor(
         }) {
             transformToConnectivityException {
                 httpClient.get<HttpStatement>(
-                    "$baseUrl/${fileToDownload.name}"
+                    "$baseUrl/${updatedFileEntry.name}"
                 ).execute()
             }
         }
@@ -234,25 +252,27 @@ class DownloadService constructor(
         when (response.status.value) {
             in 200..299 -> {
                 val channel = response.receive<ByteReadChannel>()
-                handleResponse(channel, fileToDownload)
+                handleResponse(channel, updatedFileEntry)
             }
             in 400..499 -> {
-                log.warn("Download of ${fileToDownload.name} not successful ${response.status.value}")
+                log.warn("Download of ${updatedFileEntry.name} not successful ${response.status.value}")
                 Sentry.captureMessage(response.readText())
-                fileEntryRepository.resetDownloadDate(fileToDownload)
-                Sentry.captureException(ConnectivityException.ImplementationException(
-                    "Response code ${response.status.value} while trying to download ${fileToDownload.name}",
-                    null,
-                    response
-                ))
+                fileEntryRepository.resetDownloadDate(updatedFileEntry)
+                Sentry.captureException(
+                    ConnectivityException.ImplementationException(
+                        "Response code ${response.status.value} while trying to download ${updatedFileEntry.name}",
+                        null,
+                        response
+                    )
+                )
             }
             in 500..599 -> {
-                log.warn("Download of ${fileToDownload.name} not successful ${response.status.value}")
+                log.warn("Download of ${updatedFileEntry.name} not successful ${response.status.value}")
                 Sentry.captureMessage(response.readText())
-                throw ConnectivityException.ServerUnavailableException("Response code ${response.status.value} while trying to download ${fileToDownload.name}")
+                throw ConnectivityException.ServerUnavailableException("Response code ${response.status.value} while trying to download ${updatedFileEntry.name}")
             }
             else -> {
-                log.warn("Unexpected code ${response.status.value} for  ${fileToDownload.name}")
+                log.warn("Unexpected code ${response.status.value} for  ${updatedFileEntry.name}")
                 Sentry.captureMessage(response.readText())
             }
         }
@@ -268,8 +288,6 @@ class DownloadService constructor(
     ) = withContext(NonCancellable) {
 
         try {
-            // ensure folders are created
-            fileHelper.createFileDirs(downloadedFile)
             val sha256 = fileHelper.writeFile(downloadedFile, channel)
             if (sha256 == downloadedFile.sha256) {
                 fileEntryRepository.setDownloadDate(downloadedFile, Date())

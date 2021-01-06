@@ -19,7 +19,7 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
@@ -35,7 +35,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
     abstract val fragmentClass: KClass<out Fragment>
 
-    private lateinit var fileHelper: FileHelper
+    private lateinit var fileHelper: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var dataService: DataService
     private lateinit var preferences: SharedPreferences
@@ -51,7 +51,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
         super.onCreate(savedInstanceState)
 
         preferences = getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
-        fileHelper = FileHelper.getInstance(applicationContext)
+        fileHelper = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
 
@@ -142,7 +142,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             val imageDrawable = withContext(Dispatchers.IO) {
                 Glide
                     .with(this@TazViewerActivity)
-                    .load(fileHelper.getAbsoluteFilePath(navButton))
+                    .load(fileHelper.getAbsolutePath(navButton))
                     .submit()
                     .get()
             }

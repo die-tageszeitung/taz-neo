@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.settings
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -9,11 +10,13 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.text.HtmlCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
@@ -22,14 +25,22 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.settings.support.ErrorReportActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.util.*
 
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
-
     private val log by Log
 
     private var storedIssueNumber: String? = null
+    private var lastStorageLocation: StorageLocation? = null
+
+    private lateinit var toastHelper: ToastHelper
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -99,6 +110,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 resetTextSize()
             }
 
+            findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
+                StorageSelectionDialog(requireContext(), viewModel).show()
+            }
+
             fragment_settings_night_mode?.apply {
                 setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
@@ -123,9 +138,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             fragment_settings_auto_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadEnabled(isChecked)
             }
-
-
-
         }
 
 
@@ -146,6 +158,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
             downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
                 showDownloadsEnabled(downloadsEnabled)
+            }
+
+            storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
+                if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
+                    toastHelper.showToast(R.string.settings_storage_migration_hint)
+                }
+                lastStorageLocation = storageLocation
+                val storageLocationString = requireContext().getStorageLocationCaption(
+                    storageLocation
+                )
+                view.findViewById<TextView>(R.id.settings_storage_location_value).text =
+                    storageLocationString
             }
         }
 

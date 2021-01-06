@@ -7,26 +7,32 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.StatFs
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.DataPolicyActivity
-import de.taz.app.android.ui.START_HOME_ACTIVITY
-import de.taz.app.android.ui.WelcomeActivity
+import de.taz.app.android.ui.StorageMigrationActivity
+import de.taz.app.android.ui.settings.SettingsViewModel
+import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import io.sentry.core.Sentry
 import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
+import java.io.File
 import java.util.*
 import kotlin.Exception
 
@@ -41,6 +47,12 @@ class SplashActivity : BaseActivity() {
     private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var storageService: StorageService
+
+    private lateinit var preferences: SharedPreferences
+
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +60,44 @@ class SplashActivity : BaseActivity() {
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
+
+        preferences = applicationContext.getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
+
+        // If not yet set we need to determine the storage
+        if (!preferences.contains(SETTINGS_GENERAL_STORAGE_LOCATION)) {
+            determineStorageLocationBySize()
+        }
+
+        val storageLocationLiveData = SharedPreferenceStorageLocationLiveData(
+            preferences,
+            SETTINGS_GENERAL_STORAGE_LOCATION,
+            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
+        )
+
+        // if the configured storage is set to external, but no external device is mounted we need to reset it
+        // likely this happened because the user ejected the sd card
+        if (storageLocationLiveData.value == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            storageLocationLiveData.value = StorageLocation.INTERNAL
+        }
+    }
+
+    private fun determineStorageLocationBySize() {
+        val externalFreeBytes = getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes }
+        val internalFreeBytes = StatFs(filesDir.path).availableBytes
+
+        val selectedStorageMode =
+            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes) {
+                StorageLocation.EXTERNAL
+            } else {
+                StorageLocation.INTERNAL
+            }
+
+        preferences.edit().apply {
+            putInt(SETTINGS_GENERAL_STORAGE_LOCATION, selectedStorageMode.ordinal)
+            commit()
+        }
     }
 
     override fun onResume() {
@@ -66,7 +116,7 @@ class SplashActivity : BaseActivity() {
             generateNotificationChannels()
             val initJob = launch {
                 launch { ensureAppInfo() }
-                launch { initResources() }
+                launch(Dispatchers.IO) { initResources() }
                 launch { initFeed() }
             }
             try {
@@ -78,21 +128,23 @@ class SplashActivity : BaseActivity() {
                 return@launch
             }
 
-            if (isDataPolicyAccepted()) {
-                if (isFirstTimeStart()) {
-                    val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    intent.putExtra(START_HOME_ACTIVITY, true)
-                    startActivity(intent)
-                } else {
-                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    startActivity(intent)
+            val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+
+            val unmigratedFiles = withContext(Dispatchers.IO) {
+                fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
+            }
+            val filesWithBadStorage = withContext(Dispatchers.IO) {
+                fileEntryRepository.getExceptStorageLocation(
+                    listOf(StorageLocation.NOT_STORED, currentStorageLocation)
+                )
+            }
+            // Explicitly selectable storage migration, if there is any file to migrate start migration activity
+            if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty()) {
+                Intent(this@SplashActivity, StorageMigrationActivity::class.java).apply {
+                    startActivity(this)
                 }
             } else {
-                val intent = Intent(this@SplashActivity, DataPolicyActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                startActivity(intent)
+                startActualApp()
             }
             finish()
         }
@@ -103,9 +155,17 @@ class SplashActivity : BaseActivity() {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             if (feed?.publicationDates?.isEmpty() == true) {
                 if (feed.publicationDates.isEmpty()) {
-                    dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
+                    dataService.getFeedByName(
+                        DISPLAYABLE_NAME,
+                        allowCache = false,
+                        retryOnFailure = true
+                    )
                 }
-                dataService.getFeedByName(DISPLAYABLE_NAME, allowCache = false, retryOnFailure = true)
+                dataService.getFeedByName(
+                    DISPLAYABLE_NAME,
+                    allowCache = false,
+                    retryOnFailure = true
+                )
             }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Failed to retrieve feed and first issues during startup, no internet")
@@ -136,17 +196,6 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private fun isDataPolicyAccepted(): Boolean {
-        val tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        return tazApiCssPreferences.contains(SETTINGS_DATA_POLICY_ACCEPTED)
-    }
-
-    private fun isFirstTimeStart(): Boolean {
-        val tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-        return !tazApiCssPreferences.contains(SETTINGS_FIRST_TIME_APP_STARTS)
-    }
 
     private fun setupSentry() {
         log.info("setting up sentry")
@@ -199,28 +248,117 @@ class SplashActivity : BaseActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private fun initResources() {
+    private suspend fun initResources() {
         log.info("initializing resources")
-        val fileHelper = FileHelper.getInstance(applicationContext)
 
-        fileHelper.getFileByPath(RESOURCE_FOLDER).mkdirs()
-        val tazApiCssFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.css")
-        if (!tazApiCssFile.exists()) {
-            tazApiCssFile.createNewFile()
-            log.debug("Created tazApi.css")
-        }
+        val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
+        val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
 
+        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+        storageService.getAbsolutePath(RESOURCE_FOLDER, storageLocation = currentStorageLocation)
+            ?.let(::File)?.mkdirs()
+
+        var tazApiJSFileEntry =
+            if (existingTazApiJSFileEntry != null && existingTazApiJSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
+                existingTazApiJSFileEntry
+            } else {
+                val newFileEntry = FileEntry(
+                    name = "tazApi.js",
+                    storageType = StorageType.resource,
+                    moTime = Date().time,
+                    sha256 = "",
+                    size = 0,
+                    folder = RESOURCE_FOLDER,
+                    dateDownload = null,
+                    path = "$RESOURCE_FOLDER/tazApi.js",
+                    storageLocation = currentStorageLocation
+                )
+                val newFile = storageService.getFile(newFileEntry)
+                if (newFile?.exists() == true) {
+                    fileEntryRepository.saveOrReplace(
+                        newFileEntry.copy(
+                            dateDownload = Date(),
+                            size = newFile.length(),
+                            sha256 = storageService.getSHA256(newFile)
+                        )
+                    )
+                } else {
+                    fileEntryRepository.saveOrReplace(newFileEntry)
+                }
+            }
         val tazApiAssetPath = "js/tazApi.js"
-        val tazApiJsFile = fileHelper.getFileByPath("$RESOURCE_FOLDER/tazApi.js")
-        if (!tazApiJsFile.exists() || !fileHelper.assetFileSameContentAsFile(
+        val tazApiJSFile = try {
+            storageService.getFile(tazApiJSFileEntry)
+        } catch (e: ExternalStorageNotAvailableException) {
+            // If card was ejected create new file
+            tazApiJSFileEntry =
+                fileEntryRepository.saveOrReplace(tazApiJSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
+            storageService.getFile(tazApiJSFileEntry)
+        }
+        if (tazApiJSFile?.exists() == false || (tazApiJSFile != null && !storageService.assetFileSameContentAsFile(
                 tazApiAssetPath,
-                tazApiJsFile
-            )
+                tazApiJSFile
+            ))
         ) {
-            fileHelper.copyAssetFileToFile(tazApiAssetPath, tazApiJsFile)
+            storageService.copyAssetFileToFile(tazApiAssetPath, tazApiJSFile)
+            fileEntryRepository.saveOrReplace(
+                tazApiJSFileEntry.copy(
+                    dateDownload = Date(),
+                    size = tazApiJSFile.length(),
+                    sha256 = storageService.getSHA256(tazApiJSFile)
+                )
+            )
             log.debug("Created/updated tazApi.js")
         }
 
+        var tazApiCSSFileEntry =
+            if (existingTazApiCSSFileEntry != null && existingTazApiCSSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
+                existingTazApiCSSFileEntry
+            } else {
+                val newFileEntry = FileEntry(
+                    name = "tazApi.css",
+                    storageType = StorageType.resource,
+                    moTime = Date().time,
+                    sha256 = "",
+                    size = 0,
+                    folder = RESOURCE_FOLDER,
+                    dateDownload = null,
+                    path = "$RESOURCE_FOLDER/tazApi.css",
+                    storageLocation = currentStorageLocation
+                )
+                val newFile = storageService.getFile(newFileEntry)
+                if (newFile?.exists() == true) {
+                    fileEntryRepository.saveOrReplace(
+                        newFileEntry.copy(
+                            dateDownload = Date(),
+                            size = newFile.length(),
+                            sha256 = storageService.getSHA256(newFile)
+                        )
+                    )
+                } else {
+                    fileEntryRepository.saveOrReplace(newFileEntry)
+                }
+            }
+
+        val tazApiCSSFile = try {
+            storageService.getFile(tazApiCSSFileEntry)
+        } catch (e: ExternalStorageNotAvailableException) {
+            // If card was ejected create new file
+            tazApiCSSFileEntry =
+                fileEntryRepository.saveOrReplace(tazApiCSSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
+            storageService.getFile(tazApiCSSFileEntry)
+        }
+        if (tazApiCSSFile?.exists() == false) {
+            tazApiCSSFile.createNewFile()
+            fileEntryRepository.saveOrReplace(
+                tazApiCSSFileEntry.copy(
+                    dateDownload = Date(),
+                    size = tazApiCSSFile.length(),
+                    sha256 = storageService.getSHA256(tazApiCSSFile),
+                )
+            )
+            log.debug("Created tazApi.css")
+        }
     }
 
     private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
@@ -288,4 +426,5 @@ class SplashActivity : BaseActivity() {
     }
 }
 
-class InitializationException(message: String, override val cause: Throwable? = null): Exception(message, cause)
+class InitializationException(message: String, override val cause: Throwable? = null) :
+    Exception(message, cause)

@@ -10,7 +10,4 @@ import java.util.*
 interface DownloadableCollection: DownloadableStub {
     fun getAllFiles(): List<FileEntry>
     fun getAllFileNames(): List<String>
-
-    suspend fun deleteFiles()
-
 }

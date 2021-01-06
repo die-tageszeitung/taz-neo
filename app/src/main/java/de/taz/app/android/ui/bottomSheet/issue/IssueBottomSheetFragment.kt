@@ -20,16 +20,15 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
-import java.lang.ref.WeakReference
+import java.io.File
 
 
 private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
@@ -42,7 +41,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
-    private lateinit var fileHelper: FileHelper
+    private lateinit var fileHelper: StorageService
     private lateinit var downloadService: DownloadService
     private lateinit var issueRepository: IssueRepository
     private lateinit var dataService: DataService
@@ -70,7 +69,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
-        fileHelper = FileHelper.getInstance(context.applicationContext)
+        fileHelper = StorageService.getInstance(context.applicationContext)
         downloadService = DownloadService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
@@ -125,12 +124,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     )?.let {
                         dataService.ensureDownloaded(it, issue.baseUrl)
                     }
-                    fileHelper.getFile(image).let { imageAsFile ->
+                    fileHelper.getAbsolutePath(image).let { imageAsFile ->
                         val applicationId = view.context.packageName
                         val imageUriNew = FileProvider.getUriForFile(
                             view.context,
                             "${applicationId}.contentProvider",
-                            imageAsFile
+                            File(imageAsFile)
                         )
 
                         log.debug("imageUriNew: $imageUriNew")

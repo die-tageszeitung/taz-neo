@@ -5,7 +5,13 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 object NightModeHelper {
 
@@ -15,15 +21,21 @@ object NightModeHelper {
         val tazApiCssPrefListener =
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
                 log.debug("Shared pref changed: $key")
-                val cssFile = FileHelper.getInstance(activity.application).getFileByPath(
-                    "$RESOURCE_FOLDER/tazApi.css"
-                )
-                val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val cssFileEntry =
+                        FileEntryRepository.getInstance(activity.application).get("tazApi.css")
 
-                cssFile.writeText(cssString)
+                    cssFileEntry?.let {
+                        val cssFile = StorageService.getInstance(activity.application).getFile(it)
+                        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+                        cssFile?.writeText(cssString)
+                    }
 
-                if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                    setThemeAndReCreate(sharedPreferences, activity)
+                    if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                        withContext(Dispatchers.Main) {
+                            setThemeAndReCreate(sharedPreferences, activity)
+                        }
+                    }
                 }
             }
     }
@@ -55,7 +67,11 @@ object NightModeHelper {
             ).postValue(isDarkTheme(activity))
         }
 
-        if (tazApiCssPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
+        if (tazApiCssPreferences.getBoolean(
+                SETTINGS_TEXT_NIGHT_MODE,
+                false
+            ) != isDarkTheme(activity)
+        ) {
             setThemeAndReCreate(tazApiCssPreferences, activity)
         }
 

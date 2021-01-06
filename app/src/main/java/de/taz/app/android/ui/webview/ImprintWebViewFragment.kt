@@ -12,8 +12,10 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -31,8 +33,10 @@ class ImprintWebViewFragment :
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
     override val viewModel by lazy {
-        ViewModelProvider(this, SavedStateViewModelFactory(
-            this.requireActivity().application, this)
+        ViewModelProvider(
+            this, SavedStateViewModelFactory(
+                this.requireActivity().application, this
+            )
         ).get(ArticleWebViewViewModel::class.java)
     }
 
@@ -48,12 +52,16 @@ class ImprintWebViewFragment :
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var issueRepository: IssueRepository
+    private lateinit var storageService: StorageService
+    private lateinit var fileEntryRepository: FileEntryRepository
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,13 +106,19 @@ class ImprintWebViewFragment :
             val issueStub = displayable.getIssueStub()
             issueStub?.apply {
                 if (isWeekend) {
-                    FontHelper.getInstance(context?.applicationContext)
-                        .getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)?.let { typeface ->
-                            withContext(Dispatchers.Main) {
-                                view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                    val weekendTypefaceFileEntry =
+                        fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                    val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+                    weekendTypefaceFile?.let {
+                        FontHelper.getInstance(context?.applicationContext)
+                            .getTypeFace(it)?.let { typeface ->
+                                withContext(Dispatchers.Main) {
+                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                                    view?.findViewById<TextView>(R.id.article_num)?.typeface =
+                                        typeface
+                                }
                             }
-                        }
+                    }
                 }
             }
         }

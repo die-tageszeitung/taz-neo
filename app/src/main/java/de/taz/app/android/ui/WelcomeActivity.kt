@@ -12,8 +12,9 @@ import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
@@ -24,7 +25,6 @@ import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_conte
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 const val START_HOME_ACTIVITY = "START_HOME_ACTIVITY"
 
@@ -32,8 +32,9 @@ class WelcomeActivity : AppCompatActivity() {
 
     private val log by Log
 
-    private var fileHelper: FileHelper? = null
+    private lateinit var storageService: StorageService
     private lateinit var dataService: DataService
+    private lateinit var fileEntryRepository: FileEntryRepository
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
     private var downloadedObserver: Observer<Boolean>? = null
@@ -47,9 +48,10 @@ class WelcomeActivity : AppCompatActivity() {
 
         startHomeActivity = intent.getBooleanExtra(START_HOME_ACTIVITY, false)
 
-        fileHelper = FileHelper.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
         setContentView(R.layout.activity_welcome)
 
@@ -62,11 +64,18 @@ class WelcomeActivity : AppCompatActivity() {
         web_view_fullscreen_content.apply {
             webViewClient = WebViewClient()
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
+            lifecycleScope.launch(Dispatchers.IO) {
+                val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
+                dataService.ensureDownloaded(resourceInfo)
+                val welcomeSlidesFileEntry = fileEntryRepository.get("welcomeSlidesAndroid.html")
 
-            settings.javaScriptEnabled = true
-            val fileDir = fileHelper?.getFileDirectoryUrl(this.context)
-            val file = File("$fileDir/$RESOURCE_FOLDER/welcomeSlidesAndroid.html")
-            ensureResourceInfoIsDownloadedAndShow(file.path)
+                withContext(Dispatchers.Main) {
+                    settings.javaScriptEnabled = true
+                }
+                welcomeSlidesFileEntry?.let { storageService.getFileUri(it) }?.let {
+                    ensureResourceInfoIsDownloadedAndShow(it)
+                }
+            }
         }
     }
 
@@ -86,7 +95,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
         lifecycleScope.launch(Dispatchers.IO) {
-            val resourceInfo = dataService.getResourceInfo()
+            val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
             dataService.ensureDownloaded(resourceInfo)
             withContext(Dispatchers.Main) {
                 web_view_fullscreen_content.loadUrl(filePath)

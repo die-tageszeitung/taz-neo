@@ -289,9 +289,11 @@ class IssueRepository private constructor(val applicationContext: Context) :
             Sentry.captureMessage(hint)
             // use dummy moment
             Moment(
-                issueStub.feedName,
-                issueStub.date,
-                issueStub.status,
+                IssueKey(
+                    issueStub.feedName,
+                    issueStub.date,
+                    issueStub.status
+                ),
                 issueStub.baseUrl,
                 MomentDto()
             )

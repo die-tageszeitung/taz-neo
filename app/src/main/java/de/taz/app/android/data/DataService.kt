@@ -15,7 +15,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
@@ -39,10 +39,11 @@ class DataService(private val applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
     private val apiService = ApiService.getInstance(applicationContext)
-    private val fileHelper = FileHelper.getInstance(applicationContext)
+    private val storageService = StorageService.getInstance(applicationContext)
 
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
@@ -375,8 +376,42 @@ class DataService(private val applicationContext: Context) {
             (liveData as MutableLiveData<DownloadStatus>).postValue(DownloadStatus.pending)
         }
 
-        collection.getAllFiles().forEach { fileHelper.deleteFile(it) }
-        cleanUpLiveData()
+        when (collection) {
+            is Issue -> {
+                val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
+                val filesToRetain = collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
+                    // bookmarked articles should remain
+                    acc.addAll(
+                        section.articleList
+                            .filter { it.bookmarked }
+                            .map { it.getAllFileNames() }
+                            .flatten()
+                            .distinct()
+                    )
+                    // author images are potentially used globally so we retain them for now as they don't eat up much space
+                    acc.addAll(
+                        section.articleList
+                            .map { it.authorList }
+                            .flatten()
+                            .mapNotNull { it.imageAuthor }
+                            .map { it.name }
+                    )
+                    acc
+                }
+                filesToDelete.removeAll { it.name in filesToRetain }
+
+                // do not delete bookmarked files
+                articleRepository.apply {
+                    getBookmarkedArticleStubListForIssuesAtDate(collection.feedName, collection.date).forEach {
+                        filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
+                    }
+                }
+                filesToDelete.forEach { storageService.deleteFile(it) }
+
+                collection.setDownloadDate(null)
+            }
+            else -> collection.getAllFiles().forEach { storageService.deleteFile(it) }
+        }
     }
 
     suspend fun sendNotificationInfo(

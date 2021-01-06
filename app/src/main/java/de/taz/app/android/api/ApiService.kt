@@ -10,6 +10,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.core.Sentry
@@ -24,14 +25,14 @@ import java.util.*
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
-    private val toastHelper: ToastHelper,
+    private val storageService: StorageService,
     private val authHelper: AuthHelper,
     private val firebaseHelper: FirebaseHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
-        toastHelper = ToastHelper.getInstance(applicationContext),
+        storageService = StorageService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
     )
@@ -120,7 +121,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             "[Debug #12895] authenticated with token: ${
                 token?.substring(
                     0,
-                    10.coerceAtMost(token!!.length)
+                    10.coerceAtMost(token.length)
                 )
             }*********"
         )
@@ -336,7 +337,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.Moment, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let {
-                Moment(feedName, dateString, it.status, it.baseUrl, it.moment)
+                Moment(IssueKey(feedName, dateString, it.status), it.baseUrl, it.moment)
             }
         }
     }

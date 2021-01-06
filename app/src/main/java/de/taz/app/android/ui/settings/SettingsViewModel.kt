@@ -8,6 +8,7 @@ import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,6 +18,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
     lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
     lateinit var downloadAutomaticallyLiveData: SharedPreferenceBooleanLiveData
+    lateinit var storageLocationLiveData: SharedPreferenceStorageLocationLiveData
 
     init {
         application.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
@@ -37,6 +39,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     it,
                     SETTINGS_GENERAL_KEEP_ISSUES,
                     SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
+                )
+            storageLocationLiveData =
+                SharedPreferenceStorageLocationLiveData(
+                    it,
+                    SETTINGS_GENERAL_STORAGE_LOCATION,
+                    SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
                 )
         }
 

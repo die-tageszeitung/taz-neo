@@ -24,7 +24,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.ui.home.page.MomentViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewData
@@ -72,8 +72,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
     private lateinit var feedRepository: FeedRepository
+    private lateinit var fileEntryRepository: FileEntryRepository
 
-    private lateinit var fileHelper: FileHelper
+    private lateinit var storageService: StorageService
 
     private var defaultTypeface: Typeface? = null
     private var weekendTypeface: Typeface? = null
@@ -90,19 +91,27 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
-        fileHelper = FileHelper.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
         feedRepository = FeedRepository.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sectionListAdapter =
             SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
-        defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.appFontBold)
-        weekendTypeface =
-            runBlocking { fontHelper.getTypeFace(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME) }
-        sectionListAdapter.typeface = defaultTypeface
-
+        lifecycleScope.launch(Dispatchers.IO) {
+            val weekendTypefaceFileEntry =
+                fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+            defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.appFontBold)
+            weekendTypeface =
+                weekendTypefaceFileEntry?.let {
+                    storageService.getFile(it)?.let { file -> fontHelper.getTypeFace(file) }
+                }
+            withContext(Dispatchers.Main) {
+                sectionListAdapter.typeface = defaultTypeface
+            }
+        }
         restore(savedInstanceState)
     }
 

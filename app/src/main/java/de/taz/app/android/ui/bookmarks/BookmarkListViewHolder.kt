@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
+import java.io.File
 
 class BookmarkListViewHolder(
     private val bookmarksFragment: BookmarkListFragment,
@@ -32,7 +33,7 @@ class BookmarkListViewHolder(
     private var bookmarkImage: ImageView? = null
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
-    private val fileHelper = FileHelper.getInstance(parent.context.applicationContext)
+    private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
     private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
@@ -51,14 +52,14 @@ class BookmarkListViewHolder(
             bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
 
             if (article.imageList.isNotEmpty()) {
-                fileHelper.getFile(article.imageList.first()).apply {
-                    if (exists()) {
+                fileHelper.getAbsolutePath(article.imageList.first()).let {
+                    if (File(it).exists()) {
 
                         val bitmapOptions = BitmapFactory.Options()
                         bitmapOptions.inSampleSize =
                             (4 / itemView.resources.displayMetrics.density).toInt()
 
-                        val myBitmap = BitmapFactory.decodeFile(absolutePath, bitmapOptions)
+                        val myBitmap = BitmapFactory.decodeFile(it, bitmapOptions)
                         bookmarkImage?.apply {
                             setImageBitmap(myBitmap)
                             visibility = View.VISIBLE
