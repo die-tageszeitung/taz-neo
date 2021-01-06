@@ -24,14 +24,14 @@ data class Section(
 ) : SectionOperations, WebViewDisplayable {
 
     constructor(issueKey: IssueKey, storageService: StorageService, sectionDto: SectionDto) : this(
-        sectionHtml = FileEntry(sectionDto.sectionHtml, storageService.determineFilePath(sectionDto.sectionHtml, issueKey)),
+        sectionHtml = FileEntry(sectionDto.sectionHtml, StorageService.determineFilePath(sectionDto.sectionHtml, issueKey)),
         issueDate = issueKey.date,
         title = sectionDto.title,
         type = sectionDto.type,
-        navButton = Image(sectionDto.navButton, storageService.determineFilePath(sectionDto.navButton, issueKey)),
+        navButton = Image(sectionDto.navButton, StorageService.determineFilePath(sectionDto.navButton, issueKey)),
         articleList = sectionDto.articleList?.map { Article(issueKey, storageService, it) }
             ?: listOf(),
-        imageList = sectionDto.imageList?.map { Image(it, storageService.determineFilePath(it, issueKey)) }
+        imageList = sectionDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) }
             ?: listOf(),
         extendedTitle = sectionDto.extendedTitle,
         dateDownload = null

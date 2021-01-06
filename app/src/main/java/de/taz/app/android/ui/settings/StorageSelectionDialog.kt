@@ -41,8 +41,13 @@ class StorageSelectionDialog(val context: Context, private val settingsViewModel
                 }
                 when (options[getItem(position)]) {
                     StorageLocation.EXTERNAL -> {
-                        val externalFreeBytes = context.getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes } ?: 0
-                        textView?.text = "${textView?.text} (${externalFreeBytes / 1024 / 1024}MB frei)"
+                        if (isEnabled(position)) {
+
+                            val externalFreeBytes = context.getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes } ?: 0
+                            textView?.text = "${textView?.text} (${externalFreeBytes / 1024 / 1024}MB frei)"
+                        } else {
+                            textView?.text = context.getString(R.string.settings_storage_external_unavailable)
+                        }
                     }
                     StorageLocation.INTERNAL -> {
                         val internalFreeBytes = StatFs(context.filesDir.path).availableBytes

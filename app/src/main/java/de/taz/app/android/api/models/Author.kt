@@ -8,8 +8,8 @@ data class Author(
     val imageAuthor: FileEntry? = null
 ) {
 
-    constructor(authorDto: AuthorDto, storageService: StorageService) : this(
+    constructor(authorDto: AuthorDto) : this(
         authorDto.name,
-        authorDto.imageAuthor?.let { FileEntry(it, storageService.determineFilePath(it, null)) }
+        authorDto.imageAuthor?.let { FileEntry(it, StorageService.determineFilePath(it, null)) }
     )
 }

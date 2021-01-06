@@ -29,7 +29,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto, storageService: StorageService) : this(
         feedName,
         issueDto.date,
-        Moment(IssueKey(feedName, issueDto.date, issueDto.status), storageService, issueDto.baseUrl, issueDto.moment),
+        Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
         issueDto.status,
@@ -37,7 +37,7 @@ data class Issue(
         issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
         issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), storageService, it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, storageService) } ?: emptyList(),
+        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
         issueDto.moTime,
         null,
         null

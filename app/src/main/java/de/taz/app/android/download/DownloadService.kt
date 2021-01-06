@@ -95,11 +95,12 @@ class DownloadService constructor(
 
     private fun checkIfDownloaded(collection: DownloadableCollection): Boolean {
         val isDownloaded = collection.getDownloadDate(applicationContext) != null
+        val contentsAreDownloaded = collection.getAllFiles().all { it.dateDownload != null && it.storageLocation != StorageLocation.NOT_STORED }
         // If the collection is not directly marked as download it still might part of a downloaded issue
         if (!isDownloaded) {
             return checkIfDownloadeByIssue(collection)
         }
-        return isDownloaded
+        return isDownloaded && contentsAreDownloaded
     }
 
 
@@ -225,7 +226,7 @@ class DownloadService constructor(
             SETTINGS_GENERAL_STORAGE_LOCATION,
             SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
         ).value
-        val updatedFileEntry = if (fileToDownload.storageLocation == StorageLocation.NOT_STORED) {
+        val updatedFileEntry = if (fileToDownload.storageLocation != currentStorage) {
             // If file is not stored determine desired location
             fileEntryRepository.saveOrReplace(fileToDownload.copy(
                 storageLocation = currentStorage

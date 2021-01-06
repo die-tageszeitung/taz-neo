@@ -17,11 +17,11 @@ data class ResourceInfo(
     val resourceList: List<FileEntry>,
     override val dateDownload: Date?
 ) : DownloadableCollection {
-    constructor(productDto: ProductDto, storageService: StorageService) : this(
+    constructor(productDto: ProductDto) : this(
         productDto.resourceVersion!!,
         productDto.resourceBaseUrl!!,
         productDto.resourceZip!!,
-        productDto.resourceList!!.map { FileEntry(it, storageService.determineFilePath(it, null)) },
+        productDto.resourceList!!.map { FileEntry(it, StorageService.determineFilePath(it, null)) },
         null
     )
 

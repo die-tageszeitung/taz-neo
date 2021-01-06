@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
@@ -18,8 +19,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
 
 @RunWith(AndroidJUnit4::class)
 class FileEntryTest {
@@ -48,7 +47,10 @@ class FileEntryTest {
     @Test
     @Throws(Exception::class)
     fun deleteFile() = runBlocking {
-        val createdFileEntry = storageService.createOrUpdateFileEntry(fileEntryDtoTest, null)
+        val createdFileEntry = storageService.createOrUpdateFileEntry(fileEntryDtoTest, null).let {
+            fileEntryRepository.saveOrReplace(it.copy(storageLocation = StorageLocation.INTERNAL))
+        }
+        // determine storage location artificially
         storageService.writeFile(createdFileEntry, ByteArrayInputStream(ByteArray(8)).toByteReadChannel())
         val createdFile = storageService.getFile(createdFileEntry)
         assertNotNull(

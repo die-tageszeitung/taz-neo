@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -109,43 +110,40 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                 )
             }
         }
+        WebView.setWebContentsDebuggingEnabled(true)
 
         return view
     }
 
     private fun showImageInWebView(toShowImage: Image, webView: WebView) {
-        val fileHelper = StorageService.getInstance(context)
-        val jqueryFileEntry = fileEntryRepository.get(WEBVIEW_JQUERY_FILE)
-        val jqueryFile = jqueryFileEntry?.let(storageService::getFile)
-        runIfNotNull(toShowImage, context, webView) { image, context, web ->
-            RESOURCE_FOLDER
-            fileHelper.getInternalFilesDir().let { fileDir ->
-                val uri = "${image.folder}/${image.name}"
-                web.loadDataWithBaseURL(
-                    fileDir.path,
-                    HTML_BACKGROUND_CONTAINER.format(jqueryFile, "$fileDir/$uri"),
-                    "text/html",
-                    "UTF-8",
-                    null
-                )
+        lifecycleScope.launch(Dispatchers.IO) {
+            val jqueryFileEntry = fileEntryRepository.get(WEBVIEW_JQUERY_FILE)
+            withContext(Dispatchers.Main) {
+                runIfNotNull(toShowImage, image?.storageLocation?.let(storageService::getDirForLocation), webView) { image, basePath, web ->
+                    web.loadDataWithBaseURL(
+                        basePath.absolutePath,
+                        HTML_BACKGROUND_CONTAINER.format(jqueryFileEntry?.let(storageService::getFileUri), storageService.getFileUri(image)),
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
+                }
             }
         }
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
         runIfNotNull(toShowImage, webView) { image, web ->
-            storageService.getInternalFilesDir().let { fileDir ->
-                val uri = "${image.folder}/${image.name}"
-                if (web.url != null) {
-                    web.evaluateJavascript(
-                        """
-                        document.getElementById("image").src="$fileDir/$uri";
-                    """.trimIndent()
-                    ) { log.debug("${image.name} replaced") }
-                } else {
-                    showImageInWebView(toShowImage, webView)
-                }
+            if (web.url != null) {
+                web.evaluateJavascript(
+                    """
+                    document.getElementById("image").src="${storageService.getFileUri(toShowImage)}";
+                """.trimIndent()
+                ) { log.debug("${image.name} replaced") }
+            } else {
+                showImageInWebView(toShowImage, webView)
             }
+
         }
     }
 }

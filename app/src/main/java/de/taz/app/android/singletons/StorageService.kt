@@ -35,7 +35,22 @@ class ExternalStorageNotAvailableException(message: String): Exception(message)
 @Mockable
 class StorageService private constructor(private val applicationContext: Context) {
 
-    companion object : SingletonHolder<StorageService, Context>(::StorageService)
+    companion object : SingletonHolder<StorageService, Context>(::StorageService) {
+        fun determineFilePath(storable: Storable, issueKey: IssueKey?): String {
+            val folder = when (storable.storageType) {
+                StorageType.global -> GLOBAL_FOLDER
+                StorageType.resource -> RESOURCE_FOLDER
+                StorageType.public -> PUBLIC_FOLDER
+                StorageType.issue -> {
+                    if (issueKey == null) {
+                        throw IllegalStateException("Detemining the file path of an issue file requires issueKey to be non-null")
+                    }
+                    "${issueKey.feedName}/${issueKey.date}/${issueKey.status}"
+                }
+            }
+            return "${folder}/${storable.name}"
+        }
+    }
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
@@ -87,7 +102,7 @@ class StorageService private constructor(private val applicationContext: Context
     /**
      * Build an absolute path specifying a relative path and its [StorageLocation]
      * @param path A relative path
-     * @param storageLocation A storage location - [StorageLocation.NOT_STORED] is illegal though and will theow an [IllegalStateException]
+     * @param storageLocation A storage location - [StorageLocation.NOT_STORED] is illegal though and will throw an [IllegalStateException]
      * @return Absolute path to [path]
      */
     fun getAbsolutePath(path: String, storageLocation: StorageLocation): String? {
@@ -101,21 +116,6 @@ class StorageService private constructor(private val applicationContext: Context
      */
     fun getFileUri(fileEntry: FileEntryOperations): String? {
         return getAbsolutePath(fileEntry)?.let { "file://$it" }
-    }
-
-    fun determineFilePath(storable: Storable, issueKey: IssueKey?): String {
-        val folder = when (storable.storageType) {
-            StorageType.global -> GLOBAL_FOLDER
-            StorageType.resource -> RESOURCE_FOLDER
-            StorageType.public -> PUBLIC_FOLDER
-            StorageType.issue -> {
-                if (issueKey == null) {
-                    throw IllegalStateException("Detemining the file path of an issue file requires issueKey to be non-null")
-                }
-                "${issueKey.feedName}/${issueKey.date}/${issueKey.status}"
-            }
-        }
-        return "${folder}/${storable.name}"
     }
 
     fun createOrUpdateFileEntry(fileEntryDto: FileEntryDto, issueKey: IssueKey?): FileEntry {
@@ -201,8 +201,7 @@ class StorageService private constructor(private val applicationContext: Context
 
     fun assetFileSameContentAsFile(assetFilePath: String, file: File): Boolean {
         val assetBufferedReader = assetFileReader(assetFilePath)
-        val fileBufferedReader = try { file.bufferedReader() } catch (e: Exception) { return false }
-
+        val fileBufferedReader = file.bufferedReader()
         var areEqual = true
 
         try {

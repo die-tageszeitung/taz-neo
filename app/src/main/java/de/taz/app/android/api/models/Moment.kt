@@ -23,7 +23,6 @@ data class Moment(
 
     constructor(
         issueKey: IssueKey,
-        storageService: StorageService,
         baseUrl: String,
         momentDto: MomentDto
     ) : this(
@@ -32,11 +31,11 @@ data class Moment(
         issueKey.status,
         baseUrl,
         momentDto.imageList
-            ?.map { Image(it, storageService.determineFilePath(it, issueKey)) } ?: emptyList(),
+            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         momentDto.creditList
-            ?.map { Image(it, storageService.determineFilePath(it, issueKey)) } ?: emptyList(),
+            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         momentDto.momentList
-            ?.map { FileEntry(it, storageService.determineFilePath(it, issueKey)) } ?: emptyList(),
+            ?.map { FileEntry(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         null
     )
 

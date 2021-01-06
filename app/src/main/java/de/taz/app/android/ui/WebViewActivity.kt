@@ -52,10 +52,7 @@ class WebViewActivity : AppCompatActivity() {
             finish()
         }
 
-        val htmlFileName = intent.extras?.getString(WEBVIEW_HTML_FILE)
-        val htmlFileEntry = htmlFileName?.let {
-            fileEntryRepository.get(it)
-        }
+
 
         web_view_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
@@ -67,10 +64,19 @@ class WebViewActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            val filePath = htmlFileEntry?.let { storageService.getFileUri(it) }
-            filePath?.let {
-                ensureResourceInfoIsDownloadedAndShow(it)
+            lifecycleScope.launch {
+                val htmlFileName = intent.extras?.getString(WEBVIEW_HTML_FILE)
+                val htmlFileEntry = withContext(Dispatchers.IO) {
+                    htmlFileName?.let {
+                        fileEntryRepository.get(it)
+                    }
+                }
+                val filePath = htmlFileEntry?.let { storageService.getFileUri(it) }
+                filePath?.let {
+                    ensureResourceInfoIsDownloadedAndShow(it)
+                }
             }
+
         }
     }
 

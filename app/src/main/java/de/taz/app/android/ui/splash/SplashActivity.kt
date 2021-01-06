@@ -28,6 +28,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
+import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import io.sentry.core.Sentry
 import io.sentry.core.protocol.User
 import kotlinx.coroutines.*
@@ -68,17 +69,30 @@ class SplashActivity : BaseActivity() {
         if (!preferences.contains(SETTINGS_GENERAL_STORAGE_LOCATION)) {
             determineStorageLocationBySize()
         }
+
+        val storageLocationLiveData = SharedPreferenceStorageLocationLiveData(
+            preferences,
+            SETTINGS_GENERAL_STORAGE_LOCATION,
+            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
+        )
+
+        // if the configured storage is set to external, but no external device is mounted we need to reset it
+        // likely this happened because the user ejected the sd card
+        if (storageLocationLiveData.value == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            storageLocationLiveData.value = StorageLocation.INTERNAL
+        }
     }
 
     private fun determineStorageLocationBySize() {
         val externalFreeBytes = getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes }
         val internalFreeBytes = StatFs(filesDir.path).availableBytes
 
-        val selectedStorageMode = if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes) {
-            StorageLocation.EXTERNAL
-        } else {
-            StorageLocation.INTERNAL
-        }
+        val selectedStorageMode =
+            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes) {
+                StorageLocation.EXTERNAL
+            } else {
+                StorageLocation.INTERNAL
+            }
 
         preferences.edit().apply {
             putInt(SETTINGS_GENERAL_STORAGE_LOCATION, selectedStorageMode.ordinal)
@@ -116,9 +130,16 @@ class SplashActivity : BaseActivity() {
 
             val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
 
-            val unmigratedFiles = withContext(Dispatchers.IO) { fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation) }
+            val unmigratedFiles = withContext(Dispatchers.IO) {
+                fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
+            }
+            val filesWithBadStorage = withContext(Dispatchers.IO) {
+                fileEntryRepository.getExceptStorageLocation(
+                    listOf(StorageLocation.NOT_STORED, currentStorageLocation)
+                )
+            }
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
-            if (unmigratedFiles.isNotEmpty()) {
+            if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty()) {
                 Intent(this@SplashActivity, StorageMigrationActivity::class.java).apply {
                     startActivity(this)
                 }
@@ -174,7 +195,6 @@ class SplashActivity : BaseActivity() {
             log.debug("initialized InstallationId: $uuid")
         }
     }
-
 
 
     private fun setupSentry() {
@@ -235,35 +255,46 @@ class SplashActivity : BaseActivity() {
         val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
 
         val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
-        storageService.getAbsolutePath(RESOURCE_FOLDER, storageLocation = currentStorageLocation)?.let(::File)?.mkdirs()
+        storageService.getAbsolutePath(RESOURCE_FOLDER, storageLocation = currentStorageLocation)
+            ?.let(::File)?.mkdirs()
 
-        val tazApiJSFileEntry = existingTazApiJSFileEntry ?: run {
-            val newFileEntry = FileEntry(
-                name = "tazApi.js",
-                storageType = StorageType.resource,
-                moTime = Date().time,
-                sha256 = "",
-                size = 0,
-                folder = RESOURCE_FOLDER,
-                dateDownload = null,
-                path = "$RESOURCE_FOLDER/tazApi.js",
-                storageLocation = currentStorageLocation
-            )
-            val newFile = storageService.getFile(newFileEntry)
-            if (newFile?.exists() == true) {
-                fileEntryRepository.saveOrReplace(
-                    newFileEntry.copy(
-                        dateDownload = Date(),
-                        size = newFile.length(),
-                        sha256 = storageService.getSHA256(newFile)
-                    )
-                )
+        var tazApiJSFileEntry =
+            if (existingTazApiJSFileEntry != null && existingTazApiJSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
+                existingTazApiJSFileEntry
             } else {
-                fileEntryRepository.saveOrReplace(newFileEntry)
+                val newFileEntry = FileEntry(
+                    name = "tazApi.js",
+                    storageType = StorageType.resource,
+                    moTime = Date().time,
+                    sha256 = "",
+                    size = 0,
+                    folder = RESOURCE_FOLDER,
+                    dateDownload = null,
+                    path = "$RESOURCE_FOLDER/tazApi.js",
+                    storageLocation = currentStorageLocation
+                )
+                val newFile = storageService.getFile(newFileEntry)
+                if (newFile?.exists() == true) {
+                    fileEntryRepository.saveOrReplace(
+                        newFileEntry.copy(
+                            dateDownload = Date(),
+                            size = newFile.length(),
+                            sha256 = storageService.getSHA256(newFile)
+                        )
+                    )
+                } else {
+                    fileEntryRepository.saveOrReplace(newFileEntry)
+                }
             }
-        }
         val tazApiAssetPath = "js/tazApi.js"
-        val tazApiJSFile = storageService.getFile(tazApiJSFileEntry)
+        val tazApiJSFile = try {
+            storageService.getFile(tazApiJSFileEntry)
+        } catch (e: ExternalStorageNotAvailableException) {
+            // If card was ejected create new file
+            tazApiJSFileEntry =
+                fileEntryRepository.saveOrReplace(tazApiJSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
+            storageService.getFile(tazApiJSFileEntry)
+        }
         if (tazApiJSFile?.exists() == false || (tazApiJSFile != null && !storageService.assetFileSameContentAsFile(
                 tazApiAssetPath,
                 tazApiJSFile
@@ -280,39 +311,50 @@ class SplashActivity : BaseActivity() {
             log.debug("Created/updated tazApi.js")
         }
 
-        val tazApiCSSFileEntry = existingTazApiCSSFileEntry ?: run {
-            val newFileEntry = FileEntry(
-                name = "tazApi.css",
-                storageType = StorageType.resource,
-                moTime = Date().time,
-                sha256 = "",
-                size = 0,
-                folder = RESOURCE_FOLDER,
-                dateDownload = null,
-                path = "$RESOURCE_FOLDER/tazApi.css",
-                storageLocation = currentStorageLocation
-            )
-            val newFile = storageService.getFile(newFileEntry)
-            if (newFile?.exists() == true) {
-                fileEntryRepository.saveOrReplace(
-                    newFileEntry.copy(
-                        dateDownload = Date(),
-                        size = newFile.length(),
-                        sha256 = storageService.getSHA256(newFile)
-                    )
-                )
+        var tazApiCSSFileEntry =
+            if (existingTazApiCSSFileEntry != null && existingTazApiCSSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
+                existingTazApiCSSFileEntry
             } else {
-                fileEntryRepository.saveOrReplace(newFileEntry)
+                val newFileEntry = FileEntry(
+                    name = "tazApi.css",
+                    storageType = StorageType.resource,
+                    moTime = Date().time,
+                    sha256 = "",
+                    size = 0,
+                    folder = RESOURCE_FOLDER,
+                    dateDownload = null,
+                    path = "$RESOURCE_FOLDER/tazApi.css",
+                    storageLocation = currentStorageLocation
+                )
+                val newFile = storageService.getFile(newFileEntry)
+                if (newFile?.exists() == true) {
+                    fileEntryRepository.saveOrReplace(
+                        newFileEntry.copy(
+                            dateDownload = Date(),
+                            size = newFile.length(),
+                            sha256 = storageService.getSHA256(newFile)
+                        )
+                    )
+                } else {
+                    fileEntryRepository.saveOrReplace(newFileEntry)
+                }
             }
+
+        val tazApiCSSFile = try {
+            storageService.getFile(tazApiCSSFileEntry)
+        } catch (e: ExternalStorageNotAvailableException) {
+            // If card was ejected create new file
+            tazApiCSSFileEntry =
+                fileEntryRepository.saveOrReplace(tazApiCSSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
+            storageService.getFile(tazApiCSSFileEntry)
         }
-        val tazApiCSSFile = storageService.getFile(tazApiCSSFileEntry)
         if (tazApiCSSFile?.exists() == false) {
             tazApiCSSFile.createNewFile()
             fileEntryRepository.saveOrReplace(
                 tazApiCSSFileEntry.copy(
                     dateDownload = Date(),
                     size = tazApiCSSFile.length(),
-                    sha256 = storageService.getSHA256(tazApiCSSFile)
+                    sha256 = storageService.getSHA256(tazApiCSSFile),
                 )
             )
             log.debug("Created tazApi.css")

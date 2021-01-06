@@ -337,7 +337,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.Moment, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let {
-                Moment(IssueKey(feedName, dateString, it.status), storageService, it.baseUrl, it.moment)
+                Moment(IssueKey(feedName, dateString, it.status), it.baseUrl, it.moment)
             }
         }
     }
@@ -352,7 +352,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
         if (productDto != null) {
-            ResourceInfo(productDto, storageService)
+            ResourceInfo(productDto)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }

@@ -20,8 +20,8 @@ data class Page(
     override val dateDownload: Date?
 ) : DownloadableCollection {
 
-    constructor(issueKey: IssueKey, pageDto: PageDto, storageService: StorageService) : this(
-        FileEntry(pageDto.pagePdf, storageService.determineFilePath(pageDto.pagePdf, issueKey)),
+    constructor(issueKey: IssueKey, pageDto: PageDto) : this(
+        FileEntry(pageDto.pagePdf, StorageService.determineFilePath(pageDto.pagePdf, issueKey)),
         pageDto.title,
         pageDto.pagina,
         pageDto.type,

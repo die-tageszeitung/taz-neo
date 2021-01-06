@@ -28,6 +28,9 @@ abstract class FileEntryDao : BaseDao<FileEntry>() {
     @Query("SELECT * FROM FileEntry WHERE storageLocation = :storageLocation AND dateDownload IS NOT NULL")
     abstract fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
 
+    @Query("SELECT * FROM FileEntry WHERE storageLocation NOT IN (:storageLocations)")
+    abstract fun getExceptStorageLocation(storageLocations: List<StorageLocation>): List<FileEntry>
+
     @Query("SELECT * FROM FileEntry WHERE storageLocation != :storageLocation AND dateDownload IS NOT NULL")
     abstract fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry>
 
