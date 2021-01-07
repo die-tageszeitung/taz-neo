@@ -1,22 +1,30 @@
 package de.taz.app.android.ui
 
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.FileHelper
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.math.min
 
 class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
@@ -41,7 +49,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         viewPager2.adapter = pagerAdapter
 
         viewPager2.apply {
-            reduceDragSensitivity(6)
+            reduceDragSensitivity(7)
             offscreenPageLimit = 2
         }
 
@@ -60,6 +68,41 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             log.warn("Could not fetch issue. IssueKey passed to activity?")
             finish()
         }
+
+
+        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            drawer_layout.updateDrawerLogoBoundingBox(
+                v.width,
+                v.height
+            )
+        }
+
+        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            var opened = false
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                (drawerView.parent as? View)?.let { parentView ->
+                    val drawerWidth =
+                        drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    if (parentView.width < drawerWidth) {
+                        drawer_logo.translationX = min(
+                            slideOffset * (parentView.width - drawerWidth),
+                            -5f * resources.displayMetrics.density
+                        )
+                    }
+                }
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                opened = true
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                opened = false
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
     }
 
     /**

@@ -1,6 +1,5 @@
 package de.taz.app.android.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -79,7 +78,7 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
                 myPaint
             )
         }
-        // somehow not working: :(
+        // somehow not working: :/
         outside_imageview?.setImageBitmap(tempBitmap)
     }
 }
