@@ -1,10 +1,11 @@
 package de.taz.app.android.ui
 
+import android.graphics.Bitmap
+import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import com.artifex.mupdf.viewer.MuPDFCore
@@ -15,6 +16,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.Log
 import java.io.File
 
+
 class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
 
     val log by Log
@@ -24,8 +26,8 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
 
     companion object {
         fun createInstance(
-                pdfPageWithFrameList: Pair<File, List<Frame>?>,
-                issueKey: IssueKey
+            pdfPageWithFrameList: Pair<File, List<Frame>?>,
+            issueKey: IssueKey
         ): PdfRenderFragment {
             val fragment = PdfRenderFragment()
             fragment.pdfPage = pdfPageWithFrameList.first
@@ -35,7 +37,11 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         val view = inflater.inflate(R.layout.fragment_pdf_render, container, false)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
