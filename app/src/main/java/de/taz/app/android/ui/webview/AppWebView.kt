@@ -48,6 +48,7 @@ class AppWebView @JvmOverloads constructor(
                 return false
             }
         })
+        settings.allowFileAccess = true
     }
 
     override fun loadUrl(url: String) {

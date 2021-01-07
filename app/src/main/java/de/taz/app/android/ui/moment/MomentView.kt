@@ -53,6 +53,7 @@ class MomentView @JvmOverloads constructor(
                 useWideViewPort = true
                 loadWithOverviewMode = true
                 loadsImagesAutomatically = true
+                allowFileAccess = true
             }
             setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
         }

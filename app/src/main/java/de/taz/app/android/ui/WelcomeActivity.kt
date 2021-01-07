@@ -71,6 +71,7 @@ class WelcomeActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     settings.javaScriptEnabled = true
+                    settings.allowFileAccess = true
                 }
                 welcomeSlidesFileEntry?.let { storageService.getFileUri(it) }?.let {
                     ensureResourceInfoIsDownloadedAndShow(it)
