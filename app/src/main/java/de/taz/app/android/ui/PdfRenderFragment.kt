@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
@@ -12,12 +13,13 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.Log
 import java.io.File
 
 
-class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
+class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     val log by Log
     var pdfPage: File? = null
@@ -53,4 +55,12 @@ class PdfRenderFragment : Fragment(R.layout.fragment_pdf_render) {
         }
         return view
     }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        log.debug("CLICKED ON BOTTOM NAVIGATION")
+        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
+            requireActivity().finish()
+        }
+    }
+
 }
