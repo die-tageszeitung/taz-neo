@@ -2,12 +2,34 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fragment_archive_background"
-    android:id="@+id/mu_pdf_wrapper">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fragment_archive_background">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/mu_pdf_wrapper"/>
     <ImageView
         android:id="@+id/outside_imageview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:foregroundGravity="center_vertical"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/mu_pdf_wrapper"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bottom_height"
+        android:layout_gravity="bottom"
+        android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/navigation_bottom_pdf_pager" />
+    </FrameLayout>
 </RelativeLayout>
