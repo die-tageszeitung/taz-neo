@@ -1,29 +1,24 @@
 package de.taz.app.android.ui
 
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.MenuItem
 import android.view.View
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
 import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
-import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.singletons.FileHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.min
 
@@ -33,6 +28,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     private lateinit var viewPager2: ViewPager2
     private lateinit var pagerAdapter: PdfPagerActivity.PdfPagerAdapter
     private lateinit var dataService: DataService
+    private lateinit var storageService: StorageService
     private var issueKey: IssueKey? = null
     private var pdfList: List<File> = emptyList()
     private var listOfPdfWithFrameList : List<Pair<File, List<Frame>?>> = emptyList()
@@ -41,7 +37,8 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         super.onCreate(savedInstanceState)
 
         dataService = DataService.getInstance(applicationContext)
-        val fileHelper = FileHelper.getInstance()
+        storageService = StorageService.getInstance(applicationContext)
+
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
 
@@ -59,10 +56,10 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             runBlocking(Dispatchers.IO) {
                 val issue = dataService.getIssue(iK)
                 pdfList = issue?.pageList
-                    ?.map { fileHelper.getFile(it.pagePdf) }
+                    ?.map { storageService.getFile(it.pagePdf)!! }
                     ?: emptyList()
                 listOfPdfWithFrameList = issue?.pageList
-                    ?.map { fileHelper.getFile(it.pagePdf) to it.frameList }
+                    ?.map { storageService.getFile(it.pagePdf)!! to it.frameList }
                     ?: emptyList()
             }
         } ?: run {
