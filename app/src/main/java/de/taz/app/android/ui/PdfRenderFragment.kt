@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
+import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.BaseMainFragment
@@ -21,7 +22,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     val log by Log
     var pdfPage: File? = null
     var frameList: List<Frame> = emptyList()
-    var issueKey: IssueKey? = null
+    lateinit var issueKey: IssueKey
 
     companion object {
         fun createInstance(
@@ -46,7 +47,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
         pdfPage?.let {
             val core = MuPDFCore(it.path)
-            val pdfReaderView = MuPDFReaderView(context, frameList)
+            val pdfReaderView = MuPDFReaderView(context, frameList, issueKey)
             pdfReaderView.adapter = PageAdapter(context, core)
             muPdfWrapper.addView(pdfReaderView)
         }
@@ -59,5 +60,11 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             requireActivity().finish()
         }
     }
-
+/*
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            issueKey = savedInstanceState.getParcelable(ISSUE_KEY)!!
+        }
+    }*/
 }
