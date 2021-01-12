@@ -56,7 +56,6 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        log.debug("CLICKED ON BOTTOM NAVIGATION")
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> requireActivity().finish()
             R.id.bottom_navigation_action_settings -> {

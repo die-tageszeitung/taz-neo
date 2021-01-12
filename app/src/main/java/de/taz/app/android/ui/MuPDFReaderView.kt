@@ -3,15 +3,11 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import com.artifex.mupdf.viewer.ReaderView
-import de.taz.app.android.CLICK_ACTION_THRESHOLD_TIME
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -19,10 +15,12 @@ import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.COME_FROM
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_pdf_render.view.*
 
 
-class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: IssueKey) : ReaderView(context) {
+@SuppressLint("ViewConstructor")
+class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: IssueKey) : ReaderView(
+    context
+) {
     private val log by Log
     var frameList: List<Frame> = emptyList()
     var issueKey: IssueKey
@@ -32,31 +30,29 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
         this.issueKey = iK
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onSingleTapUp(e: MotionEvent): Boolean {
-        var timeOfDown: Long = 0
-        displayedView.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    timeOfDown = event.downTime
-                    return@setOnTouchListener true
-                }
-                MotionEvent.ACTION_UP -> {
-                    val timeOfUp = event.eventTime
-                    if (timeOfUp - timeOfDown < CLICK_ACTION_THRESHOLD_TIME) {
-                        showFrameIfPossible(v, event.x, event.y)
-                    }
-                }
-            }
-            v.onTouchEvent(event)
-        }
+        showFrameIfPossible(displayedView, e.x, e.y)
         return false
     }
 
-    private fun showFrameIfPossible(view: View, bigX: Float, bigY: Float) {
-        x = bigX.div(view.width)
-        y = bigY.div(view.height)
-        log.debug("Clicked on x: $x   y:$y")
+    private fun showFrameIfPossible(view: View, clickedX: Float, clickedY: Float) {
+
+        val scaleX: Float = view.width / width.toFloat()
+        val scaleY: Float = view.height / height.toFloat()
+
+        val relClickedX = clickedX / scaleX
+        val relClickedY = clickedY / scaleY
+
+        val missedFromZoomX = view.left / scaleX
+        val missedFromZoomY = view.top / scaleY
+
+        val calculatedX = relClickedX - missedFromZoomX
+        val calculatedY = relClickedY - missedFromZoomY
+
+        x = calculatedX / width.toFloat()
+        y = calculatedY / height.toFloat()
+
+        log.debug("Clicked on x: $x, y:$y [scale: $scaleX]")
         val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
         log.debug("found frame with link: ${frame?.link}")
         frame?.let {
@@ -69,6 +65,7 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
                 }
             } else {
                 // TODO: go to page getPositionOfPdf(it.link)
+                log.warn("no article maybe advertisement or link to other page?")
             }
         } ?: run {
             // remove this line later on it just helps to show clickable frames
@@ -108,4 +105,3 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
         (view as ImageView).setImageBitmap(tempBitmap)
     }
 }
-
