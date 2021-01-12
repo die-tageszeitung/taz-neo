@@ -1,5 +1,6 @@
 package de.taz.app.android.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -9,6 +10,7 @@ import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
 import com.artifex.mupdf.viewer.ReaderView
+import de.taz.app.android.CLICK_ACTION_THRESHOLD_TIME
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.util.Log
@@ -23,11 +25,25 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
         frameList = frames
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onSingleTapUp(e: MotionEvent): Boolean {
-        log.debug("clicked on ${e.x} and ${e.y}")
-        log.debug("width: ${displayedView.width} and height: ${displayedView.height}")
-        showFrameIfPossible(displayedView, e.x, e.y)
-        return true
+        var timeOfDown: Long = 0
+        displayedView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    timeOfDown = event.downTime
+                    return@setOnTouchListener true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val timeOfUp = event.eventTime
+                    if (timeOfUp - timeOfDown < CLICK_ACTION_THRESHOLD_TIME) {
+                        showFrameIfPossible(v, event.x, event.y)
+                    }
+                }
+            }
+            v.onTouchEvent(event)
+        }
+        return false
     }
 
     private fun showFrameIfPossible(view: View, bigX: Float, bigY: Float) {
@@ -66,7 +82,8 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
         val tempBitmap = Bitmap.createBitmap(
             w,
             h,
-            Bitmap.Config.ARGB_8888)
+            Bitmap.Config.ARGB_8888
+        )
         val tempCanvas = Canvas(tempBitmap)
         frameList.forEach {
             log.verbose("possible frame: $it")
@@ -82,3 +99,4 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
         outside_imageview?.setImageBitmap(tempBitmap)
     }
 }
+

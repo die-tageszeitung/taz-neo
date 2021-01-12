@@ -26,6 +26,7 @@ const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
 const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 const val PREFERENCES_LOG_TRACE_LENGTH = 100
+const val CLICK_ACTION_THRESHOLD_TIME = 200
 
 // Settings
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
