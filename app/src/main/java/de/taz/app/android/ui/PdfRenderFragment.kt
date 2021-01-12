@@ -1,5 +1,6 @@
 package de.taz.app.android.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -8,11 +9,11 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
-import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import java.io.File
 
@@ -56,15 +57,13 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         log.debug("CLICKED ON BOTTOM NAVIGATION")
-        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            requireActivity().finish()
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> requireActivity().finish()
+            R.id.bottom_navigation_action_settings -> {
+                Intent(requireActivity(), SettingsActivity::class.java).apply {
+                    startActivity(this)
+                }
+            }
         }
     }
-/*
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            issueKey = savedInstanceState.getParcelable(ISSUE_KEY)!!
-        }
-    }*/
 }
