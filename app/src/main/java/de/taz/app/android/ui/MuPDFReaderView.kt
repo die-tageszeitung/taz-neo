@@ -9,20 +9,27 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
 import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.CLICK_ACTION_THRESHOLD_TIME
 import de.taz.app.android.api.models.Frame
-import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.COME_FROM_PDF
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_pdf_render.view.*
 
 
-class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : ReaderView(context) {
+class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: IssueKey) : ReaderView(context) {
     private val log by Log
     var frameList: List<Frame> = emptyList()
+    var issueKey: IssueKey
 
     init {
         frameList = frames
+        this.issueKey = iK
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -54,8 +61,10 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
         log.debug("found frame with link: ${frame?.link}")
         frame?.let {
             if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
-                Intent(context, BookmarkViewerActivity::class.java).apply {
-                    putExtra(BookmarkViewerActivity.KEY_SHOWN_ARTICLE, it.link)
+                Intent(context, IssueViewerActivity::class.java).apply {
+                    putExtra(COME_FROM_PDF, true)
+                    putExtra(KEY_ISSUE_KEY, issueKey)
+                    putExtra(KEY_DISPLAYABLE, it.link)
                     context?.startActivity(this)
                 }
             } else {
@@ -96,7 +105,7 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>) : Read
             )
         }
         // somehow not working: :/
-        outside_imageview?.setImageBitmap(tempBitmap)
+        (view as ImageView).setImageBitmap(tempBitmap)
     }
 }
 

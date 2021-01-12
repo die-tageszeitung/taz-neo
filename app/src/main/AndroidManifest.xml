@@ -46,7 +46,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.PdfPagerActivity"
-            android:noHistory="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ImagePagerActivity"
