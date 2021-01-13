@@ -1,5 +1,6 @@
 package de.taz.app.android.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -37,7 +38,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
     private lateinit var displayableName: String
     private lateinit var pagerAdapter: ImagePagerAdapter
-    private var imageName: String? = null
+    private lateinit var imageName: String
 
     private lateinit var dataService: DataService
 
@@ -56,7 +57,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             finish()
         }
 
-        imageName = intent.extras?.getString(IMAGE_NAME)
+        imageName = intent.extras?.getString(IMAGE_NAME) ?: ""
 
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_image_pager)
@@ -67,7 +68,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
 
         runBlocking(Dispatchers.IO) {
             availableImageList = if (displayableName.startsWith("section.")) {
-                SectionRepository.getInstance(applicationContext).imagesForSectionStub(displayableName)
+                // for sections just load the clicked image
+                SectionRepository.getInstance(applicationContext).imagesForSectionStub(displayableName).filter {
+                    it.name.startsWith(imageName.removeSuffix("norm.jpg"))
+                }
             } else {
                 ArticleRepository.getInstance(applicationContext).getImagesForArticle(displayableName)
             }
@@ -76,7 +80,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         // Instantiate pager adapter, which provides the pages to the view pager widget.
         pagerAdapter = ImagePagerAdapter(this)
         viewPager2.adapter = pagerAdapter
-        imageName?.split(".")?.getOrNull(1)?.let { key ->
+        imageName.split(".").getOrNull(1)?.let { key ->
             viewPager2.setCurrentItem(uniqueImageKeys.indexOf(key), false)
         }
 
