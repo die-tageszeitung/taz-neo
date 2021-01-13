@@ -63,6 +63,12 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                     startActivity(this)
                 }
             }
+            R.id.bottom_navigation_action_help -> {
+                Intent(requireActivity(), WelcomeActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    startActivity(this)
+                }
+            }
         }
     }
 }
