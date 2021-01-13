@@ -32,6 +32,11 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
         storageService = StorageService.getInstance(applicationContext)
         lifecycleScope.launch(Dispatchers.IO) {
             migrateToSelectableStorage()
+            migrateFilesToDesiredStorage()
+            withContext(Dispatchers.Main) {
+                startActualApp()
+                finish()
+            }
         }
     }
 
@@ -47,7 +52,14 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
         val downloadedButNotStoredFiles = fileEntryRepository.getDownloadedByStorageLocation(
             StorageLocation.NOT_STORED
         )
-        downloadedButNotStoredFiles.forEach { fileEntry ->
+        if (downloadedButNotStoredFiles.isNotEmpty()) {
+            withContext(Dispatchers.Main) {
+                description.text = getString(R.string.storage_upgrade_help_text)
+                migration_progress.progress = 0
+                migration_progress.max = downloadedButNotStoredFiles.size
+            }
+        }
+        downloadedButNotStoredFiles.forEachIndexed { index, fileEntry ->
             // determine the current location if location is NOT_STORED
             if (fileEntry.storageLocation == StorageLocation.NOT_STORED) {
                 val newEntry = when {
@@ -59,7 +71,11 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
                         ?.let(::File)?.exists() ?: false -> {
                         fileEntryRepository.saveOrReplace(fileEntry.copy(storageLocation = StorageLocation.EXTERNAL))
                     }
-                    else -> null
+                    else -> {
+                        log.warn("${fileEntry.name} has a download date but was not found during migration, resetting download date")
+                        fileEntryRepository.resetDownloadDate(fileEntry)
+                        null
+                    }
                 }
                 if ((newEntry?.let {
                         storageService.ensureFileIntegrity(
@@ -67,20 +83,37 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
                             fileEntry.sha256
                         )
                     }) == false) {
-                    log.warn("Corrupt file at ${storageService.getAbsolutePath(fileEntry)}}")
+                    log.warn("Corrupt file at ${storageService.getAbsolutePath(fileEntry)}, resetting download date")
                     fileEntryRepository.resetDownloadDate(fileEntry)
                 }
             }
+            withContext(Dispatchers.Main) {
+                migration_progress.progress = index + 1
+                numeric_progress.text = "${index + 1} / ${migration_progress.max}"
+            }
         }
+    }
 
+    /**
+     * This function collects all FileEntrys that have a storageLocation different than the currently selected
+     * NOT_STORED is excluded obviously. After collecting the files they are copied to the desired [StorageLocation]
+     * Should only take any effect if the user changes the file storage location in settings and then restarts the app
+     */
+    @SuppressLint("SetTextI18n")
+    private suspend fun migrateFilesToDesiredStorage() {
+        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
         val allFilesNotOnDesiredStorage = fileEntryRepository.getExceptStorageLocation(
             listOf(currentStorageLocation, StorageLocation.NOT_STORED)
         )
         val fileCount = allFilesNotOnDesiredStorage.size
-        migration_progress.max = fileCount
-
+        withContext(Dispatchers.Main) {
+            description.text = getString(R.string.storage_migration_help_text)
+            migration_progress.progress = 0
+            migration_progress.max = fileCount
+        }
         allFilesNotOnDesiredStorage.map { fileEntry ->
-            val movedFileEntry = fileEntryRepository.saveOrReplace(fileEntry.copy(storageLocation = currentStorageLocation))
+            val movedFileEntry =
+                fileEntryRepository.saveOrReplace(fileEntry.copy(storageLocation = currentStorageLocation))
             fileEntry to movedFileEntry
         }.forEachIndexed { index, (oldFileEntry, newFileEntry) ->
 
@@ -112,10 +145,8 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
 
             withContext(Dispatchers.Main) {
                 migration_progress.progress = index + 1
-                numericProgress.text = "${index + 1} / $fileCount"
+                numeric_progress.text = "${index + 1} / $fileCount"
             }
         }
-        startActualApp()
-        finish()
     }
 }

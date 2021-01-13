@@ -26,7 +26,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="24dp"
-            android:text="@string/storage_migration_help_text"
             app:layout_constraintTop_toBottomOf="@id/logo" />
         <ProgressBar
             android:id="@+id/migration_progress"
@@ -38,7 +37,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/description" />
         <TextView
-            android:id="@+id/numericProgress"
+            android:id="@+id/numeric_progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/migration_progress"
