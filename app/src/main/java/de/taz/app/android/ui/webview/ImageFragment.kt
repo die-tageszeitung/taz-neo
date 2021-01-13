@@ -133,17 +133,22 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
-        runIfNotNull(toShowImage, webView) { image, web ->
-            if (web.url != null) {
-                web.evaluateJavascript(
-                    """
-                    document.getElementById("image").src="${storageService.getFileUri(toShowImage)}";
-                """.trimIndent()
-                ) { log.debug("${image.name} replaced") }
-            } else {
-                showImageInWebView(toShowImage, webView)
-            }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val file = fileEntryRepository.get(toShowImage.name)
+            withContext(Dispatchers.Main) {
+                runIfNotNull(file, webView) { file, web ->
+                    if (web.url != null) {
+                        web.evaluateJavascript(
+                            """
+                                document.getElementById("image").src="${storageService.getFileUri(file)}";
+                            """.trimIndent()
+                        ) { log.debug("${file.name} replaced") }
+                    } else {
+                        showImageInWebView(toShowImage, webView)
+                    }
 
+                }
+            }
         }
     }
 }
