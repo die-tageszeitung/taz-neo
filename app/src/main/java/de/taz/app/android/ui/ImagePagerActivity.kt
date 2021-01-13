@@ -141,9 +141,5 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             return uniqueImageKeys.size
         }
     }
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        log.debug("rotated")
-    }
 }
 
