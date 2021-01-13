@@ -63,10 +63,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private var currentIssueKey: IssueKey? = null
 
-    private val bottomNavigationViewLayout by lazy {
-        parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
-    }
-
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
     private val tazApiCssPrefListener =
@@ -84,13 +80,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
 
-    private fun saveScrollpositionDebounced(scrollPosition: Int) {
+    private fun saveScrollPositionDebounced(scrollPosition: Int) {
         viewModel.displayable?.let {
             val oldJob = saveScrollPositionJob
             saveScrollPositionJob = lifecycleScope.launch(Dispatchers.IO) {
                 oldJob?.cancelAndJoin()
                 delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
                 // we need to offset the scroll position by the bottom navigation as it might be expanded
+                val bottomNavigationViewLayout = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
                 val bottomOffset = bottomNavigationViewLayout?.let {
                     if (it.visibility == View.VISIBLE) {
                         it.height - it.translationY.toInt()
@@ -153,7 +150,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
         view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
             setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, oldY: Int ->
-                saveScrollpositionDebounced(scrollY)
+                saveScrollPositionDebounced(scrollY)
             }
         }
 
