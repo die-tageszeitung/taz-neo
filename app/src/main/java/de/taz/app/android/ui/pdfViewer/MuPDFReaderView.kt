@@ -7,6 +7,7 @@ import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
+import com.artifex.mupdf.viewer.PageView
 import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
@@ -15,10 +16,11 @@ import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.COME_FROM
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_pdf_pager.view.*
 
 
 @SuppressLint("ViewConstructor")
-class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: IssueKey) : ReaderView(
+class MuPDFReaderView constructor(context: Context?, frameList: List<Frame>, issueKey: IssueKey) : ReaderView(
     context
 ) {
     private val log by Log
@@ -26,17 +28,13 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
     var issueKey: IssueKey
 
     init {
-        frameList = frames
-        this.issueKey = iK
+        this.frameList = frameList
+        this.issueKey = issueKey
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         showFrameIfPossible(displayedView, e.x, e.y)
         return false
-    }
-
-    override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
-        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY)
     }
 
     private fun showFrameIfPossible(view: View, clickedX: Float, clickedY: Float) {
@@ -106,6 +104,6 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
             )
         }
         // somehow not working: :/
-        (view as ImageView).setImageBitmap(tempBitmap)
+        pdf_frames_placeholder?.setImageBitmap(tempBitmap)
     }
 }

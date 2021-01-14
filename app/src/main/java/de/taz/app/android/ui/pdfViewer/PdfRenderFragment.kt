@@ -28,12 +28,12 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     companion object {
         fun createInstance(
-            pdfPageWithFrameList: Pair<File, List<Frame>?>,
+            pdfPageWithFrameList: Pair<File, List<Frame>>,
             issueKey: IssueKey
         ): PdfRenderFragment {
             val fragment = PdfRenderFragment()
             fragment.pdfPage = pdfPageWithFrameList.first
-            fragment.frameList = pdfPageWithFrameList.second ?: emptyList()
+            fragment.frameList = pdfPageWithFrameList.second
             fragment.issueKey = issueKey
             return fragment
         }

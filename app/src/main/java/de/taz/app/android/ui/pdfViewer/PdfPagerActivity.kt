@@ -17,21 +17,22 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_pager.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.math.min
 
 class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
-    val log by Log
+    private val log by Log
     private lateinit var viewPager2: ViewPager2
     private lateinit var pagerAdapter: PdfPagerAdapter
     private lateinit var dataService: DataService
     private lateinit var storageService: StorageService
     private var issueKey: IssueKey? = null
-    private var pdfList: List<File> = emptyList()
-    private var listOfPdfWithFrameList : List<Pair<File, List<Frame>?>> = emptyList()
+    private var listOfPdfWithFrameList : List<Pair<File, List<Frame>>> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,12 +55,9 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         issueKey = intent.getParcelableExtra(ISSUE_KEY)
         issueKey?.let { iK ->
             runBlocking(Dispatchers.IO) {
-                val issue = dataService.getIssue(iK)
-                pdfList = issue?.pageList
-                    ?.map { storageService.getFile(it.pagePdf)!! }
-                    ?: emptyList()
+            val issue = dataService.getIssue(iK)
                 listOfPdfWithFrameList = issue?.pageList
-                    ?.map { storageService.getFile(it.pagePdf)!! to it.frameList }
+                    ?.map { storageService.getFile(it.pagePdf)!! to it.frameList!! }
                     ?: emptyList()
             }
         } ?: run {
