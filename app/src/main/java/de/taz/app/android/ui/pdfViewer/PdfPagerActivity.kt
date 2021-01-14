@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
@@ -17,9 +18,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_pager.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.math.min
@@ -43,12 +42,9 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
 
-        // Instantiate pager adapter, which provides the pages to the view pager widget
-        pagerAdapter = PdfPagerAdapter(this)
-        viewPager2.adapter = pagerAdapter
-
         viewPager2.apply {
-            reduceDragSensitivity(7)
+            adapter = PdfPagerAdapter(this@PdfPagerActivity)
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             offscreenPageLimit = 2
         }
 
@@ -64,7 +60,6 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             log.warn("Could not fetch issue. IssueKey passed to activity?")
             finish()
         }
-
 
         pdf_drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             pdf_drawer_layout.updateDrawerLogoBoundingBox(
@@ -109,7 +104,8 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         override fun createFragment(position: Int): Fragment {
             return PdfRenderFragment.createInstance(
                 listOfPdfWithFrameList[position],
-                issueKey!!
+                issueKey!!,
+                viewPager2
             )
         }
 

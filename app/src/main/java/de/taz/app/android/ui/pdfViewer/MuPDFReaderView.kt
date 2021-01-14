@@ -6,8 +6,7 @@ import android.content.Intent
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
-import com.artifex.mupdf.viewer.PageView
+import androidx.viewpager2.widget.ViewPager2
 import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
@@ -20,21 +19,46 @@ import kotlinx.android.synthetic.main.activity_pdf_pager.view.*
 
 
 @SuppressLint("ViewConstructor")
-class MuPDFReaderView constructor(context: Context?, frameList: List<Frame>, issueKey: IssueKey) : ReaderView(
+class MuPDFReaderView constructor(
+    context: Context?,
+    frameList: List<Frame>,
+    issueKey: IssueKey,
+    viewPager2: ViewPager2
+) : ReaderView(
     context
 ) {
     private val log by Log
     var frameList: List<Frame> = emptyList()
     var issueKey: IssueKey
+    private var viewPager2: ViewPager2
+    var scrollToLeft = false
 
     init {
         this.frameList = frameList
         this.issueKey = issueKey
+        this.viewPager2 = viewPager2
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         showFrameIfPossible(displayedView, e.x, e.y)
         return false
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        // only allow view pagers swiping when on boarder
+        viewPager2.isUserInputEnabled = (displayedView.left >= 0 && !scrollToLeft) ||
+                displayedView.right <= width && scrollToLeft
+        return super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        scrollToLeft = distanceX <= 0
+        return super.onScroll(e1, e2, distanceX, distanceY)
     }
 
     private fun showFrameIfPossible(view: View, clickedX: Float, clickedY: Float) {

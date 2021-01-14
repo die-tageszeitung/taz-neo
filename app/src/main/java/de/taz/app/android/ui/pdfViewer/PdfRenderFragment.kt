@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.viewpager2.widget.ViewPager2
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
@@ -25,16 +26,19 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     var pdfPage: File? = null
     var frameList: List<Frame> = emptyList()
     lateinit var issueKey: IssueKey
+    lateinit var viewPager2: ViewPager2
 
     companion object {
         fun createInstance(
             pdfPageWithFrameList: Pair<File, List<Frame>>,
-            issueKey: IssueKey
+            issueKey: IssueKey,
+            viewPager2: ViewPager2
         ): PdfRenderFragment {
             val fragment = PdfRenderFragment()
             fragment.pdfPage = pdfPageWithFrameList.first
             fragment.frameList = pdfPageWithFrameList.second
             fragment.issueKey = issueKey
+            fragment.viewPager2 = viewPager2
             return fragment
         }
     }
@@ -44,12 +48,11 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_pdf_render, container, false)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
         pdfPage?.let {
             val core = MuPDFCore(it.path)
-            val pdfReaderView = MuPDFReaderView(context, frameList, issueKey)
+            val pdfReaderView = MuPDFReaderView(context, frameList, issueKey, viewPager2)
             pdfReaderView.adapter = PageAdapter(context, core)
             muPdfWrapper.addView(pdfReaderView)
         }
