@@ -1,4 +1,4 @@
-package de.taz.app.android.ui
+package de.taz.app.android.ui.pdfViewer
 
 import android.os.Bundle
 import android.view.View
@@ -16,7 +16,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
+import kotlinx.android.synthetic.main.activity_pdf_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -26,7 +26,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
     val log by Log
     private lateinit var viewPager2: ViewPager2
-    private lateinit var pagerAdapter: PdfPagerActivity.PdfPagerAdapter
+    private lateinit var pagerAdapter: PdfPagerAdapter
     private lateinit var dataService: DataService
     private lateinit var storageService: StorageService
     private var issueKey: IssueKey? = null
@@ -68,22 +68,22 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         }
 
 
-        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-            drawer_layout.updateDrawerLogoBoundingBox(
+        pdf_drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
                 v.width,
                 v.height
             )
         }
 
-        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+        pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 (drawerView.parent as? View)?.let { parentView ->
                     val drawerWidth =
-                        drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                        drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = min(
+                        pdf_drawer_logo.translationX = min(
                             slideOffset * (parentView.width - drawerWidth),
                             -5f * resources.displayMetrics.density
                         )

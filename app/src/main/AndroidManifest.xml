@@ -45,7 +45,7 @@
             android:name=".ui.StorageMigrationActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.PdfPagerActivity"
+            android:name=".ui.pdfViewer.PdfPagerActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ImagePagerActivity"

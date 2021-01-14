@@ -1,4 +1,4 @@
-package de.taz.app.android.ui
+package de.taz.app.android.ui.pdfViewer
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -33,6 +33,10 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         showFrameIfPossible(displayedView, e.x, e.y)
         return false
+    }
+
+    override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
+        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY)
     }
 
     private fun showFrameIfPossible(view: View, clickedX: Float, clickedY: Float) {

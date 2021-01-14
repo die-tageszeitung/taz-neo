@@ -1,4 +1,4 @@
-package de.taz.app.android.ui
+package de.taz.app.android.ui.pdfViewer
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import java.io.File
