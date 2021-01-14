@@ -14,6 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/pdf_frames_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <de.taz.app.android.ui.drawer.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
