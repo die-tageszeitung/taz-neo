@@ -23,7 +23,6 @@ import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 
 
-@SuppressLint("ViewConstructor")
 class MuPDFReaderView constructor(
     context: Context?,
     frameList: List<Frame>,
