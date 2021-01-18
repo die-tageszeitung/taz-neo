@@ -10,7 +10,6 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -28,6 +27,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -124,7 +124,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_read_pdf?.setOnClickListener {
             Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                putExtra(ISSUE_KEY, issueKey)
+                putExtra(KEY_ISSUE_KEY, issueKey)
                 startActivity(this)
             }
             dismiss()

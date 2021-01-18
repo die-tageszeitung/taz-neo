@@ -11,14 +11,13 @@ import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.COME_FROM_PDF
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_COME_FROM_PDF
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_pager.view.*
 
 
-@SuppressLint("ViewConstructor")
 class MuPDFReaderView constructor(
     context: Context?,
     frameList: List<Frame>,
@@ -46,8 +45,8 @@ class MuPDFReaderView constructor(
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         // only allow view pagers swiping when on boarder
-        viewPager2.isUserInputEnabled = (displayedView.left >= 0 && !scrollToLeft) ||
-                displayedView.right <= width && scrollToLeft
+        viewPager2.isUserInputEnabled = (displayedView.left >= 0 && scrollToLeft) ||
+                displayedView.right <= width && !scrollToLeft
         return super.onInterceptTouchEvent(ev)
     }
 
@@ -57,24 +56,34 @@ class MuPDFReaderView constructor(
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        scrollToLeft = distanceX <= 0
+        scrollToLeft = distanceX <= 0f
         return super.onScroll(e1, e2, distanceX, distanceY)
     }
 
+    /**
+     * Calculates the click coordinates of a potentially zoomed in and scrolled part to the total
+     * view. With that coordinates we can check if they are in any of the given frames.
+     * If so, the according article will be shown.
+     */
     private fun showFrameIfPossible(view: View, clickedX: Float, clickedY: Float) {
 
+        // Cet the scale factor from dividing total image by viewed part (eg. 2.0):
         val scaleX: Float = view.width / width.toFloat()
         val scaleY: Float = view.height / height.toFloat()
 
+        // Calculate the relatively clicked coordinates by dividing the scale factor (e.g. 200):
         val relClickedX = clickedX / scaleX
         val relClickedY = clickedY / scaleY
 
+        // Get the missed part of the total image (eg. zoomed & scrolled in the middle: -600):
         val missedFromZoomX = view.left / scaleX
         val missedFromZoomY = view.top / scaleY
 
+        // Sum up to get the real click coordinates of the total image (e.g. 200 - (-600) = 800):
         val calculatedX = relClickedX - missedFromZoomX
         val calculatedY = relClickedY - missedFromZoomY
 
+        // Calculate the ratio (e.g. 800 / 1080 = 0.7407):
         x = calculatedX / width.toFloat()
         y = calculatedY / height.toFloat()
 
@@ -84,50 +93,19 @@ class MuPDFReaderView constructor(
         frame?.let {
             if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
                 Intent(context, IssueViewerActivity::class.java).apply {
-                    putExtra(COME_FROM_PDF, true)
+                    putExtra(KEY_COME_FROM_PDF, true)
                     putExtra(KEY_ISSUE_KEY, issueKey)
                     putExtra(KEY_DISPLAYABLE, it.link)
                     context?.startActivity(this)
                 }
             } else {
-                // TODO: go to page getPositionOfPdf(it.link)
                 log.warn("no article maybe advertisement or link to other page?")
+                // TODO: go to page getPositionOfPdf(it.link)
             }
         } ?: run {
-            // remove this line later on it just helps to show clickable frames
-            showPossibleFrames(view)
+            frameList.forEach {
+                log.verbose("possible frame: $it")
+            }
         }
-    }
-
-    /**
-     * This is just a helper function to show the possible frames.
-     * (as they are not correct at the moment)
-     * Only works on no zoomed pages on tap.
-     */
-    private fun showPossibleFrames(view: View) {
-        val w = view.width
-        val h = view.height
-        val myPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        myPaint.color = Color.RED
-        myPaint.strokeWidth = 2f
-        myPaint.style = Paint.Style.STROKE
-        val tempBitmap = Bitmap.createBitmap(
-            w,
-            h,
-            Bitmap.Config.ARGB_8888
-        )
-        val tempCanvas = Canvas(tempBitmap)
-        frameList.forEach {
-            log.verbose("possible frame: $it")
-            tempCanvas.drawRect(
-                it.x1 * w,
-                it.y1 * h,
-                it.x2 * w,
-                it.y2 * h,
-                myPaint
-            )
-        }
-        // somehow not working: :/
-        pdf_frames_placeholder?.setImageBitmap(tempBitmap)
     }
 }

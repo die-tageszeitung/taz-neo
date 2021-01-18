@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
 
 
 class IssueViewerActivity : TazViewerActivity() {
-    private var comeFromPDF: Boolean = false
+    private var finishOnBackPressed: Boolean = false
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issueKey: IssueKey
 
@@ -27,7 +27,7 @@ class IssueViewerActivity : TazViewerActivity() {
     companion object {
         const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
-        const val COME_FROM_PDF = "COME_FROM_PDF"
+        const val KEY_COME_FROM_PDF = "KEY_COME_FROM_PDF"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,7 @@ class IssueViewerActivity : TazViewerActivity() {
         }
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
-            comeFromPDF = intent.getBooleanExtra(COME_FROM_PDF, false)
+            finishOnBackPressed = intent.getBooleanExtra(KEY_COME_FROM_PDF, false)
             CoroutineScope(Dispatchers.Main).launch {
                 if (displayableKey != null) {
                     issueViewerViewModel.setDisplayable(issueKey, displayableKey, loadIssue = true)
@@ -76,7 +76,7 @@ class IssueViewerActivity : TazViewerActivity() {
     }
 
     override fun onBackPressed() {
-        if (comeFromPDF) {
+        if (finishOnBackPressed) {
             finish()
         } else {
             super.onBackPressed()
