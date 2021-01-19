@@ -14,52 +14,39 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <de.taz.app.android.ui.drawer.NavigationView
-        android:id="@+id/nav_view"
+    <!-- Custom Navigation Drawer Start -->
+    <LinearLayout
+        android:id="@+id/navigation_layout"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:background="@color/navigation_drawer_background"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+        <ImageView
+            android:id="@+id/pdf_drawer_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/drawer_logo_translation_y"
+            android:clickable="true"
+            android:elevation="10dp"
+            android:focusable="true"
+            android:translationY="@dimen/drawer_logo_translation_y"
+            android:adjustViewBounds="true"
+            android:background="@color/tazRed"
+            android:src="@drawable/ic_logo"
+            android:contentDescription="@string/navigation_drawer_open" />
 
-            <ImageView
-                android:id="@+id/pdf_drawer_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_open"
-                android:elevation="10dp"
-                android:focusable="true"
-                android:translationY="@dimen/drawer_logo_translation_y"
-                android:adjustViewBounds="true"
-                android:background="@color/tazRed"
-                android:src="@drawable/ic_logo"
-                app:layout_constraintLeft_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/navigation_rv"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.recyclerview.widget.RecyclerView>
 
-        <LinearLayout
-            android:id="@+id/nav_bar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/drawer_menu_fragment_placeholder"
-                android:name="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-    </de.taz.app.android.ui.drawer.NavigationView>
+    </LinearLayout>
+    <!-- Custom Navigation Drawer End -->
 </de.taz.app.android.ui.drawer.DrawerLayout>

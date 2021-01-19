@@ -10,16 +10,16 @@
 
     <ImageView
         android:id="@+id/fragment_drawer_pdf_page"
-        android:layout_width="100dp"
-        android:layout_height="180dp"
+        android:layout_width="@dimen/fragment_drawer_moment_width"
+        android:layout_height="wrap_content"
         android:scaleType="centerInside"
+        android:background="@color/navigation_drawer_background"
         tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/fragment_drawer_pdf_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="will be set"
         android:textSize="18sp" />
 
 </LinearLayout>

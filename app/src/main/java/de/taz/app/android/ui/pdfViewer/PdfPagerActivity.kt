@@ -5,6 +5,7 @@ import android.view.View
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -33,7 +34,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     private lateinit var storageService: StorageService
     private lateinit var issueKey: IssueKey
     private var listOfPdfWithFrameList: List<Pair<File, List<Frame>>> = emptyList()
-    private var listOfPdfWithTitleAndPagina: List<Triple<File, String, String>> = emptyList()
+    private var listOfPdfWithTitleAndPagina: List<PdfDrawerItemModel> = emptyList()
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
@@ -47,6 +48,16 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         storageService = StorageService.getInstance(applicationContext)
 
         drawerLayout = findViewById(R.id.pdf_drawer_layout)
+
+        // Setup Recyclerview's Layout
+        navigation_rv.layoutManager = LinearLayoutManager(this)
+        navigation_rv.setHasFixedSize(true)
+        // Add Item Touch Listener
+        navigation_rv.addOnItemTouchListener(RecyclerTouchListener(this, object : ClickListener {
+            override fun onClick(view: View, position: Int) {
+                log.debug("clicked on position: $position")
+            }
+        }))
 
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
@@ -72,7 +83,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                     storageService.getFile(it.pagePdf)!! to it.frameList!!
                 }
                 listOfPdfWithTitleAndPagina= issue.pageList.map {
-                    Triple(storageService.getFile(it.pagePdf)!!, it.title!!, it.pagina!!)
+                    PdfDrawerItemModel(storageService.getFile(it.pagePdf)!!, it.title!!, it.pagina!!)
                 }
             }
         }
@@ -113,8 +124,15 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
             override fun onDrawerStateChanged(newState: Int) {}
         })
-    }
 
+        updateAdapter(listOfPdfWithTitleAndPagina, 0)
+
+    }
+    private fun updateAdapter(items: List<PdfDrawerItemModel>,highlightItemPos: Int) {
+        drawerAdapter = PdfDrawerRVAdapter(items, highlightItemPos)
+        navigation_rv.adapter = drawerAdapter
+        drawerAdapter.notifyDataSetChanged()
+    }
     /**
      * A simple pager adapter that represents pdfFragment objects, in
      * sequence.
