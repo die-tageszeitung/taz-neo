@@ -48,10 +48,10 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
      */
     @SuppressLint("SetTextI18n")
     private suspend fun migrateToSelectableStorage() {
-        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
         val downloadedButNotStoredFiles = fileEntryRepository.getDownloadedByStorageLocation(
             StorageLocation.NOT_STORED
         )
+        log.info("Will search for ${downloadedButNotStoredFiles.size} files and move it to the correct storage")
         if (downloadedButNotStoredFiles.isNotEmpty()) {
             withContext(Dispatchers.Main) {
                 description.text = getString(R.string.storage_upgrade_help_text)
@@ -106,6 +106,8 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
             listOf(currentStorageLocation, StorageLocation.NOT_STORED)
         )
         val fileCount = allFilesNotOnDesiredStorage.size
+        log.info("Will move $fileCount to the correct storage")
+
         withContext(Dispatchers.Main) {
             description.text = getString(R.string.storage_migration_help_text)
             migration_progress.progress = 0

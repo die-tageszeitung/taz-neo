@@ -54,7 +54,7 @@ class FileEntryRepository private constructor(
     }
 
     fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
-        return appDatabase.fileEntryDao().getByStorageLocation(storageLocation)
+        return appDatabase.fileEntryDao().getDownloadedByStorageLocation(storageLocation)
     }
 
     fun getExceptStorageLocation(storageLocation: List<StorageLocation>): List<FileEntry> {
