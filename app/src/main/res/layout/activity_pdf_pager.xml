@@ -14,11 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/pdf_frames_placeholder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <de.taz.app.android.ui.drawer.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
@@ -40,12 +35,14 @@
                 android:id="@+id/pdf_drawer_logo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
                 android:clickable="true"
                 android:contentDescription="@string/navigation_drawer_open"
                 android:elevation="10dp"
                 android:focusable="true"
                 android:translationY="@dimen/drawer_logo_translation_y"
+                android:adjustViewBounds="true"
+                android:background="@color/tazRed"
+                android:src="@drawable/ic_logo"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

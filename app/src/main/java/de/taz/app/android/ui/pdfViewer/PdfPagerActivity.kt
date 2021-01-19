@@ -10,6 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Frame
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -31,13 +32,21 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     private lateinit var dataService: DataService
     private lateinit var storageService: StorageService
     private lateinit var issueKey: IssueKey
-    private var listOfPdfWithFrameList : List<Pair<File, List<Frame>>> = emptyList()
+    private var listOfPdfWithFrameList: List<Pair<File, List<Frame>>> = emptyList()
+    private var listOfPdfWithTitleAndPagina: List<Triple<File, String, String>> = emptyList()
+
+    private var navButton: Image? = null
+    private var navButtonAlpha = 255f
+    lateinit var drawerLayout: DrawerLayout
+    private lateinit var drawerAdapter: PdfDrawerRVAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         dataService = DataService.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
+
+        drawerLayout = findViewById(R.id.pdf_drawer_layout)
 
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
@@ -62,8 +71,48 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                 listOfPdfWithFrameList = issue.pageList.map {
                     storageService.getFile(it.pagePdf)!! to it.frameList!!
                 }
+                listOfPdfWithTitleAndPagina= issue.pageList.map {
+                    Triple(storageService.getFile(it.pagePdf)!!, it.title!!, it.pagina!!)
+                }
             }
         }
+
+        pdf_drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            log.debug("updateDrawerLogo. width: ${v.width} height: ${v.height}")
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                v.width,
+                v.height
+            )
+        }
+
+        pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            var opened = false
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                (drawerView.parent as? View)?.let { parentView ->
+                    val drawerWidth =
+                        drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
+                    if (parentView.width < drawerWidth) {
+                        pdf_drawer_logo.translationX = min(
+                            slideOffset * (parentView.width - drawerWidth),
+                            -5f * resources.displayMetrics.density
+                        )
+                    }
+                }
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                log.debug("drawer opened!")
+                opened = true
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                log.debug("drawer closed!")
+                opened = false
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
     }
 
     /**
