@@ -170,7 +170,9 @@ class StorageService private constructor(private val applicationContext: Context
 
     fun deleteFile(fileEntry: FileEntry) {
         fileEntryRepository.resetDownloadDate(fileEntry)
-        File(getAbsolutePath(fileEntry)).delete()
+        getAbsolutePath(fileEntry)?.let {
+            File(it).delete()
+        }
     }
 
     fun readFileFromAssets(path: String): String {
