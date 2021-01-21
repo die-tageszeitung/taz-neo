@@ -20,7 +20,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_FINIS
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.runIfNotNull
 import io.sentry.core.Sentry
 
 
@@ -94,9 +93,8 @@ class MuPDFReaderView constructor(
         x = calculatedX / width.toFloat()
         y = calculatedY / height.toFloat()
 
-        log.debug("Clicked on x: $x, y:$y [scale: $scaleX]")
+        log.verbose("Clicked on x: $x, y:$y [scale: $scaleX]")
         val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-        log.debug("found frame with link: ${frame?.link}")
         frame?.let {
             if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
                 Intent(context, IssueViewerActivity::class.java).apply {
@@ -107,19 +105,19 @@ class MuPDFReaderView constructor(
                 }
             } else if (it.link?.startsWith("http") == true || it.link?.startsWith("mailto:") == true) {
                     openExternally(it.link)
-            } else if (it.link?.startsWith("s") == true && it.link.endsWith(".pdf")) {
-                // TODO open pdfPage
-           /*     viewPager2.setCurrentItem(
-                    getPositionOfPdf(it.link)
-                )*/
-            } else {
-                val hint = "Don't know how to open ${it.link}"
-                log.warn(hint)
-                Sentry.captureMessage(hint)
+                } else if (link.startsWith("s") && it.link.endsWith(".pdf")) {
+                    viewPager2.setCurrentItem(
+                        (context as PdfPagerActivity).getPositionOfPdf(it.link)
+                    )
+                } else {
+                    val hint = "Don't know how to open ${link}"
+                    log.warn(hint)
+                    Sentry.captureMessage(hint)
+                }
             }
         } ?: run {
             frameList.forEach {
-                log.verbose("possible frame: $it")
+                log.debug("possible frame: $it")
             }
         }
     }

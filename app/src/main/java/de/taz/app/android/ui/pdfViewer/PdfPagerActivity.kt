@@ -48,7 +48,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
     lateinit var drawerLayout: DrawerLayout
-    private lateinit var drawerAdapter: PdfDrawerRVAdapter
+    private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
     private lateinit var imageRepository: ImageRepository
     protected val pdfPagerViewModel: PdfPagerViewModel by viewModels()
 
@@ -180,7 +180,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     }
 
     private fun initDrawerAdapter(items: List<PdfDrawerItemModel>) {
-        drawerAdapter = PdfDrawerRVAdapter(items)
+        drawerAdapter = PdfDrawerRecyclerViewAdapter(items)
         navigation_recycler_view.adapter = drawerAdapter
     }
 

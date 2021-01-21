@@ -10,11 +10,15 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import kotlinx.android.synthetic.main.fragment_pdf_drawer_item.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
-class PdfDrawerRVAdapter(private var itemList: List<PdfDrawerItemModel>) :
-    RecyclerView.Adapter<PdfDrawerRVAdapter.NavigationItemViewHolder>() {
+class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfDrawerItemModel>) :
+    RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
 
     private lateinit var context: Context
 
@@ -60,11 +64,16 @@ class PdfDrawerRVAdapter(private var itemList: List<PdfDrawerItemModel>) :
         holder.itemView.fragment_drawer_pdf_title.text = itemList[position].title
 
         // Set the image:
-        holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
-            getPreviewImageFromPdfFile(
+        CoroutineScope(Dispatchers.Default).launch {
+            val img = getPreviewImageFromPdfFile(
                 file = itemList[position].pdfFile
             )
-        )
+            withContext(Dispatchers.Main){
+                holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
+                    img
+                )
+            }
+        }
     }
 
     private fun getPreviewImageFromPdfFile(file: File): Bitmap {
