@@ -13,10 +13,22 @@ import kotlinx.android.synthetic.main.fragment_pdf_drawer_item.view.*
 import java.io.File
 
 
-class PdfDrawerRVAdapter(private var items: List<PdfDrawerItemModel>, private var currentPos: Int) :
+class PdfDrawerRVAdapter(private var itemList: List<PdfDrawerItemModel>) :
     RecyclerView.Adapter<PdfDrawerRVAdapter.NavigationItemViewHolder>() {
 
     private lateinit var context: Context
+
+    var activePosition = RecyclerView.NO_POSITION
+        set(value) {
+            val oldValue = field
+            field = value
+            if (value >= 0 && itemList.size > value) {
+                notifyItemChanged(value)
+            }
+            if (oldValue >= 0 && itemList.size > value) {
+                notifyItemChanged(oldValue)
+            }
+        }
 
     class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -31,11 +43,11 @@ class PdfDrawerRVAdapter(private var items: List<PdfDrawerItemModel>, private va
     }
 
     override fun getItemCount(): Int {
-        return items.count()
+        return itemList.count()
     }
 
     override fun onBindViewHolder(holder: NavigationItemViewHolder, position: Int) {
-        if (position == currentPos) {
+        if (position == activePosition) {
             holder.itemView.fragment_drawer_pdf_title.setTextColor(
                 ContextCompat.getColor(context, R.color.drawer_sections_item_highlighted)
             )
@@ -45,19 +57,23 @@ class PdfDrawerRVAdapter(private var items: List<PdfDrawerItemModel>, private va
             )
         }
         // Set the title:
-        holder.itemView.fragment_drawer_pdf_title.text = items[position].title
+        holder.itemView.fragment_drawer_pdf_title.text = itemList[position].title
 
         // Set the image:
         holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
             getPreviewImageFromPdfFile(
-                file = items[position].pdfFile
+                file = itemList[position].pdfFile
             )
         )
     }
 
     private fun getPreviewImageFromPdfFile(file: File): Bitmap {
         val widthInDp = 128f
-        val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, widthInDp, context.resources.displayMetrics).toInt()
+        val width = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            widthInDp,
+            context.resources.displayMetrics
+        ).toInt()
         return MuPDFThumbnail(file.path).thumbOfFirstPage(width)
     }
 }

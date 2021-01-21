@@ -1,20 +1,30 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.view.MotionEvent
 import android.view.View
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.artifex.mupdf.viewer.ReaderView
+import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_FINISH_ON_BACK_PRESSED
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
+import io.sentry.core.Sentry
 
 
+@SuppressLint("ViewConstructor")
 class MuPDFReaderView constructor(
     context: Context?,
     frameList: List<Frame>,
@@ -95,14 +105,39 @@ class MuPDFReaderView constructor(
                     putExtra(KEY_DISPLAYABLE, it.link)
                     context?.startActivity(this)
                 }
+            } else if (it.link?.startsWith("http") == true || it.link?.startsWith("mailto:") == true) {
+                    openExternally(it.link)
+            } else if (it.link?.startsWith("s") == true && it.link.endsWith(".pdf")) {
+                // TODO open pdfPage
+           /*     viewPager2.setCurrentItem(
+                    getPositionOfPdf(it.link)
+                )*/
             } else {
-                log.warn("no article maybe advertisement or link to other page?")
-                // TODO: go to page getPositionOfPdf(it.link)
+                val hint = "Don't know how to open ${it.link}"
+                log.warn(hint)
+                Sentry.captureMessage(hint)
             }
         } ?: run {
             frameList.forEach {
                 log.verbose("possible frame: $it")
             }
         }
+    }
+    private fun openExternally(url: String) {
+        val color = ContextCompat.getColor(context, R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
+                launchUrl(context, Uri.parse(url))
+            }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper =
+                ToastHelper.getInstance(context)
+            if (url.startsWith("mailto:")) {
+                toastHelper.showToast(R.string.toast_no_email_client)
+            } else {
+                toastHelper.showToast(R.string.toast_unknown_error)
+            }
+        }
+
     }
 }

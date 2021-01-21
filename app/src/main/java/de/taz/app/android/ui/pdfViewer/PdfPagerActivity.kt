@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -32,10 +31,7 @@ import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.android.synthetic.main.activity_pdf_pager.*
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
 
@@ -68,10 +64,15 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         // Setup Recyclerview's Layout
         navigation_recycler_view.layoutManager = GridLayoutManager(this, 2)
         navigation_recycler_view.setHasFixedSize(true)
+
         // Add Item Touch Listener
         navigation_recycler_view.addOnItemTouchListener(RecyclerTouchListener(this, object : ClickListener {
             override fun onClick(view: View, position: Int) {
-                log.debug("clicked on position: $position")
+                if (position != viewPager2.currentItem) {
+                    viewPager2.currentItem = position
+                    pdf_drawer_layout.closeDrawers()
+                    drawerAdapter.activePosition = position
+                }
             }
         }))
 
@@ -82,6 +83,14 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             adapter = PdfPagerAdapter(this@PdfPagerActivity)
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             offscreenPageLimit = 2
+
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    log.debug("page selected: $position")
+                    drawerAdapter.activePosition = position
+                    super.onPageSelected(position)
+                }
+            })
         }
 
         issueKey = intent.getParcelableExtra(KEY_ISSUE_KEY)!!
@@ -101,6 +110,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                 listOfPdfWithTitleAndPagina= issue.pageList.map {
                     PdfDrawerItemModel(storageService.getFile(it.pagePdf)!!, it.title!!, it.pagina!!)
                 }
+                initDrawerAdapter(listOfPdfWithTitleAndPagina)
             }
         }
 
@@ -146,13 +156,9 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
 
             override fun onDrawerStateChanged(newState: Int) {}
         })
-
-        updateAdapter(listOfPdfWithTitleAndPagina, 0)
-
     }
 
     override fun onResume() {
-        log.debug("onRESUM!!!!!!!!!")
         super.onResume()
         pdfPagerViewModel.setDefaultDrawerNavButton()
         pdfPagerViewModel.navButton.observeDistinct(this) {
@@ -173,10 +179,9 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         }
     }
 
-    private fun updateAdapter(items: List<PdfDrawerItemModel>,highlightItemPos: Int) {
-        drawerAdapter = PdfDrawerRVAdapter(items, highlightItemPos)
+    private fun initDrawerAdapter(items: List<PdfDrawerItemModel>) {
+        drawerAdapter = PdfDrawerRVAdapter(items)
         navigation_recycler_view.adapter = drawerAdapter
-        drawerAdapter.notifyDataSetChanged()
     }
 
     private suspend fun showNavButton(navButton: Image) {
@@ -214,6 +219,10 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         }
     }
 
+    fun getPositionOfPdf(fileName: String): Int {
+        return listOfPdfWithFrameList.indexOfFirst {  it.first.name == fileName }
+    }
+
     /**
      * A simple pager adapter that represents pdfFragment objects, in
      * sequence.
@@ -226,15 +235,8 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                 viewPager2
             )
         }
-
         override fun getItemCount(): Int {
             return listOfPdfWithFrameList.size
-        }
-
-        fun getPositionOfPDf(pdfFileName: String): Int {
-            return listOfPdfWithFrameList.indexOfFirst {
-                it.first.name == pdfFileName
-            }
         }
     }
 }
