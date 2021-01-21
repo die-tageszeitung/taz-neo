@@ -77,7 +77,7 @@ class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfDrawerItemModel
     }
 
     private fun getPreviewImageFromPdfFile(file: File): Bitmap {
-        val widthInDp = 128f
+        val widthInDp = 116f
         val width = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             widthInDp,
