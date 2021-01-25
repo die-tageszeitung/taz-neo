@@ -137,12 +137,13 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     }
 
     private suspend fun showNavButton(navButton: Image) {
-        if (this.navButton != navButton) {
+        val navButtonPath = fileHelper.getAbsolutePath(navButton)
+        if (this.navButton != navButton && navButtonPath != null) {
             this.navButton = navButton
             val imageDrawable = withContext(Dispatchers.IO) {
                 Glide
                     .with(this@TazViewerActivity)
-                    .load(fileHelper.getAbsolutePath(navButton))
+                    .load(navButtonPath)
                     .submit()
                     .get()
             }
