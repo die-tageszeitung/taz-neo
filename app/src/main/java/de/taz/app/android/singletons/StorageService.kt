@@ -232,6 +232,7 @@ class StorageService private constructor(private val applicationContext: Context
 
     fun copyAssetFileToFile(path: String, file: File) {
         val tazApiAssetReader = assetFileReader(path)
+        file.parentFile?.mkdirs()
         val fileWriter = file.writer()
         tazApiAssetReader.copyTo(fileWriter)
         tazApiAssetReader.close()
