@@ -30,7 +30,6 @@ import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.android.synthetic.main.activity_pdf_pager.*
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
@@ -116,20 +115,13 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                 initDrawerAdapter(listOfPdfWithTitleAndPagina)
             }
         }
-
-        pdf_drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             log.debug("updateDrawerLogo. width: ${v.width} height: ${v.height}")
             pdf_drawer_layout.updateDrawerLogoBoundingBox(
                 v.width,
                 v.height
             )
         }
-
-        pdf_drawer_logo.setOnClickListener {
-            log.debug("click on logo!")
-            pdf_drawer_layout.openDrawer(GravityCompat.START)
-        }
-
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             var opened = false
 
@@ -139,7 +131,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                     val drawerWidth =
                         drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        pdf_drawer_logo.translationX = min(
+                        drawer_logo.translationX = min(
                             slideOffset * (parentView.width - drawerWidth),
                             -5f * resources.displayMetrics.density
                         )
@@ -157,7 +149,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                 opened = false
             }
 
-            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerStateChanged(newState: Int) = Unit
         })
     }
 
@@ -212,11 +204,11 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             ) * scaleFactor
 
             withContext(Dispatchers.Main) {
-                pdf_drawer_logo.setImageDrawable(imageDrawable)
-                pdf_drawer_logo.alpha = navButtonAlpha
-                pdf_drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
-                pdf_drawer_logo.layoutParams.width = logicalWidth.toInt()
-                pdf_drawer_logo.layoutParams.height = logicalHeight.toInt()
+                drawer_logo.setImageDrawable(imageDrawable)
+                drawer_logo.alpha = navButtonAlpha
+                drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
+                drawer_logo.layoutParams.width = logicalWidth.toInt()
+                drawer_logo.layoutParams.height = logicalHeight.toInt()
                 pdf_drawer_layout.requestLayout()
             }
         }
