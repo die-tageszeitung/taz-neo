@@ -96,21 +96,22 @@ class MuPDFReaderView constructor(
         log.verbose("Clicked on x: $x, y:$y [scale: $scaleX]")
         val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
         frame?.let {
-            if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
-                Intent(context, IssueViewerActivity::class.java).apply {
-                    putExtra(KEY_FINISH_ON_BACK_PRESSED, true)
-                    putExtra(KEY_ISSUE_KEY, issueKey)
-                    putExtra(KEY_DISPLAYABLE, it.link)
-                    context?.startActivity(this)
-                }
-            } else if (it.link?.startsWith("http") == true || it.link?.startsWith("mailto:") == true) {
+            it.link?.let { link ->
+                if (link.startsWith("art") && link.endsWith(".html")) {
+                    Intent(context, IssueViewerActivity::class.java).apply {
+                        putExtra(KEY_FINISH_ON_BACK_PRESSED, true)
+                        putExtra(KEY_ISSUE_KEY, issueKey)
+                        putExtra(KEY_DISPLAYABLE, it.link)
+                        context?.startActivity(this)
+                    }
+                } else if (link.startsWith("http") || link.startsWith("mailto:")) {
                     openExternally(it.link)
-                } else if (link.startsWith("s") && it.link.endsWith(".pdf")) {
+                } else if (link.startsWith("s") && link.endsWith(".pdf")) {
                     viewPager2.setCurrentItem(
                         (context as PdfPagerActivity).getPositionOfPdf(it.link)
                     )
                 } else {
-                    val hint = "Don't know how to open ${link}"
+                    val hint = "Don't know how to open $link"
                     log.warn(hint)
                     Sentry.captureMessage(hint)
                 }
@@ -121,6 +122,7 @@ class MuPDFReaderView constructor(
             }
         }
     }
+
     private fun openExternally(url: String) {
         val color = ContextCompat.getColor(context, R.color.colorAccent)
         try {
