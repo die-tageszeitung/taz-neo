@@ -26,11 +26,7 @@ class RecyclerTouchListener internal constructor(
         return false
     }
 
-    override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-        // TODO Unit or super
-    }
+    override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) = Unit
+    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
 
-    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-        // TODO Unit or super
-    }
 }
