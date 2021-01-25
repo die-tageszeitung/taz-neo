@@ -35,7 +35,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
     abstract val fragmentClass: KClass<out Fragment>
 
-    private lateinit var fileHelper: StorageService
+    private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var dataService: DataService
     private lateinit var preferences: SharedPreferences
@@ -51,7 +51,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
         super.onCreate(savedInstanceState)
 
         preferences = getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
-        fileHelper = StorageService.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
 
@@ -137,7 +137,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     }
 
     private suspend fun showNavButton(navButton: Image) {
-        val navButtonPath = fileHelper.getAbsolutePath(navButton)
+        val navButtonPath = storageService.getAbsolutePath(navButton)
         if (this.navButton != navButton && navButtonPath != null) {
             this.navButton = navButton
             val imageDrawable = withContext(Dispatchers.IO) {
