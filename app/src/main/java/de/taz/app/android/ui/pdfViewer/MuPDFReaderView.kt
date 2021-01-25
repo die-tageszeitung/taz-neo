@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
@@ -11,11 +9,10 @@ import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_COME_FROM_PDF
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_FINISH_ON_BACK_PRESSED
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_pdf_pager.view.*
 
 
 class MuPDFReaderView constructor(
@@ -93,7 +90,7 @@ class MuPDFReaderView constructor(
         frame?.let {
             if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
                 Intent(context, IssueViewerActivity::class.java).apply {
-                    putExtra(KEY_COME_FROM_PDF, true)
+                    putExtra(KEY_FINISH_ON_BACK_PRESSED, true)
                     putExtra(KEY_ISSUE_KEY, issueKey)
                     putExtra(KEY_DISPLAYABLE, it.link)
                     context?.startActivity(this)

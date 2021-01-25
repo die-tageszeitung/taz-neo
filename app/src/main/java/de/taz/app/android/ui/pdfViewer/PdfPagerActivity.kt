@@ -63,7 +63,6 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                     storageService.getFile(it.pagePdf)!! to it.frameList!!
                 }
             }
-
         }
     }
 
