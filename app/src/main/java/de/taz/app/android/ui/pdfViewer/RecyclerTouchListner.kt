@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerTouchListener internal constructor(
     context: Context,
-    private val clickListener: ClickListener?
+    private val clickListener: (view: View, position: Int) -> Unit
 ) : RecyclerView.OnItemTouchListener {
 
     private val gestureDetector: GestureDetector =
@@ -20,22 +20,17 @@ class RecyclerTouchListener internal constructor(
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         val child = rv.findChildViewUnder(e.x, e.y)
-        if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-            clickListener.onClick(child, rv.getChildAdapterPosition(child))
+        if (child != null && gestureDetector.onTouchEvent(e)) {
+            clickListener.invoke(child, rv.getChildAdapterPosition(child))
         }
         return false
     }
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-
+        // TODO Unit or super
     }
 
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-
+        // TODO Unit or super
     }
-
-}
-
-internal interface ClickListener {
-    fun onClick(view: View, position: Int)
 }

@@ -66,15 +66,18 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
         navigation_recycler_view.setHasFixedSize(true)
 
         // Add Item Touch Listener
-        navigation_recycler_view.addOnItemTouchListener(RecyclerTouchListener(this, object : ClickListener {
-            override fun onClick(view: View, position: Int) {
-                if (position != viewPager2.currentItem) {
-                    viewPager2.currentItem = position
-                    pdf_drawer_layout.closeDrawers()
-                    drawerAdapter.activePosition = position
+        navigation_recycler_view.addOnItemTouchListener(
+            RecyclerTouchListener(
+                this,
+                fun(_: View, position: Int) {
+                    if (position != viewPager2.currentItem) {
+                        viewPager2.currentItem = position
+                        pdf_drawer_layout.closeDrawers()
+                        drawerAdapter.activePosition = position
+                    }
                 }
-            }
-        }))
+            )
+        )
 
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
