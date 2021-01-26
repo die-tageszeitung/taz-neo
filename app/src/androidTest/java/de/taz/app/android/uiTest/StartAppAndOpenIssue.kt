@@ -7,6 +7,7 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import de.taz.app.android.R
 import de.taz.app.android.rules.FreshAppStartRule
 import de.taz.app.android.suite.UiTestSuite
@@ -25,7 +26,7 @@ import org.junit.Test
 /**
  * Before API 24 the webview never becomes idle leading to test to become stuck, no fix is found so far
  */
-@RequiresApi(24)
+@SdkSuppress(minSdkVersion = 24)
 class StartAppAndOpenIssue {
     @get:Rule
     var activityScenarioRule = FreshAppStartRule(SplashActivity::class.java)
