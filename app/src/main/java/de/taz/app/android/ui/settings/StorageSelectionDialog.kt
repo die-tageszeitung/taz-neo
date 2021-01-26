@@ -41,8 +41,8 @@ class StorageSelectionDialog(
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             return super.getView(position, convertView, parent).apply {
 
-                val textView = this.findViewById(R.id.itemText) as? TextView
-                val radioView = this.findViewById(R.id.itemCheckbox) as? RadioButton
+                val textView = this.findViewById<TextView>(R.id.itemText)
+                val radioView = this.findViewById<RadioButton>(R.id.itemCheckbox)
                 textView?.text = options[getItem(position)]
                 itemIcon?.visibility = View.GONE
                 if (!isEnabled(position)) {
