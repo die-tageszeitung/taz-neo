@@ -45,8 +45,6 @@ class SectionPagerFragment : BaseMainFragment(
         ).get(IssueViewerViewModel::class.java)
     }
 
-    private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

@@ -14,6 +14,7 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.moment.MomentView
+import de.taz.app.android.uiSynchronization.DownloadResource
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
@@ -118,6 +119,7 @@ class MomentViewDataBinding(
     }
 
     private fun onDownloadClicked() {
+        DownloadResource.increment()
         if (::momentViewData.isInitialized) {
             boundView?.setDownloadIconForStatus(DownloadStatus.started)
             var noConnectionShown = false
@@ -142,6 +144,7 @@ class MomentViewDataBinding(
                     collection = issue,
                     onConnectionFailure = { onConnectionFailure() }
                 )
+                DownloadResource.decrement()
             }
         }
     }

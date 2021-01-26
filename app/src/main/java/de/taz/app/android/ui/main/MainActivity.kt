@@ -18,6 +18,8 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.uiSynchronization.InitializationResource
+import de.taz.app.android.uiSynchronization.decrementIfNotIdle
 import de.taz.app.android.util.Log
 
 
@@ -43,6 +45,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        InitializationResource.decrementIfNotIdle()
 
         issueRepository = IssueRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
