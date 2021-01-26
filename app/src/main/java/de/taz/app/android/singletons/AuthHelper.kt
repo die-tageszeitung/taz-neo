@@ -42,8 +42,6 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = DataService.getInstance(applicationContext)
     private val articleRepository
         get() = ArticleRepository.getInstance(applicationContext)
-    private val issueRepository
-        get() = IssueRepository.getInstance(applicationContext)
     private val toastHelper
         get() = ToastHelper.getInstance(applicationContext)
     private val firebaseHelper
@@ -111,13 +109,13 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
             authStatusLiveData.observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
+                Sentry.captureMessage("[Debug #12895] AuthStatus changed to $authStatus for token: ${token?.substring(0, 10.coerceAtMost(token!!.length))}*********")
                 when (authStatus) {
                     AuthStatus.elapsed -> {
                         toastHelper.showToast(R.string.toast_logout_elapsed)
 
                     }
                     AuthStatus.notValid -> {
-                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to notValid for token: ${token?.substring(0, 10.coerceAtMost(token!!.length))}*********")
                         elapsedButWaiting = false
                         toastHelper.showToast(R.string.toast_logout_invalid)
 
@@ -134,9 +132,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                             isPolling = false
                         }
                     }
-                    else -> {
-                        Sentry.captureMessage("[Debug #12895] AuthStatus changed to uncaught status: $authStatus of token: ${token?.substring(0, 10.coerceAtMost(token!!.length))}*********")
-                    }
+                    else -> Unit
                 }
             }
         }
