@@ -112,7 +112,8 @@
     <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehende Dateien migriert.</string>
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
-    <string name="settings_storage_external_unavailable">Externer Speicher nicht verfügbar</string>
+    <string name="settings_storage_external_unavailable">SD-Karte nicht verfügbar</string>
+    <string name="settings_storage_external_unavailable_hint">Um Ausgaben auf der SD-Karte speichern zu können, muss diese eingesteckt sein und in den Einstellung \"als intern formatieren\" ausgewählt werden</string>
 
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
