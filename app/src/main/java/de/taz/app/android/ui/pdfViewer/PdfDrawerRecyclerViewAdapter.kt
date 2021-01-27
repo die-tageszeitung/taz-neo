@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+const val DRAWER_PAGE_WIDTH = 116f
 
 class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfDrawerItemModel>) :
     RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
@@ -66,7 +67,8 @@ class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfDrawerItemModel
         // Set the image:
         CoroutineScope(Dispatchers.Default).launch {
             val img = getPreviewImageFromPdfFile(
-                file = itemList[position].pdfFile
+                file = itemList[position].pdfFile,
+                isPortrait = itemList[position].pagina.contains("-")
             )
             withContext(Dispatchers.Main){
                 holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
@@ -76,8 +78,12 @@ class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfDrawerItemModel
         }
     }
 
-    private fun getPreviewImageFromPdfFile(file: File): Bitmap {
-        val widthInDp = 116f
+    private fun getPreviewImageFromPdfFile(file: File, isPortrait: Boolean): Bitmap {
+        val widthInDp = if (isPortrait) {
+            DRAWER_PAGE_WIDTH*2
+        } else {
+            DRAWER_PAGE_WIDTH
+        }
         val width = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             widthInDp,
