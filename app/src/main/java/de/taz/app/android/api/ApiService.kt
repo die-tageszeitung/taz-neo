@@ -11,9 +11,7 @@ import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -110,22 +108,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
-        val authTokenInfo = transformToConnectivityException {
+
+        return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(user, password)
             ).data?.authentificationToken
         }
-        val token = authTokenInfo?.token
-        Sentry.captureMessage(
-            "[Debug #12895] authenticated with token: ${
-                token?.substring(
-                    0,
-                    10.coerceAtMost(token.length)
-                )
-            }*********"
-        )
-        return authTokenInfo
     }
 
     /**

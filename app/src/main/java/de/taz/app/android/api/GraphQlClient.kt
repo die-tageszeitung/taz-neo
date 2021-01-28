@@ -9,6 +9,7 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.JsonHelper
@@ -17,6 +18,7 @@ import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
+import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -100,6 +102,9 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 
             // if response carries authinfo we save it
             wrapper.data?.product?.authInfo?.let {
+                if (it.status != AuthStatus.valid) {
+                    Sentry.captureMessage("[Debug #12895] authStatus (returned from graphQl) set to ${it.status}. query was $queryBody")
+                }
                 authHelper.authStatus = it.status
             }
             wrapper
