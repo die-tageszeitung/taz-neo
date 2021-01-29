@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.ISSUE_KEY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.NightModeActivity
@@ -15,6 +14,7 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +51,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             offscreenPageLimit = 2
         }
 
-        issueKey = intent.getParcelableExtra(ISSUE_KEY)
+        issueKey = intent.getParcelableExtra(KEY_ISSUE_KEY)
         issueKey?.let { iK ->
             runBlocking(Dispatchers.IO) {
                 val issue = dataService.getIssue(iK)
@@ -66,7 +66,6 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
             log.warn("Could not fetch issue. IssueKey passed to activity?")
             finish()
         }
-
 
         drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             drawer_layout.updateDrawerLogoBoundingBox(

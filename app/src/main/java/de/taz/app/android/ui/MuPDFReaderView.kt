@@ -11,7 +11,7 @@ import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.COME_FROM_PDF
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_FINISH_ON_BACK_PRESSED
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
@@ -58,7 +58,7 @@ class MuPDFReaderView constructor(context: Context?, frames: List<Frame>, iK: Is
         frame?.let {
             if (it.link?.startsWith("art") == true && it.link.endsWith(".html")) {
                 Intent(context, IssueViewerActivity::class.java).apply {
-                    putExtra(COME_FROM_PDF, true)
+                    putExtra(KEY_FINISH_ON_BACK_PRESSED, true)
                     putExtra(KEY_ISSUE_KEY, issueKey)
                     putExtra(KEY_DISPLAYABLE, it.link)
                     context?.startActivity(this)
