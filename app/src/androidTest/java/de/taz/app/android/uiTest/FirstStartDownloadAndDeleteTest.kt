@@ -46,6 +46,9 @@ class FirstStartDownloadAndDeleteTest {
         acceptButton.perform(click())
 
         log.info("Accepted data policy")
+
+        longSettle()
+        longSettle()
         longSettle()
 
         val closeButton = onView(
