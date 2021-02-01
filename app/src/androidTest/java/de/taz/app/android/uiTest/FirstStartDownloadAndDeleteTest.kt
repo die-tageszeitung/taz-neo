@@ -39,6 +39,8 @@ class FirstStartDownloadAndDeleteTest {
         shortSettle()
         acceptButton.perform(click())
 
+        longSettle()
+
         val closeButton = onView(
             allOf(
                 withId(R.id.button_close), withText("×"),
