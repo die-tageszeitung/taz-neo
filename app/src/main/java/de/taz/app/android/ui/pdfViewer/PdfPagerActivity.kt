@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import androidx.activity.viewModels
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
