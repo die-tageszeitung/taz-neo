@@ -31,6 +31,10 @@ class StartAppAndOpenIssue {
 
         longSettle()
         longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
 
         onMomentCoverFlowItemAt(0)
             .perform(click())

@@ -1,7 +1,6 @@
 package de.taz.app.android.util
 
 import android.view.View
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -35,34 +34,6 @@ class MatchAssertionPoller(
             delay(SLEEP_MILLISECONDS)
         }
         throw TimeoutException("Timedout waiting for $interaction to become visible")
-    }
-}
-
-class PerformPoller(private val interaction: ViewInteraction, private val action: ViewAction) {
-
-    private val log by Log
-
-    companion object {
-        private const val SLEEP_MILLISECONDS = 100L
-    }
-
-
-    fun waitFor(timeout: Long): ViewInteraction = runBlocking {
-        var time = 0L
-
-        do {
-            try {
-                return@runBlocking interaction.perform(action)
-            } catch (e: Throwable) {
-                if (time > timeout) {
-                    log.error("Time out during polling $timeout ms for interaction perfom")
-                    throw e
-                }
-            }
-            delay(SLEEP_MILLISECONDS)
-            time += SLEEP_MILLISECONDS
-        } while (time < timeout)
-        return@runBlocking interaction.perform(action)
     }
 }
 

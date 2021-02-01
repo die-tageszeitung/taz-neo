@@ -77,6 +77,11 @@ class FirstStartDownloadAndDeleteTest {
 
         longSettle()
         longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
 
         var momentCoverFlowItem = onMomentCoverFlowItemAt(0)
         momentCoverFlowItem.perform(longClick())
