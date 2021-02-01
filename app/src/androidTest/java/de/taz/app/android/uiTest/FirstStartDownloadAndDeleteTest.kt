@@ -45,7 +45,7 @@ class FirstStartDownloadAndDeleteTest {
                 isDisplayed()
             )
         )
-        MatchAssertionPoller(closeButton).waitFor(2000)
+        MatchAssertionPoller(closeButton).waitFor(5000)
 
 
         closeButton.perform(click())

@@ -67,10 +67,10 @@ def versionNameToCode = { name ->
     }
     return Integer.parseInt(
             major.toString().padLeft(majorDigits, '0') +
-                    minor.toString().padLeft(minorDigits, '0') +
-                    patch.toString().padLeft(patchDigits, '0') +
-                    preReleaseTypeNumber.toString().padLeft(preReleaseTypeDigits, '0') +
-                    preReleaseVersion.toString().padLeft(preReleaseVersionDigits, '0')
+                minor.toString().padLeft(minorDigits, '0') +
+                patch.toString().padLeft(patchDigits, '0') +
+                preReleaseTypeNumber.toString().padLeft(preReleaseTypeDigits, '0') +
+                preReleaseVersion.toString().padLeft(preReleaseVersionDigits, '0')
     )
 }
 
