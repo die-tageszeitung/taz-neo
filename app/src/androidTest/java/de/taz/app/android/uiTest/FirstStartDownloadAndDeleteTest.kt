@@ -81,15 +81,7 @@ class FirstStartDownloadAndDeleteTest {
         var momentCoverFlowItem = onMomentCoverFlowItemAt(0)
         momentCoverFlowItem.perform(longClick())
 
-
-        val textView = onView(
-            allOf(
-                withId(R.id.fragment_bottom_sheet_issue_delete), withText(R.string.fragment_bottom_sheet_issue_delete),
-                withParent(withParent(withId(R.id.design_bottom_sheet))),
-                isDisplayed()
-            )
-        )
-
+        longSettle()
         longSettle()
 
         val materialTextView2 = onView(
