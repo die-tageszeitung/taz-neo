@@ -18,6 +18,9 @@ import org.junit.Test
 @LargeTest
 @UiTestSuite
 class FirstStartDownloadAndDeleteTest {
+
+    private val log by Log
+
     @get:Rule
     var activityScenarioRule = FreshAppStartRule(SplashActivity::class.java)
 
@@ -39,6 +42,7 @@ class FirstStartDownloadAndDeleteTest {
         shortSettle()
         acceptButton.perform(click())
 
+        log.info("Accepted data policy")
         longSettle()
 
         val closeButton = onView(
@@ -49,14 +53,19 @@ class FirstStartDownloadAndDeleteTest {
         )
         MatchAssertionPoller(closeButton).waitFor(5000)
 
+        log.info("Clicked x at onboarding")
 
         closeButton.perform(click())
 
+        log.info("Waiting for Coverflow")
+
         longSettle()
         longSettle()
         longSettle()
         longSettle()
 
+
+        log.info("Clicking on download")
         val constraintLayout = onView(
             allOf(
                 withId(R.id.view_moment_download_icon_wrapper),
@@ -83,12 +92,15 @@ class FirstStartDownloadAndDeleteTest {
         longSettle()
         longSettle()
 
+
+        log.info("Opening bottom sheet")
         var momentCoverFlowItem = onMomentCoverFlowItemAt(0)
         momentCoverFlowItem.perform(longClick())
 
         longSettle()
         longSettle()
 
+        log.info("Clicking delete")
         val materialTextView2 = onView(
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_delete), withText(R.string.fragment_bottom_sheet_issue_delete),
@@ -108,12 +120,15 @@ class FirstStartDownloadAndDeleteTest {
 
         // Long click listener needs time to be responsive again, did not find a proper way to do it with idling resources
         longSettle()
+        longSettle()
 
         onView(withId(R.id.fragment_cover_flow_grid)).perform(swipeRight())
 
         momentCoverFlowItem = onMomentCoverFlowItemAt(0)
         momentCoverFlowItem.perform(longClick())
 
+
+        log.info("Waiting for botom sheet")
         val sheetDownloadItem = onView(
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_download),
@@ -124,6 +139,7 @@ class FirstStartDownloadAndDeleteTest {
         )
         MatchAssertionPoller(sheetDownloadItem).waitFor(2000)
 
+        log.info("Clicking on download")
         val materialTextView3 = onView(
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_download),
