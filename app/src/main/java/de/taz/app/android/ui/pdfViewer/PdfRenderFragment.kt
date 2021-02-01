@@ -9,45 +9,24 @@ import android.view.*
 import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
-import androidx.viewpager2.widget.ViewPager2
+import androidx.fragment.app.activityViewModels
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Frame
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
-import java.io.File
 
 
-class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
+class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     val log by Log
-    var pdfPage: File? = null
-    var frameList: List<Frame> = emptyList()
-    lateinit var pdfReaderView: MuPDFReaderView
-    lateinit var issueKey: IssueKey
-    lateinit var viewPager2: ViewPager2
-
-    companion object {
-        fun createInstance(
-            pdfPageWithFrameList: Pair<File, List<Frame>>,
-            issueKey: IssueKey,
-            viewPager2: ViewPager2
-        ): PdfRenderFragment {
-            val fragment = PdfRenderFragment()
-            fragment.pdfPage = pdfPageWithFrameList.first
-            fragment.frameList = pdfPageWithFrameList.second
-            fragment.issueKey = issueKey
-            fragment.viewPager2 = viewPager2
-            return fragment
-        }
-    }
+    private lateinit var pdfReaderView: MuPDFReaderView
+    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -57,6 +36,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_pdf_render, container, false)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
+        val pdfPage = pdfPagerViewModel.listOfPdfWithFrameList[position].first
         pdfPage?.let {
             val core = MuPDFCore(it.path)
             pdfReaderView = MuPDFReaderView(context)
@@ -73,29 +53,30 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             showFramesIfPossible(clickedPair.first, clickedPair.second)
             true
         } else {
-            viewPager2.isUserInputEnabled = pdfReaderView.onRightBoarder || pdfReaderView.onLeftBoarder
+            pdfPagerViewModel.toggleViewPagerInput(
+                pdfReaderView.onRightBoarder || pdfReaderView.onLeftBoarder
+            )
             false
         }
     }
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
+        val frameList =  pdfPagerViewModel.listOfPdfWithFrameList[position].second
         val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
         frame?.let {
             it.link?.let { link ->
                 if (link.startsWith("art") && link.endsWith(".html")) {
                     Intent(context, IssueViewerActivity::class.java).apply {
                         putExtra(IssueViewerActivity.KEY_FINISH_ON_BACK_PRESSED, true)
-                        putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+                        putExtra(IssueViewerActivity.KEY_ISSUE_KEY, pdfPagerViewModel.issueKey)
                         putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.link)
                         context?.startActivity(this)
                     }
                 } else if (link.startsWith("http") || link.startsWith("mailto:")) {
                     openExternally(it.link)
                 } else if (link.startsWith("s") && link.endsWith(".pdf")) {
-                    viewPager2.setCurrentItem(
-                        (context as PdfPagerActivity).getPositionOfPdf(it.link)
-                    )
+                    pdfPagerViewModel.goToPdfPage(it.link)
                 } else {
                     val hint = "Don't know how to open $link"
                     log.warn(hint)
