@@ -48,7 +48,8 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
     lateinit var drawerLayout: DrawerLayout
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
     private lateinit var imageRepository: ImageRepository
-    protected val pdfPagerViewModel: PdfPagerViewModel by viewModels()
+
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +93,7 @@ class PdfPagerActivity: NightModeActivity(R.layout.activity_pdf_pager) {
                     super.onPageSelected(position)
                 }
             })
+            pdfPagerViewModel.setViewPager(this)
         }
 
         issueKey = intent.getParcelableExtra(KEY_ISSUE_KEY)!!
