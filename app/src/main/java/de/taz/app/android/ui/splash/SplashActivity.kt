@@ -26,7 +26,6 @@ import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
-import de.taz.app.android.uiSynchronization.InitializationResource
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
@@ -57,7 +56,6 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        InitializationResource.increment()
         dataService = DataService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)

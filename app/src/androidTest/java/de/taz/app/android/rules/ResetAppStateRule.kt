@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.internal.util.Checks
 import androidx.test.platform.app.InstrumentationRegistry
+import de.taz.app.android.PREFERENCES_TAZAPICSS
+import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import org.junit.rules.ExternalResource
 import java.io.File
 
@@ -90,20 +92,9 @@ class FreshAppStartRule<A : Activity?> : ExternalResource {
             }
     }
 
-    private fun clearSettings() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val root: File = context.filesDir.parentFile!!
-        val sharedPreferencesFileNames = File(root, "shared_prefs").list() ?: emptyArray<String>()
-        for (fileName in sharedPreferencesFileNames) {
-            context
-                .getSharedPreferences(fileName.replace(".xml", ""), Context.MODE_PRIVATE).edit()
-                .clear().commit()
-        }
-    }
 
     @Throws(Throwable::class)
     override fun before() {
-        clearSettings()
         scenario = scenarioSupplier.get()
     }
 

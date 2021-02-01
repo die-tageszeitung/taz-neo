@@ -1,7 +1,6 @@
 package de.taz.app.android.uiTest
 
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -11,12 +10,8 @@ import de.taz.app.android.R
 import de.taz.app.android.rules.FreshAppStartRule
 import de.taz.app.android.suite.UiTestSuite
 import de.taz.app.android.ui.splash.SplashActivity
-import de.taz.app.android.uiSynchronization.DownloadResource
-import de.taz.app.android.uiSynchronization.InitializationResource
 import de.taz.app.android.util.*
 import org.hamcrest.Matchers.allOf
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -27,20 +22,12 @@ class FirstStartDownloadAndDeleteTest {
     @get:Rule
     var activityScenarioRule = FreshAppStartRule(SplashActivity::class.java)
 
-    @Before
-    fun setup() {
-        IdlingRegistry.getInstance().register(InitializationResource)
-        IdlingRegistry.getInstance().register(DownloadResource)
-    }
-
-    @After
-    fun tearDown() {
-        IdlingRegistry.getInstance().unregister(InitializationResource)
-        IdlingRegistry.getInstance().unregister(DownloadResource)
-    }
-
     @Test
     fun firstStartDownloadAndDeleteTest() {
+
+        longSettle()
+        longSettle()
+
         onView(withId(R.id.data_policy_page_scroll_view))
             .perform(swipeUp())
         val acceptButton = onView(withId(R.id.data_policy_accept_button))

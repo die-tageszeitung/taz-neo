@@ -19,8 +19,6 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
-import de.taz.app.android.uiSynchronization.InitializationResource
-import de.taz.app.android.uiSynchronization.decrementIfNotIdle
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_data_policy.*
@@ -114,7 +112,6 @@ class WelcomeActivity : AppCompatActivity() {
                 duration = LOADING_SCREEN_FADE_OUT_TIME
                 withEndAction {
                     welcome_loading_screen?.visibility = View.GONE
-                    InitializationResource.decrementIfNotIdle()
                 }
             }
         }
