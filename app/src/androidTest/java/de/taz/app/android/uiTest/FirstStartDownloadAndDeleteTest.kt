@@ -3,7 +3,6 @@ package de.taz.app.android.uiTest
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import de.taz.app.android.R
@@ -27,6 +26,9 @@ class FirstStartDownloadAndDeleteTest {
 
         longSettle()
         longSettle()
+
+        val dataPolicyContent = onView(withId(R.id.data_policy_fullscreen_content))
+        MatchAssertionPoller(dataPolicyContent, isDisplayed()).waitFor(10000)
 
         onView(withId(R.id.data_policy_page_scroll_view))
             .perform(swipeUp())
@@ -80,7 +82,7 @@ class FirstStartDownloadAndDeleteTest {
 
         val textView = onView(
             allOf(
-                withId(R.id.fragment_bottom_sheet_issue_delete), withText("Ausgabe löschen"),
+                withId(R.id.fragment_bottom_sheet_issue_delete), withText(R.string.fragment_bottom_sheet_issue_delete),
                 withParent(withParent(withId(R.id.design_bottom_sheet))),
                 isDisplayed()
             )
@@ -88,11 +90,9 @@ class FirstStartDownloadAndDeleteTest {
 
         longSettle()
 
-        textView.check(matches(withText("Ausgabe löschen")))
-
         val materialTextView2 = onView(
             allOf(
-                withId(R.id.fragment_bottom_sheet_issue_delete), withText("Ausgabe löschen"),
+                withId(R.id.fragment_bottom_sheet_issue_delete), withText(R.string.fragment_bottom_sheet_issue_delete),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.design_bottom_sheet),
@@ -118,18 +118,17 @@ class FirstStartDownloadAndDeleteTest {
         val sheetDownloadItem = onView(
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_download),
-                withText("Ausgabe herunterladen"),
+                withText(R.string.fragment_bottom_sheet_issue_download),
                 withParent(withParent(withId(R.id.design_bottom_sheet))),
                 isDisplayed()
             )
         )
         MatchAssertionPoller(sheetDownloadItem).waitFor(2000)
-        sheetDownloadItem.check(matches(withText("Ausgabe herunterladen")))
 
         val materialTextView3 = onView(
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_download),
-                withText("Ausgabe herunterladen"),
+                withText(R.string.fragment_bottom_sheet_issue_download),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.design_bottom_sheet),

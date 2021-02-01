@@ -11,7 +11,6 @@ import de.taz.app.android.R
 import de.taz.app.android.suite.UiTestSuite
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.*
-import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
 
