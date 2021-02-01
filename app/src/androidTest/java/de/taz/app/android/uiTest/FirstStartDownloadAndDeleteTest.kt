@@ -29,6 +29,9 @@ class FirstStartDownloadAndDeleteTest {
 
         longSettle()
         longSettle()
+        longSettle()
+        longSettle()
+        longSettle()
 
         val dataPolicyContent = onView(withId(R.id.data_policy_fullscreen_content))
         MatchAssertionPoller(dataPolicyContent, isDisplayed()).waitFor(10000)
