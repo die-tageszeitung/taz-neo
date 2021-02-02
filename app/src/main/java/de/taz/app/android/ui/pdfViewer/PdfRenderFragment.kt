@@ -28,17 +28,13 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
     private lateinit var pdfReaderView: MuPDFReaderView
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_pdf_render, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
-        val pdfPage = pdfPagerViewModel.listOfPdfWithFrameList[position].first
-        pdfPage.let {
-            val core = MuPDFCore(it.path)
+        pdfPagerViewModel.listOfPdfWithFrameList.observe(viewLifecycleOwner) {
+            val pdfPage = it[position].first
+            val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)
             pdfReaderView.clickCoordinatesListener = { coords ->
@@ -49,7 +45,6 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
             }
             muPdfWrapper.addView(pdfReaderView)
         }
-        return view
     }
 
 
