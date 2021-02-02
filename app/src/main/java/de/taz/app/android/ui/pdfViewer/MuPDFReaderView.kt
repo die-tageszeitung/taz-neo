@@ -5,24 +5,34 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import com.artifex.mupdf.viewer.ReaderView
 
+enum class ViewBorder {
+    LEFT,
+    RIGHT,
+    BOTH,
+    NONE
+}
+
 class MuPDFReaderView constructor(
     context: Context?
 ) : ReaderView(
     context
 ) {
-    var onLeftBoarder = false
-    var onRightBoarder = true
+    var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
+    var onBorderListener: ((ViewBorder) -> Unit)? = null
 
-    val singleTapDetector =
-        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                return true
-            }
-        })
-    
+    override fun onSingleTapUp(event: MotionEvent): Boolean {
+        clickCoordinatesListener?.invoke(calculateClickCoordinates(event.x, event.y))
+        return true
+    }
+
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        onLeftBoarder = displayedView.left >= 0
-        onRightBoarder = displayedView.right <= width
+        val border = when {
+            displayedView.left >= 0 && displayedView.right <= width -> ViewBorder.BOTH
+            displayedView.left >= 0 -> ViewBorder.LEFT
+            displayedView.right <= width -> ViewBorder.RIGHT
+            else -> ViewBorder.NONE
+        }
+        onBorderListener?.invoke(border)
         return super.onInterceptTouchEvent(ev)
     }
 
@@ -32,7 +42,7 @@ class MuPDFReaderView constructor(
      * If so, the according article will be shown.
      * returns Pair<Float, Float> as (x,y)
      */
-    fun calculateClickCoordinates(clickedX: Float, clickedY: Float): Pair<Float, Float> {
+    private fun calculateClickCoordinates(clickedX: Float, clickedY: Float): Pair<Float, Float> {
         // Cet the scale factor from dividing total image by viewed part (eg. 2.0):
         val scaleX: Float = displayedView.width / width.toFloat()
         val scaleY: Float = displayedView.height / height.toFloat()

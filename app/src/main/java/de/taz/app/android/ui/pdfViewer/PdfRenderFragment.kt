@@ -37,28 +37,21 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
         val view = inflater.inflate(R.layout.fragment_pdf_render, container, false)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
         val pdfPage = pdfPagerViewModel.listOfPdfWithFrameList[position].first
-        pdfPage?.let {
+        pdfPage.let {
             val core = MuPDFCore(it.path)
             pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)
-            pdfReaderView.setOnTouchListener {_, event -> customSingleTapUpHandler(event)}
+            pdfReaderView.clickCoordinatesListener = { coords ->
+                showFramesIfPossible(coords.first, coords.second)
+            }
+            pdfReaderView.onBorderListener = { border ->
+                pdfPagerViewModel.toggleViewPagerInput(border != ViewBorder.NONE)
+            }
             muPdfWrapper.addView(pdfReaderView)
         }
         return view
     }
 
-    private fun customSingleTapUpHandler(motionEvent: MotionEvent): Boolean {
-        return if (pdfReaderView.singleTapDetector.onTouchEvent(motionEvent)) {
-            val clickedPair = pdfReaderView.calculateClickCoordinates(motionEvent.x, motionEvent.y)
-            showFramesIfPossible(clickedPair.first, clickedPair.second)
-            true
-        } else {
-            pdfPagerViewModel.toggleViewPagerInput(
-                pdfReaderView.onRightBoarder || pdfReaderView.onLeftBoarder
-            )
-            false
-        }
-    }
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
