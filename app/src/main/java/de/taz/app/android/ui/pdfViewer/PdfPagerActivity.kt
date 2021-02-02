@@ -17,9 +17,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.monkey.getViewModel
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
@@ -68,23 +66,29 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
         // Instantiate a ViewPager
         viewPager2 = findViewById(R.id.activity_pdf_pager)
 
-        viewPager2.apply {
-            adapter = PdfPagerAdapter(this@PdfPagerActivity)
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            offscreenPageLimit = 2
+        pdfPagerViewModel.pdfDataListModel.observe(this, {
+            if (it.isNotEmpty()) {
+                viewPager2.apply {
+                    adapter = PdfPagerAdapter(this@PdfPagerActivity)
+                    reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+                    offscreenPageLimit = 2
 
-            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    log.debug("page selected: $position")
-                    drawerAdapter.activePosition = position
-                    super.onPageSelected(position)
+                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            log.debug("page selected: $position")
+                            drawerAdapter.activePosition = position
+                            super.onPageSelected(position)
+                        }
+                    })
                 }
-            })
-        }
+            }
+        })
+
 
         pdfPagerViewModel.userInputEnabled.observe(this, {
             viewPager2.isUserInputEnabled = it
         })
+
         pdfPagerViewModel.currentItem.observe(this, {
             viewPager2.currentItem = it
         })
@@ -125,7 +129,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
 
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
-        initDrawerAdapter(pdfPagerViewModel.listOfPdfWithTitleAndPagina)
+        pdfPagerViewModel.pdfDataListModel.observe(this, {
+            initDrawerAdapter(it)
+        })
     }
 
     override fun onResume() {
@@ -154,7 +160,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
         }
     }
 
-    private fun initDrawerAdapter(items: List<PdfDrawerItemModel>) {
+    private fun initDrawerAdapter(items: List<PdfPageListModel>) {
         drawerAdapter = PdfDrawerRecyclerViewAdapter(items)
         navigation_recycler_view.adapter = drawerAdapter
     }
@@ -204,7 +210,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
         }
 
         override fun getItemCount(): Int {
-            return pdfPagerViewModel.listOfPdfWithFrameList.size
+            return pdfPagerViewModel.getAmountOfPdfPages()
         }
     }
 }

@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -28,17 +27,16 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
     private lateinit var pdfReaderView: MuPDFReaderView
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
-        pdfPagerViewModel.listOfPdfWithFrameList.observe(viewLifecycleOwner) {
-            val pdfPage = it[position].first
+        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) {
+            val pdfPage = it[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)
-            pdfReaderView.clickCoordinatesListener = { coords ->
-                showFramesIfPossible(coords.first, coords.second)
+            pdfReaderView.clickCoordinatesListener = { coordinates ->
+                showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
                 pdfPagerViewModel.toggleViewPagerInput(border != ViewBorder.NONE)
@@ -50,30 +48,32 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
-        val frameList =  pdfPagerViewModel.listOfPdfWithFrameList[position].second
-        val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-        frame?.let {
-            it.link?.let { link ->
-                if (link.startsWith("art") && link.endsWith(".html")) {
-                    Intent(context, IssueViewerActivity::class.java).apply {
-                        putExtra(IssueViewerActivity.KEY_FINISH_ON_BACK_PRESSED, true)
-                        putExtra(IssueViewerActivity.KEY_ISSUE_KEY, pdfPagerViewModel.issueKey)
-                        putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.link)
-                        context?.startActivity(this)
+        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { list ->
+            val frameList = list[position].frameList
+            val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
+            frame?.let {
+                it.link?.let { link ->
+                    if (link.startsWith("art") && link.endsWith(".html")) {
+                        Intent(context, IssueViewerActivity::class.java).apply {
+                            putExtra(IssueViewerActivity.KEY_FINISH_ON_BACK_PRESSED, true)
+                            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, pdfPagerViewModel.issueKey)
+                            putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.link)
+                            context?.startActivity(this)
+                        }
+                    } else if (link.startsWith("http") || link.startsWith("mailto:")) {
+                        openExternally(it.link)
+                    } else if (link.startsWith("s") && link.endsWith(".pdf")) {
+                        pdfPagerViewModel.goToPdfPage(it.link)
+                    } else {
+                        val hint = "Don't know how to open $link"
+                        log.warn(hint)
+                        Sentry.captureMessage(hint)
                     }
-                } else if (link.startsWith("http") || link.startsWith("mailto:")) {
-                    openExternally(it.link)
-                } else if (link.startsWith("s") && link.endsWith(".pdf")) {
-                    pdfPagerViewModel.goToPdfPage(it.link)
-                } else {
-                    val hint = "Don't know how to open $link"
-                    log.warn(hint)
-                    Sentry.captureMessage(hint)
                 }
-            }
-        } ?: run {
-            frameList.forEach {
-                log.debug("possible frame: $it")
+            } ?: run {
+                frameList.forEach {
+                    log.debug("possible frame: $it")
+                }
             }
         }
     }

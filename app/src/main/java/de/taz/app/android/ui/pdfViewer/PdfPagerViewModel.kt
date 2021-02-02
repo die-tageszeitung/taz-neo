@@ -3,25 +3,19 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
-import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.io.File
 
 class PdfPagerViewModel(
     application: Application,
-    private val issueKey: IssueKey
+    val issueKey: IssueKey
 ) : AndroidViewModel(application) {
     private val log by Log
 
@@ -32,8 +26,7 @@ class PdfPagerViewModel(
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val currentItem = MutableLiveData(0)
-    var listOfPdfWithFrameList: MutableLiveData<List<Pair<File, List<Frame>>>> = MutableLiveData(emptyList())
-    var listOfPdfWithTitleAndPagina: List<PdfDrawerItemModel> = emptyList()
+    var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -44,21 +37,21 @@ class PdfPagerViewModel(
                 log.warn(hint)
                 Sentry.captureMessage(hint)
             } else {
-                listOfPdfWithFrameList.postValue(issue.pageList.map {
-                    storageService.getFile(it.pagePdf)!! to it.frameList!!
-                })
-                listOfPdfWithTitleAndPagina = issue.pageList.map {
-                    PdfDrawerItemModel(
+                pdfDataListModel.postValue(issue.pageList.map {
+                    PdfPageListModel(
                         storageService.getFile(it.pagePdf)!!,
+                        it.frameList!!,
                         it.title!!,
                         it.pagina!!
                     )
-                }
+                })
             }
         }
     }
 
-
+    fun getAmountOfPdfPages() : Int {
+        return pdfDataListModel.value?.size ?: 29
+    }
 
     fun setDefaultDrawerNavButton() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -75,6 +68,6 @@ class PdfPagerViewModel(
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
-        return listOfPdfWithFrameList.indexOfFirst { it.first.name == fileName }
+        return pdfDataListModel.value?.indexOfFirst { it.pdfFile.name == fileName } ?: 0
     }
 }
