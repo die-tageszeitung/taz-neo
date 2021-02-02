@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
@@ -11,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
-import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
@@ -22,7 +22,6 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_data_policy.*
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,7 +41,6 @@ class DataPolicyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
         storageService = StorageService.getInstance(applicationContext)
@@ -130,8 +128,13 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            data_policy_loading_screen?.animate()?.alpha(0f)?.duration =
-                LOADING_SCREEN_FADE_OUT_TIME
+            data_policy_loading_screen?.animate()?.apply {
+                alpha(0f)
+                duration = LOADING_SCREEN_FADE_OUT_TIME
+                withEndAction {
+                    data_policy_loading_screen?.visibility = View.GONE
+                }
+            }
         }
     }
 }

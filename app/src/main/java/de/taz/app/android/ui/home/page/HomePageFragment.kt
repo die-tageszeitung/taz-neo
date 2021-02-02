@@ -11,11 +11,13 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
@@ -31,9 +33,10 @@ abstract class HomePageFragment(
     private val log by Log
 
     private lateinit var apiService: ApiService
-    private lateinit var issueRepository: IssueRepository
+    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var feedRepository: FeedRepository
+    private lateinit var toastHelper: ToastHelper
 
     private var momentChangedListener: MomentChangedListener? = null
 
@@ -46,18 +49,20 @@ abstract class HomePageFragment(
         super.onCreate(savedInstanceState)
 
         try {
-            val feed = runBlocking(Dispatchers.IO) { feedRepository.get(DISPLAYED_FEED) }
+            val feed = runBlocking(Dispatchers.IO) { dataService.getFeedByName(DISPLAYED_FEED, retryOnFailure = true) }
             viewModel.setFeed(feed!!)
         } catch (e: NullPointerException) {
-            log.error("Illegal State! This fragment expects $DISPLAYED_FEED feed to be cached in database")
+            log.error("Failed to retrieve feed $DISPLAYED_FEED, cannot show anything")
             Sentry.captureException(e)
+            toastHelper.showSomethingWentWrongToast()
         }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
-        issueRepository = IssueRepository.getInstance(context.applicationContext)
+        dataService = DataService.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance()
         authHelper = AuthHelper.getInstance(context.applicationContext)
         feedRepository = FeedRepository.getInstance(context.applicationContext)
     }

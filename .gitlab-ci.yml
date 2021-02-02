@@ -5,6 +5,7 @@ variables:
   SENTRY_ENVIRONMENT: official
 
 stages:
+  - buildTests
   - test
   - build
   - publish
@@ -68,6 +69,10 @@ lint:
   script:
     - ./gradlew --no-daemon --console=plain lintNonFreeTazDebug lintNonfreeTazRelease
 
+  artifacts:
+    paths:
+      - app/build/outputs/
+
 unitTests:
   extends: .prepareEnv
   interruptible: true
@@ -80,9 +85,24 @@ integrationTests:
   stage: test
   script:
     - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
-    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazDebugAndroidTest
+    - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=de.taz.app.android.suite.UiTestSuite
   tags:
     - powerhouse
+
+
+uiTests:
+  extends: .prepareEnv
+  stage: test
+  variables:
+    SENTRY_ENVIRONMENT: automatedTests
+  script:
+    - ./gradlew --no-daemon -Pci --console=plain :app:assembleNonfreeTazDebug
+    - ./gradlew --no-daemon -Pci --console=plain :app:assembleNonfreeTazDebugAndroidTest
+    - ./scripts/ui-tests-bitbar.sh app/build/outputs/apk/nonfreeTaz/debug/app-nonfree-taz-debug.apk app/build/outputs/apk/androidTest/nonfreeTaz/debug/app-nonfree-taz-debug-androidTest.apk 207052460
+  only:
+    - merge_requests
+    - master
+
 
 publishNextcloud:
   cache: {}
