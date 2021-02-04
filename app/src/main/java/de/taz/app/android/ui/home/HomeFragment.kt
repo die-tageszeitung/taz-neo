@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,8 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.data.DataService
@@ -21,6 +21,7 @@ import de.taz.app.android.ui.home.page.HomePageViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,7 +44,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             lifecycle
         )
 
-        // reduce viewpager2 sensitivity to make the view less finnicky
+        // reduce viewpager2 sensitivity to make the view less finicky
         feed_archive_pager.reduceDragSensitivity(6)
         feed_archive_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -74,6 +75,21 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             }
         }
         coverflow_refresh_layout?.reduceDragSensitivity(10)
+
+        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)?.let { menuItem ->
+
+            val currentValue = SharedPreferenceBooleanLiveData(
+                requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
+                SETTINGS_SHOW_PDF_AS_MOMENT,
+                false
+            ).value
+
+            if (currentValue) {
+                menuItem.setIcon(R.drawable.ic_app_view)
+            } else {
+                menuItem.setIcon(R.drawable.ic_pdf_view)
+            }
+        }
     }
 
     private suspend fun onRefresh() {
@@ -123,6 +139,18 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                     skipToFirst = true
                 )
             }
+            R.id.bottom_navigation_action_pdf -> {
+                val currentValue =  SharedPreferenceBooleanLiveData(
+                    requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE), SETTINGS_SHOW_PDF_AS_MOMENT, false
+                ).value
+                if (currentValue) {
+                    menuItem.setIcon(R.drawable.ic_app_view)
+                } else {
+                    menuItem.setIcon(R.drawable.ic_pdf_view)
+                }
+                togglePreferenceToShowPdfAsMoment(!currentValue)
+                activity?.recreate()
+            }
         }
     }
 
@@ -143,5 +171,14 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
             R.id.bottom_navigation_action_home
         )?.setIcon(R.drawable.ic_home)
+    }
+
+    private fun togglePreferenceToShowPdfAsMoment(value: Boolean) {
+        val sharedPreferences =
+            requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+
+        SharedPreferenceBooleanLiveData(
+            sharedPreferences, SETTINGS_SHOW_PDF_AS_MOMENT, false
+        ).postValue(value)
     }
 }

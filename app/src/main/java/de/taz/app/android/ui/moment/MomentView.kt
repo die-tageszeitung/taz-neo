@@ -15,6 +15,7 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.MomentType
 import de.taz.app.android.ui.home.page.MomentViewData
+import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 
@@ -231,6 +232,15 @@ class MomentView @JvmOverloads constructor(
             MomentType.STATIC -> {
                 showStaticImage(uri, glideRequestManager)
                 moment_image?.apply {
+                    hideProgressBar()
+                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
+                }
+            }
+
+            MomentType.PDF_FRONT_PAGE-> {
+                val img = MuPDFThumbnail(uri).thumbnail(800)
+                moment_image?.apply {
+                    setImageBitmap(img)
                     hideProgressBar()
                     animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
                 }

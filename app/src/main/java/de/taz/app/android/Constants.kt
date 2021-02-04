@@ -26,7 +26,6 @@ const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
 const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 const val PREFERENCES_LOG_TRACE_LENGTH = 100
-const val CLICK_ACTION_THRESHOLD_TIME = 200
 
 // Settings
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
@@ -35,6 +34,7 @@ val SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
 const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
+const val SETTINGS_SHOW_PDF_AS_MOMENT = "show_pdf_as_moment"
 
 // General Preferences
 const val DRAWER_SHOW_NUMBER = 1

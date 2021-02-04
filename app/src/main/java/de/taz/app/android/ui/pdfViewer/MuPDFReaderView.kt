@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.view.GestureDetector
 import android.view.MotionEvent
 import com.artifex.mupdf.viewer.ReaderView
 

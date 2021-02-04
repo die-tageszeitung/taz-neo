@@ -30,8 +30,8 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
-        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) {
-            val pdfPage = it[position].pdfFile
+        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { pageList ->
+            val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)

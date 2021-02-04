@@ -89,6 +89,6 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
             widthInDp,
             context.resources.displayMetrics
         ).toInt()
-        return MuPDFThumbnail(file.path).thumbOfFirstPage(width)
+        return MuPDFThumbnail(file.path).thumbnail(width)
     }
 }

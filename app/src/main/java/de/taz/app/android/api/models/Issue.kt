@@ -5,7 +5,6 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.singletons.StorageService
 
 import java.util.*
 

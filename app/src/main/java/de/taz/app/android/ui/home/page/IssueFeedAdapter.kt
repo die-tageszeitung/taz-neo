@@ -13,11 +13,12 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.PREFERENCES_AUTH
 import java.lang.IllegalStateException
 import java.util.*
 
 enum class MomentType {
-    ANIMATED, STATIC
+    ANIMATED, STATIC, PDF_FRONT_PAGE
 }
 
 data class MomentViewData(
@@ -37,13 +38,15 @@ abstract class IssueFeedAdapter(
     @LayoutRes private val itemLayoutRes: Int,
     private val feed: Feed,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: MomentViewActionListener
+    private val onMomentViewActionListener: MomentViewActionListener,
+    private val showPdfAsMoment: Boolean = false
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
     private val log by Log
 
     abstract val dateFormat: DateFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
@@ -86,7 +89,8 @@ abstract class IssueFeedAdapter(
                 IssuePublication(feed.name, simpleDateFormat.format(date)),
                 dateFormat = dateFormat,
                 glideRequestManager = glideRequestManager,
-                onMomentViewActionListener
+                onMomentViewActionListener,
+                showPdfAsMoment
             ).apply {
                 bindView(itemView.findViewById(R.id.fragment_cover_flow_item))
             }

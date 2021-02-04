@@ -6,7 +6,9 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
+import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.home.page.HomePageFragment
@@ -40,13 +42,19 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             }
         }
 
+        val showPdfAsMoment = requireContext().getSharedPreferences(
+            PREFERENCES_GENERAL,
+            Context.MODE_PRIVATE
+        )?.getBoolean(SETTINGS_SHOW_PDF_AS_MOMENT, false) == true
+
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this@ArchiveFragment)
             adapter = ArchiveAdapter(
                 this@ArchiveFragment,
                 R.layout.fragment_archive_item,
                 feed,
-                requestManager
+                requestManager,
+                showPdfAsMoment
             )
             fragment_archive_grid.adapter = adapter
         }

@@ -10,11 +10,8 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.moment.MomentView
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
@@ -30,8 +27,8 @@ class MomentViewDataBinding(
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: MomentViewActionListener,
+    private val showPdfAsMoment: Boolean = false
 ) {
-    private val log by Log
 
     private val dataService = DataService.getInstance()
     private val feedRepository = FeedRepository.getInstance()
@@ -64,16 +61,25 @@ class MomentViewDataBinding(
             val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
                 storageService.getFileUri(it)
             }
+            val pdfFileEntry = dataService.getIssue(issueKey)?.pageList?.first()?.pagePdf
+            val pdfMomentFilePath = pdfFileEntry?.let {
+                storageService.getFile(pdfFileEntry)?.path
+            }
 
-            val momentType = if (animatedMomentUri != null) {
-                MomentType.ANIMATED
-            } else {
-                MomentType.STATIC
+            val momentType = if (showPdfAsMoment) {
+                MomentType.PDF_FRONT_PAGE
+            }  else {
+                if (animatedMomentUri != null) {
+                    MomentType.ANIMATED
+                } else {
+                    MomentType.STATIC
+                }
             }
 
             val momentUri = when (momentType) {
                 MomentType.ANIMATED -> animatedMomentUri
                 MomentType.STATIC -> momentImageUri
+                MomentType.PDF_FRONT_PAGE -> pdfMomentFilePath
             }
 
             momentViewData = MomentViewData(

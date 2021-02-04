@@ -14,15 +14,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
+import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -64,7 +66,6 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             }
 
-
             // transform the visible children visually
             snapHelper.apply {
                 attachToRecyclerView(fragment_cover_flow_grid)
@@ -88,6 +89,11 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
             }
         }
 
+        val showPdfAsMoment = requireContext().getSharedPreferences(
+            PREFERENCES_GENERAL,
+            Context.MODE_PRIVATE
+        )?.getBoolean(SETTINGS_SHOW_PDF_AS_MOMENT, false) == true
+
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this@CoverflowFragment)
             val fresh = !::adapter.isInitialized
@@ -96,7 +102,8 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 R.layout.fragment_cover_flow_item,
                 feed,
                 requestManager,
-                CoverflowMomentActionListener(this@CoverflowFragment, dataService)
+                CoverflowMomentActionListener(this@CoverflowFragment, dataService),
+                showPdfAsMoment
             )
             fragment_cover_flow_grid.adapter = adapter
             // If fragment was just constructed skip to issue in intent

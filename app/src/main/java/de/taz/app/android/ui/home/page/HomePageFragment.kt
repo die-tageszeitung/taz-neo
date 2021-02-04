@@ -7,9 +7,10 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.PREFERENCES_GENERAL
+import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
@@ -19,6 +20,8 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -94,9 +97,22 @@ abstract class HomePageFragment(
     }
 
     fun onItemSelected(issueKey: IssueKey) {
-        Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
-            startActivity(this)
+        val inPdfMode = SharedPreferenceBooleanLiveData(
+            requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
+            SETTINGS_SHOW_PDF_AS_MOMENT,
+            false
+        ).value
+
+        if (inPdfMode) {
+            Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
+                startActivity(this)
+            }
+        } else {
+            Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+                putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+                startActivity(this)
+            }
         }
     }
 

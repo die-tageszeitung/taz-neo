@@ -15,8 +15,16 @@ class CoverflowAdapter(
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
     glideRequestManager: RequestManager,
-    onMomentViewActionListener: MomentViewActionListener
-) : IssueFeedAdapter(fragment, itemLayoutRes, feed, glideRequestManager, onMomentViewActionListener) {
+    onMomentViewActionListener: MomentViewActionListener,
+    showPdfAsMoment: Boolean = false
+) : IssueFeedAdapter(
+    fragment,
+    itemLayoutRes,
+    feed,
+    glideRequestManager,
+    onMomentViewActionListener,
+    showPdfAsMoment
+) {
     override val dateFormat: DateFormat = DateFormat.LongWithWeekDay
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,7 +32,7 @@ class CoverflowAdapter(
 
         val layoutParams: ViewGroup.LayoutParams = viewHolder.itemView.layoutParams
         viewHolder.itemView.post {
-            if (viewHolder.itemView.width > MAX_VIEWHOLDER_WIDTH_OF_PARENT  * parent.width) {
+            if (viewHolder.itemView.width > MAX_VIEWHOLDER_WIDTH_OF_PARENT * parent.width) {
                 layoutParams.width = (parent.width * MAX_VIEWHOLDER_WIDTH_OF_PARENT).toInt()
                 viewHolder.itemView.layoutParams = layoutParams
             }

@@ -4,9 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.persistence.repository.FeedRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit

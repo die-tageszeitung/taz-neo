@@ -12,7 +12,18 @@ class ArchiveAdapter(
     fragment: ArchiveFragment,
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
-    glideRequestManager: RequestManager
-) : IssueFeedAdapter(fragment, itemLayoutRes, feed, glideRequestManager, HomeMomentViewActionListener(fragment, DataService.getInstance(fragment.requireContext().applicationContext))) {
+    glideRequestManager: RequestManager,
+    showPdfAsMoment: Boolean = false
+) : IssueFeedAdapter(
+    fragment,
+    itemLayoutRes,
+    feed,
+    glideRequestManager,
+    HomeMomentViewActionListener(
+        fragment,
+        DataService.getInstance(fragment.requireContext().applicationContext)
+    ),
+    showPdfAsMoment
+) {
     override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
 }
