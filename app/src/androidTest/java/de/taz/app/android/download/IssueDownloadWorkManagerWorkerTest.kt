@@ -101,7 +101,7 @@ class IssueDownloadWorkManagerWorkerTest {
         `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false))).thenReturn(
             IssueTestUtil.getIssue()
         )
-        `when`(mockDataService.getMoment(any(IssueKey::class.java), eq(true), eq(false))).thenReturn(
+        `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
         )
 
@@ -127,7 +127,7 @@ class IssueDownloadWorkManagerWorkerTest {
         `when`(mockDataService.refreshFeedAndGetIssueIfNew(any(String::class.java))).thenReturn(
             IssueTestUtil.getIssue()
         )
-        `when`(mockDataService.getMoment(any(IssueKey::class.java), eq(true), eq(false))).thenReturn(
+        `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
         )
 
