@@ -92,7 +92,7 @@ class IssueViewerFragment :
                     if (issueWithDisplayable == null) return@observe
                     CoroutineScope(Dispatchers.IO).launch {
                         val issue = dataService.getIssue(
-                            issueWithDisplayable.issueKey,
+                            IssuePublication(issueWithDisplayable.issueKey),
                             retryOnFailure = true
                         )
                         issue?.let { dataService.ensureDownloaded(it) }

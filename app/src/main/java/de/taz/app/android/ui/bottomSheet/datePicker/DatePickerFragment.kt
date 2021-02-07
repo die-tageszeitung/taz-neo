@@ -127,10 +127,9 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         log.debug("call setIssue() with date $date")
         withContext(Dispatchers.IO) {
             val issueStub = try {
-                 dataService.getIssueStub(
-                    dataService.determineIssueKey(
-                        IssuePublication(feed.name, date)
-                    )
+                dataService.getIssueStub(
+                    IssuePublication(feed.name, date)
+
                 )
             } catch (e: ConnectivityException.Recoverable) {
                 toastHelper.showNoConnectionToast()

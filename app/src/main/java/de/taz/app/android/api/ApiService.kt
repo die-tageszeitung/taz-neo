@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
@@ -588,15 +589,15 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         } ?: emptyList()
     }
 
-    suspend fun getIssueByKey(issueKey: IssueKey): Issue = withContext(Dispatchers.IO) {
+    suspend fun getIssueByPublication(issuePublication: IssuePublication): Issue = withContext(Dispatchers.IO) {
         transformToConnectivityException {
             val issues = graphQlClient.query(
                 QueryType.IssueByFeedAndDate,
-                IssueVariables(issueDate = issueKey.date, feedName = issueKey.feedName, limit = 1)
+                IssueVariables(issueDate = issuePublication.date, feedName = issuePublication.feed, limit = 1)
             )
 
             issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                Issue(issueKey.feedName, it)
+                Issue(issuePublication.feed, it)
             }
         } ?: throw NotFoundException()
     }

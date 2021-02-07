@@ -123,6 +123,10 @@ class MomentRepository private constructor(applicationContext: Context) :
         return get(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
+    fun exists(issueKey: IssueKey): Boolean {
+        return get(issueKey) != null
+    }
+
     fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
         return Transformations.map(
             appDatabase.momentDao().getLiveData(issueOperations)

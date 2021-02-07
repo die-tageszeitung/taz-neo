@@ -17,6 +17,7 @@ import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
 import io.sentry.core.Sentry
@@ -157,10 +158,9 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue? {
         return dataService.getIssue(
-            IssueKey(
+            IssuePublication(
                 articleStub.issueFeedName,
-                articleStub.issueDate,
-                IssueStatus.regular
+                articleStub.issueDate
             )
         )
     }

@@ -34,12 +34,12 @@ class MomentViewDataBinding(
     private val log by Log
 
     private val dataService = DataService.getInstance()
+    private val feedRepository = FeedRepository.getInstance()
     private val toastHelper = ToastHelper.getInstance()
     private val storageService = StorageService.getInstance()
     private var boundView: MomentView? = null
 
     private lateinit var momentViewData: MomentViewData
-    private lateinit var issueKey: IssueKey
 
     private var bindJob: Job? = null
 
@@ -48,17 +48,16 @@ class MomentViewDataBinding(
         boundView?.setDate(issuePublication.date, dateFormat)
 
         bindJob = lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            issueKey = dataService.determineIssueKey(issuePublication)
 
-            val moment = dataService.getMoment(issueKey, retryOnFailure = true)
-                ?: throw IllegalStateException("Issue for expected key $issueKey not found")
-            val dimension = FeedRepository.getInstance().get(moment.issueFeedName)
+            val moment = dataService.getMoment(issuePublication, retryOnFailure = true)
+                ?: throw IllegalStateException("Moment for expected publication $issuePublication not found")
+            val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
 
             dataService.ensureDownloaded(moment, skipIntegrityCheck = true)
 
             // refresh moment after download
-            val downloadedMoment = dataService.getMoment(issueKey, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issueKey not found")
+            val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issuePublication not found")
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
@@ -78,7 +77,7 @@ class MomentViewDataBinding(
             }
 
             momentViewData = MomentViewData(
-                issueKey,
+                IssueKey(moment.issueFeedName, moment.issueDate, moment.issueStatus),
                 DownloadStatus.pending,
                 momentType,
                 momentUri,
@@ -133,11 +132,11 @@ class MomentViewDataBinding(
             CoroutineScope(Dispatchers.IO).launch {
                 // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
                 val issue = dataService.getIssue(
-                    issueKey,
+                    issuePublication,
                     retryOnFailure = true,
                     allowCache = false,
                     onConnectionFailure = { onConnectionFailure() }
-                ) ?: throw IllegalStateException("No issue found for $issueKey")
+                ) ?: throw IllegalStateException("No issue found for $issuePublication")
                 dataService.ensureDownloaded(
                     collection = issue,
                     onConnectionFailure = { onConnectionFailure() }

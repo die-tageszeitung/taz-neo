@@ -211,7 +211,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showIssue(issueKey: IssueKey?) = withContext(Dispatchers.Main) {
         if (issueKey != null) {
-            val issueStub = withContext(Dispatchers.IO) { dataService.getIssueStub(issueKey) }
+            val issueStub = withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
             setMomentDate(issueStub)
             showMoment(issueStub)
             issueStub?.let {
