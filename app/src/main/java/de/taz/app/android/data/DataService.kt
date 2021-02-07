@@ -131,6 +131,24 @@ class DataService(private val applicationContext: Context) {
         }
 
     /**
+     * This function is an overload for [getIssue] to avoid having a suspend callback in it's signature to
+     * be compatible with mockito in tests
+     *
+     * @param issuePublication Key of feed and date
+     * @param allowCache checks if issue already exists
+     * @param forceUpdate Always update the database cached issue after download
+     * @param retryOnFailure calls getIssue again if unsuccessful
+     */
+    suspend fun getIssue(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        forceUpdate: Boolean = false,
+        retryOnFailure: Boolean = false,
+    ): Issue = withContext(Dispatchers.IO) {
+        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure)
+    }
+
+    /**
      * This function returns [Issue] from a given [issueKey].
      * ATTENTION! The issue returned from the called getIssue function has the status depending
      * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
@@ -138,7 +156,9 @@ class DataService(private val applicationContext: Context) {
      *
      * @param issuePublication Key of feed and date
      * @param allowCache checks if issue already exists
+     * @param forceUpdate Always update the database cached issue after download
      * @param retryOnFailure calls getIssue again if unsuccessful
+     * @param onConnectionFailure callback to handle connection failures
      */
     suspend fun getIssue(
         issuePublication: IssuePublication,

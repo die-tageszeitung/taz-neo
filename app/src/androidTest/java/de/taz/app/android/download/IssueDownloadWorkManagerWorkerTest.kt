@@ -11,7 +11,6 @@ import de.taz.app.android.IssueTestUtil
 import de.taz.app.android.api.dto.Cycle
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
@@ -98,7 +97,7 @@ class IssueDownloadWorkManagerWorkerTest {
         `when`(mockDataService.getFeedByName(any(String::class.java), eq(false), eq(false))).thenReturn(
             newFeedMock
         )
-        `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false))).thenReturn(
+        `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false), eq(false))).thenReturn(
             IssueTestUtil.getIssue()
         )
         `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
