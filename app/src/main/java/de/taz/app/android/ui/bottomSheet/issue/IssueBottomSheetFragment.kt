@@ -182,12 +182,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val updatedIssue =
+                    val issue =
                         dataService.getIssue(
                             issueKey,
-                            allowCache = false
                         )
-                    updatedIssue?.let { dataService.ensureDownloaded(it) }
+                    issue?.let { dataService.ensureDownloaded(it) }
                 } catch (e: ConnectivityException.Recoverable) {
                     toastHelper.showNoConnectionToast()
                 }
