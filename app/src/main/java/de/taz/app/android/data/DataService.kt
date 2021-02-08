@@ -149,10 +149,11 @@ class DataService(private val applicationContext: Context) {
     }
 
     /**
-     * This function returns [Issue] from a given [issueKey].
+     * This function returns [Issue] from a given [issuePublication].
      * ATTENTION! The issue returned from the called getIssue function has the status depending
-     * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
-     * specified in the [issueKey].
+     * of the AuthStatus (logged in or not) or might be regular in any case if the taz decides to
+     * issue a "demo" issue (meaning unauthenticated users will also recieve regular issues).
+     * If we have a cached version of a "regular" issue available we always default to it.
      *
      * @param issuePublication Key of feed and date
      * @param allowCache checks if issue already exists
