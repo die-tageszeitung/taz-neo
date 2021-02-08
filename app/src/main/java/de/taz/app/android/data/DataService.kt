@@ -145,7 +145,7 @@ class DataService(private val applicationContext: Context) {
         forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false,
     ): Issue = withContext(Dispatchers.IO) {
-        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure)
+        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure) {}
     }
 
     /**
