@@ -7,6 +7,7 @@ import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 import kotlinx.coroutines.*
@@ -46,7 +47,7 @@ class IssueDownloadWorkManagerWorker(
             } else {
                 dataService.ensureDownloaded(newestIssue)
                 // pre download moment too
-                val moment = dataService.getMoment(newestIssue.issueKey) ?: run {
+                val moment = dataService.getMoment(IssuePublication(newestIssue.issueKey)) ?: run {
                     val hint = "Did not find moment for issue at ${newestIssue.date}"
                     Sentry.captureMessage(hint)
                     log.error(hint)

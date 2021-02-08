@@ -433,6 +433,13 @@ data class IssueKey(
     val date: String,
     val status: IssueStatus
 ) : Parcelable, ObservableDownload {
+
+    constructor(issuePublication: IssuePublication, status: IssueStatus): this(
+        issuePublication.feed,
+        issuePublication.date,
+        status
+    )
+
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status"
     }
@@ -446,4 +453,9 @@ data class IssueKey(
 data class IssuePublication(
     val feed: String,
     val date: String
-) : Parcelable
+) : Parcelable {
+    constructor(issueKey: IssueKey): this(
+        issueKey.feedName,
+        issueKey.date
+    )
+}

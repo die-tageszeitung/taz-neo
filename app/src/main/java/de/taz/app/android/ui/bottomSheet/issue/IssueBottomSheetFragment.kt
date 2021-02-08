@@ -18,6 +18,7 @@ import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
@@ -117,7 +118,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = dataService.getIssue(issueKey)
+                val issue = dataService.getIssue(IssuePublication(issueKey))
                 issue?.moment?.getMomentFileToShare()?.let { image ->
                     fileEntryRepository.get(
                         image.name
@@ -156,7 +157,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             loading_screen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = dataService.getIssue(issueKey)
+                val issue = dataService.getIssue(IssuePublication(issueKey))
                 issue?.let {
                     dataService.ensureDeletedFiles(it)
                     withContext(Dispatchers.Main) {
@@ -164,7 +165,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     }
                     try {
                         dataService.getIssue(
-                            issue.issueKey,
+                            IssuePublication(issue.issueKey),
                             allowCache = false,
                             retryOnFailure = true,
                             forceUpdate = true
@@ -184,9 +185,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 try {
                     val issue =
                         dataService.getIssue(
-                            issueKey,
+                            IssuePublication(issueKey)
                         )
-                    issue?.let { dataService.ensureDownloaded(it) }
+                    dataService.ensureDownloaded(issue)
                 } catch (e: ConnectivityException.Recoverable) {
                     toastHelper.showNoConnectionToast()
                 }

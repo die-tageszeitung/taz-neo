@@ -99,133 +99,93 @@ class DataService(private val applicationContext: Context) {
     }
 
     /**
-     * Returns an [IssueKey] derrived by an [issuePublication] determined by application state
-     * The missing [IssueStatus] will be determined by
-     * 1. If I have an [Issue] cached in DB with [IssueStatus.regular] status will be [IssueStatus.regular]
-     * 2. If [AuthHelper.eligibleIssueStatus] is [IssueStatus.regular] status will be [IssueStatus.regular]
-     * 3. In any other case the [IssueStatus] will be [IssueStatus.public]
-     * @param issuePublication Publication (feed and date)
-     * @return [IssueKey] with derrived [IssueStatus]
+     * This function returns IssueStub from a given [issuePublication].
+     * ATTENTION! The issue returned from the called getIssue function has the status depending
+     * of the AuthStatus (logged in or not).
+     *
+     * @param issuePublication Key of feed and date
+     * @param allowCache checks if issue already exists
+     * @param retryOnFailure calls getIssue again if unsuccessful
      */
-    suspend fun determineIssueKey(issuePublication: IssuePublication) =
+    suspend fun getIssueStub(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): IssueStub =
         withContext(Dispatchers.IO) {
-            val regularKey =
-                IssueKey(issuePublication.feed, issuePublication.date, IssueStatus.regular)
-            val publicKey =
-                IssueKey(issuePublication.feed, issuePublication.date, IssueStatus.public)
-            val issueKey =
-                if (isCached(regularKey) || authHelper.eligibleIssueStatus == IssueStatus.regular) {
-                    regularKey
-                } else {
-                    publicKey
+            val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+            val publicKey = IssueKey(issuePublication, IssueStatus.public)
+
+            if (allowCache) {
+                issueRepository.getStub(regularKey)?.let { return@withContext it }
+                if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+                    issueRepository.getStub(publicKey)?.let { return@withContext it }
                 }
-            issueKey
+                log.info("Cache miss on $issuePublication")
+            }
+            getIssue(
+                issuePublication,
+                allowCache,
+                retryOnFailure = retryOnFailure
+            ).let(::IssueStub)
         }
 
-    suspend fun isCached(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
-        issueRepository.exists(issueKey)
+    /**
+     * This function is an overload for [getIssue] to avoid having a suspend callback in it's signature to
+     * be compatible with mockito in tests
+     *
+     * @param issuePublication Key of feed and date
+     * @param allowCache checks if issue already exists
+     * @param forceUpdate Always update the database cached issue after download
+     * @param retryOnFailure calls getIssue again if unsuccessful
+     */
+    suspend fun getIssue(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        forceUpdate: Boolean = false,
+        retryOnFailure: Boolean = false,
+    ): Issue = withContext(Dispatchers.IO) {
+        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure) {}
     }
 
     /**
-     * This function returns IssueStub from a given [issuePublication]. If [allowCache] is true a local copy
-     * will be returned if existent. If not server will be requested.
-     * By specifying only an [IssuePublication] you might receive the resulting [IssueStub] might have any
-     * [IssueStatus] depending on application state
+     * This function returns [Issue] from a given [issuePublication].
+     * ATTENTION! The issue returned from the called getIssue function has the status depending
+     * of the AuthStatus (logged in or not) or might be regular in any case if the taz decides to
+     * issue a "demo" issue (meaning unauthenticated users will also recieve regular issues).
+     * If we have a cached version of a "regular" issue available we always default to it.
      *
-     * @param issuePublication Publication (feed and date)
+     * @param issuePublication Key of feed and date
      * @param allowCache checks if issue already exists
-     * @param retryOnFailure when hitting server retry on recoverable (connection-) issues indefinitely
-     */
-    suspend fun getIssueStub(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): IssueStub? =
-        withContext(Dispatchers.IO) {
-            getIssueStub(
-                determineIssueKey(issuePublication),
-                allowCache = allowCache,
-                retryOnFailure = retryOnFailure
-            )
-        }
-
-    /**
-     * This function returns [IssueStub] from a given [issuePublication]. If [allowCache] is true a local copy
-     * will be returned if existent. If not server will be requested.
-     * By specifying only an [IssuePublication] you might receive the resulting [Issue] might have any
-     * [IssueStatus] depending on application state
-     *
-     * @param issuePublication Publication (feed and date)
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure when hitting server retry on recoverable (connection-) issues indefinitely
+     * @param forceUpdate Always update the database cached issue after download
+     * @param retryOnFailure calls getIssue again if unsuccessful
+     * @param onConnectionFailure callback to handle connection failures
      */
     suspend fun getIssue(
         issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): Issue? =
-        withContext(Dispatchers.IO) {
-            getIssue(
-                determineIssueKey(issuePublication),
-                allowCache = allowCache,
-                retryOnFailure = retryOnFailure
-            )
-        }
-
-    /**
-     * This function returns IssueStub from a given [issueKey].
-     * ATTENTION! The issue returned from the called getIssue function has the status depending
-     * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
-     * specified in the [issueKey].
-     *
-     * @param issueKey Key of feed, date and status
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure calls getIssue again if unsuccessful
-     */
-    suspend fun getIssueStub(
-        issueKey: IssueKey,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): IssueStub? =
-        withContext(Dispatchers.IO) {
-            if (allowCache) {
-                issueRepository.getStub(issueKey)?.let { return@withContext it } ?: run {
-                    log.info("Cache miss on $issueKey")
-                }
-            }
-            getIssue(issueKey, allowCache, retryOnFailure = retryOnFailure)?.let(::IssueStub)
-        }
-
-    /**
-     * This function returns [Issue] from a given [issueKey].
-     * ATTENTION! The issue returned from the called getIssue function has the status depending
-     * of the AuthStatus (logged in or not). Whereas a cached result always will return the IssueStatus
-     * specified in the [issueKey].
-     *
-     * @param issueKey Key of feed, date and status
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure calls getIssue again if unsuccessful
-     */
-    suspend fun getIssue(
-        issueKey: IssueKey,
         allowCache: Boolean = true,
         forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false,
         onConnectionFailure: suspend () -> Unit = {}
-    ): Issue? = withContext(Dispatchers.IO) {
+    ): Issue = withContext(Dispatchers.IO) {
+        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+        val publicKey = IssueKey(issuePublication, IssueStatus.public)
+
         if (allowCache) {
-            issueRepository.get(issueKey)?.let { return@withContext it } ?: run {
-                log.info("Cache miss on $issueKey")
+            issueRepository.get(regularKey)?.let { return@withContext it }
+            if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+                issueRepository.get(publicKey)?.let { return@withContext it }
             }
+            log.info("Cache miss on $issuePublication")
         }
         val issue = if (retryOnFailure) {
             apiService.retryOnConnectionFailure({
                 onConnectionFailure()
             }) {
-                apiService.getIssueByKey(issueKey)
+                apiService.getIssueByPublication(issuePublication)
             }
         } else {
-            apiService.getIssueByKey(issueKey)
+            apiService.getIssueByPublication(issuePublication)
         }
         if (forceUpdate) {
             return@withContext issueRepository.save(issue)
@@ -277,25 +237,32 @@ class DataService(private val applicationContext: Context) {
         }
 
     suspend fun getMoment(
-        issueKey: IssueKey,
+        issuePublication: IssuePublication,
         allowCache: Boolean = true,
         retryOnFailure: Boolean = false
     ): Moment? =
         withContext(Dispatchers.IO) {
+            val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+            val publicKey = IssueKey(issuePublication, IssueStatus.public)
+
             if (allowCache) {
-                momentRepository.get(issueKey)?.let { return@withContext it }
+                momentRepository.get(regularKey)?.let { return@withContext it }
+                if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+                    momentRepository.get(publicKey)?.let { return@withContext it }
+                }
+                log.info("Cache miss on $issuePublication")
             }
             val moment = if (retryOnFailure) {
                 apiService.retryOnConnectionFailure {
                     apiService.getMomentByFeedAndDate(
-                        issueKey.feedName,
-                        simpleDateFormat.parse(issueKey.date)!!
+                        issuePublication.feed,
+                        simpleDateFormat.parse(issuePublication.date)!!
                     )
                 }
             } else {
                 apiService.getMomentByFeedAndDate(
-                    issueKey.feedName,
-                    simpleDateFormat.parse(issueKey.date)!!
+                    issuePublication.feed,
+                    simpleDateFormat.parse(issuePublication.date)!!
                 )
             }
 
@@ -337,7 +304,7 @@ class DataService(private val applicationContext: Context) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             // If we download issues we want to refresh metadata, as they might get stale quickly
             val refreshedCollection = if (collection is Issue) {
-                getIssue(collection.issueKey, allowCache = false, retryOnFailure = true) ?: collection
+                getIssue(IssuePublication(collection.issueKey), allowCache = false, retryOnFailure = true)
             } else collection
 
             downloadService.ensureCollectionDownloaded(
@@ -384,30 +351,34 @@ class DataService(private val applicationContext: Context) {
         when (collection) {
             is Issue -> {
                 val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
-                val filesToRetain = collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
-                    // bookmarked articles should remain
-                    acc.addAll(
-                        section.articleList
-                            .filter { it.bookmarked }
-                            .map { it.getAllFileNames() }
-                            .flatten()
-                            .distinct()
-                    )
-                    // author images are potentially used globally so we retain them for now as they don't eat up much space
-                    acc.addAll(
-                        section.articleList
-                            .map { it.authorList }
-                            .flatten()
-                            .mapNotNull { it.imageAuthor }
-                            .map { it.name }
-                    )
-                    acc
-                }
+                val filesToRetain =
+                    collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
+                        // bookmarked articles should remain
+                        acc.addAll(
+                            section.articleList
+                                .filter { it.bookmarked }
+                                .map { it.getAllFileNames() }
+                                .flatten()
+                                .distinct()
+                        )
+                        // author images are potentially used globally so we retain them for now as they don't eat up much space
+                        acc.addAll(
+                            section.articleList
+                                .map { it.authorList }
+                                .flatten()
+                                .mapNotNull { it.imageAuthor }
+                                .map { it.name }
+                        )
+                        acc
+                    }
                 filesToDelete.removeAll { it.name in filesToRetain }
 
                 // do not delete bookmarked files
                 articleRepository.apply {
-                    getBookmarkedArticleStubListForIssuesAtDate(collection.feedName, collection.date).forEach {
+                    getBookmarkedArticleStubListForIssuesAtDate(
+                        collection.feedName,
+                        collection.date
+                    ).forEach {
                         filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
                     }
                 }

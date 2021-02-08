@@ -1,21 +1,20 @@
 package de.taz.app.android.ui.webview
 
+import android.net.Uri
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.util.Log
-import java.io.File
-import android.net.Uri
 import androidx.annotation.RequiresApi
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
-import java.lang.Exception
+import java.io.File
 import java.net.URLDecoder
 
 interface AppWebViewClientCallBack {
@@ -129,16 +128,9 @@ class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebView
     private fun overrideInternalLinks(view: WebView?, url: String?): String? {
         view?.let {
             url?.let {
-                var newUrl = url.replace(
-                    "\\w+/\\d{4}-\\d{2}-\\d{2}/(public/|regular/)?resources/".toRegex(),
-                    "resources/"
-                )
-                newUrl = newUrl.replace(
-                    "\\w+/\\d{4}-\\d{2}-\\d{2}/(public/|regular/)?global/".toRegex(),
-                    "global/"
-                )
-
-                return newUrl
+                val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
+                val fileEntry = fileEntryRepository.get(fileName)
+                fileEntry?.let { return storageService.getFileUri(it) }
             }
 
         }

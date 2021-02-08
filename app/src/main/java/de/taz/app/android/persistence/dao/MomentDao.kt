@@ -25,7 +25,6 @@ abstract class MomentDao: BaseDao<MomentStub>() {
         issueStatus: IssueStatus
     ): Date?
 
-
     @Query(
         """
         SELECT Moment.* From Moment

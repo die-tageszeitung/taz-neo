@@ -5,10 +5,7 @@ import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
@@ -65,7 +62,12 @@ class IssueViewerViewModel(
         }
     }
 
-    suspend fun setDisplayable(issueKey: IssueKey, displayableKey: String? = null, immediate: Boolean = false, loadIssue: Boolean = false) {
+    suspend fun setDisplayable(
+        issueKey: IssueKey,
+        displayableKey: String? = null,
+        immediate: Boolean = false,
+        loadIssue: Boolean = false
+    ) {
         var noConnectionShown = false
         fun onConnectionFailure() {
             if (!noConnectionShown) {
@@ -78,11 +80,18 @@ class IssueViewerViewModel(
         if (loadIssue || displayableKey == null) {
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
-                val issue = dataService.getIssue(issueKey, retryOnFailure = true, onConnectionFailure = {
-                    onConnectionFailure()
-                })!!
+                val issue = dataService.getIssue(
+                    IssuePublication(issueKey),
+                    retryOnFailure = true,
+                    onConnectionFailure = {
+                        onConnectionFailure()
+                    })
 
-                dataService.ensureDownloaded(issue, skipIntegrityCheck = true, onConnectionFailure = ::onConnectionFailure)
+                dataService.ensureDownloaded(
+                    issue,
+                    skipIntegrityCheck = true,
+                    onConnectionFailure = ::onConnectionFailure
+                )
 
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
