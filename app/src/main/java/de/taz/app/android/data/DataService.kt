@@ -304,7 +304,7 @@ class DataService(private val applicationContext: Context) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             // If we download issues we want to refresh metadata, as they might get stale quickly
             val refreshedCollection = if (collection is Issue) {
-                getIssue(collection.issueKey, allowCache = false, retryOnFailure = true) ?: collection
+                getIssue(IssuePublication(collection.issueKey), allowCache = false, retryOnFailure = true)
             } else collection
 
             downloadService.ensureCollectionDownloaded(
