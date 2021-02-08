@@ -156,7 +156,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         }
     }
 
-    private suspend fun getArticleIssue(articleStub: ArticleStub): Issue? {
+    private suspend fun getArticleIssue(articleStub: ArticleStub): Issue {
         return dataService.getIssue(
             IssuePublication(
                 articleStub.issueFeedName,

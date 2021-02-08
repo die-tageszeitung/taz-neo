@@ -119,13 +119,14 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onResume()
         // Either the issueContentViewModel can change the content of this drawer ...
         issueContentViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { issueKeyWithDisplayable ->
-            lifecycleScope.launchWhenResumed {
-                log.debug("Set issue issueKey from IssueContent")
-                if (!::currentIssueStub.isInitialized || issueKeyWithDisplayable?.issueKey != currentIssueStub.issueKey) {
-                    showIssue(issueKeyWithDisplayable?.issueKey)
-                }
-                issueKeyWithDisplayable?.let {
+            issueKeyWithDisplayable?.let {
+                lifecycleScope.launchWhenResumed {
+                    log.debug("Set issue issueKey from IssueContent")
+                    if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
+                        showIssue(it.issueKey)
+                    }
                     maybeSetActiveSection(it.issueKey, it.displayableKey)
+
                 }
             }
         }
@@ -209,36 +210,32 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
     }
 
-    private suspend fun showIssue(issueKey: IssueKey?) = withContext(Dispatchers.Main) {
-        if (issueKey != null) {
-            val issueStub = withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
-            setMomentDate(issueStub)
-            showMoment(issueStub)
-            issueStub?.let {
-                currentIssueStub = issueStub
-                val sections = withContext(Dispatchers.IO) {
-                    sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
-                }
-                log.debug("SectionDrawer sets new sections: $sections")
-                sectionListAdapter.sectionList = sections
-                sectionListAdapter.typeface =
-                    if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-                view?.scrollY = 0
-                view?.animate()?.alpha(1f)?.duration = 500
-                fragment_drawer_sections_imprint.apply {
-                    typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-                    val isImprint = withContext(Dispatchers.IO) {
-                        issueRepository.getImprint(issueStub.issueKey) != null
-                    }
-                    visibility = if (isImprint) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
-                }
+    private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
+        val issueStub =
+            withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
+        setMomentDate(issueStub)
+        showMoment(issueStub)
+
+        currentIssueStub = issueStub
+        val sections = withContext(Dispatchers.IO) {
+            sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
+        }
+        log.debug("SectionDrawer sets new sections: $sections")
+        sectionListAdapter.sectionList = sections
+        sectionListAdapter.typeface =
+            if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+        view?.scrollY = 0
+        view?.animate()?.alpha(1f)?.duration = 500
+        fragment_drawer_sections_imprint.apply {
+            typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+            val isImprint = withContext(Dispatchers.IO) {
+                issueRepository.getImprint(issueStub.issueKey) != null
             }
-        } else {
-            sectionListAdapter.sectionList = emptyList()
+            visibility = if (isImprint) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
 
