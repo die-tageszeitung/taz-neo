@@ -61,12 +61,10 @@ class MomentViewDataBinding(
             val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
                 storageService.getFileUri(it)
             }
-            val pdfFileEntry = dataService.getIssue(issueKey)?.pageList?.first()?.pagePdf
-            val pdfMomentFilePath = pdfFileEntry?.let {
-                storageService.getFile(pdfFileEntry)?.path
-            }
+            val pdfFileEntry = dataService.getIssue(issuePublication).pageList.firstOrNull()?.pagePdf
+            val pdfMomentFilePath = pdfFileEntry?.let { storageService.getFile(it)?.path }
 
-            val momentType = if (showPdfAsMoment) {
+            val momentType = if (showPdfAsMoment && pdfMomentFilePath != null) {
                 MomentType.PDF_FRONT_PAGE
             }  else {
                 if (animatedMomentUri != null) {

@@ -7,17 +7,16 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class PdfPagerViewModel(
     application: Application,
     val issueKey: IssueKey
 ) : AndroidViewModel(application) {
-    private val log by Log
 
     val imageRepository = ImageRepository.getInstance(application.applicationContext)
     var dataService: DataService = DataService.getInstance(application.applicationContext)
@@ -30,22 +29,16 @@ class PdfPagerViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val issue = dataService.getIssue(issueKey)
+            val issue = dataService.getIssue(IssuePublication(issueKey))
 
-            if (issue == null) {
-                val hint = "Couldn't fetch issue $issueKey from dataService!"
-                log.warn(hint)
-                Sentry.captureMessage(hint)
-            } else {
-                pdfDataListModel.postValue(issue.pageList.map {
-                    PdfPageListModel(
-                        storageService.getFile(it.pagePdf)!!,
-                        it.frameList!!,
-                        it.title!!,
-                        it.pagina!!
-                    )
-                })
-            }
+            pdfDataListModel.postValue(issue.pageList.map {
+                PdfPageListModel(
+                    storageService.getFile(it.pagePdf)!!,
+                    it.frameList!!,
+                    it.title!!,
+                    it.pagina!!
+                )
+            })
         }
     }
 

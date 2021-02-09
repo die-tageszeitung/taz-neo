@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
