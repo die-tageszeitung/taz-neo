@@ -47,6 +47,7 @@ class DataService(private val applicationContext: Context) {
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+    private val pageRepository = PageRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
@@ -270,6 +271,37 @@ class DataService(private val applicationContext: Context) {
                 momentRepository.save(moment)
             }
             moment
+        }
+
+    suspend fun getFrontPage(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Page? =
+        withContext(Dispatchers.IO) {
+            val issueKey = IssueKey(issuePublication, IssueStatus.regular)
+
+            if (allowCache) {
+                return@withContext pageRepository.getFrontPage(issueKey)
+            }
+            val page = if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.getFrontPageByFeedAndDate(
+                        issuePublication.feed,
+                        simpleDateFormat.parse(issuePublication.date)!!
+                    )
+                }
+            } else {
+                apiService.getFrontPageByFeedAndDate(
+                    issuePublication.feed,
+                    simpleDateFormat.parse(issuePublication.date)!!
+                )
+            }
+
+            page?.let {
+                pageRepository.save(page)
+            }
+            page
         }
 
 

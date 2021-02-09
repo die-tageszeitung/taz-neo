@@ -61,10 +61,11 @@ class MomentViewDataBinding(
             val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
                 storageService.getFileUri(it)
             }
-            val pdfFileEntry = dataService.getIssue(issuePublication).pageList.firstOrNull()?.pagePdf
-            val pdfMomentFilePath = pdfFileEntry?.let { storageService.getFile(it)?.path }
+            // TODO getFrontPage as dataService.getMoment and wait until it is downloaded
+            val pdfFileEntry = dataService.getFrontPage(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issuePublication not found")
+            val pdfMomentFilePath = pdfFileEntry.let { storageService.getFile(it.pagePdf)?.path }
 
-            val momentType = if (showPdfAsMoment && pdfMomentFilePath != null) {
+            val momentType = if (showPdfAsMoment/* && pdfMomentFilePath != null*/) {
                 MomentType.PDF_FRONT_PAGE
             }  else {
                 if (animatedMomentUri != null) {

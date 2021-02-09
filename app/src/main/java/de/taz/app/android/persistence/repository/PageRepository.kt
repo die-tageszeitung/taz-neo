@@ -62,6 +62,15 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    @Throws(NotFoundException::class)
+    fun getFrontPage(issueKey: IssueKey): Page {
+        appDatabase.issuePageJoinDao()
+            .getPagesForIssue(issueKey.feedName, issueKey.date, issueKey.status).firstOrNull()
+            ?.let {
+                return pageStubToPage(it)
+            } ?: throw NotFoundException()
+    }
+
     fun getLiveData(fileName: String): LiveData<Page?> {
         return Transformations.map(
             appDatabase.pageDao().getLiveData(fileName)
