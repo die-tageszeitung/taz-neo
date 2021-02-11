@@ -54,18 +54,24 @@ class MomentViewDataBinding(
             dataService.ensureDownloaded(moment)
 
             // refresh moment after download
-            val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issuePublication not found")
+            val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Moment for expected key $issuePublication not found")
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
             val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
                 storageService.getFileUri(it)
             }
-            // TODO getFrontPage as dataService.getMoment and wait until it is downloaded
-            val pdfFileEntry = dataService.getFrontPage(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issuePublication not found")
-            val pdfMomentFilePath = pdfFileEntry.let { storageService.getFile(it.pagePdf)?.path }
 
-            val momentType = if (showPdfAsMoment/* && pdfMomentFilePath != null*/) {
+            // TODO getFrontPage as dataService.getMoment and wait until it is downloaded
+//            val frontPage = dataService.getFrontPage(issuePublication, retryOnFailure = true)
+ //               ?: throw IllegalStateException("Moment for expected publication $issuePublication not found")
+//            dataService.ensureDownloaded(frontPage, skipIntegrityCheck = true)
+ //           val pdfFileEntry = dataService.getFrontPage(issuePublication, retryOnFailure = true)?.pagePdf ?: throw IllegalStateException("FrontPage for expected key $issuePublication not found")
+//            val pdfMomentFilePath = pdfFileEntry.let { storageService.getFile(it)?.path }
+            val pdfFileEntry = dataService.getIssue(issuePublication).pageList.firstOrNull()?.pagePdf
+            val pdfMomentFilePath = pdfFileEntry?.let { storageService.getFile(it)?.path }
+
+            val momentType = if (showPdfAsMoment && pdfMomentFilePath != null) {
                 MomentType.PDF_FRONT_PAGE
             }  else {
                 if (animatedMomentUri != null) {
