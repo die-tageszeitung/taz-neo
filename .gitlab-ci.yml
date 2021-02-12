@@ -90,7 +90,8 @@ integrationTests:
     - powerhouse
 
 
-uiTests:
+# UI Tests are disabled until we actually buy a device farm
+.uiTests:
   extends: .prepareEnv
   stage: test
   variables:
