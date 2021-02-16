@@ -34,9 +34,9 @@ class PdfPagerViewModel(
             pdfDataListModel.postValue(issue.pageList.map {
                 PdfPageListModel(
                     storageService.getFile(it.pagePdf)!!,
-                    it.frameList!!,
-                    it.title!!,
-                    it.pagina!!
+                    it.frameList ?: emptyList(),
+                    it.title ?: "",
+                    it.pagina ?: ""
                 )
             })
         }
