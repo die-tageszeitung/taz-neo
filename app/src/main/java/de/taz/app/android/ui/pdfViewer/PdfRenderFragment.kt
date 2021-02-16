@@ -9,6 +9,7 @@ import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.viewpager2.widget.ViewPager2
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
@@ -91,23 +92,6 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                 toastHelper.showToast(R.string.toast_no_email_client)
             } else {
                 toastHelper.showToast(R.string.toast_unknown_error)
-            }
-        }
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> requireActivity().finish()
-            R.id.bottom_navigation_action_settings -> {
-                Intent(requireActivity(), SettingsActivity::class.java).apply {
-                    startActivity(this)
-                }
-            }
-            R.id.bottom_navigation_action_help -> {
-                Intent(requireActivity(), WelcomeActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-                    startActivity(this)
-                }
             }
         }
     }

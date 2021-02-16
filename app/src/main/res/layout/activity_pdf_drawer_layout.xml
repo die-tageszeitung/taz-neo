@@ -9,10 +9,12 @@
     android:clipToPadding="false"
     tools:openDrawer="start">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/activity_pdf_pager"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/activity_pdf_fragment_placeholder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <de.taz.app.android.ui.drawer.NavigationView
         android:layout_width="wrap_content"

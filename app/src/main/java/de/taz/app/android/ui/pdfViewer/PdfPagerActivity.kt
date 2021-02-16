@@ -4,16 +4,11 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
@@ -21,14 +16,14 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.activity_pdf_pager.*
+import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
+import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 import kotlin.math.min
 
-class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
-
+class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
     private val log by Log
-    private lateinit var viewPager2: ViewPager2
+
     private lateinit var issueKey: IssueKey
     private lateinit var pdfPagerViewModel: PdfPagerViewModel
 
@@ -40,7 +35,18 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        issueKey = intent.getParcelableExtra(KEY_ISSUE_KEY)!!
+
+        issueKey = try {
+            intent.getParcelableExtra(KEY_ISSUE_KEY)!!
+        } catch (e: NullPointerException) {
+            throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
+        }
+
+        supportFragmentManager.beginTransaction().add(
+            R.id.activity_pdf_fragment_placeholder,
+            PdfPagerFragment()
+        ).commit()
+
         pdfPagerViewModel = getViewModel { PdfPagerViewModel(application, issueKey) }
 
         drawerLayout = findViewById(R.id.pdf_drawer_layout)
@@ -54,44 +60,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
             RecyclerTouchListener(
                 this,
                 fun(_: View, position: Int) {
-                    if (position != viewPager2.currentItem) {
-                        viewPager2.currentItem = position
+                    if (position != pdfPagerViewModel.currentItem.value) {
+                        pdfPagerViewModel.currentItem.value = position
                         pdf_drawer_layout.closeDrawers()
                         drawerAdapter.activePosition = position
                     }
                 }
             )
         )
-
-        // Instantiate a ViewPager
-        viewPager2 = findViewById(R.id.activity_pdf_pager)
-
-        pdfPagerViewModel.pdfDataListModel.observe(this, {
-            if (it.isNotEmpty()) {
-                viewPager2.apply {
-                    adapter = PdfPagerAdapter(this@PdfPagerActivity)
-                    reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-                    offscreenPageLimit = 2
-
-                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                        override fun onPageSelected(position: Int) {
-                            log.debug("page selected: $position")
-                            drawerAdapter.activePosition = position
-                            super.onPageSelected(position)
-                        }
-                    })
-                }
-            }
-        })
-
-
-        pdfPagerViewModel.userInputEnabled.observe(this, {
-            viewPager2.isUserInputEnabled = it
-        })
-
-        pdfPagerViewModel.currentItem.observe(this, {
-            viewPager2.currentItem = it
-        })
 
         drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             log.debug("updateDrawerLogo. width: ${v.width} height: ${v.height}")
@@ -162,6 +138,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
 
     private fun initDrawerAdapter(items: List<PdfPageListModel>) {
         drawerAdapter = PdfDrawerRecyclerViewAdapter(items)
+        pdfPagerViewModel.activePosition.observe(this, { position ->
+            drawerAdapter.activePosition = position
+        })
         navigation_recycler_view.adapter = drawerAdapter
     }
 
@@ -197,20 +176,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_pager) {
                 drawer_logo.layoutParams.height = logicalHeight.toInt()
                 pdf_drawer_layout.requestLayout()
             }
-        }
-    }
-
-    /**
-     * A simple pager adapter that represents pdfFragment objects, in
-     * sequence.
-     */
-    private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-        override fun createFragment(position: Int): Fragment {
-            return PdfRenderFragment(position)
-        }
-
-        override fun getItemCount(): Int {
-            return pdfPagerViewModel.getAmountOfPdfPages()
         }
     }
 }

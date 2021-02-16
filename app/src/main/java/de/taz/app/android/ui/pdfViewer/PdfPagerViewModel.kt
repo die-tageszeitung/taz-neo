@@ -25,6 +25,7 @@ class PdfPagerViewModel(
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val currentItem = MutableLiveData(0)
+    var activePosition = MutableLiveData(0)
     var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
 
     init {
