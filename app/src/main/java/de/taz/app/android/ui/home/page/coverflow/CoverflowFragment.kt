@@ -27,7 +27,6 @@ import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
-import kotlinx.coroutines.launch
 import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
@@ -108,7 +107,6 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onResume() {
-
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         skipToCurrentItem()
         super.onResume()
@@ -136,7 +134,7 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    fun skipToCurrentItem(): Boolean {
+    private fun skipToCurrentItem(): Boolean {
         if (!::adapter.isInitialized) {
             return false
         }
