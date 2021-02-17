@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.bottomSheet.datePicker
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,8 +17,6 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -67,10 +64,6 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         savedInstanceState: Bundle?
     ): View? {
         return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
-    }
-
-    fun getMainView(): MainActivity? {
-        return activity as? MainActivity
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -146,9 +139,6 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
 
     private fun showIssue(issueKey: IssueKey) {
         dismiss() //close datePicker
-        Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
-            startActivityForResult(this, 0)
-        }
+        coverFlowFragment?.get()?.skipToKey(issueKey)
     }
 }
