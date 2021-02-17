@@ -137,7 +137,7 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         }
     }
 
-    private fun showIssue(issueKey: IssueKey) {
+    private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         dismiss() //close datePicker
         coverFlowFragment?.get()?.skipToKey(issueKey)
     }
