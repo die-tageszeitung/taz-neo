@@ -17,7 +17,7 @@ import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.*
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*

@@ -29,8 +29,8 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
-import io.sentry.core.Sentry
-import io.sentry.core.protocol.User
+import io.sentry.Sentry
+import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*

@@ -13,7 +13,7 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 

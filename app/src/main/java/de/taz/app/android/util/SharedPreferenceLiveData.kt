@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 
 abstract class SharedPreferenceLiveData<T>(
     val sharedPreferences: SharedPreferences,
