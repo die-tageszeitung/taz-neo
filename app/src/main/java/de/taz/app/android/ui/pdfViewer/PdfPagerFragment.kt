@@ -32,10 +32,6 @@ class PdfPagerFragment : BaseMainFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        pdf_viewpager.apply {
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
-        }
 
         pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
@@ -46,7 +42,7 @@ class PdfPagerFragment : BaseMainFragment(
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
-                            log.debug("page selected: $position")
+                            log.verbose("page selected: $position")
                             pdfPagerViewModel.activePosition.value = position
                             super.onPageSelected(position)
                         }

@@ -9,15 +9,12 @@ import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.viewpager2.widget.ViewPager2
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import io.sentry.core.Sentry
 
@@ -45,8 +42,6 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
             muPdfWrapper.addView(pdfReaderView)
         }
     }
-
-
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
         pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { list ->

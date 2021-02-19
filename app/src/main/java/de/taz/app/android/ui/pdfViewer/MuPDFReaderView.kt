@@ -1,8 +1,11 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
+import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import com.artifex.mupdf.viewer.ReaderView
+import de.taz.app.android.util.Log
 
 enum class ViewBorder {
     LEFT,
@@ -15,13 +18,59 @@ class MuPDFReaderView constructor(
     context: Context?
 ) : ReaderView(
     context
-) {
+), GestureDetector.OnDoubleTapListener {
     var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
     var onBorderListener: ((ViewBorder) -> Unit)? = null
+    val log by Log
+    private var tapDisabled = false
 
     override fun onSingleTapUp(event: MotionEvent): Boolean {
         clickCoordinatesListener?.invoke(calculateClickCoordinates(event.x, event.y))
         return true
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+        return false
+    }
+
+    override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
+        return false
+    }
+
+    override fun onDoubleTap(ev: MotionEvent): Boolean {
+        //TODO -> not working at the moment:
+     /*   val v = super.getView(mCurrent)
+        if (v != null) {
+            val previousScale = v.scaleX
+            v.scaleX += if (v.scaleX == 1f) 2f else -2f
+            v.scaleY += if (v.scaleY == 1f) 2f else -2f
+            val factor = v.scaleX / previousScale
+            // Work out the focus point relative to the view top left
+            val viewFocusX: Int = ev.x.toInt() - (v.left + v.scrollX)
+            val viewFocusY: Int = ev.y.toInt() - (v.top + v.scrollY)
+            // Scroll to maintain the focus point
+            v.scrollX += (viewFocusX - viewFocusX * factor).toInt()
+            v.scrollY += (viewFocusY - viewFocusY * factor).toInt()
+            requestLayout()
+        }*/
+
+        return true
+    }
+
+    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+        tapDisabled = true
+        return super.onScaleBegin(detector)
+    }
+
+    override fun onScaleEnd(detector: ScaleGestureDetector?) {
+        tapDisabled = false
+        super.onScaleEnd(detector)
+    }
+
+    override fun onScale(detector: ScaleGestureDetector?): Boolean {
+
+        log.debug("scaling: ${detector?.scaleFactor}")
+        return super.onScale(detector)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
