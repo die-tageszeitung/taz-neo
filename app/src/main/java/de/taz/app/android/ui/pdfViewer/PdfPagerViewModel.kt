@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -11,7 +12,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 class PdfPagerViewModel(
     application: Application,
@@ -37,7 +37,8 @@ class PdfPagerViewModel(
                     storageService.getFile(it.pagePdf)!!,
                     it.frameList ?: emptyList(),
                     it.title ?: "",
-                    it.pagina ?: ""
+                    it.pagina ?: "",
+                    it.type ?: PageType.left
                 )
             })
         }

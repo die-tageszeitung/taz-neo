@@ -73,6 +73,14 @@ object DateHelper {
         }
     }
 
+    fun stringToLongLocalized2LineString(dateString: String): String? {
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            SimpleDateFormat("EEEE,\n d.M.yyyy", deviceLocale).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
+        }
+    }
+
     fun stringToMediumLocalizedString(dateString: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             SimpleDateFormat("d.M.yyyy", deviceLocale).format(

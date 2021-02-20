@@ -1,24 +1,30 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.bumptech.glide.Glide
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
+import java.io.File
 import kotlin.math.min
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
@@ -50,10 +56,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         pdfPagerViewModel = getViewModel { PdfPagerViewModel(application, issueKey) }
 
         drawerLayout = findViewById(R.id.pdf_drawer_layout)
-
-        // Setup Recyclerview's Layout
-        navigation_recycler_view.layoutManager = GridLayoutManager(this, 2)
-        navigation_recycler_view.setHasFixedSize(true)
 
         // Add Item Touch Listener
         navigation_recycler_view.addOnItemTouchListener(
@@ -137,11 +139,56 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     }
 
     private fun initDrawerAdapter(items: List<PdfPageListModel>) {
-        drawerAdapter = PdfDrawerRecyclerViewAdapter(items)
-        pdfPagerViewModel.activePosition.observe(this, { position ->
-            drawerAdapter.activePosition = position
-        })
-        navigation_recycler_view.adapter = drawerAdapter
+
+        if (items.isNotEmpty()) {
+            // Setup a gridManager which takes 2 columns for panorama pages
+            val gridLayoutManager = GridLayoutManager(this, 2)
+            gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if (items[position+1].pageType == PageType.panorama) {
+                        2
+                    } else {
+                        1
+                    }
+                }
+            }
+
+            // Setup Recyclerview's Layout
+            navigation_recycler_view.apply {
+                layoutManager = gridLayoutManager
+                setHasFixedSize(false)
+            }
+
+            // Setup drawer header (front page and date)
+            activity_pdf_drawer_front_page.setImageBitmap(
+                getPreviewImageFromPdfFile(items.first().pdfFile)
+            )
+            activity_pdf_drawer_front_page.setOnClickListener {
+                pdf_viewpager.currentItem = 0
+                activity_pdf_drawer_front_page_title.setTextColor(
+                    ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
+                )
+                drawerLayout.closeDrawers()
+            }
+            activity_pdf_drawer_front_page_title.apply {
+                text = items.first().title
+                setTextColor(
+                    ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
+                )
+            }
+            activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
+
+            drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size))
+            pdfPagerViewModel.activePosition.observe(this, { position ->
+                drawerAdapter.activePosition = position - 1
+                if (position>0) {
+                    activity_pdf_drawer_front_page_title?.setTextColor(
+                        ContextCompat.getColor(applicationContext, R.color.drawer_sections_item)
+                    )
+                }
+            })
+            navigation_recycler_view.adapter = drawerAdapter
+        }
     }
 
     private suspend fun showNavButton(navButton: Image) {
@@ -177,5 +224,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 pdf_drawer_layout.requestLayout()
             }
         }
+    }
+
+    private fun getPreviewImageFromPdfFile(file: File): Bitmap {
+        val width = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            DRAWER_PAGE_WIDTH,
+            resources.displayMetrics
+        ).toInt()
+        return MuPDFThumbnail(file.path).thumbnail(width)
     }
 }

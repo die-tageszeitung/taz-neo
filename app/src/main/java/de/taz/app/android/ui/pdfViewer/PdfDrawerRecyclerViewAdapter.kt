@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.api.models.PageType
 import kotlinx.android.synthetic.main.fragment_pdf_drawer_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,9 +69,9 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
         CoroutineScope(Dispatchers.Default).launch {
             val img = getPreviewImageFromPdfFile(
                 file = itemListModel[position].pdfFile,
-                isPortrait = itemListModel[position].pagina.contains("-")
+                isPanorama = itemListModel[position].pageType == PageType.panorama
             )
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
                     img
                 )
@@ -78,8 +79,8 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
         }
     }
 
-    private fun getPreviewImageFromPdfFile(file: File, isPortrait: Boolean): Bitmap {
-        val widthInDp = if (isPortrait) {
+    private fun getPreviewImageFromPdfFile(file: File, isPanorama: Boolean): Bitmap {
+        val widthInDp = if (isPanorama) {
             DRAWER_PAGE_WIDTH*2
         } else {
             DRAWER_PAGE_WIDTH
