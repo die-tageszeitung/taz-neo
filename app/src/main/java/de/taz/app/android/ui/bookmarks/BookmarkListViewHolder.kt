@@ -52,7 +52,7 @@ class BookmarkListViewHolder(
             bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
 
             if (article.imageList.isNotEmpty()) {
-                fileHelper.getAbsolutePath(article.imageList.first()).let {
+                fileHelper.getAbsolutePath(article.imageList.first())?.let {
                     if (File(it).exists()) {
 
                         val bitmapOptions = BitmapFactory.Options()
