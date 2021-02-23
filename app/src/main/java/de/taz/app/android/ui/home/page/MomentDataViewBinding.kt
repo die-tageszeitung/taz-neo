@@ -54,7 +54,7 @@ class MomentViewDataBinding(
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
 
-            dataService.ensureDownloaded(moment, skipIntegrityCheck = true)
+            dataService.ensureDownloaded(moment)
 
             // refresh moment after download
             val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true) ?: throw IllegalStateException("Issue for expected key $issuePublication not found")

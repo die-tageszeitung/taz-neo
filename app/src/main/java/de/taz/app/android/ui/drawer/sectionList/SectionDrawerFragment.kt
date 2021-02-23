@@ -302,7 +302,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 momentBinder?.unbind()
             }
             if (!isDownloaded()) {
-                dataService.ensureDownloaded(moment, skipIntegrityCheck = true)
+                dataService.ensureDownloaded(moment)
             }
             val feed = feedRepository.get(issueStub.feedName)
             momentBinder = MomentViewDataBinding(
