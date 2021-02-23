@@ -118,31 +118,34 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = dataService.getIssue(IssuePublication(issueKey))
-                issue?.moment?.getMomentFileToShare()?.let { image ->
-                    fileEntryRepository.get(
-                        image.name
-                    )?.let {
-                        dataService.ensureDownloaded(it, issue.baseUrl)
-                    }
-                    fileHelper.getAbsolutePath(image).let { imageAsFile ->
-                        val applicationId = view.context.packageName
-                        val imageUriNew = FileProvider.getUriForFile(
-                            view.context,
-                            "${applicationId}.contentProvider",
-                            File(imageAsFile)
-                        )
+                var issue = dataService.getIssue(IssuePublication(issueKey))
+                var image = issue.moment.getMomentFileToShare()
+                fileEntryRepository.get(
+                    image.name
+                )?.let {
+                    dataService.ensureDownloaded(it, issue.baseUrl)
+                }
+                // refresh issue after altering file state
+                issue = dataService.getIssue(IssuePublication(issueKey))
+                image = issue.moment.getMomentFileToShare()
 
-                        log.debug("imageUriNew: $imageUriNew")
-                        log.debug("imageAsFile: $imageAsFile")
-                        val sendIntent: Intent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                            type = "image/jpg"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, null)
-                        view.context.startActivity(shareIntent)
+                fileHelper.getAbsolutePath(image)?.let { imageAsFile ->
+                    val applicationId = view.context.packageName
+                    val imageUriNew = FileProvider.getUriForFile(
+                        view.context,
+                        "${applicationId}.contentProvider",
+                        File(imageAsFile)
+                    )
+
+                    log.debug("imageUriNew: $imageUriNew")
+                    log.debug("imageAsFile: $imageAsFile")
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                        type = "image/jpg"
                     }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    view.context.startActivity(shareIntent)
                 }
             }
             dismiss()
