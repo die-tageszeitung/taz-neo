@@ -1,12 +1,14 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
+import android.database.sqlite.SQLiteQueryBuilder
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
@@ -15,6 +17,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activty_storage_migration.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -23,13 +26,18 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
 
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
+    private lateinit var database: AppDatabase
+
     private val settingsViewModel: SettingsViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
+        database = AppDatabase.getInstance(applicationContext)
+
         lifecycleScope.launch(Dispatchers.IO) {
             migrateToSelectableStorage()
             migrateFilesToDesiredStorage()
@@ -113,41 +121,41 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
             migration_progress.progress = 0
             migration_progress.max = fileCount
         }
-        allFilesNotOnDesiredStorage.map { fileEntry ->
-            val movedFileEntry =
-                fileEntryRepository.saveOrReplace(fileEntry.copy(storageLocation = currentStorageLocation))
-            fileEntry to movedFileEntry
-        }.forEachIndexed { index, (oldFileEntry, newFileEntry) ->
 
-            // If target storage has changed move files accordingly
-            val oldFile = try {
-                storageService.getFile(oldFileEntry)
-            } catch (e: ExternalStorageNotAvailableException) {
-                fileEntryRepository.resetDownloadDate(newFileEntry)
-                return@forEachIndexed
-            }
-            val newFile = storageService.getFile(newFileEntry)
-            try {
-                if (oldFile != null && newFile != null) {
-                    oldFile.copyTo(newFile, overwrite = true)
-                } else {
-                    fileEntryRepository.resetDownloadDate(newFileEntry)
-                    return@forEachIndexed
+        allFilesNotOnDesiredStorage.forEachIndexed { index, originalFileEntry ->
+            database.runInTransaction<Unit> {
+                val movedFileEntry =
+                    fileEntryRepository.saveOrReplace(originalFileEntry.copy(storageLocation = currentStorageLocation))
+                // If target storage has changed move files accordingly
+                val oldFile = try {
+                    storageService.getFile(originalFileEntry)
+                } catch (e: ExternalStorageNotAvailableException) {
+                    fileEntryRepository.resetDownloadDate(movedFileEntry)
+                    return@runInTransaction
                 }
-            } catch (e: Exception) {
-                log.error("Failiure trying to move ${oldFile?.absolutePath} to ${newFile?.absolutePath}")
-                fileEntryRepository.resetDownloadDate(newFileEntry)
-                return@forEachIndexed
-            }
-            try {
-                oldFile.delete()
-            } catch (e: Exception) {
-                log.warn("Cleaning up old file ${oldFile.name} failed")
-            }
+                val newFile = storageService.getFile(movedFileEntry)
+                try {
+                    if (oldFile != null && newFile != null) {
+                        oldFile.copyTo(newFile, overwrite = true)
+                    } else {
+                        fileEntryRepository.resetDownloadDate(movedFileEntry)
+                        return@runInTransaction
+                    }
+                } catch (e: Exception) {
+                    log.error("Failiure trying to move ${oldFile?.absolutePath} to ${newFile?.absolutePath}")
+                    fileEntryRepository.resetDownloadDate(movedFileEntry)
+                    return@runInTransaction
+                }
+                try {
+                    oldFile.delete()
+                } catch (e: Exception) {
+                    log.warn("Cleaning up old file ${oldFile.name} failed")
+                }
 
-            withContext(Dispatchers.Main) {
-                migration_progress.progress = index + 1
-                numeric_progress.text = "${index + 1} / $fileCount"
+                runBlocking(Dispatchers.Main) {
+                    migration_progress.progress = index + 1
+                    numeric_progress.text = "${index + 1} / $fileCount"
+                }
             }
         }
     }
