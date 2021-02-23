@@ -142,7 +142,7 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
                         return@runInTransaction
                     }
                 } catch (e: Exception) {
-                    log.error("Failiure trying to move ${oldFile?.absolutePath} to ${newFile?.absolutePath}")
+                    log.error("Failure trying to move ${oldFile?.absolutePath} to ${newFile?.absolutePath}")
                     fileEntryRepository.resetDownloadDate(movedFileEntry)
                     return@runInTransaction
                 }
