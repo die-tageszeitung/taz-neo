@@ -89,7 +89,7 @@ class IssueViewerViewModel(
 
                 dataService.ensureDownloaded(
                     issue,
-                    skipIntegrityCheck = true,
+                    skipIntegrityCheck = false,
                     onConnectionFailure = ::onConnectionFailure
                 )
 
