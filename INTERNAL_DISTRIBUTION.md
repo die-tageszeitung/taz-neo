@@ -1,7 +1,7 @@
 ## Sentry
 
 For Non-Free release builds we use sentry for efficient error reporting.
-Therefore part of our secret bundle is a `sentry.properties` file that is placed in src/main/resources
+Therefore part of our secret bundle is a `sentry.properties` file that is placed in the project root
 ```
 dsn=[yourdsn]
 defaults.url=[yoururl]
