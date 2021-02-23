@@ -87,7 +87,7 @@
 
         <meta-data
             android:name="io.sentry.dsn"
-            android:value="https://944624716d7a46ce95bb22f5e34cfc2d@sentry.taz.de/3" />
+            android:value="https://796a4b1c8b794a57a9f1b9e6dc7331a8@sentry.taz.de/2" />
 
         <uses-library
             android:name="android.test.runner"

@@ -146,9 +146,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         val memoryInfo = ActivityManager.MemoryInfo()
         activityManager.getMemoryInfo(memoryInfo)
 
-        val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
-        val usedRam =
-            "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
+        val totalRam = memoryInfo.totalMem
+        val usedRam = memoryInfo.totalMem - memoryInfo.availMem
 
         CoroutineScope(Dispatchers.IO).launch {
             log.debug("Sending an error report")
@@ -161,8 +160,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                         conditions,
                         storageType,
                         errorProtocol,
-                        usedRam,
-                        totalRam,
+                        usedRam.toString(),
+                        totalRam.toString(),
                         screenshotName,
                         screenshot
                     )
