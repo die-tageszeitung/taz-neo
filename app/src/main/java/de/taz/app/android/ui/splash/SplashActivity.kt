@@ -28,6 +28,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
+import de.taz.app.android.util.NightModeHelper
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import io.sentry.Sentry
 import io.sentry.protocol.User
@@ -118,6 +119,7 @@ class SplashActivity : BaseActivity() {
                 launch { ensureAppInfo() }
                 launch(Dispatchers.IO) { initResources() }
                 launch { initFeed() }
+                launch(Dispatchers.IO) { NightModeHelper.generateCssOverride(this@SplashActivity) }
             }
             try {
                 initJob.join()
