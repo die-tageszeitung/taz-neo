@@ -359,6 +359,15 @@ class SplashActivity : BaseActivity() {
             )
             log.debug("Created tazApi.css")
         }
+        try {
+            dataService.ensureDownloaded(
+                dataService.getResourceInfo()
+            )
+        } catch (e: ConnectivityException) {
+            val hint = "Connectivity exception during resource integration check on startup"
+            log.warn(hint)
+            Sentry.captureException(e, hint)
+        }
     }
 
     private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
