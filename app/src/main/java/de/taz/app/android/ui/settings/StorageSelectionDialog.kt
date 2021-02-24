@@ -57,12 +57,10 @@ class StorageSelectionDialog(
                         if (isEnabled(position)) {
                             val externalFreeBytes = context.getExternalFilesDir(null)
                                 ?.let { StatFs(it.path).availableBytes } ?: 0
-                            textView?.text = "${textView?.text} (%.2fGiB frei)".format(
-                                externalFreeBytes / 1024.0.pow(3.0)
-                            )
+                            textView?.text = "${options[getItem(position)]}\n(${
+                                if (Environment.isExternalStorageRemovable()) "SD-Karte" else "Telefon"
+                            }, %.2fGiB frei)".format(externalFreeBytes / 1024.0.pow(3.0))
                         } else {
-                            textView?.text =
-                                context.getString(R.string.settings_storage_external_unavailable)
                             itemIcon?.visibility = View.VISIBLE
                             itemIcon.setOnClickListener {
                                 AlertDialog.Builder(context)
@@ -75,7 +73,7 @@ class StorageSelectionDialog(
                     }
                     StorageLocation.INTERNAL -> {
                         val internalFreeBytes = StatFs(context.filesDir.path).availableBytes
-                        textView?.text = "${textView?.text} (%.2fGiB frei)".format(
+                        textView?.text = "${textView?.text}\n(%.2fGiB frei)".format(
                             internalFreeBytes / 1024.0.pow(3.0)
                         )
                     }
@@ -90,8 +88,9 @@ class StorageSelectionDialog(
             ) {
                 val externalStorageAvailable =
                     Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+                val externalStorageEmulated = Environment.isExternalStorageEmulated()
                 val externalStorageRemovable = Environment.isExternalStorageRemovable()
-                externalStorageAvailable && externalStorageRemovable
+                externalStorageAvailable && (!externalStorageEmulated || externalStorageRemovable)
             } else true
         }
     }

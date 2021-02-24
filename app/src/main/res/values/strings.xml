@@ -112,8 +112,7 @@
     <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehende Dateien migriert.</string>
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
-    <string name="settings_storage_external_unavailable">SD-Karte nicht verfügbar</string>
-    <string name="settings_storage_external_unavailable_hint">Um Ausgaben auf der SD-Karte speichern zu können, muss diese eingesteckt sein und in den Einstellung \"als intern formatieren\" ausgewählt werden. Zusätzlich muss in den Speicherplatzeinstellungen für die SD-Karte "Daten migrieren" ausgewählt werden. Danach steht die SD-Karte in diesem Menü zur Verfügung.</string>
+    <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
 
 
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>

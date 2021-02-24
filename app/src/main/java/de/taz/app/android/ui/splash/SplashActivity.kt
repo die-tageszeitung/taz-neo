@@ -88,7 +88,7 @@ class SplashActivity : BaseActivity() {
         val internalFreeBytes = StatFs(filesDir.path).availableBytes
 
         val selectedStorageMode =
-            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes) {
+            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes && storageService.externalStorageAvailable()) {
                 StorageLocation.EXTERNAL
             } else {
                 StorageLocation.INTERNAL
