@@ -13,7 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import java.io.File
 import java.net.URLDecoder
 

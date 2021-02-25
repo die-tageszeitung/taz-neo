@@ -14,13 +14,10 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.data.DataService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.monkey.observeUntil
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 const val PREFERENCES_AUTH = "auth"

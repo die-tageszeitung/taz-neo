@@ -1,9 +1,11 @@
 package de.taz.app.android.util
 
 import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
+import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.*
@@ -22,22 +24,26 @@ object NightModeHelper {
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
                 log.debug("Shared pref changed: $key")
                 CoroutineScope(Dispatchers.IO).launch {
-                    val cssFileEntry =
-                        FileEntryRepository.getInstance(activity.application).get("tazApi.css")
-
-                    cssFileEntry?.let {
-                        val cssFile = StorageService.getInstance(activity.application).getFile(it)
-                        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
-                        cssFile?.writeText(cssString)
-                    }
-
                     if (key == SETTINGS_TEXT_NIGHT_MODE) {
+                        generateCssOverride(activity)
                         withContext(Dispatchers.Main) {
                             setThemeAndReCreate(sharedPreferences, activity)
                         }
                     }
                 }
             }
+    }
+
+    suspend fun generateCssOverride(activity: Activity) {
+        val cssSharedPreferences = activity.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+        val cssFileEntry =
+            FileEntryRepository.getInstance(activity.application).get("tazApi.css")
+
+        cssFileEntry?.let {
+            val cssFile = StorageService.getInstance(activity.application).getFile(it)
+            val cssString = TazApiCssHelper.generateCssString(cssSharedPreferences)
+            cssFile?.writeText(cssString)
+        }
     }
 
     private fun setThemeAndReCreate(

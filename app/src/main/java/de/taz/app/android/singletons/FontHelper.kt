@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.WoffConverter
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

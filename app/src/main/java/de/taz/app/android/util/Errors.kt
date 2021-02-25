@@ -1,6 +1,6 @@
 package de.taz.app.android.util
 
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 
 
 suspend fun <T> reportAndRethrowExceptionsAsync(block: suspend () -> T): T {

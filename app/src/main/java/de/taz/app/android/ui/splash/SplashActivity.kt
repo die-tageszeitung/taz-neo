@@ -28,9 +28,10 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
+import de.taz.app.android.util.NightModeHelper
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
-import io.sentry.core.Sentry
-import io.sentry.core.protocol.User
+import io.sentry.Sentry
+import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
@@ -118,6 +119,7 @@ class SplashActivity : BaseActivity() {
                 launch { ensureAppInfo() }
                 launch(Dispatchers.IO) { initResources() }
                 launch { initFeed() }
+                launch(Dispatchers.IO) { NightModeHelper.generateCssOverride(this@SplashActivity) }
             }
             try {
                 initJob.join()
@@ -358,6 +360,15 @@ class SplashActivity : BaseActivity() {
                 )
             )
             log.debug("Created tazApi.css")
+        }
+        try {
+            dataService.ensureDownloaded(
+                dataService.getResourceInfo()
+            )
+        } catch (e: ConnectivityException) {
+            val hint = "Connectivity exception during resource integration check on startup"
+            log.warn(hint)
+            Sentry.captureException(e, hint)
         }
     }
 

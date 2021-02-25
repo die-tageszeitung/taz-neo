@@ -10,7 +10,7 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import java.util.*
 
 @Mockable

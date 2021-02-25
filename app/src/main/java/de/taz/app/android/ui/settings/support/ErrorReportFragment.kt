@@ -15,7 +15,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_error_report.*
 import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -146,9 +146,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         val memoryInfo = ActivityManager.MemoryInfo()
         activityManager.getMemoryInfo(memoryInfo)
 
-        val totalRam = "%.2f GB".format(memoryInfo.totalMem / 1073741824f)
-        val usedRam =
-            "%.2f GB".format((memoryInfo.totalMem - memoryInfo.availMem) / 1073741824f)
+        val totalRam = memoryInfo.totalMem
+        val usedRam = memoryInfo.totalMem - memoryInfo.availMem
 
         CoroutineScope(Dispatchers.IO).launch {
             log.debug("Sending an error report")
@@ -161,8 +160,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                         conditions,
                         storageType,
                         errorProtocol,
-                        usedRam,
-                        totalRam,
+                        usedRam.toString(),
+                        totalRam.toString(),
                         screenshotName,
                         screenshot
                     )
