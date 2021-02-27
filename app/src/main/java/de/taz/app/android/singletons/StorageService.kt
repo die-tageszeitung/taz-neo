@@ -1,6 +1,7 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
+import android.os.Environment
 import de.taz.app.android.PUBLIC_FOLDER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
@@ -88,6 +89,14 @@ class StorageService private constructor(private val applicationContext: Context
             StorageLocation.EXTERNAL -> getExternalFilesDir()?.let { "${getExternalFilesDir()?.absolutePath}/${path}" }
             else -> null
         }
+    }
+
+    fun externalStorageAvailable(): Boolean {
+        val externalStorageAvailable =
+            Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+        val externalStorageEmulated = Environment.isExternalStorageEmulated()
+        val externalStorageRemovable = Environment.isExternalStorageRemovable()
+        return externalStorageAvailable && (!externalStorageEmulated || externalStorageRemovable)
     }
 
     /**
