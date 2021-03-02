@@ -406,3 +406,15 @@ allprojects {
         resolutionStrategy.force 'org.objenesis:objenesis:2.6'
     }
 }
+
+
+task generateStaticVersionInBuildGradle {
+    doLast {
+        println "Injecting build static build version to enable mainfest parsing (for f-droid)"
+        def scriptPath = buildscript.sourceFile.parentFile
+        def versionCode = getVersionCode()
+        def versionName = getVersionName()
+        def injectVersions = "$scriptPath/inject_static_version.sh $versionName $versionCode $buildscript.sourceFile.path".execute()
+        injectVersions.waitForProcessOutput(System.out, System.err)
+    }
+}
