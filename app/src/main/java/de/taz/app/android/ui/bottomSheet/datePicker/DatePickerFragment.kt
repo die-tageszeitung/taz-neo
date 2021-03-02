@@ -134,11 +134,12 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
             } else {
                 toastHelper.showToast(R.string.issue_not_found)
             }
+            // close date picker
+            dismiss()
         }
     }
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
-        dismiss() //close datePicker
         coverFlowFragment?.get()?.skipToKey(issueKey)
     }
 }
