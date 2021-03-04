@@ -6,6 +6,8 @@ import android.util.TypedValue
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
@@ -23,6 +25,7 @@ import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
+import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
@@ -37,7 +40,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private var navButtonAlpha = 255f
     lateinit var drawerLayout: DrawerLayout
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +65,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 this,
                 fun(_: View, position: Int) {
                     if (position != pdfPagerViewModel.currentItem.value) {
+                        val articlePagerFragment =
+                            supportFragmentManager.findFragmentByTag("IN_ARTICLE")
+                        if (articlePagerFragment != null && articlePagerFragment.isVisible) {
+                            supportFragmentManager.popBackStack()
+                        }
                         pdfPagerViewModel.currentItem.value = position
                         pdf_drawer_layout.closeDrawers()
                         drawerAdapter.activePosition = position

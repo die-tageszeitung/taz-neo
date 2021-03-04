@@ -22,6 +22,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

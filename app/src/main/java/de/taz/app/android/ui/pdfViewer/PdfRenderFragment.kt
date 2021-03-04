@@ -1,22 +1,26 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.View
 import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
-import io.sentry.core.Sentry
+import io.sentry.Sentry
+import kotlinx.coroutines.launch
 
 
 class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_pdf_render) {
@@ -24,6 +28,14 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
     val log by Log
     private lateinit var pdfReaderView: MuPDFReaderView
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+
+    private val issueContentViewModel: IssueViewerViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(), SavedStateViewModelFactory(
+                requireActivity().application, requireActivity()
+            )
+        ).get(IssueViewerViewModel::class.java)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,6 +54,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
             muPdfWrapper.addView(pdfReaderView)
         }
     }
+
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
         pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { list ->
@@ -50,11 +63,19 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
             frame?.let {
                 it.link?.let { link ->
                     if (link.startsWith("art") && link.endsWith(".html")) {
-                        Intent(context, IssueViewerActivity::class.java).apply {
-                            putExtra(IssueViewerActivity.KEY_FINISH_ON_BACK_PRESSED, true)
-                            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, pdfPagerViewModel.issueKey)
-                            putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.link)
-                            context?.startActivity(this)
+                        lifecycleScope.launch {
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .add(
+                                    R.id.activity_pdf_fragment_placeholder,
+                                    ArticlePagerFragment(),
+                                    "IN_ARTICLE"
+                                )
+                                .addToBackStack(null)
+                                .commit()
+                            issueContentViewModel.setDisplayable(
+                                pdfPagerViewModel.issueKey,
+                                link
+                            )
                         }
                     } else if (link.startsWith("http") || link.startsWith("mailto:")) {
                         openExternally(it.link)

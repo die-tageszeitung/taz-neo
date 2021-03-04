@@ -12,18 +12,15 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
 class PdfPagerFragment : BaseMainFragment(
     R.layout.fragment_pdf_pager
 ) {
-    private val log by Log
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
@@ -42,7 +39,6 @@ class PdfPagerFragment : BaseMainFragment(
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
-                            log.verbose("page selected: $position")
                             pdfPagerViewModel.activePosition.value = position
                             super.onPageSelected(position)
                         }
@@ -78,14 +74,8 @@ class PdfPagerFragment : BaseMainFragment(
         }
     }
 
-    override fun onDestroyView() {
-        pdf_viewpager.adapter = null
-        super.onDestroyView()
-    }
-
     /**
-     * A simple pager adapter that represents pdfFragment objects, in
-     * sequence.
+     * A simple pager adapter that represents pdfFragment objects, in sequence.
      */
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
