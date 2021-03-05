@@ -49,7 +49,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
-                pdfPagerViewModel.toggleViewPagerInput(border != ViewBorder.NONE)
+                pdfPagerViewModel.setUserInputEnabled(border != ViewBorder.NONE)
             }
             muPdfWrapper.addView(pdfReaderView)
         }

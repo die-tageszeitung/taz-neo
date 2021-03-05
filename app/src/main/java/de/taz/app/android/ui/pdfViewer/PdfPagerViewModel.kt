@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
@@ -10,6 +11,7 @@ import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -21,26 +23,49 @@ class PdfPagerViewModel(
     val imageRepository = ImageRepository.getInstance(application.applicationContext)
     var dataService: DataService = DataService.getInstance(application.applicationContext)
     var storageService: StorageService = StorageService.getInstance(application.applicationContext)
+    private val toastHelper = ToastHelper.getInstance(application)
 
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val currentItem = MutableLiveData(0)
     var activePosition = MutableLiveData(0)
     var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
-
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val issue = dataService.getIssue(IssuePublication(issueKey))
 
-            pdfDataListModel.postValue(issue.pageList.map {
-                PdfPageListModel(
-                    storageService.getFile(it.pagePdf)!!,
-                    it.frameList ?: emptyList(),
-                    it.title ?: "",
-                    it.pagina ?: "",
-                    it.type ?: PageType.left
-                )
-            })
+        var noConnectionShown = false
+        fun onConnectionFailure() {
+            if (!noConnectionShown) {
+                viewModelScope.launch {
+                    toastHelper.showNoConnectionToast()
+                    noConnectionShown = true
+                }
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val issue = dataService.getIssue(
+                IssuePublication(issueKey),
+                retryOnFailure = true,
+                onConnectionFailure = {
+                    onConnectionFailure()
+                })
+
+            dataService.ensureDownloaded(
+                issue,
+                skipIntegrityCheck = false,
+                onConnectionFailure = ::onConnectionFailure
+            )
+            // TODO check better if is downloaded and/or wait accordingly
+            if (issue.isDownloaded() && issue.pageList.first().pagePdf.storageLocation != StorageLocation.NOT_STORED) {
+                pdfDataListModel.postValue(issue.pageList.map {
+                    PdfPageListModel(
+                        storageService.getFile(it.pagePdf)!!,
+                        it.frameList ?: emptyList(),
+                        it.title ?: "",
+                        it.pagina ?: "",
+                        it.type ?: PageType.left
+                    )
+                })
+            }
         }
     }
 
@@ -54,7 +79,7 @@ class PdfPagerViewModel(
         }
     }
 
-    fun toggleViewPagerInput(enabled: Boolean = true) {
+    fun setUserInputEnabled(enabled: Boolean = true) {
         userInputEnabled.value = enabled
     }
 
