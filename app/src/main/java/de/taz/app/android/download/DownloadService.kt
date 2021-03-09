@@ -204,6 +204,7 @@ class DownloadService constructor(
                             ?: throw IllegalStateException("Could not determine base url for ${collection.getDownloadTag()}")
                     }
                     is IssueOperations -> collection.baseUrl
+                    is Page -> collection.baseUrl
                     is WebViewDisplayable -> collection.getIssueStub()?.baseUrl
                         ?: throw CannotDetermineBaseUrlException("${collection.key} has no issue")
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")

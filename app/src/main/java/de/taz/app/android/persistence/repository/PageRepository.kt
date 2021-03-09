@@ -3,8 +3,10 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 
@@ -27,7 +29,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.pagina,
                 page.type,
                 page.frameList,
-                page.dateDownload
+                page.dateDownload,
+                page.baseUrl
             )
         )
         fileEntryRepository.save(page.pagePdf)
@@ -62,15 +65,11 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
-    @Throws(NotFoundException::class)
-    fun getFrontPage(issueKey: IssueKey): Page {
-        appDatabase.issuePageJoinDao()
+    fun getFrontPage(issueKey: IssueKey): Page? {
+        return appDatabase.issuePageJoinDao()
             .getPagesForIssue(issueKey.feedName, issueKey.date, issueKey.status).firstOrNull()
-            ?.let {
-                return pageStubToPage(it)
-            } ?: throw NotFoundException()
+            ?.let { pageStubToPage(it) }
     }
-
     fun getLiveData(fileName: String): LiveData<Page?> {
         return Transformations.map(
             appDatabase.pageDao().getLiveData(fileName)
@@ -87,7 +86,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 pageStub.pagina,
                 pageStub.type,
                 pageStub.frameList,
-                pageStub.dateDownload
+                pageStub.dateDownload,
+                pageStub.baseUrl
             )
         }
     }

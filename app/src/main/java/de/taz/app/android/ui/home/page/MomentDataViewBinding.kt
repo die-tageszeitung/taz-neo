@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
@@ -34,6 +35,7 @@ class MomentViewDataBinding(
     private val feedRepository = FeedRepository.getInstance()
     private val toastHelper = ToastHelper.getInstance()
     private val storageService = StorageService.getInstance()
+    private val fileEntryRepository = FileEntryRepository.getInstance()
     private var boundView: MomentView? = null
 
     private lateinit var momentViewData: MomentViewData
@@ -62,14 +64,18 @@ class MomentViewDataBinding(
                 storageService.getFileUri(it)
             }
 
-            // TODO getFrontPage as dataService.getMoment and wait until it is downloaded
-//            val frontPage = dataService.getFrontPage(issuePublication, retryOnFailure = true)
- //               ?: throw IllegalStateException("Moment for expected publication $issuePublication not found")
-//            dataService.ensureDownloaded(frontPage, skipIntegrityCheck = true)
- //           val pdfFileEntry = dataService.getFrontPage(issuePublication, retryOnFailure = true)?.pagePdf ?: throw IllegalStateException("FrontPage for expected key $issuePublication not found")
-//            val pdfMomentFilePath = pdfFileEntry.let { storageService.getFile(it)?.path }
-            val pdfFileEntry = dataService.getIssue(issuePublication).pageList.firstOrNull()?.pagePdf
-            val pdfMomentFilePath = pdfFileEntry?.let { storageService.getFile(it)?.path }
+            // get pdf front page
+            var pdfMomentFilePath: String? = null
+            if (showPdfAsMoment) {
+                val frontPage = dataService.getFrontPage(issuePublication, retryOnFailure = true)
+                if (frontPage != null) {
+                    dataService.ensureDownloaded(frontPage, skipIntegrityCheck = true)
+                    val downloadedFrontPage =
+                        dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
+                    val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }
+                    pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
+                }
+            }
 
             val momentType = if (showPdfAsMoment && pdfMomentFilePath != null) {
                 MomentType.PDF_FRONT_PAGE

@@ -282,7 +282,9 @@ class DataService(private val applicationContext: Context) {
             val issueKey = IssueKey(issuePublication, IssueStatus.regular)
 
             if (allowCache) {
-                return@withContext pageRepository.getFrontPage(issueKey)
+                pageRepository.getFrontPage(issueKey)?.let {
+                    return@withContext it
+                }
             }
             val page = if (retryOnFailure) {
                 apiService.retryOnConnectionFailure {

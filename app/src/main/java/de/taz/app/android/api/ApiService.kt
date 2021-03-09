@@ -347,9 +347,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
-            ).data?.product?.feedList?.first()?.issueList?.firstOrNull()?.let { issue ->
+            ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
                 issue.pageList?.firstOrNull()?.let { page ->
-                    Page(IssueKey(feedName, dateString, issue.status), page)
+                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl)
                 }
             }
         }

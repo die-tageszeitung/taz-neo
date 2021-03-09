@@ -36,7 +36,7 @@ data class Issue(
         issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
         issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
+        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
         issueDto.moTime,
         null,
         null
