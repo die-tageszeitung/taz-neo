@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.base.BaseMainFragment
@@ -44,6 +45,7 @@ class PdfPagerFragment : BaseMainFragment(
                         }
                     })
                 }
+                hideLoadingScreen()
             }
         })
 
@@ -74,6 +76,17 @@ class PdfPagerFragment : BaseMainFragment(
         }
     }
 
+    private fun hideLoadingScreen() {
+        requireActivity().runOnUiThread {
+            pdf_loading_screen?.animate()?.apply {
+                alpha(0f)
+                duration = LOADING_SCREEN_FADE_OUT_TIME
+                withEndAction {
+                    pdf_loading_screen?.visibility = View.GONE
+                }
+            }
+        }
+    }
     /**
      * A simple pager adapter that represents pdfFragment objects, in sequence.
      */

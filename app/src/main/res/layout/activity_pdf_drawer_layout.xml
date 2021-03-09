@@ -26,6 +26,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <include
+            android:id="@+id/pdf_drawer_loading_screen"
+            layout="@layout/include_loading_screen"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -108,7 +113,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
-                        android:text="samstag,\n 20.02.2021"
                         android:layout_marginBottom="14dp"
                         app:layout_constraintBottom_toTopOf="@id/navigation_recycler_view"
                         app:layout_constraintEnd_toEndOf="parent" />

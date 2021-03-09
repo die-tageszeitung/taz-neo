@@ -76,7 +76,7 @@ class DownloadService constructor(
      * Pages, Articles and Sections are parts of issues, which file lists are included by the corresponding Issue.
      * So if their corresponding Issue already is downloaded we assume they are too
      */
-    private fun checkIfDownloadeByIssue(collection: DownloadableCollection): Boolean {
+    private fun checkIfDownloadedByIssue(collection: DownloadableCollection): Boolean {
         return when (collection) {
             is Article -> issueRepository.getIssueStubForArticle(collection.articleHtml.name)
                 ?.getDownloadDate(applicationContext)
@@ -98,7 +98,7 @@ class DownloadService constructor(
         val contentsAreDownloaded = collection.getAllFiles().all { it.dateDownload != null && it.storageLocation != StorageLocation.NOT_STORED }
         // If the collection is not directly marked as download it still might part of a downloaded issue
         if (!isDownloaded) {
-            return checkIfDownloadeByIssue(collection)
+            return checkIfDownloadedByIssue(collection)
         }
         return isDownloaded && contentsAreDownloaded
     }

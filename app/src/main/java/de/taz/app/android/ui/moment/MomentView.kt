@@ -16,7 +16,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.MomentType
 import de.taz.app.android.ui.home.page.MomentViewData
 import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_moment.view.*
 
 
@@ -28,7 +27,6 @@ class MomentView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
-    private val log by Log
 
     private var shouldNotShowDownloadIcon: Boolean = false
     private var momentElevation: Float? = null

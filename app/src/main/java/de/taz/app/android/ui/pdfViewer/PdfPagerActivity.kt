@@ -6,13 +6,12 @@ import android.util.TypedValue
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.bumptech.glide.Glide
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
@@ -25,7 +24,6 @@ import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
@@ -195,6 +193,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 }
             })
             navigation_recycler_view.adapter = drawerAdapter
+            hideLoadingScreen()
         }
     }
 
@@ -240,5 +239,17 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             resources.displayMetrics
         ).toInt()
         return MuPDFThumbnail(file.path).thumbnail(width)
+    }
+
+    private fun hideLoadingScreen() {
+        this.runOnUiThread {
+            pdf_drawer_loading_screen?.animate()?.apply {
+                alpha(0f)
+                duration = LOADING_SCREEN_FADE_OUT_TIME
+                withEndAction {
+                    pdf_drawer_loading_screen?.visibility = View.GONE
+                }
+            }
+        }
     }
 }

@@ -7,11 +7,14 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -23,13 +26,17 @@ class PdfPagerViewModel(
     val imageRepository = ImageRepository.getInstance(application.applicationContext)
     var dataService: DataService = DataService.getInstance(application.applicationContext)
     var storageService: StorageService = StorageService.getInstance(application.applicationContext)
-    private val toastHelper = ToastHelper.getInstance(application)
+    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance()
 
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val currentItem = MutableLiveData(0)
     var activePosition = MutableLiveData(0)
     var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
+
+    private val log by Log
+
     init {
 
         var noConnectionShown = false
@@ -45,26 +52,30 @@ class PdfPagerViewModel(
             val issue = dataService.getIssue(
                 IssuePublication(issueKey),
                 retryOnFailure = true,
-                onConnectionFailure = {
-                    onConnectionFailure()
-                })
-
-            dataService.ensureDownloaded(
-                issue,
-                skipIntegrityCheck = false,
-                onConnectionFailure = ::onConnectionFailure
+                onConnectionFailure = { onConnectionFailure() }
             )
-            // TODO check better if is downloaded and/or wait accordingly
-            if (issue.isDownloaded() && issue.pageList.first().pagePdf.storageLocation != StorageLocation.NOT_STORED) {
+            dataService.ensureDownloaded(
+                collection = issue,
+                onConnectionFailure = { onConnectionFailure() }
+            )
+
+            if (issue.isDownloaded()) {
                 pdfDataListModel.postValue(issue.pageList.map {
+                    val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
+                        storageService.getFile(fileEntry)
+                    }
                     PdfPageListModel(
-                        storageService.getFile(it.pagePdf)!!,
+                        file!!,
                         it.frameList ?: emptyList(),
                         it.title ?: "",
                         it.pagina ?: "",
                         it.type ?: PageType.left
                     )
                 })
+            } else {
+                val hint = "Something went wrong downloading issue with its pdfs"
+                log.warn(hint)
+                Sentry.captureMessage(hint)
             }
         }
     }
