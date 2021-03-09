@@ -62,7 +62,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             RecyclerTouchListener(
                 this,
                 fun(_: View, position: Int) {
-                    if (position != pdfPagerViewModel.currentItem.value) {
+                    log.debug("position clicked: $position. pdf")
+                    if (position != pdfPagerViewModel.currentItem.value || position == 0) {
                         val articlePagerFragment =
                             supportFragmentManager.findFragmentByTag("IN_ARTICLE")
                         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
