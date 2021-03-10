@@ -49,7 +49,14 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
-                pdfPagerViewModel.setUserInputEnabled(border != ViewBorder.NONE)
+                // TODO -> this could be != ViewBorder.NONE to determin that view is on one border
+                // but atm it is then kinda flicky
+                pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
+            }
+            pdfReaderView.onScaleListener = { pinchOut ->
+                if (pinchOut) {
+                    pdfPagerViewModel.hideDrawerLogo.postValue(!pinchOut)
+                }
             }
             muPdfWrapper.addView(pdfReaderView)
         }
@@ -64,6 +71,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                 it.link?.let { link ->
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
+                            pdfPagerViewModel.hideDrawerLogo.postValue(false)
                             requireActivity().supportFragmentManager.beginTransaction()
                                 .add(
                                     R.id.activity_pdf_fragment_placeholder,

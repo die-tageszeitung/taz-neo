@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +29,8 @@ import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
 
+const val LOGO_PEAK = 10
+
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
     private val log by Log
 
@@ -35,7 +38,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private lateinit var pdfPagerViewModel: PdfPagerViewModel
 
     private var navButton: Image? = null
-    private var navButtonAlpha = 255f
+    private val navButtonAlpha = 255f
     lateinit var drawerLayout: DrawerLayout
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
 
@@ -89,6 +92,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             var opened = false
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                drawer_logo.translationX = 0f
+                pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                    drawer_logo.width,
+                    drawer_logo.height
+                )
                 (drawerView.parent as? View)?.let { parentView ->
                     val drawerWidth =
                         drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
@@ -108,6 +116,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
             override fun onDrawerClosed(drawerView: View) {
                 log.debug("drawer closed!")
+                pdfPagerViewModel.hideDrawerLogo.postValue(true)
                 opened = false
             }
 
@@ -115,6 +124,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         })
         pdfPagerViewModel.pdfDataListModel.observe(this, {
             initDrawerAdapter(it)
+        })
+        pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
+            val articlePagerFragment =
+                supportFragmentManager.findFragmentByTag("IN_ARTICLE")
+            if (toHide && articlePagerFragment == null) hideDrawerLogoWithDelay()
+            else showDrawerLogo()
         })
     }
 
@@ -141,6 +156,35 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                         }
                 }
             }
+        }
+    }
+
+    private fun hideDrawerLogoWithDelay() {
+        if (pdfPagerViewModel.hideDrawerLogo.value == true) {
+            val transX = -drawer_logo.width.toFloat() + LOGO_PEAK
+            drawer_logo.animate()
+                .setDuration(1000L)
+                .setStartDelay(2000L)
+                .translationX(transX)
+                .interpolator = AccelerateDecelerateInterpolator()
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                LOGO_PEAK,
+                drawer_logo.height
+            )
+        }
+    }
+
+    private fun showDrawerLogo() {
+        if (pdfPagerViewModel.hideDrawerLogo.value == false) {
+            drawer_logo.animate()
+                .setDuration(1000L)
+                .setStartDelay(0L)
+                .translationX(0f)
+                .interpolator = AccelerateDecelerateInterpolator()
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                drawer_logo.width,
+                drawer_logo.height
+            )
         }
     }
 

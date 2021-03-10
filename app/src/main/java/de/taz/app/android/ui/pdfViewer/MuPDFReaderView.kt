@@ -21,6 +21,7 @@ class MuPDFReaderView constructor(
 ), GestureDetector.OnDoubleTapListener {
     var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
     var onBorderListener: ((ViewBorder) -> Unit)? = null
+    var onScaleListener: ((Boolean) -> Unit)? = null
     val log by Log
     private var tapDisabled = false
 
@@ -68,8 +69,8 @@ class MuPDFReaderView constructor(
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
-
-        log.debug("scaling: ${detector?.scaleFactor}")
+        val pinchOut = detector?.scaleFactor!! < 1
+        onScaleListener?.invoke(pinchOut)
         return super.onScale(detector)
     }
 

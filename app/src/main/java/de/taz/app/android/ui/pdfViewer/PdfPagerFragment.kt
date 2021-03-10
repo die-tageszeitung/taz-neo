@@ -56,7 +56,6 @@ class PdfPagerFragment : BaseMainFragment(
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
             pdf_viewpager.currentItem = position+1
         })
-        loading_screen?.visibility = View.GONE
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
@@ -85,6 +84,7 @@ class PdfPagerFragment : BaseMainFragment(
                     pdf_loading_screen?.visibility = View.GONE
                 }
             }
+            pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
     }
     /**

@@ -31,6 +31,7 @@ class PdfPagerViewModel(
 
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
+    val hideDrawerLogo= MutableLiveData(false)
     val currentItem = MutableLiveData(0)
     var activePosition = MutableLiveData(0)
     var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
