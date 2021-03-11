@@ -39,8 +39,8 @@
 
             <ImageView
                 android:id="@+id/drawer_logo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/drawer_logo_default_width"
+                android:layout_height="@dimen/drawer_logo_default_height"
                 android:adjustViewBounds="true"
                 android:background="@color/tazRed"
                 android:clickable="true"
