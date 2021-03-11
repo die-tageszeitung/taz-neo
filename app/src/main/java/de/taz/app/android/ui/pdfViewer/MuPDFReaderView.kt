@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import com.artifex.mupdf.viewer.ReaderView
 import de.taz.app.android.util.Log
 
 enum class ViewBorder {
@@ -14,24 +13,21 @@ enum class ViewBorder {
     NONE
 }
 
+const val SCROLL_MIN_DISTANCE = 10F
+
 class MuPDFReaderView constructor(
     context: Context?
-) : ReaderView(
+) : com.artifex.mupdfdemo.ReaderView(
     context
 ), GestureDetector.OnDoubleTapListener {
     var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
     var onBorderListener: ((ViewBorder) -> Unit)? = null
     var onScaleListener: ((Boolean) -> Unit)? = null
     val log by Log
-    private var tapDisabled = false
 
-    override fun onSingleTapUp(event: MotionEvent): Boolean {
-        clickCoordinatesListener?.invoke(calculateClickCoordinates(event.x, event.y))
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        clickCoordinatesListener?.invoke(calculateClickCoordinates(e.x, e.y))
         return true
-    }
-
-    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-        return false
     }
 
     override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
@@ -39,36 +35,30 @@ class MuPDFReaderView constructor(
     }
 
     override fun onDoubleTap(ev: MotionEvent): Boolean {
-        //TODO -> not working at the moment:
-     /*   val v = super.getView(mCurrent)
-        if (v != null) {
-            val previousScale = v.scaleX
-            v.scaleX += if (v.scaleX == 1f) 2f else -2f
-            v.scaleY += if (v.scaleY == 1f) 2f else -2f
-            val factor = v.scaleX / previousScale
+        val newScale = if (mScale == 1f) {
+            2f
+        } else if (mScale > 2f) {
+            1f
+        } else {
+            4f
+        }
+        mScale = newScale
+        if (newScale > 1f) {
             // Work out the focus point relative to the view top left
-            val viewFocusX: Int = ev.x.toInt() - (v.left + v.scrollX)
-            val viewFocusY: Int = ev.y.toInt() - (v.top + v.scrollY)
+            val viewFocusX: Int = ev.x.toInt() - (left + mXScroll)
+            val viewFocusY: Int = ev.y.toInt() - (top + mYScroll)
             // Scroll to maintain the focus point
-            v.scrollX += (viewFocusX - viewFocusX * factor).toInt()
-            v.scrollY += (viewFocusY - viewFocusY * factor).toInt()
-            requestLayout()
-        }*/
-
+            mXScroll += (viewFocusX - viewFocusX * newScale).toInt()
+            mYScroll += (viewFocusY - viewFocusY * newScale).toInt()
+        } else {
+            onScaleListener?.invoke(true)
+        }
+        requestLayout()
         return true
     }
 
-    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-        tapDisabled = true
-        return super.onScaleBegin(detector)
-    }
-
-    override fun onScaleEnd(detector: ScaleGestureDetector?) {
-        tapDisabled = false
-        super.onScaleEnd(detector)
-    }
-
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
+        log.debug("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
         val pinchOut = detector?.scaleFactor!! < 1
         onScaleListener?.invoke(pinchOut)
         return super.onScale(detector)
