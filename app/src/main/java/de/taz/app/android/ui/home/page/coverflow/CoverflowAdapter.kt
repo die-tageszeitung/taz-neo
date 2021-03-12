@@ -21,5 +21,5 @@ class CoverflowAdapter(
     glideRequestManager,
     onMomentViewActionListener
 ) {
-    override val dateFormat: DateFormat = DateFormat.LongWithWeekDay
+    override val dateFormat: DateFormat = DateFormat.None
 }

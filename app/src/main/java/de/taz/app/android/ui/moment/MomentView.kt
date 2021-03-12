@@ -132,14 +132,14 @@ class MomentView @JvmOverloads constructor(
         fragment_moment_date.text = ""
     }
 
-    fun setDate(date: String?, dateFormat: DateFormat?) {
+    fun setDate(date: String?, dateFormat: DateFormat) {
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
                     fragment_moment_date.text = DateHelper.stringToLongLocalizedString(date)
                 DateFormat.LongWithoutWeekDay ->
                     fragment_moment_date.text = DateHelper.stringToMediumLocalizedString(date)
-                null ->
+                DateFormat.None ->
                     fragment_moment_date.visibility = View.GONE
             }
         } else {

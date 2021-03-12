@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 
 
 enum class DateFormat {
+    None,
     LongWithWeekDay,
     LongWithoutWeekDay
 }

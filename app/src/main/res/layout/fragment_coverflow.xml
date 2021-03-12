@@ -14,6 +14,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/fragment_cover_flow_date"
+        style="@style/TextAppearance.Archive.Date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
+        app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_to_archive"
+        android:text="test:w"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <ImageView
         android:id="@+id/fragment_cover_flow_to_archive"
         android:layout_width="wrap_content"

@@ -102,6 +102,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             }
         }
 
+        fragment_cover_flow_date.setOnClickListener {
+            currentDate?.let { openDatePicker(it) }
+        }
+
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this@CoverflowFragment)
             val fresh = !::adapter.isInitialized
