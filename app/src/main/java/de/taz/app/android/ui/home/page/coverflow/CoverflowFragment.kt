@@ -21,6 +21,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.HomePageFragment
@@ -43,6 +44,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val onScrollListener = OnScrollListener()
 
     private var currentDate: Date? = null
+        set(value) {
+            field = value
+            if(value != null) {
+                fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(value)
+            }
+        }
 
     private var initialIssueDisplay: IssueKey? = null
 
