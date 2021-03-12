@@ -17,7 +17,7 @@ import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import java.lang.IndexOutOfBoundsException
 
-abstract class BaseMainFragment (
+abstract class BaseMainFragment(
     @LayoutRes layoutResourceId: Int
 ) : Fragment(layoutResourceId) {
 
@@ -124,8 +124,12 @@ abstract class BaseMainFragment (
     }
 
     fun setIcon(itemId: Int, @DrawableRes iconRes: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.setIcon(iconRes)
+        val menuView = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
+        val menu = menuView?.menu
+        // prevent call while layouting
+        menuView?.post {
+            menu?.findItem(itemId)?.setIcon(iconRes)
+        }
     }
 
     private fun toggleMenuItem(menuItem: MenuItem) {
