@@ -12,6 +12,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import kotlinx.android.synthetic.main.fragment_archive.*
+import kotlin.math.floor
 
 /**
  * Fragment to show the archive - a GridView of available issues
@@ -56,7 +57,7 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
         val screenWidth = resources.displayMetrics.widthPixels
         val columnWidth = resources.getDimension(R.dimen.fragment_archive_item_width)
 
-        return (screenWidth / columnWidth).toInt().coerceIn(2,4)
+        return floor(screenWidth / columnWidth).toInt().coerceIn(2,4)
     }
 
     override fun onDestroyView() {
