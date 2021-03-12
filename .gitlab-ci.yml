@@ -84,7 +84,7 @@ integrationTests:
   extends: .prepareEnv
   stage: test
   script:
-    - sudo usermod -aG kvm $USER
+    - sudo usermod -aG kvm `whoami`
     - ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
     - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=de.taz.app.android.suite.UiTestSuite
   tags:
