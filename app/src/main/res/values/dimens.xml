@@ -59,7 +59,7 @@
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>
-    <dimen name="fragment_archive_item_width">150dp</dimen>
+    <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
     <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
