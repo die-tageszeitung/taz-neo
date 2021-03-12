@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.IssueKey
@@ -39,7 +38,6 @@ abstract class IssueFeedAdapter(
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: MomentViewActionListener
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
-    private val log by Log
 
     abstract val dateFormat: DateFormat
 
