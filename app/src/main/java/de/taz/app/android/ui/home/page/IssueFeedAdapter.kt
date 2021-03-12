@@ -1,9 +1,9 @@
 package de.taz.app.android.ui.home.page
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.util.Log
@@ -47,7 +47,7 @@ abstract class IssueFeedAdapter(
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
-            ) as ConstraintLayout
+            )
         )
     }
 
@@ -77,7 +77,7 @@ abstract class IssueFeedAdapter(
     /**
      * ViewHolder for this Adapter
      */
-    inner class ViewHolder constructor(itemView: ConstraintLayout): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         private var binder: MomentViewDataBinding? = null
 
         fun bind(fragment: HomePageFragment, date: Date) {

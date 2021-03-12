@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.View
+import de.taz.app.android.R
 import de.taz.app.android.util.Log
 import kotlin.math.abs
 import kotlin.math.max
@@ -12,11 +13,9 @@ object ZoomPageTransformer {
 
     private fun translationXAtScale(view: View, position: Float, scaleFactor: Float): Float =
         view.run {
-            if (position > 0) {
-                (width - (width * scaleFactor)) / (GAP_MODIFIER)
-            } else {
-                (-(width - (width * scaleFactor))) / (GAP_MODIFIER)
-            }
+            val child = view.findViewById<View>(R.id.moment_container)
+            val border = (width - child.width).toFloat()
+            (border * position)
         }
 
     val log by Log

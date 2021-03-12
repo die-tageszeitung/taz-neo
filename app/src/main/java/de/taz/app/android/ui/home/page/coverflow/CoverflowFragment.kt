@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
@@ -20,9 +21,9 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -31,7 +32,7 @@ import java.util.*
 
 const val KEY_DATE = "ISSUE_KEY"
 
-class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
+class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
@@ -54,16 +55,27 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
         super.onCreate(savedInstanceState)
 
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
-        initialIssueDisplay = requireActivity().intent.getParcelableExtra<IssueKey>(MainActivity.KEY_ISSUE_KEY)
+        initialIssueDisplay =
+            requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_KEY)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fragment_cover_flow_grid.apply {
-            context?.let { context ->
-                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            }
+            layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
 
+                override fun calculateExtraLayoutSpace(
+                    state: RecyclerView.State,
+                    extraLayoutSpace: IntArray
+                ) {
+                    super.calculateExtraLayoutSpace(state, extraLayoutSpace)
+                    val orientationHelper =
+                        OrientationHelper.createOrientationHelper(this, orientation)
+                    val extraSpace = orientationHelper.totalSpace
+                    extraLayoutSpace[0] = extraSpace
+                    extraLayoutSpace[1] = extraSpace
+                }
+            }
 
             // transform the visible children visually
             snapHelper.apply {
@@ -71,16 +83,18 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
+
+            addOnChildAttachStateChangeListener(object :
+                RecyclerView.OnChildAttachStateChangeListener {
+
+                override fun onChildViewAttachedToWindow(view: View) {
+                    applyZoomPageTransformer()
+                    triggerNeighboursToBeDrawn()
+                }
+
+                override fun onChildViewDetachedFromWindow(view: View) = Unit
+            })
         }
-
-        fragment_cover_flow_grid.addOnChildAttachStateChangeListener(object :
-            RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                applyZoomPageTransformer()
-            }
-
-            override fun onChildViewDetachedFromWindow(view: View) = Unit
-        })
 
         fragment_cover_flow_to_archive.setOnClickListener {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
@@ -117,9 +131,7 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
     }
 
     override fun onPause() {
-        fragment_cover_flow_grid.apply {
-            removeOnScrollListener(onScrollListener)
-        }
+        fragment_cover_flow_grid.removeOnScrollListener(onScrollListener)
         super.onPause()
     }
 
@@ -134,11 +146,11 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    private fun skipToCurrentItem(): Boolean {
+    private fun skipToCurrentItem() {
         if (!::adapter.isInitialized) {
-            return false
+            return
         }
-        return currentDate?.let {
+        currentDate?.let {
             val position = adapter.getPosition(it)
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             layoutManager?.apply {
@@ -148,18 +160,14 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
                     viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                         if (position != currentPosition) {
                             setCurrentItem(adapter.getItem(position))
-                            fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
-                            snapHelper.scrollToPosition(position)
+                            layoutManager.scrollToPosition(position)
                         }
                     }
-                    return true
                 } else if (position == 0) {
                     skipToHome()
-                    return true
                 }
             }
-            return false
-        } ?: false
+        } ?: skipToHome()
     }
 
     fun skipToKey(issueKey: IssueKey) {
@@ -176,11 +184,10 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
             recyclerView: RecyclerView,
             newState: Int
         ) {
-            // if user is dragging to left if no newer issue -> refresh
             super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_SETTLING && isDragEvent &&
-                !recyclerView.canScrollHorizontally(-1)
-            ) {
+
+            // if user is dragging to left if no newer issue -> refresh
+            if (isDragEvent && !recyclerView.canScrollHorizontally(-1)) {
                 activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
                     ?.setRefreshingWithCallback(true)
             }
@@ -196,25 +203,21 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
             val position: Int =
                 (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
 
-            // snap first time the position is set by the fragment
-            if (dx == 0 && dy == 0 && !isDragEvent) {
-                snapHelper.scrollToPosition(position)
-            }
-
             applyZoomPageTransformer()
 
-
             // persist position and download new issues if user is scrolling
-            if (position >= 0 && !isIdleEvent) {
-                (parentFragment as? HomeFragment)?.apply {
-                    if (position == 0) {
-                        setHomeIconFilled()
-                    } else {
-                        setHomeIcon()
-                    }
+            (parentFragment as? HomeFragment)?.apply {
+                if (position == 0) {
+                    setHomeIconFilled()
+                } else {
+                    setHomeIcon()
                 }
-
+            }
+            if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(adapter.getItem(position))
+            }
+            if (isIdleEvent && dx == 0 && dy == 0) {
+                triggerNeighboursToBeDrawn()
             }
         }
     }
@@ -233,9 +236,18 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
             children.forEach { child ->
                 val childPosition = (child.left + child.right) / 2f
                 val center = width / 2
-
-                ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
+                if (childPosition != 0f) {
+                    ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
+                }
             }
+        }
+    }
+
+    // hack to ensure the neighbours of the items are shown
+    private fun triggerNeighboursToBeDrawn() {
+        fragment_cover_flow_grid.post {
+            fragment_cover_flow_grid.scrollBy(1, 0)
+            fragment_cover_flow_grid.scrollBy(-1, 0)
         }
     }
 

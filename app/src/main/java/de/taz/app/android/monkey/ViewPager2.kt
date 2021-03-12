@@ -47,7 +47,8 @@ fun ViewPager2.moveContentBeneathStatusBar() {
             rightMargin = insets.systemWindowInsetRight
             bottomMargin = insets.systemWindowInsetBottom
         }
-        v.layoutParams = layoutParams
+        // use post to prevent requestLayout while layouting
+        v.post { v.layoutParams = layoutParams }
         insets.consumeSystemWindowInsets()
     }
 
