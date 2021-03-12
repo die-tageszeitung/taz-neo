@@ -96,7 +96,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
                 override fun onChildViewAttachedToWindow(view: View) {
                     applyZoomPageTransformer()
-                    triggerNeighboursToBeDrawn()
                 }
 
                 override fun onChildViewDetachedFromWindow(view: View) = Unit
@@ -227,9 +226,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(adapter.getItem(position))
             }
-            if (isIdleEvent && dx == 0 && dy == 0) {
-                triggerNeighboursToBeDrawn()
-            }
         }
     }
 
@@ -251,14 +247,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
                 }
             }
-        }
-    }
-
-    // hack to ensure the neighbours of the items are shown
-    private fun triggerNeighboursToBeDrawn() {
-        fragment_cover_flow_grid.post {
-            fragment_cover_flow_grid.scrollBy(1, 0)
-            fragment_cover_flow_grid.scrollBy(-1, 0)
         }
     }
 
