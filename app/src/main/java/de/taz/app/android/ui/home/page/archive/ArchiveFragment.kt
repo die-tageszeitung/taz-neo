@@ -31,7 +31,7 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
 
         context?.let { context ->
             fragment_archive_grid.layoutManager =
-                GridLayoutManager(context, calculateNoOfColumns(context))
+                GridLayoutManager(context, calculateNoOfColumns())
         }
 
         fragment_archive_to_cover_flow.setOnClickListener {
@@ -52,13 +52,11 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
         }
     }
 
-    private fun calculateNoOfColumns(context: Context): Int {
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+    private fun calculateNoOfColumns(): Int {
+        val screenWidth = resources.displayMetrics.widthPixels
+        val columnWidth = resources.getDimension(R.dimen.fragment_archive_item_width)
 
-        val columnWidthDp =
-            resources.getDimension(R.dimen.fragment_archive_item_width) / displayMetrics.density
-        return (screenWidthDp / columnWidthDp).toInt()
+        return (screenWidth / columnWidth).toInt().coerceIn(2,4)
     }
 
     override fun onDestroyView() {
