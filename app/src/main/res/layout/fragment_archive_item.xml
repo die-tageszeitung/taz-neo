@@ -2,22 +2,23 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:clipToPadding="false"
-    android:clipChildren="false"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <de.taz.app.android.ui.moment.MomentView
         android:id="@+id/fragment_cover_flow_item"
         android:layout_width="0dp"
-        android:clipChildren="false"
         android:layout_height="wrap_content"
-        android:clipToPadding="false"
+        android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/fragment_archive_item_margin_bottom"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_max="wrap"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="wrap"
         app:layout_constraintWidth_percent="0.8" />
 
