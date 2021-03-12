@@ -5,8 +5,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.RelativeLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
@@ -20,6 +20,10 @@ import kotlinx.android.synthetic.main.view_moment.view.*
 
 
 private const val MOMENT_FADE_DURATION_MS = 500L
+private const val LOADING_FADE_OUT_DURATION_MS = 500L
+
+// setting height and with is no exact science - ignore if only differs by X pixels
+private const val IGNORE_PIXEL_MARGIN = 5
 
 @SuppressLint("ClickableViewAccessibility")
 class MomentView @JvmOverloads constructor(
@@ -33,6 +37,8 @@ class MomentView @JvmOverloads constructor(
     private var momentElevation: Float? = null
 
     private var downloadButtonListener: ((View) -> Unit)? = null
+
+    private var dimension: Float? = null
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
@@ -77,7 +83,6 @@ class MomentView @JvmOverloads constructor(
                 textAlignment = textAlign
             }
         }
-        showProgressBar()
     }
 
     fun clear(glideRequestManager: RequestManager) {
@@ -91,19 +96,19 @@ class MomentView @JvmOverloads constructor(
         moment_web_view.visibility = View.GONE
         clearDate()
         hideDownloadIcon()
-        showProgressBar()
     }
 
     fun show(
         data: MomentViewData,
-        dateFormat: DateFormat? = DateFormat.LongWithoutWeekDay,
+        dateFormat: DateFormat = DateFormat.LongWithoutWeekDay,
         glideRequestManager: RequestManager
     ) {
+        setDimension(data.dimension)
+        showProgressBar()
         data.momentUri?.let {
             showMomentImage(it, data.momentType, glideRequestManager)
         }
         setDownloadIconForStatus(data.downloadStatus)
-        setDimension(data.dimension)
         setDate(data.issueKey.date, dateFormat)
     }
 
@@ -150,14 +155,52 @@ class MomentView @JvmOverloads constructor(
     }
 
     private fun hideProgressBar() {
-        moment_progressbar.visibility = View.GONE
+        moment_progressbar.animate().alpha(0f).duration = LOADING_FADE_OUT_DURATION_MS
     }
 
+    // set dimensions - they will be applied on layout
     private fun setDimension(dimensionString: String) {
-        moment_container.apply {
-            (layoutParams as ConstraintLayout.LayoutParams).dimensionRatio = dimensionString
-            requestLayout()
+        val dimensions = dimensionString.split(":").map { it.toFloat() }
+        dimension = dimensions[0] / dimensions[1]
+        ensureDimension()
+    }
+
+    // ensure correct dimension is used on layouts
+    private fun ensureDimension() {
+        dimension?.let { dimension ->
+            val textHeight = fragment_moment_date.height
+            val imageMaxHeight = height - textHeight
+            val dynamicHeight =
+                height == textHeight || layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT
+
+            val viewLayoutParams = layoutParams as MarginLayoutParams
+            val momentContainerLayoutParams = moment_container.layoutParams
+
+            // if this is to wide shrink width
+            val widthForMaxHeight = (imageMaxHeight * dimension).toInt()
+            val maxHeightForWidth = (width / dimension).toInt() + textHeight
+
+            if (widthForMaxHeight < width - IGNORE_PIXEL_MARGIN && !dynamicHeight) {
+                log.debug("ensureDimen: width: ${width - widthForMaxHeight} ")
+                // if max height is ok adjust width
+                momentContainerLayoutParams.height = imageMaxHeight
+                momentContainerLayoutParams.width = widthForMaxHeight
+                viewLayoutParams.width = widthForMaxHeight
+            } else if (height - maxHeightForWidth > IGNORE_PIXEL_MARGIN || dynamicHeight) {
+                log.debug("ensureDimen: height: ${height - maxHeightForWidth} dynamic: $dynamicHeight")
+                // if max width is ok adjust height
+                momentContainerLayoutParams.width = width
+                momentContainerLayoutParams.height = maxHeightForWidth - textHeight
+            } else {
+                return
+            }
+            moment_container.post { moment_container.layoutParams = momentContainerLayoutParams }
         }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+        if (changed) ensureDimension()
     }
 
     fun setOnDownloadClickedListener(listener: ((View) -> Unit)?) {
@@ -172,7 +215,7 @@ class MomentView @JvmOverloads constructor(
         moment_container.setOnClickListener(listener)
     }
 
-    fun activateDownloadButtonListener() {
+    private fun activateDownloadButtonListener() {
         downloadButtonListener?.let {
             view_moment_download_icon_wrapper.setOnClickListener(it)
         }
@@ -242,7 +285,6 @@ class MomentView @JvmOverloads constructor(
     private fun showAnimatedImage(uri: String) {
         moment_web_view.visibility = View.VISIBLE
         moment_web_view.apply {
-
             loadUrl(uri)
         }
     }

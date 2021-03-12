@@ -22,14 +22,8 @@ fun onMomentCoverFlowItemAt(position: Int): ViewInteraction {
                         allOf(
                             withId(R.id.fragment_cover_flow_item),
                             childAtPosition(
-                                allOf(
-                                    withId(R.id.fragment_cover_flow_item_wrapper),
-                                    childAtPosition(
-                                        withId(R.id.fragment_cover_flow_grid),
-                                        position
-                                    )
-                                ),
-                                0
+                                withId(R.id.fragment_cover_flow_grid),
+                                position
                             )
                         ),
                         0
