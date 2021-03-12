@@ -21,6 +21,7 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.HomePageFragment
@@ -43,6 +44,12 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
     private val onScrollListener = OnScrollListener()
 
     private var currentDate: Date? = null
+        set(value) {
+            field = value
+            if(value != null) {
+                fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(value)
+            }
+        }
 
     private var initialIssueDisplay: IssueKey? = null
 
@@ -89,7 +96,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
 
                 override fun onChildViewAttachedToWindow(view: View) {
                     applyZoomPageTransformer()
-                    triggerNeighboursToBeDrawn()
                 }
 
                 override fun onChildViewDetachedFromWindow(view: View) = Unit
@@ -100,6 +106,10 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem += 1
             }
+        }
+
+        fragment_cover_flow_date.setOnClickListener {
+            currentDate?.let { openDatePicker(it) }
         }
 
         viewModel.feed.observeDistinct(this) { feed ->
@@ -140,6 +150,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         if (!::adapter.isInitialized) {
             return
         }
+        fragment_cover_flow_grid.stopScroll()
         setCurrentItem(adapter.getItem(0))
         fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
         snapHelper.scrollToPosition(0)
@@ -159,6 +170,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 if (position > 0) {
                     viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                         if (position != currentPosition) {
+                            fragment_cover_flow_grid.stopScroll()
                             setCurrentItem(adapter.getItem(position))
                             layoutManager.scrollToPosition(position)
                         }
@@ -216,9 +228,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
             if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(adapter.getItem(position))
             }
-            if (isIdleEvent && dx == 0 && dy == 0) {
-                triggerNeighboursToBeDrawn()
-            }
         }
     }
 
@@ -240,14 +249,6 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                     ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
                 }
             }
-        }
-    }
-
-    // hack to ensure the neighbours of the items are shown
-    private fun triggerNeighboursToBeDrawn() {
-        fragment_cover_flow_grid.post {
-            fragment_cover_flow_grid.scrollBy(1, 0)
-            fragment_cover_flow_grid.scrollBy(-1, 0)
         }
     }
 

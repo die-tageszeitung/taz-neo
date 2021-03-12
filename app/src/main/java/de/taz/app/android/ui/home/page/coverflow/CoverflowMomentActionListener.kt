@@ -6,10 +6,6 @@ import de.taz.app.android.ui.home.page.HomeMomentViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewData
 
 open class CoverflowMomentActionListener(
-    private val coverflowFragment: CoverflowFragment,
+    coverflowFragment: CoverflowFragment,
     dataService: DataService
-) : HomeMomentViewActionListener(coverflowFragment, dataService) {
-    override fun onDateClicked(momentViewData: MomentViewData) {
-        coverflowFragment.openDatePicker(simpleDateFormat.parse(momentViewData.issueKey.date)!!)
-    }
-}
+) : HomeMomentViewActionListener(coverflowFragment, dataService)

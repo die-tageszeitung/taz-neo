@@ -14,7 +14,6 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.moment.MomentView
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
@@ -29,10 +28,8 @@ class MomentViewDataBinding(
     private val issuePublication: IssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: MomentViewActionListener,
+    private val onMomentViewActionListener: MomentViewActionListener
 ) {
-    private val log by Log
-
     private val dataService = DataService.getInstance()
     private val feedRepository = FeedRepository.getInstance()
     private val toastHelper = ToastHelper.getInstance()
@@ -136,7 +133,7 @@ class MomentViewDataBinding(
                     retryOnFailure = true,
                     allowCache = false,
                     onConnectionFailure = { onConnectionFailure() }
-                ) ?: throw IllegalStateException("No issue found for $issuePublication")
+                )
                 dataService.ensureDownloaded(
                     collection = issue,
                     onConnectionFailure = { onConnectionFailure() }

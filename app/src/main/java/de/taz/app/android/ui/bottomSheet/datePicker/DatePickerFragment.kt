@@ -94,7 +94,7 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
             loading_screen?.visibility = View.VISIBLE
-            confirmButton.visibility = View.GONE
+            confirmButton.isClickable = false
             log.debug("new date set: $day.$month.$year")
 
             preventDismissal()

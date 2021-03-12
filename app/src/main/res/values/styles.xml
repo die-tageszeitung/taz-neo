@@ -195,7 +195,7 @@
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:paddingBottom">5dp</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
