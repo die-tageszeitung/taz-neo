@@ -150,6 +150,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
         if (!::adapter.isInitialized) {
             return
         }
+        fragment_cover_flow_grid.stopScroll()
         setCurrentItem(adapter.getItem(0))
         fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
         snapHelper.scrollToPosition(0)
@@ -169,6 +170,7 @@ class CoverflowFragment : HomePageFragment(R.layout.fragment_coverflow) {
                 if (position > 0) {
                     viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                         if (position != currentPosition) {
+                            fragment_cover_flow_grid.stopScroll()
                             setCurrentItem(adapter.getItem(position))
                             layoutManager.scrollToPosition(position)
                         }
