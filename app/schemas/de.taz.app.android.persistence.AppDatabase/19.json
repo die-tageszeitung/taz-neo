@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 19,
-    "identityHash": "9268140ec7e2805bb3de5953c1c9259f",
+    "identityHash": "4c9fd0d781b6b3c58059adf920efc272",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -1133,7 +1133,7 @@
       },
       {
         "tableName": "Page",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pdfFileName` TEXT NOT NULL, `title` TEXT, `pagina` TEXT, `type` TEXT, `frameList` TEXT, `dateDownload` TEXT, `baseUrl` TEXT NOT NULL, PRIMARY KEY(`pdfFileName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pdfFileName` TEXT NOT NULL, `title` TEXT, `pagina` TEXT, `type` TEXT, `frameList` TEXT, `dateDownload` TEXT, PRIMARY KEY(`pdfFileName`))",
         "fields": [
           {
             "fieldPath": "pdfFileName",
@@ -1170,12 +1170,6 @@
             "columnName": "dateDownload",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "baseUrl",
-            "columnName": "baseUrl",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -1541,7 +1535,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9268140ec7e2805bb3de5953c1c9259f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c9fd0d781b6b3c58059adf920efc272')"
     ]
   }
 }
