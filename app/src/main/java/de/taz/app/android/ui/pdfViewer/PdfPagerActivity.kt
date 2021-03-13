@@ -29,7 +29,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
 
-const val LOGO_PEAK = 9
+const val LOGO_PEAK = 5
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
     private val log by Log
@@ -89,9 +89,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         }
 
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            var opened = false
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                drawer_logo.animate().cancel()
                 drawer_logo.translationX = 0f
                 pdf_drawer_layout.updateDrawerLogoBoundingBox(
                     drawer_logo.width,
@@ -101,25 +101,18 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     val drawerWidth =
                         drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = min(
-                            slideOffset * (parentView.width - drawerWidth),
-                            -5f * resources.displayMetrics.density
-                        )
+                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                    } else {
+                        drawer_logo.translationX =  -5f * resources.displayMetrics.density
                     }
                 }
             }
 
-            override fun onDrawerOpened(drawerView: View) {
-                log.debug("drawer opened!")
-                opened = true
-            }
-
             override fun onDrawerClosed(drawerView: View) {
-                log.debug("drawer closed!")
                 pdfPagerViewModel.hideDrawerLogo.postValue(true)
-                opened = false
             }
 
+            override fun onDrawerOpened(drawerView: View) = Unit
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
         pdfPagerViewModel.pdfDataList.observe(this, {
@@ -161,30 +154,34 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private fun hideDrawerLogoWithDelay() {
         if (pdfPagerViewModel.hideDrawerLogo.value == true) {
-            val transX = -drawer_logo.width.toFloat() + LOGO_PEAK
+            val transX = - drawer_logo.width.toFloat() + LOGO_PEAK * resources.displayMetrics.density
             drawer_logo.animate()
+                .withEndAction{
+                    pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                        LOGO_PEAK,
+                        drawer_logo.height
+                    )
+                }
                 .setDuration(1000L)
                 .setStartDelay(2000L)
                 .translationX(transX)
                 .interpolator = AccelerateDecelerateInterpolator()
-            pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                LOGO_PEAK,
-                drawer_logo.height
-            )
         }
     }
 
     private fun showDrawerLogo() {
         if (pdfPagerViewModel.hideDrawerLogo.value == false) {
             drawer_logo.animate()
+                .withEndAction {
+                    pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                        drawer_logo.width,
+                        drawer_logo.height
+                    )
+                }
                 .setDuration(1000L)
                 .setStartDelay(0L)
                 .translationX(0f)
                 .interpolator = AccelerateDecelerateInterpolator()
-            pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                drawer_logo.width,
-                drawer_logo.height
-            )
         }
     }
 
