@@ -19,7 +19,7 @@ import java.io.File
 
 const val DRAWER_PAGE_WIDTH = 116f
 
-class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListModel>) :
+class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfPageList>) :
     RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
 
     private lateinit var context: Context
@@ -28,10 +28,10 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
         set(value) {
             val oldValue = field
             field = value
-            if (value >= 0 && itemListModel.size > value) {
+            if (value >= 0 && itemList.size > value) {
                 notifyItemChanged(value)
             }
-            if (oldValue >= 0 && itemListModel.size > value) {
+            if (oldValue >= 0 && itemList.size > value) {
                 notifyItemChanged(oldValue)
             }
         }
@@ -49,7 +49,7 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
     }
 
     override fun getItemCount(): Int {
-        return itemListModel.count()
+        return itemList.count()
     }
 
     override fun onBindViewHolder(holder: NavigationItemViewHolder, position: Int) {
@@ -63,13 +63,13 @@ class PdfDrawerRecyclerViewAdapter(private var itemListModel: List<PdfPageListMo
             )
         }
         // Set the title:
-        holder.itemView.fragment_drawer_pdf_title.text = itemListModel[position].title
+        holder.itemView.fragment_drawer_pdf_title.text = itemList[position].title
 
         // Set the image:
         CoroutineScope(Dispatchers.Default).launch {
             val img = getPreviewImageFromPdfFile(
-                file = itemListModel[position].pdfFile,
-                isPanorama = itemListModel[position].pageType == PageType.panorama
+                file = itemList[position].pdfFile,
+                isPanorama = itemList[position].pageType == PageType.panorama
             )
             withContext(Dispatchers.Main) {
                 holder.itemView.fragment_drawer_pdf_page.setImageBitmap(

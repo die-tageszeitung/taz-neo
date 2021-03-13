@@ -17,7 +17,6 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
-import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
 class PdfPagerFragment : BaseMainFragment(
     R.layout.fragment_pdf_pager
@@ -31,7 +30,7 @@ class PdfPagerFragment : BaseMainFragment(
         super.onViewCreated(view, savedInstanceState)
 
 
-        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner, {
+        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
                     adapter = activity?.let { it1 -> PdfPagerAdapter(it1) }

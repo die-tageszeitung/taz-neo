@@ -3,7 +3,6 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
-import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
@@ -34,7 +33,7 @@ class PdfPagerViewModel(
     val hideDrawerLogo= MutableLiveData(false)
     val currentItem = MutableLiveData(0)
     var activePosition = MutableLiveData(0)
-    var pdfDataListModel: MutableLiveData<List<PdfPageListModel>> = MutableLiveData(emptyList())
+    var pdfDataList: MutableLiveData<List<PdfPageList>> = MutableLiveData(emptyList())
 
     private val log by Log
 
@@ -61,11 +60,11 @@ class PdfPagerViewModel(
             )
 
             if (issue.isDownloaded()) {
-                pdfDataListModel.postValue(issue.pageList.map {
+                pdfDataList.postValue(issue.pageList.map {
                     val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
                         storageService.getFile(fileEntry)
                     }
-                    PdfPageListModel(
+                    PdfPageList(
                         file!!,
                         it.frameList ?: emptyList(),
                         it.title ?: "",
@@ -82,7 +81,7 @@ class PdfPagerViewModel(
     }
 
     fun getAmountOfPdfPages() : Int {
-        return pdfDataListModel.value?.size ?: 29
+        return pdfDataList.value?.size ?: 29
     }
 
     fun setDefaultDrawerNavButton() {
@@ -100,6 +99,6 @@ class PdfPagerViewModel(
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
-        return pdfDataListModel.value?.indexOfFirst { it.pdfFile.name == fileName } ?: 0
+        return pdfDataList.value?.indexOfFirst { it.pdfFile.name == fileName } ?: 0
     }
 }

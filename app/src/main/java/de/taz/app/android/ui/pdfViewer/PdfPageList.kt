@@ -4,7 +4,7 @@ import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.PageType
 import java.io.File
 
-data class PdfPageListModel(
+data class PdfPageList(
     var pdfFile: File,
     var frameList: List<Frame>,
     var title: String,

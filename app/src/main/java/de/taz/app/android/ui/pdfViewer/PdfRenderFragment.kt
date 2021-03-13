@@ -40,7 +40,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
-        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { pageList ->
+        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner) { pageList ->
             val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
@@ -64,7 +64,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
-        pdfPagerViewModel.pdfDataListModel.observe(viewLifecycleOwner) { list ->
+        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner) { list ->
             val frameList = list[position].frameList
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
             frame?.let {

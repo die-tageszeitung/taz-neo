@@ -21,7 +21,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         ORDER BY IssuePageJoin.`index` ASC
         """
     )
-    abstract fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub
+    abstract fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub?
 
     @Query(
         """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 

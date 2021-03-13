@@ -29,7 +29,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.min
 
-const val LOGO_PEAK = 10
+const val LOGO_PEAK = 9
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
     private val log by Log
@@ -122,7 +122,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
-        pdfPagerViewModel.pdfDataListModel.observe(this, {
+        pdfPagerViewModel.pdfDataList.observe(this, {
             initDrawerAdapter(it)
         })
         pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
@@ -188,7 +188,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         }
     }
 
-    private fun initDrawerAdapter(items: List<PdfPageListModel>) {
+    private fun initDrawerAdapter(items: List<PdfPageList>) {
 
         if (items.isNotEmpty()) {
             // Setup a gridManager which takes 2 columns for panorama pages

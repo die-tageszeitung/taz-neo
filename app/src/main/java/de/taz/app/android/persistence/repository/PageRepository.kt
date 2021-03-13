@@ -65,12 +65,13 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getFrontPage(issueKey: IssueKey): Page {
-        return pageStubToPage(
-            appDatabase.issuePageJoinDao()
-                .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        )
+    fun getFrontPage(issueKey: IssueKey): Page? {
+        return appDatabase.issuePageJoinDao()
+            .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)?.let {
+                pageStubToPage(it)
+            }
     }
+
 
     fun getLiveData(fileName: String): LiveData<Page?> {
         return Transformations.map(
