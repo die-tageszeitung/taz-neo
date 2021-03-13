@@ -30,8 +30,9 @@ import kotlin.math.min
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
+const val DRAWER_OVERLAP_OFFSET = -5F
+
 abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewer) {
-    private val log by Log
 
     abstract val fragmentClass: KClass<out Fragment>
 
@@ -85,10 +86,9 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
                     val drawerWidth =
                         drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = min(
-                            slideOffset * (parentView.width - drawerWidth),
-                            -5f * resources.displayMetrics.density
-                        )
+                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
+                    } else {
+                        drawer_logo.translationX = DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
                     }
                 }
             }
