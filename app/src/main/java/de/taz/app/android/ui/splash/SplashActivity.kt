@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.StatFs
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
@@ -107,7 +108,6 @@ class SplashActivity : BaseActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
-            launch { checkForNewestIssue() }
             launch { sendPushToken() }
         }
         lifecycleScope.launch {
@@ -115,18 +115,26 @@ class SplashActivity : BaseActivity() {
 
             generateInstallationId()
             generateNotificationChannels()
-            val initJob = launch {
-                launch { ensureAppInfo() }
-                launch(Dispatchers.IO) { initResources() }
-                launch { initFeed() }
-                launch(Dispatchers.IO) { NightModeHelper.generateCssOverride(this@SplashActivity) }
-            }
+
             try {
-                initJob.join()
+                withContext(Dispatchers.IO) {
+                    ensureAppInfo()
+                    initResources()
+                    initFeed()
+                    launch {
+                        checkForNewestIssue()
+                    }
+                    NightModeHelper.generateCssOverride(this@SplashActivity)
+                }
             } catch (e: InitializationException) {
-                toastHelper.showSomethingWentWrongToast()
+                AlertDialog.Builder(this@SplashActivity)
+                    .setMessage(R.string.splash_error_no_connection)
+                    .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
+                    .setOnDismissListener {
+                        finish()
+                    }
+                    .show()
                 Sentry.captureException(e)
-                finish()
                 return@launch
             }
 
@@ -170,7 +178,7 @@ class SplashActivity : BaseActivity() {
                 )
             }
         } catch (e: ConnectivityException.NoInternetException) {
-            log.warn("Failed to retrieve feed and first issues during startup, no internet")
+            throw InitializationException("Could not retrieve feed during first start")
         }
     }
 
@@ -216,7 +224,11 @@ class SplashActivity : BaseActivity() {
      * download AppInfo and persist it
      */
     private suspend fun ensureAppInfo() {
-        dataService.getAppInfo(retryOnFailure = true)
+        try {
+            dataService.getAppInfo()
+        } catch (e: ConnectivityException) {
+            throw InitializationException("Retrieving AppInfo failed")
+        }
     }
 
     /**
@@ -244,7 +256,11 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun downloadFromServerIntent(): Intent {
-        return Intent(Intent(Intent.ACTION_VIEW)).setData(Uri.parse(DEBUG_VERSION_DOWNLOAD_ENDPOINT))
+        return Intent(Intent(Intent.ACTION_VIEW)).setData(
+            Uri.parse(
+                DEBUG_VERSION_DOWNLOAD_ENDPOINT
+            )
+        )
     }
 
     /**
@@ -257,7 +273,10 @@ class SplashActivity : BaseActivity() {
         val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
 
         val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
-        storageService.getAbsolutePath(RESOURCE_FOLDER, storageLocation = currentStorageLocation)
+        storageService.getAbsolutePath(
+            RESOURCE_FOLDER,
+            storageLocation = currentStorageLocation
+        )
             ?.let(::File)?.mkdirs()
 
         var tazApiJSFileEntry =
