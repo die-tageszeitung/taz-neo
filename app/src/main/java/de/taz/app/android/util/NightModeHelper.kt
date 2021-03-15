@@ -41,7 +41,7 @@ object NightModeHelper {
 
         cssFileEntry?.let {
             val cssFile = StorageService.getInstance(activity.application).getFile(it)
-            val cssString = TazApiCssHelper.generateCssString(cssSharedPreferences)
+            val cssString = TazApiCssHelper.generateCssString(activity, cssSharedPreferences)
             cssFile?.writeText(cssString)
         }
     }

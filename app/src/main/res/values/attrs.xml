@@ -3,7 +3,7 @@
     <declare-styleable name="MomentView">
         <attr name="archive_item_padding" format="dimension" />
         <attr name="archive_item_text_color" format="color" />
-        <attr name="archive_item_text_orientation" >
+        <attr name="archive_item_text_orientation">
             <flag name="inherit" value="0" />
             <flag name="gravity" value="1" />
             <flag name="text_start" value="2" />
@@ -15,4 +15,5 @@
         <attr name="do_not_show_download_icon" format="boolean" />
 
     </declare-styleable>
+    <integer name="text_default_size">100</integer>
 </resources>

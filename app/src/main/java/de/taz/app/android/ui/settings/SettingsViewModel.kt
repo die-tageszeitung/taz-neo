@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import de.taz.app.android.*
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_FALLBACK
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
@@ -27,7 +27,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 SharedPreferenceStringLiveData(
                     it,
                     SETTINGS_TEXT_FONT_SIZE,
-                    SETTINGS_TEXT_FONT_SIZE_DEFAULT
+                    application.resources.getInteger(R.integer.text_default_size).toString()
                 )
             nightModeLiveData =
                 SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_NIGHT_MODE, false)
