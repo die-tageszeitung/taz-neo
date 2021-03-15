@@ -164,7 +164,10 @@ class BookmarkPagerFragment :
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                requireActivity().finish()
+                Intent(requireActivity(), MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(this)
+                }
             }
 
             R.id.bottom_navigation_action_bookmark -> {
