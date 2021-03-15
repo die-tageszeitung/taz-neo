@@ -302,7 +302,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun resetTextSize() {
         log.debug("resetTextSize")
-        val default = context?.resources?.getInteger(R.integer.text_default_size) ?: 100
+        val default = context?.resources?.getInteger(R.integer.text_default_size) ?: SETTINGS_TEXT_FONT_SIZE_FALLBACK
         viewModel.textSizeLiveData.postValue(default.toString())
     }
 
