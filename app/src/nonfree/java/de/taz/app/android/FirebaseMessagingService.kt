@@ -14,11 +14,16 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
 const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
 const val REMOTE_MESSAGE_REFRESH_KEY = "refresh"
 const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
+// Do avoid DDoSing the taz servers on a new issue release we add a randomized delay. The randomized
+// delay ranges from 0 to DOWNLOAD_DELAY_MAX_MS
+const val DOWNLOAD_DELAY_MAX_MS = 3600000L // 1 hour
+
 
 class FirebaseMessagingService : FirebaseMessagingService() {
 
@@ -66,7 +71,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_REFRESH_KEY]) {
                         REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL")
-                            downloadNewestIssue(remoteMessage.sentTime)
+                            downloadNewestIssue(
+                                remoteMessage.sentTime,
+                                delay = Random.nextLong(0, DOWNLOAD_DELAY_MAX_MS)
+                            )
                         }
                     }
                 }
@@ -81,7 +89,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun downloadNewestIssue(sentTime: Long) = CoroutineScope(Dispatchers.IO).launch {
+    private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) = CoroutineScope(Dispatchers.IO).launch {
         val downloadPreferences =
             applicationContext.getSharedPreferences(
                 PREFERENCES_DOWNLOADS,
@@ -92,7 +100,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 true
             )
         ) {
-            downloadService.scheduleNewestIssueDownload(sentTime.toString())
+            downloadService.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
         }
     }
 
