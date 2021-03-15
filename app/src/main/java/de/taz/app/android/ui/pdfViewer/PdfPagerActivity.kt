@@ -21,6 +21,7 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.ui.main.MainActivity.Companion.KEY_ISSUE_KEY
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
@@ -103,7 +104,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     if (parentView.width < drawerWidth) {
                         drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
                     } else {
-                        drawer_logo.translationX =  -5f * resources.displayMetrics.density
+                        drawer_logo.translationX = DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
                     }
                 }
             }
