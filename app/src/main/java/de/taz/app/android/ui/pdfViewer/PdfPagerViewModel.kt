@@ -17,6 +17,8 @@ import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+const val DEFAULT_NUMBER_OF_PAGES = 29
+
 class PdfPagerViewModel(
     application: Application,
     val issueKey: IssueKey
@@ -81,7 +83,7 @@ class PdfPagerViewModel(
     }
 
     fun getAmountOfPdfPages() : Int {
-        return pdfDataList.value?.size ?: 29
+        return pdfDataList.value?.size ?: DEFAULT_NUMBER_OF_PAGES
     }
 
     fun setDefaultDrawerNavButton() {
