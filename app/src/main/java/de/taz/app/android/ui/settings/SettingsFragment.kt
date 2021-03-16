@@ -15,7 +15,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_FALLBACK
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
@@ -302,7 +302,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun resetTextSize() {
         log.debug("resetTextSize")
-        viewModel.textSizeLiveData.postValue(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
+        val default = context?.resources?.getInteger(R.integer.text_default_size) ?: SETTINGS_TEXT_FONT_SIZE_FALLBACK
+        viewModel.textSizeLiveData.postValue(default.toString())
     }
 
     private fun reportBug() {

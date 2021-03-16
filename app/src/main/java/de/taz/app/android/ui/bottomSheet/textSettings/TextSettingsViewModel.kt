@@ -6,8 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import de.taz.app.android.PREFERENCES_TAZAPICSS
+import de.taz.app.android.R
 import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
 import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
@@ -17,10 +17,11 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     private val sharedPreferences =
         application.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
 
+    // Why is that a string TODO: migrate it to integer
     private val textSizeLiveData = SharedPreferenceStringLiveData(
         sharedPreferences,
         SETTINGS_TEXT_FONT_SIZE,
-        SETTINGS_TEXT_FONT_SIZE_DEFAULT
+        application.resources.getInteger(R.integer.text_default_size).toString()
     )
     private val nightModeLiveData =
             SharedPreferenceBooleanLiveData(sharedPreferences, SETTINGS_TEXT_NIGHT_MODE, false)

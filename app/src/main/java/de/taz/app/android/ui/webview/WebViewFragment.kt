@@ -148,7 +148,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         }
 
         view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
-            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, oldY: Int ->
+            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
                 saveScrollPositionDebounced(scrollY)
             }
         }

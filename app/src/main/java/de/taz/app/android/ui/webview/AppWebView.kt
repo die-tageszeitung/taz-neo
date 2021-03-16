@@ -80,7 +80,7 @@ class AppWebView @JvmOverloads constructor(
     suspend fun injectCss(sharedPreferences: SharedPreferences) = withContext(Dispatchers.Main) {
         log.debug("Injecting css")
 
-        val cssString = TazApiCssHelper.generateCssString(sharedPreferences)
+        val cssString = TazApiCssHelper.generateCssString(context, sharedPreferences)
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
         evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)

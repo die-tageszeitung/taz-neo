@@ -1,7 +1,8 @@
 package de.taz.app.android.singletons
 
+import android.content.Context
 import android.content.SharedPreferences
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,9 +12,9 @@ const val SETTINGS_FIRST_TIME_APP_STARTS = "first_time_app_starts"
 const val DEFAULT_FONT_SIZE = 18
 const val SETTINGS_TEXT_NIGHT_MODE = "text_night_mode"
 const val SETTINGS_TEXT_FONT_SIZE = "text_font_size"
-const val SETTINGS_TEXT_FONT_SIZE_DEFAULT = "100"
 const val SETTINGS_DEFAULT_NIGHT_COLOR = "#121212"
 const val SETTINGS_DEFAULT_DAY_COLOR = "#FFFFFF"
+const val SETTINGS_TEXT_FONT_SIZE_FALLBACK = 100
 
 object TazApiCssHelper {
 
@@ -29,18 +30,21 @@ object TazApiCssHelper {
         return fontSize.toString()
     }
 
-    suspend fun generateCssString(sharedPreferences: SharedPreferences): String =
+    suspend fun generateCssString(context: Context, sharedPreferences: SharedPreferences): String =
         withContext(Dispatchers.IO) {
             val nightModeCSSFileEntry = fileEntryRepository.get("themeNight.css")
             val nightModeCssFile = nightModeCSSFileEntry?.let {
                 storageService.getFile(nightModeCSSFileEntry)
             }
             val importString = nightModeCssFile?.let { "@import \"${it.absolutePath}\";" } ?: ""
+            val defaultFontSize = context.resources.getInteger(R.integer.text_default_size)
+
             val fontSizePx = computeFontSize(
+                // TODO: Why is that a string, should migrate
                 sharedPreferences.getString(
                     SETTINGS_TEXT_FONT_SIZE,
-                    SETTINGS_TEXT_FONT_SIZE_DEFAULT
-                ) ?: SETTINGS_TEXT_FONT_SIZE_DEFAULT
+                    defaultFontSize.toString()
+                ) ?: defaultFontSize.toString()
             )
 
             if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
