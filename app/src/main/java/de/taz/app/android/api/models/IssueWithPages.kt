@@ -1,14 +1,20 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.PageRepository
 
 import java.util.*
+import java.util.Collections.max
 
-data class Issue(
+data class IssueWithPages(
     override val feedName: String,
     override val date: String,
     val moment: Moment,
@@ -23,21 +29,21 @@ data class Issue(
     override val moTime: String,
     override val dateDownload: Date?,
     override val lastDisplayableName: String?
-) : IssueOperations, DownloadableCollection {
+) : IssueOperations, DownloadableCollection, ObservableDownload {
 
-    constructor(feedName: String, issueDto: IssueDto) : this(
-        feedName,
-        issueDto.date,
-        Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
-        issueDto.key,
-        issueDto.baseUrl,
-        issueDto.status,
-        issueDto.minResourceVersion,
-        issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), it, ArticleType.IMPRINT) },
-        issueDto.isWeekend,
-        issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
-        issueDto.moTime,
+    constructor(issue: Issue) : this(
+        issue.feedName,
+        issue.date,
+        issue.moment,
+        issue.key,
+        issue.baseUrl,
+        issue.status,
+        issue.minResourceVersion,
+        issue.imprint,
+        issue.isWeekend,
+        issue.sectionList,
+        issue.pageList,
+        issue.moTime,
         null,
         null
     )
@@ -53,11 +59,27 @@ data class Issue(
                 files.add(article.getAllFiles())
             }
         }
+        pageList.forEach { page ->
+            files.add(page.getAllFiles())
+        }
         return files.flatten().distinct()
     }
 
     override fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
+    }
+
+    override fun getDownloadDate(context: Context?): Date? {
+        val pagesDownloadedDate = pageList.map { it.pagePdf.dateDownload }
+        return if (pagesDownloadedDate.contains(null)) {
+            null
+        } else {
+            max(pagesDownloadedDate)
+        }
+    }
+
+    override fun getDownloadTag(): String {
+        return "$tag/pdf"
     }
 
     private fun getArticleList(): List<Article> {
@@ -67,12 +89,4 @@ data class Issue(
         }
         return articleList
     }
-}
-
-@JsonClass(generateAdapter = false)
-enum class IssueStatus {
-    regular,
-    demo,
-    locked,
-    public
 }

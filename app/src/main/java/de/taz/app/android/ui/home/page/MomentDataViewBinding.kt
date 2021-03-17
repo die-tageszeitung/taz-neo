@@ -7,10 +7,7 @@ import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.moment.MomentView
 import kotlinx.coroutines.*
@@ -71,7 +68,7 @@ class MomentViewDataBinding(
                 if (frontPage != null) {
                     dataService.ensureDownloaded(frontPage, skipIntegrityCheck = true)
                     val downloadedFrontPage =
-                        dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
+                        dataService.getFrontPage(issuePublication)?.pagePdf
                     val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }
                     pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
                 }
@@ -95,6 +92,7 @@ class MomentViewDataBinding(
 
             momentViewData = MomentViewData(
                 IssueKey(moment.issueFeedName, moment.issueDate, moment.issueStatus),
+                IssueKeyWithPages(moment.issueFeedName, moment.issueDate, moment.issueStatus),
                 DownloadStatus.pending,
                 momentType,
                 momentUri,
@@ -121,12 +119,24 @@ class MomentViewDataBinding(
 
                 boundView?.setOnDownloadClickedListener { onDownloadClicked() }
             }
-            dataService.withDownloadLiveData(momentViewData.issueKey) {
-                withContext(Dispatchers.Main) {
-                    it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                        boundView?.setDownloadIconForStatus(
-                            downloadStatus
-                        )
+            if (showPdfAsMoment) {
+                dataService.withDownloadLiveData(momentViewData.issueKeyWithPages) {
+                    withContext(Dispatchers.Main) {
+                        it.observeDistinct(lifecycleOwner) { downloadStatus ->
+                            boundView?.setDownloadIconForStatus(
+                                downloadStatus
+                            )
+                        }
+                    }
+                }
+            } else {
+                dataService.withDownloadLiveData(momentViewData.issueKey) {
+                    withContext(Dispatchers.Main) {
+                        it.observeDistinct(lifecycleOwner) { downloadStatus ->
+                            boundView?.setDownloadIconForStatus(
+                                downloadStatus
+                            )
+                        }
                     }
                 }
             }
@@ -153,11 +163,18 @@ class MomentViewDataBinding(
                     retryOnFailure = true,
                     allowCache = false,
                     onConnectionFailure = { onConnectionFailure() }
-                ) ?: throw IllegalStateException("No issue found for $issuePublication")
-                dataService.ensureDownloaded(
-                    collection = issue,
-                    onConnectionFailure = { onConnectionFailure() }
                 )
+                if (showPdfAsMoment) {
+                    dataService.ensureDownloaded(
+                        IssueWithPages(issue),
+                        onConnectionFailure = { onConnectionFailure() }
+                    )
+                } else {
+                    dataService.ensureDownloaded(
+                        collection = issue,
+                        onConnectionFailure = { onConnectionFailure() }
+                    )
+                }
             }
         }
     }

@@ -340,7 +340,7 @@ class DownloadService constructor(
         taggedDownloadMap[tag]?.let { taggedDownload ->
             if (taggedDownload.fileDownloadJobs.all { it.job.isCompleted }) {
                 val secondsTaken = (Date().time - taggedDownload.startDate.time).toFloat() / 1000
-                log.debug("It took $secondsTaken seconds for ${taggedDownload.tag} to download all its assets (DownloadId: ${taggedDownload.downloadId}")
+                log.debug("It took $secondsTaken seconds for ${taggedDownload.tag} to download all its assets (DownloadId: ${taggedDownload.downloadId})")
                 taggedDownload.downloadId?.let {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {

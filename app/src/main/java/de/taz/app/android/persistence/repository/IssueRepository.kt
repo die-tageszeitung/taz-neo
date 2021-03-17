@@ -218,6 +218,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return when (issue) {
             is IssueStub -> getDownloadDate(issue)
             is Issue -> getDownloadDate(issue)
+            is IssueWithPages -> getDownloadDate(issue)
             else -> throw Exception("IssueOperations are either Issue or IssueStub")
         }
     }
@@ -228,6 +229,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     fun isDownloaded(issueKey: IssueKey): Boolean {
         return getDownloadDate(issueKey) != null
+    }
+
+    fun isDownloaded(issueKeyWithPages: IssueKeyWithPages): Boolean {
+        val issue = getIssueByFeedAndDate(
+            issueKeyWithPages.feedName,
+            issueKeyWithPages.date,
+            issueKeyWithPages.status
+        )
+        val issueWithPages = issue?.let { IssueWithPages(it) }
+        return issueWithPages?.getDownloadDate(applicationContext) != null
     }
 
     fun getDownloadDate(issueKey: IssueKey): Date? {
@@ -442,6 +453,18 @@ data class IssueKey(
 
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status"
+    }
+}
+
+@Parcelize
+data class IssueKeyWithPages(
+    val feedName: String,
+    val date: String,
+    val status: IssueStatus
+) : Parcelable, ObservableDownload {
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/$status/pdf"
     }
 }
 

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -56,13 +57,15 @@ class PdfPagerViewModel(
                 retryOnFailure = true,
                 onConnectionFailure = { onConnectionFailure() }
             )
+            val pdfIssue = IssueWithPages(issue)
+
             dataService.ensureDownloaded(
-                collection = issue,
+                pdfIssue,
                 onConnectionFailure = { onConnectionFailure() }
             )
 
-            if (issue.isDownloaded()) {
-                pdfDataList.postValue(issue.pageList.map {
+            if (pdfIssue.isDownloaded()) {
+                pdfDataList.postValue(pdfIssue.pageList.map {
                     val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
                         storageService.getFile(fileEntry)
                     }

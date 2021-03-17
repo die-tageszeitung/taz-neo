@@ -339,8 +339,11 @@ class DataService(private val applicationContext: Context) {
             // If we download issues we want to refresh metadata, as they might get stale quickly
             val refreshedCollection = if (collection is Issue && !collection.isDownloaded()) {
                 getIssue(IssuePublication(collection.issueKey), allowCache = false, retryOnFailure = true)
-            } else collection
-
+            } else if (collection is IssueWithPages && !collection.isDownloaded()) {
+                IssueWithPages(getIssue(IssuePublication(collection.issueKey), allowCache = false, retryOnFailure = true))
+            } else {
+                collection
+            }
             downloadService.ensureCollectionDownloaded(
                 refreshedCollection,
                 liveData as MutableLiveData<DownloadStatus>,
@@ -507,10 +510,14 @@ class DataService(private val applicationContext: Context) {
         withContext(Dispatchers.IO) {
             val tag = observableDownload.getDownloadTag()
 
-            log.verbose("Requesting livedata for $tag")
             downloadLiveDataMap[tag] ?: run {
                 val status = when (observableDownload) {
-                    is IssueKey -> if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done else DownloadStatus.pending
+                    is IssueKey ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
+                    is IssueKeyWithPages ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
                     is DownloadableCollection -> observableDownload.getDownloadDate(
                         applicationContext
                     )

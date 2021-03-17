@@ -10,6 +10,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
@@ -23,6 +24,7 @@ enum class MomentType {
 
 data class MomentViewData(
     val issueKey: IssueKey,
+    val issueKeyWithPages: IssueKeyWithPages,
     val downloadStatus: DownloadStatus,
     val momentType: MomentType,
     val momentUri: String?,
