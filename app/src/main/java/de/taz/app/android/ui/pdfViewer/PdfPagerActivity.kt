@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 import java.io.File
 
-const val LOGO_PEAK = 5
+const val LOGO_PEAK = 9
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
     private val log by Log
@@ -51,6 +51,16 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
+            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
+                dataService.ensureDownloaded(FileEntry(image), baseUrl)
+                showNavButton(
+                    image
+                )
+            }
+        }
 
         issueKey = try {
             intent.getParcelableExtra(KEY_ISSUE_KEY)!!
@@ -131,19 +141,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             if (toHide && articlePagerFragment == null) hideDrawerLogoWithDelay()
             else showDrawerLogo()
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch(Dispatchers.IO) {
-            val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
-            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
-                dataService.ensureDownloaded(FileEntry(image), baseUrl)
-                showNavButton(
-                    image
-                )
-            }
-        }
     }
 
     private fun hideDrawerLogoWithDelay() {

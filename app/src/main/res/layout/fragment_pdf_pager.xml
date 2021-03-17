@@ -13,7 +13,7 @@
         android:id="@+id/pdf_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true" />
+        android:paddingBottom="@dimen/nav_bottom_height"/>
 
     <include
         android:id="@+id/pdf_loading_screen"

@@ -42,12 +42,10 @@
                 android:layout_width="@dimen/drawer_logo_default_width"
                 android:layout_height="@dimen/drawer_logo_default_height"
                 android:adjustViewBounds="true"
-                android:background="@color/tazRed"
                 android:clickable="true"
                 android:contentDescription="@string/navigation_drawer_open"
                 android:elevation="10dp"
                 android:focusable="true"
-                android:src="@drawable/ic_logo"
                 android:translationY="@dimen/drawer_logo_translation_y"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -86,7 +84,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
-                            app:cardBackgroundColor="@color/navigation_drawer_background"
+                            app:cardBackgroundColor="@color/white"
                             app:cardElevation="@dimen/moment_elevation">
 
                             <ImageView
@@ -103,7 +101,8 @@
                             style="@style/TextAppearance.Drawer.Sections"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                            android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                             android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
                     </LinearLayout>
 

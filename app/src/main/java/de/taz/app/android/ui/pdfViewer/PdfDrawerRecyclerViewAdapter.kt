@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.math.absoluteValue
 
 const val DRAWER_PAGE_WIDTH = 116f
 
@@ -75,13 +76,27 @@ class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfPageList>) :
                 holder.itemView.fragment_drawer_pdf_page.setImageBitmap(
                     img
                 )
+                // stretch panorama pages so they have same width as 2 pages with margin
+                if (itemList[position].pageType == PageType.panorama) {
+                    val widthInDp = DRAWER_PAGE_WIDTH * 2 +
+                            context.resources.getDimensionPixelSize(R.dimen.fragment_drawer_thumbnail_margin)/2
+                    val width = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        widthInDp,
+                        context.resources.displayMetrics
+                    ).toInt()
+                    val layoutParams = holder.itemView.fragment_drawer_pdf_page_card.layoutParams
+                    layoutParams.width = width
+
+                    holder.itemView.fragment_drawer_pdf_page_card.layoutParams = layoutParams
+                }
             }
         }
     }
 
     private fun getPreviewImageFromPdfFile(file: File, isPanorama: Boolean): Bitmap {
         val widthInDp = if (isPanorama) {
-            DRAWER_PAGE_WIDTH*2
+            DRAWER_PAGE_WIDTH * 2
         } else {
             DRAWER_PAGE_WIDTH
         }
