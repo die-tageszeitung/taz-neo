@@ -463,6 +463,12 @@ data class IssueKeyWithPages(
     val status: IssueStatus
 ) : Parcelable, ObservableDownload {
 
+    constructor(issueKey: IssueKey) : this(
+        issueKey.feedName,
+        issueKey.date,
+        issueKey.status
+    )
+
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status/pdf"
     }

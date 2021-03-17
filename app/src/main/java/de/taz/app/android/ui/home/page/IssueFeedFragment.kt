@@ -7,8 +7,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.PREFERENCES_GENERAL
-import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
@@ -19,17 +17,15 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-abstract class HomePageFragment(
+abstract class IssueFeedFragment(
     layoutID: Int
 ) : BaseViewModelFragment<HomePageViewModel>(layoutID) {
 
@@ -46,7 +42,6 @@ abstract class HomePageFragment(
     override val viewModel: HomePageViewModel by activityViewModels()
 
     abstract var adapter: IssueFeedAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,30 +84,23 @@ abstract class HomePageFragment(
     }
 
 
+    fun onItemSelected(issueKey: IssueKey) {
+        val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfMode.value == true) {
+            PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_KEY
+        } else {
+            IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_KEY
+        }
+        Intent(requireActivity(), viewerActivityClass).apply {
+            putExtra(extraKeyIssue, issueKey)
+            startActivity(this)
+        }
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
         momentChangedListener?.let {
             viewModel.removeNotifyMomentChangedListener(it)
-        }
-    }
-
-    fun onItemSelected(issueKey: IssueKey) {
-        val inPdfMode = SharedPreferenceBooleanLiveData(
-            requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
-            SETTINGS_SHOW_PDF_AS_MOMENT,
-            false
-        ).value
-
-        if (inPdfMode) {
-            Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
-                startActivity(this)
-            }
-        } else {
-            Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
-                startActivity(this)
-            }
         }
     }
 
