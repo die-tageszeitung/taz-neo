@@ -130,12 +130,26 @@ class MomentViewDataBinding(
                     }
                 }
             } else {
+                var issueWithPagesDownloadStatus = DownloadStatus.started
+                dataService.withDownloadLiveData(momentViewData.issueKeyWithPages) {
+                    withContext(Dispatchers.Main) {
+                        it.observeDistinct(lifecycleOwner) { downloadStatus ->
+                            issueWithPagesDownloadStatus = downloadStatus
+                        }
+                    }
+                }
                 dataService.withDownloadLiveData(momentViewData.issueKey) {
                     withContext(Dispatchers.Main) {
                         it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                            boundView?.setDownloadIconForStatus(
-                                downloadStatus
-                            )
+                            if (issueWithPagesDownloadStatus == DownloadStatus.done) {
+                                boundView?.setDownloadIconForStatus(
+                                    DownloadStatus.done
+                                )
+                            } else {
+                                boundView?.setDownloadIconForStatus(
+                                    downloadStatus
+                                )
+                            }
                         }
                     }
                 }
