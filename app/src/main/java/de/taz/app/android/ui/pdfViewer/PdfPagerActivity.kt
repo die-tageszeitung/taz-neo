@@ -152,7 +152,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             drawer_logo.animate()
                 .withEndAction{
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                        LOGO_PEAK,
+                        (LOGO_PEAK * resources.displayMetrics.density).toInt(),
                         drawer_logo.height
                     )
                 }
