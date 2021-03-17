@@ -18,7 +18,9 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
@@ -28,7 +30,6 @@ import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 import java.io.File
-import kotlin.math.min
 
 const val LOGO_PEAK = 5
 
@@ -37,6 +38,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private lateinit var issueKey: IssueKey
     private lateinit var pdfPagerViewModel: PdfPagerViewModel
+    private lateinit var imageRepository: ImageRepository
+    private lateinit var dataService: DataService
 
     private var navButton: Image? = null
     private val navButtonAlpha = 255f
@@ -45,6 +48,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        dataService = DataService.getInstance(applicationContext)
+        imageRepository = ImageRepository.getInstance(applicationContext)
 
         issueKey = try {
             intent.getParcelableExtra(KEY_ISSUE_KEY)!!
@@ -129,26 +135,13 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     override fun onResume() {
         super.onResume()
-        pdfPagerViewModel.setDefaultDrawerNavButton()
-        pdfPagerViewModel.navButton.observeDistinct(this) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val baseUrl =
-                    pdfPagerViewModel.dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
-                if (it != null) {
-                    pdfPagerViewModel.dataService.ensureDownloaded(FileEntry(it), baseUrl)
-                    showNavButton(it)
-                } else {
-                    pdfPagerViewModel.imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                        ?.let { image ->
-                            pdfPagerViewModel.dataService.ensureDownloaded(
-                                FileEntry(image),
-                                baseUrl
-                            )
-                            showNavButton(
-                                image
-                            )
-                        }
-                }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
+            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
+                dataService.ensureDownloaded(FileEntry(image), baseUrl)
+                showNavButton(
+                    image
+                )
             }
         }
     }

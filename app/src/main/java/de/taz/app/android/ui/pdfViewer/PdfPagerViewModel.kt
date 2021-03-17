@@ -2,13 +2,11 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
@@ -25,7 +23,6 @@ class PdfPagerViewModel(
     val issueKey: IssueKey
 ) : AndroidViewModel(application) {
 
-    val imageRepository = ImageRepository.getInstance(application.applicationContext)
     var dataService: DataService = DataService.getInstance(application.applicationContext)
     var storageService: StorageService = StorageService.getInstance(application.applicationContext)
     private val toastHelper = ToastHelper.getInstance(application.applicationContext)
@@ -87,12 +84,6 @@ class PdfPagerViewModel(
 
     fun getAmountOfPdfPages() : Int {
         return pdfDataList.value?.size ?: DEFAULT_NUMBER_OF_PAGES
-    }
-
-    fun setDefaultDrawerNavButton() {
-        viewModelScope.launch(Dispatchers.IO) {
-            navButton.postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
-        }
     }
 
     fun setUserInputEnabled(enabled: Boolean = true) {
