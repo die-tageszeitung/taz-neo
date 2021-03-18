@@ -121,7 +121,7 @@ abstract class CoverView @JvmOverloads constructor(
     protected fun showProgressBar() {
         cover_placeholder.removeAllViews()
         moment_container.elevation = 0f
-        moment_progressbar.visibility = View.VISIBLE
+        moment_progressbar.animate().alpha(1f).duration = LOADING_FADE_OUT_DURATION_MS
     }
 
     protected fun hideProgressBar() {
