@@ -15,6 +15,7 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
@@ -81,7 +82,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                                 .addToBackStack(null)
                                 .commit()
                             issueContentViewModel.setDisplayable(
-                                pdfPagerViewModel.issueKey,
+                                IssueKey(pdfPagerViewModel.issueKey),
                                 link
                             )
                         }

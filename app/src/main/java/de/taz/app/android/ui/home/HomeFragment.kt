@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -17,11 +16,10 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
-import de.taz.app.android.ui.home.page.HomePageViewModel
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,20 +27,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
+class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     private var refreshJob: Job? = null
 
-    private val homePageViewModel: HomePageViewModel by activityViewModels()
+    private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        feed_archive_pager.adapter = HomeFragmentPagerAdapter(
-            childFragmentManager,
-            lifecycle
-        )
+        homePageViewModel.pdfMode.observe(viewLifecycleOwner) { pdfMode ->
+            navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)
+                .setIcon(if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view)
+        }
+
+        feed_archive_pager.adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
 
         // reduce viewpager2 sensitivity to make the view less finicky
         feed_archive_pager.reduceDragSensitivity(6)
@@ -75,21 +75,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             }
         }
         coverflow_refresh_layout?.reduceDragSensitivity(10)
-
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)?.let { menuItem ->
-
-            val currentValue = SharedPreferenceBooleanLiveData(
-                requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE),
-                SETTINGS_SHOW_PDF_AS_MOMENT,
-                false
-            ).value
-
-            if (currentValue) {
-                menuItem.setIcon(R.drawable.ic_app_view)
-            } else {
-                menuItem.setIcon(R.drawable.ic_pdf_view)
-            }
-        }
     }
 
     private suspend fun onRefresh() {
@@ -140,15 +125,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                 )
             }
             R.id.bottom_navigation_action_pdf -> {
-                val currentValue =  SharedPreferenceBooleanLiveData(
-                    requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE), SETTINGS_SHOW_PDF_AS_MOMENT, false
-                ).value
-                if (currentValue) {
-                    menuItem.setIcon(R.drawable.ic_app_view)
-                } else {
-                    menuItem.setIcon(R.drawable.ic_pdf_view)
-                }
-                togglePreferenceToShowPdfAsMoment(!currentValue)
+                homePageViewModel.pdfMode.postValue(!homePageViewModel.pdfMode.value!!)
                 activity?.recreate()
             }
         }
@@ -171,14 +148,5 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
             R.id.bottom_navigation_action_home
         )?.setIcon(R.drawable.ic_home)
-    }
-
-    private fun togglePreferenceToShowPdfAsMoment(value: Boolean) {
-        val sharedPreferences =
-            requireContext().getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
-
-        SharedPreferenceBooleanLiveData(
-            sharedPreferences, SETTINGS_SHOW_PDF_AS_MOMENT, false
-        ).postValue(value)
     }
 }

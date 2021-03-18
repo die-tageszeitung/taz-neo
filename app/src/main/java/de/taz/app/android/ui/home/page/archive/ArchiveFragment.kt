@@ -6,19 +6,17 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
-import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
-import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.ui.home.page.HomePageFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.android.synthetic.main.fragment_archive.*
 
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
+class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
 
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
@@ -42,19 +40,18 @@ class ArchiveFragment : HomePageFragment(R.layout.fragment_archive) {
             }
         }
 
-        val showPdfAsMoment = requireContext().getSharedPreferences(
-            PREFERENCES_GENERAL,
-            Context.MODE_PRIVATE
-        )?.getBoolean(SETTINGS_SHOW_PDF_AS_MOMENT, false) == true
-
         viewModel.feed.observeDistinct(this) { feed ->
-            val requestManager = Glide.with(this@ArchiveFragment)
+            val requestManager = Glide.with(this)
+            val itemLayout = if (viewModel.pdfMode.value == true) {
+                R.layout.fragment_archive_frontpage_item
+            } else {
+                R.layout.fragment_archive_moment_item
+            }
             adapter = ArchiveAdapter(
-                this@ArchiveFragment,
-                R.layout.fragment_archive_item,
+                this,
+                itemLayout,
                 feed,
-                requestManager,
-                showPdfAsMoment
+                requestManager
             )
             fragment_archive_grid.adapter = adapter
         }

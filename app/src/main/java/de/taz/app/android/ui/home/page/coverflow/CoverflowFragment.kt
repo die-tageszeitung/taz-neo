@@ -14,9 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
-import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
-import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -24,21 +22,21 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.HomePageFragment
+import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import java.util.*
 
-const val KEY_DATE = "ISSUE_KEY"
+const val KEY_DATE = "KEY_DATE"
 
-class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
+class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
     override lateinit var adapter: IssueFeedAdapter
-    private lateinit var dataService: DataService
+    protected lateinit var dataService: DataService
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -46,6 +44,8 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
     private var currentDate: Date? = null
 
     private var initialIssueDisplay: IssueKey? = null
+
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -89,21 +89,20 @@ class CoverflowFragment: HomePageFragment(R.layout.fragment_coverflow) {
             }
         }
 
-        val showPdfAsMoment = requireContext().getSharedPreferences(
-            PREFERENCES_GENERAL,
-            Context.MODE_PRIVATE
-        )?.getBoolean(SETTINGS_SHOW_PDF_AS_MOMENT, false) == true
-
         viewModel.feed.observeDistinct(this) { feed ->
-            val requestManager = Glide.with(this@CoverflowFragment)
             val fresh = !::adapter.isInitialized
+            val requestManager = Glide.with(this)
+            val itemLayout = if (viewModel.pdfMode.value == true) {
+                R.layout.fragment_cover_flow_frontpage_item
+            } else {
+                R.layout.fragment_cover_flow_moment_item
+            }
             adapter = CoverflowAdapter(
-                this@CoverflowFragment,
-                R.layout.fragment_cover_flow_item,
+                this,
+                itemLayout,
                 feed,
                 requestManager,
-                CoverflowMomentActionListener(this@CoverflowFragment, dataService),
-                showPdfAsMoment
+                CoverflowCoverViewActionListener(this@CoverflowFragment, dataService)
             )
             fragment_cover_flow_grid.adapter = adapter
             // If fragment was just constructed skip to issue in intent

@@ -18,7 +18,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
-import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_login.*
 
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
@@ -35,7 +35,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var toastHelper: ToastHelper? = null
     private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
-    private val log by Log
 
     companion object {
         const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
@@ -43,7 +42,6 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         issueRepository = IssueRepository.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         fileHelper = StorageService.getInstance(applicationContext)

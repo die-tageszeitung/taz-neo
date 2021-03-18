@@ -9,7 +9,7 @@
     android:layout_marginBottom="@dimen/fragment_cover_flow_empty_space_height_bottom"
     android:layout_height="match_parent">
 
-    <de.taz.app.android.ui.moment.MomentView
+    <de.taz.app.android.ui.cover.MomentView
         android:id="@+id/fragment_cover_flow_item"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
