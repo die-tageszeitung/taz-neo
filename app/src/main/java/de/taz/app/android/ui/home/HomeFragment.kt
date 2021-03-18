@@ -16,7 +16,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
-import de.taz.app.android.ui.home.page.HomePageViewModel
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
@@ -32,7 +32,7 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
 
     private var refreshJob: Job? = null
 
-    private val homePageViewModel: HomePageViewModel by activityViewModels()
+    private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

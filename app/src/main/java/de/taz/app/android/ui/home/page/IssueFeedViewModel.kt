@@ -12,7 +12,7 @@ import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit
 
-class HomePageViewModel(
+class IssueFeedViewModel(
     application: Application
 ) : AndroidViewModel(application) {
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()

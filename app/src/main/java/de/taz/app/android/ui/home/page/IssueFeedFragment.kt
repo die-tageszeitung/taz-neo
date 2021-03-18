@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 
 abstract class IssueFeedFragment(
     layoutID: Int
-) : BaseViewModelFragment<HomePageViewModel>(layoutID) {
+) : BaseViewModelFragment<IssueFeedViewModel>(layoutID) {
 
     private val log by Log
 
@@ -39,7 +39,7 @@ abstract class IssueFeedFragment(
 
     private var momentChangedListener: MomentChangedListener? = null
 
-    override val viewModel: HomePageViewModel by activityViewModels()
+    override val viewModel: IssueFeedViewModel by activityViewModels()
 
     abstract var adapter: IssueFeedAdapter
 
