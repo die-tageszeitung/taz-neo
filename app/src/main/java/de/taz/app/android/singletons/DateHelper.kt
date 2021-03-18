@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 
 
 enum class DateFormat {
+    None,
     LongWithWeekDay,
     LongWithoutWeekDay
 }
@@ -22,6 +23,7 @@ object DateHelper {
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val cal: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"))
     private val calDefaultTimeZone = Calendar.getInstance()
+
     // if we want to use devices Locale replace Locale.GERMAN with:
     // ConfigurationCompat.getLocales(applicationContext.resources.configuration)[0]
     private val deviceLocale = Locale.GERMAN
@@ -33,7 +35,7 @@ object DateHelper {
         }
     }
 
-    private fun dateToString(date: Date) : String {
+    private fun dateToString(date: Date): String {
         return dateHelper.format(date)
     }
 
@@ -65,12 +67,22 @@ object DateHelper {
         }
     }
 
+    fun dateToLongLocalizedString(date: Date): String? {
+        return SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
+            date
+        ).toLowerCase(Locale.getDefault())
+    }
+
     fun stringToLongLocalizedString(dateString: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
-            SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
-                issueDate
-            ).toLowerCase(Locale.getDefault())
+            dateToLongLocalizedString(issueDate)
         }
+    }
+
+    fun dateToMediumLocalizedString(date: Date): String? {
+        return SimpleDateFormat("d.M.yyyy", deviceLocale).format(
+            date
+        ).toLowerCase(Locale.getDefault())
     }
 
     /**
@@ -90,9 +102,7 @@ object DateHelper {
 
     fun stringToMediumLocalizedString(dateString: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
-            SimpleDateFormat("d.M.yyyy", deviceLocale).format(
-                issueDate
-            ).toLowerCase(Locale.getDefault())
+            dateToMediumLocalizedString(issueDate)
         }
     }
 
@@ -104,7 +114,7 @@ object DateHelper {
         }
     }
 
-    fun dayDelta(earlierDate: String, laterDate: String) : Long {
+    fun dayDelta(earlierDate: String, laterDate: String): Long {
         return TimeUnit.MILLISECONDS.toDays(
             stringToDate(laterDate)!!.time - stringToDate(
                 earlierDate
@@ -118,7 +128,7 @@ object DateHelper {
         cal1.time = date
         cal2.time = other
         return cal1[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR] &&
-            cal1[Calendar.YEAR] == cal2[Calendar.YEAR]
+                cal1[Calendar.YEAR] == cal2[Calendar.YEAR]
     }
 
     fun subDays(date: Date, days: Int): Date {

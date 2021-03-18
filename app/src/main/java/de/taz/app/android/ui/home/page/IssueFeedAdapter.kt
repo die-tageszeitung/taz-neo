@@ -1,12 +1,11 @@
 package de.taz.app.android.ui.home.page
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.AbstractIssueKey
@@ -38,16 +37,14 @@ abstract class IssueFeedAdapter(
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
-    private val log by Log
 
     abstract val dateFormat: DateFormat
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
                 itemLayoutRes, parent, false
-            ) as ConstraintLayout
+            )
         )
     }
 
@@ -77,7 +74,7 @@ abstract class IssueFeedAdapter(
     /**
      * ViewHolder for this Adapter
      */
-    inner class ViewHolder constructor(itemView: ConstraintLayout): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         private var binder: CoverViewBinding<*>? = null
 
         fun bind(fragment: IssueFeedFragment, date: Date) {

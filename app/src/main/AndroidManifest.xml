@@ -13,13 +13,6 @@
         android:maxSdkVersion="28"
         tools:ignore="ScopedStorage" />
 
-    <supports-screens
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:requiresSmallestWidthDp="200"
-        android:smallScreens="true"
-        android:xlargeScreens="true"/>
-
     <application
         android:name=".TazApplication"
         android:allowBackup="true"

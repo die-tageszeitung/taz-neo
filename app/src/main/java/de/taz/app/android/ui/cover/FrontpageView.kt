@@ -5,7 +5,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.api.models.*
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
 import kotlinx.android.synthetic.main.view_cover.view.*
@@ -44,12 +43,11 @@ class FrontpageView @JvmOverloads constructor(
             CoverType.FRONT_PAGE -> {
                 frontPageImage.alpha = 0f
                 cover_placeholder.addView(frontPageImage)
-                val img = MuPDFThumbnail(uri).thumbnail(800)
-                frontPageImage?.apply {
-                    setImageBitmap(img)
-                    hideProgressBar()
-                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
-                }
+                glideRequestManager
+                    .load(uri)
+                    .into(frontPageImage)
+
+                hideProgressBar()
                 frontPageImage.animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
             }
             else -> throw IllegalStateException("FrontPageView only supports CoverType.FRONT_PAGE")

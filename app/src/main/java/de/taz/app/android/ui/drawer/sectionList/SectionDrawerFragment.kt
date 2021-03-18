@@ -37,7 +37,6 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.android.synthetic.main.view_cover.*
-import kotlinx.android.synthetic.main.view_moment.*
 import kotlinx.coroutines.*
 
 const val ACTIVE_POSITION = "active position"

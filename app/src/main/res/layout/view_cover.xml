@@ -8,36 +8,46 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
+    <!-- dimensionRatio is needed to ensure loading bar is shown
+    if we do not know yet the dimension of the moment -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/moment_container"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:elevation="@dimen/moment_elevation"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/fragment_moment_date"
         app:layout_constraintDimensionRatio="1:1.5"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
+        app:layout_constraintRight_toRightOf="parent">
 
         <FrameLayout
             android:id="@+id/cover_placeholder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-        />
+            />
 
 
-        <ProgressBar
-            android:id="@+id/moment_progressbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="1"
-            android:indeterminateTint="@color/colorAccent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/darkGrey"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:id="@+id/moment_progressbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="1"
+                android:indeterminateTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
@@ -49,8 +59,7 @@
         android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/moment_container" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/view_moment_download_icon_wrapper"

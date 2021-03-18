@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_DEFAULT
+import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_FALLBACK
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
 
@@ -85,7 +85,10 @@ class TextSettingsFragment :
 
     private fun resetTextSize() {
         viewModel.apply {
-            setTextSizePercent(SETTINGS_TEXT_FONT_SIZE_DEFAULT)
+            val defaultSize =
+                context?.resources?.getInteger(R.integer.text_default_size) ?:
+                SETTINGS_TEXT_FONT_SIZE_FALLBACK
+            setTextSizePercent(defaultSize.toString())
         }
     }
 

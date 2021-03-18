@@ -138,15 +138,7 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
         super.onDestroyView()
     }
 
-    fun setHomeIconFilled() {
-        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
-            R.id.bottom_navigation_action_home
-        )?.setIcon(R.drawable.ic_home_filled)
-    }
+    fun setHomeIconFilled() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home_filled)
 
-    fun setHomeIcon() {
-        view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu?.findItem(
-            R.id.bottom_navigation_action_home
-        )?.setIcon(R.drawable.ic_home)
-    }
+    fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
 }

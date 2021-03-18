@@ -63,13 +63,14 @@
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>
-    <dimen name="fragment_archive_item_width">150dp</dimen>
+    <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
     <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
-    <dimen name="fragment_cover_flow_empty_space_height_bottom">48dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_padding_top">12dp</dimen>
+    <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
+    <dimen name="fragment_cover_flow_grid_margin_bottom">86dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
@@ -113,4 +114,7 @@
     <dimen name="activity_data_policy_button_margin_bottom">40sp</dimen>
 
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
+
+    <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
+
 </resources>

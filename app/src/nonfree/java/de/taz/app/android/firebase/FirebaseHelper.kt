@@ -24,9 +24,9 @@ class FirebaseHelper @VisibleForTesting(otherwise=VisibleForTesting.PRIVATE) con
         SharedPreferenceStringLiveData(
             preferences, PREFERENCES_FCM_TOKEN, ""
         )
-    override var firebaseToken: String?
+    final override var firebaseToken: String?
         get() = if (firebaseTokenLiveData.value.isEmpty()) null else firebaseTokenLiveData.value
-        set(value) = firebaseTokenLiveData.postValue(value)
+        set(value) = firebaseTokenLiveData.postValue(value ?: "")
 
     override val isPush: Boolean
         get() = firebaseToken?.isNotEmpty() ?: false

@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
@@ -38,7 +39,7 @@ private const val KEY_IS_DOWNLOADED = "KEY_IS_DOWNLOADED"
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-    private lateinit var issueKey: IssueKey
+    private lateinit var issueKey: AbstractIssueKey
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -201,7 +202,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                         dataService.getIssue(
                             IssuePublication(issueKey)
                         )
-                    dataService.ensureDownloaded(issue)
+                    val issueToDownload = if (issueKey is IssueKeyWithPages) {
+                        IssueWithPages(issue)
+                    } else {
+                        issue
+                    }
+                    dataService.ensureDownloaded(issueToDownload)
                 } catch (e: ConnectivityException.Recoverable) {
                     toastHelper.showNoConnectionToast()
                 }
