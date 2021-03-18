@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
@@ -84,7 +85,7 @@ abstract class IssueFeedFragment(
     }
 
 
-    fun onItemSelected(issueKey: IssueKey) {
+    fun onItemSelected(issueKey: AbstractIssueKey) {
         val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfMode.value == true) {
             PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_KEY
         } else {

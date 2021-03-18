@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -20,7 +21,7 @@ const val DEFAULT_NUMBER_OF_PAGES = 29
 
 class PdfPagerViewModel(
     application: Application,
-    val issueKey: IssueKey
+    val issueKey: IssueKeyWithPages
 ) : AndroidViewModel(application) {
 
     var dataService: DataService = DataService.getInstance(application.applicationContext)

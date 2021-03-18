@@ -17,10 +17,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -57,7 +54,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
         fun create(
-            issueKey: IssueKey,
+            issueKey: AbstractIssueKey,
             isDownloaded: Boolean
         ): IssueBottomSheetFragment {
             val args = Bundle()

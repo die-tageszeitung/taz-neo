@@ -6,10 +6,7 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.cover.FrontpageView
 import kotlinx.coroutines.*
@@ -52,7 +49,7 @@ class FrontpageViewBinding(
 
         CoverViewData(
             // TODO: The issue key needs to determined by the actual issue that we have - so pageone needs to be attached to the actual issue
-            IssueKey(issuePublication.feed, issuePublication.date, IssueStatus.regular),
+            IssueKeyWithPages(issuePublication.feed, issuePublication.date, IssueStatus.regular),
             DownloadStatus.pending,
             momentType,
             pdfMomentFilePath,
@@ -83,7 +80,7 @@ class FrontpageViewBinding(
                     onConnectionFailure = { onConnectionFailure() }
                 ) ?: throw IllegalStateException("No issue found for $issuePublication")
                 dataService.ensureDownloaded(
-                    collection = issue,
+                    collection = IssueWithPages(issue),
                     onConnectionFailure = { onConnectionFailure() }
                 )
             }

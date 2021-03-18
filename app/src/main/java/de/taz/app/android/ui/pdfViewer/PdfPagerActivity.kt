@@ -22,6 +22,7 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
@@ -40,7 +41,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private val log by Log
 
-    private lateinit var issueKey: IssueKey
+    private lateinit var issueKey: IssueKeyWithPages
     private lateinit var pdfPagerViewModel: PdfPagerViewModel
     private lateinit var imageRepository: ImageRepository
     private lateinit var dataService: DataService

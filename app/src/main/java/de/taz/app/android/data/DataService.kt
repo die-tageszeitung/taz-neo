@@ -489,7 +489,7 @@ class DataService(private val applicationContext: Context) {
         feeds
     }
 
-    suspend fun isIssueDownloaded(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
+    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean = withContext(Dispatchers.IO) {
         issueRepository.isDownloaded(issueKey)
     }
 

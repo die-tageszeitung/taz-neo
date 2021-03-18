@@ -9,8 +9,7 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.util.Log
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
@@ -21,7 +20,7 @@ enum class CoverType {
 }
 
 data class CoverViewData(
-    val issueKey: IssueKey,
+    val issueKey: AbstractIssueKey,
     val downloadStatus: DownloadStatus,
     val momentType: CoverType,
     val momentUri: String?,

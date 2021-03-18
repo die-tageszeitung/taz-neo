@@ -227,6 +227,14 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getDownloadDate(IssueStub(issue))
     }
 
+    fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
+        return when (issueKey) {
+            is IssueKey -> isDownloaded(issueKey)
+            is IssueKeyWithPages -> isDownloaded(issueKey)
+            else -> throw IllegalStateException("issueKey argument needs to be one of IssueKeyWithPages or IssueKey")
+        }
+    }
+
     fun isDownloaded(issueKey: IssueKey): Boolean {
         return getDownloadDate(issueKey) != null
     }
@@ -433,6 +441,11 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 }
 
+interface AbstractIssueKey: ObservableDownload, Parcelable {
+    val feedName: String
+    val date: String
+    val status: IssueStatus
+}
 
 /**
  * The representation of a [feedName], [date] and [status] determining the exact
@@ -440,10 +453,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
  */
 @Parcelize
 data class IssueKey(
-    val feedName: String,
-    val date: String,
-    val status: IssueStatus
-) : Parcelable, ObservableDownload {
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : Parcelable, AbstractIssueKey {
+
+    constructor(issueKeyWithPages: IssueKeyWithPages): this(
+        issueKeyWithPages.feedName,
+        issueKeyWithPages.date,
+        issueKeyWithPages.status
+    )
 
     constructor(issuePublication: IssuePublication, status: IssueStatus): this(
         issuePublication.feed,
@@ -456,12 +475,15 @@ data class IssueKey(
     }
 }
 
+
+
+
 @Parcelize
 data class IssueKeyWithPages(
-    val feedName: String,
-    val date: String,
-    val status: IssueStatus
-) : Parcelable, ObservableDownload {
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : Parcelable, AbstractIssueKey {
 
     constructor(issueKey: IssueKey) : this(
         issueKey.feedName,
@@ -483,7 +505,7 @@ data class IssuePublication(
     val feed: String,
     val date: String
 ) : Parcelable {
-    constructor(issueKey: IssueKey): this(
+    constructor(issueKey: AbstractIssueKey): this(
         issueKey.feedName,
         issueKey.date
     )
