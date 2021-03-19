@@ -7,6 +7,8 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import androidx.core.view.doOnNextLayout
+import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
@@ -37,7 +39,6 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 
 const val KEY_DATE = "KEY_DATE"
 
@@ -159,7 +160,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
         super.onResume()
     }
 
-    fun openDatePicker(issueDate: Date) {
+    private fun openDatePicker(issueDate: Date) {
         showBottomSheet(DatePickerFragment.create(this, viewModel.feed.value!!, issueDate))
     }
 
@@ -272,9 +273,22 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             }
 
             // if first start start downloadObserver
-            if(!isIdleEvent && !isDragEvent && !isSettlingEvent) {
+            if (!isIdleEvent && !isDragEvent && !isSettlingEvent) {
                 log.error("starting first time")
                 downloadObserverJob = startDownloadObserver()
+
+                // make sure download icon at correct position
+                (fragment_cover_flow_grid[0] as ViewGroup).children.last().doOnNextLayout {
+                    try {
+                        val layoutParams = fragment_cover_flow_date_download_wrapper.layoutParams
+                        if (layoutParams.width != it.width) {
+                            layoutParams.width = it.width
+                            fragment_cover_flow_date_download_wrapper.layoutParams = layoutParams
+                        }
+                    } catch (iobe: IndexOutOfBoundsException) {
+                        // ignore
+                    }
+                }
             }
         }
     }
@@ -352,7 +366,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                 }
             }
         }
-        fragment_coverflow_moment_download?.setOnClickListener {
+        fragment_cover_flow_download_wrapper?.setOnClickListener {
             runIfNotNull(currentDate, viewModel.feed.value) { currentDate, feed ->
                 CoroutineScope(Dispatchers.IO).launch {
                     log.error("download launched")
@@ -377,33 +391,28 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     }
 
     // TODO better find out why done is triggered multiple times instead of using this workaround
-    private val isHiding = AtomicBoolean(false)
     private fun hideDownloadIcon(reset: Boolean = false) {
-        if(isHiding.getAndSet(true)) {
-            log.error("hideDownloadIcon triggered")
-            fragment_coverflow_moment_download.setOnClickListener(null)
-            val wasDownloading = fragment_coverflow_moment_downloading?.visibility == View.VISIBLE
-            fragment_coverflow_moment_downloading?.visibility = View.GONE
-            fragment_coverflow_moment_download?.visibility = View.GONE
-            fragment_coverflow_moment_download_finished?.visibility = View.GONE
+        log.error("hideDownloadIcon triggered")
+        fragment_cover_flow_download_wrapper.setOnClickListener(null)
+        val wasDownloading = fragment_coverflow_moment_downloading?.visibility == View.VISIBLE
+        fragment_coverflow_moment_downloading?.visibility = View.GONE
+        fragment_coverflow_moment_download?.visibility = View.GONE
+        fragment_coverflow_moment_download_finished?.visibility = View.GONE
 
-            if (wasDownloading && !reset) {
-                fragment_coverflow_moment_download_finished?.apply {
-                    alpha = 1f
-                    visibility = View.VISIBLE
-                    animate().alpha(0f).apply {
-                        duration = MOMENT_FADE_DURATION_MS
-                        startDelay = 2000L
-                    }.withEndAction {
-                        isHiding.set(false)
-                    }
+        if (wasDownloading && !reset) {
+            fragment_coverflow_moment_download_finished?.apply {
+                alpha = 1f
+                visibility = View.VISIBLE
+                animate().alpha(0f).apply {
+                    duration = MOMENT_FADE_DURATION_MS
+                    startDelay = 2000L
                 }
             }
         }
     }
 
     private fun showLoadingIcon() {
-        fragment_coverflow_moment_download.setOnClickListener(null)
+        fragment_cover_flow_download_wrapper.setOnClickListener(null)
         fragment_coverflow_moment_download?.visibility = View.GONE
         fragment_coverflow_moment_download_finished?.visibility = View.GONE
         fragment_coverflow_moment_downloading?.visibility = View.VISIBLE

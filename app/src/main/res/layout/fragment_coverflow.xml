@@ -29,6 +29,7 @@
         app:layout_constraintGuide_percent="0.9" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_cover_flow_date_download_wrapper"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_to_archive"
@@ -43,33 +44,35 @@
             android:gravity="center"
             android:paddingTop="@dimen/fragment_archive_moment_date_padding_vertical"
             android:paddingBottom="@dimen/fragment_archive_moment_date_padding_vertical"
-            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="@dimen/text_appearance_archive_date_text_size"
-            android:layout_height="@dimen/text_appearance_archive_date_text_size"
-            android:layout_marginBottom="@dimen/fragment_archive_moment_date_padding_vertical"
-            app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_date"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:id="@+id/fragment_cover_flow_download_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1,1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/fragment_coverflow_moment_download"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
                 android:contentDescription="@string/settings_download_issue"
                 android:src="@drawable/ic_file_download"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:tint="@color/lightGrey" />
 
             <ImageView
                 android:id="@+id/fragment_coverflow_moment_download_finished"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
                 android:contentDescription="@string/settings_download_issue"
                 android:src="@drawable/ic_done"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -80,8 +83,8 @@
 
             <ProgressBar
                 android:id="@+id/fragment_coverflow_moment_downloading"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
