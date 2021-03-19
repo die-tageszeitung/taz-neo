@@ -40,6 +40,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_gravity="bottom"
+        app:do_not_show_download_icon="true"
         app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
