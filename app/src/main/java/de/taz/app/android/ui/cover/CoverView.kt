@@ -18,7 +18,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_cover.view.*
 
 
-private const val MOMENT_FADE_DURATION_MS = 500L
+const val MOMENT_FADE_DURATION_MS = 500L
 private const val LOADING_FADE_OUT_DURATION_MS = 500L
 
 // setting height and with is no exact science - ignore if only differs by X pixels
@@ -32,7 +32,7 @@ abstract class CoverView @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyleAttr) {
     private val log by Log
 
-    private var shouldNotShowDownloadIcon: Boolean = false
+    var shouldNotShowDownloadIcon: Boolean = false
     protected var momentElevation: Float? = null
 
     private var downloadButtonListener: ((View) -> Unit)? = null
@@ -200,21 +200,21 @@ abstract class CoverView @JvmOverloads constructor(
     }
 
     private fun showDownloadIcon() {
-        fragment_moment_downloading?.visibility = View.GONE
-        fragment_moment_download_finished?.visibility = View.GONE
-        fragment_moment_download?.visibility = View.VISIBLE
+        view_moment_downloading?.visibility = View.GONE
+        view_moment_download_finished?.visibility = View.GONE
+        view_moment_download?.visibility = View.VISIBLE
         activateDownloadButtonListener()
     }
 
     protected fun hideDownloadIcon(reset: Boolean = false) {
-        val wasDownloading = fragment_moment_downloading?.visibility == View.VISIBLE
-        fragment_moment_downloading?.visibility = View.GONE
-        fragment_moment_download?.visibility = View.GONE
-        fragment_moment_download_finished?.visibility = View.GONE
+        val wasDownloading = view_moment_downloading?.visibility == View.VISIBLE
+        view_moment_downloading?.visibility = View.GONE
+        view_moment_download?.visibility = View.GONE
+        view_moment_download_finished?.visibility = View.GONE
         deactivateDownloadButtonListener()
 
         if (wasDownloading && !reset) {
-            fragment_moment_download_finished?.apply {
+            view_moment_download_finished?.apply {
                 alpha = 1f
                 visibility = View.VISIBLE
                 animate().alpha(0f).apply {
@@ -226,9 +226,9 @@ abstract class CoverView @JvmOverloads constructor(
     }
 
     private fun showLoadingIcon() {
-        fragment_moment_download?.visibility = View.GONE
-        fragment_moment_download_finished?.visibility = View.GONE
-        fragment_moment_downloading?.visibility = View.VISIBLE
+        view_moment_download?.visibility = View.GONE
+        view_moment_download_finished?.visibility = View.GONE
+        view_moment_downloading?.visibility = View.VISIBLE
         view_moment_download_icon_wrapper.setOnClickListener(null)
     }
 

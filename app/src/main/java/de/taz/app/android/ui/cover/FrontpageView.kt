@@ -9,8 +9,6 @@ import de.taz.app.android.ui.home.page.CoverType
 import kotlinx.android.synthetic.main.view_cover.view.*
 
 
-private const val MOMENT_FADE_DURATION_MS = 500L
-
 @SuppressLint("ClickableViewAccessibility")
 class FrontpageView @JvmOverloads constructor(
     context: Context,

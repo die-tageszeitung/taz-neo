@@ -94,7 +94,7 @@ class MomentViewBinding(
                     retryOnFailure = true,
                     allowCache = false,
                     onConnectionFailure = { onConnectionFailure() }
-                ) ?: throw IllegalStateException("No issue found for $issuePublication")
+                )
                 dataService.ensureDownloaded(
                     collection = issue,
                     onConnectionFailure = { onConnectionFailure() }
