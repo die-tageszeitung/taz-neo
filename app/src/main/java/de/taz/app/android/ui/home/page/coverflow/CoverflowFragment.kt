@@ -100,7 +100,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                     super.calculateExtraLayoutSpace(state, extraLayoutSpace)
                     val orientationHelper =
                         OrientationHelper.createOrientationHelper(this, orientation)
-                    val extraSpace = orientationHelper.totalSpace
+                    val extraSpace = 2 * orientationHelper.totalSpace
                     extraLayoutSpace[0] = extraSpace
                     extraLayoutSpace[1] = extraSpace
                 }
@@ -282,11 +282,17 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             if (!isIdleEvent && !isDragEvent && !isSettlingEvent) {
                 downloadObserverJob = startDownloadObserver()
 
-                // make sure download icon at correct position
+                // after first element is drawn
                 fragment_cover_flow_grid[0].doOnNextLayout {
                     // set cover width
                     coverWidth = (it as ViewGroup).children.last().width
+
+                    // ensure download icon positioned correctly
                     adjustDownloadIconPosition()
+
+                    // hack to show all relevant covers in landscape mode
+                    fragment_cover_flow_grid.scrollBy(1, 0)
+                    fragment_cover_flow_grid.scrollBy(-1, 0)
                 }
             }
         }
@@ -401,7 +407,6 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     // TODO better find out why done is triggered multiple times instead of using this workaround
     private fun hideDownloadIcon(reset: Boolean = false) {
-        log.error("hideDownloadIcon triggered")
         fragment_cover_flow_download_wrapper.setOnClickListener(null)
         val wasDownloading = fragment_coverflow_moment_downloading?.visibility == View.VISIBLE
         fragment_coverflow_moment_downloading?.visibility = View.GONE
