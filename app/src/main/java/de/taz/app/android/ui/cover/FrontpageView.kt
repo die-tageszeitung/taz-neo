@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.widget.ImageView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.ui.home.page.CoverType
-import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
 import kotlinx.android.synthetic.main.view_cover.view.*
 
 
