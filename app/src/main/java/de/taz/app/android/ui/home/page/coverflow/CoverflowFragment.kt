@@ -55,6 +55,9 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
 
+    // variable to store the with of the covers
+    private var coverWidth = 0
+
     private var downloadObserverJob: Job? = null
     private var currentDate: Date? = null
         set(value) {
@@ -252,12 +255,15 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                 }
             }
 
-            // set position and show date and observer when settled
+            // set position
             if (position >= 0 && !isIdleEvent) {
                 setCurrentItem(adapter.getItem(position))
 
                 if (isSettlingEvent && dx < 5) {
                     currentDate?.let {
+                        adjustDownloadIconPosition()
+
+                        // show date and observer when settled
                         fragment_cover_flow_date?.visibility = View.VISIBLE
                         downloadObserverJob?.cancel()
                         downloadObserverJob = startDownloadObserver()
@@ -274,23 +280,27 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
             // if first start start downloadObserver
             if (!isIdleEvent && !isDragEvent && !isSettlingEvent) {
-                log.error("starting first time")
                 downloadObserverJob = startDownloadObserver()
 
                 // make sure download icon at correct position
-                (fragment_cover_flow_grid[0] as ViewGroup).children.last().doOnNextLayout {
-                    try {
-                        val layoutParams = fragment_cover_flow_date_download_wrapper.layoutParams
-                        if (layoutParams.width != it.width) {
-                            layoutParams.width = it.width
-                            fragment_cover_flow_date_download_wrapper.layoutParams = layoutParams
-                        }
-                    } catch (iobe: IndexOutOfBoundsException) {
-                        // ignore
-                    }
+                fragment_cover_flow_grid[0].doOnNextLayout {
+                    // set cover width
+                    coverWidth = (it as ViewGroup).children.last().width
+                    adjustDownloadIconPosition()
                 }
             }
         }
+    }
+
+    // make sure download icon does not overlay text
+    private fun adjustDownloadIconPosition() {
+        // text and icon need at least this space
+        val dateAndDownloadWidth =
+            fragment_cover_flow_date.width + 2 * fragment_cover_flow_date.height
+
+        val layoutParams = fragment_cover_flow_date_download_wrapper.layoutParams
+        layoutParams.width = dateAndDownloadWidth.coerceAtLeast(coverWidth)
+        fragment_cover_flow_date_download_wrapper.layoutParams = layoutParams
     }
 
     private fun setCurrentItem(date: Date?) {
@@ -328,7 +338,6 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     private fun startDownloadObserver(): Job? {
         return runIfNotNull(currentDate, viewModel.feed.value) { currentDate, feed ->
             return@runIfNotNull lifecycleScope.launch(Dispatchers.IO) {
-                log.error("observe lauinched")
                 dataService.withDownloadLiveData(
                     IssueKey(
                         feed.name,
