@@ -107,6 +107,11 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             }
 
             // transform the visible children visually
+            snapHelper.apply {
+                attachToRecyclerView(fragment_cover_flow_grid)
+                maxFlingSizeFraction = 0.75f
+                snapLastItem = true
+            }
 
             addOnChildAttachStateChangeListener(object :
                 RecyclerView.OnChildAttachStateChangeListener {
@@ -237,6 +242,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
+            // TODO find widescreen option
             val position: Int = layoutManager.findLastCompletelyVisibleItemPosition()
 
             applyZoomPageTransformer()
