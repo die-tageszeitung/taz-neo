@@ -42,7 +42,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
             )
 
             // save pages
-            pageRepository.save(issue.pageList)
+            pageRepository.save(issue.pageList, issue.issueKey)
 
             // save page relation
             appDatabase.issuePageJoinDao().insertOrReplace(

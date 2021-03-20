@@ -301,7 +301,7 @@ class DataService(private val applicationContext: Context) {
             }
 
             page?.let {
-                pageRepository.save(page)
+                pageRepository.save(page, issueKey)
             }
             page
         }

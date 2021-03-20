@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "9268140ec7e2805bb3de5953c1c9259f",
+    "identityHash": "eb1e50748b3deb7808064fa5f6e54824",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -921,7 +921,7 @@
       },
       {
         "tableName": "IssuePageJoin",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `pageKey`), FOREIGN KEY(`issueFeedName`, `issueDate`, `issueStatus`) REFERENCES `Issue`(`feedName`, `date`, `status`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`pageKey`) REFERENCES `Page`(`pdfFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `issueStatus` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `index` INTEGER NOT NULL, PRIMARY KEY(`issueFeedName`, `issueDate`, `issueStatus`, `pageKey`), FOREIGN KEY(`pageKey`) REFERENCES `Page`(`pdfFileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "issueFeedName",
@@ -974,21 +974,6 @@
           }
         ],
         "foreignKeys": [
-          {
-            "table": "Issue",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "issueFeedName",
-              "issueDate",
-              "issueStatus"
-            ],
-            "referencedColumns": [
-              "feedName",
-              "date",
-              "status"
-            ]
-          },
           {
             "table": "Page",
             "onDelete": "NO ACTION",
@@ -1541,7 +1526,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9268140ec7e2805bb3de5953c1c9259f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eb1e50748b3deb7808064fa5f6e54824')"
     ]
   }
 }
