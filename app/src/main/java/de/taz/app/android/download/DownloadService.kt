@@ -141,12 +141,11 @@ class DownloadService constructor(
                 onConnectionFailure
             )
             statusLiveData.postValue(DownloadStatus.done)
-            downloadableCollection.setDownloadDate(Date())
+            downloadableCollection.setDownloadDate(Date(), applicationContext)
         } catch (e: Exception) {
             log.warn("Exception caught on ensureCollectionDownloaded(). Set state pending")
             statusLiveData.postValue(DownloadStatus.pending)
         }
-
     }
 
     private suspend fun notifyIssueDownloadStart(

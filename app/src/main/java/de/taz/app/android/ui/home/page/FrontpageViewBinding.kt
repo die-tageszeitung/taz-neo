@@ -31,6 +31,7 @@ class FrontpageViewBinding(
     private val fileEntryRepository = FileEntryRepository.getInstance()
     private val feedRepository = FeedRepository.getInstance()
     private val toastHelper = ToastHelper.getInstance()
+    private val authHelper = AuthHelper.getInstance()
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -49,7 +50,7 @@ class FrontpageViewBinding(
 
         CoverViewData(
             // TODO: The issue key needs to determined by the actual issue that we have - so pageone needs to be attached to the actual issue
-            IssueKeyWithPages(issuePublication.feed, issuePublication.date, IssueStatus.regular),
+            IssueKeyWithPages(issuePublication.feed, issuePublication.date, authHelper.eligibleIssueStatus),
             DownloadStatus.pending,
             momentType,
             pdfMomentFilePath,

@@ -70,12 +70,21 @@ data class IssueWithPages(
     }
 
     override fun getDownloadDate(context: Context?): Date? {
-        val pagesDownloadedDate = pageList.map { it.pagePdf.dateDownload }
+        val pagesDownloadedDate = pageList.map {
+            it.pagePdf.dateDownload ?: it.getDownloadDate(context)
+        }
         return if (pagesDownloadedDate.contains(null)) {
             null
         } else {
             max(pagesDownloadedDate)
         }
+    }
+
+    override fun setDownloadDate(date: Date?, context: Context?) {
+        pageList.forEach {
+            it.setDownloadDate(date, context)
+        }
+        super.setDownloadDate(date, context)
     }
 
     override fun getDownloadTag(): String {
