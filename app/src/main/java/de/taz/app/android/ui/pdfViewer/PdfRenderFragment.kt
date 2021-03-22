@@ -24,9 +24,18 @@ import io.sentry.Sentry
 import kotlinx.coroutines.launch
 
 
-class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_pdf_render) {
+class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
-    val log by Log
+    companion object {
+        fun create(position: Int): PdfRenderFragment {
+            val fragment = PdfRenderFragment()
+            fragment.position = position
+            return fragment
+        }
+    }
+
+    private val log by Log
+    private var position = 0
     private lateinit var pdfReaderView: MuPDFReaderView
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
@@ -50,7 +59,7 @@ class PdfRenderFragment(val position: Int) : BaseMainFragment(R.layout.fragment_
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
-                // TODO -> this could be != ViewBorder.NONE to determin that view is on one border
+                // TODO -> this could be != ViewBorder.NONE to determine that view is on one border
                 // but atm it is then kinda flicky
                 pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
             }

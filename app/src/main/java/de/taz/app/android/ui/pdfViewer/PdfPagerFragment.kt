@@ -91,7 +91,7 @@ class PdfPagerFragment : BaseMainFragment(
      */
     private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         override fun createFragment(position: Int): Fragment {
-            return PdfRenderFragment(position)
+            return PdfRenderFragment.create(position)
         }
 
         override fun getItemCount(): Int {
