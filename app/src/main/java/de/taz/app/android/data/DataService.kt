@@ -397,7 +397,7 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
-                val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
+                val filesToDelete: MutableList<FileEntry> = collection.getAllFilesToDelete().toMutableList()
                 val filesToRetain =
                     collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
                         // bookmarked articles should remain
@@ -431,6 +431,42 @@ class DataService(private val applicationContext: Context) {
                 }
                 filesToDelete.forEach { storageService.deleteFile(it) }
 
+                collection.setDownloadDate(null)
+            }
+            is IssueWithPages -> {
+                val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
+                val filesToRetain =
+                    collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
+                        // bookmarked articles should remain
+                        acc.addAll(
+                            section.articleList
+                                .filter { it.bookmarked }
+                                .map { it.getAllFileNames() }
+                                .flatten()
+                                .distinct()
+                        )
+                        // author images are potentially used globally so we retain them for now as they don't eat up much space
+                        acc.addAll(
+                            section.articleList
+                                .map { it.authorList }
+                                .flatten()
+                                .mapNotNull { it.imageAuthor }
+                                .map { it.name }
+                        )
+                        acc
+                    }
+                filesToDelete.removeAll { it.name in filesToRetain }
+
+                // do not delete bookmarked files
+                articleRepository.apply {
+                    getBookmarkedArticleStubListForIssuesAtDate(
+                        collection.feedName,
+                        collection.date
+                    ).forEach {
+                        filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
+                    }
+                }
+                filesToDelete.forEach { storageService.deleteFile(it) }
                 collection.setDownloadDate(null)
             }
             else -> collection.getAllFiles().forEach { storageService.deleteFile(it) }

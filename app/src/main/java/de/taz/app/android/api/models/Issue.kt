@@ -56,6 +56,23 @@ data class Issue(
         return files.flatten().distinct()
     }
 
+    fun getAllFilesToDelete(): List<FileEntry> {
+        val files = mutableListOf<List<FileEntry>>()
+        imprint?.let {
+            files.add(imprint.getAllFiles())
+        }
+        sectionList.forEach { section ->
+            files.add(section.getAllFiles())
+            getArticleList().forEach { article ->
+                files.add(article.getAllFiles())
+            }
+        }
+        pageList.forEach { page ->
+            files.add(page.getAllFiles())
+        }
+        return files.flatten().distinct()
+    }
+
     override fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
     }

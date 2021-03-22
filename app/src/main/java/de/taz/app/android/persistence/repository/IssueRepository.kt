@@ -227,6 +227,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getDownloadDate(IssueStub(issue))
     }
 
+    fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
+        return getDownloadDate(issueWithPagesToIssue(issueWithPages))
+    }
+
     fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
         return when (issueKey) {
             is IssueKey -> isDownloaded(issueKey)
@@ -262,11 +266,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
         when (issue) {
             is IssueStub -> setDownloadDate(issue, dateDownload)
             is Issue -> setDownloadDate(issue, dateDownload)
+            is IssueWithPages -> setDownloadDate(issue, dateDownload)
         }
     }
 
     fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
         update(issueStub.copy(dateDownload = dateDownload))
+    }
+
+    fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
+        setDownloadDate(issueWithPagesToIssue(issueWithPages), dateDownload)
     }
 
     fun setDownloadDate(issue: Issue, dateDownload: Date?) {
@@ -281,6 +290,25 @@ class IssueRepository private constructor(val applicationContext: Context) :
         getStub(issueStub.issueKey)?.let {
             update(it.copy(dateDownload = null))
         }
+    }
+
+    private fun issueWithPagesToIssue(issueWithPages: IssueWithPages): Issue {
+        return Issue(
+            issueWithPages.feedName,
+            issueWithPages.date,
+            issueWithPages.moment,
+            issueWithPages.key,
+            issueWithPages.baseUrl,
+            issueWithPages.status,
+            issueWithPages.minResourceVersion,
+            issueWithPages.imprint,
+            issueWithPages.isWeekend,
+            issueWithPages.sectionList,
+            issueWithPages.pageList,
+            issueWithPages.moTime,
+            issueWithPages.dateDownload,
+            issueWithPages.lastDisplayableName
+        )
     }
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {

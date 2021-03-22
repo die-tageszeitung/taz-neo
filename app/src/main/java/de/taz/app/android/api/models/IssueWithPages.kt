@@ -76,7 +76,7 @@ data class IssueWithPages(
         return if (pagesDownloadedDate.contains(null)) {
             null
         } else {
-            max(pagesDownloadedDate)
+            super.getDownloadDate(context)
         }
     }
 
