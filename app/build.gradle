@@ -337,6 +337,8 @@ dependencies {
     implementation 'io.sentry:sentry-android:4.2.0'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
+    implementation 'com.airbnb.android:lottie:3.6.1'
+
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.13'

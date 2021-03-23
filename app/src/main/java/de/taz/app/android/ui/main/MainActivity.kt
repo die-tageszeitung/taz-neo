@@ -1,9 +1,14 @@
 package de.taz.app.android.ui.main
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
+import de.taz.app.android.SETTINGS_HELP_TRY_PDF_SHOWN
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
@@ -12,13 +17,10 @@ import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
-import kotlinx.android.synthetic.main.activity_login.*
 
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
@@ -50,6 +52,27 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         toastHelper = ToastHelper.getInstance(applicationContext)
 
         checkIfSubscriptionElapsed()
+        maybeShowTryPdfDialog()
+    }
+
+    private fun maybeShowTryPdfDialog() {
+        val preferences =
+            applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+        val timesPdfShown = preferences.getInt(SETTINGS_HELP_TRY_PDF_SHOWN, 0)
+        if (timesPdfShown < 1) {
+            val dialog = AlertDialog.Builder(this)
+                .setView(R.layout.dialog_try_pdf)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    preferences.edit().apply {
+                        putInt(SETTINGS_HELP_TRY_PDF_SHOWN, timesPdfShown + 1)
+                        apply()
+                    }
+                }
+                .show()
+            dialog.findViewById<ImageButton>(R.id.button_close).setOnClickListener {
+                dialog.dismiss()
+            }
+        }
     }
 
     private fun checkIfSubscriptionElapsed() {

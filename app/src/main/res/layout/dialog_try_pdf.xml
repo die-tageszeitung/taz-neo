@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="?dialogPreferredPadding"
+    >
+    <ImageButton
+        android:id="@+id/button_close"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:src="@drawable/ic_close" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:lottie_rawRes="@raw/try_pdf"
+        app:lottie_autoPlay="true"
+    />
+    <TextView
+        android:id="@+id/title"
+        app:layout_constraintTop_toBottomOf="@id/animation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Dialog.Title"
+        android:text="@string/dialog_try_pdf_title"
+    />
+
+    <TextView
+        android:id="@+id/description"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Dialog.Description"
+        android:text="@string/dialog_try_pdf_description"
+    />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

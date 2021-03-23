@@ -253,6 +253,10 @@
     <string name="fragment_login_taz_mail">app@taz.de</string>
     <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
 
+    <string name="dialog_try_pdf_title">Entdecken Sie jetzt die Zeitungsansicht</string>
+    <string name="dialog_try_pdf_description">Hier können Sie zwischen der mobilen und der Ansicht der Zeitungsseiten wechseln.</string>
+
+
     <string name="button_close_text">×</string>
 
     <string name="fragment_date_picker_selected_issue_toast">Neue Ausgabe wurde ausgewählt</string>
