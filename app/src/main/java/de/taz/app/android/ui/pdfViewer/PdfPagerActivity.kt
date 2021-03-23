@@ -218,7 +218,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
                 )
             }
-            activity_pdf_drawer_date.text = DateHelper.stringToMediumLocalizedString(issueKey.date)
+            activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
 
             drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size))
             pdfPagerViewModel.activePosition.observe(this, { position ->
