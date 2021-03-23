@@ -4,20 +4,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -79,6 +83,23 @@ abstract class IssueFeedFragment(
                     withContext(Dispatchers.Main) {
                         adapter.notifyDataSetChanged()
                     }
+                }
+            }
+        }
+        viewModel.pdfMode.observeDistinct(viewLifecycleOwner) { pdfMode ->
+            if (pdfMode && !authHelper.isLoggedIn()) {
+                context?.let {
+                    AlertDialog.Builder(it)
+                        .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                        .setNegativeButton(R.string.login_button) {dialog, _ ->
+                            activity?.startActivityForResult(
+                                Intent(activity, LoginActivity::class.java),
+                                ACTIVITY_LOGIN_REQUEST_CODE
+                            )
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
             }
         }
