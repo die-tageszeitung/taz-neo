@@ -13,8 +13,6 @@ enum class ViewBorder {
     NONE
 }
 
-const val SCROLL_MIN_DISTANCE = 10F
-
 class MuPDFReaderView constructor(
     context: Context?
 ) : com.artifex.mupdfdemo.ReaderView(
@@ -42,18 +40,17 @@ class MuPDFReaderView constructor(
         } else {
             4f
         }
+        // Work out the focus point relative to the view top left
+        val viewFocusX = ev.x - (displayedView.left + mXScroll)
+        val viewFocusY = ev.y - (displayedView.top + mYScroll)
+        // Scroll to maintain the focus point
+        mXScroll += (viewFocusX - viewFocusX * (newScale / mScale)).toInt()
+        mYScroll += (viewFocusY - viewFocusY * (newScale / mScale)).toInt()
         mScale = newScale
-        if (newScale > 1f) {
-            // Work out the focus point relative to the view top left
-            val viewFocusX: Int = ev.x.toInt() - (left + mXScroll)
-            val viewFocusY: Int = ev.y.toInt() - (top + mYScroll)
-            // Scroll to maintain the focus point
-            mXScroll += (viewFocusX - viewFocusX * newScale).toInt()
-            mYScroll += (viewFocusY - viewFocusY * newScale).toInt()
-        } else {
+        requestLayout()
+        if (newScale == 1f) {
             onScaleListener?.invoke(true)
         }
-        requestLayout()
         return true
     }
 

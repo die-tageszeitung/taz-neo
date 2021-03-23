@@ -21,7 +21,6 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
