@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -28,7 +27,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
-import java.io.File
 
 const val LOGO_PEAK = 9
 
@@ -202,9 +200,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
 
             // Setup drawer header (front page and date)
-            activity_pdf_drawer_front_page.setImageBitmap(
-                getPreviewImageFromPdfFile(items.first().pdfFile)
-            )
+            Glide
+                .with(this)
+                .load(items.first().pdfFile.absolutePath)
+                .into(activity_pdf_drawer_front_page)
+
             activity_pdf_drawer_front_page.setOnClickListener {
                 pdf_viewpager.currentItem = 0
                 activity_pdf_drawer_front_page_title.setTextColor(
@@ -218,7 +218,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
                 )
             }
-            activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
+            activity_pdf_drawer_date.text = DateHelper.stringToMediumLocalizedString(issueKey.date)
 
             drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size))
             pdfPagerViewModel.activePosition.observe(this, { position ->
@@ -267,15 +267,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 pdf_drawer_layout.requestLayout()
             }
         }
-    }
-
-    private fun getPreviewImageFromPdfFile(file: File): Bitmap {
-        val width = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            DRAWER_PAGE_WIDTH,
-            resources.displayMetrics
-        ).toInt()
-        return MuPDFThumbnail(file.path).thumbnail(width)
     }
 
     private fun hideLoadingScreen() {

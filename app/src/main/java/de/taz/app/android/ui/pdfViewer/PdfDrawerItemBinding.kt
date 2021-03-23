@@ -2,7 +2,6 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
 import android.util.TypedValue
-import android.view.View
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
@@ -12,7 +11,6 @@ import kotlinx.android.synthetic.main.view_pdf_drawer_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 data class PdfDrawerItemData(
@@ -43,20 +41,6 @@ class PdfDrawerItemBinding(
 
         // Set the image:
         CoroutineScope(Dispatchers.Main).launch {
-            // stretch panorama pages so they have same width as 2 pages with margin
-            if (itemData.pageType == PageType.panorama) {
-                val widthInDp = DRAWER_PAGE_WIDTH * 2 +
-                        context.resources.getDimensionPixelSize(R.dimen.fragment_drawer_thumbnail_margin) / 2
-                val width = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    widthInDp,
-                    context.resources.displayMetrics
-                ).toInt()
-                val layoutParams = boundView?.view_drawer_pdf_page_card?.layoutParams
-                layoutParams?.width = width
-                boundView?.view_drawer_pdf_page_card?.layoutParams = layoutParams
-            }
-
             val viewWidth = when (itemData.pageType) {
                 PageType.panorama -> boundView?.resize(PdfDrawerWidth.FULL)
                 else -> boundView?.resize(PdfDrawerWidth.HALF)

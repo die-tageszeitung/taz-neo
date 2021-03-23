@@ -69,19 +69,18 @@
 
                 <LinearLayout
                     android:id="@+id/activity_pdf_drawer_header"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
                         <androidx.cardview.widget.CardView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
                             app:cardBackgroundColor="@color/white"
@@ -90,8 +89,8 @@
                             <ImageView
                                 android:id="@+id/activity_pdf_drawer_front_page"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="fitCenter"
+                                android:layout_height="wrap_content"
+                                android:scaleType="fitXY"
                                 tools:ignore="ContentDescription" />
 
                         </androidx.cardview.widget.CardView>
@@ -99,7 +98,7 @@
                         <TextView
                             android:id="@+id/activity_pdf_drawer_front_page_title"
                             style="@style/TextAppearance.Drawer.Sections"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
                             android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
@@ -109,7 +108,8 @@
                     <TextView
                         android:id="@+id/activity_pdf_drawer_date"
                         style="@style/TextAppearance.Drawer.Sections.Date"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
                         android:layout_marginBottom="14dp"

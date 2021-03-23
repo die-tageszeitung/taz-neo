@@ -1,11 +1,8 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-
-const val DRAWER_PAGE_WIDTH = 116f
 
 class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfPageList>) :
     RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
