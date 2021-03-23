@@ -8,21 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
-import java.lang.IllegalStateException
 import java.util.*
 
-enum class MomentType {
-    ANIMATED, STATIC
+enum class CoverType {
+    ANIMATED, STATIC, FRONT_PAGE
 }
 
-data class MomentViewData(
-    val issueKey: IssueKey,
+data class CoverViewData(
+    val issueKey: AbstractIssueKey,
     val downloadStatus: DownloadStatus,
-    val momentType: MomentType,
+    val momentType: CoverType,
     val momentUri: String?,
     val dimension: String
 )
@@ -32,11 +31,11 @@ data class MomentViewData(
  *  [ViewHolder] is used to recycle views
  */
 abstract class IssueFeedAdapter(
-    private val fragment: HomePageFragment,
+    private val fragment: IssueFeedFragment,
     @LayoutRes private val itemLayoutRes: Int,
     private val feed: Feed,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: MomentViewActionListener
+    private val onMomentViewActionListener: CoverViewActionListener
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
 
     abstract val dateFormat: DateFormat
@@ -76,18 +75,28 @@ abstract class IssueFeedAdapter(
      * ViewHolder for this Adapter
      */
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        private var binder: MomentViewDataBinding? = null
+        private var binder: CoverViewBinding<*>? = null
 
-        fun bind(fragment: HomePageFragment, date: Date) {
-            binder = MomentViewDataBinding(
-                fragment,
-                IssuePublication(feed.name, simpleDateFormat.format(date)),
-                dateFormat = dateFormat,
-                glideRequestManager = glideRequestManager,
-                onMomentViewActionListener
-            ).apply {
-                bindView(itemView.findViewById(R.id.fragment_cover_flow_item))
+        fun bind(fragment: IssueFeedFragment, date: Date) {
+            binder = if (fragment.viewModel.pdfMode.value == true) {
+                FrontpageViewBinding(
+                    fragment,
+                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    dateFormat = dateFormat,
+                    glideRequestManager = glideRequestManager,
+                    onMomentViewActionListener
+                )
+            } else {
+                MomentViewBinding(
+                    fragment,
+                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    dateFormat = dateFormat,
+                    glideRequestManager = glideRequestManager,
+                    onMomentViewActionListener
+                )
             }
+            binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))
+
         }
 
         fun unbind() {

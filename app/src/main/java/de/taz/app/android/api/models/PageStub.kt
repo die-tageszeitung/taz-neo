@@ -11,7 +11,8 @@ data class PageStub(
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    val dateDownload: Date?
+    val dateDownload: Date?,
+    val baseUrl: String
 ) {
     constructor(page: Page) : this(
         page.pagePdf.name,
@@ -19,6 +20,7 @@ data class PageStub(
         page.pagina,
         page.type,
         page.frameList,
-        page.dateDownload
+        page.dateDownload,
+        page.baseUrl
     )
 }

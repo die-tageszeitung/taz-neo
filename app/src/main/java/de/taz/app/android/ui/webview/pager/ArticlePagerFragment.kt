@@ -44,14 +44,6 @@ class ArticlePagerFragment : BaseMainFragment(
         ).get(IssueViewerViewModel::class.java)
     }
 
-    private val drawerViewModel: SectionDrawerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        ).get(SectionDrawerViewModel::class.java)
-    }
-
     override fun onResume() {
         super.onResume()
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->

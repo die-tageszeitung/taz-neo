@@ -42,7 +42,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
             )
 
             // save pages
-            pageRepository.save(issue.pageList)
+            pageRepository.save(issue.pageList, issue.issueKey)
 
             // save page relation
             appDatabase.issuePageJoinDao().insertOrReplace(
@@ -218,6 +218,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return when (issue) {
             is IssueStub -> getDownloadDate(issue)
             is Issue -> getDownloadDate(issue)
+            is IssueWithPages -> getDownloadDate(issue)
             else -> throw Exception("IssueOperations are either Issue or IssueStub")
         }
     }
@@ -226,8 +227,30 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getDownloadDate(IssueStub(issue))
     }
 
+    fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
+        return getDownloadDate(issueWithPagesToIssue(issueWithPages))
+    }
+
+    fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
+        return when (issueKey) {
+            is IssueKey -> isDownloaded(issueKey)
+            is IssueKeyWithPages -> isDownloaded(issueKey)
+            else -> throw IllegalStateException("issueKey argument needs to be one of IssueKeyWithPages or IssueKey")
+        }
+    }
+
     fun isDownloaded(issueKey: IssueKey): Boolean {
         return getDownloadDate(issueKey) != null
+    }
+
+    fun isDownloaded(issueKeyWithPages: IssueKeyWithPages): Boolean {
+        val issue = getIssueByFeedAndDate(
+            issueKeyWithPages.feedName,
+            issueKeyWithPages.date,
+            issueKeyWithPages.status
+        )
+        val issueWithPages = issue?.let { IssueWithPages(it) }
+        return issueWithPages?.getDownloadDate(applicationContext) != null
     }
 
     fun getDownloadDate(issueKey: IssueKey): Date? {
@@ -243,11 +266,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
         when (issue) {
             is IssueStub -> setDownloadDate(issue, dateDownload)
             is Issue -> setDownloadDate(issue, dateDownload)
+            is IssueWithPages -> setDownloadDate(issue, dateDownload)
         }
     }
 
     fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
         update(issueStub.copy(dateDownload = dateDownload))
+    }
+
+    fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
+        setDownloadDate(issueWithPagesToIssue(issueWithPages), dateDownload)
     }
 
     fun setDownloadDate(issue: Issue, dateDownload: Date?) {
@@ -262,6 +290,25 @@ class IssueRepository private constructor(val applicationContext: Context) :
         getStub(issueStub.issueKey)?.let {
             update(it.copy(dateDownload = null))
         }
+    }
+
+    private fun issueWithPagesToIssue(issueWithPages: IssueWithPages): Issue {
+        return Issue(
+            issueWithPages.feedName,
+            issueWithPages.date,
+            issueWithPages.moment,
+            issueWithPages.key,
+            issueWithPages.baseUrl,
+            issueWithPages.status,
+            issueWithPages.minResourceVersion,
+            issueWithPages.imprint,
+            issueWithPages.isWeekend,
+            issueWithPages.sectionList,
+            issueWithPages.pageList,
+            issueWithPages.moTime,
+            issueWithPages.dateDownload,
+            issueWithPages.lastDisplayableName
+        )
     }
 
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
@@ -422,6 +469,11 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 }
 
+interface AbstractIssueKey: ObservableDownload, Parcelable {
+    val feedName: String
+    val date: String
+    val status: IssueStatus
+}
 
 /**
  * The representation of a [feedName], [date] and [status] determining the exact
@@ -429,10 +481,16 @@ class IssueRepository private constructor(val applicationContext: Context) :
  */
 @Parcelize
 data class IssueKey(
-    val feedName: String,
-    val date: String,
-    val status: IssueStatus
-) : Parcelable, ObservableDownload {
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : Parcelable, AbstractIssueKey {
+
+    constructor(issueKeyWithPages: IssueKeyWithPages): this(
+        issueKeyWithPages.feedName,
+        issueKeyWithPages.date,
+        issueKeyWithPages.status
+    )
 
     constructor(issuePublication: IssuePublication, status: IssueStatus): this(
         issuePublication.feed,
@@ -445,6 +503,27 @@ data class IssueKey(
     }
 }
 
+
+
+
+@Parcelize
+data class IssueKeyWithPages(
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : Parcelable, AbstractIssueKey {
+
+    constructor(issueKey: IssueKey) : this(
+        issueKey.feedName,
+        issueKey.date,
+        issueKey.status
+    )
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/$status/pdf"
+    }
+}
+
 /**
  * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
  * omitting the specification of an [IssueStatus]
@@ -454,7 +533,7 @@ data class IssuePublication(
     val feed: String,
     val date: String
 ) : Parcelable {
-    constructor(issueKey: IssueKey): this(
+    constructor(issueKey: AbstractIssueKey): this(
         issueKey.feedName,
         issueKey.date
     )

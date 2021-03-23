@@ -8,8 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.data.DataService
@@ -17,7 +16,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
-import de.taz.app.android.ui.home.page.HomePageViewModel
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
@@ -28,22 +27,24 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
+class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     private var refreshJob: Job? = null
 
-    private val homePageViewModel: HomePageViewModel by activityViewModels()
+    private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        feed_archive_pager.adapter = HomeFragmentPagerAdapter(
-            childFragmentManager,
-            lifecycle
-        )
+        homePageViewModel.pdfMode.observe(viewLifecycleOwner) { pdfMode ->
+            navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)
+                .setIcon(if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view)
+        }
 
-        // reduce viewpager2 sensitivity to make the view less finnicky
+        feed_archive_pager.adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
+
+        // reduce viewpager2 sensitivity to make the view less finicky
         feed_archive_pager.reduceDragSensitivity(6)
         feed_archive_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -122,6 +123,10 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
                 (activity as? MainActivity)?.showHome(
                     skipToFirst = true
                 )
+            }
+            R.id.bottom_navigation_action_pdf -> {
+                homePageViewModel.pdfMode.postValue(!homePageViewModel.pdfMode.value!!)
+                activity?.recreate()
             }
         }
     }

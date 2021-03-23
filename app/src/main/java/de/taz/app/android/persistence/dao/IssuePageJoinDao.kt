@@ -14,6 +14,18 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
     @Query(
         """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 
         ON Page.pdfFileName = IssuePageJoin.pageKey 
+        WHERE  IssuePageJoin.issueDate == :date
+            AND IssuePageJoin.issueFeedName == :feedName
+            AND IssuePageJoin.`index` == 0
+            AND IssuePageJoin.issueStatus == :status
+        ORDER BY IssuePageJoin.`index` ASC
+        """
+    )
+    abstract fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub?
+
+    @Query(
+        """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 
+        ON Page.pdfFileName = IssuePageJoin.pageKey 
         WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName
             AND IssuePageJoin.issueStatus == :status
         ORDER BY IssuePageJoin.`index` ASC

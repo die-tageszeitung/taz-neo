@@ -8,22 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.data.DataService
-import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.download.DownloadService
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.monkey.preventDismissal
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.home.page.HomePageViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
@@ -38,7 +36,7 @@ private const val KEY_IS_DOWNLOADED = "KEY_IS_DOWNLOADED"
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-    private lateinit var issueKey: IssueKey
+    private lateinit var issueKey: AbstractIssueKey
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -50,11 +48,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var isDownloaded: Boolean = false
 
-    private val homeViewModel: HomePageViewModel by activityViewModels()
+    private val homeViewModel: IssueFeedViewModel by activityViewModels()
 
     companion object {
         fun create(
-            issueKey: IssueKey,
+            issueKey: AbstractIssueKey,
             isDownloaded: Boolean
         ): IssueBottomSheetFragment {
             val args = Bundle()
@@ -96,24 +94,30 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (!isDownloaded) {
-            fragment_bottom_sheet_issue_delete?.visibility = View.GONE
-            fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
-        } else {
+        if (isDownloaded) {
             fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
             fragment_bottom_sheet_issue_download?.visibility = View.GONE
+        } else {
+            fragment_bottom_sheet_issue_delete?.visibility = View.GONE
+            fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
         }
 
         fragment_bottom_sheet_issue_read?.setOnClickListener {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
+            when (issueKey) {
+                is IssueKey -> {
                     Intent(requireActivity(), IssueViewerActivity::class.java).apply {
                         putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
                         startActivityForResult(this, 0)
                     }
-                    dismiss()
+                }
+                is IssueKeyWithPages -> {
+                    Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                        putExtra(PdfPagerActivity.KEY_ISSUE_KEY, issueKey)
+                        startActivity(this)
+                    }
                 }
             }
+            dismiss()
         }
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
@@ -161,28 +165,19 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             val viewModel = ::homeViewModel.get()
             CoroutineScope(Dispatchers.IO).launch {
                 val issue = dataService.getIssue(IssuePublication(issueKey))
-                issue?.let {
-                    dataService.ensureDeletedFiles(it)
-                    withContext(Dispatchers.Main) {
-                        dismiss()
-                    }
-                    try {
-                        dataService.getIssue(
-                            IssuePublication(issue.issueKey),
-                            allowCache = false,
-                            retryOnFailure = true,
-                            forceUpdate = true
-                        )
-
-                        viewModel.notifyMomentChanged(simpleDateFormat.parse(issue.issueKey.date)!!)
-                    } catch (e: ConnectivityException.Recoverable) {
-                        log.warn("Redownloading after delete not possible as no internet connection is available")
-                    }
+                val issueToDelete = if (issueKey is IssueKeyWithPages) {
+                    IssueWithPages(issue)
+                } else {
+                    issue
                 }
+                dataService.ensureDeletedFiles(issueToDelete)
+                withContext(Dispatchers.Main) {
+                    dismiss()
+                }
+                viewModel.notifyMomentChanged(simpleDateFormat.parse(issueKey.date)!!)
             }
-
-
         }
+
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -190,7 +185,12 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                         dataService.getIssue(
                             IssuePublication(issueKey)
                         )
-                    dataService.ensureDownloaded(issue)
+                    val issueToDownload = if (issueKey is IssueKeyWithPages) {
+                        IssueWithPages(issue)
+                    } else {
+                        issue
+                    }
+                    dataService.ensureDownloaded(issueToDownload)
                 } catch (e: ConnectivityException.Recoverable) {
                     toastHelper.showNoConnectionToast()
                 }

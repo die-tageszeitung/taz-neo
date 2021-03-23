@@ -47,6 +47,7 @@ class DataService(private val applicationContext: Context) {
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
+    private val pageRepository = PageRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
@@ -272,6 +273,39 @@ class DataService(private val applicationContext: Context) {
             moment
         }
 
+    suspend fun getFrontPage(
+        issuePublication: IssuePublication,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Page? =
+        withContext(Dispatchers.IO) {
+            val issueKey = IssueKey(issuePublication, IssueStatus.regular)
+
+            if (allowCache) {
+                pageRepository.getFrontPage(issueKey)?.let {
+                    return@withContext it
+                }
+            }
+            val page = if (retryOnFailure) {
+                apiService.retryOnConnectionFailure {
+                    apiService.getFrontPageByFeedAndDate(
+                        issuePublication.feed,
+                        simpleDateFormat.parse(issuePublication.date)!!
+                    )
+                }
+            } else {
+                apiService.getFrontPageByFeedAndDate(
+                    issuePublication.feed,
+                    simpleDateFormat.parse(issuePublication.date)!!
+                )
+            }
+
+            page?.let {
+                pageRepository.save(page, issueKey)
+            }
+            page
+        }
+
 
     suspend fun getResourceInfo(
         allowCache: Boolean = true,
@@ -304,9 +338,22 @@ class DataService(private val applicationContext: Context) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             // If we download issues we want to refresh metadata, as they might get stale quickly
             val refreshedCollection = if (collection is Issue && !collection.isDownloaded()) {
-                getIssue(IssuePublication(collection.issueKey), allowCache = false, retryOnFailure = true)
-            } else collection
-
+                getIssue(
+                    IssuePublication(collection.issueKey),
+                    allowCache = false,
+                    retryOnFailure = true
+                )
+            } else if (collection is IssueWithPages && !collection.isDownloaded()) {
+                IssueWithPages(
+                    getIssue(
+                        IssuePublication(collection.issueKey),
+                        allowCache = false,
+                        retryOnFailure = true
+                    )
+                )
+            } else {
+                collection
+            }
             downloadService.ensureCollectionDownloaded(
                 refreshedCollection,
                 liveData as MutableLiveData<DownloadStatus>,
@@ -350,7 +397,7 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
-                val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
+                val filesToDelete: MutableList<FileEntry> = collection.getAllFilesToDelete().toMutableList()
                 val filesToRetain =
                     collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
                         // bookmarked articles should remain
@@ -384,6 +431,42 @@ class DataService(private val applicationContext: Context) {
                 }
                 filesToDelete.forEach { storageService.deleteFile(it) }
 
+                collection.setDownloadDate(null)
+            }
+            is IssueWithPages -> {
+                val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
+                val filesToRetain =
+                    collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
+                        // bookmarked articles should remain
+                        acc.addAll(
+                            section.articleList
+                                .filter { it.bookmarked }
+                                .map { it.getAllFileNames() }
+                                .flatten()
+                                .distinct()
+                        )
+                        // author images are potentially used globally so we retain them for now as they don't eat up much space
+                        acc.addAll(
+                            section.articleList
+                                .map { it.authorList }
+                                .flatten()
+                                .mapNotNull { it.imageAuthor }
+                                .map { it.name }
+                        )
+                        acc
+                    }
+                filesToDelete.removeAll { it.name in filesToRetain }
+
+                // do not delete bookmarked files
+                articleRepository.apply {
+                    getBookmarkedArticleStubListForIssuesAtDate(
+                        collection.feedName,
+                        collection.date
+                    ).forEach {
+                        filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
+                    }
+                }
+                filesToDelete.forEach { storageService.deleteFile(it) }
                 collection.setDownloadDate(null)
             }
             else -> collection.getAllFiles().forEach { storageService.deleteFile(it) }
@@ -442,7 +525,7 @@ class DataService(private val applicationContext: Context) {
         feeds
     }
 
-    suspend fun isIssueDownloaded(issueKey: IssueKey): Boolean = withContext(Dispatchers.IO) {
+    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean = withContext(Dispatchers.IO) {
         issueRepository.isDownloaded(issueKey)
     }
 
@@ -472,22 +555,36 @@ class DataService(private val applicationContext: Context) {
     private suspend fun getDownloadLiveData(observableDownload: ObservableDownload): LiveDataWithReferenceCount<DownloadStatus> =
         withContext(Dispatchers.IO) {
             val tag = observableDownload.getDownloadTag()
-
-            log.verbose("Requesting livedata for $tag")
-            downloadLiveDataMap[tag] ?: run {
-                val status = when (observableDownload) {
-                    is IssueKey -> if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done else DownloadStatus.pending
-                    is DownloadableCollection -> observableDownload.getDownloadDate(
-                        applicationContext
-                    )
-                        ?.let { DownloadStatus.done } ?: DownloadStatus.pending
-                    else -> DownloadStatus.pending
-                }
-                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
-                downloadLiveDataMap[tag] = downloadLiveData
-                log.verbose("Created livedata for $tag")
-                downloadLiveData
+            // The pages(pdf) variant of an issue is a superset of the regular issue, so if we listen
+            // for a issue key we also should check whether the variant with pages is already in the download
+            // queue
+            val issueKeyWithPages = if (observableDownload is IssueKey) {
+                IssueKeyWithPages(observableDownload)
+            } else {
+                null
             }
+
+            issueKeyWithPages?.let { downloadLiveDataMap[issueKeyWithPages.getDownloadTag()] }
+                ?: downloadLiveDataMap[tag]
+                ?: run {
+                    val status = when (observableDownload) {
+                        is IssueKey ->
+                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                            else DownloadStatus.pending
+                        is IssueKeyWithPages ->
+                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                            else DownloadStatus.pending
+                        is DownloadableCollection -> observableDownload.getDownloadDate(
+                            applicationContext
+                        )
+                            ?.let { DownloadStatus.done } ?: DownloadStatus.pending
+                        else -> DownloadStatus.pending
+                    }
+                    val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+                    downloadLiveDataMap[tag] = downloadLiveData
+                    log.verbose("Created livedata for $tag")
+                    downloadLiveData
+                }
         }
 
 

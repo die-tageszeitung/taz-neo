@@ -3,7 +3,6 @@ package de.taz.app.android.ui.issueViewer
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.ui.TazViewerActivity
@@ -12,7 +11,6 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,7 +18,7 @@ import kotlin.reflect.KClass
 
 
 class IssueViewerActivity : TazViewerActivity() {
-    private val log by Log
+    private var finishOnBackPressed: Boolean = false
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issueKey: IssueKey
 
@@ -29,6 +27,7 @@ class IssueViewerActivity : TazViewerActivity() {
     companion object {
         const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        const val KEY_FINISH_ON_BACK_PRESSED = "KEY_FINISHED_ON_BACK_PRESSED"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +40,7 @@ class IssueViewerActivity : TazViewerActivity() {
         }
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
+            finishOnBackPressed = intent.getBooleanExtra(KEY_FINISH_ON_BACK_PRESSED, false)
             CoroutineScope(Dispatchers.Main).launch {
                 if (displayableKey != null) {
                     issueViewerViewModel.setDisplayable(issueKey, displayableKey, loadIssue = true)
@@ -72,6 +72,14 @@ class IssueViewerActivity : TazViewerActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (finishOnBackPressed) {
+            finish()
+        } else {
+            super.onBackPressed()
         }
     }
 }

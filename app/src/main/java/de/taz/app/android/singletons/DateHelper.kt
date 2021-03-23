@@ -85,6 +85,21 @@ object DateHelper {
         ).toLowerCase(Locale.getDefault())
     }
 
+    /**
+     * function to get a two lines string from a given dateString
+     * @param dateString - String holding the date which will be reformatted
+     * @return the [String] of date in a two line format: "EEEE,<br>> d.M.yyyy", eg:
+     *    samstag,
+     *    13.3.2021
+     */
+    fun stringToLongLocalized2LineString(dateString: String): String? {
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            SimpleDateFormat("EEEE,\n d.M.yyyy", deviceLocale).format(
+                issueDate
+            ).toLowerCase(Locale.getDefault())
+        }
+    }
+
     fun stringToMediumLocalizedString(dateString: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             dateToMediumLocalizedString(issueDate)

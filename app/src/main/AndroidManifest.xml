@@ -23,53 +23,43 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.WelcomeActivity"
-            android:noHistory="true"
-            android:screenOrientation="portrait" />
+            android:noHistory="true" />
         <activity
             android:name=".ui.WebViewActivity"
-            android:noHistory="true"
-            android:screenOrientation="portrait" />
+            android:noHistory="true" />
         <activity
-            android:name=".ui.DataPolicyActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.DataPolicyActivity" />
         <activity
-            android:name=".ui.StorageMigrationActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.StorageMigrationActivity" />
+        <activity
+            android:name=".ui.pdfViewer.PdfPagerActivity" />
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
         <activity
-            android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.main.MainActivity" />
 
         <activity
-            android:name=".ui.issueViewer.IssueViewerActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.issueViewer.IssueViewerActivity" />
 
         <activity
-            android:name=".ui.bookmarks.BookmarkListActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.bookmarks.BookmarkListActivity" />
 
         <activity
-            android:name=".ui.bookmarks.BookmarkViewerActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.bookmarks.BookmarkViewerActivity" />
 
         <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.settings.SettingsActivity" />
 
         <activity
-            android:name=".ui.settings.support.ErrorReportActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.settings.support.ErrorReportActivity" />
         <activity
-            android:name=".ui.login.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:name=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

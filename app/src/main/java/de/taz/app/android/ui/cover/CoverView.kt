@@ -1,4 +1,4 @@
-package de.taz.app.android.ui.moment
+package de.taz.app.android.ui.cover
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -10,13 +10,12 @@ import android.widget.RelativeLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.ui.home.page.MomentType
-import de.taz.app.android.ui.home.page.MomentViewData
+import de.taz.app.android.ui.home.page.CoverType
+import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.view_moment.view.*
+import kotlinx.android.synthetic.main.view_cover.view.*
 
 
 private const val MOMENT_FADE_DURATION_MS = 500L
@@ -26,7 +25,7 @@ private const val LOADING_FADE_OUT_DURATION_MS = 500L
 private const val IGNORE_PIXEL_MARGIN = 5
 
 @SuppressLint("ClickableViewAccessibility")
-class MomentView @JvmOverloads constructor(
+abstract class CoverView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -34,45 +33,28 @@ class MomentView @JvmOverloads constructor(
     private val log by Log
 
     private var shouldNotShowDownloadIcon: Boolean = false
-    private var momentElevation: Float? = null
+    protected var momentElevation: Float? = null
 
     private var downloadButtonListener: ((View) -> Unit)? = null
 
     private var dimension: Float? = null
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_moment, this, true)
+        LayoutInflater.from(context).inflate(R.layout.view_cover, this, true)
+
         if (momentElevation == null) {
             momentElevation = moment_container.elevation
         }
         moment_container.elevation = 0f
-
-        moment_image.apply {
-            alpha = 0f
-        }
-
-        moment_web_view.apply {
-            alpha = 0f
-            setInitialScale(30)
-            setOnTouchListener { _, _ -> false }
-            settings.apply {
-                useWideViewPort = true
-                loadWithOverviewMode = true
-                loadsImagesAutomatically = true
-                allowFileAccess = true
-            }
-            setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
-        }
-
         attrs?.let {
             val styledAttributes =
-                getContext().obtainStyledAttributes(attrs, R.styleable.MomentView)
+                getContext().obtainStyledAttributes(attrs, R.styleable.CoverView)
             val textAlign = styledAttributes.getInteger(
-                R.styleable.MomentView_archive_item_text_orientation,
+                R.styleable.CoverView_archive_item_text_orientation,
                 View.TEXT_ALIGNMENT_CENTER
             )
             shouldNotShowDownloadIcon = styledAttributes.getBoolean(
-                R.styleable.MomentView_do_not_show_download_icon,
+                R.styleable.CoverView_do_not_show_download_icon,
                 false
             )
             view_moment_download_icon_wrapper.visibility =
@@ -85,28 +67,21 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
-    fun clear(glideRequestManager: RequestManager) {
-        glideRequestManager
-            .clear(moment_image)
+    abstract fun clear(glideRequestManager: RequestManager)
 
-        moment_web_view.apply {
-            loadUrl("about:blank")
-            alpha = 0f
-        }
-        moment_web_view.visibility = View.GONE
-        clearDate()
-        hideDownloadIcon()
+    protected fun clearDate() {
+        fragment_moment_date.text = ""
     }
 
     fun show(
-        data: MomentViewData,
+        data: CoverViewData,
         dateFormat: DateFormat = DateFormat.LongWithoutWeekDay,
         glideRequestManager: RequestManager
     ) {
         setDimension(data.dimension)
         showProgressBar()
         data.momentUri?.let {
-            showMomentImage(it, data.momentType, glideRequestManager)
+            showCover(it, data.momentType, glideRequestManager)
         }
         setDownloadIconForStatus(data.downloadStatus)
         setDate(data.issueKey.date, dateFormat)
@@ -128,10 +103,6 @@ class MomentView @JvmOverloads constructor(
         moment_container.setOnLongClickListener(l)
     }
 
-    private fun clearDate() {
-        fragment_moment_date.text = ""
-    }
-
     fun setDate(date: String?, dateFormat: DateFormat) {
         if (date !== null) {
             when (dateFormat) {
@@ -147,14 +118,13 @@ class MomentView @JvmOverloads constructor(
         }
     }
 
-    private fun showProgressBar() {
+    protected fun showProgressBar() {
+        cover_placeholder.removeAllViews()
         moment_container.elevation = 0f
-        moment_image.alpha = 0f
-        moment_web_view.alpha = 0f
-        moment_progressbar.visibility = View.VISIBLE
+        moment_progressbar.animate().alpha(1f).duration = LOADING_FADE_OUT_DURATION_MS
     }
 
-    private fun hideProgressBar() {
+    protected fun hideProgressBar() {
         moment_progressbar.animate().alpha(0f).duration = LOADING_FADE_OUT_DURATION_MS
     }
 
@@ -232,7 +202,7 @@ class MomentView @JvmOverloads constructor(
         activateDownloadButtonListener()
     }
 
-    private fun hideDownloadIcon(reset: Boolean = false) {
+    protected fun hideDownloadIcon(reset: Boolean = false) {
         val wasDownloading = fragment_moment_downloading?.visibility == View.VISIBLE
         fragment_moment_downloading?.visibility = View.GONE
         fragment_moment_download?.visibility = View.GONE
@@ -258,42 +228,10 @@ class MomentView @JvmOverloads constructor(
         view_moment_download_icon_wrapper.setOnClickListener(null)
     }
 
-    private fun showMomentImage(
+    abstract fun showCover(
         uri: String,
-        type: MomentType,
+        type: CoverType,
         glideRequestManager: RequestManager
-    ) {
-        when (type) {
-            MomentType.ANIMATED -> {
-                showAnimatedImage(uri)
-                moment_web_view?.apply {
-                    hideProgressBar()
-                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
-                }
-            }
-            MomentType.STATIC -> {
-                showStaticImage(uri, glideRequestManager)
-                moment_image?.apply {
-                    hideProgressBar()
-                    animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
-                }
-            }
-        }
-        momentElevation?.let { moment_container.elevation = it }
-    }
+    )
 
-    private fun showAnimatedImage(uri: String) {
-        moment_web_view.visibility = View.VISIBLE
-        moment_web_view.apply {
-            loadUrl(uri)
-        }
-    }
-
-    private fun showStaticImage(uri: String?, glideRequestManager: RequestManager) {
-        glideRequestManager
-            .load(uri)
-            .into(moment_image)
-
-        hideProgressBar()
-    }
 }

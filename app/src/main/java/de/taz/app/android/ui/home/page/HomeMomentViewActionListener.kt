@@ -8,19 +8,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class HomeMomentViewActionListener(
-    private val homePageFragment: HomePageFragment,
+    private val issueFeedFragment: IssueFeedFragment,
     private val dataService: DataService,
-) : MomentViewActionListener {
+) : CoverViewActionListener {
 
-    override fun onImageClicked(momentViewData: MomentViewData) {
-        homePageFragment.onItemSelected(momentViewData.issueKey)
+    override fun onImageClicked(momentViewData: CoverViewData) {
+        issueFeedFragment.onItemSelected(momentViewData.issueKey)
     }
 
-    override fun onLongClicked(momentViewData: MomentViewData) {
-        homePageFragment.lifecycleScope.launch(Dispatchers.IO) {
+    override fun onLongClicked(momentViewData: CoverViewData) {
+        issueFeedFragment.lifecycleScope.launch(Dispatchers.IO) {
             val isDownloaded = dataService.isIssueDownloaded(momentViewData.issueKey)
             withContext(Dispatchers.Main) {
-                homePageFragment.showBottomSheet(
+                issueFeedFragment.showBottomSheet(
                     IssueBottomSheetFragment.create(
                         momentViewData.issueKey,
                         isDownloaded

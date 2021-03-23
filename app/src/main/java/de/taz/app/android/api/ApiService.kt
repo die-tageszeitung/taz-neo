@@ -332,6 +332,28 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
     }
 
+    /**
+     * function to get the front page of an issue by feedName and date
+     * @param feedName - the name of the feed
+     * @param issueDate - date of an issue
+     * @return [List]<[Issue]> of the issues of a feed at given date
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getFrontPageByFeedAndDate(
+        feedName: String = "taz",
+        issueDate: Date = Date()
+    ): Page? {
+        val dateString = simpleDateFormat.format(issueDate)
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
+            ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
+                issue.pageList?.firstOrNull()?.let { page ->
+                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl)
+                }
+            }
+        }
+    }
 
     /**
      * function to get information about the current resources

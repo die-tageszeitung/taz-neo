@@ -2,6 +2,7 @@ package de.taz.app.android.api.dto
 
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.models.Frame
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 
 @JsonClass(generateAdapter = true)
@@ -10,5 +11,6 @@ data class PageDto(
     val title: String? = null,
     val pagina: String? = null,
     val type: PageType? = null,
-    val frameList: List<Frame>? = null
+    val frameList: List<Frame>? = null,
+    val baseUrl: String? = null
 )

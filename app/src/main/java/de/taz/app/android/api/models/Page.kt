@@ -4,10 +4,10 @@ import android.content.Context
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
 import java.util.*
 
 
@@ -17,16 +17,18 @@ data class Page(
     val pagina: String? = null,
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    val baseUrl: String
 ) : DownloadableCollection {
 
-    constructor(issueKey: IssueKey, pageDto: PageDto) : this(
+    constructor(issueKey: IssueKey, pageDto: PageDto, baseUrl: String) : this(
         FileEntry(pageDto.pagePdf, StorageService.determineFilePath(pageDto.pagePdf, issueKey)),
         pageDto.title,
         pageDto.pagina,
         pageDto.type,
         pageDto.frameList,
-        null
+        null,
+        baseUrl
     )
 
     override fun getDownloadDate(context: Context?): Date? {

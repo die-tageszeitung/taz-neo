@@ -40,6 +40,8 @@
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
+    <string name="bottom_navigation_action_pdf">PDF-Ansicht</string>
+    <string name="bottom_navigation_action_app">Web-Ansicht</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
@@ -65,6 +67,7 @@
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
+    <string name="fragment_bottom_sheet_issue_read_pdf">PDF lesen</string>
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
@@ -266,4 +269,5 @@
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihre taz-ID hat kein zugehöriges Abo. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
+    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die PDF-Ansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 </resources>

@@ -21,24 +21,12 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <ImageView
-            android:id="@+id/moment_image"
+        <FrameLayout
+            android:id="@+id/cover_placeholder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:ignore="ContentDescription,MissingConstraints" />
+            />
 
-        <de.taz.app.android.ui.home.page.MomentWebView
-            android:id="@+id/moment_web_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0"
-            android:layerType="software"
-            android:outlineProvider="paddedBounds"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:ignore="ContentDescription,MissingConstraints" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

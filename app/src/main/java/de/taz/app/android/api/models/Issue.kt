@@ -5,7 +5,6 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.singletons.StorageService
 
 import java.util.*
 
@@ -37,7 +36,7 @@ data class Issue(
         issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), it, ArticleType.IMPRINT) },
         issueDto.isWeekend,
         issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
+        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
         issueDto.moTime,
         null,
         null
@@ -53,6 +52,23 @@ data class Issue(
             getArticleList().forEach { article ->
                 files.add(article.getAllFiles())
             }
+        }
+        return files.flatten().distinct()
+    }
+
+    fun getAllFilesToDelete(): List<FileEntry> {
+        val files = mutableListOf<List<FileEntry>>()
+        imprint?.let {
+            files.add(imprint.getAllFiles())
+        }
+        sectionList.forEach { section ->
+            files.add(section.getAllFiles())
+            getArticleList().forEach { article ->
+                files.add(article.getAllFiles())
+            }
+        }
+        pageList.forEach { page ->
+            files.add(page.getAllFiles())
         }
         return files.flatten().distinct()
     }

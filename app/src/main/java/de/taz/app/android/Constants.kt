@@ -34,6 +34,7 @@ val SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
 const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
+const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
 
 // General Preferences
 const val DRAWER_SHOW_NUMBER = 1

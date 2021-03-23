@@ -76,7 +76,7 @@ class DownloadService constructor(
      * Pages, Articles and Sections are parts of issues, which file lists are included by the corresponding Issue.
      * So if their corresponding Issue already is downloaded we assume they are too
      */
-    private fun checkIfDownloadeByIssue(collection: DownloadableCollection): Boolean {
+    private fun checkIfDownloadedByIssue(collection: DownloadableCollection): Boolean {
         return when (collection) {
             is Article -> issueRepository.getIssueStubForArticle(collection.articleHtml.name)
                 ?.getDownloadDate(applicationContext)
@@ -98,7 +98,7 @@ class DownloadService constructor(
         val contentsAreDownloaded = collection.getAllFiles().all { it.dateDownload != null && it.storageLocation != StorageLocation.NOT_STORED }
         // If the collection is not directly marked as download it still might part of a downloaded issue
         if (!isDownloaded) {
-            return checkIfDownloadeByIssue(collection)
+            return checkIfDownloadedByIssue(collection)
         }
         return isDownloaded && contentsAreDownloaded
     }
@@ -141,12 +141,11 @@ class DownloadService constructor(
                 onConnectionFailure
             )
             statusLiveData.postValue(DownloadStatus.done)
-            downloadableCollection.setDownloadDate(Date())
+            downloadableCollection.setDownloadDate(Date(), applicationContext)
         } catch (e: Exception) {
             log.warn("Exception caught on ensureCollectionDownloaded(). Set state pending")
             statusLiveData.postValue(DownloadStatus.pending)
         }
-
     }
 
     private suspend fun notifyIssueDownloadStart(
@@ -204,6 +203,7 @@ class DownloadService constructor(
                             ?: throw IllegalStateException("Could not determine base url for ${collection.getDownloadTag()}")
                     }
                     is IssueOperations -> collection.baseUrl
+                    is Page -> collection.baseUrl
                     is WebViewDisplayable -> collection.getIssueStub()?.baseUrl
                         ?: throw CannotDetermineBaseUrlException("${collection.key} has no issue")
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")
@@ -339,7 +339,7 @@ class DownloadService constructor(
         taggedDownloadMap[tag]?.let { taggedDownload ->
             if (taggedDownload.fileDownloadJobs.all { it.job.isCompleted }) {
                 val secondsTaken = (Date().time - taggedDownload.startDate.time).toFloat() / 1000
-                log.debug("It took $secondsTaken seconds for ${taggedDownload.tag} to download all its assets (DownloadId: ${taggedDownload.downloadId}")
+                log.debug("It took $secondsTaken seconds for ${taggedDownload.tag} to download all its assets (DownloadId: ${taggedDownload.downloadId})")
                 taggedDownload.downloadId?.let {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {

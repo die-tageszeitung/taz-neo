@@ -26,9 +26,9 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.FontHelper
-import de.taz.app.android.ui.home.page.MomentViewActionListener
-import de.taz.app.android.ui.home.page.MomentViewData
-import de.taz.app.android.ui.home.page.MomentViewDataBinding
+import de.taz.app.android.ui.home.page.CoverViewActionListener
+import de.taz.app.android.ui.home.page.CoverViewData
+import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
@@ -36,7 +36,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
-import kotlinx.android.synthetic.main.view_moment.*
+import kotlinx.android.synthetic.main.view_cover.*
 import kotlinx.coroutines.*
 
 const val ACTIVE_POSITION = "active position"
@@ -79,7 +79,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private var defaultTypeface: Typeface? = null
     private var weekendTypeface: Typeface? = null
 
-    private var momentBinder: MomentViewDataBinding? = null
+    private var momentBinder: MomentViewBinding? = null
 
     private lateinit var currentIssueStub: IssueStub
 
@@ -305,19 +305,19 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 dataService.ensureDownloaded(moment)
             }
             val feed = feedRepository.get(issueStub.feedName)
-            momentBinder = MomentViewDataBinding(
+            momentBinder = MomentViewBinding(
                 this@SectionDrawerFragment,
                 IssuePublication(feed!!.name, issueStub.date),
                 DateFormat.LongWithoutWeekDay,
                 Glide.with(this@SectionDrawerFragment),
-                object : MomentViewActionListener {
-                    override fun onImageClicked(momentViewData: MomentViewData) {
+                object : CoverViewActionListener {
+                    override fun onImageClicked(momentViewData: CoverViewData) {
                         finishAndShowIssue(issueStub.issueKey)
                     }
                 }
             )
             withContext(Dispatchers.Main) {
-                momentBinder?.bindView(fragment_drawer_sections_moment)
+                momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
                 fragment_drawer_sections_moment.visibility = View.VISIBLE
                 fragment_moment_date.visibility = View.GONE
             }

@@ -13,9 +13,13 @@
     <dimen name="drawer_margin_bottom">16dp</dimen>
 
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
+    <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
+    <dimen name="fragment_drawer_thumbnail_text_size">16sp</dimen>
 
     <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_y">40dp</dimen>
+    <dimen name="drawer_logo_default_width">287dp</dimen>
+    <dimen name="drawer_logo_default_height">126dp</dimen>
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 

@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 
+
 const val FEED_VIEW_FRAGMENT_COUNT = 2
 
 const val COVERFLOW_PAGER_POSITION = 0

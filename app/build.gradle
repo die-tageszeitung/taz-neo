@@ -330,6 +330,9 @@ dependencies {
     // stetho debug bridge
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
+    // pdf viewer
+    api 'com.artifex.mupdf:viewer:1.18.0'
+
     // error reports
     implementation 'io.sentry:sentry-android:4.2.0'
     implementation 'org.slf4j:slf4j-nop:1.7.30'

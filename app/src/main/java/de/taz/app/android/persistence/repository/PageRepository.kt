@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
+import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 
@@ -19,7 +20,7 @@ class PageRepository private constructor(applicationContext: Context) :
         appDatabase.pageDao().update(pageStub)
     }
 
-    fun save(page: Page) {
+    fun save(page: Page, issueKey: IssueKey) {
         appDatabase.pageDao().insertOrReplace(
             PageStub(
                 page.pagePdf.name,
@@ -27,15 +28,25 @@ class PageRepository private constructor(applicationContext: Context) :
                 page.pagina,
                 page.type,
                 page.frameList,
-                page.dateDownload
+                page.dateDownload,
+                page.baseUrl
             )
         )
         fileEntryRepository.save(page.pagePdf)
+        appDatabase.issuePageJoinDao().insertOrReplace(
+            IssuePageJoin(
+                issueKey.feedName,
+                issueKey.date,
+                issueKey.status,
+                page.pagePdf.name,
+                0
+            )
+        )
     }
 
-    fun save(pages: List<Page>) {
+    fun save(pages: List<Page>, issueKey: IssueKey) {
         pages.forEach { page ->
-            save(page)
+            save(page, issueKey)
         }
     }
 
@@ -62,6 +73,14 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun getFrontPage(issueKey: IssueKey): Page? {
+        return appDatabase.issuePageJoinDao()
+            .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)?.let {
+                pageStubToPage(it)
+            }
+    }
+
+
     fun getLiveData(fileName: String): LiveData<Page?> {
         return Transformations.map(
             appDatabase.pageDao().getLiveData(fileName)
@@ -78,7 +97,8 @@ class PageRepository private constructor(applicationContext: Context) :
                 pageStub.pagina,
                 pageStub.type,
                 pageStub.frameList,
-                pageStub.dateDownload
+                pageStub.dateDownload,
+                pageStub.baseUrl
             )
         }
     }

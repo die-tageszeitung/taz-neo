@@ -4,21 +4,25 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +30,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-abstract class HomePageFragment(
+abstract class IssueFeedFragment(
     layoutID: Int
-) : BaseViewModelFragment<HomePageViewModel>(layoutID) {
+) : BaseViewModelFragment<IssueFeedViewModel>(layoutID) {
 
     private val log by Log
 
@@ -40,10 +44,9 @@ abstract class HomePageFragment(
 
     private var momentChangedListener: MomentChangedListener? = null
 
-    override val viewModel: HomePageViewModel by activityViewModels()
+    override val viewModel: IssueFeedViewModel by activityViewModels()
 
     abstract var adapter: IssueFeedAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +86,36 @@ abstract class HomePageFragment(
                 }
             }
         }
+        viewModel.pdfMode.observeDistinct(viewLifecycleOwner) { pdfMode ->
+            if (pdfMode && !authHelper.isLoggedIn()) {
+                context?.let {
+                    AlertDialog.Builder(it)
+                        .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                        .setNegativeButton(R.string.login_button) {dialog, _ ->
+                            activity?.startActivityForResult(
+                                Intent(activity, LoginActivity::class.java),
+                                ACTIVITY_LOGIN_REQUEST_CODE
+                            )
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+            }
+        }
+    }
+
+
+    fun onItemSelected(issueKey: AbstractIssueKey) {
+        val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfMode.value == true) {
+            PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_KEY
+        } else {
+            IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_KEY
+        }
+        Intent(requireActivity(), viewerActivityClass).apply {
+            putExtra(extraKeyIssue, issueKey)
+            startActivity(this)
+        }
     }
 
 
@@ -90,13 +123,6 @@ abstract class HomePageFragment(
         super.onDestroy()
         momentChangedListener?.let {
             viewModel.removeNotifyMomentChangedListener(it)
-        }
-    }
-
-    fun onItemSelected(issueKey: IssueKey) {
-        Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-            putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
-            startActivity(this)
         }
     }
 
