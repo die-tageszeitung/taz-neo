@@ -84,7 +84,6 @@ class MomentView @JvmOverloads constructor(
             else -> throw IllegalStateException("MomentView only supports ANIMATED or STATIC CoverType")
         }
         hideProgressBar()
-        momentElevation?.let { moment_container.elevation = it }
     }
 
 
