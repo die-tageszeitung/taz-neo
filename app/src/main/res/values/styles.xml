@@ -240,6 +240,20 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="TextAppearance.Dialog.Title" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">21sp</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:paddingBottom">9dp</item>
+    </style>
+
+    <style name="TextAppearance.Dialog.Description" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
+
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/tazRed</item>

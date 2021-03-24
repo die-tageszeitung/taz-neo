@@ -36,6 +36,8 @@ const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
 const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
 
+const val SETTINGS_HELP_TRY_PDF_SHOWN = "try_pdf_shown"
+
 // General Preferences
 const val DRAWER_SHOW_NUMBER = 1
 const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
