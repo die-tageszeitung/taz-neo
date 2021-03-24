@@ -25,9 +25,11 @@ object NightModeHelper {
                 log.debug("Shared pref changed: $key")
                 CoroutineScope(Dispatchers.IO).launch {
                     if (key == SETTINGS_TEXT_NIGHT_MODE) {
-                        generateCssOverride(activity)
-                        withContext(Dispatchers.Main) {
-                            setThemeAndReCreate(sharedPreferences, activity)
+                        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
+                            generateCssOverride(activity)
+                            withContext(Dispatchers.Main) {
+                                setThemeAndReCreate(sharedPreferences, activity)
+                            }
                         }
                     }
                 }

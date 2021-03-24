@@ -62,11 +62,12 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         if (timesPdfShown < 1) {
             val dialog = AlertDialog.Builder(this)
                 .setView(R.layout.dialog_try_pdf)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     preferences.edit().apply {
                         putInt(SETTINGS_HELP_TRY_PDF_SHOWN, timesPdfShown + 1)
                         apply()
                     }
+                    dialog.dismiss()
                 }
                 .show()
             dialog.findViewById<ImageButton>(R.id.button_close).setOnClickListener {
