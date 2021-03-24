@@ -62,7 +62,9 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        if (savedInstanceState != null) {
+            currentDate = savedInstanceState.getSerializable(KEY_DATE) as Date?
+        }
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_KEY)
