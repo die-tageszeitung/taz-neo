@@ -125,7 +125,11 @@ abstract class CoverView @JvmOverloads constructor(
     }
 
     protected fun hideProgressBar() {
-        moment_progressbar.animate().alpha(0f).duration = LOADING_FADE_OUT_DURATION_MS
+        moment_progressbar.animate().alpha(0f).apply {
+            duration = LOADING_FADE_OUT_DURATION_MS
+        }.withEndAction {
+            momentElevation?.let { moment_container.elevation = it }
+        }
     }
 
     // set dimensions - they will be applied on layout

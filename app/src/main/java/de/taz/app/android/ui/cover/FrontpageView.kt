@@ -52,6 +52,5 @@ class FrontpageView @JvmOverloads constructor(
             else -> throw IllegalStateException("FrontPageView only supports CoverType.FRONT_PAGE")
         }
         hideProgressBar()
-        momentElevation?.let { moment_container.elevation = it }
     }
 }

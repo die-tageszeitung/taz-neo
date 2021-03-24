@@ -10,22 +10,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
         android:paddingTop="@dimen/drawer_margin_vertical"
         android:paddingStart="@dimen/drawer_margin_horizontal"
         android:paddingEnd="@dimen/drawer_margin_horizontal"
-        android:paddingBottom="@dimen/drawer_margin_vertical">
+        android:paddingBottom="@dimen/drawer_margin_vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
         <de.taz.app.android.ui.cover.MomentView
             android:id="@+id/fragment_drawer_sections_moment"
             android:layout_width="@dimen/fragment_drawer_moment_width"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:elevation="@dimen/moment_elevation"
-            app:do_not_show_download_icon="true" />
+            app:do_not_show_download_icon="true"
+            android:clipChildren="false" />
 
         <TextView
             android:id="@+id/fragment_drawer_sections_date"

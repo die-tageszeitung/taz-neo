@@ -318,7 +318,6 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             )
             withContext(Dispatchers.Main) {
                 momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
-                fragment_drawer_sections_moment.visibility = View.VISIBLE
                 fragment_moment_date.visibility = View.GONE
             }
         } ?: run {
