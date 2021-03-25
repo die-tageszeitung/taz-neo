@@ -17,7 +17,9 @@ class NavigationView @JvmOverloads constructor(
         super.onLayout(changed, left, top, right, bottom)
 
         val contentView = findViewById<FragmentContainerView>(R.id.drawer_menu_fragment_placeholder)
-        layoutParams?.width = contentView?.width
+        contentView?.width?.let {
+            layoutParams?.width = it
+        }
     }
 
     /**
