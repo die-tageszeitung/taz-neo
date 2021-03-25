@@ -104,6 +104,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingTop">4dp</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
     </style>
@@ -112,6 +113,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingTop">4dp</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
         <item name="android:textStyle">bold</item>

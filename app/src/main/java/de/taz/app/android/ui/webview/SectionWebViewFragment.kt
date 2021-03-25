@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Bundle
 import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
+import android.util.TypedValue.COMPLEX_UNIT_SP
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -35,7 +35,6 @@ class SectionWebViewViewModel(savedStateHandle: SavedStateHandle) :
     WebViewViewModel<Section>(savedStateHandle)
 
 const val PADDING_RIGHT_OF_LOGO = 20
-const val BIG_HEADER_TEXT_SIZE = 30f
 
 class SectionWebViewFragment :
     WebViewFragment<Section, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
@@ -128,12 +127,14 @@ class SectionWebViewFragment :
 
                 // On first section "die tageszeitung" the header should be bigger:
                 if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                    val textPixelSize = resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
+                    val textSpSize = resources.getDimension(R.dimen.fragment_header_title_section_text_size)
                     view?.findViewById<TextView>(R.id.section)?.apply {
-                        setTextSize(COMPLEX_UNIT_DIP, BIG_HEADER_TEXT_SIZE)
+                        setTextSize(COMPLEX_UNIT_SP, textSpSize)
                         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                             this,
                             TextViewCompat.getAutoSizeMinTextSize(this),
-                            (BIG_HEADER_TEXT_SIZE * resources.displayMetrics.density).toInt(),
+                            textPixelSize,
                             ceil(0.1 * resources.displayMetrics.density).toInt(),
                             TypedValue.COMPLEX_UNIT_PX
                         )
