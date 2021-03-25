@@ -15,5 +15,9 @@
         <attr name="do_not_show_download_icon" format="boolean" />
 
     </declare-styleable>
+    <declare-styleable name="DottedLineView">
+        <attr name="color" format="color" />
+    </declare-styleable>
     <integer name="text_default_size">100</integer>
+    <fraction name="nav_button_scale_factor">33%</fraction>
 </resources>
