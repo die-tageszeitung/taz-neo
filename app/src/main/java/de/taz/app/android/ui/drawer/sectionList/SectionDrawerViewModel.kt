@@ -9,8 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SectionDrawerViewModel(
-    application: Application,
-    private val savedStateHandle: SavedStateHandle
+    application: Application
 ) : AndroidViewModel(application) {
     private val imageRepository = ImageRepository.getInstance(application)
 

@@ -23,7 +23,9 @@ class IssueDownloadWorkManagerWorker(
     private val log by Log
 
     override suspend fun doWork(): Result = coroutineScope {
-        val dataService = DataService.getInstance(applicationContext)
+        val dataService = withContext(Dispatchers.Main) {
+             DataService.getInstance(applicationContext)
+        }
         val downloadService = DownloadService.getInstance(applicationContext)
         val oldFeed = dataService.getFeedByName(DISPLAYED_FEED)
 
