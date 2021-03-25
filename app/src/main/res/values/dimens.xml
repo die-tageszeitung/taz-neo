@@ -61,9 +61,12 @@
     <dimen name="fragment_header_section_title_y_translation">4dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
     <dimen name="fragment_header_issue_date_y_translation">-4dp</dimen>
-    <dimen name="fragment_header_webview_padding_top">35dp</dimen>
-    <dimen name="fragment_header_title_margin_top">55dp</dimen>
+    <dimen name="fragment_webview_header_padding_top">35dp</dimen>
+    <dimen name="fragment_webview_header_title_margin_top">55dp</dimen>
+    <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
+    <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
+    <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>

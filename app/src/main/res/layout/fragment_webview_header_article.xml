@@ -12,7 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_container"
-        android:layout_marginTop="@dimen/fragment_header_title_margin_top"
+        android:layout_marginTop="@dimen/fragment_webview_header_title_margin_top"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
