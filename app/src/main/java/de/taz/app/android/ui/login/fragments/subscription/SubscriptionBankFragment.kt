@@ -9,6 +9,7 @@ import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_bank.*
+import nl.garvelink.iban.IBAN
 
 class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_bank) {
 
@@ -49,11 +50,11 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
 
         fragment_subscription_bank_proceed.setOnClickListener { ifDoneNext() }
 
-        if(accountHolderInvalid) {
+        if (accountHolderInvalid) {
             setAccountHolderError(R.string.subscription_field_invalid)
         }
 
-        if(ibanEmpty) {
+        if (ibanEmpty) {
             setIbanError(R.string.iban_error_empty)
         }
 
@@ -61,7 +62,7 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
             setIbanError(R.string.iban_error_invalid)
         }
 
-        if(ibanNoSepa) {
+        if (ibanNoSepa) {
             setIbanError(R.string.iban_error_no_sepa)
         }
     }
@@ -74,6 +75,17 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
             if (!fragment_subscription_bank_account_holder.text.isNullOrBlank()) {
                 viewModel.accountHolder =
                     fragment_subscription_bank_account_holder.text.toString()
+            }
+        } else {
+            try {
+                val iban = IBAN.parse(fragment_subscription_bank_iban.text)
+                if (!iban.isSEPA) {
+                    setIbanError(R.string.iban_error_no_sepa)
+                    done = false
+                }
+            } catch (e: IllegalArgumentException) {
+                setIbanError(R.string.iban_error_invalid)
+                done = false
             }
         }
         viewModel.iban = fragment_subscription_bank_iban.text.toString()
