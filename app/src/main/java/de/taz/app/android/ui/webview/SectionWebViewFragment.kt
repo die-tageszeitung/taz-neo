@@ -5,6 +5,7 @@ import android.graphics.Point
 import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,7 +17,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Section
@@ -91,45 +92,60 @@ class SectionWebViewFragment :
     override fun setHeader(displayable: Section) {
         activity?.apply {
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                val issueStub = displayable.getIssueStub()
-                issueStub?.apply {
-                    if (isWeekend) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                val issueStub = withContext(Dispatchers.IO) { displayable.getIssueStub() }
+
+                val toolbar =
+                    view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
+                toolbar?.removeAllViews()
+
+                // The first page of the weekend taz should not display the title but the date instead
+                val layout = if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                    R.layout.fragment_webview_header_title_weekend_section
+                } else {
+                    R.layout.fragment_webview_header_section
+                }
+
+                val headerView =
+                    LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
+                val sectionTextView = headerView.findViewById<TextView>(R.id.section)
+                if (issueStub?.isWeekend == true) {
+                    val weekendTypeface = withContext(Dispatchers.IO) {
                         val weekendTypefaceFileEntry =
                             fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
-                        val weekendTypeface = weekendTypefaceFile?.let {
+                        val weekendTypefaceFile =
+                            weekendTypefaceFileEntry?.let(storageService::getFile)
+                        weekendTypefaceFile?.let {
                             FontHelper.getInstance(context?.applicationContext)
                                 .getTypeFace(it)
                         }
+                    }
 
-                        withContext(Dispatchers.Main) {
-                            view?.findViewById<TextView>(R.id.section)?.typeface = weekendTypeface
-                            //following two lines align header/dotted line in weekend issues
-                            //with text in taz logo; TODO check whether we can get rid of them later
-                            view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.translationY =
-                                18f
-                            view?.findViewById<AppWebView>(R.id.web_view)?.translationY = 18f
-                        }
+                    withContext(Dispatchers.Main) {
+                        sectionTextView?.typeface =
+                            weekendTypeface
                     }
                 }
-            }
 
-            runOnUiThread {
-                view?.findViewById<TextView>(R.id.section)?.apply {
-                    text = displayable.getHeaderTitle()
-                }
-                DateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
-                    view?.findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = it
+
+                sectionTextView?.text = displayable.getHeaderTitle()
+                DateHelper.stringToDate(displayable.issueDate)?.let { date ->
+                    headerView.findViewById<TextView>(R.id.issue_date)?.apply {
+                        text = if (issueStub?.isWeekend == true) {
+                            DateHelper.dateToWeekendNotation(date)
+                        } else {
+                            DateHelper.dateToLowerCaseString(date)
+                        }
                     }
                 }
 
                 // On first section "die tageszeitung" the header should be bigger:
                 if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
-                    val textPixelSize = resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
-                    val textSpSize = resources.getDimension(R.dimen.fragment_header_title_section_text_size)
-                    view?.findViewById<TextView>(R.id.section)?.apply {
+                    val textPixelSize =
+                        resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
+                    val textSpSize =
+                        resources.getDimension(R.dimen.fragment_header_title_section_text_size)
+                    sectionTextView?.apply {
                         setTextSize(COMPLEX_UNIT_SP, textSpSize)
                         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                             this,
