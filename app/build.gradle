@@ -337,7 +337,11 @@ dependencies {
     implementation 'io.sentry:sentry-android:4.2.0'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
+    // animations
     implementation 'com.airbnb.android:lottie:3.6.1'
+
+    // iban validation
+    implementation 'nl.garvelink.oss:iban:1.8.0'
 
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
