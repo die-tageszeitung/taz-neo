@@ -79,10 +79,14 @@ object DateHelper {
         }
     }
 
-    fun dateToMediumLocalizedString(date: Date): String? {
+    fun dateToMediumLocalizedString(date: Date): String {
         return SimpleDateFormat("d.M.yyyy", deviceLocale).format(
             date
         ).toLowerCase(Locale.getDefault())
+    }
+
+    fun dateToWeekendNotation(date: Date): String {
+        return SimpleDateFormat("d. MMMM yyyy", Locale.GERMANY).format(date).toLowerCase(Locale.GERMANY)
     }
 
     /**
@@ -106,11 +110,15 @@ object DateHelper {
         }
     }
 
+    fun dateToLowerCaseString(date: Date): String {
+        return SimpleDateFormat("EEEE, d. MMMM yyyy", Locale.GERMANY).format(
+            date
+        ).toLowerCase(Locale.getDefault())
+    }
+
     fun dateToLowerCaseString(date: String): String? {
         return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
-            SimpleDateFormat("EEEE, d. MMMM yyyy", Locale.GERMANY).format(
-                issueDate
-            ).toLowerCase(Locale.getDefault())
+            return dateToLowerCaseString(issueDate)
         }
     }
 

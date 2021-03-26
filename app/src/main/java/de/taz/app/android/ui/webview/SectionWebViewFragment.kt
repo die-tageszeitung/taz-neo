@@ -17,7 +17,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
@@ -130,8 +129,14 @@ class SectionWebViewFragment :
 
 
                 sectionTextView?.text = displayable.getHeaderTitle()
-                DateHelper.dateToLowerCaseString(displayable.issueDate)?.let {
-                    headerView.findViewById<TextView>(R.id.issue_date)?.text = it
+                DateHelper.stringToDate(displayable.issueDate)?.let { date ->
+                    headerView.findViewById<TextView>(R.id.issue_date)?.apply {
+                        text = if (issueStub?.isWeekend == true) {
+                            DateHelper.dateToWeekendNotation(date)
+                        } else {
+                            DateHelper.dateToLowerCaseString(date)
+                        }
+                    }
                 }
 
                 // On first section "die tageszeitung" the header should be bigger:
