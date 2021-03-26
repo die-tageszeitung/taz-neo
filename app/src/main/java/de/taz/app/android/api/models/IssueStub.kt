@@ -21,8 +21,8 @@ data class IssueStub(
     override val minResourceVersion: Int,
     @ColumnInfo(defaultValue = "0") override val isWeekend: Boolean,
     override val moTime: String,
-
     override val dateDownload: Date?,
+    override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?
 ): IssueOperations {
 
@@ -36,6 +36,7 @@ data class IssueStub(
         issue.isWeekend,
         issue.moTime,
         issue.dateDownload,
+        issue.dateDownloadWithPages,
         issue.lastDisplayableName
     )
 

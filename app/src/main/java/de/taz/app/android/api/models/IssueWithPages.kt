@@ -1,18 +1,14 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import com.squareup.moshi.JsonClass
-import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
-import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.MomentRepository
-import de.taz.app.android.persistence.repository.PageRepository
+
 
 import java.util.*
-import java.util.Collections.max
 
 data class IssueWithPages(
     override val feedName: String,
@@ -28,6 +24,7 @@ data class IssueWithPages(
     val pageList: List<Page> = emptyList(),
     override val moTime: String,
     override val dateDownload: Date?,
+    override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?
 ) : IssueOperations, DownloadableCollection, ObservableDownload {
 
@@ -44,8 +41,9 @@ data class IssueWithPages(
         issue.sectionList,
         issue.pageList,
         issue.moTime,
-        null,
-        null
+        issue.dateDownload,
+        issue.dateDownloadWithPages,
+        issue.lastDisplayableName
     )
 
     override fun getAllFiles(): List<FileEntry> {
@@ -70,21 +68,17 @@ data class IssueWithPages(
     }
 
     override fun getDownloadDate(context: Context?): Date? {
-        val pagesDownloadedDate = pageList.map {
-            it.pagePdf.dateDownload ?: it.getDownloadDate(context)
-        }
-        return if (pagesDownloadedDate.contains(null)) {
-            null
-        } else {
-            super.getDownloadDate(context)
-        }
+        return IssueRepository.getInstance(context).getDownloadDate(this)
     }
 
     override fun setDownloadDate(date: Date?, context: Context?) {
-        pageList.forEach {
-            it.setDownloadDate(date, context)
+        IssueRepository.getInstance(context).apply {
+            setDownloadDate(this@IssueWithPages, date)
+            get(issueKey)?.let {
+                // downloading an issue with pages also means downloading the regular issue
+                IssueRepository.getInstance(context).setDownloadDate(it, date)
+            }
         }
-        super.setDownloadDate(date, context)
     }
 
     override fun getDownloadTag(): String {

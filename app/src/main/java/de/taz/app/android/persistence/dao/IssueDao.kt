@@ -149,4 +149,11 @@ abstract class IssueDao : BaseDao<IssueStub>() {
         date: String,
         status: IssueStatus
     ): Date?
+
+    @Query("SELECT dateDownloadWithPages FROM Issue WHERE date = :date AND feedName = :feedName AND status = :status")
+    abstract fun getDownloadDateWithPages(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): Date?
 }
