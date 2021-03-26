@@ -9,6 +9,7 @@ import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
@@ -337,23 +338,19 @@ class DataService(private val applicationContext: Context) {
     ) = withContext(Dispatchers.IO) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             // If we download issues we want to refresh metadata, as they might get stale quickly
-            val refreshedCollection = if (collection is Issue && !collection.isDownloaded()) {
+            val refreshedCollection = if (
+                collection is IssueOperations &&
+                !collection.isDownloaded()
+            ) {
                 getIssue(
                     IssuePublication(collection.issueKey),
                     allowCache = false,
                     retryOnFailure = true
                 )
-            } else if (collection is IssueWithPages && !collection.isDownloaded()) {
-                IssueWithPages(
-                    getIssue(
-                        IssuePublication(collection.issueKey),
-                        allowCache = false,
-                        retryOnFailure = true
-                    )
-                )
             } else {
                 collection
             }
+
             downloadService.ensureCollectionDownloaded(
                 refreshedCollection,
                 liveData as MutableLiveData<DownloadStatus>,

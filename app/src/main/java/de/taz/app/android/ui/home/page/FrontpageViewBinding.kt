@@ -9,6 +9,7 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.cover.FrontpageView
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
 
@@ -39,7 +40,7 @@ class FrontpageViewBinding(
 
             // get pdf front page
         val pdfMomentFilePath = frontPage?.let {
-            dataService.ensureDownloaded(frontPage, skipIntegrityCheck = true)
+            dataService.ensureDownloaded(frontPage)
             val downloadedFrontPage =
                 dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
             val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }

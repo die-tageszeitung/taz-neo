@@ -82,8 +82,6 @@ class DownloadService constructor(
                 ?.getDownloadDate(applicationContext)
             is Section -> issueRepository.getIssueStubForSection(collection.sectionHtml.name)
                 ?.getDownloadDate(applicationContext)
-            is Page -> issueRepository.getIssueStubForPage(collection.pagePdf.name)
-                ?.getDownloadDate(applicationContext)
             else -> null
         }.let {
             if (it != null) {

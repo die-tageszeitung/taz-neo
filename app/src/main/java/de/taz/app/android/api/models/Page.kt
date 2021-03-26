@@ -48,7 +48,7 @@ data class Page(
     }
 
     override fun getDownloadTag(): String {
-        return "page/${pagePdf.sha256}"
+        return "page/${pagePdf.name}"
     }
 }
 
