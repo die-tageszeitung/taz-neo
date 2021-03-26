@@ -126,7 +126,6 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
             }
             R.id.bottom_navigation_action_pdf -> {
                 homePageViewModel.pdfMode.postValue(!homePageViewModel.pdfMode.value!!)
-                activity?.recreate()
             }
         }
     }

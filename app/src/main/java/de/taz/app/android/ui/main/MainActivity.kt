@@ -2,9 +2,12 @@ package de.taz.app.android.ui.main
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
+import androidx.activity.viewModels
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
@@ -13,13 +16,18 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 
 
@@ -37,6 +45,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     private var toastHelper: ToastHelper? = null
     private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var authHelper: AuthHelper
+
+    val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     companion object {
         const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
@@ -45,6 +56,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         issueRepository = IssueRepository.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         fileHelper = StorageService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
@@ -53,6 +65,26 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
         checkIfSubscriptionElapsed()
         maybeShowTryPdfDialog()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (issueFeedViewModel.pdfMode.value == true && !authHelper.isLoggedIn()) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                .setNegativeButton(R.string.login_button) { dialog, _ ->
+                    startActivityForResult(
+                        Intent(this, LoginActivity::class.java),
+                        ACTIVITY_LOGIN_REQUEST_CODE
+                    )
+                    dialog.dismiss()
+                }
+                .show()
+        }
+        issueFeedViewModel.pdfMode.observeDistinctIgnoreFirst(this) {
+            recreate()
+        }
     }
 
     private fun maybeShowTryPdfDialog() {
