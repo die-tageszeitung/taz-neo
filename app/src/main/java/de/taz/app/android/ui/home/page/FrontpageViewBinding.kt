@@ -26,7 +26,6 @@ class FrontpageViewBinding(
     glideRequestManager,
     onMomentViewActionListener
 ) {
-    private val log by Log
 
     private val storageService = StorageService.getInstance()
     private val dataService = DataService.getInstance()
