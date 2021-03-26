@@ -86,23 +86,6 @@ abstract class IssueFeedFragment(
                 }
             }
         }
-        viewModel.pdfMode.observeDistinct(viewLifecycleOwner) { pdfMode ->
-            if (pdfMode && !authHelper.isLoggedIn()) {
-                context?.let {
-                    AlertDialog.Builder(it)
-                        .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                        .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                        .setNegativeButton(R.string.login_button) {dialog, _ ->
-                            activity?.startActivityForResult(
-                                Intent(activity, LoginActivity::class.java),
-                                ACTIVITY_LOGIN_REQUEST_CODE
-                            )
-                            dialog.dismiss()
-                        }
-                        .show()
-                }
-            }
-        }
     }
 
 

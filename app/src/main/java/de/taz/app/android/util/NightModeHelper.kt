@@ -69,19 +69,13 @@ object NightModeHelper {
 
     fun initializeNightModePrefs(tazApiCssPreferences: SharedPreferences, activity: Activity) {
         // if "text_night_mode" is not set in shared preferences -> set it now
-        if (!tazApiCssPreferences.contains(SETTINGS_TEXT_NIGHT_MODE)) {
-            SharedPreferenceBooleanLiveData(
-                tazApiCssPreferences, SETTINGS_TEXT_NIGHT_MODE, isDarkTheme(activity)
-            ).postValue(isDarkTheme(activity))
+        tazApiCssPreferences.apply {
+            if (!contains(SETTINGS_TEXT_NIGHT_MODE)) {
+                edit().apply {
+                    putBoolean(SETTINGS_TEXT_NIGHT_MODE, isDarkTheme(activity))
+                    apply()
+                }
+            }
         }
-
-        if (tazApiCssPreferences.getBoolean(
-                SETTINGS_TEXT_NIGHT_MODE,
-                false
-            ) != isDarkTheme(activity)
-        ) {
-            setThemeAndReCreate(tazApiCssPreferences, activity)
-        }
-
     }
 }
