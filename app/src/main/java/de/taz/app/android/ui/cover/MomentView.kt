@@ -38,7 +38,7 @@ class MomentView @JvmOverloads constructor(
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         alpha = 0f
         setLayerType(LAYER_TYPE_SOFTWARE, null)
-        setInitialScale(30)
+        setInitialScale(15)
         setOnTouchListener { _, _ -> false }
         settings.apply {
             useWideViewPort = true
