@@ -25,12 +25,13 @@ class PdfPagerFragment : BaseMainFragment(
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private var fresh = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
-        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner, {
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
                     adapter = activity?.let { it1 -> PdfPagerAdapter(it1) }
@@ -39,7 +40,7 @@ class PdfPagerFragment : BaseMainFragment(
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
-                            pdfPagerViewModel.activePosition.value = position
+                            pdfPagerViewModel.currentItem.value = position
                             super.onPageSelected(position)
                         }
                     })
@@ -53,7 +54,9 @@ class PdfPagerFragment : BaseMainFragment(
         })
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
-            pdf_viewpager.currentItem = position+1
+            // skip animation on first scroll
+            pdf_viewpager.setCurrentItem(position, !fresh)
+            fresh = false
         })
     }
 

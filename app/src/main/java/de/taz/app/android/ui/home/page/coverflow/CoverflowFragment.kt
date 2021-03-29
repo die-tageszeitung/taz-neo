@@ -38,7 +38,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     val log by Log
 
     override lateinit var adapter: IssueFeedAdapter
-    protected lateinit var dataService: DataService
+    private lateinit var dataService: DataService
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()

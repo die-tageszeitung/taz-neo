@@ -24,12 +24,15 @@ class PdfDrawerItem @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.view_pdf_drawer_item, this, true)
     }
 
-    fun resize(width: PdfDrawerWidth): Int {
-        val widthDp = when (width) {
-            PdfDrawerWidth.HALF -> (parent as View).width / 2
-            PdfDrawerWidth.FULL -> (parent as View).width
+    fun resize(width: PdfDrawerWidth): Int? {
+        val parent = parent as View?
+        return parent?.let {
+            val widthDp = when (width) {
+                PdfDrawerWidth.HALF -> it.width / 2
+                PdfDrawerWidth.FULL -> it.width
+            }
+            layoutParams.width = widthDp
+            widthDp
         }
-        layoutParams.width = widthDp
-        return widthDp
     }
 }
