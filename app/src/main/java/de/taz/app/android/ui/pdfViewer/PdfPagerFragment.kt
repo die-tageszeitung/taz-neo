@@ -16,6 +16,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 
 class PdfPagerFragment : BaseMainFragment(
@@ -27,6 +28,7 @@ class PdfPagerFragment : BaseMainFragment(
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private var fresh = true
 
+    private val log by Log
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -35,7 +37,7 @@ class PdfPagerFragment : BaseMainFragment(
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
                     adapter = activity?.let { it1 -> PdfPagerAdapter(it1) }
-                    reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+                    reduceDragSensitivity(5)
                     offscreenPageLimit = 2
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -50,7 +52,13 @@ class PdfPagerFragment : BaseMainFragment(
         })
 
         pdfPagerViewModel.userInputEnabled.observe(viewLifecycleOwner, { enabled ->
+            log.debug("set userInputEnable: $enabled")
             pdf_viewpager.isUserInputEnabled = enabled
+        })
+
+        pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(viewLifecycleOwner, { disallow ->
+            log.debug("set requestDisallow: $disallow")
+            pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
         })
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
