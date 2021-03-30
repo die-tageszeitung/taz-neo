@@ -3,6 +3,7 @@ package de.taz.app.android.ui.cover
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import com.bumptech.glide.RequestManager
@@ -23,6 +24,7 @@ class MomentView @JvmOverloads constructor(
         context,
     ).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        gravity = Gravity.BOTTOM
     }
     private val momentWebView: MomentWebView = MomentWebView(context).apply {
         outlineProvider = ViewOutlineProvider.PADDED_BOUNDS

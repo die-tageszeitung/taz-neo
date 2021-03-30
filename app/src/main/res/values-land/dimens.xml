@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="cover_item_padding_horizontal">12dp</dimen>
+</resources>
