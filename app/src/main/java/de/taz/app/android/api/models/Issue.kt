@@ -22,7 +22,8 @@ data class Issue(
     val pageList: List<Page> = emptyList(),
     override val moTime: String,
     override val dateDownload: Date?,
-    override val lastDisplayableName: String?
+    override val dateDownloadWithPages: Date?,
+    override val lastDisplayableName: String?,
 ) : IssueOperations, DownloadableCollection {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -39,7 +40,27 @@ data class Issue(
         issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
         issueDto.moTime,
         null,
+        null,
         null
+    )
+
+
+    constructor(issue: IssueWithPages) : this(
+        issue.feedName,
+        issue.date,
+        issue.moment,
+        issue.key,
+        issue.baseUrl,
+        issue.status,
+        issue.minResourceVersion,
+        issue.imprint,
+        issue.isWeekend,
+        issue.sectionList,
+        issue.pageList,
+        issue.moTime,
+        issue.dateDownload,
+        issue.dateDownloadWithPages,
+        issue.lastDisplayableName
     )
 
     override fun getAllFiles(): List<FileEntry> {

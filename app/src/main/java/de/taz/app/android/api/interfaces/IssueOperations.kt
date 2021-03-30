@@ -15,6 +15,7 @@ interface IssueOperations: DownloadableStub {
     val date: String
     val status: IssueStatus
     override val dateDownload: Date?
+    val dateDownloadWithPages: Date?
     val minResourceVersion: Int
     val isWeekend: Boolean
     val moTime: String

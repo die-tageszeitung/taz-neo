@@ -233,7 +233,7 @@ class DownloadService constructor(
         // skip this if we have the correct version downloaded
         if (fileHelper.ensureFileIntegrity(updatedFileEntry, updatedFileEntry.sha256) && !force) {
             if (updatedFileEntry.getDownloadDate() == null) {
-                updatedFileEntry.setDownloadDate(Date())
+                updatedFileEntry.setDownloadDate(Date(), applicationContext)
             }
             return
         }
