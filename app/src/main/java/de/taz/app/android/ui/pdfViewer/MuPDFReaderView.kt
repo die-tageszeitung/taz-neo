@@ -56,7 +56,7 @@ class MuPDFReaderView constructor(
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
-        log.debug("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
+        log.verbose("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
         val pinchOut = detector?.scaleFactor!! < 1
         onScaleOutListener?.invoke(pinchOut)
         return super.onScale(detector)
@@ -64,13 +64,11 @@ class MuPDFReaderView constructor(
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
         onScaleListener?.invoke(true)
-        log.debug("onScaleBegin")
         return super.onScaleBegin(detector)
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         onScaleListener?.invoke(false)
-        log.debug("onScaleEnd")
         super.onScaleEnd(detector)
     }
 
