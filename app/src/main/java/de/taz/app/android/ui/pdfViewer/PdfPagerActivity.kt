@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -39,7 +40,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private val log by Log
 
     private lateinit var issueKey: IssueKeyWithPages
-    private lateinit var pdfPagerViewModel: PdfPagerViewModel
+    private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private lateinit var imageRepository: ImageRepository
     private lateinit var dataService: DataService
 
@@ -50,6 +51,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        issueKey = try {
+            intent.getParcelableExtra(KEY_ISSUE_KEY)!!
+        } catch (e: NullPointerException) {
+            throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
+        }
+        if (savedInstanceState == null) {
+            pdfPagerViewModel.issueKey.postValue(issueKey)
+        }
 
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
@@ -64,18 +73,10 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
         }
 
-        issueKey = try {
-            intent.getParcelableExtra(KEY_ISSUE_KEY)!!
-        } catch (e: NullPointerException) {
-            throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
-        }
-
         supportFragmentManager.beginTransaction().add(
             R.id.activity_pdf_fragment_placeholder,
             PdfPagerFragment()
         ).commit()
-
-        pdfPagerViewModel = getViewModel { PdfPagerViewModel(application, issueKey) }
 
         drawerLayout = findViewById(R.id.pdf_drawer_layout)
 
@@ -83,17 +84,22 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         navigation_recycler_view.addOnItemTouchListener(
             RecyclerTouchListener(
                 this,
-                fun(_: View, position: Int) {
-                    log.debug("position clicked: $position. pdf")
-                    if (position != pdfPagerViewModel.currentItem.value || position == 0) {
+                fun(_: View, drawerPosition: Int) {
+                    log.debug("position clicked: $drawerPosition. pdf")
+                    // currentItem.value begins from 0 to n-1. pdf page
+                    // but in the drawer the front page is not part of the drawer list, that's why it
+                    // needs to be incremented by 1:
+                    val realPosition = drawerPosition + 1
+                    val isFrontPage = drawerPosition == 0
+                    if (realPosition != pdfPagerViewModel.currentItem.value || isFrontPage) {
                         val articlePagerFragment =
                             supportFragmentManager.findFragmentByTag("IN_ARTICLE")
                         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
                             supportFragmentManager.popBackStack()
                         }
-                        pdfPagerViewModel.currentItem.value = position
+                        pdfPagerViewModel.currentItem.value = realPosition
                         pdf_drawer_layout.closeDrawers()
-                        drawerAdapter.activePosition = position
+                        drawerAdapter.activePosition = drawerPosition
                     }
                 }
             )
@@ -134,7 +140,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             override fun onDrawerOpened(drawerView: View) = Unit
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
-        pdfPagerViewModel.pdfDataList.observe(this, {
+        pdfPagerViewModel.pdfPageList.observe(this, {
             initDrawerAdapter(it)
         })
         pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
@@ -220,10 +226,10 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
             activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
 
-            drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size))
-            pdfPagerViewModel.activePosition.observe(this, { position ->
+            drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size), Glide.with(this))
+            pdfPagerViewModel.currentItem.observe(this, { position ->
                 drawerAdapter.activePosition = position - 1
-                if (position>0) {
+                if (position > 0) {
                     activity_pdf_drawer_front_page_title?.setTextColor(
                         ContextCompat.getColor(applicationContext, R.color.drawer_sections_item)
                     )

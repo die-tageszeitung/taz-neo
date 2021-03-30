@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.Target
 import de.taz.app.android.R
 import de.taz.app.android.api.models.PageType
@@ -23,9 +24,14 @@ data class PdfDrawerItemData(
 
 class PdfDrawerItemBinding(
     private val context: Context,
+
 ) {
     private var boundView: PdfDrawerItem? = null
-    fun bindView(itemView: PdfDrawerItem, itemData: PdfDrawerItemData) {
+    fun bindView(
+        itemView: PdfDrawerItem,
+        itemData: PdfDrawerItemData,
+        glideRequestManager: RequestManager
+    ) {
         boundView = itemView
         if (itemData.position == itemData.activePosition) {
             boundView?.view_drawer_pdf_title?.setTextColor(
@@ -48,8 +54,7 @@ class PdfDrawerItemBinding(
 
             boundView?.let { view ->
                 view.view_drawer_pdf_page?.let { imageView ->
-                    Glide
-                        .with(view)
+                    glideRequestManager
                         .load(itemData.pdfFile.absolutePath)
                         .override(viewWidth, Target.SIZE_ORIGINAL)
                         .into(imageView)

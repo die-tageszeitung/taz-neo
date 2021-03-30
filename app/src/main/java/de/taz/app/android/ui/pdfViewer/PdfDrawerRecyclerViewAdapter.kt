@@ -3,8 +3,12 @@ package de.taz.app.android.ui.pdfViewer
 import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
 
-class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfPageList>) :
+class PdfDrawerRecyclerViewAdapter(
+    private val itemList: List<PdfPageList>,
+    private val glideRequestManager: RequestManager
+):
     RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
 
     private lateinit var context: Context
@@ -38,7 +42,8 @@ class PdfDrawerRecyclerViewAdapter(private var itemList: List<PdfPageList>) :
                     position = position,
                     activePosition = activePosition,
                     pdfFile = itemList[position].pdfFile
-                )
+                ),
+                glideRequestManager
             )
         }
 

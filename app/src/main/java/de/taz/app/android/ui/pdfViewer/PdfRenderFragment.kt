@@ -27,15 +27,20 @@ import kotlinx.coroutines.launch
 class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
     companion object {
+        private const val KEY_POSITION = "KEY_POSITION"
+
         fun create(position: Int): PdfRenderFragment {
             val fragment = PdfRenderFragment()
-            fragment.position = position
+            val args = Bundle()
+            args.putInt(KEY_POSITION, position)
+            fragment.arguments = args
+
             return fragment
         }
     }
 
     private val log by Log
-    private var position = 0
+    private var position: Int = 0
     private lateinit var pdfReaderView: MuPDFReaderView
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
@@ -47,10 +52,17 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
         ).get(IssueViewerViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.getInt(KEY_POSITION, 0)?.let {
+            position = it
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
-        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner) { pageList ->
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
             val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
@@ -74,7 +86,7 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
-        pdfPagerViewModel.pdfDataList.observe(viewLifecycleOwner) { list ->
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { list ->
             val frameList = list[position].frameList
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
             frame?.let {
@@ -91,7 +103,7 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
                                 .addToBackStack(null)
                                 .commit()
                             issueContentViewModel.setDisplayable(
-                                IssueKey(pdfPagerViewModel.issueKey),
+                                IssueKey(pdfPagerViewModel.issueKey.value!!),
                                 link
                             )
                         }
