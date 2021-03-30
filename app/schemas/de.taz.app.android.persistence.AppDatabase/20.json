@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "87872822b893d3854e888209faa3ad13",
+    "identityHash": "eb1e50748b3deb7808064fa5f6e54824",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -492,7 +492,7 @@
       },
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `isWeekend` INTEGER NOT NULL DEFAULT 0, `moTime` TEXT NOT NULL, `dateDownload` TEXT, `dateDownloadWithPages` TEXT, `lastDisplayableName` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `isWeekend` INTEGER NOT NULL DEFAULT 0, `moTime` TEXT NOT NULL, `dateDownload` TEXT, `lastDisplayableName` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
         "fields": [
           {
             "fieldPath": "feedName",
@@ -546,12 +546,6 @@
           {
             "fieldPath": "dateDownload",
             "columnName": "dateDownload",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "dateDownloadWithPages",
-            "columnName": "dateDownloadWithPages",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -1532,7 +1526,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '87872822b893d3854e888209faa3ad13')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eb1e50748b3deb7808064fa5f6e54824')"
     ]
   }
 }
