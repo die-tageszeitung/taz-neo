@@ -106,14 +106,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             )
         )
 
-        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-            log.debug("updateDrawerLogo. width: ${v.width} height: ${v.height}")
-            pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                v.width,
-                v.height
-            )
-        }
-
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
