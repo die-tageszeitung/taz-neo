@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 
@@ -23,6 +24,13 @@ class AddBottomSheetDialog : BottomSheetDialogFragment() {
         fragment?.let {
             childFragmentManager.beginTransaction().replace(R.id.dialog_bottom_sheet, it).commit()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //this forces the sheet to appear at max height even on landscape
+        val behavior = BottomSheetBehavior.from(requireView().parent as View)
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     companion object {

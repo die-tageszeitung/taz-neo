@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -80,7 +81,6 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         issueKey = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
         isDownloaded = requireArguments().getBoolean(KEY_IS_DOWNLOADED, false)
-
     }
 
     override fun onCreateView(
@@ -197,5 +197,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             }
             dismiss()
         }
+    }
+    override fun onStart() {
+        super.onStart()
+        //this forces the sheet to appear at max height even on landscape
+        val behavior = BottomSheetBehavior.from(requireView().parent as View)
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 }

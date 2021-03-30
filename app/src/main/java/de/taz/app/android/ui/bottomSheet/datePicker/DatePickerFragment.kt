@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -64,6 +65,13 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         savedInstanceState: Bundle?
     ): View? {
         return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //this forces the sheet to appear at max height even on landscape
+        val behavior = BottomSheetBehavior.from(requireView().parent as View)
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
