@@ -7,15 +7,19 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PdfPagerFragment : BaseMainFragment(
     R.layout.fragment_pdf_pager
@@ -34,7 +38,7 @@ class PdfPagerFragment : BaseMainFragment(
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
                     adapter = activity?.let { it1 -> PdfPagerAdapter(it1) }
-                    reduceDragSensitivity(5)
+                    reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
                     offscreenPageLimit = 2
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -53,7 +57,15 @@ class PdfPagerFragment : BaseMainFragment(
         })
 
         pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(viewLifecycleOwner, { disallow ->
-            pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
+            val delay = if (!disallow) {
+                100L
+            } else
+                0L
+            lifecycleScope.launch {
+                delay(delay)
+                pdf_viewpager.isUserInputEnabled = !disallow
+                pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
+            }
         })
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->

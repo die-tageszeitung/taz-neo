@@ -71,7 +71,7 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
-                pdfPagerViewModel.setUserInputEnabled(border != ViewBorder.NONE)
+                pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
             }
             pdfReaderView.onScaleOutListener = { pinchOut ->
                 if (pinchOut) {
