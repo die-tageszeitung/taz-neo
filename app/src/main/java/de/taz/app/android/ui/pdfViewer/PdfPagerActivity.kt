@@ -11,18 +11,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.bumptech.glide.Glide
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
@@ -39,12 +36,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private val log by Log
 
+    private var navButton: Image? = null
     private lateinit var issueKey: IssueKeyWithPages
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
-    private lateinit var imageRepository: ImageRepository
-    private lateinit var dataService: DataService
+    private lateinit var storageService: StorageService
 
-    private var navButton: Image? = null
     private val navButtonAlpha = 255f
     lateinit var drawerLayout: DrawerLayout
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
@@ -61,16 +57,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             pdfPagerViewModel.issueKey.postValue(issueKey)
         }
 
-        dataService = DataService.getInstance(applicationContext)
-        imageRepository = ImageRepository.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
-            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
-                dataService.ensureDownloaded(FileEntry(image), baseUrl)
-                showNavButton(
-                    image
-                )
+        pdfPagerViewModel.navButton.observe(this) {
+            if (it != null) {
+                lifecycleScope.launch { showNavButton(it) }
             }
         }
 
@@ -242,7 +233,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             val imageDrawable = withContext(Dispatchers.IO) {
                 Glide
                     .with(this@PdfPagerActivity)
-                    .load(pdfPagerViewModel.storageService.getAbsolutePath(navButton))
+                    .load(storageService.getAbsolutePath(navButton))
                     .submit()
                     .get()
             }

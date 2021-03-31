@@ -2,11 +2,13 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.StorageService
@@ -25,8 +27,9 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    var dataService: DataService = DataService.getInstance(application.applicationContext)
-    var storageService: StorageService = StorageService.getInstance(application.applicationContext)
+    private val dataService: DataService = DataService.getInstance(application.applicationContext)
+    private val storageService: StorageService = StorageService.getInstance(application.applicationContext)
+    private val imageRepository: ImageRepository = ImageRepository.getInstance(application.applicationContext)
     private val toastHelper = ToastHelper.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance()
 
@@ -34,7 +37,7 @@ class PdfPagerViewModel(
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
-    val hideDrawerLogo = savedStateHandle.getLiveData<Boolean>(KEY_HIDE_DRAWER, false)
+    val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
     val currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
 
     private val log by Log
@@ -61,6 +64,10 @@ class PdfPagerViewModel(
                 dataService.ensureDownloaded(
                     pdfIssue,
                     onConnectionFailure = { onConnectionFailure() }
+                )
+
+                navButton.postValue(
+                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                 )
 
                 if (pdfIssue.isDownloaded()) {
