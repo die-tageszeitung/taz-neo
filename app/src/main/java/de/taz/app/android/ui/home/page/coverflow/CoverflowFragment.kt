@@ -202,8 +202,9 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     }
 
     fun skipToKey(issueKey: IssueKey) {
-        viewModel.currentDate.postValue(simpleDateFormat.parse(issueKey.date))
-        skipToDate(null)
+        simpleDateFormat.parse(issueKey.date)?.let {
+            skipToDate(it)
+        }
     }
 
     inner class OnScrollListener : RecyclerView.OnScrollListener() {
