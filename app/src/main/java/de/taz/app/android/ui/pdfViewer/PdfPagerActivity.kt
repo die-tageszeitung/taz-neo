@@ -207,14 +207,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             activity_pdf_drawer_front_page.setOnClickListener {
                 pdf_viewpager.currentItem = 0
                 activity_pdf_drawer_front_page_title.setTextColor(
-                    ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
+                    ContextCompat.getColor(this, R.color.drawer_sections_item_highlighted)
                 )
                 drawerLayout.closeDrawers()
             }
             activity_pdf_drawer_front_page_title.apply {
                 text = items.first().title
                 setTextColor(
-                    ContextCompat.getColor(applicationContext, R.color.drawer_sections_item_highlighted)
+                    ContextCompat.getColor(this@PdfPagerActivity, R.color.drawer_sections_item_highlighted)
                 )
             }
             activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
@@ -223,8 +223,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             pdfPagerViewModel.currentItem.observe(this, { position ->
                 drawerAdapter.activePosition = position - 1
                 if (position > 0) {
+                    log.debug("set front page title color to: ${R.color.drawer_sections_item}")
                     activity_pdf_drawer_front_page_title?.setTextColor(
-                        ContextCompat.getColor(applicationContext, R.color.drawer_sections_item)
+                        ContextCompat.getColor(this, R.color.drawer_sections_item)
                     )
                 }
             })
