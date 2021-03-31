@@ -12,12 +12,17 @@ import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit
 
+const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
+
 class IssueFeedViewModel(
-    application: Application
+    application: Application,
+    savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val preferences = application.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
     private var currentFeed: String? = null
+
+    val currentDate = savedStateHandle.getLiveData<Date>(KEY_CURRENT_DATE)
 
     val pdfMode: MutableLiveData<Boolean> = SharedPreferenceBooleanLiveData(
         preferences, SETTINGS_SHOW_PDF_AS_MOMENT, false

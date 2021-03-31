@@ -65,13 +65,14 @@ abstract class CoverViewBinding<COVER_VIEW : CoverView>(
         }
 
         boundView?.setOnDownloadClickedListener { onDownloadClicked() }
-
-        dataService.withDownloadLiveData(coverViewData.issueKey) {
-            withContext(Dispatchers.Main) {
-                it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                    boundView?.setDownloadIconForStatus(
-                        downloadStatus
-                    )
+        if (boundView?.shouldNotShowDownloadIcon == false) {
+            dataService.withDownloadLiveData(coverViewData.issueKey) {
+                withContext(Dispatchers.Main) {
+                    it.observeDistinct(lifecycleOwner) { downloadStatus ->
+                        boundView?.setDownloadIconForStatus(
+                            downloadStatus
+                        )
+                    }
                 }
             }
         }

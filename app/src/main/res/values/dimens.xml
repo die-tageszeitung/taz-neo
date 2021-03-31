@@ -7,6 +7,9 @@
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
+    <dimen name="view_moment_download_icon_size">25dp</dimen>
+    <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
+    <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">16dp</dimen>
@@ -69,7 +72,7 @@
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
-    <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>
+    <dimen name="fragment_archive_moment_date_padding_vertical">5dp</dimen>
     <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
@@ -123,5 +126,5 @@
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
 
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
-
+    <dimen name="cover_item_padding_horizontal">36dp</dimen>
 </resources>

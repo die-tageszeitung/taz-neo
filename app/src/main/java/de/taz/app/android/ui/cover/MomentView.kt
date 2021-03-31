@@ -3,24 +3,16 @@ package de.taz.app.android.ui.cover
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
+import android.view.Gravity
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.api.models.*
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
-import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentWebView
 import kotlinx.android.synthetic.main.view_cover.view.*
 
-
-private const val MOMENT_FADE_DURATION_MS = 500L
 
 @SuppressLint("ClickableViewAccessibility")
 class MomentView @JvmOverloads constructor(
@@ -32,6 +24,7 @@ class MomentView @JvmOverloads constructor(
         context,
     ).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        gravity = Gravity.BOTTOM
     }
     private val momentWebView: MomentWebView = MomentWebView(context).apply {
         outlineProvider = ViewOutlineProvider.PADDED_BOUNDS

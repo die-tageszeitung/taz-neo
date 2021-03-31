@@ -20,4 +20,6 @@
     </declare-styleable>
     <integer name="text_default_size">100</integer>
     <fraction name="nav_button_scale_factor">33%</fraction>
+    <item name="match_parent" type="dimen">-1</item>
+    <fraction name="cover_width_screen_factor">92%</fraction>
 </resources>

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager2.widget.ViewPager2
@@ -21,17 +20,18 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
+import kotlinx.coroutines.*
 import java.util.*
-
-const val KEY_DATE = "KEY_DATE"
 
 class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
@@ -40,19 +40,14 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
 
+    private val authHelper by lazy { AuthHelper.getInstance(context) }
+    private val toastHelper by lazy { ToastHelper.getInstance(context) }
+
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
 
-    private var currentDate: Date? = null
-        set(value) {
-            field = value
-            if(value != null) {
-                fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(value)
-            }
-        }
-
+    private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssueKey? = null
-
 
 
     override fun onAttach(context: Context) {
@@ -62,9 +57,6 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            currentDate = savedInstanceState.getSerializable(KEY_DATE) as Date?
-        }
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_KEY)
@@ -72,19 +64,36 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.currentDate.observe(viewLifecycleOwner) {
+            downloadObserver?.unbindView()
+            downloadObserver = DownloadObserver(
+                this,
+                dataService,
+                authHelper,
+                toastHelper,
+                it,
+                viewModel.feed.value!!
+            ).apply {
+                bindView(fragment_cover_flow_date_download_wrapper)
+            }
+            fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(it)
+        }
         fragment_cover_flow_grid.apply {
             layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
+                /**
+                 * We need to create a padding allow this recyclerview to snap also the first and the last item
+                 * in the middle of the screen. Without it the first item would stick to the left side of the screen
+                 */
+                override fun getPaddingLeft(): Int {
+                    return fragment_cover_flow_grid.children.firstOrNull()?.let {
+                        if (it.measuredWidth > 0) {
+                            return fragment_cover_flow_grid.width / 2 - it.measuredWidth / 2
+                        } else 0
+                    } ?: 0
+                }
 
-                override fun calculateExtraLayoutSpace(
-                    state: RecyclerView.State,
-                    extraLayoutSpace: IntArray
-                ) {
-                    super.calculateExtraLayoutSpace(state, extraLayoutSpace)
-                    val orientationHelper =
-                        OrientationHelper.createOrientationHelper(this, orientation)
-                    val extraSpace = orientationHelper.totalSpace
-                    extraLayoutSpace[0] = extraSpace
-                    extraLayoutSpace[1] = extraSpace
+                override fun getPaddingRight(): Int {
+                    return paddingLeft
                 }
             }
 
@@ -113,7 +122,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
         }
 
         fragment_cover_flow_date.setOnClickListener {
-            currentDate?.let { openDatePicker(it) }
+            viewModel.currentDate.value?.let { openDatePicker(it) }
         }
 
         viewModel.feed.observeDistinct(this) { feed ->
@@ -139,13 +148,14 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
         }
     }
 
+
     override fun onResume() {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
-        skipToCurrentItem()
+        skipToDate(viewModel.currentDate.value)
         super.onResume()
     }
 
-    fun openDatePicker(issueDate: Date) {
+    private fun openDatePicker(issueDate: Date) {
         showBottomSheet(DatePickerFragment.create(this, viewModel.feed.value!!, issueDate))
     }
 
@@ -160,17 +170,17 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             return
         }
         fragment_cover_flow_grid.stopScroll()
-        setCurrentItem(adapter.getItem(0))
+        viewModel.currentDate.postValue(adapter.getItem(0))
         fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
         snapHelper.scrollToPosition(0)
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    private fun skipToCurrentItem() {
+    private fun skipToDate(date: Date?) {
         if (!::adapter.isInitialized) {
             return
         }
-        currentDate?.let {
+        date?.let {
             val position = adapter.getPosition(it)
             val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
             layoutManager?.apply {
@@ -180,7 +190,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                     viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                         if (position != currentPosition) {
                             fragment_cover_flow_grid.stopScroll()
-                            setCurrentItem(adapter.getItem(position))
+                            viewModel.currentDate.postValue(adapter.getItem(position))
                             layoutManager.scrollToPosition(position)
                         }
                     }
@@ -192,14 +202,16 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
     }
 
     fun skipToKey(issueKey: IssueKey) {
-        currentDate = simpleDateFormat.parse(issueKey.date)
-        skipToCurrentItem()
+        simpleDateFormat.parse(issueKey.date)?.let {
+            skipToDate(it)
+        }
     }
 
     inner class OnScrollListener : RecyclerView.OnScrollListener() {
 
         private var isDragEvent = false
         private var isIdleEvent = false
+        private var isSettlingEvent = false
 
         override fun onScrollStateChanged(
             recyclerView: RecyclerView,
@@ -214,19 +226,13 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             }
             isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
             isIdleEvent = newState == RecyclerView.SCROLL_STATE_IDLE
+            isSettlingEvent = newState == RecyclerView.SCROLL_STATE_SETTLING
         }
-
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-
-            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-            val position: Int =
-                (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
-
+            val position: Int = snapHelper.currentSnappedPosition
             applyZoomPageTransformer()
-
-            // persist position and download new issues if user is scrolling
             (parentFragment as? HomeFragment)?.apply {
                 if (position == 0) {
                     setHomeIconFilled()
@@ -234,19 +240,12 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                     setHomeIcon()
                 }
             }
+
+            // set position
             if (position >= 0 && !isIdleEvent) {
-                setCurrentItem(adapter.getItem(position))
+                viewModel.currentDate.postValue(adapter.getItem(position))
             }
         }
-    }
-
-    private fun setCurrentItem(date: Date?) {
-        currentDate = date
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putSerializable(KEY_DATE, currentDate)
-        super.onSaveInstanceState(outState)
     }
 
     private fun applyZoomPageTransformer() {
