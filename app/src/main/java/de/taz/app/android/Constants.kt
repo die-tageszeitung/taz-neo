@@ -3,7 +3,6 @@ package de.taz.app.android
 import de.taz.app.android.api.interfaces.StorageLocation
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.pow
 
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
