@@ -74,10 +74,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
         }
 
-        supportFragmentManager.beginTransaction().add(
-            R.id.activity_pdf_fragment_placeholder,
-            PdfPagerFragment()
-        ).commit()
+        if (supportFragmentManager.findFragmentByTag("IN_ARTICLE") == null) {
+            supportFragmentManager.beginTransaction().add(
+                R.id.activity_pdf_fragment_placeholder,
+                PdfPagerFragment()
+            ).commit()
+        }
 
         drawerLayout = findViewById(R.id.pdf_drawer_layout)
 
