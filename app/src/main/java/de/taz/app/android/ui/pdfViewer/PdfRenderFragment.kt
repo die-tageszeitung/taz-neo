@@ -71,14 +71,15 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
             pdfReaderView.onBorderListener = { border ->
-                // TODO -> this could be != ViewBorder.NONE to determine that view is on one border
-                // but atm it is then kinda flicky
                 pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
             }
-            pdfReaderView.onScaleListener = { pinchOut ->
+            pdfReaderView.onScaleOutListener = { pinchOut ->
                 if (pinchOut) {
                     pdfPagerViewModel.hideDrawerLogo.postValue(!pinchOut)
                 }
+            }
+            pdfReaderView.onScaleListener = { scaling ->
+                pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
             }
             muPdfWrapper.addView(pdfReaderView)
         }

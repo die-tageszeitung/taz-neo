@@ -33,6 +33,7 @@ class PdfPagerViewModel(
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
+    val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData<Boolean>(KEY_HIDE_DRAWER, false)
     val currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
 
@@ -90,6 +91,10 @@ class PdfPagerViewModel(
 
     fun setUserInputEnabled(enabled: Boolean = true) {
         userInputEnabled.value = enabled
+    }
+
+    fun setRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        requestDisallowInterceptTouchEvent.value = disallowIntercept
     }
 
     fun goToPdfPage(link: String) {

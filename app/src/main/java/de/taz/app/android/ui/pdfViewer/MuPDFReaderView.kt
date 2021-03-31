@@ -20,7 +20,8 @@ class MuPDFReaderView constructor(
 ), GestureDetector.OnDoubleTapListener {
     var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
     var onBorderListener: ((ViewBorder) -> Unit)? = null
-    var onScaleListener: ((Boolean) -> Unit)? = null
+    var onScaleOutListener: ((Boolean) -> Unit)? = null
+    var onScaleListener: ((Boolean) -> (Unit))? = null
     val log by Log
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -49,16 +50,26 @@ class MuPDFReaderView constructor(
         mScale = newScale
         requestLayout()
         if (newScale == 1f) {
-            onScaleListener?.invoke(true)
+            onScaleOutListener?.invoke(true)
         }
         return true
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
-        log.debug("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
+        log.verbose("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
         val pinchOut = detector?.scaleFactor!! < 1
-        onScaleListener?.invoke(pinchOut)
+        onScaleOutListener?.invoke(pinchOut)
         return super.onScale(detector)
+    }
+
+    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+        onScaleListener?.invoke(true)
+        return super.onScaleBegin(detector)
+    }
+
+    override fun onScaleEnd(detector: ScaleGestureDetector?) {
+        onScaleListener?.invoke(false)
+        super.onScaleEnd(detector)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
