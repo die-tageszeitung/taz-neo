@@ -27,7 +27,7 @@ class CoverflowAdapter(
 
     /**
      * The size of the cover item is determined by both the constraints of the cover dimension
-     * which is determined by the fee and the available screen width or height
+     * which is determined by the feed and the available screen width or height
      * We'd need to determine upper bounds by height _or_ width, depending on whats exceeded first.
      * In Landscape thats typically height while in portrait its typically width.
      * One might be tempted to let the CoverView determine it's width with a combination
