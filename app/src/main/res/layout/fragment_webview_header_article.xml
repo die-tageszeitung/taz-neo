@@ -43,6 +43,7 @@
         android:id="@+id/dotted_line"
         android:layout_width="match_parent"
         android:layout_height="5dp"
+        app:color="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_container" />
 
