@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
@@ -18,7 +17,6 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
