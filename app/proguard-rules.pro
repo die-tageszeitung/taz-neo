@@ -131,3 +131,13 @@
     <init>(...);
     <fields>;
 }
+
+# glide
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public class com.bumptech.glide.annotation.*
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+#
+-keep class com.artifex.mupdf.fitz.* {*;}
