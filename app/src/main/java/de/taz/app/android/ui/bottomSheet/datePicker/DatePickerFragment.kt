@@ -28,7 +28,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 
-class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFragment() {
+class DatePickerFragment: BottomSheetDialogFragment() {
 
     private val log by Log
 
@@ -38,14 +38,24 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var dataService: DataService
+    private lateinit var date: Date
+    private lateinit var feedName: String
 
     companion object {
+
+        private const val KEY_DATE = "KEY_DATE"
+        private const val KEY_FEED_NAME = "KEY_FEED_NAME"
+
         fun create(
             coverFlowFragment: CoverflowFragment?,
             feed: Feed,
             date: Date
         ): DatePickerFragment {
-            val fragment = DatePickerFragment(date, feed)
+            val fragment = DatePickerFragment()
+            val args = Bundle()
+            args.putLong(KEY_DATE, date.time)
+            args.putString(KEY_FEED_NAME, feed.name)
+            fragment.arguments = args
             fragment.coverFlowFragment = WeakReference(coverFlowFragment)
             return fragment
         }
@@ -67,6 +77,17 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.getLong(KEY_DATE, 0)?.let {
+            date = Date(it)
+        }
+        arguments?.getString(KEY_FEED_NAME, "")?.let {
+            feedName = it
+        }
+    }
+
+
     override fun onStart() {
         super.onStart()
         //this forces the sheet to appear at max height even on landscape
@@ -82,13 +103,16 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
         lifecycleScope.launch(Dispatchers.IO) {
-            val minDate = feed.issueMinDate
+            val feed = dataService.getFeedByName(feedName)
+            feed?.let {
+                val minDate = it.issueMinDate
 
-            if (!minDate.isBlank()) {
-                log.debug("minDate is $minDate")
-                DateHelper.stringToLong(minDate)?.let {
-                    withContext(Dispatchers.Main) {
-                        fragment_bottom_sheet_date_picker.minDate = it
+                if (minDate.isNotBlank()) {
+                    log.debug("minDate is $minDate")
+                    DateHelper.stringToLong(minDate)?.let {
+                        withContext(Dispatchers.Main) {
+                            fragment_bottom_sheet_date_picker.minDate = it
+                        }
                     }
                 }
             }
@@ -129,7 +153,7 @@ class DatePickerFragment(val date: Date, val feed: Feed) : BottomSheetDialogFrag
         withContext(Dispatchers.IO) {
             val issueStub = try {
                 dataService.getIssueStub(
-                    IssuePublication(feed.name, date)
+                    IssuePublication(feedName, date)
 
                 )
             } catch (e: ConnectivityException.Recoverable) {
