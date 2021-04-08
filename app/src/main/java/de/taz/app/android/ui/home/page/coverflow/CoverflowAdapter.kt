@@ -41,12 +41,16 @@ class CoverflowAdapter(
         val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
         if (isLandscape) {
             // in landscape mode it's height bound
-            viewHolder.itemView.layoutParams.width =
-                (fragment.resources.displayMetrics.heightPixels * factor).toInt()
+            viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
+                (fragment.resources.displayMetrics.heightPixels * factor).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         } else {
             // in portrait mode it's width bound
-            viewHolder.itemView.layoutParams.width =
-                (fragment.resources.displayMetrics.widthPixels * factor).toInt()
+            viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
+                (fragment.resources.displayMetrics.widthPixels * factor).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
         return viewHolder
     }

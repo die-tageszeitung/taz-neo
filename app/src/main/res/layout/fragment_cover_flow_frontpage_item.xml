@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom"
-    android:paddingStart="@dimen/cover_item_padding_horizontal"
-    android:paddingEnd="@dimen/cover_item_padding_horizontal"
+    android:paddingStart="@dimen/cover_item_padding"
+    android:paddingEnd="@dimen/cover_item_padding"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" />
