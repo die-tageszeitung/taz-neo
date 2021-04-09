@@ -7,6 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom"
-    android:paddingStart="@dimen/cover_item_padding_horizontal"
-    android:paddingEnd="@dimen/cover_item_padding_horizontal"
+    android:paddingStart="@dimen/cover_item_padding"
+    android:paddingEnd="@dimen/cover_item_padding"
     app:do_not_show_download_icon="true" />

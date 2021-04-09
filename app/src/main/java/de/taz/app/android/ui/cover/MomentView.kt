@@ -24,7 +24,6 @@ class MomentView @JvmOverloads constructor(
         context,
     ).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        gravity = Gravity.BOTTOM
     }
     private val momentWebView: MomentWebView = MomentWebView(context).apply {
         outlineProvider = ViewOutlineProvider.PADDED_BOUNDS

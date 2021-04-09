@@ -126,5 +126,5 @@
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
 
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
-    <dimen name="cover_item_padding_horizontal">36dp</dimen>
+    <dimen name="cover_item_padding">36dp</dimen>
 </resources>
