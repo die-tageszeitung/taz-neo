@@ -238,7 +238,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     .get()
             }
 
-            val scaleFactor = 1f / 3f
+            // scale factor determined in resources
+            val scaleFactor = resources.getFraction(
+                R.fraction.nav_button_scale_factor,
+                1,
+                33
+            )
             val logicalWidth = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 imageDrawable.intrinsicWidth.toFloat(),
