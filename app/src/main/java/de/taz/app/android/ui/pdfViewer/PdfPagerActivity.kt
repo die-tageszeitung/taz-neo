@@ -23,6 +23,8 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
+import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
+import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
@@ -112,9 +114,13 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     val drawerWidth =
                         drawerView.width + (pdf_drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
                     if (parentView.width < drawerWidth) {
-                        drawer_logo.translationX = slideOffset * (parentView.width - drawerWidth)
-                    } else {
-                        drawer_logo.translationX = DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                        // translation needed for logo to be shown when drawer is too wide:
+                        val offsetOnOpenDrawer =
+                            slideOffset * (parentView.width - drawerWidth)
+                        // translation needed when drawer is closed then:
+                        val offsetOnClosedDrawer =
+                            (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                        drawer_logo.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
                     }
                 }
             }
