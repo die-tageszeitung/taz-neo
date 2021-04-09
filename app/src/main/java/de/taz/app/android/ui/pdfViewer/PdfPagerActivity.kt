@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
-const val LOGO_PEAK = 9
+const val LOGO_PEAK = 8
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
 
