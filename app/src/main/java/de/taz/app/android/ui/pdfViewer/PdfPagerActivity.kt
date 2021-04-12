@@ -105,7 +105,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 drawer_logo.animate().cancel()
-                drawer_logo.translationX = 0f
+                drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.updateDrawerLogoBoundingBox(
                     drawer_logo.width,
                     drawer_logo.height
@@ -272,6 +272,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 pdf_drawer_layout.requestLayout()
             }
         }
+        pdfPagerViewModel.hideDrawerLogo.postValue(true)
     }
 
     private fun hideLoadingScreen() {
