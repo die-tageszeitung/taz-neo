@@ -29,6 +29,8 @@ import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
 const val LOGO_PEAK = 8
+const val HIDE_LOGO_DELAY_MS = 3000L
+const val LOGO_ANIMATION_DURATION_MS = 1000L
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
 
@@ -102,10 +104,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         )
 
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
-
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 drawer_logo.animate().cancel()
-                drawer_logo.translationX = 0f
+                drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.updateDrawerLogoBoundingBox(
                     drawer_logo.width,
                     drawer_logo.height
@@ -132,9 +133,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             override fun onDrawerOpened(drawerView: View) = Unit
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
+
         pdfPagerViewModel.pdfPageList.observe(this, {
             initDrawerAdapter(it)
         })
+
         pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
             val articlePagerFragment =
                 supportFragmentManager.findFragmentByTag("IN_ARTICLE")
@@ -153,14 +156,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                         drawer_logo.height
                     )
                 }
-                .setDuration(1000L)
-                .setStartDelay(2000L)
+                .setDuration(LOGO_ANIMATION_DURATION_MS)
+                .setStartDelay(HIDE_LOGO_DELAY_MS)
                 .translationX(transX)
                 .interpolator = AccelerateDecelerateInterpolator()
         }
     }
 
-    private fun showDrawerLogo() {
+    private fun showDrawerLogo(hideAgainFlag: Boolean = true) {
         if (pdfPagerViewModel.hideDrawerLogo.value == false) {
             drawer_logo.animate()
                 .withEndAction {
@@ -168,10 +171,13 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                         drawerLogoWith.toInt(),
                         drawer_logo.height
                     )
+                    if (hideAgainFlag) {
+                        pdfPagerViewModel.hideDrawerLogo.postValue(true)
+                    }
                 }
-                .setDuration(1000L)
+                .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(0L)
-                .translationX(0f)
+                .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
                 .interpolator = AccelerateDecelerateInterpolator()
         }
     }
@@ -272,6 +278,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 pdf_drawer_layout.requestLayout()
             }
         }
+        pdfPagerViewModel.hideDrawerLogo.postValue(true)
     }
 
     private fun hideLoadingScreen() {
