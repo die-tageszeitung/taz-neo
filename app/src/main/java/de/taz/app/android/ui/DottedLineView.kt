@@ -49,9 +49,9 @@ class DottedLineView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
+        setLayerType(LAYER_TYPE_SOFTWARE, null)
         super.onDraw(canvas)
         path.reset()
-
         path.moveTo(0f, height / 2f)
         path.quadTo(width / 2f, height / 2f, width.toFloat(), height / 2f)
 
