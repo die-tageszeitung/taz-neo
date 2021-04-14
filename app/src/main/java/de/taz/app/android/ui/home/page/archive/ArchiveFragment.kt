@@ -48,6 +48,7 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
             } else {
                 R.layout.fragment_archive_moment_item
             }
+            fragment_archive_grid.setHasFixedSize(true)
             adapter = ArchiveAdapter(
                 this,
                 itemLayout,
@@ -60,9 +61,10 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
 
     private fun calculateNoOfColumns(): Int {
         val screenWidth = resources.displayMetrics.widthPixels
-        val columnWidth = resources.getDimension(R.dimen.fragment_archive_item_width)
+        val columnWidth =
+            resources.getDimension(R.dimen.fragment_archive_item_width) + resources.getDimension(R.dimen.fragment_archive_navigation_end_padding_horizontal)
 
-        return floor(screenWidth / columnWidth).toInt().coerceIn(2,4)
+        return floor(screenWidth / columnWidth).toInt().coerceIn(2, 5)
     }
 
     override fun onDestroyView() {

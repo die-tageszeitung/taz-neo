@@ -23,7 +23,7 @@ class MomentView @JvmOverloads constructor(
     private val momentImage: ImageView = ImageView(
         context,
     ).apply {
-        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
     private val momentWebView: MomentWebView = MomentWebView(context).apply {
         outlineProvider = ViewOutlineProvider.PADDED_BOUNDS

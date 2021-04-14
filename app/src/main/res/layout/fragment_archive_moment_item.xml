@@ -10,7 +10,7 @@
     <de.taz.app.android.ui.cover.MomentView
         android:id="@+id/fragment_cover_flow_item"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
         android:layout_marginBottom="@dimen/fragment_archive_item_margin_bottom"
         android:clipChildren="false"
