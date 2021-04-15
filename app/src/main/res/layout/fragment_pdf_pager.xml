@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/fragment_archive_background"
     app:statusBarBackground="@android:color/transparent"
+    android:fitsSystemWindows="true"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <androidx.viewpager2.widget.ViewPager2
