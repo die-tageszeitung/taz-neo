@@ -57,7 +57,7 @@ class MuPDFReaderView constructor(
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
         log.verbose("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
-        val pinchOut = detector?.scaleFactor!! < 1
+        val pinchOut = detector?.scaleFactor!! < 0.9
         onScaleOutListener?.invoke(pinchOut)
         return super.onScale(detector)
     }
