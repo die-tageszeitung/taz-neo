@@ -42,7 +42,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
 
-    private val authHelper by lazy { AuthHelper.getInstance(context) }
     private val toastHelper by lazy { ToastHelper.getInstance(context) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
@@ -196,16 +195,19 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             return
         }
         val observableKey = withContext(Dispatchers.IO) {
-             val issueKey = dataService.determineIssueKey(
-                IssuePublication(
-                    viewModel.feed.value!!.name, simpleDateFormat.format(date)
-                )
-            )
-            if (viewModel.pdfMode.value == true) {
-                IssueKeyWithPages(issueKey)
-            } else {
-                issueKey
-            }
+                if (viewModel.pdfMode.value == true) {
+                    dataService.determineIssueKeyWithPages(
+                        IssuePublication(
+                            viewModel.feed.value!!.name, simpleDateFormat.format(date)
+                        )
+                    )
+                } else {
+                    dataService.determineIssueKey(
+                        IssuePublication(
+                            viewModel.feed.value!!.name, simpleDateFormat.format(date)
+                        )
+                    )
+                }
         }
         downloadObserver?.unbindView()
         downloadObserver = DownloadObserver(
