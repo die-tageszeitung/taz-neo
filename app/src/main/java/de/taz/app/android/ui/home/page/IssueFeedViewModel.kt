@@ -16,19 +16,13 @@ typealias MomentChangedListener = (Date) -> Unit
 
 const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
 
-@Parcelize
-data class CoverFlowDatePosition(
-    val date: Date,
-    val scrollTo: Boolean
-): Parcelable
-
 class IssueFeedViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val preferences = application.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
-    val currentDate = savedStateHandle.getLiveData<CoverFlowDatePosition>(KEY_CURRENT_DATE)
+    val currentDate = savedStateHandle.getLiveData<Date>(KEY_CURRENT_DATE)
 
     val pdfMode: MutableLiveData<Boolean> = SharedPreferenceBooleanLiveData(
         preferences, SETTINGS_SHOW_PDF_AS_MOMENT, false

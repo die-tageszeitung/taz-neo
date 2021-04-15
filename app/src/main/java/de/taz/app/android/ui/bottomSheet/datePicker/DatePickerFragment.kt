@@ -18,7 +18,6 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.home.page.CoverFlowDatePosition
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
@@ -87,7 +86,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         issueFeedViewModel.currentDate.observe(this) {
             // Set newly selected date to focus in DatePicker
             val calendar = Calendar.getInstance()
-            calendar.time = it.date
+            calendar.time = it
 
             fragment_bottom_sheet_date_picker.updateDate(
                 calendar.get(Calendar.YEAR),
@@ -143,10 +142,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         issueFeedViewModel.currentDate.postValue(
-            CoverFlowDatePosition(
-                simpleDateFormat.parse(issueKey.date)!!,
-                scrollTo = true
-            )
+            simpleDateFormat.parse(issueKey.date)!!
         )
     }
 }
