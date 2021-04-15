@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.home.page.CoverFlowDatePosition
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -33,7 +34,7 @@ import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.*
 import java.util.*
 
-class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
+class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     val log by Log
 
@@ -71,12 +72,13 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                 dataService,
                 authHelper,
                 toastHelper,
-                it,
+                it.date,
                 viewModel.feed.value!!
             ).apply {
                 bindView(fragment_cover_flow_date_download_wrapper)
             }
-            fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(it)
+            fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(it.date)
+            if (it.scrollTo) { skipToDate(it.date) }
         }
         fragment_cover_flow_grid.apply {
             layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
@@ -122,7 +124,7 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
         }
 
         fragment_cover_flow_date.setOnClickListener {
-            viewModel.currentDate.value?.let { openDatePicker(it) }
+            openDatePicker()
         }
 
         viewModel.feed.observeDistinct(this) { feed ->
@@ -151,12 +153,11 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
-        skipToDate(viewModel.currentDate.value)
         super.onResume()
     }
 
-    private fun openDatePicker(issueDate: Date) {
-        showBottomSheet(DatePickerFragment.create(this, viewModel.feed.value!!, issueDate))
+    private fun openDatePicker() {
+        showBottomSheet(DatePickerFragment())
     }
 
     override fun onPause() {
@@ -170,7 +171,6 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
             return
         }
         fragment_cover_flow_grid.stopScroll()
-        viewModel.currentDate.postValue(adapter.getItem(0))
         fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
         snapHelper.scrollToPosition(0)
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
@@ -190,7 +190,6 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
                     viewLifecycleOwner.lifecycleScope.launchWhenResumed {
                         if (position != currentPosition) {
                             fragment_cover_flow_grid.stopScroll()
-                            viewModel.currentDate.postValue(adapter.getItem(position))
                             layoutManager.scrollToPosition(position)
                         }
                     }
@@ -243,7 +242,11 @@ class CoverflowFragment: IssueFeedFragment(R.layout.fragment_coverflow) {
 
             // set position
             if (position >= 0 && !isIdleEvent) {
-                viewModel.currentDate.postValue(adapter.getItem(position))
+                adapter.getItem(position)?.let { date ->
+                    viewModel.currentDate.postValue(
+                        CoverFlowDatePosition(date, scrollTo = false)
+                    )
+                }
             }
         }
     }
