@@ -18,7 +18,7 @@ class FrontpageView @JvmOverloads constructor(
     private val frontPageImage: ImageView = ImageView(
         context,
     ).apply {
-        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
 
     override fun clear(glideRequestManager: RequestManager) {
