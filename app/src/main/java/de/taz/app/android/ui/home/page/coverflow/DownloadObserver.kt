@@ -7,28 +7,24 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import de.taz.app.android.R
 import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class DownloadObserver(
     private val lifecycleOwner: LifecycleOwner,
     private val dataService: DataService,
-    private val authHelper: AuthHelper,
     private val toastHelper: ToastHelper,
-    private val date: Date,
-    private val feed: Feed
+    private val issueKey: AbstractIssueKey
 ) {
     private var boundView: View? = null
     private var observer: Observer<DownloadStatus>? = null
@@ -52,11 +48,7 @@ class DownloadObserver(
         boundView = view
         lifecycleOwner.lifecycleScope.launch (Dispatchers.IO) {
             dataService.withDownloadLiveData(
-                IssueKey(
-                    feed.name,
-                    simpleDateFormat.format(date),
-                    authHelper.eligibleIssueStatus
-                )
+                issueKey
             ) {
                 withContext(Dispatchers.Main) {
                     it.observeDistinct(lifecycleOwner) { downloadStatus ->
@@ -97,14 +89,21 @@ class DownloadObserver(
         boundView?.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
                     // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                    val issue = dataService.getIssue(
-                        IssuePublication(feed.name, simpleDateFormat.format(date)),
-                        retryOnFailure = true,
-                        allowCache = false,
-                        onConnectionFailure = { onConnectionFailure() }
-                    )
+                    val observedIssue = run {
+                        val issue = dataService.getIssue(
+                            IssuePublication(issueKey),
+                            retryOnFailure = true,
+                            allowCache = false,
+                            onConnectionFailure = { onConnectionFailure() }
+                        )
+                        if (issueKey is IssueKeyWithPages) {
+                            IssueWithPages(issue)
+                        } else {
+                            issue
+                        }
+                    }
                     dataService.ensureDownloaded(
-                        collection = issue,
+                        collection = observedIssue,
                         onConnectionFailure = { onConnectionFailure() }
                     )
                 }

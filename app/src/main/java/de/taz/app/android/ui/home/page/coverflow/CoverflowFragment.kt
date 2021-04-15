@@ -19,6 +19,8 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -65,7 +67,9 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.currentDate.observe(viewLifecycleOwner) {
-            skipToDate(it)
+            lifecycleScope.launch {
+                skipToDate(it)
+            }
         }
 
         fragment_cover_flow_grid.apply {
@@ -137,8 +141,11 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             } else if (fresh && savedInstanceState != null) {
                 // if there is a currentdate in the viewmodel scroll to it to let it snap
                 // in again after rotating
-                skipToDate(viewModel.currentDate.value ?: simpleDateFormat.parse(feed.issueMaxDate)!!)
-
+                lifecycleScope.launch {
+                    skipToDate(
+                        viewModel.currentDate.value ?: simpleDateFormat.parse(feed.issueMaxDate)!!
+                    )
+                }
             }
         }
     }
@@ -184,18 +191,28 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    private fun skipToDate(date: Date, scroll: Boolean = true) {
+    private suspend fun skipToDate(date: Date, scroll: Boolean = true) {
         if (!::adapter.isInitialized) {
             return
+        }
+        val observableKey = withContext(Dispatchers.IO) {
+             val issueKey = dataService.determineIssueKey(
+                IssuePublication(
+                    viewModel.feed.value!!.name, simpleDateFormat.format(date)
+                )
+            )
+            if (viewModel.pdfMode.value == true) {
+                IssueKeyWithPages(issueKey)
+            } else {
+                issueKey
+            }
         }
         downloadObserver?.unbindView()
         downloadObserver = DownloadObserver(
             this,
             dataService,
-            authHelper,
             toastHelper,
-            date,
-            viewModel.feed.value!!
+            observableKey
         ).apply {
             bindView(fragment_cover_flow_date_download_wrapper)
         }
@@ -223,13 +240,13 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     fun skipToHome() {
         viewModel.feed.value?.issueMaxDate?.let {
-            skipToDate(simpleDateFormat.parse(it)!!)
+            lifecycleScope.launch { skipToDate(simpleDateFormat.parse(it)!!) }
         }
     }
 
     fun skipToKey(issueKey: IssueKey) {
         simpleDateFormat.parse(issueKey.date)?.let {
-            skipToDate(it)
+            lifecycleScope.launch { skipToDate(it) }
         }
     }
 

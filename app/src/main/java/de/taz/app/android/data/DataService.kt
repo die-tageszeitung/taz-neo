@@ -403,7 +403,8 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
-                val filesToDelete: MutableList<FileEntry> = collection.getAllFilesToDelete().toMutableList()
+                val filesToDelete: MutableList<FileEntry> =
+                    collection.getAllFilesToDelete().toMutableList()
                 val filesToRetain =
                     collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
                         // bookmarked articles should remain
@@ -531,8 +532,18 @@ class DataService(private val applicationContext: Context) {
         feeds
     }
 
-    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean = withContext(Dispatchers.IO) {
-        issueRepository.isDownloaded(issueKey)
+    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean =
+        withContext(Dispatchers.IO) {
+            issueRepository.isDownloaded(issueKey)
+        }
+
+    suspend fun determineIssueKey(issuePublication: IssuePublication): IssueKey {
+        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+        return if (issueRepository.exists(regularKey)) {
+            regularKey
+        } else {
+            IssueKey(issuePublication, authHelper.eligibleIssueStatus)
+        }
     }
 
     /**
