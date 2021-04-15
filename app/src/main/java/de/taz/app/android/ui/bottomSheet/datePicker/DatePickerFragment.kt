@@ -5,61 +5,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.Feed
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 import java.util.*
 
 
-class DatePickerFragment: BottomSheetDialogFragment() {
+class DatePickerFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-
-    private var coverFlowFragment: WeakReference<CoverflowFragment?>? = null
 
     private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var dataService: DataService
-    private lateinit var date: Date
-    private lateinit var feedName: String
-
-    companion object {
-
-        private const val KEY_DATE = "KEY_DATE"
-        private const val KEY_FEED_NAME = "KEY_FEED_NAME"
-
-        fun create(
-            coverFlowFragment: CoverflowFragment?,
-            feed: Feed,
-            date: Date
-        ): DatePickerFragment {
-            val fragment = DatePickerFragment()
-            val args = Bundle()
-            args.putLong(KEY_DATE, date.time)
-            args.putString(KEY_FEED_NAME, feed.name)
-            fragment.arguments = args
-            fragment.coverFlowFragment = WeakReference(coverFlowFragment)
-            return fragment
-        }
-    }
+    private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,17 +54,6 @@ class DatePickerFragment: BottomSheetDialogFragment() {
         return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.getLong(KEY_DATE, 0)?.let {
-            date = Date(it)
-        }
-        arguments?.getString(KEY_FEED_NAME, "")?.let {
-            feedName = it
-        }
-    }
-
-
     override fun onStart() {
         super.onStart()
         //this forces the sheet to appear at max height even on landscape
@@ -102,9 +68,8 @@ class DatePickerFragment: BottomSheetDialogFragment() {
         //minDate and maxDate constraints. UX is somewhat whack..
         fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
-        lifecycleScope.launch(Dispatchers.IO) {
-            val feed = dataService.getFeedByName(feedName)
-            feed?.let {
+        issueFeedViewModel.feed.observe(this) {
+            lifecycleScope.launch(Dispatchers.IO) {
                 val minDate = it.issueMinDate
 
                 if (minDate.isNotBlank()) {
@@ -117,6 +82,20 @@ class DatePickerFragment: BottomSheetDialogFragment() {
                 }
             }
         }
+
+        issueFeedViewModel.currentDate.observe(this) {
+            // Set newly selected date to focus in DatePicker
+            val calendar = Calendar.getInstance()
+            calendar.time = it
+
+            fragment_bottom_sheet_date_picker.updateDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+        }
+
+
 
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener { confirmButton ->
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
@@ -135,43 +114,35 @@ class DatePickerFragment: BottomSheetDialogFragment() {
                 setIssue("$year-$month-$day")
             }
         }
-
-        // Set newly selected date to focus in DatePicker
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-
-        fragment_bottom_sheet_date_picker.updateDate(
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-
     }
 
     private suspend fun setIssue(date: String) {
         log.debug("call setIssue() with date $date")
-        withContext(Dispatchers.IO) {
-            val issueStub = try {
-                dataService.getIssueStub(
-                    IssuePublication(feedName, date)
+        issueFeedViewModel.feed.value?.let { feed ->
+            withContext(Dispatchers.IO) {
+                val issueStub = try {
+                    dataService.getIssueStub(
+                        IssuePublication(feed.name, date)
+                    )
+                } catch (e: ConnectivityException.Recoverable) {
+                    toastHelper.showNoConnectionToast()
+                    null
+                }
 
-                )
-            } catch (e: ConnectivityException.Recoverable) {
-                toastHelper.showNoConnectionToast()
-                null
+                if (issueStub != null) {
+                    showIssue(issueStub.issueKey)
+                } else {
+                    toastHelper.showToast(R.string.issue_not_found)
+                }
+                // close date picker
+                dismiss()
             }
-
-            if (issueStub != null) {
-                showIssue(issueStub.issueKey)
-            } else {
-                toastHelper.showToast(R.string.issue_not_found)
-            }
-            // close date picker
-            dismiss()
         }
     }
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
-        coverFlowFragment?.get()?.skipToKey(issueKey)
+        issueFeedViewModel.currentDate.postValue(
+            simpleDateFormat.parse(issueKey.date)!!
+        )
     }
 }
