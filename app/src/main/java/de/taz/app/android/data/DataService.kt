@@ -112,14 +112,19 @@ class DataService(private val applicationContext: Context) {
     suspend fun getIssueStub(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
+        retryOnFailure: Boolean = false,
+        cacheWithPages: Boolean = false
     ): IssueStub =
         withContext(Dispatchers.IO) {
             val regularKey = IssueKey(issuePublication, IssueStatus.regular)
             val publicKey = IssueKey(issuePublication, IssueStatus.public)
 
             if (allowCache) {
-                issueRepository.getStub(regularKey)?.let { return@withContext it }
+                issueRepository.getStub(regularKey)?.let {
+                    if (!cacheWithPages && it.isDownloaded() ||
+                        IssueWithPages(it.getIssue()).isDownloaded()
+                    ) return@withContext it
+                }
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
                 }
@@ -146,8 +151,9 @@ class DataService(private val applicationContext: Context) {
         allowCache: Boolean = true,
         forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false,
+        cacheWithPages: Boolean = false
     ): Issue = withContext(Dispatchers.IO) {
-        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure) {}
+        getIssue(issuePublication, allowCache, forceUpdate, retryOnFailure, cacheWithPages) {}
     }
 
     /**
@@ -168,13 +174,17 @@ class DataService(private val applicationContext: Context) {
         allowCache: Boolean = true,
         forceUpdate: Boolean = false,
         retryOnFailure: Boolean = false,
+        cacheWithPages: Boolean = false,
         onConnectionFailure: suspend () -> Unit = {}
     ): Issue = withContext(Dispatchers.IO) {
         val regularKey = IssueKey(issuePublication, IssueStatus.regular)
         val publicKey = IssueKey(issuePublication, IssueStatus.public)
 
         if (allowCache) {
-            issueRepository.get(regularKey)?.let { return@withContext it }
+            issueRepository.get(regularKey)?.let {
+                if ((it.isDownloaded() && !cacheWithPages) || IssueWithPages(it).isDownloaded())
+                    return@withContext it
+            }
             if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                 issueRepository.get(publicKey)?.let { return@withContext it }
             }
@@ -393,6 +403,7 @@ class DataService(private val applicationContext: Context) {
         if (collection is Issue) {
             issueRepository.delete(collection)
         }
+        cleanUpLiveData()
     }
 
     suspend fun ensureDeletedFiles(collection: DownloadableCollection) {
@@ -403,7 +414,8 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
-                val filesToDelete: MutableList<FileEntry> = collection.getAllFilesToDelete().toMutableList()
+                val filesToDelete: MutableList<FileEntry> =
+                    collection.getAllFilesToDelete().toMutableList()
                 val filesToRetain =
                     collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
                         // bookmarked articles should remain
@@ -531,8 +543,31 @@ class DataService(private val applicationContext: Context) {
         feeds
     }
 
-    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean = withContext(Dispatchers.IO) {
-        issueRepository.isDownloaded(issueKey)
+    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean =
+        withContext(Dispatchers.IO) {
+            issueRepository.isDownloaded(issueKey)
+        }
+
+    suspend fun determineIssueKey(issuePublication: IssuePublication): IssueKey {
+        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+        return if (issueRepository.exists(regularKey) && issueRepository.isDownloaded(regularKey)) {
+            regularKey
+        } else {
+            IssueKey(issuePublication, authHelper.eligibleIssueStatus)
+        }
+    }
+
+    suspend fun determineIssueKeyWithPages(issuePublication: IssuePublication): IssueKeyWithPages {
+        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
+        val regularKeyWithPages = IssueKeyWithPages(regularKey)
+        return if (issueRepository.exists(regularKey) && issueRepository.isDownloaded(
+                regularKeyWithPages
+            )
+        ) {
+            regularKeyWithPages
+        } else {
+            IssueKeyWithPages(IssueKey(issuePublication, authHelper.eligibleIssueStatus))
+        }
     }
 
     /**
@@ -561,36 +596,26 @@ class DataService(private val applicationContext: Context) {
     private suspend fun getDownloadLiveData(observableDownload: ObservableDownload): LiveDataWithReferenceCount<DownloadStatus> =
         withContext(Dispatchers.IO) {
             val tag = observableDownload.getDownloadTag()
-            // The pages(pdf) variant of an issue is a superset of the regular issue, so if we listen
-            // for a issue key we also should check whether the variant with pages is already in the download
-            // queue
-            val issueKeyWithPages = if (observableDownload is IssueKey) {
-                IssueKeyWithPages(observableDownload)
-            } else {
-                null
-            }
 
-            issueKeyWithPages?.let { downloadLiveDataMap[issueKeyWithPages.getDownloadTag()] }
-                ?: downloadLiveDataMap[tag]
-                ?: run {
-                    val status = when (observableDownload) {
-                        is IssueKey ->
-                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
-                            else DownloadStatus.pending
-                        is IssueKeyWithPages ->
-                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
-                            else DownloadStatus.pending
-                        is DownloadableCollection -> observableDownload.getDownloadDate(
-                            applicationContext
-                        )
-                            ?.let { DownloadStatus.done } ?: DownloadStatus.pending
-                        else -> DownloadStatus.pending
-                    }
-                    val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
-                    downloadLiveDataMap[tag] = downloadLiveData
-                    log.verbose("Created livedata for $tag")
-                    downloadLiveData
+            downloadLiveDataMap[tag] ?: run {
+                val status = when (observableDownload) {
+                    is IssueKey ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
+                    is IssueKeyWithPages ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
+                    is DownloadableCollection -> observableDownload.getDownloadDate(
+                        applicationContext
+                    )
+                        ?.let { DownloadStatus.done } ?: DownloadStatus.pending
+                    else -> DownloadStatus.pending
                 }
+                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+                downloadLiveDataMap[tag] = downloadLiveData
+                log.verbose("Created livedata for $tag")
+                downloadLiveData
+            }
         }
 
 

@@ -32,7 +32,6 @@ class FrontpageViewBinding(
     private val fileEntryRepository = FileEntryRepository.getInstance()
     private val feedRepository = FeedRepository.getInstance()
     private val toastHelper = ToastHelper.getInstance()
-    private val authHelper = AuthHelper.getInstance()
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -48,10 +47,9 @@ class FrontpageViewBinding(
         }
 
         val momentType = CoverType.FRONT_PAGE
-
+        val issueKey = dataService.determineIssueKeyWithPages(issuePublication)
         CoverViewData(
-            // TODO: The issue key needs to determined by the actual issue that we have - so pageone needs to be attached to the actual issue
-            IssueKeyWithPages(issuePublication.feed, issuePublication.date, authHelper.eligibleIssueStatus),
+            issueKey,
             DownloadStatus.pending,
             momentType,
             pdfMomentFilePath,
@@ -79,8 +77,9 @@ class FrontpageViewBinding(
                     issuePublication,
                     retryOnFailure = true,
                     allowCache = false,
-                    onConnectionFailure = { onConnectionFailure() }
-                ) ?: throw IllegalStateException("No issue found for $issuePublication")
+                    onConnectionFailure = { onConnectionFailure() },
+                    cacheWithPages = true
+                )
                 dataService.ensureDownloaded(
                     collection = IssueWithPages(issue),
                     onConnectionFailure = { onConnectionFailure() }

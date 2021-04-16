@@ -65,7 +65,7 @@ class MomentViewBinding(
         }
 
         CoverViewData(
-            IssueKey(moment.issueFeedName, moment.issueDate, moment.issueStatus),
+            dataService.determineIssueKey(issuePublication),
             DownloadStatus.pending,
             momentType,
             momentUri,
