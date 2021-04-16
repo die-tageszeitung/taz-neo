@@ -122,7 +122,8 @@ class DataService(private val applicationContext: Context) {
             if (allowCache) {
                 issueRepository.getStub(regularKey)?.let {
                     if (!cacheWithPages && it.isDownloaded() ||
-                        IssueWithPages(it.getIssue()).isDownloaded()) return@withContext it
+                        IssueWithPages(it.getIssue()).isDownloaded()
+                    ) return@withContext it
                 }
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
@@ -182,7 +183,7 @@ class DataService(private val applicationContext: Context) {
         if (allowCache) {
             issueRepository.get(regularKey)?.let {
                 if ((it.isDownloaded() && !cacheWithPages) || IssueWithPages(it).isDownloaded())
-                return@withContext it
+                    return@withContext it
             }
             if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                 issueRepository.get(publicKey)?.let { return@withContext it }
@@ -596,25 +597,25 @@ class DataService(private val applicationContext: Context) {
         withContext(Dispatchers.IO) {
             val tag = observableDownload.getDownloadTag()
 
-                downloadLiveDataMap[tag] ?: run {
-                    val status = when (observableDownload) {
-                        is IssueKey ->
-                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
-                            else DownloadStatus.pending
-                        is IssueKeyWithPages ->
-                            if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
-                            else DownloadStatus.pending
-                        is DownloadableCollection -> observableDownload.getDownloadDate(
-                            applicationContext
-                        )
-                            ?.let { DownloadStatus.done } ?: DownloadStatus.pending
-                        else -> DownloadStatus.pending
-                    }
-                    val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
-                    downloadLiveDataMap[tag] = downloadLiveData
-                    log.verbose("Created livedata for $tag")
-                    downloadLiveData
+            downloadLiveDataMap[tag] ?: run {
+                val status = when (observableDownload) {
+                    is IssueKey ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
+                    is IssueKeyWithPages ->
+                        if (issueRepository.isDownloaded(observableDownload)) DownloadStatus.done
+                        else DownloadStatus.pending
+                    is DownloadableCollection -> observableDownload.getDownloadDate(
+                        applicationContext
+                    )
+                        ?.let { DownloadStatus.done } ?: DownloadStatus.pending
+                    else -> DownloadStatus.pending
                 }
+                val downloadLiveData = LiveDataWithReferenceCount(MutableLiveData(status))
+                downloadLiveDataMap[tag] = downloadLiveData
+                log.verbose("Created livedata for $tag")
+                downloadLiveData
+            }
         }
 
 
