@@ -97,7 +97,7 @@ class IssueDownloadWorkManagerWorkerTest {
         `when`(mockDataService.getFeedByName(any(String::class.java), eq(false), eq(false))).thenReturn(
             newFeedMock
         )
-        `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false), eq(false))).thenReturn(
+        `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false), eq(false), any())).thenReturn(
             IssueTestUtil.getIssue()
         )
         `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
