@@ -73,13 +73,15 @@ class MuPDFReaderView constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        val border = when {
-            displayedView.left >= 0 && displayedView.right <= width -> ViewBorder.BOTH
-            displayedView.left >= 0 -> ViewBorder.LEFT
-            displayedView.right <= width -> ViewBorder.RIGHT
-            else -> ViewBorder.NONE
+        displayedView?.let {
+            val border = when {
+                it.left >= 0 && it.right <= width -> ViewBorder.BOTH
+                it.left >= 0 -> ViewBorder.LEFT
+                it.right <= width -> ViewBorder.RIGHT
+                else -> ViewBorder.NONE
+            }
+            onBorderListener?.invoke(border)
         }
-        onBorderListener?.invoke(border)
         return super.onInterceptTouchEvent(ev)
     }
 
