@@ -78,15 +78,22 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
 
-
     private fun saveScrollPositionDebounced(scrollPosition: Int) {
         viewModel.displayable?.let {
             val oldJob = saveScrollPositionJob
             saveScrollPositionJob = lifecycleScope.launch(Dispatchers.IO) {
                 oldJob?.cancelAndJoin()
                 delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
-                // we need to offset the scroll position by the bottom navigation as it might be expanded
-                val bottomNavigationViewLayout = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+                val bottomNavigationViewLayout = try {
+                    // we need to offset the scroll position by the bottom navigation as it might be expanded
+                    withContext(Dispatchers.Main) {
+                        parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+                    }
+                } catch (e: NullPointerException) {
+                    // view might be cleaned up in meantime,
+                    // then skip the exception and don't do anything
+                    return@launch
+                }
                 val bottomOffset = bottomNavigationViewLayout?.let {
                     if (it.visibility == View.VISIBLE) {
                         it.height - it.translationY.toInt()
