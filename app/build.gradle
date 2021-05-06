@@ -200,16 +200,6 @@ android {
 
     buildTypes {
 
-        leakCanary {
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
-
-            debuggable true
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig debug.signingConfig
-        }
         debug {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
@@ -226,11 +216,23 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        leakCanary {
+            if (keyStoreAvailable) {
+                signingConfig signingConfigs.keyStoreProperties
+            }
+
+            debuggable true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig debug.signingConfig
+            matchingFallbacks = ['debug', 'release']
+        }
         unminifiedRelease {
             if (keyStoreAvailable) {
                 signingConfig signingConfigs.keyStoreProperties
             }
             minifyEnabled false
+            matchingFallbacks = ['release']
         }
         manualUpdateRelease {
             buildConfigField "Boolean", "MANUAL_UPDATE", "true"
@@ -238,6 +240,7 @@ android {
                 signingConfig signingConfigs.keyStoreProperties
             }
             minifyEnabled false
+            matchingFallbacks = ['release']
         }
     }
 
@@ -331,7 +334,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // pdf viewer
-    api 'com.artifex.mupdf:viewer:1.18.0'
+    implementation ':mupdf-lib'
 
     // error reports
     implementation 'io.sentry:sentry-android:4.2.0'
