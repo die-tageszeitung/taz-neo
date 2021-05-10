@@ -334,7 +334,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // pdf viewer
-    implementation ':mupdf-lib'
+    implementation project(':mupdf-lib')
 
     // error reports
     implementation 'io.sentry:sentry-android:4.2.0'
