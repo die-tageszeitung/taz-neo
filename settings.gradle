@@ -1,4 +1,5 @@
 include ':app'
-include 'mupdf-lib'
-project(':mupdf-lib').projectDir = file('mupdf-android-viewer/lib')
-include ':jni:lib'
+include ':mupdf-lib'
+project(':mupdf-lib').projectDir = file('mupdf-lib/lib')
+include ':jni'
+project(':jni').projectDir = file('mupdf-lib/jni')
