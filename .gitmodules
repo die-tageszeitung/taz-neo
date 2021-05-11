@@ -1,3 +1,6 @@
-[submodule "mupdf-lib"]
-	path = mupdf-lib
+[submodule "mupdf-android-viewer"]
+	path = mupdf-android-viewer
 	url = git://git.ghostscript.com/mupdf-android-viewer.git
+[submodule "jni"]
+	path = jni
+	url = git://git.ghostscript.com/mupdf-android-fitz.git
