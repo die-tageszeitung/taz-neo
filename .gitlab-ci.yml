@@ -25,6 +25,8 @@ stages:
     - sudo chown -R circleci:circleci .
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
+    - git submodule update --init --recursive
+    - make -C mupdf-lib/jni/libmupdf generate
 
 .assemble:
   extends: .prepareEnv
