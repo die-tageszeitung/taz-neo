@@ -64,7 +64,9 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
         val columnWidth =
             resources.getDimension(R.dimen.fragment_archive_item_width) + resources.getDimension(R.dimen.fragment_archive_navigation_end_padding_horizontal)
 
-        return floor(screenWidth / columnWidth).toInt().coerceIn(2, 5)
+        val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
+        val minColumns = if (isLandscape) 3 else 2
+        return floor(screenWidth / columnWidth).toInt().coerceIn(minColumns, 5)
     }
 
     override fun onDestroyView() {
