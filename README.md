@@ -18,7 +18,7 @@ Before starting the build process it is necessary to initialize the mupdf-androi
 ```
 git submodule update --init --recursive
 ```
-Additionally the jni needs to be generated:
+Additionally mupdf needs to be generated:
 ```
 make -C mupdf-lib/jni/libmupdf generate
 ```
