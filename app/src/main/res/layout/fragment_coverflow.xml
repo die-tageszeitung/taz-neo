@@ -19,6 +19,13 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.9" />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="fragment_cover_flow_to_archive"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
