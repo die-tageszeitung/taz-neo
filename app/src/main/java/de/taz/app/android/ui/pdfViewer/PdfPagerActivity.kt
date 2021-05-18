@@ -90,11 +90,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     val realPosition = drawerPosition + 1
                     val isFrontPage = drawerPosition == 0
                     if (realPosition != pdfPagerViewModel.currentItem.value || isFrontPage) {
-                        val articlePagerFragment =
-                            supportFragmentManager.findFragmentByTag("IN_ARTICLE")
-                        if (articlePagerFragment != null && articlePagerFragment.isVisible) {
-                            supportFragmentManager.popBackStack()
-                        }
+                        popArticlePagerFragmentIfOpen()
                         pdfPagerViewModel.currentItem.value = realPosition
                         pdf_drawer_layout.closeDrawers()
                         drawerAdapter.activePosition = drawerPosition
@@ -211,6 +207,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
             activity_pdf_drawer_front_page.setOnClickListener {
                 pdf_viewpager.currentItem = 0
+                popArticlePagerFragmentIfOpen()
                 activity_pdf_drawer_front_page_title.setTextColor(
                     ContextCompat.getColor(this, R.color.drawer_sections_item_highlighted)
                 )
@@ -290,6 +287,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     pdf_drawer_loading_screen?.visibility = View.GONE
                 }
             }
+        }
+    }
+
+    private fun popArticlePagerFragmentIfOpen() {
+        val articlePagerFragment =
+            supportFragmentManager.findFragmentByTag("IN_ARTICLE")
+        if (articlePagerFragment != null && articlePagerFragment.isVisible) {
+            supportFragmentManager.popBackStack()
         }
     }
 }
