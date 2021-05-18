@@ -68,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/fragment_bookmarks_top_margin"
-                android:paddingBottom="@dimen/fragment_bookmarks_top_margin"
+                android:paddingBottom="@dimen/fragment_bookmarks_padding_bottom"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -105,8 +105,8 @@
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_share"
-                    android:layout_width="@dimen/fragment_bookmarks_share_icon_size"
-                    android:layout_height="@dimen/fragment_bookmarks_share_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_share"
                     android:src="@drawable/ic_share"
@@ -118,7 +118,6 @@
                     android:id="@+id/fragment_bookmark_delete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/fragment_bookmarks_delete_icon_margin"
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_delete"
                     android:src="@drawable/ic_delete"
@@ -132,7 +131,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/fragment_bookmarks_line_bottom_margin"
             android:background="@color/textColor"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
