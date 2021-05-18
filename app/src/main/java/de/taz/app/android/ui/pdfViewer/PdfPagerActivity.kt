@@ -275,8 +275,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
                 drawer_logo.layoutParams.width = logicalWidth.toInt()
                 drawer_logo.layoutParams.height = logicalHeight.toInt()
+                drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.requestLayout()
             }
+            // Update the clickable bounding box:
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                drawerLogoWith.toInt(),
+                drawer_logo.height
+            )
         }
         pdfPagerViewModel.hideDrawerLogo.postValue(true)
     }
