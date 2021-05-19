@@ -48,7 +48,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private val navButtonAlpha = 255f
     lateinit var drawerLayout: DrawerLayout
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
-    private var drawerLogoWith = 0f
+    private var drawerLogoWidth = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,7 +148,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private fun hideDrawerLogoWithDelay() {
         if (pdfPagerViewModel.hideDrawerLogo.value == true) {
-            val transX = - drawerLogoWith + LOGO_PEAK * resources.displayMetrics.density
+            val transX = - drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
             drawer_logo.animate()
                 .withEndAction{
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
@@ -168,7 +168,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             drawer_logo.animate()
                 .withEndAction {
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                        drawerLogoWith.toInt(),
+                        drawerLogoWidth.toInt(),
                         drawer_logo.height
                     )
                     if (hideAgainFlag) {
@@ -262,7 +262,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 resources.displayMetrics
             ) * scaleFactor
 
-            drawerLogoWith = logicalWidth
+            drawerLogoWidth = logicalWidth
             val logicalHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 imageDrawable.intrinsicHeight.toFloat(),
@@ -280,7 +280,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
             // Update the clickable bounding box:
             pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                drawerLogoWith.toInt(),
+                drawerLogoWidth.toInt(),
                 drawer_logo.height
             )
         }
