@@ -19,6 +19,7 @@
         Click on Order get a paid subscription.
         If you have any questions, please contact our service department at
     </string>
+    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>

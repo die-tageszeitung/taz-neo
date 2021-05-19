@@ -18,6 +18,7 @@
         Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
         Bei Fragen wenden Sie sich an unseren Service unter:
     </string>
+    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer taz-ID ein.</string>
