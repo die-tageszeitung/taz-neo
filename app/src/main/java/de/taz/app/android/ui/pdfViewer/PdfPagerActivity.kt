@@ -84,17 +84,17 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 this,
                 fun(_: View, drawerPosition: Int) {
                     log.debug("position clicked: $drawerPosition. pdf")
-                    // currentItem.value begins from 0 to n-1. pdf page
-                    // but in the drawer the front page is not part of the drawer list, that's why it
-                    // needs to be incremented by 1:
+                    // currentItem.value begins from 0 to n-1th pdf page
+                    // but in the drawer the front page is not part of the drawer list, that's why
+                    // it needs to be incremented by 1:
                     val realPosition = drawerPosition + 1
                     val isFrontPage = drawerPosition == 0
                     if (realPosition != pdfPagerViewModel.currentItem.value || isFrontPage) {
-                        popArticlePagerFragmentIfOpen()
                         pdfPagerViewModel.currentItem.value = realPosition
-                        pdf_drawer_layout.closeDrawers()
                         drawerAdapter.activePosition = drawerPosition
                     }
+                    popArticlePagerFragmentIfOpen()
+                    pdf_drawer_layout.closeDrawers()
                 }
             )
         )
