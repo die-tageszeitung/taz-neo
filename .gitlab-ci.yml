@@ -3,6 +3,7 @@ image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 variables:
   GIT_DEPTH: 0
   SENTRY_ENVIRONMENT: official
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - buildTests
@@ -25,6 +26,7 @@ stages:
     - sudo chown -R circleci:circleci .
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
+    - make -C mupdf-lib/jni/libmupdf generate
 
 .assemble:
   extends: .prepareEnv

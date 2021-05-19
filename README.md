@@ -14,6 +14,16 @@ Consider the [contribution guidelines](./CONTRIBUTING.md).
 
 ## Building
 
+Before starting the build process it is necessary to initialize the mupdf-android-viewer submodule:
+```
+git submodule update --init --recursive
+```
+Additionally mupdf needs to be generated:
+```
+make -C mupdf-lib/jni/libmupdf generate
+```
+With that the build process can be started.
+
 ### Non-free variant
 
 The non-free variant includes firebase for push notification support. It also minifies sources and provides sentry mappings for
