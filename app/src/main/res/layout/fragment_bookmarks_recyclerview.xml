@@ -105,8 +105,8 @@
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_share"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_height="@dimen/fragment_bookmarks_icon_size"
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_share"
                     android:src="@drawable/ic_share"
@@ -116,8 +116,8 @@
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_delete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_height="@dimen/fragment_bookmarks_icon_size"
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_delete"
                     android:src="@drawable/ic_delete"
