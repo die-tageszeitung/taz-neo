@@ -17,7 +17,6 @@ stages:
     paths:
       - .gradle/wrapper
       - .gradle/caches
-      - build
     key: android-base
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
