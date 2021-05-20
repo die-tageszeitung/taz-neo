@@ -20,7 +20,6 @@
         app:layout_constraintGuide_percent="0.9" />
 
     <LinearLayout
-        android:id="@+id/fragment_cover_flow_grid_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/fragment_cover_flow_grid_margin_bottom"
@@ -109,7 +108,6 @@
         android:layout_marginBottom="@dimen/fragment_cover_flow_to_archive_margin_bottom"
         android:contentDescription="@string/fragment_cover_flow_to_archive"
         android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid_wrapper"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
