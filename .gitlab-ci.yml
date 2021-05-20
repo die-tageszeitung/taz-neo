@@ -4,6 +4,7 @@ variables:
   GIT_DEPTH: 0
   SENTRY_ENVIRONMENT: official
   GIT_SUBMODULE_STRATEGY: recursive
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
 stages:
   - buildTests
@@ -14,18 +15,24 @@ stages:
 .prepareEnv:
   stage: build
   cache:
-    paths:
-      - .gradle/wrapper
-      - .gradle/caches
-      - build
+    # This cache includes the gradle wrapper and caches.
+    # It is shared between all branches and jobs.
     key: android-base
+    paths:
+      - $GRADLE_USER_HOME/wrapper
+      - $GRADLE_USER_HOME/caches
   before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle
+    # Download and extract non-free fonts used by the app
     - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
     - sudo tar --same-owner -xf bundle.tar
     - sudo chown -R circleci:circleci .
+
+    # Setup the keystore from the CI secret variables
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
+
+    # libmupdfs assets are generated outside of mupdf gradle build process.
+    # As long as we cant reliably cache them we have to re-generate them on every build step
     - make -C mupdf-lib/jni/libmupdf generate
 
 .assemble:
