@@ -19,18 +19,14 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.9" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="fragment_cover_flow_to_archive"/>
-
     <LinearLayout
+        android:id="@+id/fragment_cover_flow_grid_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fragment_cover_flow_grid_margin_bottom"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_to_archive"
+        android:paddingTop="@dimen/fragment_cover_flow_grid_padding_top"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -109,10 +105,11 @@
     <ImageView
         android:id="@+id/fragment_cover_flow_to_archive"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/nav_bottom_height"
+        android:layout_height="@dimen/fragment_cover_flow_to_archive_icon_height"
+        android:layout_marginBottom="@dimen/fragment_cover_flow_to_archive_margin_bottom"
         android:contentDescription="@string/fragment_cover_flow_to_archive"
-        android:padding="@dimen/fragment_cover_flow_to_archive_padding"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid_wrapper"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
