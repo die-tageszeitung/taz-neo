@@ -5,6 +5,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.runIfNotNull
 
 enum class ViewBorder {
     LEFT,
@@ -25,7 +26,9 @@ class MuPDFReaderView constructor(
     val log by Log
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        clickCoordinatesListener?.invoke(calculateClickCoordinates(e.x, e.y))
+        runIfNotNull(clickCoordinatesListener, displayedView) { listener, _ ->
+            listener.invoke(calculateClickCoordinates(e.x, e.y))
+        }
         return true
     }
 
