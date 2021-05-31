@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.view.View
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 
@@ -26,8 +27,8 @@ class MuPDFReaderView constructor(
     val log by Log
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        runIfNotNull(clickCoordinatesListener, displayedView) { listener, _ ->
-            listener.invoke(calculateClickCoordinates(e.x, e.y))
+        runIfNotNull(clickCoordinatesListener, displayedView) { listener, view ->
+            listener.invoke(calculateClickCoordinates(view, e.x, e.y))
         }
         return true
     }
@@ -94,18 +95,18 @@ class MuPDFReaderView constructor(
      * If so, the according article will be shown.
      * returns Pair<Float, Float> as (x,y)
      */
-    private fun calculateClickCoordinates(clickedX: Float, clickedY: Float): Pair<Float, Float> {
+    private fun calculateClickCoordinates(view: View, clickedX: Float, clickedY: Float): Pair<Float, Float> {
         // Cet the scale factor from dividing total image by viewed part (eg. 2.0):
-        val scaleX: Float = displayedView.width / width.toFloat()
-        val scaleY: Float = displayedView.height / height.toFloat()
+        val scaleX: Float = view.width / width.toFloat()
+        val scaleY: Float = view.height / height.toFloat()
 
         // Calculate the relatively clicked coordinates by dividing the scale factor (e.g. 200):
         val relClickedX = clickedX / scaleX
         val relClickedY = clickedY / scaleY
 
         // Get the missed part of the total image (eg. zoomed & scrolled in the middle: -600):
-        val missedFromZoomX = displayedView.left / scaleX
-        val missedFromZoomY = displayedView.top / scaleY
+        val missedFromZoomX = view.left / scaleX
+        val missedFromZoomY = view.top / scaleY
 
         // Sum up to get the real click coordinates of the total image (e.g. 200 - (-600) = 800):
         val calculatedX = relClickedX - missedFromZoomX
