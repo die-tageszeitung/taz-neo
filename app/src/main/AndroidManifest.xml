@@ -67,6 +67,26 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.artifex.mupdf.viewer.DocumentActivity">
+            <intent-filter tools:node="remove">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/vnd.ms-xpsdocument" />
+                <data android:mimeType="application/oxps" />
+                <data android:mimeType="application/x-cbz" />
+                <data android:mimeType="application/vnd.comicbook+zip" />
+                <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-fictionbook" />
+                <data android:mimeType="text/xml" />
+            </intent-filter>
+        </activity>
+
+
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://796a4b1c8b794a57a9f1b9e6dc7331a8@sentry.taz.de/2" />
