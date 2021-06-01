@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -62,9 +61,8 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val pageList = pdfPagerViewModel.pdfPageList.value
-        pageList?.let {
-            val pdfPage = it[position].pdfFile
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
+            val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)
