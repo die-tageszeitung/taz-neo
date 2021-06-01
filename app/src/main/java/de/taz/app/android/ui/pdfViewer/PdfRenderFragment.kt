@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -21,6 +20,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import kotlinx.coroutines.launch
 
 
@@ -61,7 +61,6 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val muPdfWrapper = view.findViewById<RelativeLayout>(R.id.mu_pdf_wrapper)
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
             val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
@@ -81,13 +80,24 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
             pdfReaderView.onScaleListener = { scaling ->
                 pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
             }
-            muPdfWrapper.addView(pdfReaderView)
+            mu_pdf_wrapper?.addView(pdfReaderView)
         }
+    }
+
+    override fun onDestroyView() {
+        pdfReaderView.adapter = null
+        pdfReaderView.clickCoordinatesListener = null
+        pdfReaderView.onBorderListener = null
+        pdfReaderView.onScaleOutListener = null
+        pdfReaderView.onScaleListener = null
+        mu_pdf_wrapper?.removeAllViews()
+        super.onDestroyView()
     }
 
     private fun showFramesIfPossible(x: Float, y: Float) {
         log.verbose("Clicked on x: $x, y:$y")
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { list ->
+        val pageList = pdfPagerViewModel.pdfPageList.value
+        pageList?.let { list ->
             val frameList = list[position].frameList
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
             frame?.let {
