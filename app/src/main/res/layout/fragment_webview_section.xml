@@ -44,6 +44,7 @@
             android:id="@+id/web_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_webview_section_margin_top"
             android:overScrollMode="never"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintTop_toTopOf="parent" />
