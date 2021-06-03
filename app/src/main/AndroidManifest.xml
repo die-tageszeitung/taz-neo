@@ -67,6 +67,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.artifex.mupdf.viewer.DocumentActivity"
+            tools:node="remove" />
+
+
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://796a4b1c8b794a57a9f1b9e6dc7331a8@sentry.taz.de/2" />
