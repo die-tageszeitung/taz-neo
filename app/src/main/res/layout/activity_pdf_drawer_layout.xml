@@ -11,13 +11,13 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_pdf_fragment_placeholder"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintTop_toTopOf="parent" />
 
     <de.taz.app.android.ui.drawer.NavigationView
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/navigation_drawer_background"
