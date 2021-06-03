@@ -60,7 +60,7 @@
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/drawer_menu_fragment_placeholder"
                 android:name="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
-                android:layout_width="@dimen/drawer_width"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
         </LinearLayout>
