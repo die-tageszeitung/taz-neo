@@ -68,23 +68,8 @@
         </activity>
 
         <activity
-            android:name="com.artifex.mupdf.viewer.DocumentActivity">
-            <intent-filter tools:node="remove">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="content" />
-                <data android:scheme="file" />
-                <data android:mimeType="application/pdf" />
-                <data android:mimeType="application/vnd.ms-xpsdocument" />
-                <data android:mimeType="application/oxps" />
-                <data android:mimeType="application/x-cbz" />
-                <data android:mimeType="application/vnd.comicbook+zip" />
-                <data android:mimeType="application/epub+zip" />
-                <data android:mimeType="application/x-fictionbook" />
-                <data android:mimeType="text/xml" />
-            </intent-filter>
-        </activity>
+            android:name="com.artifex.mupdf.viewer.DocumentActivity"
+            tools:node="remove" />
 
 
         <meta-data
