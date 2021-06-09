@@ -102,20 +102,16 @@
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:lineSpacingExtra">0dp</item>
-        <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:lineSpacingExtra">0dp</item>
-        <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
         <item name="android:textStyle">bold</item>
     </style>
 

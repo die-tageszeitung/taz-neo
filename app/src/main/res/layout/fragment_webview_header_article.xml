@@ -11,8 +11,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_webview_header_title_margin_top"
+        android:layout_height="@dimen/fragment_header_default_height"
+        android:paddingBottom="@dimen/fragment_header_title_padding_bottom"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
