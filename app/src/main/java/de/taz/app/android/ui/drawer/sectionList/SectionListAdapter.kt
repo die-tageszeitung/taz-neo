@@ -3,12 +3,13 @@ package de.taz.app.android.ui.drawer.sectionList
 import android.content.res.Resources
 import android.graphics.Typeface
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
+import kotlinx.android.synthetic.main.fragment_drawer_sections_item.view.*
 
 
 class SectionListAdapter(
@@ -39,7 +40,7 @@ class SectionListAdapter(
             }
         }
 
-    class SectionListAdapterViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+    class SectionListAdapterViewHolder(val sectionTitleItem: View) : RecyclerView.ViewHolder(sectionTitleItem)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -47,7 +48,7 @@ class SectionListAdapter(
     ): SectionListAdapterViewHolder {
         // create a new view
         val textView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_drawer_sections_item, parent, false) as TextView
+            .inflate(R.layout.fragment_drawer_sections_item, parent, false)
         return SectionListAdapterViewHolder(
             textView
         )
@@ -57,7 +58,7 @@ class SectionListAdapter(
         if(position != RecyclerView.NO_POSITION){
             val sectionStub = sectionList[position]
             sectionStub.let {
-                holder.textView.apply {
+                holder.sectionTitleItem.fragment_drawer_section_title.apply {
                     typeface = this@SectionListAdapter.typeface
                     text = sectionStub.title
                     setOnClickListener {
@@ -87,7 +88,7 @@ class SectionListAdapter(
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
-        holder.textView.typeface = typeface
+        holder.sectionTitleItem.fragment_drawer_section_title.typeface = typeface
         super.onViewRecycled(holder)
     }
 
