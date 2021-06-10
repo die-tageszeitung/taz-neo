@@ -10,7 +10,7 @@
         android:id="@+id/separator_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/lightGrey"
+        android:background="@color/superLightGrey"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
