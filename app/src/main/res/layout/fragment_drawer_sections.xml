@@ -28,7 +28,6 @@
         <TextView
             android:id="@+id/fragment_drawer_sections_date"
             style="@style/TextAppearance.Drawer.Sections.Date"
-            android:layout_marginBottom="@dimen/drawer_margin_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -36,16 +35,27 @@
             android:id="@+id/fragment_drawer_sections_list"
             android:layout_width="@dimen/drawer_section_list_width"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/drawer_margin_top"
             android:nestedScrollingEnabled="false"
             tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/lightGrey" />
+
         <TextView
             android:id="@+id/fragment_drawer_sections_imprint"
-            style="@style/TextAppearance.Drawer.Sections.Imprint"
+            style="@style/TextAppearance.Drawer.Sections"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_drawer_sections_item_margin_vertical"
             android:text="@string/imprint"
             android:visibility="gone" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/lightGrey" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
