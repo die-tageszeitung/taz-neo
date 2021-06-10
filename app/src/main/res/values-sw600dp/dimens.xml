@@ -8,4 +8,5 @@
     <dimen name="fragment_header_title_section_text_size">39sp</dimen>
     <dimen name="fragment_webview_section_margin_top">30dp</dimen>
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
+    <dimen name="drawer_width">390dp</dimen>
 </resources>
