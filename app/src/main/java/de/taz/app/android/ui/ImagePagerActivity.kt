@@ -1,6 +1,5 @@
 package de.taz.app.android.ui
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
