@@ -111,7 +111,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             }
             // force this dialog to be white with black text (ignoring night mode and system theme)
             // - the animation is not compatible with other shades
-            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            dialog.window?.setBackgroundDrawableResource(R.drawable.layout_rounded_corners_bg)
         }
     }
 
