@@ -29,6 +29,7 @@ data class ErrorReportVariables(
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,
     val deviceName: String = android.os.Build.MODEL,
+    val deviceVersion: String? = "${android.os.Build.VERSION.SDK_INT} (Android ${android.os.Build.VERSION.RELEASE})",
     val deviceFormat: DeviceFormat = DeviceFormat.mobile,
     val screenshotName: String? = null,
     val screenshot: String? = null
