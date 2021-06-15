@@ -20,7 +20,7 @@ import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_welcome.*
+import kotlinx.android.synthetic.main.activity_image_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
