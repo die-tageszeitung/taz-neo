@@ -1,6 +1,5 @@
 package de.taz.app.android.ui
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -21,6 +20,7 @@ import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.android.synthetic.main.activity_image_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -87,6 +87,10 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
         viewPager2.apply {
             reduceDragSensitivity(6)
             offscreenPageLimit = 2
+        }
+
+        button_close.setOnClickListener {
+            finish()
         }
     }
 
