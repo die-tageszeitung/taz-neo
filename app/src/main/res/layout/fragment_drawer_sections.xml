@@ -42,7 +42,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/lightGrey" />
+            android:background="@color/superLightGrey" />
 
         <TextView
             android:id="@+id/fragment_drawer_sections_imprint"
@@ -56,6 +56,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/lightGrey" />
+            android:background="@color/superLightGrey" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
