@@ -24,8 +24,8 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
@@ -36,6 +36,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
+import kotlinx.android.synthetic.main.fragment_drawer_sections_item.view.*
 import kotlinx.android.synthetic.main.view_cover.*
 import kotlinx.coroutines.*
 
@@ -149,8 +150,21 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = sectionListAdapter
+            layoutManager =
+                object : LinearLayoutManager(this@SectionDrawerFragment.context, VERTICAL, false) {
+                    override fun onLayoutCompleted(state: RecyclerView.State?) {
+                        super.onLayoutCompleted(state)
+                        // hack to find out if recycler view is populated:
+                        val firstVisibleItemPosition = findFirstVisibleItemPosition()
+                        val lastVisibleItemPosition = findLastVisibleItemPosition()
+                        val itemsShown = lastVisibleItemPosition - firstVisibleItemPosition
+                        if (sectionListAdapter.itemCount > itemsShown) {
+                            separator_line_imprint_top.visibility = View.VISIBLE
+                            separator_line_imprint_bottom.visibility = View.VISIBLE
+                        }
+                    }
+                }
         }
 
         fragment_drawer_sections_moment.apply {
@@ -348,5 +362,4 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         fragment_drawer_sections_list.adapter = null
         super.onDestroyView()
     }
-
 }

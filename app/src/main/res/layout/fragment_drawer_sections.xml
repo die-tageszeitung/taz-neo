@@ -40,9 +40,11 @@
             tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
 
         <View
+            android:id="@+id/separator_line_imprint_top"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/superLightGrey" />
+            android:background="@color/superLightGrey"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/fragment_drawer_sections_imprint"
@@ -54,8 +56,10 @@
             android:visibility="gone" />
 
         <View
+            android:id="@+id/separator_line_imprint_bottom"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:visibility="gone"
             android:background="@color/superLightGrey" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
