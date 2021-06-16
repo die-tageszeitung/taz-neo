@@ -44,7 +44,6 @@
                 android:adjustViewBounds="true"
                 android:clickable="true"
                 android:contentDescription="@string/navigation_drawer_open"
-                android:elevation="10dp"
                 android:focusable="true"
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
