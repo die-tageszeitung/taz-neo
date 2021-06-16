@@ -151,20 +151,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
             adapter = sectionListAdapter
-            layoutManager =
-                object : LinearLayoutManager(this@SectionDrawerFragment.context, VERTICAL, false) {
-                    override fun onLayoutCompleted(state: RecyclerView.State?) {
-                        super.onLayoutCompleted(state)
-                        // hack to find out if recycler view is populated:
-                        val firstVisibleItemPosition = findFirstVisibleItemPosition()
-                        val lastVisibleItemPosition = findLastVisibleItemPosition()
-                        val itemsShown = lastVisibleItemPosition - firstVisibleItemPosition
-                        if (sectionListAdapter.itemCount > itemsShown) {
-                            separator_line_imprint_top.visibility = View.VISIBLE
-                            separator_line_imprint_bottom.visibility = View.VISIBLE
-                        }
-                    }
-                }
+            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
 
         fragment_drawer_sections_moment.apply {
@@ -245,10 +232,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             val isImprint = withContext(Dispatchers.IO) {
                 issueRepository.getImprint(issueStub.issueKey) != null
             }
-            visibility = if (isImprint) {
-                View.VISIBLE
+            if (isImprint) {
+                visibility = View.VISIBLE
+                separator_line_imprint_top.visibility = View.VISIBLE
+                separator_line_imprint_bottom.visibility = View.VISIBLE
             } else {
-                View.GONE
+                visibility = View.GONE
             }
         }
     }
