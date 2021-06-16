@@ -51,7 +51,6 @@
             style="@style/TextAppearance.Drawer.Sections"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_drawer_sections_item_margin_vertical"
             android:text="@string/imprint"
             android:visibility="gone" />
 

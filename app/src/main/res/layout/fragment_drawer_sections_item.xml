@@ -18,7 +18,6 @@
         style="@style/TextAppearance.Drawer.Sections"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/fragment_drawer_sections_item_margin_vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_line"
         tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />

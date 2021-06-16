@@ -64,3 +64,4 @@ const val RESOURCE_CACHE_TIMEOUT = 3600000L // 1 hour
 val simpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
+const val BUILD_FLAVOR_NONFREE_TAZ = "nonfreeTaz"

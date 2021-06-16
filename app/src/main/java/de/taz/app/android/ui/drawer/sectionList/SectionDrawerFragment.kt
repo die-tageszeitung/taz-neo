@@ -15,6 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import de.taz.app.android.BUILD_FLAVOR_NONFREE_TAZ
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.IssueStub
@@ -36,6 +38,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
+import kotlinx.android.synthetic.main.fragment_drawer_sections_item.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections_item.view.*
 import kotlinx.android.synthetic.main.view_cover.*
 import kotlinx.coroutines.*
@@ -223,8 +226,16 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
         log.debug("SectionDrawer sets new sections: $sections")
         sectionListAdapter.sectionList = sections
-        sectionListAdapter.typeface =
-            if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+
+            if (issueStub.isWeekend) {
+                sectionListAdapter.typeface = weekendTypeface
+            } else {
+                sectionListAdapter.typeface = defaultTypeface
+                if (BuildConfig.FLAVOR == BUILD_FLAVOR_NONFREE_TAZ) {
+                    // 6 is an experimental value because the custom nonfree font has weird padding
+                    sectionListAdapter.transY = 6f
+                }
+            }
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
         fragment_drawer_sections_imprint.apply {
