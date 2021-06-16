@@ -171,6 +171,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     if (hideAgainFlag) {
                         pdfPagerViewModel.hideDrawerLogo.postValue(true)
                     }
+                    // DAS GEHT KURZ (bis bild geladen ist)
                     drawer_logo.outlineProvider = ViewOutlineProvider.BOUNDS
                     drawer_logo.elevation = 5f
                 }
@@ -276,9 +277,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo.layoutParams.width = logicalWidth.toInt()
                 drawer_logo.layoutParams.height = logicalHeight.toInt()
                 drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
+                // DAS GEHT NICHT :(
                 drawer_logo.outlineProvider = ViewOutlineProvider.BOUNDS
                 drawer_logo.elevation = 5f
-                pdf_drawer_layout.invalidate()
                 pdf_drawer_layout.requestLayout()
             }
             // Update the clickable bounding box:
