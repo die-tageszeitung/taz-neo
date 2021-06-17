@@ -13,13 +13,22 @@
         android:background="@color/superLightGrey"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/fragment_drawer_section_title"
-        style="@style/TextAppearance.Drawer.Sections"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator_line"
-        tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+        android:minHeight="@dimen/fragment_drawer_sections_item_height"
+        app:layout_constraintStart_toStartOf="parent"
+        android:clipChildren="false"
+        app:layout_constraintTop_toBottomOf="@id/separator_line">
 
+        <de.taz.app.android.util.NoPaddingTextView
+            android:id="@+id/fragment_drawer_section_title"
+            style="@style/TextAppearance.Drawer.Sections"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
