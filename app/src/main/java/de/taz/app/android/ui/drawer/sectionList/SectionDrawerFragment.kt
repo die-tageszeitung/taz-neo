@@ -241,6 +241,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 separator_line_imprint_bottom.visibility = View.VISIBLE
             } else {
                 visibility = View.GONE
+                separator_line_imprint_top.visibility = View.GONE
+                separator_line_imprint_bottom.visibility = View.GONE
             }
         }
     }
