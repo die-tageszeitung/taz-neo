@@ -114,7 +114,6 @@
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_section_title_translation_y">0dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">40dp</dimen>
