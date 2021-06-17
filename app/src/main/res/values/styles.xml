@@ -80,6 +80,7 @@
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:gravity">center</item>
         <item name="android:minHeight">@dimen/fragment_drawer_sections_item_height</item>
+        <item name="android:translationY">@dimen/fragment_drawer_section_title_translation_y</item>
         <item name="android:maxLines">2</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>

@@ -28,8 +28,6 @@ class SectionListAdapter(
             notifyDataSetChanged()
         }
 
-    var transY = 0f
-
     var activePosition = RecyclerView.NO_POSITION
         set(value) {
             val oldValue = field
@@ -63,7 +61,6 @@ class SectionListAdapter(
                 holder.sectionTitleItem.fragment_drawer_section_title.apply {
                     typeface = this@SectionListAdapter.typeface
                     text = sectionStub.title
-                    translationY = this@SectionListAdapter.transY
                     setOnClickListener {
                         onSectionClickerListener(sectionStub)
                     }
