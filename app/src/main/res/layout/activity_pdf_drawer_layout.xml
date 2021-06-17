@@ -37,19 +37,29 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <ImageView
-                android:id="@+id/drawer_logo"
-                android:layout_width="@dimen/drawer_logo_default_width"
-                android:layout_height="@dimen/drawer_logo_default_height"
-                android:adjustViewBounds="true"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_open"
-                android:focusable="true"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/drawer_logo_wrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardElevation="10dp"
+                app:cardCornerRadius="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardUseCompatPadding="false"
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
                 app:layout_constraintLeft_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
 
+                <ImageView
+                    android:id="@+id/drawer_logo"
+                    android:layout_width="@dimen/drawer_logo_default_width"
+                    android:layout_height="@dimen/drawer_logo_default_height"
+                    android:adjustViewBounds="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/navigation_drawer_open"
+                    android:focusable="true"
+                    />
+            </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.core.widget.NestedScrollView
