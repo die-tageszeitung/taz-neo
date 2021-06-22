@@ -29,8 +29,8 @@ import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
 const val LOGO_PEAK = 8
-const val HIDE_LOGO_DELAY_MS = 3000L
-const val LOGO_ANIMATION_DURATION_MS = 1000L
+const val HIDE_LOGO_DELAY_MS = 1000L
+const val LOGO_ANIMATION_DURATION_MS = 500L
 
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
 
