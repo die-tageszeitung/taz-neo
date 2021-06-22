@@ -92,7 +92,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
                         // translation needed when drawer is closed then:
                         val offsetOnClosedDrawer =
                             (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                        drawer_logo.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
+                        drawer_logo_wrapper.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
                     }
                 }
             }

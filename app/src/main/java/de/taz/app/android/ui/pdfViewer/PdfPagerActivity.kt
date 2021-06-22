@@ -3,7 +3,6 @@ package de.taz.app.android.ui.pdfViewer
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -25,7 +24,6 @@ import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
