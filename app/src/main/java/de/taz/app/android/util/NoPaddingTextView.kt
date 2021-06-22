@@ -6,39 +6,38 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
-import de.taz.app.android.R
 
 class NoPaddingTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.editTextStyle
+    defStyleAttr: Int = android.R.attr.textViewStyle
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
     private val mPaint: Paint by lazy { paint }
-    private val mBounds = Rect()
+    private val rect = Rect()
 
     override fun onDraw(canvas: Canvas) {
         val text = calculateTextParams()
-        val left = mBounds.left
-        val bottom = mBounds.bottom
-        mBounds.offset(-mBounds.left, -mBounds.top)
+        val left: Int = rect.left
+        val bottom: Int = rect.bottom
+        rect.offset(-rect.left, -rect.top)
         mPaint.isAntiAlias = true
         mPaint.color = currentTextColor
-        canvas.drawText(text, -left.toFloat(), (mBounds.bottom - bottom).toFloat(), mPaint)
+        canvas.drawText(text, (-left).toFloat(), (rect.bottom - bottom).toFloat(), mPaint)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         calculateTextParams()
-        setMeasuredDimension(mBounds.width() + 1, -mBounds.top + 2)
+        setMeasuredDimension(rect.right - rect.left, -rect.top + rect.bottom)
     }
 
     private fun calculateTextParams(): String {
         text.toString().let {
             val textLength = text.length
             mPaint.textSize = textSize
-            mPaint.getTextBounds(it, 0, textLength, mBounds)
+            mPaint.getTextBounds(it, 0, textLength, rect)
             if (textLength == 0) {
-                mBounds.right = mBounds.left
+                rect.right = rect.left
             }
             return it
         }
