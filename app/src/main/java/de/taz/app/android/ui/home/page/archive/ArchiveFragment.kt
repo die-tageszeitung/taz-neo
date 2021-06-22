@@ -65,7 +65,7 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
             resources.getDimension(R.dimen.fragment_archive_item_width) + resources.getDimension(R.dimen.fragment_archive_navigation_end_padding_horizontal)
 
         val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
-        val minColumns = if (isLandscape) 3 else 2
+        val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
     }
