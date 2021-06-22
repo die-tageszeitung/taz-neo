@@ -41,7 +41,7 @@
                 android:id="@+id/drawer_logo_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardElevation="10dp"
+                app:cardElevation="5dp"
                 app:cardCornerRadius="0dp"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardUseCompatPadding="false"
