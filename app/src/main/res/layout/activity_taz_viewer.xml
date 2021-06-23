@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:openDrawer="start"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_viewer_fragment"
@@ -25,9 +25,9 @@
         android:background="@color/navigation_drawer_background"
         android:clipChildren="false"
         android:clipToPadding="false"
+        android:fitsSystemWindows="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:fitsSystemWindows="true">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/nav_bar"
@@ -49,19 +49,28 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <ImageView
-                android:id="@+id/drawer_logo"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/drawer_logo_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:contentDescription="@string/navigation_drawer_open"
-                android:elevation="10dp"
-                android:focusable="true"
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
-                android:adjustViewBounds="true"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="0dp"
+                app:cardElevation="5dp"
+                app:cardUseCompatPadding="false"
                 app:layout_constraintLeft_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/drawer_logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/navigation_drawer_open"
+                    android:focusable="true" />
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

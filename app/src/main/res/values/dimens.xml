@@ -27,6 +27,8 @@
     <dimen name="drawer_logo_translation_y">40dp</dimen>
     <dimen name="drawer_logo_default_width">287dp</dimen>
     <dimen name="drawer_logo_default_height">126dp</dimen>
+    <dimen name="drawer_logo_elevation">5dp</dimen>
+    <dimen name="drawer_logo_corner_radius">0dp</dimen>
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 

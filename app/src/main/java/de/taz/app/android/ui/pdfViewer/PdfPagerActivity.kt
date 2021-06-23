@@ -24,7 +24,6 @@ import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
@@ -101,11 +100,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                drawer_logo.animate().cancel()
-                drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
+                drawer_logo_wrapper.animate().cancel()
+                drawer_logo_wrapper.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.updateDrawerLogoBoundingBox(
-                    drawer_logo.width,
-                    drawer_logo.height
+                    drawer_logo_wrapper.width,
+                    drawer_logo_wrapper.height
                 )
                 (drawerView.parent as? View)?.let { parentView ->
                     val drawerWidth =
@@ -117,7 +116,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                         // translation needed when drawer is closed then:
                         val offsetOnClosedDrawer =
                             (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                        drawer_logo.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
+                        drawer_logo_wrapper.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
                     }
                 }
             }
@@ -145,7 +144,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private fun hideDrawerLogoWithDelay() {
         if (pdfPagerViewModel.hideDrawerLogo.value == true) {
             val transX = - drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
-            drawer_logo.animate()
+            drawer_logo_wrapper.animate()
                 .withEndAction{
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
                         (LOGO_PEAK * resources.displayMetrics.density).toInt(),
@@ -161,7 +160,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private fun showDrawerLogo(hideAgainFlag: Boolean = true) {
         if (pdfPagerViewModel.hideDrawerLogo.value == false) {
-            drawer_logo.animate()
+            drawer_logo_wrapper.animate()
                 .withEndAction {
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
                         drawerLogoWidth.toInt(),
@@ -272,8 +271,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
                 drawer_logo.layoutParams.width = logicalWidth.toInt()
                 drawer_logo.layoutParams.height = logicalHeight.toInt()
-                drawer_logo.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
+                drawer_logo_wrapper.layoutParams.width = logicalWidth.toInt()
+                drawer_logo_wrapper.layoutParams.height = logicalHeight.toInt()
+                drawer_logo_wrapper.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.requestLayout()
+                drawer_logo_wrapper.requestLayout()
             }
             // Update the clickable bounding box:
             pdf_drawer_layout.updateDrawerLogoBoundingBox(
