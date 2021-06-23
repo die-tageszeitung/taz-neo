@@ -78,14 +78,9 @@
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
         <item name="android:textColor">@color/textColorSection</item>
-        <item name="android:minHeight">@dimen/fragment_drawer_sections_item_height</item>
         <item name="android:maxLines">2</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
-    </style>
-
-    <style name="TextAppearance.Drawer.Sections.Imprint" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/drawer_sections_item</item>
     </style>
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">

@@ -24,8 +24,8 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
@@ -149,8 +149,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
         fragment_drawer_sections_list.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
             adapter = sectionListAdapter
+            layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
 
         fragment_drawer_sections_moment.apply {
@@ -222,8 +222,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         }
         log.debug("SectionDrawer sets new sections: $sections")
         sectionListAdapter.sectionList = sections
-        sectionListAdapter.typeface =
-            if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+
+            if (issueStub.isWeekend) {
+                sectionListAdapter.typeface = weekendTypeface
+            } else {
+                sectionListAdapter.typeface = defaultTypeface
+            }
         view?.scrollY = 0
         view?.animate()?.alpha(1f)?.duration = 500
         fragment_drawer_sections_imprint.apply {
@@ -231,10 +235,14 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             val isImprint = withContext(Dispatchers.IO) {
                 issueRepository.getImprint(issueStub.issueKey) != null
             }
-            visibility = if (isImprint) {
-                View.VISIBLE
+            if (isImprint) {
+                visibility = View.VISIBLE
+                separator_line_imprint_top.visibility = View.VISIBLE
+                separator_line_imprint_bottom.visibility = View.VISIBLE
             } else {
-                View.GONE
+                visibility = View.GONE
+                separator_line_imprint_top.visibility = View.GONE
+                separator_line_imprint_bottom.visibility = View.GONE
             }
         }
     }
@@ -348,5 +356,4 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         fragment_drawer_sections_list.adapter = null
         super.onDestroyView()
     }
-
 }

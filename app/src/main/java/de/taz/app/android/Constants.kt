@@ -63,4 +63,3 @@ const val RESOURCE_CACHE_TIMEOUT = 3600000L // 1 hour
 // SimpleDateFormat is not thread safe!!! We need to create to create a instance for every thread context
 val simpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
