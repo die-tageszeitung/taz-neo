@@ -24,8 +24,6 @@ import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
-import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo_wrapper
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
 
