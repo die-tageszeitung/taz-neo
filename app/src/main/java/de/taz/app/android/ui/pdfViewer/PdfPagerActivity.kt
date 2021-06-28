@@ -139,6 +139,13 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             if (toHide && articlePagerFragment == null) hideDrawerLogoWithDelay()
             else showDrawerLogo()
         })
+
+        drawer_logo_wrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            pdf_drawer_layout.updateDrawerLogoBoundingBox(
+                v.width,
+                v.height
+            )
+        }
     }
 
     private fun hideDrawerLogoWithDelay() {
@@ -148,7 +155,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 .withEndAction{
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
                         (LOGO_PEAK * resources.displayMetrics.density).toInt(),
-                        drawer_logo.height
+                        drawer_logo_wrapper.height
                     )
                 }
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
@@ -164,7 +171,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 .withEndAction {
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
                         drawerLogoWidth.toInt(),
-                        drawer_logo.height
+                        drawer_logo_wrapper.height
                     )
                     if (hideAgainFlag) {
                         pdfPagerViewModel.hideDrawerLogo.postValue(true)
@@ -280,7 +287,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             // Update the clickable bounding box:
             pdf_drawer_layout.updateDrawerLogoBoundingBox(
                 drawerLogoWidth.toInt(),
-                drawer_logo.height
+                drawer_logo_wrapper.height
             )
         }
         pdfPagerViewModel.hideDrawerLogo.postValue(true)
