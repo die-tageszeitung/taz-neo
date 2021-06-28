@@ -72,11 +72,6 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
             pdfReaderView.onBorderListener = { border ->
                 pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
             }
-            pdfReaderView.onScaleOutListener = { pinchOut ->
-                if (pinchOut) {
-                    pdfPagerViewModel.hideDrawerLogo.postValue(!pinchOut)
-                }
-            }
             pdfReaderView.onScaleListener = { scaling ->
                 pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
             }
