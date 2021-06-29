@@ -34,6 +34,7 @@ const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
 const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
 const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
 const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
+const val ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE = "ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE"
 
 const val SETTINGS_HELP_TRY_PDF_SHOWN = "try_pdf_shown"
 

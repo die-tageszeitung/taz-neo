@@ -7,6 +7,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -259,7 +260,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
-        if (this.tag == "IN_ARTICLE") {
+        if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
             pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
         super.onDestroyView()

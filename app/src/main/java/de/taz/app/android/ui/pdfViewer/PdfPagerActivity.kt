@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.bumptech.glide.Glide
+import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
@@ -68,7 +69,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             }
         }
 
-        if (supportFragmentManager.findFragmentByTag("IN_ARTICLE") == null) {
+        if (supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) == null) {
             supportFragmentManager.beginTransaction().add(
                 R.id.activity_pdf_fragment_placeholder,
                 PdfPagerFragment()
@@ -135,7 +136,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
         pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
             val articlePagerFragment =
-                supportFragmentManager.findFragmentByTag("IN_ARTICLE")
+                supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
             if (toHide && articlePagerFragment == null) hideDrawerLogoWithDelay()
             else showDrawerLogo()
         })
@@ -307,7 +308,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private fun popArticlePagerFragmentIfOpen() {
         val articlePagerFragment =
-            supportFragmentManager.findFragmentByTag("IN_ARTICLE")
+            supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
             supportFragmentManager.popBackStack()
         }

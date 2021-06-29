@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
+import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
@@ -104,7 +105,7 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
                                 .add(
                                     R.id.activity_pdf_fragment_placeholder,
                                     ArticlePagerFragment(),
-                                    "IN_ARTICLE"
+                                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
                                 )
                                 .addToBackStack(null)
                                 .commit()
