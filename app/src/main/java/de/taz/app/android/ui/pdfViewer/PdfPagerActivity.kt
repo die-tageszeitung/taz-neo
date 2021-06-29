@@ -6,6 +6,7 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -137,8 +138,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         pdfPagerViewModel.hideDrawerLogo.observe(this, { toHide ->
             val articlePagerFragment =
                 supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
-            if (toHide && articlePagerFragment == null) hideDrawerLogoWithDelay()
-            else showDrawerLogo()
+            if (toHide && articlePagerFragment == null && !drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                hideDrawerLogoWithDelay()
+            }
+            else {
+                showDrawerLogo()
+            }
         })
 
         drawer_logo_wrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
@@ -291,7 +296,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo_wrapper.height
             )
         }
-        pdfPagerViewModel.hideDrawerLogo.postValue(true)
+        log.debug("drawer open? ${drawerLayout.isDrawerOpen(GravityCompat.START)}")
+        if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            pdfPagerViewModel.hideDrawerLogo.postValue(true)
+        } else
+            pdfPagerViewModel.hideDrawerLogo.postValue(false)
     }
 
     private fun hideLoadingScreen() {
