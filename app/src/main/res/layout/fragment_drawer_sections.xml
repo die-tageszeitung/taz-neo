@@ -42,8 +42,8 @@
         <View
             android:id="@+id/separator_line_imprint_top"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/superLightGrey"
+            android:layout_height="@dimen/fragment_drawer_separator_line_height"
+            android:background="@color/textColor"
             android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,8 +67,8 @@
         <View
             android:id="@+id/separator_line_imprint_bottom"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/superLightGrey"
+            android:layout_height="@dimen/fragment_drawer_separator_line_height"
+            android:background="@color/textColor"
             android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
