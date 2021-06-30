@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -19,6 +21,7 @@ import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
@@ -33,6 +36,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
     private val log by Log
 
+    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
 
@@ -256,6 +260,9 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
+        if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
+            pdfPagerViewModel.hideDrawerLogo.postValue(true)
+        }
         super.onDestroyView()
     }
 }
