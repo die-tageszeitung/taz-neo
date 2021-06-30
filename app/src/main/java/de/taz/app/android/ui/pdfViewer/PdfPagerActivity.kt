@@ -296,7 +296,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo_wrapper.height
             )
         }
-        log.debug("drawer open? ${drawerLayout.isDrawerOpen(GravityCompat.START)}")
         if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
             pdfPagerViewModel.hideDrawerLogo.postValue(true)
         } else
