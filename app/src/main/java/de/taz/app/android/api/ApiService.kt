@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,14 +23,12 @@ import java.util.*
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
-    private val storageService: StorageService,
     private val authHelper: AuthHelper,
     private val firebaseHelper: FirebaseHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
-        storageService = StorageService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
     )
