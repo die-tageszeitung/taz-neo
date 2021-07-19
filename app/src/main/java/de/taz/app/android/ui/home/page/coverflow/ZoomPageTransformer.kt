@@ -9,9 +9,8 @@ import kotlin.math.max
 object ZoomPageTransformer {
     private const val MIN_SCALE = 0.85f
     private const val SCALE_DIFF = 1 - MIN_SCALE
-    private const val GAP_MODIFIER = 10f
 
-    private fun translationXAtScale(view: View, position: Float, scaleFactor: Float): Float =
+    private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = view.findViewById<View>(R.id.moment_container)
             val border = (width - child.width).toFloat()
@@ -24,12 +23,12 @@ object ZoomPageTransformer {
         scaleX = MIN_SCALE
         scaleY = MIN_SCALE
 
-        translationX = translationXAtScale(view, position, MIN_SCALE)
+        translationX = translationXAtScale(view, position)
 
         when {
             position <= 1 && position >= -1 -> {
                 val scaleFactor = max(MIN_SCALE, 1 - (SCALE_DIFF * abs(position)))
-                translationX = translationXAtScale(view, position, scaleFactor)
+                translationX = translationXAtScale(view, position)
                 scaleX = scaleFactor
                 scaleY = scaleFactor
             }
