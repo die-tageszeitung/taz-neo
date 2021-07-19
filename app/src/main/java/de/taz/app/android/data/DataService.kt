@@ -589,7 +589,7 @@ class DataService(private val applicationContext: Context) {
         }
 
     /**
-     * Gets or creates a LiveData observing the download progress of [downloadableStub].
+     * Gets or creates a LiveData observing the download progress of [observableDownload].
      * ATTENTION: As any call to [ensureDownloaded] and [ensureDeletedFiles] will attempt to cleanup non-observed LiveDatas
      * you only should access it via [withDownloadLiveData] that manages locking and reference count
      */
