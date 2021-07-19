@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview
 
 import android.view.MotionEvent
-import kotlinx.coroutines.Job
 
 
 interface AppWebViewCallback {
