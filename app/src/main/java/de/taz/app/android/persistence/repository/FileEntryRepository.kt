@@ -48,10 +48,6 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getDownloaded()
     }
 
-    fun getByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
-        return appDatabase.fileEntryDao().getByStorageLocation(storageLocation)
-    }
-
     fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
         return appDatabase.fileEntryDao().getDownloadedByStorageLocation(storageLocation)
     }
