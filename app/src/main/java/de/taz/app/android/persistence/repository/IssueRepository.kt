@@ -293,26 +293,6 @@ class IssueRepository private constructor(val applicationContext: Context) :
         }
     }
 
-    private fun issueWithPagesToIssue(issueWithPages: IssueWithPages): Issue {
-        return Issue(
-            issueWithPages.feedName,
-            issueWithPages.date,
-            issueWithPages.moment,
-            issueWithPages.key,
-            issueWithPages.baseUrl,
-            issueWithPages.status,
-            issueWithPages.minResourceVersion,
-            issueWithPages.imprint,
-            issueWithPages.isWeekend,
-            issueWithPages.sectionList,
-            issueWithPages.pageList,
-            issueWithPages.moTime,
-            issueWithPages.dateDownload,
-            issueWithPages.dateDownloadWithPages,
-            issueWithPages.lastDisplayableName
-        )
-    }
-
     private fun issueStubToIssue(issueStub: IssueStub): Issue {
         val sectionNames = appDatabase.issueSectionJoinDao().getSectionNamesForIssue(issueStub)
         val sections =
