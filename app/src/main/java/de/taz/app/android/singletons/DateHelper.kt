@@ -3,7 +3,6 @@ package de.taz.app.android.singletons
 import de.taz.app.android.annotation.Mockable
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 enum class DateFormat {
@@ -120,14 +119,6 @@ object DateHelper {
         return SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY).parse(date)?.let { issueDate ->
             return dateToLowerCaseString(issueDate)
         }
-    }
-
-    fun dayDelta(earlierDate: String, laterDate: String): Long {
-        return TimeUnit.MILLISECONDS.toDays(
-            stringToDate(laterDate)!!.time - stringToDate(
-                earlierDate
-            )!!.time
-        )
     }
 
     fun sameDays(date: Date, other: Date): Boolean {
