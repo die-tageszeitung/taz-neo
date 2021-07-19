@@ -314,7 +314,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get an [Issue] by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - the date of the issue
-     * @param limit - how many issues will be returned
      * @return [List]<[Issue]> of the issues of a feed at given date
      */
     @Throws(ConnectivityException::class)
