@@ -24,7 +24,6 @@ import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.settings.support.ErrorReportActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
