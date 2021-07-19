@@ -50,7 +50,7 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
         width: Int,
         height: Int,
         options: Options
-    ): ModelLoader.LoadData<Bitmap>? {
+    ): ModelLoader.LoadData<Bitmap> {
         return ModelLoader.LoadData(ObjectKey(model), PDFThumbnailCreator(model, width))
     }
 
