@@ -16,7 +16,6 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -27,7 +26,6 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class ArticlePagerFragment : BaseMainFragment(
