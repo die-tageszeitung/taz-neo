@@ -266,10 +266,12 @@ android {
 
 dependencies {
     def coroutines_version = '1.5.1'
-    def ktor_version = '1.4.2'
+    def glide_version = '4.12.0'
+    def ktor_version = '1.6.1'
     def lifecycle_version = '2.3.1'
-    def mockito_version = '3.6.12'
+    def mockito_version = '3.11.2'
     def moshi_version = '1.12.0'
+    def powermock_version = '2.0.9'
     def room_version = '2.3.0'
     def work_version = '2.5.0'
 
@@ -277,7 +279,7 @@ dependencies {
     // this needs to be jdk 7 as otherwise it will not work on Android 5.1
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.2'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
@@ -289,8 +291,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.factor:bouncy:1.8'
 
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
@@ -320,7 +322,7 @@ dependencies {
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
     androidTestImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    implementation 'org.conscrypt:conscrypt-android:2.5.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
@@ -331,7 +333,7 @@ dependencies {
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.1'
 
     // stetho debug bridge
-    implementation 'com.facebook.stetho:stetho:1.5.1'
+    implementation 'com.facebook.stetho:stetho:1.6.0'
 
     // pdf viewer
     implementation project(':mupdf-lib')
@@ -341,10 +343,10 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     // animations
-    implementation 'com.airbnb.android:lottie:3.7.0'
+    implementation 'com.airbnb.android:lottie:3.7.2'
 
     // iban validation
-    implementation 'nl.garvelink.oss:iban:1.8.0'
+    implementation 'nl.garvelink.oss:iban:1.9.0'
 
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
@@ -359,9 +361,9 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0'
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0'
-    testImplementation 'org.powermock:powermock-core:2.0.7'
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.7'
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
+    testImplementation "org.powermock:powermock-core:$powermock_version"
+    testImplementation "org.powermock:powermock-module-junit4:$powermock_version"
+    testImplementation "org.powermock:powermock-api-mockito2:$powermock_version"
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.4.0'
@@ -392,7 +394,7 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
     // leak canary
-    leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+    leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
     // google Flavor
     nonfreeImplementation 'com.google.firebase:firebase-messaging:22.0.0'
