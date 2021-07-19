@@ -69,10 +69,6 @@ class IssueDownloadWorkManagerWorkerTest {
     @Mock
     private lateinit var mockDownloadService: DownloadService
 
-    private val mockHttpClient: HttpClient = HttpClient(MockEngine) {
-        engine { addHandler { respond("") } }
-    }
-
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
