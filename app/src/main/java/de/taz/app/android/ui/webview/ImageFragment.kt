@@ -7,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_JQUERY_FILE
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.getColorFromAttr
