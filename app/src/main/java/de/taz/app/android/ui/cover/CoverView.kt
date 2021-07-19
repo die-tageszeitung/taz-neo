@@ -13,7 +13,6 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.view_cover.view.*
 
 
@@ -27,7 +26,6 @@ abstract class CoverView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr) {
-    private val log by Log
 
     var shouldNotShowDownloadIcon: Boolean = false
     private var momentElevation: Float? = null
