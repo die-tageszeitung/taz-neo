@@ -57,9 +57,9 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 ).getString(PREFERENCES_AUTH_EMAIL, "")
             )
 
-            fragment_error_report_upload.setOnClickListener(View.OnClickListener {
+            fragment_error_report_upload.setOnClickListener {
                 getImageFromGallery.launch("image/*")
-            })
+            }
 
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
