@@ -46,7 +46,7 @@ class IssueDownloadWorkManagerWorkerTest {
         Cycle.daily,
         0.67f,
         publicationDates = listOf(
-            simpleDateFormat.parse(OLD_DATE)
+            requireNotNull(simpleDateFormat.parse(OLD_DATE))
         ),
         OLD_DATE,
         OLD_DATE
@@ -56,8 +56,8 @@ class IssueDownloadWorkManagerWorkerTest {
         Cycle.daily,
         0.67f,
         publicationDates = listOf(
-            simpleDateFormat.parse(NEW_DATE),
-            simpleDateFormat.parse(OLD_DATE)
+            requireNotNull(simpleDateFormat.parse(NEW_DATE)),
+            requireNotNull(simpleDateFormat.parse(OLD_DATE))
         ),
         OLD_DATE,
         NEW_DATE
