@@ -67,7 +67,7 @@ object DateHelper {
         }
     }
 
-    fun dateToLongLocalizedString(date: Date): String? {
+    fun dateToLongLocalizedString(date: Date): String {
         return SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
             date
         ).toLowerCase(Locale.getDefault())
