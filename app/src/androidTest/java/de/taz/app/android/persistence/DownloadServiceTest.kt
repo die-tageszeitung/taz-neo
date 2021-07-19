@@ -22,11 +22,7 @@ class DownloadServiceTest {
 
 
     private val mockHttpClient: HttpClient = HttpClient(MockEngine) {
-        engine {
-            addHandler { _ ->
-                respond("")
-            }
-        }
+        engine { addHandler { respond("") } }
     }
 
     @Before
