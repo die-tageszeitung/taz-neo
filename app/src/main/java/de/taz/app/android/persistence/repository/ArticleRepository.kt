@@ -131,11 +131,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
-    fun getAuthorImageFileNamesForArticle(articleFileName: String): List<String> {
-        return appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleFileName)
-            .mapNotNull { it.authorFileName }
-    }
-
     fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
