@@ -202,7 +202,6 @@ sentry.properties
 
 # files that should not be in the repo
 bundle.tar
-.sentryclirc
 tazkeystore.jks
 play-publish.json
 
