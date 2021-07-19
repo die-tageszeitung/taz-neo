@@ -93,7 +93,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
             webChromeClient = AppWebChromeClient {
                 view.findViewById<View>(R.id.loading_screen).visibility = View.GONE
             }
-            settings?.apply {
+            settings.apply {
                 allowFileAccess = true
                 builtInZoomControls = true
                 displayZoomControls = false
