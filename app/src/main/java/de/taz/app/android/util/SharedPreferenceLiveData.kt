@@ -125,49 +125,6 @@ class SharedPreferenceBooleanLiveData(
     }
 }
 
-class SharedPreferenceFloatLiveData(sharedPrefs: SharedPreferences, key: String, defValue: Float) :
-    SharedPreferenceLiveData<Float>(sharedPrefs, key, defValue) {
-
-    override fun getValueFromPreferences(key: String, defValue: Float): Float =
-        sharedPreferences.getFloat(key, defValue)
-
-    override fun saveValueToPreferences(value: Float) {
-        with (sharedPreferences.edit()) {
-            putFloat(key, value)
-            commit()
-        }
-    }
-}
-
-class SharedPreferenceLongLiveData(sharedPrefs: SharedPreferences, key: String, defValue: Long) :
-    SharedPreferenceLiveData<Long>(sharedPrefs, key, defValue) {
-
-    override fun getValueFromPreferences(key: String, defValue: Long): Long =
-        sharedPreferences.getLong(key, defValue)
-
-    override fun saveValueToPreferences(value: Long) {
-        with (sharedPreferences.edit()) {
-            putLong(key, value)
-            commit()
-        }
-    }
-}
-
-class SharedPreferenceStringSetLiveData(sharedPrefs: SharedPreferences, key: String, defValue: Set<String>) :
-    SharedPreferenceLiveData<Set<String>>(sharedPrefs, key, defValue) {
-
-    override fun getValueFromPreferences(key: String, defValue: Set<String>): Set<String> {
-        return sharedPreferences.getStringSet(key, defValue) ?: emptySet()
-    }
-
-    override fun saveValueToPreferences(value: Set<String>) {
-        with (sharedPreferences.edit()) {
-            putStringSet(key, value)
-            commit()
-        }
-    }
-}
-
 class SharedPreferencesAuthStatusLiveData(
     sharedPrefs: SharedPreferences, key: String, defValue: AuthStatus
 ): SharedPreferenceLiveData<AuthStatus>(sharedPrefs, key, defValue) {
