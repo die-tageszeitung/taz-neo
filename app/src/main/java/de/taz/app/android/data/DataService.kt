@@ -9,7 +9,6 @@ import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*

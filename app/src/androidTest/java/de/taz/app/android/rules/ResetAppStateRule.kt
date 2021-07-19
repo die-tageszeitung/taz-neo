@@ -1,16 +1,11 @@
 package de.taz.app.android.rules
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.internal.util.Checks
-import androidx.test.platform.app.InstrumentationRegistry
-import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.singletons.SETTINGS_DATA_POLICY_ACCEPTED
 import org.junit.rules.ExternalResource
-import java.io.File
 
 class FreshAppStartRule<A : Activity?> : ExternalResource {
     /**

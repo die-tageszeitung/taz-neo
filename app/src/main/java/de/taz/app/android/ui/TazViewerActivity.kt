@@ -21,12 +21,10 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.min
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 

@@ -6,14 +6,12 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 object NightModeHelper {
 

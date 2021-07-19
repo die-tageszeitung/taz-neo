@@ -3,9 +3,7 @@ package de.taz.app.android.ui.drawer
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import androidx.core.view.children
 import androidx.fragment.app.FragmentContainerView
-import com.google.android.material.internal.NavigationMenuView
 import com.google.android.material.navigation.NavigationView
 import de.taz.app.android.R
 

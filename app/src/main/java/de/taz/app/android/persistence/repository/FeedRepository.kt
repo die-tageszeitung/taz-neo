@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.util.SingletonHolder
-import java.util.*
 
 @Mockable
 class FeedRepository private constructor(applicationContext: Context) :

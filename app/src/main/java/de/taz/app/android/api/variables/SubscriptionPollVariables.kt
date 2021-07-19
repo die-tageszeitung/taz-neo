@@ -4,7 +4,6 @@ import com.squareup.moshi.JsonClass
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.JsonHelper
 
 @JsonClass(generateAdapter = true)

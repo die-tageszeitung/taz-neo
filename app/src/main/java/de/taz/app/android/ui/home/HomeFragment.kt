@@ -7,7 +7,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment

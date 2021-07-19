@@ -1,7 +1,6 @@
 package de.taz.app.android.api.interfaces
 
 import de.taz.app.android.api.models.DownloadStatus
-import java.util.*
 
 interface DownloadOperations {
 

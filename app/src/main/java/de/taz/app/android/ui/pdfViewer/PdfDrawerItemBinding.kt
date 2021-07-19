@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.util.TypedValue
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.Target
 import de.taz.app.android.R

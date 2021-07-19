@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.api.models.DownloadStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.util.SingletonHolder
 import java.util.*

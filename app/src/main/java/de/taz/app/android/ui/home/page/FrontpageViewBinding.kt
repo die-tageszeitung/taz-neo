@@ -9,7 +9,6 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.cover.FrontpageView
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
 

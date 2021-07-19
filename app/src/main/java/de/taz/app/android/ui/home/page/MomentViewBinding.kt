@@ -7,7 +7,6 @@ import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.cover.MomentView

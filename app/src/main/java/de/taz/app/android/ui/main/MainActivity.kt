@@ -3,8 +3,6 @@ package de.taz.app.android.ui.main
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.viewModels
