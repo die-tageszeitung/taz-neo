@@ -5,16 +5,13 @@ import android.os.Environment
 import de.taz.app.android.PUBLIC_FOLDER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
-import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.GLOBAL_FOLDER
-import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.*
@@ -44,7 +41,7 @@ class StorageService private constructor(private val applicationContext: Context
                 StorageType.public -> PUBLIC_FOLDER
                 StorageType.issue -> {
                     if (issueKey == null) {
-                        throw IllegalStateException("Detemining the file path of an issue file requires issueKey to be non-null")
+                        throw IllegalStateException("Determining the file path of an issue file requires issueKey to be non-null")
                     }
                     "${issueKey.feedName}/${issueKey.date}/${issueKey.status}"
                 }
@@ -54,7 +51,6 @@ class StorageService private constructor(private val applicationContext: Context
     }
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-    private val imageRepository = ImageRepository.getInstance(applicationContext)
 
     fun getInternalFilesDir(): File {
         return applicationContext.filesDir
@@ -133,14 +129,6 @@ class StorageService private constructor(private val applicationContext: Context
             ?: FileEntry(fileEntryDto, determineFilePath(fileEntryDto, issueKey))
         fileEntryRepository.saveOrReplace(fileEntry)
         return fileEntry
-    }
-
-    fun createOrUpdateImage(imageDto: ImageDto, issueKey: IssueKey?): Image {
-        val existing = imageRepository.get(imageDto.name)
-        val image = existing?.copy(path = determineFilePath(existing, issueKey))
-            ?: Image(imageDto, determineFilePath(imageDto, issueKey))
-        imageRepository.save(image)
-        return image
     }
 
     fun getFile(fileEntry: FileEntryOperations): File? {
