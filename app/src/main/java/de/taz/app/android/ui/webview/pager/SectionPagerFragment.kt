@@ -161,10 +161,4 @@ class SectionPagerFragment : BaseMainFragment(
             null
         }
     }
-
-    private fun getCurrentSectionStub(): SectionStub? {
-        return getCurrentPagerPosition()?.let {
-            issueContentViewModel.sectionListLiveData.value?.get(it)
-        }
-    }
 }
