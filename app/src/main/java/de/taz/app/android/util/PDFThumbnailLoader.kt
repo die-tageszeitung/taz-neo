@@ -101,6 +101,6 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
     }
 
     override fun handles(model: String): Boolean {
-        return model.endsWith(".pdf");
+        return model.endsWith(".pdf")
     }
 }
