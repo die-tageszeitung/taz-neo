@@ -41,7 +41,7 @@ class MigrationTest {
         context = ApplicationProvider.getApplicationContext()
     }
 
-    private fun getMigratedRoomDatabase(): AppDatabase? {
+    private fun getMigratedRoomDatabase(): AppDatabase {
         val database = Room.databaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java, testDb
