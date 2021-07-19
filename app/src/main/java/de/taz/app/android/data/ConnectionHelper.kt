@@ -3,7 +3,6 @@ package de.taz.app.android.data
 import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
