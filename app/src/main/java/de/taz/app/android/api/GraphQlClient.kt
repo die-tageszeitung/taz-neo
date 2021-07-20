@@ -45,7 +45,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
 
-    private val maxSimulatanousRequestSemaphore = Semaphore(MAX_SIMULTANIOUS_QUERIES)
+    private val maxSimultaneousRequestSemaphore = Semaphore(MAX_SIMULTANIOUS_QUERIES)
 
     /**
      * function to get DTO from query
@@ -66,7 +66,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val queryBody = query.toJson()
 
             val wrapper = try {
-                val jsonText = maxSimulatanousRequestSemaphore.withPermit {
+                val jsonText = maxSimultaneousRequestSemaphore.withPermit {
                     httpClient.post<String>(url) {
                         header("Accept", "application/json, */*")
                         header("Content-Type", "application/json")
