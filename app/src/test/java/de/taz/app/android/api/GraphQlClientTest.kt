@@ -40,7 +40,7 @@ class GraphQlClientTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         graphQlClient = GraphQlClient(
             mockClient,
             GRAPHQL_ENDPOINT,

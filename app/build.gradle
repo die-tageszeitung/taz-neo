@@ -271,7 +271,8 @@ dependencies {
     def glide_version = '4.12.0'
     def ktor_version = '1.6.1'
     def lifecycle_version = '2.3.1'
-    def mockito_version = '3.11.2'
+    // mockito 3.11.2 reintroduces a bug: https://github.com/mockito/mockito/issues/2316
+    def mockito_version = '3.11.1'
     def moshi_version = '1.12.0'
     def powermock_version = '2.0.9'
     def room_version = '2.3.0'
@@ -357,8 +358,7 @@ dependencies {
     androidTestImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
-    testImplementation "org.mockito:mockito-core:$mockito_version"
-    androidTestImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"
 
