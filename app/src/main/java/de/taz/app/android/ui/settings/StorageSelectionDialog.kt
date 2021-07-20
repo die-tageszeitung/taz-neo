@@ -2,9 +2,7 @@ package de.taz.app.android.ui.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.content.SharedPreferences
-import android.database.DataSetObserver
 import android.os.Environment
 import android.os.StatFs
 import android.view.View

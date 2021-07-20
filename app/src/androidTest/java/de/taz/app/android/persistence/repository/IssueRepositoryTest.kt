@@ -5,9 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.IssueTestUtil
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import java.io.IOException
 import org.junit.After

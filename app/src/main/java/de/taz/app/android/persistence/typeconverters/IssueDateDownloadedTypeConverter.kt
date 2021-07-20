@@ -8,9 +8,9 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+private const val FORMAT_STRING = "yyyy-MM-dd HH:mm:ss"
 
 class IssueDateDownloadTypeConverter {
-    private val FORMAT_STRING = "yyyy-MM-dd HH:mm:ss"
     private val log by Log
 
     @TypeConverter

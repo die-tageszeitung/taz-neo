@@ -105,8 +105,6 @@ class DownloadService constructor(
     /**
      * start download for cacheableDownload
      * @param downloadableCollection - [DownloadableCollection] to download
-     * @param baseUrl - [String] providing the baseUrl - only necessary for downloads
-     *                  where the baseUrl can not be automatically calculated (mostly [FileEntry])
      */
     suspend fun ensureCollectionDownloaded(
         downloadableCollection: DownloadableCollection,

@@ -11,7 +11,6 @@ import androidx.lifecycle.*
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
-import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -21,7 +20,6 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers

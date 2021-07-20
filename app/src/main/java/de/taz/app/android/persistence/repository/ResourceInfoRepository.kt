@@ -59,11 +59,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
     }
 
-
-    fun getNewestStub(): ResourceInfoStub? {
-        return appDatabase.resourceInfoDao().getNewest()
-    }
-
     fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
             runBlocking(Dispatchers.IO) {
@@ -83,16 +78,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
             resourceList,
             resourceInfoStub.dateDownload
         )
-    }
-
-    fun getNewestDownloaded(): ResourceInfo? {
-        return appDatabase.resourceInfoDao().getNewestDownloaded()?.let {
-            resourceInfoStubToResourceInfo(it)
-        }
-    }
-
-    fun getNewestDownloadedLiveData(): LiveData<ResourceInfoStub?> {
-        return appDatabase.resourceInfoDao().getNewestDownloadedLiveData()
     }
 
     fun delete(resourceInfo: ResourceInfo) {

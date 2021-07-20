@@ -5,7 +5,6 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.singletons.JsonHelper
-import de.taz.app.android.singletons.StorageService
 import java.io.IOException
 import java.io.BufferedReader
 import java.io.InputStreamReader

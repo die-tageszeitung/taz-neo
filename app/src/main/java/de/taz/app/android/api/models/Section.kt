@@ -8,7 +8,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.StorageService
-import java.io.File
 import java.util.*
 
 data class Section(

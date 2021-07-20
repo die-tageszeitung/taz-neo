@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,14 +23,12 @@ import java.util.*
 @Mockable
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
-    private val storageService: StorageService,
     private val authHelper: AuthHelper,
     private val firebaseHelper: FirebaseHelper
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
-        storageService = StorageService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
     )
@@ -210,25 +207,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return [List]<[Issue]>
      */
     @Throws(ConnectivityException::class)
-    suspend fun getLastIssuesByFeed(feedName: String, limit: Int = 10): List<Issue> {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.LastIssues,
-                IssueVariables(limit = limit)
-            ).data?.product?.feedList?.filter {
-                feedName == it.name
-            }?.map { feed ->
-                (feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) }
-            }?.flatten() ?: emptyList()
-        }
-    }
-
-    /**
-     * function to get the last [Issue]s
-     * @param limit - number of issues to get
-     * @return [List]<[Issue]>
-     */
-    @Throws(ConnectivityException::class)
     suspend fun getLastIssues(limit: Int = 10): List<Issue> {
         val issues = mutableListOf<Issue>()
         transformToConnectivityException {
@@ -314,7 +292,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get an [Issue] by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - the date of the issue
-     * @param limit - how many issues will be returned
      * @return [List]<[Issue]> of the issues of a feed at given date
      */
     @Throws(ConnectivityException::class)

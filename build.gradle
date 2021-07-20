@@ -3,7 +3,13 @@
 buildscript {
     ext.kotlin_version = '1.4.21'
     repositories {
-        jcenter()
+        //noinspection JcenterRepositoryObsolete
+        jcenter() {
+            content {
+                includeModule("com.factor", "bouncy")
+            }
+        }
+        mavenCentral()
         google()
     }
 
@@ -23,8 +29,14 @@ buildscript {
 
 allprojects {
     repositories {
+        //noinspection JcenterRepositoryObsolete
+        jcenter() {
+            content {
+                includeModule("com.factor", "bouncy")
+            }
+        }
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 }

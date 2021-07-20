@@ -50,7 +50,7 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
         width: Int,
         height: Int,
         options: Options
-    ): ModelLoader.LoadData<Bitmap>? {
+    ): ModelLoader.LoadData<Bitmap> {
         return ModelLoader.LoadData(ObjectKey(model), PDFThumbnailCreator(model, width))
     }
 
@@ -101,6 +101,6 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
     }
 
     override fun handles(model: String): Boolean {
-        return model.endsWith(".pdf");
+        return model.endsWith(".pdf")
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
-import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
 
 

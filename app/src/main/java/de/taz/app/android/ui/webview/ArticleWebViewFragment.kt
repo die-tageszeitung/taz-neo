@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import android.content.Context
 import android.os.Bundle
 import android.widget.TextView
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +14,6 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
 

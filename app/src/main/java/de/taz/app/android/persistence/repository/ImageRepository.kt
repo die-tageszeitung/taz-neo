@@ -40,16 +40,6 @@ class ImageRepository private constructor(
         return appDatabase.imageDao().getByNames(imageNames)
     }
 
-    @Throws(NotFoundException::class)
-    fun getOrThrow(imageName: String): Image {
-        return get(imageName) ?: throw NotFoundException()
-    }
-
-    @Throws(NotFoundException::class)
-    fun getOrThrow(imageNames: List<String>): List<Image> {
-        return imageNames.map { getOrThrow(it) }
-    }
-
     fun delete(image: Image) {
         FileEntryRepository.getInstance().apply {
             get(image.name)?.let { delete(it) }

@@ -9,7 +9,6 @@ import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.*
@@ -589,7 +588,7 @@ class DataService(private val applicationContext: Context) {
         }
 
     /**
-     * Gets or creates a LiveData observing the download progress of [downloadableStub].
+     * Gets or creates a LiveData observing the download progress of [observableDownload].
      * ATTENTION: As any call to [ensureDownloaded] and [ensureDeletedFiles] will attempt to cleanup non-observed LiveDatas
      * you only should access it via [withDownloadLiveData] that manages locking and reference count
      */

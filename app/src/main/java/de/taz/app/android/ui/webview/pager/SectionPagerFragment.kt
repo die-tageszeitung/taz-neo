@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
@@ -19,7 +17,6 @@ import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -162,12 +159,6 @@ class SectionPagerFragment : BaseMainFragment(
             position
         } else {
             null
-        }
-    }
-
-    private fun getCurrentSectionStub(): SectionStub? {
-        return getCurrentPagerPosition()?.let {
-            issueContentViewModel.sectionListLiveData.value?.get(it)
         }
     }
 }

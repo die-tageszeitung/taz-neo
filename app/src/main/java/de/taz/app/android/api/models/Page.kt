@@ -7,7 +7,6 @@ import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
 import java.util.*
 
 

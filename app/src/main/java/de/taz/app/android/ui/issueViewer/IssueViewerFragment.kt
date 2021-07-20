@@ -95,7 +95,7 @@ class IssueViewerFragment :
                             IssuePublication(issueWithDisplayable.issueKey),
                             retryOnFailure = true
                         )
-                        issue?.let { dataService.ensureDownloaded(it) }
+                        dataService.ensureDownloaded(issue)
                         delay(1500)
                         withContext(Dispatchers.Main) {
                             sectionDrawerViewModel.drawerOpen.value = false

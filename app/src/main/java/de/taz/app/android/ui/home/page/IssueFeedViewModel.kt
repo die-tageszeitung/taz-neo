@@ -2,14 +2,11 @@ package de.taz.app.android.ui.home.page
 
 import android.app.Application
 import android.content.Context
-import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit

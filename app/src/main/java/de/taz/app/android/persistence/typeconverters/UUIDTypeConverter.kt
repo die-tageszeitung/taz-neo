@@ -6,7 +6,7 @@ import java.util.*
 class UUIDTypeConverter {
 
     @TypeConverter
-    fun toString(uuid: UUID?): String? {
+    fun toString(uuid: UUID?): String {
         return uuid?.toString() ?: ""
     }
 

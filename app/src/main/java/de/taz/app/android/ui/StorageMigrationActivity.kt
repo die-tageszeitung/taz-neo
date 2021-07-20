@@ -1,7 +1,6 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
-import android.database.sqlite.SQLiteQueryBuilder
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope

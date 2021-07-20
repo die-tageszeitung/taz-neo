@@ -90,17 +90,15 @@ class PageRepository private constructor(applicationContext: Context) :
     private fun pageStubToPage(pageStub: PageStub): Page {
         val file = fileEntryRepository.getOrThrow(pageStub.pdfFileName)
 
-        return pageStub.let {
-            Page(
-                file,
-                pageStub.title,
-                pageStub.pagina,
-                pageStub.type,
-                pageStub.frameList,
-                pageStub.dateDownload,
-                pageStub.baseUrl
-            )
-        }
+        return Page(
+            file,
+            pageStub.title,
+            pageStub.pagina,
+            pageStub.type,
+            pageStub.frameList,
+            pageStub.dateDownload,
+            pageStub.baseUrl
+        )
     }
 
     fun delete(page: Page) {

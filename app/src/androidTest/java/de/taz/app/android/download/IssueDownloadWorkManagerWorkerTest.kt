@@ -15,8 +15,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.util.any
-import io.ktor.client.*
-import io.ktor.client.engine.mock.*
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert
@@ -46,7 +44,7 @@ class IssueDownloadWorkManagerWorkerTest {
         Cycle.daily,
         0.67f,
         publicationDates = listOf(
-            simpleDateFormat.parse(OLD_DATE)
+            requireNotNull(simpleDateFormat.parse(OLD_DATE))
         ),
         OLD_DATE,
         OLD_DATE
@@ -56,8 +54,8 @@ class IssueDownloadWorkManagerWorkerTest {
         Cycle.daily,
         0.67f,
         publicationDates = listOf(
-            simpleDateFormat.parse(NEW_DATE),
-            simpleDateFormat.parse(OLD_DATE)
+            requireNotNull(simpleDateFormat.parse(NEW_DATE)),
+            requireNotNull(simpleDateFormat.parse(OLD_DATE))
         ),
         OLD_DATE,
         NEW_DATE
@@ -68,14 +66,6 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Mock
     private lateinit var mockDownloadService: DownloadService
-
-    private val mockHttpClient: HttpClient = HttpClient(MockEngine) {
-        engine {
-            addHandler { _ ->
-                respond("")
-            }
-        }
-    }
 
     @Before
     fun setUp() {

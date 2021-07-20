@@ -17,18 +17,6 @@ class FeedHelper private constructor(applicationContext: Context) {
     val feedPreferences: SharedPreferences =
         applicationContext.getSharedPreferences(PREFERENCES_FEEDS_FILE, Context.MODE_PRIVATE)
 
-    fun activateFeed(feed: Feed) {
-        val oldInactiveFeeds = feedPreferences.getStringSet(PREFERENCES_FEEDS_INACTIVE, emptySet())
-        val inactiveFeeds = mutableSetOf<String>()
-        oldInactiveFeeds?.forEach {
-            if (feed.name != it) {
-                inactiveFeeds.add(it)
-            }
-        }
-        feedPreferences.edit().putStringSet(PREFERENCES_FEEDS_INACTIVE, inactiveFeeds).apply()
-    }
-
-
     fun deactivateFeed(feed: Feed) {
         var inactiveFeeds = feedPreferences.getStringSet(PREFERENCES_FEEDS_INACTIVE, emptySet())
 

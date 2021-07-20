@@ -4,6 +4,7 @@ import android.app.Application
 import com.facebook.stetho.Stetho
 import de.taz.app.android.download.DownloadService
 
+@Suppress("UNUSED")
 class TazApplication : Application() {
     override fun onCreate() {
         super.onCreate()

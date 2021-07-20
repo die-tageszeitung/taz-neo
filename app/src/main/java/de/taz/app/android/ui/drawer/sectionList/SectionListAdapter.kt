@@ -94,7 +94,7 @@ class SectionListAdapter(
 
     override fun getItemCount() = sectionList.size
 
-    fun positionOf(sectionFileName: String): Int? {
+    fun positionOf(sectionFileName: String): Int {
         return sectionList.indexOfFirst { it.sectionFileName == sectionFileName }
     }
 

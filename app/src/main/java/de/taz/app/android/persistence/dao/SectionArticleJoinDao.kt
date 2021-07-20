@@ -38,9 +38,6 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
     )
     abstract fun getSectionStubForArticleFileName(articleFileName: String): SectionStub?
 
-    fun getSectionStubForArticleStub(articleStub: ArticleStub): SectionStub?
-            = getSectionStubForArticleFileName(articleStub.articleFileName)
-
     fun getSectionStubForArticle(article: Article): SectionStub?
             = getSectionStubForArticleFileName(article.articleHtml.name)
 
@@ -52,9 +49,6 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
         """
     )
     abstract fun getSectionFileNameForArticleFileName(articleFileName: String): String?
-
-    fun getSectionFileNameForArticleStub(articleStub: ArticleStub): String?
-            = getSectionFileNameForArticleFileName(articleStub.articleFileName)
 
     fun getSectionFileNameForArticle(article: Article): String?
             = getSectionFileNameForArticleFileName(article.articleHtml.name)

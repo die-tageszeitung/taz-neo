@@ -29,7 +29,4 @@ abstract class SectionImageJoinDao : BaseDao<SectionImageJoin>() {
     )
     abstract fun getImageNamesForSection(sectionFileName: String): List<String>
 
-    fun getImagesForSectionOperation(section: SectionOperations): List<Image> =
-        getImagesForSection(section.key)
-
 }

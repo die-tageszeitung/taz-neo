@@ -5,7 +5,6 @@ import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.data.ConnectionHelper
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 
