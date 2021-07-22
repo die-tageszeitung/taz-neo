@@ -111,12 +111,10 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
                 when (authStatus) {
                     AuthStatus.elapsed -> {
                         toastHelper.showToast(R.string.toast_logout_elapsed)
-
                     }
                     AuthStatus.notValid -> {
                         elapsedButWaiting = false
                         toastHelper.showToast(R.string.toast_logout_invalid)
-
                     }
                     AuthStatus.valid -> {
                         elapsedButWaiting = false
