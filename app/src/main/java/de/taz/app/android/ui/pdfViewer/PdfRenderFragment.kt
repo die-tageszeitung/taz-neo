@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import kotlinx.coroutines.launch
 
 
-class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
+class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     companion object {
         private const val KEY_POSITION = "KEY_POSITION"
@@ -62,20 +62,21 @@ class PdfRenderFragment: BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pdfReaderView = MuPDFReaderView(context)
+        pdfReaderView.clickCoordinatesListener = { coordinates ->
+            showFramesIfPossible(coordinates.first, coordinates.second)
+        }
+        pdfReaderView.onBorderListener = { border ->
+            pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
+        }
+        pdfReaderView.onScaleListener = { scaling ->
+            pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
+        }
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
             val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
-            pdfReaderView = MuPDFReaderView(context)
             pdfReaderView.adapter = PageAdapter(context, core)
-            pdfReaderView.clickCoordinatesListener = { coordinates ->
-                showFramesIfPossible(coordinates.first, coordinates.second)
-            }
-            pdfReaderView.onBorderListener = { border ->
-                pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
-            }
-            pdfReaderView.onScaleListener = { scaling ->
-                pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
-            }
+
             mu_pdf_wrapper?.addView(pdfReaderView)
         }
     }
