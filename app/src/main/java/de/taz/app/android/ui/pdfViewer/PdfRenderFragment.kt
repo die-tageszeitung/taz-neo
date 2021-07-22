@@ -63,16 +63,16 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pdfReaderView = MuPDFReaderView(context)
-        pdfReaderView.clickCoordinatesListener = { coordinates ->
-            showFramesIfPossible(coordinates.first, coordinates.second)
-        }
-        pdfReaderView.onBorderListener = { border ->
-            pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
-        }
-        pdfReaderView.onScaleListener = { scaling ->
-            pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
-        }
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
+            pdfReaderView.clickCoordinatesListener = { coordinates ->
+                showFramesIfPossible(coordinates.first, coordinates.second)
+            }
+            pdfReaderView.onBorderListener = { border ->
+                pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
+            }
+            pdfReaderView.onScaleListener = { scaling ->
+                pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
+            }
             val pdfPage = pageList[position].pdfFile
             val core = MuPDFCore(pdfPage.path)
             pdfReaderView.adapter = PageAdapter(context, core)
