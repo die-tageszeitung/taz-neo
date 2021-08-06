@@ -3,7 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
-import de.taz.app.android.GRAPHQL_ENDPOINT
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.MAX_SIMULTANIOUS_QUERIES
 import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import kotlin.Throws
 
 /**
- * class to get DTOs from the [GRAPHQL_ENDPOINT]
+ * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
@@ -36,7 +36,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
     private val authHelper: AuthHelper
 ) {
     private constructor(applicationContext: Context) : this(
-        url = GRAPHQL_ENDPOINT,
+        url = BuildConfig.GRAPHQL_ENDPOINT,
         queryService = QueryService.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext)
     )

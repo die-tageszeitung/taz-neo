@@ -161,7 +161,7 @@ android {
         lintConfig file("lint.xml")
     }
 
-    flavorDimensions "source", "owner"
+    flavorDimensions "source", "owner", "graphql"
 
     productFlavors {
         taz {
@@ -181,6 +181,16 @@ android {
 
         nonfree {
             dimension "source"
+        }
+
+        staging {
+            dimension "graphql"
+             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://dl.taz.de/appGraphQl\""
+       }
+
+        production {
+            dimension "graphql"
+            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://testdl.taz.de/appGraphQl\""
         }
 
     }
