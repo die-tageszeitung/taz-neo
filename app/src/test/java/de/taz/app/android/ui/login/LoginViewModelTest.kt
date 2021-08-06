@@ -351,7 +351,6 @@ class LoginViewModelTest {
     @Test
     fun registerNull() = runBlocking {
         val status = loginViewModel.status.value
-        doReturn(null).`when`(apiService).trialSubscription(username, password)
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
         assertTrue(loginViewModel.status.value == status)
     }
