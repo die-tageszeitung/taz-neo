@@ -1,6 +1,6 @@
 package de.taz.app.android.api
 
-import de.taz.app.android.GRAPHQL_ENDPOINT
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.singletons.AuthHelper
@@ -26,7 +26,7 @@ class GraphQlClientTest {
     private val mockClient = HttpClient(MockEngine) {
         engine {
             addHandler { request ->
-                if (request.url.toString() == GRAPHQL_ENDPOINT) {
+                if (request.url.toString() == BuildConfig.GRAPHQL_ENDPOINT) {
                     val responseHeaders = headersOf("Content-Type" to listOf("application/json"))
                     respond("{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}", headers = responseHeaders)
 
@@ -43,7 +43,7 @@ class GraphQlClientTest {
         MockitoAnnotations.openMocks(this)
         graphQlClient = GraphQlClient(
             mockClient,
-            GRAPHQL_ENDPOINT,
+            BuildConfig.GRAPHQL_ENDPOINT,
             queryService = queryServiceMock,
             authHelper = authHelper
         )

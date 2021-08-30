@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
-const val GRAPHQL_ENDPOINT = "https://dl.taz.de/appGraphQl"
 
 const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debug.apk"
 
