@@ -44,7 +44,7 @@ Please ensure to encode the tar without whitespace i.e. `$ base64 -w0 secret-bun
 |- sentry.properties
 |- app/
     |- src/
-        |- nonfreeTaz/
+        |- nonfree/taz/
             |- google-services.json
 ```
 
