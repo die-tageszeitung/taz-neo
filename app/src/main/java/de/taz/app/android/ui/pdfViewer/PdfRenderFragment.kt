@@ -7,6 +7,7 @@ import android.view.View
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -42,7 +43,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private val log by Log
     private var position: Int = 0
-    private lateinit var pdfReaderView: MuPDFReaderView
+    private var observer: Observer<List<PdfPageList>>? = null
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
@@ -62,8 +63,8 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pdfReaderView = MuPDFReaderView(context)
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
+        val pdfReaderView = MuPDFReaderView(context)
+        observer = Observer<List<PdfPageList>> { pageList ->
             pdfReaderView.clickCoordinatesListener = { coordinates ->
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
@@ -78,16 +79,17 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             pdfReaderView.adapter = PageAdapter(context, core)
 
             mu_pdf_wrapper?.addView(pdfReaderView)
+        }.also {
+            pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, it)
         }
     }
 
     override fun onDestroyView() {
-        pdfReaderView.adapter = null
-        pdfReaderView.clickCoordinatesListener = null
-        pdfReaderView.onBorderListener = null
-        pdfReaderView.onScaleOutListener = null
-        pdfReaderView.onScaleListener = null
         mu_pdf_wrapper?.removeAllViews()
+        observer?.let {
+            pdfPagerViewModel.pdfPageList.removeObserver(it)
+            observer = null
+        }
         super.onDestroyView()
     }
 
