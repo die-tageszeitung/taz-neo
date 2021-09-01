@@ -196,17 +196,16 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                     dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
-            viewModel.scrollPosition?.let {
-                scrollView?.scrollY = it
-            } ?: run {
-                withContext(Dispatchers.Main) {
+            requireActivity().runOnUiThread {
+                viewModel.scrollPosition?.let {
+                    scrollView?.scrollY = it
+                } ?: run {
                     view?.findViewById<AppBarLayout>(R.id.app_bar_layout)
                         ?.setExpanded(true, false)
                 }
+                hideLoadingScreen()
             }
-            withContext(Dispatchers.Main) { hideLoadingScreen() }
         }
-
     }
 
     override fun onPageFinishedLoading() {
