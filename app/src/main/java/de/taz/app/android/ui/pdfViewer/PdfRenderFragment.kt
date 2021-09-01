@@ -43,7 +43,6 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private val log by Log
     private var position: Int = 0
-    private var observer: Observer<List<PdfPageList>>? = null
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
@@ -64,7 +63,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val pdfReaderView = MuPDFReaderView(context)
-        observer = Observer<List<PdfPageList>> { pageList ->
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
             pdfReaderView.clickCoordinatesListener = { coordinates ->
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
@@ -79,17 +78,11 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             pdfReaderView.adapter = PageAdapter(context, core)
 
             mu_pdf_wrapper?.addView(pdfReaderView)
-        }.also {
-            pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, it)
         }
     }
 
     override fun onDestroyView() {
         mu_pdf_wrapper?.removeAllViews()
-        observer?.let {
-            pdfPagerViewModel.pdfPageList.removeObserver(it)
-            observer = null
-        }
         super.onDestroyView()
     }
 
