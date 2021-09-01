@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -136,9 +137,12 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     private fun openExternally(url: String) {
         val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
         try {
-            CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
-                launchUrl(requireContext(), Uri.parse(url))
-            }
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply { launchUrl(requireContext(), Uri.parse(url)) }
         } catch (e: ActivityNotFoundException) {
             val toastHelper =
                 ToastHelper.getInstance(context)
