@@ -27,35 +27,20 @@
         <activity
             android:name=".ui.WebViewActivity"
             android:noHistory="true" />
-        <activity
-            android:name=".ui.DataPolicyActivity" />
-        <activity
-            android:name=".ui.StorageMigrationActivity" />
-        <activity
-            android:name=".ui.pdfViewer.PdfPagerActivity" />
+        <activity android:name=".ui.DataPolicyActivity" />
+        <activity android:name=".ui.StorageMigrationActivity" />
+        <activity android:name=".ui.pdfViewer.PdfPagerActivity" />
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
-        <activity
-            android:name=".ui.main.MainActivity" />
-
-        <activity
-            android:name=".ui.issueViewer.IssueViewerActivity" />
-
-        <activity
-            android:name=".ui.bookmarks.BookmarkListActivity" />
-
-        <activity
-            android:name=".ui.bookmarks.BookmarkViewerActivity" />
-
-        <activity
-            android:name=".ui.settings.SettingsActivity" />
-
-        <activity
-            android:name=".ui.settings.ErrorReportActivity" />
-        <activity
-            android:name=".ui.login.LoginActivity" />
+        <activity android:name=".ui.main.MainActivity" />
+        <activity android:name=".ui.issueViewer.IssueViewerActivity" />
+        <activity android:name=".ui.bookmarks.BookmarkListActivity" />
+        <activity android:name=".ui.bookmarks.BookmarkViewerActivity" />
+        <activity android:name=".ui.settings.SettingsActivity" />
+        <activity android:name=".ui.settings.ErrorReportActivity" />
+        <activity android:name=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
@@ -66,12 +51,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.artifex.mupdf.viewer.DocumentActivity"
             tools:node="remove" />
 
-
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://796a4b1c8b794a57a9f1b9e6dc7331a8@sentry.taz.de/2" />
