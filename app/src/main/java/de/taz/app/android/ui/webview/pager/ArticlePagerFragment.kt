@@ -259,7 +259,12 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-            pdfPagerViewModel.hideDrawerLogo.postValue(true)
+            // On device orientation changes the Fragments Activity is already destroyed when we reach the onDestroyView method.
+            // Thus we cant initialize a ViewModel instance from onDestroyView. 
+            // As the `by activityViewModels()` is called lazily and not being used before, the ViewModel can not be initialized.
+            // To prevent the app from crashing in this case we check explicitly that the Activity has not been destroyed yet.
+            if(!this.requireActivity().isDestroyed)
+                pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
         super.onDestroyView()
     }
