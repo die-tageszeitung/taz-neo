@@ -259,7 +259,8 @@ class ArticlePagerFragment : BaseMainFragment(
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-            pdfPagerViewModel.hideDrawerLogo.postValue(true)
+            if(!this.requireActivity().isDestroyed)
+                pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
         super.onDestroyView()
     }
