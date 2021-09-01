@@ -8,6 +8,5 @@ object SentryProvider {
         SentryAndroid.init(context) { options ->
             options.environment = BuildConfig.SENTRY_ENVIRONMENT
         }
-
     }
 }
