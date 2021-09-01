@@ -261,7 +261,7 @@ android {
     }
 
     playConfigs {
-        register("nonfreeTazRelease") {
+        register("nonfreeTazProductionRelease") {
 
         }
     }
@@ -279,10 +279,9 @@ android {
 dependencies {
     def coroutines_version = '1.5.1'
     def glide_version = '4.12.0'
-    def ktor_version = '1.6.2'
+    def ktor_version = '1.6.3'
     def lifecycle_version = '2.3.1'
-    // mockito 3.11.2 reintroduces a bug: https://github.com/mockito/mockito/issues/2316
-    def mockito_version = '3.11.1'
+    def mockito_version = '3.12.4'
     def moshi_version = '1.12.0'
     def powermock_version = '2.0.9'
     def room_version = '2.3.0'
@@ -353,14 +352,14 @@ dependencies {
     implementation project(':mupdf-lib')
 
     // error reports
-    implementation 'io.sentry:sentry-android:5.0.1'
+    implementation 'io.sentry:sentry-android:5.1.2'
     implementation 'org.slf4j:slf4j-nop:1.7.30'
 
     // animations
-    implementation 'com.airbnb.android:lottie:4.0.0'
+    implementation 'com.airbnb.android:lottie:4.1.0'
 
     // iban validation
-    implementation 'nl.garvelink.oss:iban:1.9.0'
+    implementation 'nl.garvelink.oss:iban:1.10.1'
 
     // testing
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
