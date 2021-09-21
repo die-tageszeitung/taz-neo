@@ -15,35 +15,41 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.NotFoundException
+import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_pdf_render.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
+    private var page: Page? = null
+
     companion object {
-        private const val KEY_POSITION = "KEY_POSITION"
+        private const val PAGE_NAME = "PAGE_NAME"
 
-        fun create(position: Int): PdfRenderFragment {
+        fun create(page: Page): PdfRenderFragment {
             val fragment = PdfRenderFragment()
-            val args = Bundle()
-            args.putInt(KEY_POSITION, position)
-            fragment.arguments = args
-
+            fragment.page = page
+            fragment.arguments = Bundle().also { it.putString(PAGE_NAME, page.pagePdf.name) }
             return fragment
         }
     }
 
     private val log by Log
-    private var position: Int = 0
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+
+    private var pdfReaderView: MuPDFReaderView? = null
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
@@ -55,34 +61,52 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.getInt(KEY_POSITION, 0)?.let {
-            position = it
+        // if page is null get Page from DB and PAGE_NAME argument
+        if (page == null) {
+            arguments?.getString(PAGE_NAME)?.let {
+                try {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        page =
+                            PageRepository.getInstance(requireContext().applicationContext).get(it)
+                    }.invokeOnCompletion { showPdf() }
+                } catch (nfe: NotFoundException) {
+                    log.error("Created with PAGE_NAME set")
+                }
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val pdfReaderView = MuPDFReaderView(context)
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pageList ->
-            pdfReaderView.clickCoordinatesListener = { coordinates ->
+        pdfReaderView = MuPDFReaderView(context)
+        pdfReaderView?.apply {
+            clickCoordinatesListener = { coordinates ->
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
-            pdfReaderView.onBorderListener = { border ->
+            onBorderListener = { border ->
                 pdfPagerViewModel.setUserInputEnabled(border == ViewBorder.BOTH)
             }
-            pdfReaderView.onScaleListener = { scaling ->
+            onScaleListener = { scaling ->
                 pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
             }
-            val pdfPage = pageList[position].pdfFile
-            val core = MuPDFCore(pdfPage.path)
-            pdfReaderView.adapter = PageAdapter(context, core)
-
-            mu_pdf_wrapper?.addView(pdfReaderView)
+            mu_pdf_wrapper?.addView(this)
         }
+        showPdf()
+    }
+
+    private fun showPdf() {
+        page?.pagePdf?.let { fileEntry ->
+            StorageService.getInstance(requireContext().applicationContext).getFile(fileEntry)
+                ?.let { file ->
+                    pdfReaderView?.adapter = PageAdapter(context, MuPDFCore(file.path))
+                }
+        }
+
     }
 
     override fun onDestroyView() {
         mu_pdf_wrapper?.removeAllViews()
+        pdfReaderView = null
         super.onDestroyView()
     }
 
@@ -90,7 +114,8 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
         log.verbose("Clicked on x: $x, y:$y")
         val pageList = pdfPagerViewModel.pdfPageList.value
         pageList?.let { list ->
-            val frameList = list[position].frameList
+            val frameList =
+                pdfPagerViewModel.currentItem.value?.let { list[it].frameList } ?: emptyList()
             val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
             frame?.let {
                 it.link?.let { link ->

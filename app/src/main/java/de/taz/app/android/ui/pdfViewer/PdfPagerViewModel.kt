@@ -5,13 +5,11 @@ import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.api.models.PageType
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -28,11 +26,10 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    private val dataService: DataService = DataService.getInstance(application)
-    private val storageService: StorageService = StorageService.getInstance(application)
-    private val imageRepository: ImageRepository = ImageRepository.getInstance(application)
-    private val toastHelper = ToastHelper.getInstance(application)
-    private val fileEntryRepository = FileEntryRepository.getInstance(application)
+    private val dataService: DataService = DataService.getInstance(application.applicationContext)
+    private val imageRepository: ImageRepository =
+        ImageRepository.getInstance(application.applicationContext)
+    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
 
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
@@ -61,7 +58,7 @@ class PdfPagerViewModel(
 
     private val log by Log
 
-    val pdfPageList = MediatorLiveData<List<PdfPageList>>().apply {
+    val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issueKey) { issueKey ->
             var noConnectionShown = false
             fun onConnectionFailure() {
@@ -96,18 +93,7 @@ class PdfPagerViewModel(
                 )
 
                 if (pdfIssue.isDownloaded(application)) {
-                    postValue(pdfIssue.pageList.map {
-                        val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
-                            storageService.getFile(fileEntry)
-                        }
-                        PdfPageList(
-                            file!!,
-                            it.frameList ?: emptyList(),
-                            it.title ?: "",
-                            it.pagina ?: "",
-                            it.type ?: PageType.left
-                        )
-                    })
+                    postValue(pdfIssue.pageList)
                 } else {
                     val hint = "Something went wrong downloading issue with its pdfs"
                     log.warn(hint)
@@ -134,6 +120,7 @@ class PdfPagerViewModel(
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
-        return pdfPageList.value?.indexOfFirst { it.pdfFile.name == fileName } ?: 0
+        return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
+
 }

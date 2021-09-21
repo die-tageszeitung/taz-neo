@@ -16,14 +16,17 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
+import io.ktor.util.reflect.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
@@ -103,7 +106,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         pdf_drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 drawer_logo_wrapper.animate().cancel()
-                drawer_logo_wrapper.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
+                drawer_logo_wrapper.translationX =
+                    resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.updateDrawerLogoBoundingBox(
                     drawer_logo_wrapper.width,
                     drawer_logo_wrapper.height
@@ -140,8 +144,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
             if (toHide && articlePagerFragment == null && !drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 hideDrawerLogoWithDelay()
-            }
-            else {
+            } else {
                 showDrawerLogo()
             }
         })
@@ -156,9 +159,9 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     private fun hideDrawerLogoWithDelay() {
         if (pdfPagerViewModel.hideDrawerLogo.value == true) {
-            val transX = - drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
+            val transX = -drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
             drawer_logo_wrapper.animate()
-                .withEndAction{
+                .withEndAction {
                     pdf_drawer_layout.updateDrawerLogoBoundingBox(
                         (LOGO_PEAK * resources.displayMetrics.density).toInt(),
                         drawer_logo_wrapper.height
@@ -190,13 +193,14 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         }
     }
 
-    private fun initDrawerAdapter(items: List<PdfPageList>) {
+    private fun initDrawerAdapter(items: List<Page>) {
+
         if (items.isNotEmpty()) {
             // Setup a gridManager which takes 2 columns for panorama pages
             val gridLayoutManager = GridLayoutManager(this, 2)
             gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (items[position+1].pageType == PageType.panorama) {
+                    return if (items[position + 1].type == PageType.panorama) {
                         2
                     } else {
                         1
@@ -210,12 +214,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 setHasFixedSize(false)
             }
 
-            // Setup drawer header (front page and date)
-            Glide
-                .with(this)
-                .load(items.first().pdfFile.absolutePath)
-                .into(activity_pdf_drawer_front_page)
-
             activity_pdf_drawer_front_page.setOnClickListener {
                 pdf_viewpager.currentItem = 0
                 popArticlePagerFragmentIfOpen()
@@ -227,12 +225,17 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             activity_pdf_drawer_front_page_title.apply {
                 text = items.first().title
                 setTextColor(
-                    ContextCompat.getColor(this@PdfPagerActivity, R.color.drawer_sections_item_highlighted)
+                    ContextCompat.getColor(
+                        this@PdfPagerActivity,
+                        R.color.drawer_sections_item_highlighted
+                    )
                 )
             }
-            activity_pdf_drawer_date.text = DateHelper.stringToLongLocalized2LineString(issueKey.date)
+            activity_pdf_drawer_date.text =
+                DateHelper.stringToLongLocalized2LineString(issueKey.date)
 
-            drawerAdapter = PdfDrawerRecyclerViewAdapter(items.subList(1, items.size), Glide.with(this))
+            drawerAdapter =
+                PdfDrawerRecyclerViewAdapter(items.subList(1, items.size), Glide.with(this))
             pdfPagerViewModel.currentItem.observe(this, { position ->
                 drawerAdapter.activePosition = position - 1
                 if (position > 0) {
@@ -285,7 +288,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 drawer_logo.layoutParams.height = logicalHeight.toInt()
                 drawer_logo_wrapper.layoutParams.width = logicalWidth.toInt()
                 drawer_logo_wrapper.layoutParams.height = logicalHeight.toInt()
-                drawer_logo_wrapper.translationX = resources.getDimension(R.dimen.drawer_logo_translation_x)
+                drawer_logo_wrapper.translationX =
+                    resources.getDimension(R.dimen.drawer_logo_translation_x)
                 pdf_drawer_layout.requestLayout()
                 drawer_logo_wrapper.requestLayout()
             }
