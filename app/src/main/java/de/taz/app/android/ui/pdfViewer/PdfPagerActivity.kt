@@ -18,6 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.singletons.DateHelper
@@ -63,6 +64,13 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         }
 
         storageService = StorageService.getInstance(applicationContext)
+
+        // Get latest shown page and put it into the viewModel
+        CoroutineScope(Dispatchers.IO).launch {
+            pdfPagerViewModel.currentItem.postValue(
+                DataService.getInstance(applicationContext).getLastPageOnIssue(issueKey.getIssueKey())
+            )
+        }
 
         pdfPagerViewModel.navButton.observe(this) {
             if (it != null) {
