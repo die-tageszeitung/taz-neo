@@ -104,6 +104,8 @@ class DataService(private val applicationContext: Context) {
      * ATTENTION! The issue returned from the called getIssue function has the status depending
      * of the AuthStatus (logged in or not).
      *
+     * This function does not check whether the issue has already been downloaded or not!
+     *
      * @param issuePublication Key of feed and date
      * @param allowCache checks if issue already exists
      * @param retryOnFailure calls getIssue again if unsuccessful
@@ -120,9 +122,7 @@ class DataService(private val applicationContext: Context) {
 
             if (allowCache) {
                 issueRepository.getStub(regularKey)?.let {
-                    if (!cacheWithPages && it.isDownloaded() ||
-                        IssueWithPages(it.getIssue()).isDownloaded()
-                    ) return@withContext it
+                    return@withContext it
                 }
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
