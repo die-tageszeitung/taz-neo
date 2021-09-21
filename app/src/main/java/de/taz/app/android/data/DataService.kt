@@ -216,6 +216,14 @@ class DataService(private val applicationContext: Context) {
             issueRepository.saveLastDisplayable(issueKey, displayableName)
         }
 
+    suspend fun getLastPageOnIssue(isssueKey: IssueKey): Int? {
+        return issueRepository.getStub(isssueKey)?.lastPagePosition
+    }
+
+    suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) = withContext(Dispatchers.IO) {
+        issueRepository.saveLastPagePosition(issueKey, pageName)
+    }
+
     suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? =
         withContext(Dispatchers.IO) {
             viewerStateRepository.get(displayableName)

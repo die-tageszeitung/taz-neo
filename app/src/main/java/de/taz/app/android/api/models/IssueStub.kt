@@ -15,7 +15,7 @@ import java.util.*
 data class IssueStub(
     override val feedName: String,
     override val date: String,
-    val key: String? = null,
+    override val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
     override val minResourceVersion: Int,
@@ -23,10 +23,11 @@ data class IssueStub(
     override val moTime: String,
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
-    override val lastDisplayableName: String?
+    override val lastDisplayableName: String?,
+    override val lastPagePosition: Int?
 ): IssueOperations {
 
-    constructor(issue: Issue): this (
+    constructor(issue: IssueOperations): this (
         issue.feedName,
         issue.date,
         issue.key,
@@ -37,7 +38,8 @@ data class IssueStub(
         issue.moTime,
         issue.dateDownload,
         issue.dateDownloadWithPages,
-        issue.lastDisplayableName
+        issue.lastDisplayableName,
+        issue.lastPagePosition
     )
 
     suspend fun getIssue(): Issue {
