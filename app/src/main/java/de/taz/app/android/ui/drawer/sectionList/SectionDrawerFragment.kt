@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.data.DataService
@@ -38,7 +39,6 @@ import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.android.synthetic.main.view_cover.*
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 const val ACTIVE_POSITION = "active position"
 
@@ -247,7 +247,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                     separator_line_imprint_bottom.visibility = View.GONE
                 }
             }
-        } catch (e: Exception) {
+        } catch (e:  ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
         }
