@@ -124,6 +124,9 @@ class DataService(private val applicationContext: Context) {
                 issueRepository.getStub(regularKey)?.let {
                     return@withContext it
                 }
+                // try too read it from database if issue status is not regular -
+                // presumably this is so that people with an expired subscription can still access old
+                // issues they have saved to database. TODO is this desired?!
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
                 }
@@ -184,6 +187,9 @@ class DataService(private val applicationContext: Context) {
                 if ((it.isDownloaded() && !cacheWithPages) || IssueWithPages(it).isDownloaded())
                     return@withContext it
             }
+            // try too read it from database if issue status is not regular -
+            // presumably this is so that people with an expired subscription can still access old
+            // issues they have saved to database. TODO is this desired?!
             if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                 issueRepository.get(publicKey)?.let { return@withContext it }
             }
@@ -258,6 +264,9 @@ class DataService(private val applicationContext: Context) {
 
             if (allowCache) {
                 momentRepository.get(regularKey)?.let { return@withContext it }
+                // try too read it from database if issue status is not regular -
+                // presumably this is so that people with an expired subscription can still access old
+                // issues they have saved to database. TODO is this desired?!
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     momentRepository.get(publicKey)?.let { return@withContext it }
                 }
