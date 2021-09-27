@@ -1,6 +1,7 @@
 package de.taz.app.android
 
 import android.app.Application
+import android.os.StrictMode
 import com.facebook.stetho.Stetho
 import de.taz.app.android.download.DownloadService
 
