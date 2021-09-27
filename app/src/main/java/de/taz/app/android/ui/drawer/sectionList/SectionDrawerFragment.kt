@@ -154,17 +154,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
 
-        fragment_drawer_sections_moment.apply {
-            moment_container.setOnClickListener {
-                finishAndShowIssue(currentIssueStub.issueKey)
-            }
-        }
-
-        fragment_drawer_sections_imprint.apply {
-            setOnClickListener {
-                lifecycleScope.launch {
-                    showImprint()
-                }
+        fragment_drawer_sections_imprint.setOnClickListener {
+            lifecycleScope.launch {
+                showImprint()
             }
         }
     }
@@ -215,10 +207,14 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         try {
             val issueStub =
                 withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
+            currentIssueStub = issueStub
+            moment_container.setOnClickListener {
+                finishAndShowIssue(currentIssueStub.issueKey)
+            }
+
             setMomentDate(issueStub)
             showMoment(issueStub)
 
-            currentIssueStub = issueStub
             val sections = withContext(Dispatchers.IO) {
                 sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
             }
@@ -247,7 +243,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                     separator_line_imprint_bottom.visibility = View.GONE
                 }
             }
-        } catch (e:  ConnectivityException.Recoverable) {
+        } catch (e: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
         }
