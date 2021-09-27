@@ -47,7 +47,7 @@ class IssueDownloadWorkManagerWorker(
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {
-                dataService.ensureDownloaded(newestIssue)
+                dataService.ensureDownloaded(newestIssue, isAutomaticDownload = true)
                 // pre download moment too
                 val moment = dataService.getMoment(IssuePublication(newestIssue.issueKey)) ?: run {
                     val hint = "Did not find moment for issue at ${newestIssue.date}"

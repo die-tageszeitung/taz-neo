@@ -352,6 +352,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to inform server of started download
      * @param feedName name of the feed the download is started for
      * @param issueDate the date of the issue that is being downloaded
+     * @param isAutomatically indicates whether the download was started automatically (i.e.
+     *    by notification) or manually by the user
      * @return [String] the id of the download
      */
     suspend fun notifyServerOfDownloadStart(
