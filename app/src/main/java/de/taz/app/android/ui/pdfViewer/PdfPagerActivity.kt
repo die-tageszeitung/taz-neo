@@ -191,7 +191,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     }
 
     private fun initDrawerAdapter(items: List<PdfPageList>) {
-
         if (items.isNotEmpty()) {
             // Setup a gridManager which takes 2 columns for panorama pages
             val gridLayoutManager = GridLayoutManager(this, 2)

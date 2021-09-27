@@ -10,6 +10,12 @@ class TazApplication : Application() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this)
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build()
+            )
         }
         SentryProvider.initSentry(this)
         DownloadService.createInstance(applicationContext).apply {
