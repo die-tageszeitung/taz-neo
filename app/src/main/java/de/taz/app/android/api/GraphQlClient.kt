@@ -105,10 +105,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             wrapper.data?.product?.authInfo?.let {
                 // only update if it changes
                 if (authHelper.authStatus != it.status) {
-                    // only send to sentry if invalidated
-                    if (it.status != AuthStatus.valid) {
-                        Sentry.captureMessage("[Debug #12895] authStatus (returned from graphQl) set to ${it.status}. query was $queryBody")
-                    }
                     authHelper.authStatus = it.status
                 }
             }
