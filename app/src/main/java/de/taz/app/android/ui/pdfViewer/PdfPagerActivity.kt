@@ -65,13 +65,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
         storageService = StorageService.getInstance(applicationContext)
 
-        // Get latest shown page and put it into the viewModel
-        CoroutineScope(Dispatchers.IO).launch {
-            pdfPagerViewModel.currentItem.postValue(
-                DataService.getInstance(applicationContext).getLastPageOnIssue(issueKey.getIssueKey())
-            )
-        }
-
         pdfPagerViewModel.navButton.observe(this) {
             if (it != null) {
                 lifecycleScope.launch { showNavButton(it) }

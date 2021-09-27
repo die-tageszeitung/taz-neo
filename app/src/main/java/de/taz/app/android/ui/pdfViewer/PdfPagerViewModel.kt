@@ -59,8 +59,9 @@ class PdfPagerViewModel(
                     retryOnFailure = true,
                     onConnectionFailure = { onConnectionFailure() }
                 )
+                // Get latest shown page and set it before setting the issue
+                currentItem.postValue(issue.lastPagePosition ?: 0)
                 val pdfIssue = IssueWithPages(issue)
-
                 dataService.ensureDownloaded(
                     pdfIssue,
                     onConnectionFailure = { onConnectionFailure() }
