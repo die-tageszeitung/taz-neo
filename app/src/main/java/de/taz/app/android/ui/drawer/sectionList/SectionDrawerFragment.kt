@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.data.DataService
@@ -211,39 +212,44 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     }
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
-        val issueStub =
-            withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
-        setMomentDate(issueStub)
-        showMoment(issueStub)
+        try {
+            val issueStub =
+                withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
+            setMomentDate(issueStub)
+            showMoment(issueStub)
 
-        currentIssueStub = issueStub
-        val sections = withContext(Dispatchers.IO) {
-            sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
-        }
-        log.debug("SectionDrawer sets new sections: $sections")
-        sectionListAdapter.sectionList = sections
+            currentIssueStub = issueStub
+            val sections = withContext(Dispatchers.IO) {
+                sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
+            }
+            log.debug("SectionDrawer sets new sections: $sections")
+            sectionListAdapter.sectionList = sections
 
             if (issueStub.isWeekend) {
                 sectionListAdapter.typeface = weekendTypeface
             } else {
                 sectionListAdapter.typeface = defaultTypeface
             }
-        view?.scrollY = 0
-        view?.animate()?.alpha(1f)?.duration = 500
-        fragment_drawer_sections_imprint.apply {
-            typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-            val isImprint = withContext(Dispatchers.IO) {
-                issueRepository.getImprint(issueStub.issueKey) != null
+            view?.scrollY = 0
+            view?.animate()?.alpha(1f)?.duration = 500
+            fragment_drawer_sections_imprint.apply {
+                typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
+                val isImprint = withContext(Dispatchers.IO) {
+                    issueRepository.getImprint(issueStub.issueKey) != null
+                }
+                if (isImprint) {
+                    visibility = View.VISIBLE
+                    separator_line_imprint_top.visibility = View.VISIBLE
+                    separator_line_imprint_bottom.visibility = View.VISIBLE
+                } else {
+                    visibility = View.GONE
+                    separator_line_imprint_top.visibility = View.GONE
+                    separator_line_imprint_bottom.visibility = View.GONE
+                }
             }
-            if (isImprint) {
-                visibility = View.VISIBLE
-                separator_line_imprint_top.visibility = View.VISIBLE
-                separator_line_imprint_bottom.visibility = View.VISIBLE
-            } else {
-                visibility = View.GONE
-                separator_line_imprint_top.visibility = View.GONE
-                separator_line_imprint_bottom.visibility = View.GONE
-            }
+        } catch (e:  ConnectivityException.Recoverable) {
+            // do nothing we can not load the issueStub as not in database yet.
+            // TODO wait for internet and show it once internet is available
         }
     }
 

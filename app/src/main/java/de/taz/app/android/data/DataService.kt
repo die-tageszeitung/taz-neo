@@ -104,6 +104,8 @@ class DataService(private val applicationContext: Context) {
      * ATTENTION! The issue returned from the called getIssue function has the status depending
      * of the AuthStatus (logged in or not).
      *
+     * This function does not check whether the issue has already been downloaded or not!
+     *
      * @param issuePublication Key of feed and date
      * @param allowCache checks if issue already exists
      * @param retryOnFailure calls getIssue again if unsuccessful
@@ -120,10 +122,11 @@ class DataService(private val applicationContext: Context) {
 
             if (allowCache) {
                 issueRepository.getStub(regularKey)?.let {
-                    if (!cacheWithPages && it.isDownloaded() ||
-                        IssueWithPages(it.getIssue()).isDownloaded()
-                    ) return@withContext it
+                    return@withContext it
                 }
+                // try too read it from database if issue status is not regular -
+                // presumably this is so that people with an expired subscription can still access old
+                // issues they have saved to database. TODO is this desired?!
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
                 }
@@ -184,6 +187,9 @@ class DataService(private val applicationContext: Context) {
                 if ((it.isDownloaded() && !cacheWithPages) || IssueWithPages(it).isDownloaded())
                     return@withContext it
             }
+            // try too read it from database if issue status is not regular -
+            // presumably this is so that people with an expired subscription can still access old
+            // issues they have saved to database. TODO is this desired?!
             if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                 issueRepository.get(publicKey)?.let { return@withContext it }
             }
@@ -258,6 +264,9 @@ class DataService(private val applicationContext: Context) {
 
             if (allowCache) {
                 momentRepository.get(regularKey)?.let { return@withContext it }
+                // try too read it from database if issue status is not regular -
+                // presumably this is so that people with an expired subscription can still access old
+                // issues they have saved to database. TODO is this desired?!
                 if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
                     momentRepository.get(publicKey)?.let { return@withContext it }
                 }
