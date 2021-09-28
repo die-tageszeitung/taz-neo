@@ -18,6 +18,8 @@ interface IssueOperations: DownloadableStub {
     val isWeekend: Boolean
     val moTime: String
     val lastDisplayableName: String?
+    val lastPagePosition: Int?
+    val key: String?
 
     val tag: String
         get() = "$feedName/$date/$status"

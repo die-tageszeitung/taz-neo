@@ -144,8 +144,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
     fun saveLastDisplayable(issueKey: IssueKey, displayableName: String) {
         appDatabase.runInTransaction {
             viewerStateRepository.saveIfNotExists(displayableName, 0)
-            val stub = getStub(issueKey)
-            stub?.copy(lastDisplayableName = displayableName)?.let {
+            getStub(issueKey)?.copy(lastDisplayableName = displayableName)?.let {
                 update(it)
             }
         }
@@ -350,10 +349,14 @@ class IssueRepository private constructor(val applicationContext: Context) :
             issueStub.moTime,
             issueStub.dateDownload,
             issueStub.dateDownloadWithPages,
-            issueStub.lastDisplayableName
+            issueStub.lastDisplayableName,
+            issueStub.lastPagePosition
         )
     }
 
+    fun saveLastPagePosition(issueKey: IssueKey, lastPagePosition: Int){
+        getStub(issueKey)?.copy(lastPagePosition = lastPagePosition)?.let { update(it) }
+    }
 
     fun getIssueStubForImage(image: Image): IssueStub {
         return appDatabase.issueDao().getStubForArticleImageName(image.name)
@@ -503,6 +506,8 @@ data class IssueKeyWithPages(
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status/pdf"
     }
+
+    fun getIssueKey() = IssueKey(feedName, date, status)
 }
 
 /**

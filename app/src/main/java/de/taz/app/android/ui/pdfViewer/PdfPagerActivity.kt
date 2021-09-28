@@ -91,7 +91,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                     val realPosition = drawerPosition + 1
                     val isFrontPage = drawerPosition == 0
                     if (realPosition != pdfPagerViewModel.currentItem.value || isFrontPage) {
-                        pdfPagerViewModel.currentItem.value = realPosition
+                        pdfPagerViewModel.updateCurrentItem(realPosition)
                         drawerAdapter.activePosition = drawerPosition
                     }
                     popArticlePagerFragmentIfOpen()

@@ -14,6 +14,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
@@ -28,7 +29,6 @@ class PdfPagerFragment : BaseMainFragment(
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
-    private var fresh = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,13 +37,21 @@ class PdfPagerFragment : BaseMainFragment(
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
-                    adapter = activity?.let { it1 -> PdfPagerAdapter(it1) }
+                    adapter = PdfPagerAdapter(requireActivity())
                     reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
                     offscreenPageLimit = 2
 
+                    // set position so it does not default to 0
+                    pdfPagerViewModel.currentItem.value?.let { position ->
+                        setCurrentItem(
+                            position,
+                            false
+                        )
+                    }
+
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
-                            pdfPagerViewModel.currentItem.value = position
+                            pdfPagerViewModel.updateCurrentItem(position)
                             super.onPageSelected(position)
                         }
                     })
@@ -69,9 +77,10 @@ class PdfPagerFragment : BaseMainFragment(
         })
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
-            // skip animation on first scroll
-            pdf_viewpager.setCurrentItem(position, !fresh)
-            fresh = false
+            // only update currentItem if it has not been swiped
+            if(pdf_viewpager.currentItem != position) {
+                pdf_viewpager.setCurrentItem(position, true)
+            }
         })
     }
 
@@ -104,6 +113,7 @@ class PdfPagerFragment : BaseMainFragment(
             pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
     }
+
     /**
      * A simple pager adapter that represents pdfFragment objects, in sequence.
      */
