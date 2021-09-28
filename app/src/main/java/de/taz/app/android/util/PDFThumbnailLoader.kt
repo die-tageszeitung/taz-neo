@@ -70,13 +70,14 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
                 if (!thumbnail.exists()) {
                     // create thumbnail for first page of pdf file
                     output = MuPDFThumbnail(input).thumbnail(width)
-                    val fos = FileOutputStream(thumbnail)
-                    output.compress(
-                        Bitmap.CompressFormat.PNG,
-                        100,
-                        fos
-                    )
-                    fos.close()
+                    FileOutputStream(thumbnail).use { fos ->
+                        output.compress(
+                            Bitmap.CompressFormat.PNG,
+                            100,
+                            fos
+                        )
+                        fos.close()
+                    }
                 } else {
                     output = BitmapFactory.decodeFile(thumbnail.absolutePath)
                 }
