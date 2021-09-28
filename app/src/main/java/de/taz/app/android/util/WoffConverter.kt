@@ -167,6 +167,8 @@ class WoffConverter {
                 decompressor.inflate(tmpInflatedFontData, 0, origLength)
             } catch (e: DataFormatException) {
                 throw InvalidWoffException("Malformed woff file")
+            } finally {
+                decompressor.end()
             }
         } else tmpInflatedFontData = fontData
         return tmpInflatedFontData
