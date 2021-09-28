@@ -19,8 +19,6 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -31,8 +29,6 @@ class PdfPagerFragment : BaseMainFragment(
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
-
-    private val dataService by lazy { DataService.getInstance(requireContext().applicationContext) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,7 +51,7 @@ class PdfPagerFragment : BaseMainFragment(
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
-                            pdfPagerViewModel.currentItem.value = position
+                            pdfPagerViewModel.updateCurrentItem(position)
                             super.onPageSelected(position)
                         }
                     })
@@ -84,15 +80,6 @@ class PdfPagerFragment : BaseMainFragment(
             // only update currentItem if it has not been swiped
             if(pdf_viewpager.currentItem != position) {
                 pdf_viewpager.setCurrentItem(position, true)
-            }
-            // Save current position to database to restore later on
-            CoroutineScope(Dispatchers.IO).launch {
-                pdfPagerViewModel.issueKey.value?.let {
-                    dataService.saveLastPageOnIssue(
-                        it.getIssueKey(),
-                        position
-                    )
-                }
             }
         })
     }

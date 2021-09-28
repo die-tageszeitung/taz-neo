@@ -15,6 +15,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -28,8 +29,10 @@ class PdfPagerViewModel(
 ) : AndroidViewModel(application) {
 
     private val dataService: DataService = DataService.getInstance(application.applicationContext)
-    private val storageService: StorageService = StorageService.getInstance(application.applicationContext)
-    private val imageRepository: ImageRepository = ImageRepository.getInstance(application.applicationContext)
+    private val storageService: StorageService =
+        StorageService.getInstance(application.applicationContext)
+    private val imageRepository: ImageRepository =
+        ImageRepository.getInstance(application.applicationContext)
     private val toastHelper = ToastHelper.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance()
 
@@ -38,7 +41,25 @@ class PdfPagerViewModel(
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
-    val currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
+
+    private val _currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
+    val currentItem = _currentItem as LiveData<Int>
+
+    fun updateCurrentItem(position: Int) {
+        if (_currentItem.value != position) {
+            _currentItem.postValue(position)
+
+            // Save current position to database to restore later on
+            CoroutineScope(Dispatchers.IO).launch {
+                issueKey.value?.let {
+                    dataService.saveLastPageOnIssue(
+                        it.getIssueKey(),
+                        position
+                    )
+                }
+            }
+        }
+    }
 
     private val log by Log
 
@@ -60,7 +81,7 @@ class PdfPagerViewModel(
                     onConnectionFailure = { onConnectionFailure() }
                 )
                 // Get latest shown page and set it before setting the issue
-                currentItem.postValue(issue.lastPagePosition ?: 0)
+                updateCurrentItem(issue.lastPagePosition ?: 0)
                 val pdfIssue = IssueWithPages(issue)
                 dataService.ensureDownloaded(
                     pdfIssue,
@@ -93,7 +114,7 @@ class PdfPagerViewModel(
         }
     }
 
-    fun getAmountOfPdfPages() : Int {
+    fun getAmountOfPdfPages(): Int {
         return pdfPageList.value?.size ?: DEFAULT_NUMBER_OF_PAGES
     }
 
@@ -106,7 +127,7 @@ class PdfPagerViewModel(
     }
 
     fun goToPdfPage(link: String) {
-        currentItem.value = getPositionOfPdf(link)
+        updateCurrentItem(getPositionOfPdf(link))
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
