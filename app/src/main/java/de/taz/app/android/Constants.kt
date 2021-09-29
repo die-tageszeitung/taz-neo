@@ -22,7 +22,6 @@ const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
 // Preferences
 const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
-const val PREFERENCES_TAZAPICSS = "preferences_tazapicss"
 const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
 // Settings

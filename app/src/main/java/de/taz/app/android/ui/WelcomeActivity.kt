@@ -1,7 +1,6 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -9,19 +8,18 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.SETTINGS_FIRST_TIME_APP_STARTS
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,6 +39,8 @@ class WelcomeActivity : AppCompatActivity() {
     private var isDownloadedLiveData: LiveData<Boolean>? = null
 
     private var startHomeActivity = false
+
+    private val generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,13 +80,8 @@ class WelcomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun setFirstTimeStart() {
-        val tazApiCssPreferences =
-            applicationContext.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
-
-        SharedPreferenceBooleanLiveData(
-            tazApiCssPreferences, SETTINGS_FIRST_TIME_APP_STARTS, true
-        ).postValue(true)
+    private fun setFirstTimeStart() = CoroutineScope(Dispatchers.IO).launch {
+        generalDataStore.firstAppStart.update(true)
     }
 
     override fun onBackPressed() {

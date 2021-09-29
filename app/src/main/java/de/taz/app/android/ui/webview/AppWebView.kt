@@ -2,7 +2,6 @@ package de.taz.app.android.ui.webview
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
@@ -77,10 +76,10 @@ class AppWebView @JvmOverloads constructor(
      * This method will help to re-inject css into the WebView upon changes
      * to the corresponding shared preferences
      */
-    suspend fun injectCss(sharedPreferences: SharedPreferences) = withContext(Dispatchers.Main) {
+    suspend fun injectCss() = withContext(Dispatchers.Main) {
         log.debug("Injecting css")
 
-        val cssString = TazApiCssHelper.generateCssString(context.applicationContext, sharedPreferences)
+        val cssString = TazApiCssHelper.getInstance(context.applicationContext).generateCssString()
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
         evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)

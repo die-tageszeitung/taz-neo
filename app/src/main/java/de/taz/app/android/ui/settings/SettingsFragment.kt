@@ -23,18 +23,18 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_FALLBACK
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
-import de.taz.app.android.ui.bottomSheet.textSettings.MIN_TEXT_SIZE
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Suppress("UNUSED")
@@ -147,7 +147,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
 
         viewModel.apply {
-            textSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
+            fontSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showTextSize(textSizeInt)
                 }
@@ -280,39 +280,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun disableNightMode() {
         log.debug("disableNightMode")
-        viewModel.nightModeLiveData.postValue(false)
+        viewModel.updateNightMode(false)
     }
 
     private fun enableNightMode() {
         log.debug("enableNightMode")
-        viewModel.nightModeLiveData.postValue(true)
+        viewModel.updateNightMode(true)
     }
 
 
     private fun decreaseTextSize() {
-        viewModel.apply {
-            val newSize = getTextSizePercent().toInt() - 10
-            if (newSize >= MIN_TEXT_SIZE) {
-                textSizeLiveData.postValue(newSize.toString())
-            }
-        }
+        viewModel.decreaseFontSize()
     }
 
     private fun increaseTextSize() {
         log.debug("increaseTextSize")
-        viewModel.apply {
-            val newSize = getTextSizePercent().toInt() + 10
-            if (newSize <= MAX_TEST_SIZE) {
-                textSizeLiveData.postValue(newSize.toString())
-            }
-        }
+        viewModel.increaseFontSize()
     }
 
-    private fun resetTextSize() {
+    private fun resetTextSize() = CoroutineScope(Dispatchers.IO).launch {
         log.debug("resetTextSize")
-        val default = context?.resources?.getInteger(R.integer.text_default_size)
-            ?: SETTINGS_TEXT_FONT_SIZE_FALLBACK
-        viewModel.textSizeLiveData.postValue(default.toString())
+        viewModel.resetFontSize()
     }
 
     private fun reportBug() {
@@ -333,10 +321,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         val authHelper = AuthHelper.getInstance(activity?.applicationContext)
         authHelper.token = ""
         authHelper.authStatus = AuthStatus.notValid
-    }
-
-    private fun getTextSizePercent(): String {
-        return viewModel.textSizeLiveData.value
     }
 
     private fun openFAQ() {

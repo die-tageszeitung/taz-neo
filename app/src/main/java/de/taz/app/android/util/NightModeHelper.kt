@@ -2,60 +2,34 @@ package de.taz.app.android.util
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import de.taz.app.android.PREFERENCES_TAZAPICSS
+import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object NightModeHelper {
 
     private val log by Log
 
-    class PrefListener(activity: Activity) {
-        val tazApiCssPrefListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-                log.debug("Shared pref changed: $key")
-                CoroutineScope(Dispatchers.IO).launch {
-                    when (key) {
-                        SETTINGS_TEXT_NIGHT_MODE -> {
-                            if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false) != isDarkTheme(activity)) {
-                                generateCssOverride(activity)
-                                withContext(Dispatchers.Main) {
-                                    setThemeAndReCreate(sharedPreferences, activity)
-                                }
-                            }
-                        }
-                        SETTINGS_TEXT_FONT_SIZE -> {
-                            generateCssOverride(activity)
-                        }
-                    }
-                }
-            }
-    }
-
-    suspend fun generateCssOverride(activity: Activity) {
-        val cssSharedPreferences = activity.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+    suspend fun generateCssOverride(applicationContext: Context)  = withContext(Dispatchers.IO) {
         val cssFileEntry =
-            FileEntryRepository.getInstance(activity.application).get("tazApi.css")
+            FileEntryRepository.getInstance(applicationContext).get("tazApi.css")
 
         cssFileEntry?.let {
-            val cssFile = StorageService.getInstance(activity.application).getFile(it)
-            val cssString = TazApiCssHelper.generateCssString(activity, cssSharedPreferences)
+            val cssFile = StorageService.getInstance(applicationContext).getFile(it)
+            val cssString = TazApiCssHelper.getInstance(applicationContext).generateCssString()
             cssFile?.writeText(cssString)
         }
     }
 
-    private fun setThemeAndReCreate(
-        sharedPreferences: SharedPreferences,
-        activity: Activity
+    fun setThemeAndReCreate(
+        activity: NightModeActivity,
+        nightMode: Boolean
     ) {
-        if (sharedPreferences.getBoolean(SETTINGS_TEXT_NIGHT_MODE, false)) {
+        if (nightMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
         } else {
@@ -65,20 +39,9 @@ object NightModeHelper {
         activity.recreate()
     }
 
-    private fun isDarkTheme(activity: Activity): Boolean {
+    fun isDarkTheme(activity: Activity): Boolean {
         return activity.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 
-    fun initializeNightModePrefs(tazApiCssPreferences: SharedPreferences, activity: Activity) {
-        // if "text_night_mode" is not set in shared preferences -> set it now
-        tazApiCssPreferences.apply {
-            if (!contains(SETTINGS_TEXT_NIGHT_MODE)) {
-                edit().apply {
-                    putBoolean(SETTINGS_TEXT_NIGHT_MODE, isDarkTheme(activity))
-                    apply()
-                }
-            }
-        }
-    }
 }
