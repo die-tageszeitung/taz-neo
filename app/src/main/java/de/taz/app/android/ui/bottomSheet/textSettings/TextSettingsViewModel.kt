@@ -25,7 +25,7 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         nightModeLiveData.observe(lifecycleOwner, Observer(block))
     }
 
-    fun observeTextSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
+    fun observeFontSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
         textSizeLiveData.observe(lifecycleOwner, Observer(block))
     }
 

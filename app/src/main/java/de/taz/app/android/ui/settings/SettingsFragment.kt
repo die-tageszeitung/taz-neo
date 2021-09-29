@@ -108,13 +108,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 }
 
             findViewById<View>(R.id.settings_text_decrease_wrapper).setOnClickListener {
-                decreaseTextSize()
+                decreaseFontSize()
             }
             findViewById<View>(R.id.settings_text_increase_wrapper).setOnClickListener {
-                increaseTextSize()
+                increaseFontSize()
             }
             findViewById<View>(R.id.settings_text_size_wrapper).setOnClickListener {
-                resetTextSize()
+                resetFontSize()
             }
 
             findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
@@ -149,7 +149,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         viewModel.apply {
             fontSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
-                    showTextSize(textSizeInt)
+                    showFontSize(textSizeInt)
                 }
             }
             nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
@@ -246,7 +246,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         }
     }
 
-    private fun showTextSize(textSize: Int) {
+    private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
         )?.text = getString(R.string.percentage, textSize)
@@ -289,17 +289,17 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
 
-    private fun decreaseTextSize() {
+    private fun decreaseFontSize() {
         viewModel.decreaseFontSize()
     }
 
-    private fun increaseTextSize() {
-        log.debug("increaseTextSize")
+    private fun increaseFontSize() {
+        log.debug("increaseFontSize")
         viewModel.increaseFontSize()
     }
 
-    private fun resetTextSize() = CoroutineScope(Dispatchers.IO).launch {
-        log.debug("resetTextSize")
+    private fun resetFontSize() = CoroutineScope(Dispatchers.IO).launch {
+        log.debug("resetFontSize")
         viewModel.resetFontSize()
     }
 

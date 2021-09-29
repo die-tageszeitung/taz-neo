@@ -20,11 +20,11 @@ class TextSettingsFragment :
         }
 
         fragment_bottom_sheet_text_size_text_size_decrease?.setOnClickListener {
-            decreaseTextSize()
+            decreaseFontSize()
         }
 
         fragment_bottom_sheet_text_size_text_size_percentage_wrapper?.setOnClickListener {
-            resetTextSize()
+            resetFontSize()
         }
 
         fragment_bottom_sheet_text_size_text_size_increase?.setOnClickListener {
@@ -47,8 +47,8 @@ class TextSettingsFragment :
             setNightMode(activated)
         }
 
-        viewModel.observeTextSize(this) { textSizePercentage ->
-            setTextSizePercentage(textSizePercentage)
+        viewModel.observeFontSize(this) { textSizePercentage ->
+            setFontSizePercentage(textSizePercentage)
         }
     }
 
@@ -56,7 +56,7 @@ class TextSettingsFragment :
         fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
     }
 
-    private fun setTextSizePercentage(percent: String) {
+    private fun setFontSizePercentage(percent: String) {
         fragment_bottom_sheet_text_size_text_size_percentage?.text = "$percent%"
     }
 
@@ -70,11 +70,11 @@ class TextSettingsFragment :
         }
     }
 
-    private fun decreaseTextSize() {
+    private fun decreaseFontSize() {
         viewModel.decreaseFontSize()
     }
 
-    private fun resetTextSize() {
+    private fun resetFontSize() {
         viewModel.resetFontSize()
     }
 
