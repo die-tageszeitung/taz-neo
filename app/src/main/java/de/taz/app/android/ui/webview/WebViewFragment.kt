@@ -2,7 +2,6 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.PREFERENCES_TAZAPICSS
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -26,7 +24,6 @@ import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -47,7 +44,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     protected val log by Log
 
     abstract val nestedScrollViewId: Int
-    private lateinit var tazApiCssPreferences: SharedPreferences
 
     private lateinit var apiService: ApiService
     private lateinit var downloadService: DownloadService
@@ -64,19 +60,13 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
-    private val tazApiCssPrefListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            log.debug("WebViewFragment: shared pref changed: $key")
-            CoroutineScope(Dispatchers.Main).launch {
-                web_view?.injectCss(sharedPreferences)
-                if (
-                    key == SETTINGS_TEXT_NIGHT_MODE &&
-                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.N
-                ) {
-                    web_view?.reload()
-                }
-            }
+    private fun reloadAfterCssChange() {
+        CoroutineScope(Dispatchers.Main).launch {
+            web_view.injectCss()
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+                web_view?.reload()
         }
+    }
 
     private fun saveScrollPositionDebounced(scrollPosition: Int) {
         viewModel.displayable?.let {
@@ -125,17 +115,15 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requireActivity().applicationContext?.let { applicationContext ->
-            tazApiCssPreferences =
-                applicationContext.getSharedPreferences(
-                    PREFERENCES_TAZAPICSS,
-                    Context.MODE_PRIVATE
-                )
-            tazApiCssPreferences.registerOnSharedPreferenceChangeListener(tazApiCssPrefListener)
-        }
         viewModel.displayableLiveData.observeDistinct(this) { displayable ->
             if (displayable == null) return@observeDistinct
             setHeader(displayable)
+        }
+        viewModel.nightModeLiveData.observe(this@WebViewFragment) {
+            reloadAfterCssChange()
+        }
+        viewModel.fontSizeLiveData.observe(this@WebViewFragment){
+            reloadAfterCssChange()
         }
     }
 
@@ -227,7 +215,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onDestroy() {
         super.onDestroy()
         web_view?.destroy()
-        tazApiCssPreferences.unregisterOnSharedPreferenceChangeListener(tazApiCssPrefListener)
     }
 
     private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.IO) {

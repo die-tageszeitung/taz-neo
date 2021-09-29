@@ -3,34 +3,31 @@ package de.taz.app.android.ui.settings
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import de.taz.app.android.*
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
-    lateinit var textSizeLiveData: SharedPreferenceStringLiveData
-    lateinit var nightModeLiveData: SharedPreferenceBooleanLiveData
+    var fontSizeLiveData: LiveData<String>
+    var nightModeLiveData: LiveData<Boolean>
     lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
     lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
     lateinit var downloadAutomaticallyLiveData: SharedPreferenceBooleanLiveData
     lateinit var storageLocationLiveData: SharedPreferenceStorageLocationLiveData
 
-    init {
-        application.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)?.let {
+    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
 
-            textSizeLiveData =
-                SharedPreferenceStringLiveData(
-                    it,
-                    SETTINGS_TEXT_FONT_SIZE,
-                    application.resources.getInteger(R.integer.text_default_size).toString()
-                )
-            nightModeLiveData =
-                SharedPreferenceBooleanLiveData(it, SETTINGS_TEXT_NIGHT_MODE, false)
-        }
+    init {
+        fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+
+        nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
 
         application.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)?.let {
             storedIssueNumberLiveData =
@@ -63,4 +60,42 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 )
         }
     }
+
+    fun resetFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.reset()
+        }
+    }
+
+    fun decreaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() - 10
+            if (newSize >= MIN_TEXT_SIZE) {
+                setFontSize(newSize.toString())
+            }
+        }
+    }
+
+    fun increaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() + 10
+            if (newSize <= MAX_TEST_SIZE) {
+                setFontSize(newSize.toString())
+            }
+        }
+    }
+
+    private fun setFontSize(value: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.set(value)
+        }
+    }
+
+    fun setNightMode(value: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.nightMode.set(value)
+        }
+    }
+
+    private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
 }

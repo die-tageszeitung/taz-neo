@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview
 
+import android.app.Application
 import androidx.lifecycle.SavedStateHandle
 import de.taz.app.android.api.models.Article
 
-class ArticleWebViewViewModel(savedStateHandle: SavedStateHandle) : WebViewViewModel<Article>(savedStateHandle)
+class ArticleWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) : WebViewViewModel<Article>(application, savedStateHandle)
