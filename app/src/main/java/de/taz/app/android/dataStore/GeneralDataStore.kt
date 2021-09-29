@@ -25,7 +25,13 @@ private val Context.generalDataStore: DataStore<Preferences> by preferencesDataS
     PREFERENCES_GENERAL,
     produceMigrations = {
         listOf(
-            SharedPreferencesMigration(it, PREFERENCES_TAZ_API_CSS),
+            SharedPreferencesMigration(
+                it,
+                PREFERENCES_TAZ_API_CSS,
+                keysToMigrate = setOf(
+                    DATA_POLICY_ACCEPTED, FIRST_APP_START
+                )
+            ),
         )
     }
 )

@@ -23,7 +23,11 @@ private val Context.tazApiCssDataStore: DataStore<Preferences> by preferencesDat
     PREFERENCES_TAZ_API_CSS,
     produceMigrations = {
         listOf(
-            SharedPreferencesMigration(it, PREFERENCES_TAZ_API_CSS),
+            SharedPreferencesMigration(
+                it,
+                PREFERENCES_TAZ_API_CSS,
+                keysToMigrate = setOf(FONT_SIZE, NIGHT_MODE)
+            ),
         )
     }
 )
