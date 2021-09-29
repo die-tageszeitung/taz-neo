@@ -46,7 +46,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(DATA_POLICY_ACCEPTED), false
     )
 
-    val firstAppStart: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(FIRST_APP_START), true
+    val hasSeenWelcomeScreen: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(FIRST_APP_START), false
     )
 }

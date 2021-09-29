@@ -56,7 +56,7 @@ class DataPolicyActivity : AppCompatActivity() {
                 if (finishOnClose) {
                     finish()
                 } else {
-                    if (isFirstTimeStart()) {
+                    if (hasSeenWelcomeScreen()) {
                         log.debug("start welcome activity")
                         val intent = Intent(applicationContext, WelcomeActivity::class.java)
                         intent.putExtra(START_HOME_ACTIVITY, true)
@@ -106,7 +106,7 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private suspend fun acceptDataPolicy() = generalDataStore.dataPolicyAccepted.set(true)
 
-    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.hasBeenSet()
+    private suspend fun hasSeenWelcomeScreen(): Boolean = !generalDataStore.hasSeenWelcomeScreen.get()
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
 

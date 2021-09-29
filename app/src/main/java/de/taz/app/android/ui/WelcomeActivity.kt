@@ -81,7 +81,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun setFirstTimeStart() = CoroutineScope(Dispatchers.IO).launch {
-        generalDataStore.firstAppStart.set(true)
+        generalDataStore.hasSeenWelcomeScreen.set(true)
     }
 
     override fun onBackPressed() {

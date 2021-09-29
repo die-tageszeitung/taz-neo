@@ -56,7 +56,7 @@ abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivi
 
     protected suspend fun startActualApp() {
         if (isDataPolicyAccepted()) {
-            if (isFirstTimeStart()) {
+            if (hasSeenWelcomeScreen()) {
                 val intent = Intent(this, WelcomeActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 intent.putExtra(START_HOME_ACTIVITY, true)
@@ -76,5 +76,5 @@ abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivi
     private suspend fun isDataPolicyAccepted(): Boolean =
         generalDataStore.dataPolicyAccepted.get()
 
-    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.hasBeenSet()
+    private suspend fun hasSeenWelcomeScreen(): Boolean = !generalDataStore.hasSeenWelcomeScreen.get()
 }
