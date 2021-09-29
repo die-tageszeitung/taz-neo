@@ -29,7 +29,7 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         textSizeLiveData.observe(lifecycleOwner, Observer(block))
     }
 
-    fun updateNightMode(activated: Boolean) = CoroutineScope(Dispatchers.IO).launch {
+    fun setNightMode(activated: Boolean) = CoroutineScope(Dispatchers.IO).launch {
         tazApiCssDataStore.nightMode.set(activated)
     }
 
@@ -40,18 +40,18 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
         val newSize = getFontSize() - 10
         if (newSize >= MIN_TEXT_SIZE) {
-            updateFontSize(newSize.toString())
+            setFontSize(newSize.toString())
         }
     }
 
     fun increaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
         val newSize = getFontSize() + 10
         if (newSize <= MAX_TEST_SIZE) {
-            updateFontSize(newSize.toString())
+            setFontSize(newSize.toString())
         }
     }
 
-    private fun updateFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
+    private fun setFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
         tazApiCssDataStore.fontSize.set(value)
     }
 

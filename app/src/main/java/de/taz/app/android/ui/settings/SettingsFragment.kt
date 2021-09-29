@@ -280,12 +280,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun disableNightMode() {
         log.debug("disableNightMode")
-        viewModel.updateNightMode(false)
+        viewModel.setNightMode(false)
     }
 
     private fun enableNightMode() {
         log.debug("enableNightMode")
-        viewModel.updateNightMode(true)
+        viewModel.setNightMode(true)
     }
 
 

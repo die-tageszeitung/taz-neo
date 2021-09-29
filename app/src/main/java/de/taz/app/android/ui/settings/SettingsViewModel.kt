@@ -68,22 +68,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
         val newSize = getFontSize() - 10
         if (newSize >= MIN_TEXT_SIZE) {
-            updateFontSize(newSize.toString())
+            setFontSize(newSize.toString())
         }
     }
 
     fun increaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
         val newSize = getFontSize() + 10
         if (newSize <= MAX_TEST_SIZE) {
-            updateFontSize(newSize.toString())
+            setFontSize(newSize.toString())
         }
     }
 
-    private fun updateFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
+    private fun setFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
         tazApiCssDataStore.fontSize.set(value)
     }
 
-    fun updateNightMode(value: Boolean) = CoroutineScope(Dispatchers.IO).launch {
+    fun setNightMode(value: Boolean) = CoroutineScope(Dispatchers.IO).launch {
         tazApiCssDataStore.nightMode.set(value)
     }
 
