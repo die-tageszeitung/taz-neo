@@ -18,10 +18,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activity_data_policy.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 const val FINISH_ON_CLOSE = "FINISH ON CLOSE"
 
@@ -51,33 +48,31 @@ class DataPolicyActivity : AppCompatActivity() {
         setContentView(R.layout.activity_data_policy)
 
         data_policy_accept_button?.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                acceptDataPolicy()
-                if (finishOnClose) {
-                    finish()
+            acceptDataPolicy()
+            if (finishOnClose) {
+                finish()
+            } else {
+                if (hasSeenWelcomeScreen()) {
+                    log.debug("start welcome activity")
+                    val intent = Intent(applicationContext, WelcomeActivity::class.java)
+                    intent.putExtra(START_HOME_ACTIVITY, true)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(Intent(intent))
                 } else {
-                    if (hasSeenWelcomeScreen()) {
-                        log.debug("start welcome activity")
-                        val intent = Intent(applicationContext, WelcomeActivity::class.java)
-                        intent.putExtra(START_HOME_ACTIVITY, true)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NO_ANIMATION or
-                                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(Intent(intent))
-                    } else {
-                        log.debug("start main activity")
-                        val intent = Intent(applicationContext, MainActivity::class.java)
+                    log.debug("start main activity")
+                    val intent = Intent(applicationContext, MainActivity::class.java)
 
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NO_ANIMATION or
-                                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(Intent(intent))
-                    }
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(Intent(intent))
                 }
             }
-        }
+    }
 
         data_policy_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
@@ -104,9 +99,15 @@ class DataPolicyActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun acceptDataPolicy() = generalDataStore.dataPolicyAccepted.set(true)
+    private fun acceptDataPolicy() {
+        CoroutineScope(Dispatchers.IO).launch {
+            generalDataStore.dataPolicyAccepted.set(true)
+        }
+    }
 
-    private suspend fun hasSeenWelcomeScreen(): Boolean = !generalDataStore.hasSeenWelcomeScreen.get()
+    private fun hasSeenWelcomeScreen(): Boolean = runBlocking {
+        !generalDataStore.hasSeenWelcomeScreen.get()
+    }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
 
