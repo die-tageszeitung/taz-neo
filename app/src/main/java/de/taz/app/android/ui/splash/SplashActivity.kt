@@ -98,7 +98,7 @@ class SplashActivity : BaseActivity() {
 
         preferences.edit().apply {
             putInt(SETTINGS_GENERAL_STORAGE_LOCATION, selectedStorageMode.ordinal)
-            commit()
+            apply()
         }
     }
 

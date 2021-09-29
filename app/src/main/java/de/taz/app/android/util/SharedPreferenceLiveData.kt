@@ -53,7 +53,7 @@ class SharedPreferenceIntLiveData(sharedPrefs: SharedPreferences, key: String, d
     override fun saveValueToPreferences(value: Int) {
         with (sharedPreferences.edit()) {
             putInt(key, value)
-            commit()
+            apply()
         }
     }
 }
@@ -71,7 +71,7 @@ class SharedPreferenceStringLiveData(
     override fun saveValueToPreferences(value: String) {
         with (sharedPreferences.edit()) {
             putString(key, value)
-            commit()
+            apply()
         }
     }
 }
@@ -92,7 +92,7 @@ class SharedPreferenceStorageLocationLiveData(
             Sentry.captureException(e)
             with (sharedPreferences.edit()) {
                 putInt(key, defValue.ordinal)
-                commit()
+                apply()
             }
             defValue.ordinal
         }
@@ -102,7 +102,7 @@ class SharedPreferenceStorageLocationLiveData(
     override fun saveValueToPreferences(value: StorageLocation) {
         with (sharedPreferences.edit()) {
             putInt(key, value.ordinal)
-            commit()
+            apply()
         }
     }
 }
@@ -120,7 +120,7 @@ class SharedPreferenceBooleanLiveData(
     override fun saveValueToPreferences(value: Boolean) {
         with (sharedPreferences.edit()) {
             putBoolean(key, value)
-            commit()
+            apply()
         }
     }
 }
@@ -138,7 +138,7 @@ class SharedPreferencesAuthStatusLiveData(
     override fun saveValueToPreferences(value:AuthStatus) {
         with (sharedPreferences.edit()) {
             putString(key, value.name)
-            commit()
+            apply()
         }
     }
 

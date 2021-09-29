@@ -53,7 +53,7 @@ class AuthHelper private constructor(val applicationContext: Context) : ViewMode
         get() = preferences.getString(PREFERENCES_AUTH_TOKEN, null)
         set(value) = with(preferences.edit()) {
             putString(PREFERENCES_AUTH_TOKEN, value)
-            commit()
+            apply()
         }
 
     val installationId

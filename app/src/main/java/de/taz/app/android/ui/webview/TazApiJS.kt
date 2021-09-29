@@ -57,7 +57,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         sharedPref?.apply {
             with(sharedPref.edit()) {
                 putString(name, value)
-                commit()
+                apply()
             }
         }
     }
