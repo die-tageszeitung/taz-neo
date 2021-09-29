@@ -61,30 +61,40 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun resetFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.fontSize.reset()
-    }
-
-    fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        val newSize = getFontSize() - 10
-        if (newSize >= MIN_TEXT_SIZE) {
-            setFontSize(newSize.toString())
+    fun resetFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.reset()
         }
     }
 
-    fun increaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        val newSize = getFontSize() + 10
-        if (newSize <= MAX_TEST_SIZE) {
-            setFontSize(newSize.toString())
+    fun decreaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() - 10
+            if (newSize >= MIN_TEXT_SIZE) {
+                setFontSize(newSize.toString())
+            }
         }
     }
 
-    private fun setFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.fontSize.set(value)
+    fun increaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() + 10
+            if (newSize <= MAX_TEST_SIZE) {
+                setFontSize(newSize.toString())
+            }
+        }
     }
 
-    fun setNightMode(value: Boolean) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.nightMode.set(value)
+    private fun setFontSize(value: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.set(value)
+        }
+    }
+
+    fun setNightMode(value: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.nightMode.set(value)
+        }
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()

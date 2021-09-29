@@ -29,30 +29,40 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         textSizeLiveData.observe(lifecycleOwner, Observer(block))
     }
 
-    fun setNightMode(activated: Boolean) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.nightMode.set(activated)
-    }
-
-    fun resetFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.fontSize.reset()
-    }
-
-    fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        val newSize = getFontSize() - 10
-        if (newSize >= MIN_TEXT_SIZE) {
-            setFontSize(newSize.toString())
+    fun setNightMode(activated: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.nightMode.set(activated)
         }
     }
 
-    fun increaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        val newSize = getFontSize() + 10
-        if (newSize <= MAX_TEST_SIZE) {
-            setFontSize(newSize.toString())
+    fun resetFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.reset()
         }
     }
 
-    private fun setFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.fontSize.set(value)
+    fun decreaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() - 10
+            if (newSize >= MIN_TEXT_SIZE) {
+                setFontSize(newSize.toString())
+            }
+        }
+    }
+
+    fun increaseFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val newSize = getFontSize() + 10
+            if (newSize <= MAX_TEST_SIZE) {
+                setFontSize(newSize.toString())
+            }
+        }
+    }
+
+    private fun setFontSize(value: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.fontSize.set(value)
+        }
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()

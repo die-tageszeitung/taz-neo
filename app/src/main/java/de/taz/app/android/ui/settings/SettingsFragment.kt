@@ -298,9 +298,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         viewModel.increaseFontSize()
     }
 
-    private fun resetFontSize() = CoroutineScope(Dispatchers.IO).launch {
-        log.debug("resetFontSize")
-        viewModel.resetFontSize()
+    private fun resetFontSize() {
+        CoroutineScope(Dispatchers.IO).launch {
+            log.debug("resetFontSize")
+            viewModel.resetFontSize()
+        }
     }
 
     private fun reportBug() {
