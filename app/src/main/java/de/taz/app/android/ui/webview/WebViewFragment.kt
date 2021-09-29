@@ -60,17 +60,6 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
-    init {
-        lifecycleScope.launchWhenCreated {
-            viewModel.nightModeLiveData.observe(this@WebViewFragment) {
-                reloadAfterCssChange()
-            }
-            viewModel.fontSizeLiveData.observe(this@WebViewFragment){
-                reloadAfterCssChange()
-            }
-        }
-    }
-
     private fun reloadAfterCssChange() {
         CoroutineScope(Dispatchers.Main).launch {
             web_view.injectCss()
@@ -129,6 +118,12 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         viewModel.displayableLiveData.observeDistinct(this) { displayable ->
             if (displayable == null) return@observeDistinct
             setHeader(displayable)
+        }
+        viewModel.nightModeLiveData.observe(this@WebViewFragment) {
+            reloadAfterCssChange()
+        }
+        viewModel.fontSizeLiveData.observe(this@WebViewFragment){
+            reloadAfterCssChange()
         }
     }
 
