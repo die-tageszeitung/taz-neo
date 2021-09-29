@@ -39,7 +39,7 @@ Anyone can produce builds for the free variant without minification enabled.
 The following flavor creates a free release for *Die Tageszeitung* app:
 
 ```
-./gradlew :app:assembleFreeTazUnminifiedRelease
+./gradlew :app:assembleFreeTazUnminifiedProductionRelease
 ```
 
 Be sure that your android sdk path is set correctly, for example by placing a `local.properties` file in the project root containing the following property:
