@@ -80,12 +80,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.fontSize.update(value)
+        tazApiCssDataStore.fontSize.set(value)
     }
 
     fun updateNightMode(value: Boolean) = CoroutineScope(Dispatchers.IO).launch {
-        tazApiCssDataStore.nightMode.update(value)
+        tazApiCssDataStore.nightMode.set(value)
     }
 
-    private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.current().toInt()
+    private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
 }

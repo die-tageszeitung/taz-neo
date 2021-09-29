@@ -12,15 +12,28 @@ import kotlinx.coroutines.flow.map
 
 interface DataStoreEntry<T> {
     fun asFlow(): Flow<T>
+    fun asLiveData(): LiveData<T> = asFlow().asLiveData()
 
-    fun asLiveData(): LiveData<T>
+    /**
+     * function to set the new value
+     * @param value the new value for this DataStoreEntry
+     */
+    suspend fun set(value: T)
 
-    suspend fun update(value: T)
+    /**
+     * function to check whether a value has been stored in the database
+     * @return true if a value exists in the database, false otherwise
+     */
+    suspend fun hasBeenSet(): Boolean
 
-    suspend fun alreadySet(): Boolean
+    /**
+     * function to get the currently set value - or the default
+     */
+    suspend fun get(): T = asFlow().first()
 
-    suspend fun current(): T = asFlow().first()
-
+    /**
+     * function to reset DataSoreEntry to default value
+     */
     suspend fun reset()
 }
 
@@ -32,16 +45,14 @@ class SimpleDataStoreEntry<T>(
 ) : DataStoreEntry<T> {
     override fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: default }
 
-    override fun asLiveData(): LiveData<T> = asFlow().asLiveData()
-
-    override suspend fun update(value: T) {
+    override suspend fun set(value: T) {
         dataStore.edit { it[key] = value }
     }
 
-    override suspend fun alreadySet(): Boolean =
+    override suspend fun hasBeenSet(): Boolean =
         dataStore.data.map { it[key] }.first() != null
 
-    override suspend fun reset() = update(default)
+    override suspend fun reset() = set(default)
 }
 
 class MappingDataStoreEntry<S, T>(
@@ -55,11 +66,9 @@ class MappingDataStoreEntry<S, T>(
 
     override fun asFlow(): Flow<S> = dataStoreEntry.asFlow().map { mapTtoS(it) }
 
-    override fun asLiveData(): LiveData<S> = asFlow().asLiveData()
+    override suspend fun set(value: S) = dataStoreEntry.set(mapStoT(value))
 
-    override suspend fun update(value: S) = dataStoreEntry.update(mapStoT(value))
+    override suspend fun hasBeenSet(): Boolean = dataStoreEntry.hasBeenSet()
 
-    override suspend fun alreadySet(): Boolean = dataStoreEntry.alreadySet()
-
-    override suspend fun reset() = update(default)
+    override suspend fun reset() = set(default)
 }

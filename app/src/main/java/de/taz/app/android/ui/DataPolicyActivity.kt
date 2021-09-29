@@ -104,9 +104,9 @@ class DataPolicyActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun acceptDataPolicy() = generalDataStore.dataPolicyAccepted.update(true)
+    private suspend fun acceptDataPolicy() = generalDataStore.dataPolicyAccepted.set(true)
 
-    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.alreadySet()
+    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.hasBeenSet()
 
     private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
 

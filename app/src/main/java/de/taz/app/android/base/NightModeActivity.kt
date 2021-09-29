@@ -19,7 +19,7 @@ abstract class NightModeActivity(layoutId: Int? = null) : BaseActivity(layoutId)
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launchWhenCreated {
-            val darkModeEnabled = tazApiCssDataStore.nightMode.current()
+            val darkModeEnabled = tazApiCssDataStore.nightMode.get()
 
             // Set initial theme by reading the preferences
             AppCompatDelegate.setDefaultNightMode(

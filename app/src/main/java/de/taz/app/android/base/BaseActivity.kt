@@ -74,7 +74,7 @@ abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivi
     }
 
     private suspend fun isDataPolicyAccepted(): Boolean =
-        generalDataStore.dataPolicyAccepted.current()
+        generalDataStore.dataPolicyAccepted.get()
 
-    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.alreadySet()
+    private suspend fun isFirstTimeStart(): Boolean = !generalDataStore.firstAppStart.hasBeenSet()
 }

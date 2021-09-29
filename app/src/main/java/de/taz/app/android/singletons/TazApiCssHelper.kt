@@ -36,9 +36,9 @@ class TazApiCssHelper private constructor(applicationContext: Context){
             }
             val importString = nightModeCssFile?.let { "@import \"${it.absolutePath}\";" } ?: ""
 
-            val fontSizePx = computeFontSize(tazApiCssDataStore.fontSize.current())
+            val fontSizePx = computeFontSize(tazApiCssDataStore.fontSize.get())
 
-            if (tazApiCssDataStore.nightMode.current()) {
+            if (tazApiCssDataStore.nightMode.get()) {
                 return@withContext """
                             $importString
                             html, body {
