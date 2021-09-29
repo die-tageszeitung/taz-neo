@@ -32,7 +32,7 @@ private val Context.tazApiCssDataStore: DataStore<Preferences> by preferencesDat
     }
 )
 
-class TazApiCssDataStore private constructor(applicationContext: Context) : ViewModel() {
+class TazApiCssDataStore private constructor(applicationContext: Context) {
 
     private val dataStore = applicationContext.tazApiCssDataStore
 

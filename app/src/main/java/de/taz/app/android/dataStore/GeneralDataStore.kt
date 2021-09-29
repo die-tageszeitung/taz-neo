@@ -36,7 +36,7 @@ private val Context.generalDataStore: DataStore<Preferences> by preferencesDataS
     }
 )
 
-class GeneralDataStore private constructor(applicationContext: Context) : ViewModel() {
+class GeneralDataStore private constructor(applicationContext: Context) {
 
     private val dataStore = applicationContext.generalDataStore
 
