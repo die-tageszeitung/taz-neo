@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -10,6 +12,9 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
@@ -51,26 +56,26 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
         view.apply {
             findViewById<TextView>(R.id.fragment_header_default_title).text =
-                getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_header).lowercase(Locale.GERMAN)
             findViewById<TextView>(R.id.fragment_settings_category_general).text =
-                getString(R.string.settings_category_general).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_category_general).lowercase(Locale.GERMAN)
             findViewById<TextView>(R.id.fragment_settings_category_text).text =
-                getString(R.string.settings_category_text).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
             findViewById<TextView>(R.id.fragment_settings_category_account).text =
-                getString(R.string.settings_category_account).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
             findViewById<TextView>(R.id.fragment_settings_category_support).text =
-                getString(R.string.settings_category_support).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_category_support).lowercase(Locale.GERMAN)
 
-            findViewById<TextView>(R.id.fragment_settings_general_keep_issues).apply {
-                setOnClickListener {
-                    showKeepIssuesDialog()
-                }
+            findViewById<TextView>(R.id.fragment_settings_general_keep_issues).setOnClickListener {
+                showKeepIssuesDialog()
             }
 
-            findViewById<Button>(R.id.fragment_settings_support_report_bug).apply {
-                setOnClickListener {
-                    reportBug()
-                }
+            findViewById<Button>(R.id.fragment_settings_support_report_bug).setOnClickListener {
+                reportBug()
+            }
+
+            findViewById<TextView>(R.id.fragment_settings_faq)?.setOnClickListener {
+                openFAQ()
             }
 
             findViewById<TextView>(R.id.fragment_settings_account_manage_account)
@@ -116,13 +121,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 StorageSelectionDialog(requireContext(), viewModel).show()
             }
 
-            fragment_settings_night_mode?.apply {
-                setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
-                        enableNightMode()
-                    } else {
-                        disableNightMode()
-                    }
+            fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    enableNightMode()
+                } else {
+                    disableNightMode()
                 }
             }
 
@@ -307,7 +310,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun resetTextSize() {
         log.debug("resetTextSize")
-        val default = context?.resources?.getInteger(R.integer.text_default_size) ?: SETTINGS_TEXT_FONT_SIZE_FALLBACK
+        val default = context?.resources?.getInteger(R.integer.text_default_size)
+            ?: SETTINGS_TEXT_FONT_SIZE_FALLBACK
         viewModel.textSizeLiveData.postValue(default.toString())
     }
 
@@ -333,5 +337,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun getTextSizePercent(): String {
         return viewModel.textSizeLiveData.value
+    }
+
+    private fun openFAQ() {
+        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper =
+                ToastHelper.getInstance(context)
+            toastHelper.showToast(R.string.toast_unknown_error)
+        }
     }
 }
