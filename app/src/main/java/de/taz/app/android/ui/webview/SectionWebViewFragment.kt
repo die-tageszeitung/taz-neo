@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.app.Application
 import android.content.Context
 import android.graphics.Point
 import android.os.Bundle
@@ -32,8 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
-class SectionWebViewViewModel(savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<Section>(savedStateHandle)
+class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
+    WebViewViewModel<Section>(application, savedStateHandle)
 
 const val PADDING_RIGHT_OF_LOGO = 20
 

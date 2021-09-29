@@ -1,30 +1,25 @@
 package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import de.taz.app.android.PREFERENCES_TAZAPICSS
-import de.taz.app.android.R
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE
-import de.taz.app.android.singletons.SETTINGS_TEXT_NIGHT_MODE
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
-import de.taz.app.android.util.SharedPreferenceStringLiveData
+import de.taz.app.android.MAX_TEST_SIZE
+import de.taz.app.android.MIN_TEXT_SIZE
+import de.taz.app.android.dataStore.TazApiCssDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TextSettingsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val sharedPreferences =
-        application.getSharedPreferences(PREFERENCES_TAZAPICSS, Context.MODE_PRIVATE)
+    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
 
     // Why is that a string TODO: migrate it to integer
-    private val textSizeLiveData = SharedPreferenceStringLiveData(
-        sharedPreferences,
-        SETTINGS_TEXT_FONT_SIZE,
-        application.resources.getInteger(R.integer.text_default_size).toString()
-    )
-    private val nightModeLiveData =
-            SharedPreferenceBooleanLiveData(sharedPreferences, SETTINGS_TEXT_NIGHT_MODE, false)
+    private val textSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+
+    private val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
+
 
     fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
         nightModeLiveData.observe(lifecycleOwner, Observer(block))
@@ -34,15 +29,31 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         textSizeLiveData.observe(lifecycleOwner, Observer(block))
     }
 
-    fun setNightMode(activated: Boolean) {
-        nightModeLiveData.postValue(activated)
+    fun updateNightMode(activated: Boolean) = CoroutineScope(Dispatchers.IO).launch {
+        tazApiCssDataStore.nightMode.update(activated)
     }
 
-    fun setTextSizePercent(percent: String) {
-        textSizeLiveData.postValue(percent)
+    fun resetFontSize() = CoroutineScope(Dispatchers.IO).launch {
+        tazApiCssDataStore.fontSize.reset()
     }
 
-    fun getTextSizePercent(): String {
-        return textSizeLiveData.value
+    fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
+        val newSize = getFontSize() - 10
+        if (newSize >= MIN_TEXT_SIZE) {
+            updateFontSize(newSize.toString())
+        }
     }
+
+    fun increaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
+        val newSize = getFontSize() + 10
+        if (newSize <= MAX_TEST_SIZE) {
+            updateFontSize(newSize.toString())
+        }
+    }
+
+    private fun updateFontSize(value: String) = CoroutineScope(Dispatchers.IO).launch {
+        tazApiCssDataStore.fontSize.update(value)
+    }
+
+    private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.current().toInt()
 }

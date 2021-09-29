@@ -40,7 +40,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private var startHomeActivity = false
 
-    private val generalDataStore = GeneralDataStore.getInstance(applicationContext)
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {

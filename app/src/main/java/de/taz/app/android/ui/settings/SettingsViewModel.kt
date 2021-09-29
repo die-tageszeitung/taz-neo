@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import de.taz.app.android.*
 import de.taz.app.android.dataStore.TazApiCssDataStore
-import de.taz.app.android.ui.bottomSheet.textSettings.MAX_TEST_SIZE
 import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
@@ -68,7 +67,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun decreaseFontSize() = CoroutineScope(Dispatchers.IO).launch {
         val newSize = getFontSize() - 10
-        if (newSize <= MAX_TEST_SIZE) {
+        if (newSize >= MIN_TEXT_SIZE) {
             updateFontSize(newSize.toString())
         }
     }

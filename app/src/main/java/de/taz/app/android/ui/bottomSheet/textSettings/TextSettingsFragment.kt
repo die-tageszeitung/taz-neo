@@ -5,12 +5,8 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.singletons.SETTINGS_TEXT_FONT_SIZE_FALLBACK
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
-
-const val MIN_TEXT_SIZE = 30
-const val MAX_TEST_SIZE = 200
 
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel>(R.layout.fragment_bottom_sheet_text_size) {
@@ -32,7 +28,7 @@ class TextSettingsFragment :
         }
 
         fragment_bottom_sheet_text_size_text_size_increase?.setOnClickListener {
-            increaseTextSize()
+            increaseFontSize()
         }
 
         fragment_bottom_sheet_text_size_night_mode?.setOnClickListener {
@@ -65,7 +61,7 @@ class TextSettingsFragment :
     }
 
     private fun onNightModeChanged(activated: Boolean) {
-        viewModel.setNightMode(activated)
+        viewModel.updateNightMode(activated)
     }
 
     private fun onSettingsSelected() {
@@ -75,30 +71,15 @@ class TextSettingsFragment :
     }
 
     private fun decreaseTextSize() {
-        viewModel.apply {
-            val newSize = getTextSizePercent().toInt() - 10
-            if (newSize >= MIN_TEXT_SIZE) {
-                setTextSizePercent(newSize.toString())
-            }
-        }
+        viewModel.decreaseFontSize()
     }
 
     private fun resetTextSize() {
-        viewModel.apply {
-            val defaultSize =
-                context?.resources?.getInteger(R.integer.text_default_size) ?:
-                SETTINGS_TEXT_FONT_SIZE_FALLBACK
-            setTextSizePercent(defaultSize.toString())
-        }
+        viewModel.resetFontSize()
     }
 
-    private fun increaseTextSize() {
-        viewModel.apply {
-            val newSize = getTextSizePercent().toInt() + 10
-            if (newSize <= MAX_TEST_SIZE) {
-                setTextSizePercent(newSize.toString())
-            }
-        }
+    private fun increaseFontSize() {
+        viewModel.increaseFontSize()
     }
 
 }
