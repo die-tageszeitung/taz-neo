@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
-    id "com.github.triplet.play" version "3.5.0"
-    id "io.sentry.android.gradle" version "2.0.0"
+    id "com.github.triplet.play" version "3.6.0-agp4.2"
+    id "io.sentry.android.gradle" version "2.1.5"
 }
 
 apply plugin: 'kotlin-android'
