@@ -21,10 +21,13 @@ stages:
       paths:
         - $GRADLE_USER_HOME/wrapper
         - $GRADLE_USER_HOME/caches
+        - build
+        - app/build
     - key: mupdf
       paths:
         - mupdf-lib/jni/libmupdf/generated/resources/
         - mupdf-lib/jni/build
+        - mupdf-lib/lib/build
   before_script:
     # Download and extract non-free fonts used by the app
     - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
