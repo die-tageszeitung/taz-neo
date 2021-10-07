@@ -17,10 +17,14 @@ stages:
   cache:
     # This cache includes the gradle wrapper and caches.
     # It is shared between all branches and jobs.
-    key: android-base
-    paths:
-      - $GRADLE_USER_HOME/wrapper
-      - $GRADLE_USER_HOME/caches
+    - key: android-base
+      paths:
+        - $GRADLE_USER_HOME/wrapper
+        - $GRADLE_USER_HOME/caches
+    - key: mupdf
+      paths:
+        - mupdf-lib/jni/libmupdf/generated/resources/
+        - mupdf-lib/jni/build
   before_script:
     # Download and extract non-free fonts used by the app
     - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
