@@ -1,9 +1,8 @@
 image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 
 variables:
-  GIT_DEPTH: 0
   SENTRY_ENVIRONMENT: official
-  GIT_STRATEGY: clone
+  GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
