@@ -104,7 +104,7 @@ integrationTests:
     - sudo -E ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
     - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=de.taz.app.android.suite.UiTestSuite
   tags:
-    - powerhouse
+    - kvm-enabled
 
 
 # UI Tests are disabled until we actually buy a device farm
