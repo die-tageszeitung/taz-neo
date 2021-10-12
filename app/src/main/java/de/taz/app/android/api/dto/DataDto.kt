@@ -16,6 +16,7 @@ data class DataDto (
     val passwordReset: PasswordResetInfo? = null,
     val priceList: List<PriceInfo>? = null,
     val product: ProductDto? = null,
+    val search: SearchDto? = null,
     val subscription: SubscriptionInfo? = null,
     val subscriptionId2tazId: SubscriptionInfo? = null,
     val subscriptionPoll: SubscriptionInfo? = null,

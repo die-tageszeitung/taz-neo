@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
@@ -24,6 +25,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -143,6 +145,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             fragment_settings_auto_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadEnabled(isChecked)
             }
+
+            if (BuildConfig.DEBUG) {
+                inflateExperimentalOptions()
+            }
         }
 
 
@@ -218,6 +224,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 )?.text = storedIssueNumber
             }
         }
+    }
+
+    private fun inflateExperimentalOptions() {
+        val experimentalContainer = view?.findViewById<FrameLayout>(R.id.experimental_container)
+        val experimentalOptionsView = layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
+        experimentalOptionsView.findViewById<TextView>(R.id.expirimental_search_button)
+            .setOnClickListener {
+                startActivity(
+                    Intent(
+                        requireActivity(),
+                        ExperimentalSearchActivity::class.java
+                    )
+                )
+            }
     }
 
     private fun showStoredIssueNumber(number: String) {

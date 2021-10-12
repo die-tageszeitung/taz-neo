@@ -3,6 +3,8 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.dto.SearchDto
+import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
@@ -261,6 +263,21 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
             }
             issues.toList()
+        }
+    }
+
+
+    /**
+     * Assembles a search query
+     */
+    suspend fun search(
+        variables: SearchVariables
+    ): SearchDto? {
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Search,
+                variables
+            ).data?.search
         }
     }
 
@@ -590,18 +607,23 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         } ?: emptyList()
     }
 
-    suspend fun getIssueByPublication(issuePublication: IssuePublication): Issue = withContext(Dispatchers.IO) {
-        transformToConnectivityException {
-            val issues = graphQlClient.query(
-                QueryType.IssueByFeedAndDate,
-                IssueVariables(issueDate = issuePublication.date, feedName = issuePublication.feed, limit = 1)
-            )
+    suspend fun getIssueByPublication(issuePublication: IssuePublication): Issue =
+        withContext(Dispatchers.IO) {
+            transformToConnectivityException {
+                val issues = graphQlClient.query(
+                    QueryType.IssueByFeedAndDate,
+                    IssueVariables(
+                        issueDate = issuePublication.date,
+                        feedName = issuePublication.feed,
+                        limit = 1
+                    )
+                )
 
-            issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                Issue(issuePublication.feed, it)
-            }
-        } ?: throw NotFoundException()
-    }
+                issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
+                    Issue(issuePublication.feed, it)
+                }
+            } ?: throw NotFoundException()
+        }
 
 
 }

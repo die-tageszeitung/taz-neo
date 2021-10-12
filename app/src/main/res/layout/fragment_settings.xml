@@ -187,6 +187,12 @@
                 android:layout_marginTop="@dimen/fragment_settings_version_margin"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_settings_revocation" />
 
+            <FrameLayout
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_version_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/experimental_container"
+            />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
