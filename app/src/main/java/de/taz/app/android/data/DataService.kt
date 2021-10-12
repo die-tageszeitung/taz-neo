@@ -466,8 +466,6 @@ class DataService(private val applicationContext: Context) {
                     }
                 }
                 filesToDelete.forEach { storageService.deleteFile(it) }
-
-                collection.setDownloadDate(null)
             }
             is IssueWithPages -> {
                 val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
@@ -503,7 +501,6 @@ class DataService(private val applicationContext: Context) {
                     }
                 }
                 filesToDelete.forEach { storageService.deleteFile(it) }
-                collection.setDownloadDate(null)
             }
             else -> collection.getAllFiles().forEach { storageService.deleteFile(it) }
         }
