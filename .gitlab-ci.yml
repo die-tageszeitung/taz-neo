@@ -21,8 +21,6 @@ stages:
       paths:
         - $GRADLE_USER_HOME/wrapper
         - $GRADLE_USER_HOME/caches
-        - build
-        - app/build
     - key: mupdf
       paths:
         - mupdf-lib/jni/libmupdf/generated/resources/
