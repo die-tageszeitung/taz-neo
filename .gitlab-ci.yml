@@ -21,11 +21,7 @@ stages:
       paths:
         - $GRADLE_USER_HOME/wrapper
         - $GRADLE_USER_HOME/caches
-    - key: mupdf
-      paths:
-        - mupdf-lib/jni/libmupdf/generated/resources/
-        - mupdf-lib/jni/build
-        - mupdf-lib/lib/build
+
   before_script:
     # Download and extract non-free fonts used by the app
     - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
@@ -46,35 +42,15 @@ stages:
     paths:
       - app/build/outputs/
 
-assembleNonfreeProductionDebug:
+assembleAllFlavors:
   extends: .assemble
   interruptible: true
   script:
-    - ./gradlew --no-daemon assembleNonfreeTazProductionDebug
-
-assembleNonfreeProductionRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleNonfreeTazProductionRelease
-
-assembleFreeProductionDebug:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionDebug
-
-assembleFreeUnminifiedRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionUnminifiedRelease
-
-assembleFreeUnminifiedManualUpdateRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionManualUpdateRelease
+    - ./gradlew assembleNonfreeTazProductionDebug
+    - ./gradlew assembleNonfreeTazProductionRelease
+    - ./gradlew assembleFreeTazProductionDebug
+    - ./gradlew assembleFreeTazProductionManualUpdateRelease
+    - ./gradlew assembleFreeTazProductionUnminifiedRelease
 
 lint:
   extends: .prepareEnv
