@@ -1,9 +1,8 @@
 image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
 
 variables:
-  GIT_DEPTH: 0
   SENTRY_ENVIRONMENT: official
-  GIT_STRATEGY: clone
+  GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
@@ -18,10 +17,11 @@ stages:
   cache:
     # This cache includes the gradle wrapper and caches.
     # It is shared between all branches and jobs.
-    key: android-base
-    paths:
-      - $GRADLE_USER_HOME/wrapper
-      - $GRADLE_USER_HOME/caches
+    - key: android-base
+      paths:
+        - $GRADLE_USER_HOME/wrapper
+        - $GRADLE_USER_HOME/caches
+
   before_script:
     # Download and extract non-free fonts used by the app
     - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
@@ -42,35 +42,15 @@ stages:
     paths:
       - app/build/outputs/
 
-assembleNonfreeProductionDebug:
+assembleAllFlavors:
   extends: .assemble
   interruptible: true
   script:
-    - ./gradlew --no-daemon assembleNonfreeTazProductionDebug
-
-assembleNonfreeProductionRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleNonfreeTazProductionRelease
-
-assembleFreeProductionDebug:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionDebug
-
-assembleFreeUnminifiedRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionUnminifiedRelease
-
-assembleFreeUnminifiedManualUpdateRelease:
-  extends: .assemble
-  interruptible: true
-  script:
-    - ./gradlew --no-daemon assembleFreeTazProductionManualUpdateRelease
+    - ./gradlew assembleNonfreeTazProductionDebug
+    - ./gradlew assembleNonfreeTazProductionRelease
+    - ./gradlew assembleFreeTazProductionDebug
+    - ./gradlew assembleFreeTazProductionManualUpdateRelease
+    - ./gradlew assembleFreeTazProductionUnminifiedRelease
 
 lint:
   extends: .prepareEnv
@@ -98,7 +78,7 @@ integrationTests:
     - sudo -E ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
     - sleep 30 && ./gradlew --no-daemon -Pci --console=plain :app:connectedNonfreeTazProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=de.taz.app.android.suite.UiTestSuite
   tags:
-    - powerhouse
+    - kvm-enabled
 
 
 # UI Tests are disabled until we actually buy a device farm
