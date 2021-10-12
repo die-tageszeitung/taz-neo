@@ -430,6 +430,8 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
+                // delete IssueWithPages if exists for that issue:
+                ensureDeletedFiles(IssueWithPages(collection))
                 val filesToDelete: MutableList<FileEntry> =
                     collection.getAllFilesToDelete().toMutableList()
                 val filesToRetain =
