@@ -26,21 +26,18 @@ class ExperimentalSearchActivity : NightModeActivity(R.layout.activity_experimen
             android.R.layout.simple_list_item_1
         )
         listView.adapter = listAdapter
-        findViewById<Button>(R.id.searchButton)
-            .apply {
-                setOnClickListener {
-                    lifecycleScope.launch {
-                        val result = apiService.search(
-                            SearchVariables(
-                                text = searchInput?.text?.toString()
-                            )
-                        )
-                        listAdapter.clear()
-                        result?.searchHitList?.let { hits ->
-                            listAdapter.addAll(hits.map { it.title })
-                        }
-                    }
+        findViewById<Button>(R.id.searchButton).setOnClickListener {
+            lifecycleScope.launch {
+                val result = apiService.search(
+                    SearchVariables(
+                        text = searchInput?.text?.toString()
+                    )
+                )
+                listAdapter.clear()
+                result?.searchHitList?.let { hits ->
+                    listAdapter.addAll(hits.map { it.title })
                 }
             }
+        }
     }
 }
