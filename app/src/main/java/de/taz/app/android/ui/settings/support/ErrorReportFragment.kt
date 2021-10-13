@@ -8,10 +8,12 @@ import android.util.Base64
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
@@ -47,19 +49,18 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
         view.apply {
             fragment_header_default_title.text =
-                getString(R.string.settings_header).toLowerCase(Locale.GERMAN)
+                getString(R.string.settings_header).lowercase(Locale.GERMAN)
 
-            // read email from settings
-            fragment_error_report_email.setText(
-                requireActivity().applicationContext.getSharedPreferences(
-                    PREFERENCES_AUTH,
-                    Context.MODE_PRIVATE
-                ).getString(PREFERENCES_AUTH_EMAIL, "")
-            )
+            lifecycleScope.launch {
+                // read email from settings
+                fragment_error_report_email.setText(
+                    AuthHelper.getInstance(requireContext().applicationContext).email.get()
+                )
+            }
 
-            fragment_error_report_upload.setOnClickListener(View.OnClickListener {
+            fragment_error_report_upload.setOnClickListener {
                 getImageFromGallery.launch("image/*")
-            })
+            }
 
             fragment_error_report_send_button.setOnClickListener {
                 loading_screen.visibility = View.VISIBLE
@@ -138,7 +139,8 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         screenshot: String?
     ) {
         val storageType =
-            StorageService.getInstance(activity?.applicationContext).getInternalFilesDir().absolutePath
+            StorageService.getInstance(activity?.applicationContext)
+                .getInternalFilesDir().absolutePath
         val errorProtocol = Log.trace.toString()
 
         val activityManager =

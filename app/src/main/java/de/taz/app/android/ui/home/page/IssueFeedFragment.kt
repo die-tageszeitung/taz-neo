@@ -72,7 +72,7 @@ abstract class IssueFeedFragment(
                 adapter.notifyItemChanged(adapter.getPosition(date))
             }
         }
-        authHelper.authStatusLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
+        authHelper.status.asLiveData().observeDistinctIgnoreFirst(viewLifecycleOwner) {
             if (AuthStatus.valid == it) {
                 lifecycleScope.launchWhenResumed {
                     withContext(Dispatchers.Main) {

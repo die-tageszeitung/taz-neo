@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.util.SingletonHolder
 
@@ -20,7 +19,6 @@ private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
 private const val FIRST_APP_START = "first_time_app_starts"
 // endregion
 
-@Suppress("DEPRECATION")
 private val Context.generalDataStore: DataStore<Preferences> by preferencesDataStore(
     PREFERENCES_GENERAL,
     produceMigrations = {

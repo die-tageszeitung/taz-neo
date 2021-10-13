@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -13,8 +12,6 @@ import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.PREFERENCES_AUTH
-import de.taz.app.android.singletons.PREFERENCES_AUTH_EMAIL
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -39,19 +36,14 @@ class LoginViewModel(
     val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
     val noInternet by lazy { MutableLiveData(false) }
 
-    // save call necessary for tests
-    @Suppress("UNNECESSARY_SAFE_CALL")
-    var username: String? = application?.getSharedPreferences(
-        PREFERENCES_AUTH,
-        Context.MODE_PRIVATE
-    )?.getString(PREFERENCES_AUTH_EMAIL, null)
+    var username: String? = runBlocking { authHelper.email.get() }
 
     var password: String? = null
     var subscriptionId: Int? = null
     var subscriptionPassword: String? = null
     var backToArticle: Boolean = true
 
-    var nameAffix: String? = null
+    private var nameAffix: String? = null
     var firstName: String? = null
     var surName: String? = null
     var street: String? = null
@@ -73,9 +65,9 @@ class LoginViewModel(
         }
     }
 
-    fun setDone(startPolling: Boolean = true) {
-        authHelper.email = username ?: ""
-        authHelper.isPolling = startPolling
+    suspend fun setDone(startPolling: Boolean = true) {
+        authHelper.email.set(username ?: "")
+        authHelper.isPolling.set(startPolling)
         status.postValue(LoginViewModelState.DONE)
     }
 
@@ -453,7 +445,7 @@ class LoginViewModel(
                     status.postValue(LoginViewModelState.NAME_MISSING)
                 }
                 SubscriptionStatus.toManyPollTrys -> {
-                    authHelper.isPolling = false
+                    authHelper.isPolling.set(false)
                     Sentry.captureMessage("ToManyPollTrys")
                 }
                 else -> {
@@ -576,10 +568,10 @@ class LoginViewModel(
         subscriptionId = null
     }
 
-    private fun saveToken(token: String) {
-        authHelper.authStatus = AuthStatus.valid
-        authHelper.token = token
-        authHelper.email = username ?: ""
+    private suspend fun saveToken(token: String) {
+        authHelper.status.set(AuthStatus.valid)
+        authHelper.token.set(token)
+        authHelper.email.set(username ?: "")
     }
 
     private fun getSubscription(previousState: LoginViewModelState?) {
@@ -721,7 +713,7 @@ class LoginViewModel(
         }
     }
 
-    fun isElapsed(): Boolean {
+    suspend fun isElapsed(): Boolean {
         return authHelper.isElapsed()
     }
 

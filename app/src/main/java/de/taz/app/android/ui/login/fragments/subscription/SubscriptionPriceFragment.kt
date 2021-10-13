@@ -14,6 +14,9 @@ import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.android.synthetic.main.fragment_subscription_price.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_price) {
@@ -42,7 +45,7 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
         super.onCreate(savedInstanceState)
         // get async so when user reconnects it automatically resolves
         setPriceList(priceList)
-        if(invalidPrice) {
+        if (invalidPrice) {
             showPriceError()
         }
     }
@@ -124,22 +127,22 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
         }
     }
 
-    fun showPriceError() {
+    private fun showPriceError() {
         ToastHelper.getInstance(context?.applicationContext).showToast(R.string.price_error_none)
     }
 
     private fun setPriceList(it: List<PriceInfo>) {
-        val priceList = if (viewModel.isElapsed()) {
-            mutableListOf()
-        } else {
-            mutableListOf(testSubscriptionPriceInfo)
-        }
-        priceList.addAll(it)
-        if (priceInfoAdapter.itemCount == 0) {
-            val position = viewModel.price?.let { selectedPrice ->
-                priceList.indexOfFirst { it.price == selectedPrice }
-            }?.coerceAtLeast(0) ?: 0
-            activity?.runOnUiThread {
+        CoroutineScope(Dispatchers.Main).launch {
+            val priceList = if (viewModel.isElapsed()) {
+                mutableListOf()
+            } else {
+                mutableListOf(testSubscriptionPriceInfo)
+            }
+            priceList.addAll(it)
+            if (priceInfoAdapter.itemCount == 0) {
+                val position = viewModel.price?.let { selectedPrice ->
+                    priceList.indexOfFirst { it.price == selectedPrice }
+                }?.coerceAtLeast(0) ?: 0
                 priceInfoAdapter.setData(priceList)
                 priceInfoAdapter.selectedItem = position
                 activity?.findViewById<View>(R.id.loading_screen)?.visibility =
