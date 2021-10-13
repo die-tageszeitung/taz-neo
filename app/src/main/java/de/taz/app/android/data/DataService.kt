@@ -430,42 +430,8 @@ class DataService(private val applicationContext: Context) {
 
         when (collection) {
             is Issue -> {
-                // delete IssueWithPages if exists for that issue:
+                // delete IssueWithPages as it is the issue with (maybe) additional pages
                 ensureDeletedFiles(IssueWithPages(collection))
-                val filesToDelete: MutableList<FileEntry> =
-                    collection.getAllFilesToDelete().toMutableList()
-                val filesToRetain =
-                    collection.sectionList.fold(mutableListOf<String>()) { acc, section ->
-                        // bookmarked articles should remain
-                        acc.addAll(
-                            section.articleList
-                                .filter { it.bookmarked }
-                                .map { it.getAllFileNames() }
-                                .flatten()
-                                .distinct()
-                        )
-                        // author images are potentially used globally so we retain them for now as they don't eat up much space
-                        acc.addAll(
-                            section.articleList
-                                .map { it.authorList }
-                                .flatten()
-                                .mapNotNull { it.imageAuthor }
-                                .map { it.name }
-                        )
-                        acc
-                    }
-                filesToDelete.removeAll { it.name in filesToRetain }
-
-                // do not delete bookmarked files
-                articleRepository.apply {
-                    getBookmarkedArticleStubListForIssuesAtDate(
-                        collection.feedName,
-                        collection.date
-                    ).forEach {
-                        filesToDelete.removeAll(articleStubToArticle(it).getAllFiles())
-                    }
-                }
-                filesToDelete.forEach { storageService.deleteFile(it) }
             }
             is IssueWithPages -> {
                 val filesToDelete: MutableList<FileEntry> = collection.getAllFiles().toMutableList()
