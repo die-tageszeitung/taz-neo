@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
@@ -37,11 +39,11 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Locale
+import kotlinx.coroutines.withContext
+import java.util.*
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
@@ -153,7 +155,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             fragment_settings_delete_all_issues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
-
             if (BuildConfig.DEBUG) {
                 inflateExperimentalOptions()
             }
@@ -235,27 +236,31 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun showDeleteAllIssuesDialog() {
-        context?.let {
-            val dialog = MaterialAlertDialogBuilder(it)
-                .setTitle(R.string.settings_delete_all_issues_for_sure)
-                .setMessage(R.string.settings_delete_all_issues_for_sure_detail)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    loading_screen?.visibility = View.VISIBLE
-                    log.debug("delete all issues")
-
-                    CoroutineScope(Dispatchers.IO).launch {
-                        IssueRepository.getInstance(it).apply {
-                            getAllIssueStubs().forEach { issueStub ->
-                                DataService.getInstance(it).ensureDeletedFiles(getIssue(issueStub))
-                            }
-                        }
-                    }
-                }
+        context?.let { context ->
+            val dialogView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_settings_delete_all_issues, null)
+            val dialog = MaterialAlertDialogBuilder(context)
+                .setView(dialogView)
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
+                    dialog.dismiss()
                 }
                 .create()
             dialog.show()
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.setOnClickListener {
+                dialog.setCancelable(false)
+                dialogView.findViewById<ConstraintLayout>(R.id.delete_all_issues_loading_screen)?.visibility =
+                    View.VISIBLE
+                CoroutineScope(Dispatchers.IO).launch {
+                    IssueRepository.getInstance(context).apply {
+                        getAllIssueStubs().forEach { issueStub ->
+                            DataService.getInstance(context).ensureDeletedFiles(getIssue(issueStub))
+                        }
+                    }
+                    dialog.dismiss()
+                }
+            }
         }
     }
 
