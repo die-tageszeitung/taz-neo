@@ -4,6 +4,9 @@ import android.app.Application
 import android.os.StrictMode
 import com.facebook.stetho.Stetho
 import de.taz.app.android.download.DownloadService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Suppress("UNUSED")
 class TazApplication : Application() {
@@ -20,7 +23,9 @@ class TazApplication : Application() {
         }
         SentryProvider.initSentry(this)
         DownloadService.createInstance(applicationContext).apply {
-            scheduleNewestIssueDownload("poll/initial", true)
+            CoroutineScope(Dispatchers.IO).launch {
+                scheduleNewestIssueDownload("poll/initial", true)
+            }
         }
     }
 }
