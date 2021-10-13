@@ -147,6 +147,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+            fragment_settings_delete_all_issues.setOnClickListener {
+                //TODO delete all issues
+            }
+
             if (BuildConfig.DEBUG) {
                 inflateExperimentalOptions()
             }
