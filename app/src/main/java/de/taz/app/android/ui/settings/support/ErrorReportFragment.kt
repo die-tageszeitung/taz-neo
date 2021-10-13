@@ -12,6 +12,7 @@ import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.lang.Exception
 import java.util.*
 
@@ -51,10 +53,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
 
             // read email from settings
             fragment_error_report_email.setText(
-                requireActivity().applicationContext.getSharedPreferences(
-                    PREFERENCES_AUTH,
-                    Context.MODE_PRIVATE
-                ).getString(PREFERENCES_AUTH_EMAIL, "")
+                runBlocking { AuthHelper.getInstance(requireContext().applicationContext).email.get() }
             )
 
             fragment_error_report_upload.setOnClickListener(View.OnClickListener {
