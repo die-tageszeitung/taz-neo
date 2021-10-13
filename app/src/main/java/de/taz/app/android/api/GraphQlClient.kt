@@ -9,7 +9,6 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.JsonHelper
@@ -18,7 +17,6 @@ import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit

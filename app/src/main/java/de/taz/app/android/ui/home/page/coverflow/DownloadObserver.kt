@@ -94,6 +94,7 @@ class DownloadObserver(
                             IssuePublication(issueKey),
                             retryOnFailure = true,
                             allowCache = false,
+                            forceUpdate = true,
                             onConnectionFailure = { onConnectionFailure() },
                             cacheWithPages = issueKey is IssueKeyWithPages
                         )

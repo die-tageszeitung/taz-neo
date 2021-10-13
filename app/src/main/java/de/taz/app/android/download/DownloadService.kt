@@ -252,7 +252,6 @@ class DownloadService constructor(
             }
             in 400..499 -> {
                 log.warn("Download of ${updatedFileEntry.name} not successful ${response.status.value}")
-                Sentry.captureMessage(response.readText())
                 fileEntryRepository.resetDownloadDate(updatedFileEntry)
                 Sentry.captureException(
                     ConnectivityException.ImplementationException(
@@ -264,12 +263,10 @@ class DownloadService constructor(
             }
             in 500..599 -> {
                 log.warn("Download of ${updatedFileEntry.name} not successful ${response.status.value}")
-                Sentry.captureMessage(response.readText())
                 throw ConnectivityException.ServerUnavailableException("Response code ${response.status.value} while trying to download ${updatedFileEntry.name}")
             }
             else -> {
                 log.warn("Unexpected code ${response.status.value} for  ${updatedFileEntry.name}")
-                Sentry.captureMessage(response.readText())
             }
         }
 

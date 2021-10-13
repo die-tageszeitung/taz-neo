@@ -371,12 +371,14 @@ class DataService(private val applicationContext: Context) {
                     is Issue -> getIssue(
                         IssuePublication(collection.issueKey),
                         allowCache = false,
+                        forceUpdate = true,
                         retryOnFailure = true
                     )
                     is IssueWithPages -> IssueWithPages(
                         getIssue(
                             IssuePublication(collection.issueKey),
                             allowCache = false,
+                            forceUpdate = true,
                             retryOnFailure = true
                         )
                     )

@@ -76,6 +76,7 @@ class FrontpageViewBinding(
                     issuePublication,
                     retryOnFailure = true,
                     allowCache = false,
+                    forceUpdate = true,
                     onConnectionFailure = { onConnectionFailure() },
                     cacheWithPages = true
                 )

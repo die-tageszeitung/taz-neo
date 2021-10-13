@@ -13,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadService
@@ -183,7 +184,9 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 try {
                     val issue =
                         dataService.getIssue(
-                            IssuePublication(issueKey)
+                            IssuePublication(issueKey),
+                            allowCache = false,
+                            forceUpdate = true
                         )
                     val issueToDownload = if (issueKey is IssueKeyWithPages) {
                         IssueWithPages(issue)

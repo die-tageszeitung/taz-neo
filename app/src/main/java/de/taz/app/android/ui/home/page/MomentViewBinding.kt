@@ -92,6 +92,7 @@ class MomentViewBinding(
                     issuePublication,
                     retryOnFailure = true,
                     allowCache = false,
+                    forceUpdate = true,
                     onConnectionFailure = { onConnectionFailure() }
                 )
                 dataService.ensureDownloaded(
