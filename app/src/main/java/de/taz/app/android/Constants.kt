@@ -23,7 +23,6 @@ const val MIN_TEXT_SIZE = 30
 const val MAX_TEST_SIZE = 200
 
 // Preferences
-const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
 
 // Settings
@@ -31,8 +30,6 @@ const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
 const val SETTINGS_GENERAL_STORAGE_LOCATION = "general_storage_location"
 val SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
-const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
-const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
 const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
 const val ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE = "ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE"
 
