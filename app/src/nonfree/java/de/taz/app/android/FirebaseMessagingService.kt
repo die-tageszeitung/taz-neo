@@ -63,7 +63,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
                         REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
-                            authHelper.isPolling = true
+                            CoroutineScope(Dispatchers.IO).launch {
+                                authHelper.isPolling.set(true)
+                            }
                         }
                     }
                 }
