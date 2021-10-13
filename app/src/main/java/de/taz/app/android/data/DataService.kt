@@ -50,7 +50,7 @@ class DataService(private val applicationContext: Context) {
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val authHelper by lazy { AuthHelper.getInstance(applicationContext) }
+    private val authHelper = AuthHelper.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     private val downloadLiveDataLock = Mutex()
