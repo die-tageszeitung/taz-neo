@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import de.taz.app.android.*
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SharedPreferenceStringLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -17,12 +17,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     var fontSizeLiveData: LiveData<String>
     var nightModeLiveData: LiveData<Boolean>
-    lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
-    lateinit var downloadOnlyWifiLiveData: SharedPreferenceBooleanLiveData
-    lateinit var downloadAutomaticallyLiveData: SharedPreferenceBooleanLiveData
+
+    val downloadOnlyWifiLiveData: LiveData<Boolean>
+    val  downloadAutomaticallyLiveData: LiveData<Boolean>
+
     lateinit var storageLocationLiveData: SharedPreferenceStorageLocationLiveData
+    lateinit var storedIssueNumberLiveData: SharedPreferenceStringLiveData
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
+    private val downloadDataStore = DownloadDataStore.getInstance(application)
 
     init {
         fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
@@ -44,20 +47,19 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 )
         }
 
-        application.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)?.let {
-            downloadOnlyWifiLiveData =
-                SharedPreferenceBooleanLiveData(
-                    it,
-                    SETTINGS_DOWNLOAD_ONLY_WIFI,
-                    true
-                )
+        downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
+        downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
+    }
 
-            downloadAutomaticallyLiveData =
-                SharedPreferenceBooleanLiveData(
-                    it,
-                    SETTINGS_DOWNLOAD_ENABLED,
-                    true
-                )
+    fun setOnlyWifi(onlyWifi: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.onlyWifi.set(onlyWifi)
+        }
+    }
+
+    fun setDownloadsEnabled(enabled: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.enabled.set(enabled)
         }
     }
 

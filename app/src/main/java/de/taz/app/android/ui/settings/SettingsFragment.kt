@@ -40,7 +40,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
     private val log by Log
 
@@ -333,11 +332,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
-        viewModel.downloadOnlyWifiLiveData.postValue(onlyWifi)
+        viewModel.setOnlyWifi(onlyWifi)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
-        viewModel.downloadAutomaticallyLiveData.postValue(downloadEnabled)
+        viewModel.setDownloadsEnabled(downloadEnabled)
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
