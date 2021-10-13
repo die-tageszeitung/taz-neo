@@ -111,9 +111,10 @@ class SplashActivity : BaseActivity() {
             launch { sendPushToken() }
         }
         lifecycleScope.launch {
+            // create installation id before setting up sentry
+            generateInstallationId()
             setupSentry()
 
-            generateInstallationId()
             generateNotificationChannels()
 
             try {
@@ -190,32 +191,23 @@ class SplashActivity : BaseActivity() {
         }
     }
 
-    private fun generateInstallationId() {
-        val preferences =
-            applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
-
-        val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
-        installationId?.let {
-            log.debug("InstallationId: $installationId")
-        } ?: run {
+    private suspend fun generateInstallationId() {
+        val installationId = authHelper.installationId.get()
+        if(installationId.isEmpty()) {
             val uuid = UUID.randomUUID().toString()
-            preferences.edit().putString(
-                PREFERENCES_AUTH_INSTALLATION_ID, uuid
-            ).apply()
+            authHelper.installationId.set(installationId)
             log.debug("initialized InstallationId: $uuid")
+        } else {
+            log.debug("InstallationId: $installationId")
         }
     }
 
 
-    private fun setupSentry() {
+    private suspend fun setupSentry() {
         log.info("setting up sentry")
-        val preferences =
-            applicationContext.getSharedPreferences(PREFERENCES_AUTH, Context.MODE_PRIVATE)
-        val installationId = preferences.getString(PREFERENCES_AUTH_INSTALLATION_ID, null)
 
         val user = User()
-        user.id = installationId
-
+        user.id = authHelper.installationId.get()
         Sentry.setUser(user)
     }
 
