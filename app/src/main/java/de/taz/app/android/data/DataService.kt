@@ -50,7 +50,7 @@ class DataService(private val applicationContext: Context) {
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val downloadService = DownloadService.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val authHelper = AuthHelper.getInstance(applicationContext)
+    private val authHelper by lazy { AuthHelper.getInstance(applicationContext) }
     private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     private val downloadLiveDataLock = Mutex()
@@ -127,7 +127,7 @@ class DataService(private val applicationContext: Context) {
                 // try too read it from database if issue status is not regular -
                 // presumably this is so that people with an expired subscription can still access old
                 // issues they have saved to database. TODO is this desired?!
-                if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+                if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
                     issueRepository.getStub(publicKey)?.let { return@withContext it }
                 }
                 log.info("Cache miss on $issuePublication")
@@ -190,7 +190,7 @@ class DataService(private val applicationContext: Context) {
             // try too read it from database if issue status is not regular -
             // presumably this is so that people with an expired subscription can still access old
             // issues they have saved to database. TODO is this desired?!
-            if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+            if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
                 issueRepository.get(publicKey)?.let { return@withContext it }
             }
             log.info("Cache miss on $issuePublication")
@@ -226,9 +226,10 @@ class DataService(private val applicationContext: Context) {
         return issueRepository.getStub(isssueKey)?.lastPagePosition
     }
 
-    suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) = withContext(Dispatchers.IO) {
-        issueRepository.saveLastPagePosition(issueKey, pageName)
-    }
+    suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) =
+        withContext(Dispatchers.IO) {
+            issueRepository.saveLastPagePosition(issueKey, pageName)
+        }
 
     suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? =
         withContext(Dispatchers.IO) {
@@ -275,7 +276,7 @@ class DataService(private val applicationContext: Context) {
                 // try too read it from database if issue status is not regular -
                 // presumably this is so that people with an expired subscription can still access old
                 // issues they have saved to database. TODO is this desired?!
-                if (authHelper.eligibleIssueStatus != IssueStatus.regular) {
+                if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
                     momentRepository.get(publicKey)?.let { return@withContext it }
                 }
                 log.info("Cache miss on $issuePublication")
@@ -569,7 +570,7 @@ class DataService(private val applicationContext: Context) {
         return if (issueRepository.exists(regularKey) && issueRepository.isDownloaded(regularKey)) {
             regularKey
         } else {
-            IssueKey(issuePublication, authHelper.eligibleIssueStatus)
+            IssueKey(issuePublication, authHelper.getEligibleIssueStatus())
         }
     }
 
@@ -582,7 +583,7 @@ class DataService(private val applicationContext: Context) {
         ) {
             regularKeyWithPages
         } else {
-            IssueKeyWithPages(IssueKey(issuePublication, authHelper.eligibleIssueStatus))
+            IssueKeyWithPages(IssueKey(issuePublication, authHelper.getEligibleIssueStatus()))
         }
     }
 
