@@ -125,7 +125,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         CoroutineScope(Dispatchers.IO).launch {
                             elapsedButWaiting.set(false)
                             launch {
-                                firebaseHelper.firebaseToken?.let {
+                                firebaseHelper.token.get()?.let {
                                     dataService.sendNotificationInfo(it, retryOnFailure = true)
                                 }
                             }

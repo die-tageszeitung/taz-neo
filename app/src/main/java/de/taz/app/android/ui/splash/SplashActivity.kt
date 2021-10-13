@@ -193,7 +193,7 @@ class SplashActivity : BaseActivity() {
 
     private suspend fun generateInstallationId() {
         val installationId = authHelper.installationId.get()
-        if(installationId.isEmpty()) {
+        if (installationId.isEmpty()) {
             val uuid = UUID.randomUUID().toString()
             authHelper.installationId.set(installationId)
             log.debug("initialized InstallationId: $uuid")
@@ -385,9 +385,11 @@ class SplashActivity : BaseActivity() {
 
     private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
         try {
-            if (!firebaseHelper.hasTokenBeenSent && !firebaseHelper.firebaseToken.isNullOrEmpty()) {
-                firebaseHelper.hasTokenBeenSent =
-                    dataService.sendNotificationInfo(firebaseHelper.firebaseToken!!)
+            val token = firebaseHelper.token.get()
+            if (!firebaseHelper.tokenSent.get() && !token.isNullOrEmpty()) {
+                firebaseHelper.tokenSent.set(
+                    dataService.sendNotificationInfo(token)
+                )
             }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Sending notification token failed because no internet available")
