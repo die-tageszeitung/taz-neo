@@ -25,7 +25,6 @@ const val MAX_TEST_SIZE = 200
 // Preferences
 const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
-const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
 // Settings
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
