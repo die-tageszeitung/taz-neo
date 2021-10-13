@@ -1,5 +1,10 @@
 package de.taz.app.android.api
 
+import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
@@ -7,19 +12,31 @@ import de.taz.app.android.singletons.AuthHelper
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
+import java.io.File
 
 class GraphQlClientTest {
+
+    @kotlinx.coroutines.ObsoleteCoroutinesApi
+    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
+
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
+
     @Mock
     private lateinit var queryServiceMock: QueryService
     @Mock
-    private lateinit var authHelper: AuthHelper
+    private lateinit var application: Application
+    @Mock
+    private lateinit var dataStore: DataStore<Preferences>
 
     private lateinit var graphQlClient: GraphQlClient
 
@@ -38,14 +55,22 @@ class GraphQlClientTest {
         }
     }
 
+    @ExperimentalCoroutinesApi
+    @ObsoleteCoroutinesApi
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
+        Dispatchers.setMain(mainThreadSurrogate)
+
+        dataStore = PreferenceDataStoreFactory.create {
+            File.createTempFile("test", ".preferences_pb", null)
+        }
+
         graphQlClient = GraphQlClient(
             mockClient,
             BuildConfig.GRAPHQL_ENDPOINT,
             queryService = queryServiceMock,
-            authHelper = authHelper
+            authHelper = AuthHelper(application, dataStore)
         )
     }
 
@@ -53,8 +78,6 @@ class GraphQlClientTest {
     fun appInfoQuery() {
         doReturn(Query("\"query\":\"query { product { appType appName }}\""))
             .`when`(queryServiceMock).get(QueryType.AppInfo)
-
-        doReturn("").`when`(authHelper).token
 
         runBlocking {
             val dataDto = graphQlClient.query(QueryType.AppInfo)
