@@ -1,6 +1,7 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
@@ -49,15 +50,22 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
         )
     }
 )
+
 /**
  * Singleton handling authentication
  */
 @Mockable
-class AuthHelper private constructor(applicationContext: Context) {
+class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
+    applicationContext: Context,
+    dataStore: DataStore<Preferences>
+) {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
-    private val dataStore = applicationContext.authDataStore
+    private constructor(applicationContext: Context) : this(
+        applicationContext,
+        applicationContext.authDataStore
+    )
 
     private val dataService by lazy { DataService.getInstance(applicationContext) }
     private val articleRepository by lazy { ArticleRepository.getInstance(applicationContext) }

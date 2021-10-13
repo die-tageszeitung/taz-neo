@@ -2,12 +2,13 @@ package de.taz.app.android.ui.login
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.FeedHelper
 import de.taz.app.android.singletons.ToastHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
@@ -21,6 +22,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import java.io.File
 import java.net.ConnectException
 
 @RunWith(MockitoJUnitRunner::class)
@@ -82,12 +84,16 @@ class LoginViewModelTest {
 
     @Mock
     lateinit var apiService: ApiService
+
     @Mock
     lateinit var authHelper: AuthHelper
+
+    @Mock
+    lateinit var dataStore: DataStore<Preferences>
+
     @Mock
     lateinit var application: Application
-    @Mock
-    lateinit var feedHelper: FeedHelper
+
     @Mock
     lateinit var toastHelper: ToastHelper
 
@@ -98,8 +104,10 @@ class LoginViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
-
-        authHelper.status.asLiveData() = MutableLiveData()
+        dataStore = PreferenceDataStoreFactory.create {
+            File.createTempFile("test", ".preferences_pb", null)
+        }
+        authHelper = AuthHelper(application, dataStore)
 
         loginViewModel = LoginViewModel(
             application = application,
