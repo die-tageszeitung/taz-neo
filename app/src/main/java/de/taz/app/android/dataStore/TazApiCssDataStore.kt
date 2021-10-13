@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.util.SingletonHolder
 
@@ -18,7 +17,6 @@ private const val FONT_SIZE = "text_font_size"
 private const val NIGHT_MODE = "text_night_mode"
 // endregion
 
-@Suppress("DEPRECATION")
 private val Context.tazApiCssDataStore: DataStore<Preferences> by preferencesDataStore(
     PREFERENCES_TAZ_API_CSS,
     produceMigrations = {
