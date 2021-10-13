@@ -72,7 +72,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
-                    installationId = authHelper.installationId,
+                    installationId = authHelper.installationId.get(),
                     pushToken = firebaseHelper.firebaseToken,
                     tazId,
                     idPassword,
@@ -92,7 +92,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.SubscriptionPoll,
-                SubscriptionPollVariables(authHelper.installationId)
+                SubscriptionPollVariables(authHelper.installationId.get())
             ).data?.subscriptionPoll
         }
     }
@@ -368,7 +368,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     feedName,
                     issueDate,
                     isAutomatically,
-                    installationId = authHelper.installationId,
+                    installationId = authHelper.installationId.get(),
                     isPush = firebaseHelper.isPush
                 )
             ).data?.downloadStart?.let { id ->
@@ -441,7 +441,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.Subscription,
                 SubscriptionVariables(
-                    installationId = authHelper.installationId,
+                    installationId = authHelper.installationId.get(),
                     pushToken = firebaseHelper.firebaseToken,
                     tazId = tazId,
                     idPassword = idPassword,
@@ -487,7 +487,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     idPassword = idPassword,
                     surname = surname,
                     firstName = firstName,
-                    nameAffix = nameAffix
+                    nameAffix = nameAffix,
+                    installationId = authHelper.installationId.get()
                 )
             ).data?.trialSubscription
         }
@@ -522,7 +523,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.ErrorReport,
                 ErrorReportVariables(
-                    installationId = authHelper.installationId,
+                    installationId = authHelper.installationId.get(),
                     pushToken = firebaseHelper.firebaseToken,
                     email,
                     message,

@@ -9,7 +9,6 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.JsonHelper
@@ -18,7 +17,6 @@ import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -71,8 +69,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         header("Accept", "application/json, */*")
                         header("Content-Type", "application/json")
                         body = queryBody
-                        val token = authHelper.token
-                        if (!token.isNullOrEmpty()
+                        val token = authHelper.token.get()
+                        if (!token.isEmpty()
                             && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
                         ) {
                             header(TAZ_AUTH_HEADER, token)
@@ -104,8 +102,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             // if response carries authinfo we save it
             wrapper.data?.product?.authInfo?.let {
                 // only update if it changes
-                if (authHelper.authStatus != it.status) {
-                    authHelper.authStatus = it.status
+                if (authHelper.status.get() != it.status) {
+                    authHelper.status.set(it.status)
                 }
             }
             wrapper
