@@ -69,7 +69,7 @@ class DownloadService constructor(
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
 
-    private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANIOUS_DOWNLOADS)
+    private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANEOUS_DOWNLOADS)
 
 
     /**

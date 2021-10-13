@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonEncodingException
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.MAX_SIMULTANIOUS_QUERIES
+import de.taz.app.android.MAX_SIMULTANEOUS_QUERIES
 import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
@@ -43,7 +43,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 
     companion object : SingletonHolder<GraphQlClient, Context>(::GraphQlClient)
 
-    private val maxSimultaneousRequestSemaphore = Semaphore(MAX_SIMULTANIOUS_QUERIES)
+    private val maxSimultaneousRequestSemaphore = Semaphore(MAX_SIMULTANEOUS_QUERIES)
 
     /**
      * function to get DTO from query
