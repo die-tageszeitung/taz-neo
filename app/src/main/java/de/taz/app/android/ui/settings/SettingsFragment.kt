@@ -16,6 +16,7 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -179,7 +180,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         }
 
         val authHelper = AuthHelper.getInstance(activity?.applicationContext)
-        authHelper.authStatusLiveData.observeDistinct(viewLifecycleOwner) { authStatus ->
+        authHelper.status.asLiveData().observeDistinct(viewLifecycleOwner) { authStatus ->
             if (authStatus in arrayOf(
                     AuthStatus.valid,
                     AuthStatus.elapsed
@@ -190,7 +191,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 showManageAccountButton()
             }
         }
-        authHelper.emailLiveData.observeDistinct(viewLifecycleOwner) { email ->
+        authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             fragment_settings_account_email.text = email
         }
     }
@@ -319,10 +320,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         viewModel.downloadAutomaticallyLiveData.postValue(downloadEnabled)
     }
 
-    private fun logout() {
+    private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
         val authHelper = AuthHelper.getInstance(activity?.applicationContext)
-        authHelper.token = ""
-        authHelper.authStatus = AuthStatus.notValid
+        authHelper.token.set("")
+        authHelper.status.set(AuthStatus.notValid)
     }
 
     private fun openFAQ() {
