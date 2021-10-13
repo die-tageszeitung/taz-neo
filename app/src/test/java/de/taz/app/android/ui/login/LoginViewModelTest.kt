@@ -99,7 +99,7 @@ class LoginViewModelTest {
     fun setUp() {
         Dispatchers.setMain(mainThreadSurrogate)
 
-        authHelper.authStatusLiveData = MutableLiveData()
+        authHelper.status.asLiveData() = MutableLiveData()
 
         loginViewModel = LoginViewModel(
             application = application,
