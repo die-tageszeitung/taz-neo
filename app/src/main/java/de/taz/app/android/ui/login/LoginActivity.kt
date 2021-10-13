@@ -8,7 +8,6 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
@@ -19,9 +18,6 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
@@ -33,6 +29,7 @@ import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,22 +48,14 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private var article: String? = null
 
-    private var apiService: ApiService? = null
-    private var articleRepository: ArticleRepository? = null
-    private var authHelper: AuthHelper? = null
-    private var issueRepository: IssueRepository? = null
-    private var sectionRepository: SectionRepository? = null
-    private var toastHelper: ToastHelper? = null
+    private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        apiService = ApiService.getInstance(applicationContext)
-        articleRepository = ArticleRepository.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-        sectionRepository = SectionRepository.getInstance(applicationContext)
 
         view.moveContentBeneathStatusBar()
 
@@ -100,7 +89,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
-                    viewModel.validCredentials = viewModel.isElapsed()
+                    lifecycleScope.launch {
+                        viewModel.validCredentials = viewModel.isElapsed()
+                    }
                     if (register) {
                         showSubscriptionPrice()
                     } else {
@@ -165,12 +156,14 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     showPasswordRequest(invalidId = true)
                 }
                 LoginViewModelState.POLLING_FAILED -> {
-                    toastHelper?.showToast(R.string.something_went_wrong_try_later)
+                    toastHelper.showToast(R.string.something_went_wrong_try_later)
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
-                    showConfirmEmail()
-                    authHelper!!.elapsedButWaiting = viewModel.isElapsed()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        authHelper.elapsedButWaiting.set(viewModel.isElapsed())
+                        showConfirmEmail()
+                    }
                 }
                 LoginViewModelState.REGISTRATION_SUCCESSFUL -> showRegistrationSuccessful()
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
@@ -240,7 +233,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
         viewModel.noInternet.observeDistinct(this) {
             if (it) {
-                toastHelper?.showNoConnectionToast()
+                toastHelper.showNoConnectionToast()
             }
         }
 
@@ -311,7 +304,7 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun showCredentialsInvalid() {
         log.debug("showCredentialsInvalid")
-        toastHelper?.showToast(R.string.login_error_unknown_credentials)
+        toastHelper.showToast(R.string.login_error_unknown_credentials)
         showFragment(
             LoginFragment.create(
                 usernameErrorId = R.string.login_error_unknown_credentials
@@ -395,10 +388,9 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     fun done() {
         log.debug("done")
         showLoadingScreen()
-
-        val data = Intent()
-        if (authHelper?.isLoggedIn() == true) {
-            lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val data = Intent()
+            if (authHelper.isLoggedIn()) {
                 article = article?.replace("public.", "")
 
                 article?.let {
@@ -412,10 +404,10 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
                     setResult(Activity.RESULT_OK, data)
                     finish()
                 }
+            } else {
+                setResult(Activity.RESULT_OK, data)
+                finish()
             }
-        } else {
-            setResult(Activity.RESULT_OK, data)
-            finish()
         }
     }
 
