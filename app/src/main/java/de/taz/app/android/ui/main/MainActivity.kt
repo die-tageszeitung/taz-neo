@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
@@ -27,6 +28,8 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
@@ -61,27 +64,35 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         sectionRepository = SectionRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        checkIfSubscriptionElapsed()
-        maybeShowTryPdfDialog()
+        lifecycleScope.launch(Dispatchers.Main) {
+            checkIfSubscriptionElapsed()
+            maybeShowTryPdfDialog()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (issueFeedViewModel.pdfMode.value == true && !authHelper.isLoggedIn()) {
-            AlertDialog.Builder(this)
-                .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                .setNegativeButton(R.string.login_button) { dialog, _ ->
-                    startActivityForResult(
-                        Intent(this, LoginActivity::class.java),
-                        ACTIVITY_LOGIN_REQUEST_CODE
-                    )
-                    dialog.dismiss()
-                }
-                .show()
-        }
+        maybeShowLoggedOutDialog()
         issueFeedViewModel.pdfMode.observeDistinctIgnoreFirst(this) {
             recreate()
+        }
+    }
+
+    private fun maybeShowLoggedOutDialog() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (issueFeedViewModel.pdfMode.value == true && !authHelper.isLoggedIn()) {
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                    .setNegativeButton(R.string.login_button) { dialog, _ ->
+                        startActivityForResult(
+                            Intent(this@MainActivity, LoginActivity::class.java),
+                            ACTIVITY_LOGIN_REQUEST_CODE
+                        )
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
         }
     }
 
@@ -113,9 +124,9 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun checkIfSubscriptionElapsed() {
-        val authStatus = AuthHelper.getInstance(applicationContext).authStatus
-        val isElapsedButWaiting = AuthHelper.getInstance(applicationContext).elapsedButWaiting
+    private suspend fun checkIfSubscriptionElapsed() {
+        val authStatus = authHelper.status.get()
+        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting) {
             showSubscriptionElapsedPopup()
         }
