@@ -25,7 +25,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     init {
-        authHelper.isPollingLiveData.observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
+        authHelper.isPolling.asLiveData().observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
             if (isPolling) {
                 poll()
             }
@@ -43,11 +43,13 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
 
                 when (subscriptionInfo?.status) {
                     SubscriptionStatus.valid -> {
-                        authHelper.isPolling = false
-                        authHelper.token = subscriptionInfo.token!!
-                        authHelper.authStatus = AuthStatus.valid
+                        authHelper.isPolling.set(false)
+                        authHelper.token.set(requireNotNull(subscriptionInfo.token) {
+                            "Backend returned empty token with SubscriptionStatus.valid"
+                        })
+                        authHelper.status.set(AuthStatus.valid)
                         CoroutineScope(Dispatchers.Main).launch {
-                            authHelper.authStatusLiveData.observeDistinctOnce(ProcessLifecycleOwner.get()) {
+                            authHelper.status.asLiveData().observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
                                     issueRepository.saveIfDoesNotExist(
                                         apiService.getLastIssues()
@@ -85,7 +87,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         poll(timeMillis * 2)
                     }
                     SubscriptionStatus.toManyPollTrys -> {
-                        authHelper.isPolling = false
+                        authHelper.isPolling.set(false)
                         Sentry.captureMessage("ToManyPollTrys")
                     }
                     else -> {
