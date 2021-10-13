@@ -1,0 +1,94 @@
+query SearchQuery(
+    $text: String,
+    $title: String,
+    $author: String,
+    $offset: Int,
+    $sorting: Sorting,
+    $pubDateFrom: String,
+    $pubDateUntil: String,
+) {
+    search(
+        text: $text,
+        title: $title,
+        author: $author,
+        offset: $offset,
+        sorting: $sorting,
+        pubDateFrom: $pubDateFrom,
+        pubDateUntil: $pubDateUntil
+    ) {
+        authInfo {
+            status
+            message
+        }
+        sessionId
+        searchHitList {
+            article {
+                id
+                articleHtml {
+                    name
+                    storageType
+                    moTime
+                    sha256
+                    size
+                }
+                title
+                teaser
+                onlineLink
+                pageNameList
+                audioFile {
+                    name
+                    storageType
+                    moTime
+                    sha256
+                    size
+                }
+                imageList {
+                    resolution
+                    name
+                    type
+                    storageType
+                    moTime
+                    sha256
+                    size
+                    alpha
+                    sharable
+                }
+                authorList {
+                    name
+                    imageAuthor {
+                        resolution
+                        name
+                        type
+                        storageType
+                        moTime
+                        sha256
+                        size
+                        alpha
+                        sharable
+                    }
+                }
+            }
+            baseUrl
+            snippet
+            title
+            teaser
+            sectionTitle
+            date
+            articleHtml
+        }
+        total
+        totalFound
+        time
+        offset
+        rowCnt
+        next
+        prev
+        text
+        author
+        snippetWords
+        sorting
+        searchTime
+        minPubDate
+        maxPubDate
+    }
+}

@@ -91,6 +91,7 @@
     <string name="settings_category_general">Allgemein</string>
     <string name="settings_category_text">Darstellung</string>
     <string name="settings_category_account">Abo</string>
+    <string name="settings_category_expiremental">experimente</string>
     <string name="settings_text_font_size">Textgröße</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
@@ -276,4 +277,6 @@
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihre taz-ID hat kein zugehöriges Abo. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die PDF-Ansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
+
+    <string name="experimental_search_activity">Suche</string>
 </resources>

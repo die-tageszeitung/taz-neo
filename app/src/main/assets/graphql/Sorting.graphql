@@ -1,0 +1,5 @@
+enum Sorting {
+    relevance,
+    appearance,
+    actuality
+}

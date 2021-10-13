@@ -36,6 +36,7 @@
             android:noHistory="true" />
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.issueViewer.IssueViewerActivity" />
+        <activity android:name=".ui.ExperimentalSearchActivity" />
         <activity android:name=".ui.bookmarks.BookmarkListActivity" />
         <activity android:name=".ui.bookmarks.BookmarkViewerActivity" />
         <activity android:name=".ui.settings.SettingsActivity" />
