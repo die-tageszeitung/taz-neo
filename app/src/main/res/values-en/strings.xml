@@ -108,6 +108,8 @@
     <string name="settings_version_number">version %s</string>
     <string name="settings_download_issue">Download issue</string>
     <string name="settings_delete_all_issues"><u>Delete all issues</u></string>
+    <string name="settings_delete_all_issues_for_sure">Are you sure?</string>
+    <string name="settings_delete_all_issues_for_sure_detail">All downloaded issues will be removed. Bookmarked article will remain.</string>
 
     <string name="fragment_error_report_title">Report a bug</string>
     <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>

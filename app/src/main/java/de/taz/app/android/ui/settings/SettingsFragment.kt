@@ -23,7 +23,9 @@ import de.taz.app.android.*
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ExperimentalSearchActivity
@@ -35,6 +37,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
+import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -148,7 +151,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_delete_all_issues.setOnClickListener {
-                //TODO delete all issues
+                showDeleteAllIssuesDialog()
             }
 
             if (BuildConfig.DEBUG) {
@@ -228,6 +231,31 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     R.id.dialog_settings_keep_number
                 )?.text = storedIssueNumber
             }
+        }
+    }
+
+    private fun showDeleteAllIssuesDialog() {
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_delete_all_issues_for_sure)
+                .setMessage(R.string.settings_delete_all_issues_for_sure_detail)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    loading_screen?.visibility = View.VISIBLE
+                    log.debug("delete all issues")
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        IssueRepository.getInstance(it).apply {
+                            getAllIssueStubs().forEach { issueStub ->
+                                DataService.getInstance(it).ensureDeletedFiles(getIssue(issueStub))
+                            }
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+            dialog.show()
         }
     }
 

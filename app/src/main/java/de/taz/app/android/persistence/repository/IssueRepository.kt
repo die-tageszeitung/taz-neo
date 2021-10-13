@@ -383,6 +383,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return appDatabase.issueDao().getDownloadedIssuesCountLiveData()
     }
 
+    fun getAllIssueStubs(): List<IssueStub> {
+        return appDatabase.issueDao().getAllIssueStubs()
+    }
+
     fun delete(issue: Issue) {
         log.info("deleting issue ${issue.tag}")
         // delete moment

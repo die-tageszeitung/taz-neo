@@ -165,6 +165,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             try {
                 imageRepository.delete(it)
             } catch (e: SQLiteConstraintException) {
+                log.warn("${e.message}")
                 log.warn("FileEntry ${it.name} not deleted, maybe still used by a bookmarked article?")
                 // do not delete still used by (presumably bookmarked) article
             }
