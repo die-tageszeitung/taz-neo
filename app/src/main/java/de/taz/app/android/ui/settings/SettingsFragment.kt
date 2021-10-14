@@ -5,12 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -23,7 +21,9 @@ import de.taz.app.android.*
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ExperimentalSearchActivity
@@ -38,7 +38,8 @@ import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Locale
+import kotlinx.coroutines.withContext
+import java.util.*
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
@@ -147,6 +148,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+            fragment_settings_delete_all_issues.setOnClickListener {
+                showDeleteAllIssuesDialog()
+            }
             if (BuildConfig.DEBUG) {
                 inflateExperimentalOptions()
             }
@@ -223,6 +227,54 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 dialog.findViewById<TextView>(
                     R.id.dialog_settings_keep_number
                 )?.text = storedIssueNumber
+            }
+        }
+    }
+
+    private fun showDeleteAllIssuesDialog() {
+        context?.let { context ->
+            val dialogView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_settings_delete_all_issues, null)
+            val dialog = MaterialAlertDialogBuilder(context)
+                .setView(dialogView)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+            dialog.show()
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.setOnClickListener {
+                dialog.setCancelable(false)
+                val deletionProgress =
+                    dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
+                val deletionProgressText =
+                    dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
+                    withContext(Dispatchers.Main) {
+                        deletionProgress.visibility = View.VISIBLE
+                        deletionProgress.progress = 0
+                        deletionProgress.max = issueStubList.size
+                    }
+                    issueStubList.forEachIndexed { index, issueStub ->
+                        withContext(Dispatchers.Main) {
+                            deletionProgress.progress = index + 1
+                            deletionProgressText.visibility = View.VISIBLE
+                            deletionProgressText.text = getString(
+                                R.string.settings_delete_progress_text,
+                                index + 1,
+                                deletionProgress.max
+                            )
+                        }
+                        DataService.getInstance(context).ensureDeletedFiles(
+                            IssueRepository.getInstance(context).getIssue(issueStub)
+                        )
+                        IssueRepository.getInstance(context)
+                            .delete(IssueRepository.getInstance(context).getIssue(issueStub))
+                    }
+                    dialog.dismiss()
+                }
             }
         }
     }
