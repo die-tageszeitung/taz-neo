@@ -8,15 +8,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
@@ -250,13 +246,32 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 dialog.setCancelable(false)
-                dialogView.findViewById<ConstraintLayout>(R.id.delete_all_issues_loading_screen)?.visibility =
-                    View.VISIBLE
+                val deletionProgress =
+                    dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
+                val deletionProgressText =
+                    dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
                 CoroutineScope(Dispatchers.IO).launch {
                     IssueRepository.getInstance(context).apply {
-                        getAllIssueStubs().forEach { issueStub ->
-                            DataService.getInstance(context).ensureDeletedFiles(getIssue(issueStub))
+                        val issueStubList = getAllIssueStubs()
+                        withContext(Dispatchers.Main) {
+                            deletionProgress.visibility = View.VISIBLE
+                            deletionProgress.progress = 0
+                            deletionProgress.max = issueStubList.size
                         }
+                        issueStubList.forEachIndexed { index, issueStub ->
+                            withContext(Dispatchers.Main) {
+                                deletionProgress.progress = index + 1
+                                deletionProgressText.visibility = View.VISIBLE
+                                deletionProgressText.text = getString(
+                                    R.string.settings_delete_progress_text,
+                                    index + 1,
+                                    deletionProgress.max
+                                )
+                            }
+                            DataService.getInstance(context).ensureDeletedFiles(getIssue(issueStub))
+                            delete(getIssue(issueStub))
+                        }
+
                     }
                     dialog.dismiss()
                 }
