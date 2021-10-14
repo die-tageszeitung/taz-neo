@@ -23,17 +23,13 @@ const val MIN_TEXT_SIZE = 30
 const val MAX_TEST_SIZE = 200
 
 // Preferences
-const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 const val PREFERENCES_GENERAL = "preferences_general"
-const val PREFERENCES_LOG_TRACE_LENGTH = 100
 
 // Settings
 const val SETTINGS_GENERAL_KEEP_ISSUES = "general_keep_number_issues"
 const val SETTINGS_GENERAL_STORAGE_LOCATION = "general_storage_location"
 val SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 const val SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT = 20
-const val SETTINGS_DOWNLOAD_ONLY_WIFI = "download_only_wifi"
-const val SETTINGS_DOWNLOAD_ENABLED = "download_enabled"
 const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
 const val ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE = "ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE"
 
@@ -46,8 +42,8 @@ const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
 const val W3C_EMAIL_PATTERN =
     """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
 
-const val MAX_SIMULTANIOUS_QUERIES = 8
-const val MAX_SIMULTANIOUS_DOWNLOADS = 8
+const val MAX_SIMULTANEOUS_QUERIES = 8
+const val MAX_SIMULTANEOUS_DOWNLOADS = 8
 const val LOADING_SCREEN_FADE_OUT_TIME = 500L
 const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 1000L
 const val MAX_BYTES = 4294967296 // = 2^32

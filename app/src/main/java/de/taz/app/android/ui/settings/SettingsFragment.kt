@@ -333,11 +333,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
-        viewModel.downloadOnlyWifiLiveData.postValue(onlyWifi)
+        viewModel.setOnlyWifi(onlyWifi)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
-        viewModel.downloadAutomaticallyLiveData.postValue(downloadEnabled)
+        viewModel.setDownloadsEnabled(downloadEnabled)
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {

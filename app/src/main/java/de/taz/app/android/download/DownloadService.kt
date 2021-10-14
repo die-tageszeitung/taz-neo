@@ -15,9 +15,9 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
 import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
@@ -40,14 +40,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Mockable
-@KtorExperimentalAPI
 class DownloadService constructor(
     val applicationContext: Context,
     private val fileEntryRepository: FileEntryRepository,
     private val issueRepository: IssueRepository,
     private val apiService: ApiService,
     private val fileHelper: StorageService,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val downloadDataStore: DownloadDataStore
 ) {
     private constructor(applicationContext: Context) : this(
         applicationContext,
@@ -55,7 +55,8 @@ class DownloadService constructor(
         IssueRepository.getInstance(applicationContext),
         ApiService.getInstance(applicationContext),
         StorageService.getInstance(applicationContext),
-        httpClient = HttpClient(Android)
+        httpClient = HttpClient(Android),
+        DownloadDataStore.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<DownloadService, Context>(::DownloadService)
@@ -69,7 +70,7 @@ class DownloadService constructor(
     private val preferences =
         applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
 
-    private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANIOUS_DOWNLOADS)
+    private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANEOUS_DOWNLOADS)
 
 
     /**
@@ -442,13 +443,8 @@ class DownloadService constructor(
     /**
      * get Constraints for [WorkRequest] of [WorkManager]
      */
-    fun getBackgroundDownloadConstraints(): Constraints {
-        val onlyWifi: Boolean =
-            applicationContext.getSharedPreferences(PREFERENCES_DOWNLOADS, Context.MODE_PRIVATE)
-                ?.let {
-                    SharedPreferenceBooleanLiveData(it, SETTINGS_DOWNLOAD_ONLY_WIFI, true).value
-                } ?: true
-
+    suspend fun getBackgroundDownloadConstraints(): Constraints {
+        val onlyWifi = downloadDataStore.onlyWifi.get()
         return Constraints.Builder()
             .setRequiredNetworkType(if (onlyWifi) NetworkType.UNMETERED else NetworkType.CONNECTED)
             .build()
@@ -457,7 +453,7 @@ class DownloadService constructor(
     /**
      * download new issue in background
      */
-    fun scheduleNewestIssueDownload(
+    suspend fun scheduleNewestIssueDownload(
         tag: String,
         polling: Boolean = false,
         delay: Long = 0L

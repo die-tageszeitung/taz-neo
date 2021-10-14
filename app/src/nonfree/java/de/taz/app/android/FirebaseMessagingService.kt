@@ -1,9 +1,9 @@
 package de.taz.app.android
 
-import android.content.Context
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -16,13 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
-const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
-const val REMOTE_MESSAGE_REFRESH_KEY = "refresh"
-const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
+private const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
+private const val REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL = "subscriptionPoll"
+private const val REMOTE_MESSAGE_REFRESH_KEY = "refresh"
+private const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
 // Do avoid DDoSing the taz servers on a new issue release we add a randomized delay. The randomized
 // delay ranges from 0 to DOWNLOAD_DELAY_MAX_MS
-const val DOWNLOAD_DELAY_MAX_MS = 3600000L // 1 hour
+private const val DOWNLOAD_DELAY_MAX_MS = 3600000L // 1 hour
 
 
 class FirebaseMessagingService : FirebaseMessagingService() {
@@ -91,18 +91,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) = CoroutineScope(Dispatchers.IO).launch {
-        val downloadPreferences =
-            applicationContext.getSharedPreferences(
-                PREFERENCES_DOWNLOADS,
-                Context.MODE_PRIVATE
-            )
-        if (downloadPreferences.getBoolean(
-                SETTINGS_DOWNLOAD_ENABLED,
-                true
-            )
-        ) {
-            downloadService.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
+    private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if(DownloadDataStore.getInstance(applicationContext).enabled.get()) {
+                downloadService.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
+            }
         }
     }
 
