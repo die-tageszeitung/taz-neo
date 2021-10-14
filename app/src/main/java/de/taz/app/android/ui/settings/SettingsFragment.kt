@@ -251,27 +251,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 val deletionProgressText =
                     dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
                 CoroutineScope(Dispatchers.IO).launch {
-                    IssueRepository.getInstance(context).apply {
-                        val issueStubList = getAllIssueStubs()
+                    val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
+                    withContext(Dispatchers.Main) {
+                        deletionProgress.visibility = View.VISIBLE
+                        deletionProgress.progress = 0
+                        deletionProgress.max = issueStubList.size
+                    }
+                    issueStubList.forEachIndexed { index, issueStub ->
                         withContext(Dispatchers.Main) {
-                            deletionProgress.visibility = View.VISIBLE
-                            deletionProgress.progress = 0
-                            deletionProgress.max = issueStubList.size
+                            deletionProgress.progress = index + 1
+                            deletionProgressText.visibility = View.VISIBLE
+                            deletionProgressText.text = getString(
+                                R.string.settings_delete_progress_text,
+                                index + 1,
+                                deletionProgress.max
+                            )
                         }
-                        issueStubList.forEachIndexed { index, issueStub ->
-                            withContext(Dispatchers.Main) {
-                                deletionProgress.progress = index + 1
-                                deletionProgressText.visibility = View.VISIBLE
-                                deletionProgressText.text = getString(
-                                    R.string.settings_delete_progress_text,
-                                    index + 1,
-                                    deletionProgress.max
-                                )
-                            }
-                            DataService.getInstance(context).ensureDeletedFiles(getIssue(issueStub))
-                            delete(getIssue(issueStub))
-                        }
-
+                        DataService.getInstance(context).ensureDeletedFiles(
+                            IssueRepository.getInstance(context).getIssue(issueStub)
+                        )
+                        IssueRepository.getInstance(context)
+                            .delete(IssueRepository.getInstance(context).getIssue(issueStub))
                     }
                     dialog.dismiss()
                 }
