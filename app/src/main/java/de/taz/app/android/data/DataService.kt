@@ -91,7 +91,7 @@ class DataService(private val applicationContext: Context) {
             while (downloadedCounter > max) {
                 runBlocking {
                     issueRepository.getEarliestDownloadedIssueStub()?.let {
-                        ensureDeletedFiles(it.getIssue())
+                        ensureDeleted(it.getIssue())
                     }
                     downloadedCounter--
                 }

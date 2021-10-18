@@ -239,12 +239,17 @@ class DownloadService constructor(
         val response = downloadConnectionHelper.retryOnConnectivityFailure({
             onConnectionFailure()
         }) {
-            transformToConnectivityException {
-                httpClient.get<HttpStatement>(
-                    "$baseUrl/${updatedFileEntry.name}"
-                ).execute()
+            try {
+                transformToConnectivityException {
+                    httpClient.get<HttpStatement>(
+                        "$baseUrl/${updatedFileEntry.name}"
+                    ).execute()
+                }
+            } catch (e: ConnectivityException.ImplementationException) {
+                Sentry.captureException(e, "Bad response while downloading a a file")
+                null
             }
-        }
+        } ?: return
 
         when (response.status.value) {
             in 200..299 -> {
