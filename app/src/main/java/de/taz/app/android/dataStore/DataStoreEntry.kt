@@ -83,7 +83,7 @@ class MappingDataStoreEntry<S, T>(
         dataStore,
         key,
         mapStoT(default),
-        if (initFunction != null) ::mapInit else null
+        ::mapInit
     )
 
 
