@@ -84,17 +84,4 @@ class StorageDataStore private constructor(applicationContext: Context) {
         return selectedStorageLocation
     }
 
-    private fun defaultStorage(): StorageLocation {
-        val externalFreeBytes =
-            storageService.getExternalFilesDir()?.let { StatFs(it.path).availableBytes }
-        val internalFreeBytes = StatFs(storageService.getInternalFilesDir().path).availableBytes
-
-        return if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes && storageService.externalStorageAvailable()) {
-            StorageLocation.EXTERNAL
-        } else {
-            StorageLocation.INTERNAL
-        }
-
-    }
-
 }
