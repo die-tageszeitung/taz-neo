@@ -171,7 +171,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 } else {
                     issue
                 }
-                dataService.ensureDeletedFiles(issueToDelete)
+                dataService.ensureDeleted(issueToDelete)
                 withContext(Dispatchers.Main) {
                     dismiss()
                 }

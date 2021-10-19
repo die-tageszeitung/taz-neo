@@ -267,7 +267,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                                 deletionProgress.max
                             )
                         }
-                        DataService.getInstance(context).ensureDeletedFiles(
+                        DataService.getInstance(context).ensureDeleted(
                             IssueRepository.getInstance(context).getIssue(issueStub)
                         )
                         IssueRepository.getInstance(context)
