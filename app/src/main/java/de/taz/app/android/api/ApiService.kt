@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.SearchDto
-import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
@@ -75,7 +74,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.firebaseToken,
+                    pushToken = firebaseHelper.token.get(),
                     tazId,
                     idPassword,
                     subscriptionId,
@@ -386,7 +385,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     issueDate,
                     isAutomatically,
                     installationId = authHelper.installationId.get(),
-                    isPush = firebaseHelper.isPush
+                    isPush = firebaseHelper.isPush()
                 )
             ).data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id")
@@ -459,7 +458,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.Subscription,
                 SubscriptionVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.firebaseToken,
+                    pushToken = firebaseHelper.token.get(),
                     tazId = tazId,
                     idPassword = idPassword,
                     surname = surname,
@@ -505,7 +504,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     surname = surname,
                     firstName = firstName,
                     nameAffix = nameAffix,
-                    installationId = authHelper.installationId.get()
+                    installationId = authHelper.installationId.get(),
+                    pushToken = firebaseHelper.token.get()
                 )
             ).data?.trialSubscription
         }
@@ -541,7 +541,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.ErrorReport,
                 ErrorReportVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.firebaseToken,
+                    pushToken = firebaseHelper.token.get(),
                     email,
                     message,
                     lastAction,

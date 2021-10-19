@@ -31,7 +31,6 @@ interface DataStoreEntry<T> {
     suspend fun reset()
 }
 
-
 class SimpleDataStoreEntry<T>(
     private val dataStore: DataStore<Preferences>,
     private val key: Preferences.Key<T>,
@@ -51,7 +50,7 @@ class SimpleDataStoreEntry<T>(
 }
 
 class MappingDataStoreEntry<S, T>(
-    private val dataStore: DataStore<Preferences>,
+    dataStore: DataStore<Preferences>,
     key: Preferences.Key<T>,
     default: S,
     private val mapStoT: (S) -> T,
