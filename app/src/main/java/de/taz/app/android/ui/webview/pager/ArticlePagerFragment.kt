@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
@@ -115,7 +116,10 @@ class ArticlePagerFragment : BaseMainFragment(
             val nextStub =
                 (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
             if (lastPage != null && lastPage != position) {
-                hasBeenSwiped = true
+                // if position has been changed by 1 (swipe to left or right)
+                if (abs(position - lastPage!!) ==1) {
+                    hasBeenSwiped = true
+                }
                 runIfNotNull(
                     issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                     nextStub
@@ -165,6 +169,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 true
             }
         } ?: false
+        false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
