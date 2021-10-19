@@ -195,7 +195,7 @@ class SplashActivity : BaseActivity() {
         val installationId = authHelper.installationId.get()
         if(installationId.isEmpty()) {
             val uuid = UUID.randomUUID().toString()
-            authHelper.installationId.set(installationId)
+            authHelper.installationId.set(uuid)
             log.debug("initialized InstallationId: $uuid")
         } else {
             log.debug("InstallationId: $installationId")
