@@ -122,7 +122,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
-                StorageSelectionDialog(requireContext(), viewModel).show()
+                StorageSelectionDialog(requireContext()).show()
             }
 
             fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
