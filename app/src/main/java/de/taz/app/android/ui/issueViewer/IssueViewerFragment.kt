@@ -1,10 +1,8 @@
 package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -13,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.BackFragment
@@ -42,19 +41,15 @@ class IssueViewerFragment :
     private lateinit var imprintFragment: ImprintWebViewFragment
     private lateinit var loaderFragment: IssueLoaderFragment
     private lateinit var dataService: DataService
-    private lateinit var preferences: SharedPreferences
     private lateinit var sectionRepository: SectionRepository
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var generalDataStore: GeneralDataStore
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        preferences = requireActivity().getSharedPreferences(
-            PREFERENCES_GENERAL,
-            AppCompatActivity.MODE_PRIVATE
-        )
         sectionPagerFragment = SectionPagerFragment()
         articlePagerFragment = ArticlePagerFragment()
         imprintFragment = ImprintWebViewFragment()
@@ -71,6 +66,7 @@ class IssueViewerFragment :
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -82,7 +78,7 @@ class IssueViewerFragment :
 
         // This block is to expand the drawer on the first time using this activity to alert the user of the side drawer
         lifecycleScope.launchWhenResumed {
-            val timesDrawerShown = preferences.getInt(PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER, 0)
+            val timesDrawerShown = generalDataStore.drawerShownCount.get()
             if (sectionDrawerViewModel.drawerOpen.value == false && timesDrawerShown < DRAWER_SHOW_NUMBER) {
                 delay(500)
                 sectionDrawerViewModel.drawerOpen.value = true
@@ -100,13 +96,7 @@ class IssueViewerFragment :
                         withContext(Dispatchers.Main) {
                             sectionDrawerViewModel.drawerOpen.value = false
                         }
-                        preferences.edit().apply {
-                            putInt(
-                                PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER,
-                                timesDrawerShown + 1
-                            )
-                            apply()
-                        }
+                        generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
                     }
 
                 }
