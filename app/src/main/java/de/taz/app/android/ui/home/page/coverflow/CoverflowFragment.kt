@@ -119,7 +119,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         viewModel.feed.observeDistinct(this) { feed ->
             val fresh = !::adapter.isInitialized
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfMode.value == true) {
+            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
                 R.layout.fragment_cover_flow_frontpage_item
             } else {
                 R.layout.fragment_cover_flow_moment_item
@@ -193,7 +193,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             return
         }
         val observableKey = withContext(Dispatchers.IO) {
-                if (viewModel.pdfMode.value == true) {
+                if (viewModel.pdfModeLiveData.value == true) {
                     dataService.determineIssueKeyWithPages(
                         IssuePublication(
                             viewModel.feed.value!!.name, simpleDateFormat.format(date)
