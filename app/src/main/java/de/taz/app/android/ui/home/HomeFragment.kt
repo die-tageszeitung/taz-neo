@@ -20,10 +20,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
@@ -36,7 +33,7 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        homePageViewModel.pdfMode.observe(viewLifecycleOwner) { pdfMode ->
+        homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
             navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)
                 .setIcon(if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view)
         }
@@ -124,7 +121,9 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
                 )
             }
             R.id.bottom_navigation_action_pdf -> {
-                homePageViewModel.pdfMode.postValue(!homePageViewModel.pdfMode.value!!)
+                CoroutineScope(Dispatchers.Main).launch {
+                    homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
+                }
             }
         }
     }
