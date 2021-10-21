@@ -37,7 +37,6 @@ abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivi
             AppDatabase.createInstance(it)
 
             AuthHelper.createInstance(it)
-            FeedHelper.createInstance(it)
             StorageService.createInstance(it)
             NotificationHelper.createInstance(it)
             SubscriptionPollHelper.createInstance(it)

@@ -20,6 +20,12 @@ class TazApplication : Application() {
                     .penaltyLog()
                     .build()
             )
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .penaltyLog()
+                    .build()
+            )
         }
         SentryProvider.initSentry(this)
         DownloadService.createInstance(applicationContext).apply {
