@@ -1,6 +1,5 @@
 package de.taz.app.android.ui
 
-import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.TypedValue
@@ -37,7 +36,6 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var dataService: DataService
-    private lateinit var preferences: SharedPreferences
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
@@ -49,7 +47,6 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        preferences = getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
         storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)

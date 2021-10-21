@@ -16,9 +16,9 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -47,7 +47,8 @@ class DownloadService constructor(
     private val apiService: ApiService,
     private val fileHelper: StorageService,
     private val httpClient: HttpClient,
-    private val downloadDataStore: DownloadDataStore
+    private val downloadDataStore: DownloadDataStore,
+    private val storageDataStore: StorageDataStore = StorageDataStore.getInstance(applicationContext)
 ) {
     private constructor(applicationContext: Context) : this(
         applicationContext,
@@ -66,9 +67,6 @@ class DownloadService constructor(
     private var fileDownloaderJob: Job? = null
     private val fileDownloadPriorityQueue = PriorityBlockingQueue<PrioritizedFileDownload>()
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
-
-    private val preferences =
-        applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
 
     private val maxDownloadSemaphore = Semaphore(MAX_SIMULTANEOUS_DOWNLOADS)
 
@@ -218,11 +216,7 @@ class DownloadService constructor(
         onConnectionFailure: suspend () -> Unit = {}
     ) {
         ensureDownloadHelper()
-        val currentStorage = SharedPreferenceStorageLocationLiveData(
-            preferences,
-            SETTINGS_GENERAL_STORAGE_LOCATION,
-            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
-        ).value
+        val currentStorage = storageDataStore.storageLocation.get()
         val updatedFileEntry = if (fileToDownload.storageLocation != currentStorage) {
             // If file is not stored determine desired location
             fileEntryRepository.saveOrReplace(fileToDownload.copy(

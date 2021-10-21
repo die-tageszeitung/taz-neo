@@ -45,7 +45,7 @@ import java.util.*
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
     private val log by Log
 
-    private var storedIssueNumber: String? = null
+    private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
 
     private lateinit var toastHelper: ToastHelper
@@ -122,7 +122,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
-                StorageSelectionDialog(requireContext(), viewModel).show()
+                StorageSelectionDialog(requireContext()).show()
             }
 
             fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
@@ -226,7 +226,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             storedIssueNumber?.let {
                 dialog.findViewById<TextView>(
                     R.id.dialog_settings_keep_number
-                )?.text = storedIssueNumber
+                )?.text = storedIssueNumber.toString()
             }
         }
     }
@@ -293,10 +293,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
     }
 
-    private fun showStoredIssueNumber(number: String) {
+    private fun showStoredIssueNumber(number: Int) {
         storedIssueNumber = number
         val text = HtmlCompat.fromHtml(
-            getString(R.string.settings_general_keep_number_issues, number),
+            getString(R.string.settings_general_keep_number_issues, number.toString()),
             HtmlCompat.FROM_HTML_MODE_LEGACY
         )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
@@ -347,8 +347,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setStoredIssueNumber(number: Int) {
-        log.debug("setKeepNumber: $number")
-        viewModel.storedIssueNumberLiveData.postValue(number.toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            log.debug("setKeepNumber: $number")
+            viewModel.setKeepIssueNumber(number)
+        }
     }
 
     private fun disableNightMode() {

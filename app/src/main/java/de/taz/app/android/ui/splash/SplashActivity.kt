@@ -7,12 +7,9 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.StatFs
-import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -23,14 +20,13 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
-import de.taz.app.android.ui.settings.SettingsViewModel
 import de.taz.app.android.util.NightModeHelper
-import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
 import io.sentry.Sentry
 import io.sentry.protocol.User
 import kotlinx.coroutines.*
@@ -51,10 +47,7 @@ class SplashActivity : BaseActivity() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
-
-    private lateinit var preferences: SharedPreferences
-
-    private val settingsViewModel: SettingsViewModel by viewModels()
+    private lateinit var storageDataStore: StorageDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,41 +57,15 @@ class SplashActivity : BaseActivity() {
         toastHelper = ToastHelper.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
+        storageDataStore = StorageDataStore.getInstance(applicationContext)
 
-        preferences = applicationContext.getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
-
-        // If not yet set we need to determine the storage
-        if (!preferences.contains(SETTINGS_GENERAL_STORAGE_LOCATION)) {
-            determineStorageLocationBySize()
-        }
-
-        val storageLocationLiveData = SharedPreferenceStorageLocationLiveData(
-            preferences,
-            SETTINGS_GENERAL_STORAGE_LOCATION,
-            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
-        )
-
-        // if the configured storage is set to external, but no external device is mounted we need to reset it
-        // likely this happened because the user ejected the sd card
-        if (storageLocationLiveData.value == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
-            storageLocationLiveData.value = StorageLocation.INTERNAL
-        }
     }
 
-    private fun determineStorageLocationBySize() {
-        val externalFreeBytes = getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes }
-        val internalFreeBytes = StatFs(filesDir.path).availableBytes
-
-        val selectedStorageMode =
-            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes && storageService.externalStorageAvailable()) {
-                StorageLocation.EXTERNAL
-            } else {
-                StorageLocation.INTERNAL
-            }
-
-        preferences.edit().apply {
-            putInt(SETTINGS_GENERAL_STORAGE_LOCATION, selectedStorageMode.ordinal)
-            apply()
+    private suspend fun verifyStorageLocation() {
+        // if the configured storage is set to external, but no external device is mounted we need to reset it
+        // likely this happened because the user ejected the sd card
+        if (storageDataStore.storageLocation.get() == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            storageDataStore.storageLocation.set(StorageLocation.INTERNAL)
         }
     }
 
@@ -116,6 +83,7 @@ class SplashActivity : BaseActivity() {
             setupSentry()
 
             generateNotificationChannels()
+            verifyStorageLocation()
 
             try {
                 withContext(Dispatchers.IO) {
@@ -139,7 +107,7 @@ class SplashActivity : BaseActivity() {
                 return@launch
             }
 
-            val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+            val currentStorageLocation = storageDataStore.storageLocation.get()
 
             val unmigratedFiles = withContext(Dispatchers.IO) {
                 fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
@@ -264,7 +232,7 @@ class SplashActivity : BaseActivity() {
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
         val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
 
-        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+        val currentStorageLocation = storageDataStore.storageLocation.get()
         storageService.getAbsolutePath(
             RESOURCE_FOLDER,
             storageLocation = currentStorageLocation

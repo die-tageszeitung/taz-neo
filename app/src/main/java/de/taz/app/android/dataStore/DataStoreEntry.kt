@@ -31,12 +31,22 @@ interface DataStoreEntry<T> {
     suspend fun reset()
 }
 
+/**
+ * A simple [DataStoreEntry] which persists a [T] in the [dataStore]
+ * [T] must be [String], [Int], [Boolean], [Long], [Float] or [Set]<String>
+ * @param default - The default value which will be returned if no value is set in the dataStore yet
+ * @param initFunction - This function will be executed if no value has been stored in [dataStore]
+ *          yet. You might want to use it to set an initial value. If this function returns a value
+ *          this value will be returned instead of [default]. If this function returns null or is
+ *          not set [default] will be returned instead.
+ */
 class SimpleDataStoreEntry<T>(
     private val dataStore: DataStore<Preferences>,
     private val key: Preferences.Key<T>,
-    private val default: T
+    private val default: T,
+    private val initFunction: (suspend () -> T?)? = null
 ) : DataStoreEntry<T> {
-    private fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: default }
+    private fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: initFunction?.invoke() ?: default }
 
     override fun asLiveData(): LiveData<T> = asFlow().asLiveData()
 
@@ -49,14 +59,33 @@ class SimpleDataStoreEntry<T>(
     override suspend fun reset() = set(default)
 }
 
+/**
+ * A [DataStoreEntry] which persists a [S] in the [dataStore] by mapping [S] to [T] and vice versa.
+ * [T] must be [String], [Int], [Boolean], [Long], [Float] or [Set]<String>
+ * @param default - The default value which will be returned if no value is set in the dataStore yet
+ * @param initFunction - This function will be executed if no value has been stored in [dataStore]
+ *          yet. You might want to use it to set an initial value. If this function returns a value
+ *          this value will be returned instead of [default]. If this function returns null or is
+ *          not set [default] will be returned instead.
+ */
 class MappingDataStoreEntry<S, T>(
     dataStore: DataStore<Preferences>,
     key: Preferences.Key<T>,
     default: S,
     private val mapStoT: (S) -> T,
-    private val mapTtoS: (T) -> S
+    private val mapTtoS: (T) -> S,
+    private val initFunction: (suspend () -> S?)? = null
 ) : DataStoreEntry<S> {
-    private val dataStoreEntry = SimpleDataStoreEntry(dataStore, key, mapStoT(default))
+
+    private suspend fun mapInit(): T? { return initFunction?.invoke()?.let { mapStoT(it) } }
+
+    private val dataStoreEntry: SimpleDataStoreEntry<T> = SimpleDataStoreEntry(
+        dataStore,
+        key,
+        mapStoT(default),
+        ::mapInit
+    )
+
 
     override fun asLiveData(): LiveData<S> = dataStoreEntry.asLiveData().map { mapTtoS(it) }
 

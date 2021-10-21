@@ -3,21 +3,18 @@ package de.taz.app.android.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import de.taz.app.android.PREFERENCES_GENERAL
-import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES
-import de.taz.app.android.SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.download.DownloadService
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.util.SharedPreferenceStringLiveData
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
@@ -40,6 +37,7 @@ class DataService(private val applicationContext: Context) {
 
     private val apiService = ApiService.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
+    private val storageDataStore = StorageDataStore.getInstance(applicationContext)
 
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
@@ -57,16 +55,10 @@ class DataService(private val applicationContext: Context) {
 
     private val downloadLiveDataMap: ConcurrentHashMap<String, LiveDataWithReferenceCount<DownloadStatus>> =
         ConcurrentHashMap()
-    private val sharedPrefs =
-        applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
 
-    private val maxStoredIssueNumberLiveData =
-        SharedPreferenceStringLiveData(
-            sharedPrefs,
-            SETTINGS_GENERAL_KEEP_ISSUES,
-            SETTINGS_GENERAL_KEEP_ISSUES_DEFAULT.toString()
-        )
+    private val maxStoredIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
     private val downloadIssueNumberLiveData = issueRepository.getDownloadedIssuesCountLiveData()
+
     private val ensureCountLock = Mutex()
 
     init {
@@ -85,7 +77,7 @@ class DataService(private val applicationContext: Context) {
     private suspend fun ensureIssueCount() = ensureCountLock.withLock {
         runIfNotNull(
             downloadIssueNumberLiveData.value,
-            maxStoredIssueNumberLiveData.value.toIntOrNull()
+            maxStoredIssueNumberLiveData.value
         ) { downloaded, max ->
             var downloadedCounter = downloaded
             while (downloadedCounter > max) {

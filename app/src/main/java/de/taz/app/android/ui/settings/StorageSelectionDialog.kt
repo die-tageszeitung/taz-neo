@@ -2,7 +2,6 @@ package de.taz.app.android.ui.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Environment
 import android.os.StatFs
 import android.view.View
@@ -10,19 +9,21 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.dataStore.StorageDataStore
 import kotlinx.android.synthetic.main.listitem_select_storage.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 
 class StorageSelectionDialog(
-    val context: Context,
-    private val settingsViewModel: SettingsViewModel
+    val context: Context
 ) {
-    val preferences: SharedPreferences =
-        context.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+    private val storageDataStore = StorageDataStore.getInstance(context.applicationContext)
+
     val options = mapOf(
         StorageLocation.INTERNAL to context.getString(R.string.settings_storage_type_internal),
         StorageLocation.EXTERNAL to context.getString(R.string.settings_storage_type_external)
@@ -94,17 +95,19 @@ class StorageSelectionDialog(
     }
 
     fun show() {
-        val currentLocation = settingsViewModel.storageLocationLiveData.value
-        AlertDialog.Builder(context)
-            .setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
-            .setSingleChoiceItems(
-                listAdapter, listAdapter.getPosition(currentLocation)
-            ) { dialog, which ->
-                settingsViewModel.storageLocationLiveData.postValue(
-                    listAdapter.getItem(which)
-                )
-                dialog.dismiss()
-            }.show()
+        CoroutineScope(Dispatchers.Main).launch {
+            val currentLocation = storageDataStore.storageLocation.get()
+            AlertDialog.Builder(context)
+                .setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
+                .setSingleChoiceItems(
+                    listAdapter, listAdapter.getPosition(currentLocation)
+                ) { dialog, which ->
+                    CoroutineScope(Dispatchers.Main).launch {
+                        listAdapter.getItem(which)?.let { storageDataStore.storageLocation.set(it) }
+                        dialog.dismiss()
+                    }
+                }.show()
 
+        }
     }
 }
