@@ -30,17 +30,17 @@ class IssueRepositoryTest {
             context, AppDatabase::class.java
         ).build()
 
-        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
-        val articleRepository = ArticleRepository.createInstance(context)
+        val articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
-        val pageRepository = PageRepository.createInstance(context)
+        val pageRepository = PageRepository.getInstance(context)
         pageRepository.appDatabase = db
-        val sectionRepository = SectionRepository.createInstance(context)
+        val sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
-        val momentRepository = MomentRepository.createInstance(context)
+        val momentRepository = MomentRepository.getInstance(context)
         momentRepository.appDatabase = db
-        val imageRepository = ImageRepository.createInstance(context)
+        val imageRepository = ImageRepository.getInstance(context)
         imageRepository.appDatabase = db
 
         issueRepository = IssueRepository.getInstance(context)

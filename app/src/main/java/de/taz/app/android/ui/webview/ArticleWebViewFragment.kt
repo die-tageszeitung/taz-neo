@@ -74,15 +74,15 @@ class ArticleWebViewFragment :
 
     override fun setHeader(displayable: Article) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val index = displayable.getIndexInSection() ?: 0
+            val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
             val count = ArticleRepository.getInstance(
-                context?.applicationContext
+                requireContext().applicationContext
             ).getSectionArticleStubListByArticleName(
                 displayable.key
             ).size
 
             // only the imprint should have no section
-            val sectionStub = displayable.getSectionStub(context?.applicationContext)
+            val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
             setHeaderForSection(index, count, sectionStub)
 
             val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
@@ -137,7 +137,7 @@ class ArticleWebViewFragment :
     override fun hideLoadingScreen() {
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let { article ->
-                if (article.getIssueStub()?.status == IssueStatus.public) {
+                if (article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public) {
                     withContext(Dispatchers.Main) {
                         try {
                             childFragmentManager.beginTransaction().replace(

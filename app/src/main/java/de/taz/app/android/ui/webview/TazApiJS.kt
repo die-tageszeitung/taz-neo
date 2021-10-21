@@ -19,27 +19,21 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 const val IMAGE_NAME = "image_name"
 
-class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
+class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(private val webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
 
     private val log by Log
 
-    private val webViewFragmentReference = WeakReference(webViewFragment)
-
-    private val webViewFragment
-        get() = webViewFragmentReference.get()
-
     private val applicationContext
-        get() = webViewFragment?.activity?.applicationContext
+        get() = webViewFragment.requireContext().applicationContext
 
     private val displayable
-        get() = webViewFragment?.viewModel?.displayable
+        get() = webViewFragment.viewModel.displayable
 
     @JavascriptInterface
     fun getConfiguration(name: String): String {
@@ -65,10 +59,12 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     @JavascriptInterface
     fun pageReady(percentage: Int, position: Int) {
         log.debug("pageReady $percentage $position")
-        webViewFragment?.viewModel?.displayable?.let {
+        webViewFragment.viewModel.displayable?.let {
             if (it is Article) {
-                ArticleRepository.getInstance(applicationContext)
-                    .saveScrollingPosition(it.key, percentage, position)
+                applicationContext?.let { context ->
+                    ArticleRepository.getInstance(context)
+                        .saveScrollingPosition(it.key, percentage, position)
+                }
             }
         }
     }
@@ -76,9 +72,9 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.verbose("nextArticle $position")
-        webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
-            displayable?.next()?.let { next ->
-                webViewFragment?.setDisplayable(next.key)
+        webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
+            displayable?.next(applicationContext)?.let { next ->
+                webViewFragment.setDisplayable(next.key)
             }
         }
     }
@@ -86,9 +82,9 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.verbose("previousArticle $position")
-        webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
-            displayable?.previous()?.let { previous ->
-                webViewFragment?.setDisplayable(previous.key)
+        webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
+            displayable?.previous(applicationContext)?.let { previous ->
+                webViewFragment.setDisplayable(previous.key)
             }
         }
     }
@@ -98,10 +94,10 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
-        webViewFragment?.apply {
-            webViewFragment?.lifecycleScope?.launch(Dispatchers.IO) {
+        webViewFragment.apply {
+            webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
                 if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
-                    webViewFragment?.setDisplayable(url)
+                    webViewFragment.setDisplayable(url)
                 } else {
                     openExternally(url)
                 }
@@ -110,7 +106,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
     }
 
     private fun openExternally(url: String) {
-        runIfNotNull(applicationContext, webViewFragment?.activity) { applicationContext: Context, activity ->
+        runIfNotNull(applicationContext, webViewFragment.activity) { applicationContext: Context, activity ->
             val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
             try {
                 CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
@@ -136,7 +132,7 @@ class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(webViewFragment: We
         intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
         intent.putExtra(IMAGE_NAME, name)
 
-        webViewFragment?.requireActivity()?.startActivity(
+        webViewFragment.requireActivity().startActivity(
             intent
         )
     }

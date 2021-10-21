@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
@@ -13,12 +14,14 @@ import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
+    applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val issuePublication: IssuePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
 ) : CoverViewBinding<FrontpageView>(
+    applicationContext,
     lifecycleOwner,
     issuePublication,
     dateFormat,
@@ -26,11 +29,11 @@ class FrontpageViewBinding(
     onMomentViewActionListener
 ) {
 
-    private val storageService = StorageService.getInstance()
-    private val dataService = DataService.getInstance()
-    private val fileEntryRepository = FileEntryRepository.getInstance()
-    private val feedRepository = FeedRepository.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val dataService = DataService.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO

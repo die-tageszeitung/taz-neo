@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 class TazApplication : AbstractTazApplication() {
     override fun onCreate() {
         super.onCreate()
-        DownloadService.createInstance(applicationContext).apply {
+        DownloadService.getInstance(applicationContext).apply {
             CoroutineScope(Dispatchers.IO).launch {
                 scheduleNewestIssueDownload("poll/initial", true)
             }

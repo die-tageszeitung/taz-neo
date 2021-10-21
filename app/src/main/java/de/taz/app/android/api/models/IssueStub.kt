@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -42,9 +43,9 @@ data class IssueStub(
         issue.lastPagePosition
     )
 
-    suspend fun getIssue(): Issue {
+    suspend fun getIssue(applicationContext: Context): Issue {
         return withContext(Dispatchers.IO) {
-            IssueRepository.getInstance().getIssue(this@IssueStub)
+            IssueRepository.getInstance(applicationContext).getIssue(this@IssueStub)
         }
     }
 }

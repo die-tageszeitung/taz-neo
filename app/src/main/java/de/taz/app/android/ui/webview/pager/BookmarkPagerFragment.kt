@@ -131,7 +131,7 @@ class BookmarkPagerFragment :
 
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
         withContext(Dispatchers.IO) {
-            articleToBindTo.getNavButton(context?.applicationContext)?.let {
+            articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
                 drawerViewModel.navButton.postValue(it)
             }
         }
@@ -139,7 +139,7 @@ class BookmarkPagerFragment :
             articleToBindTo.onlineLink != null
 
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-        isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData()
+        isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
 
     }

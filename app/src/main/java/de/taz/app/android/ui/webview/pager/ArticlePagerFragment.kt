@@ -143,7 +143,7 @@ class ArticlePagerFragment : BaseMainFragment(
                     nextStub.onlineLink != null
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = nextStub.isBookmarkedLiveData()
+                isBookmarkedLiveData = nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
             }
@@ -163,7 +163,7 @@ class ArticlePagerFragment : BaseMainFragment(
         getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-                articleStub.getSectionStub(null)
+                articleStub.getSectionStub(requireContext().applicationContext)
             ) { issueKey, sectionStub ->
                 issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey(issueKey, sectionStub.key))
                 true

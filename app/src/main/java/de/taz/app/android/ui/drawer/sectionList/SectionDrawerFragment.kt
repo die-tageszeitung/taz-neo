@@ -311,11 +311,12 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             withContext(Dispatchers.Main) {
                 momentBinder?.unbind()
             }
-            if (!isDownloaded()) {
+            if (!isDownloaded(requireContext().applicationContext)) {
                 dataService.ensureDownloaded(moment)
             }
             val feed = feedRepository.get(issueStub.feedName)
             momentBinder = MomentViewBinding(
+                requireContext().applicationContext,
                 this@SectionDrawerFragment,
                 IssuePublication(feed!!.name, issueStub.date),
                 DateFormat.LongWithoutWeekDay,

@@ -15,16 +15,16 @@ interface ArticleOperations {
     val articleType: ArticleType
     val dateDownload: Date?
 
-    fun getSectionStub(applicationContext: Context?): SectionStub? {
+    fun getSectionStub(applicationContext: Context): SectionStub? {
         return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)
     }
 
-    fun getIndexInSection(): Int? {
-        return ArticleRepository.getInstance().getIndexInSection(this.key)
+    fun getIndexInSection(applicationContext: Context): Int? {
+        return ArticleRepository.getInstance(applicationContext).getIndexInSection(this.key)
     }
 
-    fun isBookmarkedLiveData(): LiveData<Boolean> {
-        return ArticleRepository.getInstance().isBookmarkedLiveData(this.key)
+    fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
+        return ArticleRepository.getInstance(applicationContext).isBookmarkedLiveData(this.key)
     }
 
 
@@ -32,15 +32,15 @@ interface ArticleOperations {
         return articleType == ArticleType.IMPRINT
     }
 
-    fun getIssueStub(): IssueStub? {
+    fun getIssueStub(applicationContext: Context): IssueStub? {
         return if (isImprint()) {
-            IssueRepository.getInstance().getIssueStubByImprintFileName(this.key)
+            IssueRepository.getInstance(applicationContext).getIssueStubByImprintFileName(this.key)
         } else {
-            getSectionStub(null)?.getIssueStub()
+            getSectionStub(applicationContext)?.getIssueStub(applicationContext)
         }
     }
 
-    suspend fun getNavButton(applicationContext: Context?): Image? = withContext(Dispatchers.IO) {
-        return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton()
+    suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
+        return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
     }
 }

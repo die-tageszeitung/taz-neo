@@ -28,13 +28,11 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    private val dataService: DataService = DataService.getInstance(application.applicationContext)
-    private val storageService: StorageService =
-        StorageService.getInstance(application.applicationContext)
-    private val imageRepository: ImageRepository =
-        ImageRepository.getInstance(application.applicationContext)
-    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
-    private val fileEntryRepository = FileEntryRepository.getInstance()
+    private val dataService: DataService = DataService.getInstance(application)
+    private val storageService: StorageService = StorageService.getInstance(application)
+    private val imageRepository: ImageRepository = ImageRepository.getInstance(application)
+    private val toastHelper = ToastHelper.getInstance(application)
+    private val fileEntryRepository = FileEntryRepository.getInstance(application)
 
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
@@ -92,7 +90,7 @@ class PdfPagerViewModel(
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                 )
 
-                if (pdfIssue.isDownloaded()) {
+                if (pdfIssue.isDownloaded(application)) {
                     postValue(pdfIssue.pageList.map {
                         val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
                             storageService.getFile(fileEntry)

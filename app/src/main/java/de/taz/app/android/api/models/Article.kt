@@ -72,39 +72,39 @@ data class Article(
     }
 
 
-    fun nextArticle(): Article? {
-        val articleRepository = ArticleRepository.getInstance()
+    fun nextArticle(applicationContext: Context): Article? {
+        val articleRepository = ArticleRepository.getInstance(applicationContext)
         return articleRepository.nextArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
         }
     }
 
 
-    fun previousArticle(): Article? {
-        val articleRepository = ArticleRepository.getInstance()
+    fun previousArticle(applicationContext: Context): Article? {
+        val articleRepository = ArticleRepository.getInstance(applicationContext)
         return articleRepository.previousArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
         }
     }
 
-    override fun previous(): Article? {
-        return previousArticle()
+    override fun previous(applicationContext: Context): Article? {
+        return previousArticle(applicationContext)
     }
 
-    override fun next(): Article? {
-        return nextArticle()
+    override fun next(applicationContext: Context): Article? {
+        return nextArticle(applicationContext)
     }
 
-    override fun getIssueStub(): IssueStub? {
-        return super.getIssueStub()
+    override fun getIssueStub(applicationContext: Context): IssueStub? {
+        return super.getIssueStub(applicationContext)
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return ArticleRepository.getInstance().getDownloadDate(ArticleStub(this@Article))
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return ArticleRepository.getInstance(applicationContext).getDownloadDate(ArticleStub(this@Article))
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        return ArticleRepository.getInstance(context).setDownloadDate(ArticleStub(this@Article), date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        return ArticleRepository.getInstance(applicationContext).setDownloadDate(ArticleStub(this@Article), date)
     }
 
 }

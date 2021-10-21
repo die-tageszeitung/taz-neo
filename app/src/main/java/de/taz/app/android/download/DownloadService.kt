@@ -199,7 +199,7 @@ class DownloadService constructor(
                     }
                     is IssueOperations -> collection.baseUrl
                     is Page -> collection.baseUrl
-                    is WebViewDisplayable -> collection.getIssueStub()?.baseUrl
+                    is WebViewDisplayable -> collection.getIssueStub(applicationContext)?.baseUrl
                         ?: throw CannotDetermineBaseUrlException("${collection.key} has no issue")
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")
                 }
@@ -225,7 +225,7 @@ class DownloadService constructor(
         } else { fileToDownload }
         // skip this if we have the correct version downloaded
         if (fileHelper.ensureFileIntegrity(updatedFileEntry, updatedFileEntry.sha256) && !force) {
-            if (updatedFileEntry.getDownloadDate() == null) {
+            if (updatedFileEntry.getDownloadDate(applicationContext) == null) {
                 updatedFileEntry.setDownloadDate(Date(), applicationContext)
             }
             return

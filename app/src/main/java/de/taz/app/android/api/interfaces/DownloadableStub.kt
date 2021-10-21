@@ -7,13 +7,12 @@ import java.util.*
 interface DownloadableStub: ObservableDownload {
     val dateDownload: Date?
 
-    suspend fun isDownloaded(): Boolean {
-        return getDownloadDate() != null
+    suspend fun isDownloaded(applicationContext: Context): Boolean {
+        return getDownloadDate(applicationContext) != null
     }
 
-    fun getDownloadDate(context: Context? = null): Date?
-    fun setDownloadDate(date: Date?, context: Context? = null)
-
+    fun getDownloadDate(applicationContext: Context): Date?
+    fun setDownloadDate(date: Date?, applicationContext: Context)
 
 }
 

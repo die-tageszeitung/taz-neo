@@ -25,12 +25,12 @@ data class ResourceInfo(
         null
     )
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return ResourceInfoRepository.getInstance(context).getDownloadStatus(this)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return ResourceInfoRepository.getInstance(applicationContext).getDownloadStatus(this)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        ResourceInfoRepository.getInstance(context).setDownloadStatus(this, date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        ResourceInfoRepository.getInstance(applicationContext).setDownloadStatus(this, date)
     }
 
     override fun getAllFiles(): List<FileEntry> {

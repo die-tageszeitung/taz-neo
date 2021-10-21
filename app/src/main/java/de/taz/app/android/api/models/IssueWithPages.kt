@@ -68,16 +68,16 @@ data class IssueWithPages(
         return getAllFiles().map { it.name }
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return IssueRepository.getInstance(context).getDownloadDate(this)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return IssueRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        IssueRepository.getInstance(context).apply {
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        IssueRepository.getInstance(applicationContext).apply {
             setDownloadDate(this@IssueWithPages, date)
             get(issueKey)?.let {
                 // downloading an issue with pages also means downloading the regular issue
-                IssueRepository.getInstance(context).setDownloadDate(it, date)
+                IssueRepository.getInstance(applicationContext).setDownloadDate(it, date)
             }
         }
     }

@@ -135,7 +135,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
                 withContext(Dispatchers.IO) {
-                    currentIssueKey = it.getIssueStub()?.issueKey
+                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
                 }
                 configureWebView()
                 ensureDownloadedAndShow()
@@ -157,7 +157,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
         web_view?.apply {
-            webViewClient = AppWebViewClient(this@WebViewFragment)
+            webViewClient = AppWebViewClient(
+                requireContext().applicationContext,
+                this@WebViewFragment
+            )
             webChromeClient = AppWebChromeClient(::onPageRendered)
             settings.apply {
                 allowFileAccess = true
@@ -263,7 +266,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      */
     private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean =
         withContext(Dispatchers.IO) {
-            val issue = viewModel.displayable?.getIssueStub()
+            val issue = viewModel.displayable?.getIssueStub(requireContext().applicationContext)
             resourceInfo?.let {
                 val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
                 minResourceVersion <= resourceInfo.resourceVersion

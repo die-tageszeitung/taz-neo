@@ -56,38 +56,38 @@ data class Section(
         return sectionHtml.name
     }
 
-    fun nextSection(): Section? {
-        val sectionRepository = SectionRepository.getInstance()
+    fun nextSection(applicationContext: Context): Section? {
+        val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getNextSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
     }
 
-    fun previousSection(): Section? {
-        val sectionRepository = SectionRepository.getInstance()
+    fun previousSection(applicationContext: Context): Section? {
+        val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getPreviousSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
     }
 
-    override fun previous(): Section? {
-        return previousSection()
+    override fun previous(applicationContext: Context): Section? {
+        return previousSection(applicationContext)
     }
 
-    override fun next(): Section? {
-        return nextSection()
+    override fun next(applicationContext: Context): Section? {
+        return nextSection(applicationContext)
     }
 
-    override fun getIssueStub(): IssueStub? {
-        return super.getIssueStub()
+    override fun getIssueStub(applicationContext: Context): IssueStub? {
+        return super.getIssueStub(applicationContext)
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return SectionRepository.getInstance(context).getDownloadDate(SectionStub(this))
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return SectionRepository.getInstance(applicationContext).getDownloadDate(SectionStub(this))
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        SectionRepository.getInstance(context).setDownloadDate(SectionStub(this), date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        SectionRepository.getInstance(applicationContext).setDownloadDate(SectionStub(this), date)
     }
 }
 

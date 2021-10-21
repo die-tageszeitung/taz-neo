@@ -41,7 +41,7 @@ class ImageRepository private constructor(
     }
 
     fun delete(image: Image) {
-        FileEntryRepository.getInstance().apply {
+        FileEntryRepository.getInstance(applicationContext).apply {
             get(image.name)?.let { delete(it) }
         }
         appDatabase.imageStubDao().delete(ImageStub(image))

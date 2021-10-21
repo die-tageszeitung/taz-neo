@@ -31,13 +31,13 @@ class ArticleRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
 
-        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
 
         articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
 
-        sectionRepository = SectionRepository.createInstance(context)
+        sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
     }
 

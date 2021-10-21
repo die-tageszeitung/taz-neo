@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -17,12 +18,13 @@ interface SectionOperations {
         return extendedTitle ?: title
     }
 
-    fun getIssueStub(): IssueStub? {
-        return IssueRepository.getInstance().getIssueStubForSection(key)
+    fun getIssueStub(applicationContext: Context): IssueStub? {
+        return IssueRepository.getInstance(applicationContext).getIssueStubForSection(key)
     }
 
-    suspend fun getNavButton(): Image? = withContext(Dispatchers.IO) {
-        return@withContext SectionRepository.getInstance().getNavButtonForSection(this@SectionOperations.key)
+    suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
+        return@withContext SectionRepository.getInstance(applicationContext)
+            .getNavButtonForSection(this@SectionOperations.key)
     }
 
 

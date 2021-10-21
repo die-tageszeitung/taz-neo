@@ -3,15 +3,8 @@ package de.taz.app.android.base
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.QueryService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.persistence.AppDatabase
-import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
@@ -27,30 +20,7 @@ abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        createSingletons()
         layoutId?.let { setContentView(layoutId) }
-    }
-
-    private fun createSingletons() {
-        log.info("creating singletons")
-        applicationContext.let {
-            AppDatabase.createInstance(it)
-
-            AuthHelper.createInstance(it)
-            StorageService.createInstance(it)
-            NotificationHelper.createInstance(it)
-            SubscriptionPollHelper.createInstance(it)
-            ToastHelper.createInstance(it)
-
-            QueryService.createInstance(it)
-            ToastHelper.createInstance(it)
-
-            ApiService.createInstance(it)
-
-            FirebaseHelper.createInstance(it)
-            DataService.createInstance(it)
-        }
-        log.debug("Singletons initialized")
     }
 
     protected suspend fun startActualApp() {

@@ -35,7 +35,7 @@ class FileEntryTest {
             context, AppDatabase::class.java).build()
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
-        storageService = StorageService.createInstance(context)
+        storageService = StorageService.getInstance(context)
     }
 
     @After
