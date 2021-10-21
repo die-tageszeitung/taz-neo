@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.main
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
@@ -9,9 +8,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.PREFERENCES_GENERAL
 import de.taz.app.android.R
-import de.taz.app.android.SETTINGS_HELP_TRY_PDF_SHOWN
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
@@ -28,6 +25,7 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -73,14 +71,14 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     override fun onResume() {
         super.onResume()
         maybeShowLoggedOutDialog()
-        issueFeedViewModel.pdfMode.observeDistinctIgnoreFirst(this) {
+        issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
     }
 
     private fun maybeShowLoggedOutDialog() {
         lifecycleScope.launch(Dispatchers.Main) {
-            if (issueFeedViewModel.pdfMode.value == true && !authHelper.isLoggedIn()) {
+            if (issueFeedViewModel.getPdfMode() && !authHelper.isLoggedIn()) {
                 AlertDialog.Builder(this@MainActivity)
                     .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
                     .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
@@ -96,27 +94,23 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    private fun maybeShowTryPdfDialog() {
-        val preferences =
-            applicationContext.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
-        val timesPdfShown = preferences.getInt(SETTINGS_HELP_TRY_PDF_SHOWN, 0)
+    private suspend fun maybeShowTryPdfDialog() {
+        val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
         if (timesPdfShown < 1) {
             val dialog = AlertDialog.Builder(this)
                 .setView(R.layout.dialog_try_pdf)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    preferences.edit().apply {
-                        putInt(SETTINGS_HELP_TRY_PDF_SHOWN, timesPdfShown + 1)
-                        apply()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
+                        dialog.dismiss()
                     }
-                    dialog.dismiss()
                 }
                 .show()
             dialog.findViewById<ImageButton>(R.id.button_close).setOnClickListener {
-                preferences.edit().apply {
-                    putInt(SETTINGS_HELP_TRY_PDF_SHOWN, timesPdfShown + 1)
-                    apply()
+                CoroutineScope(Dispatchers.Main).launch {
+                    generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
+                    dialog.dismiss()
                 }
-                dialog.dismiss()
             }
             // force this dialog to be white with black text (ignoring night mode and system theme)
             // - the animation is not compatible with other shades

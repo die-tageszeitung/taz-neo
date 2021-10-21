@@ -85,7 +85,7 @@ abstract class IssueFeedFragment(
 
 
     fun onItemSelected(issueKey: AbstractIssueKey) {
-        val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfMode.value == true) {
+        val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfModeLiveData.value == true) {
             PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_KEY
         } else {
             IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_KEY

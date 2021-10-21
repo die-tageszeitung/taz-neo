@@ -1,12 +1,12 @@
 package de.taz.app.android.ui.home.page
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.*
-import de.taz.app.android.PREFERENCES_GENERAL
-import de.taz.app.android.SETTINGS_SHOW_PDF_AS_MOMENT
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.util.SharedPreferenceBooleanLiveData
+import de.taz.app.android.dataStore.GeneralDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit
@@ -18,12 +18,19 @@ class IssueFeedViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
-    private val preferences = application.getSharedPreferences(PREFERENCES_GENERAL, Context.MODE_PRIVATE)
+    private val generalDataStore = GeneralDataStore.getInstance(application)
+
     val currentDate = savedStateHandle.getLiveData<Date>(KEY_CURRENT_DATE)
 
-    val pdfMode: MutableLiveData<Boolean> = SharedPreferenceBooleanLiveData(
-        preferences, SETTINGS_SHOW_PDF_AS_MOMENT, false
-    )
+    val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()
+
+    suspend fun getPdfMode() = generalDataStore.pdfMode.get()
+
+    fun setPdfMode(pdfMode: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            generalDataStore.pdfMode.set(pdfMode)
+        }
+    }
 
     fun setFeed(feed: Feed) {
         mutableFeedLiveData.value = feed

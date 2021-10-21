@@ -43,7 +43,7 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
 
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfMode.value == true) {
+            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
                 R.layout.fragment_archive_frontpage_item
             } else {
                 R.layout.fragment_archive_moment_item

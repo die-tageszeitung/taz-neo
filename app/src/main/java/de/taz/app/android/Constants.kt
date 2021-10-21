@@ -1,6 +1,5 @@
 package de.taz.app.android
 
-import de.taz.app.android.api.interfaces.StorageLocation
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,19 +21,11 @@ const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
 const val MIN_TEXT_SIZE = 30
 const val MAX_TEST_SIZE = 200
 
-// Preferences
-@Deprecated("Use a DataStore instead")
-const val PREFERENCES_GENERAL = "preferences_general"
-
 // Settings
-const val SETTINGS_SHOW_PDF_AS_MOMENT = "pdf_mode"
 const val ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE = "ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE"
-
-const val SETTINGS_HELP_TRY_PDF_SHOWN = "try_pdf_shown"
 
 // General Preferences
 const val DRAWER_SHOW_NUMBER = 1
-const val PREFERENCES_GENERAL_DRAWER_SHOWN_NUMBER = "DRAWER_SHOWN_NUMBER"
 
 const val W3C_EMAIL_PATTERN =
     """^[a-zA-Z0-9.!#${'$'}%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*${'$'}"""
@@ -52,8 +43,6 @@ const val DISPLAYED_FEED = "taz"
 const val DISPLAYABLE_NAME = "displayableName"
 
 const val PUBLIC_FOLDER = "public"
-
-const val RESOURCE_CACHE_TIMEOUT = 3600000L // 1 hour
 
 // SimpleDateFormat is not thread safe!!! We need to create to create a instance for every thread context
 val simpleDateFormat

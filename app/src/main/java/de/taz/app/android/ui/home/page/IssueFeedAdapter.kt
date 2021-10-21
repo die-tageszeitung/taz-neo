@@ -78,7 +78,7 @@ abstract class IssueFeedAdapter(
         private var binder: CoverViewBinding<*>? = null
 
         fun bind(fragment: IssueFeedFragment, date: Date) {
-            binder = if (fragment.viewModel.pdfMode.value == true) {
+            binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
                     fragment,
                     IssuePublication(feed.name, simpleDateFormat.format(date)),
