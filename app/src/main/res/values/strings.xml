@@ -109,7 +109,7 @@
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
-    <string name="settings_version_number">Version %s</string>
+    <string name="settings_version_number">Version %s%s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
     <string name="settings_storage_type">Speicherort</string>
     <string name="settings_storage_type_internal">Interner Speicher</string>

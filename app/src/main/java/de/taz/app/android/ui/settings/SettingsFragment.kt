@@ -18,6 +18,7 @@ import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
+import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
@@ -137,8 +138,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 logout()
             }
 
+            val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
+                "-staging"
+            } else {
+                ""
+            }
+
             fragment_settings_version_number?.text =
-                getString(R.string.settings_version_number, BuildConfig.VERSION_NAME)
+                getString(R.string.settings_version_number, BuildConfig.VERSION_NAME, graphQlFlavorString)
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
