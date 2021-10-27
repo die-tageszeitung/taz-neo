@@ -26,6 +26,7 @@ private const val LOADING_FADE_OUT_DURATION_MS = 500L
 
 /**
  * View to show a Cover/Moment in
+ * Depending on [CoverViewData.momentType] it will either create an ImageView or a WebView
  */
 @SuppressLint("ClickableViewAccessibility")
 class CoverView @JvmOverloads constructor(
