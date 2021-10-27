@@ -18,7 +18,7 @@ interface CoverViewActionListener {
 
 
 abstract class CoverViewBinding(
-    private val applicationContext: Context,
+    applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
