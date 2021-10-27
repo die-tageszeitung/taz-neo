@@ -28,7 +28,6 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.util.NightModeHelper
 import io.sentry.Sentry
-import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
@@ -78,10 +77,6 @@ class SplashActivity : BaseActivity() {
             launch { sendPushToken() }
         }
         lifecycleScope.launch {
-            // create installation id before setting up sentry
-            generateInstallationId()
-            setupSentry()
-
             generateNotificationChannels()
             verifyStorageLocation()
 
@@ -158,27 +153,6 @@ class SplashActivity : BaseActivity() {
             toastHelper.showNoConnectionToast()
         }
     }
-
-    private suspend fun generateInstallationId() {
-        val installationId = authHelper.installationId.get()
-        if (installationId.isEmpty()) {
-            val uuid = UUID.randomUUID().toString()
-            authHelper.installationId.set(uuid)
-            log.debug("initialized InstallationId: $uuid")
-        } else {
-            log.debug("InstallationId: $installationId")
-        }
-    }
-
-
-    private suspend fun setupSentry() {
-        log.info("setting up sentry")
-
-        val user = User()
-        user.id = authHelper.installationId.get()
-        Sentry.setUser(user)
-    }
-
 
     /**
      * download AppInfo and persist it
