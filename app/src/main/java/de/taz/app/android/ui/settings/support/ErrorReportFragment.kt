@@ -139,7 +139,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         screenshot: String?
     ) {
         val storageType =
-            StorageService.getInstance(activity?.applicationContext)
+            StorageService.getInstance(requireContext().applicationContext)
                 .getInternalFilesDir().absolutePath
         val errorProtocol = Log.trace.toString()
 

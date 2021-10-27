@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
@@ -15,22 +16,24 @@ import kotlin.IllegalStateException
 
 
 class MomentViewBinding(
+    private val applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val issuePublication: IssuePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
 ) : CoverViewBinding<MomentView>(
+    applicationContext,
     lifecycleOwner,
     issuePublication,
     dateFormat,
     glideRequestManager,
     onMomentViewActionListener
 ) {
-    private val feedRepository = FeedRepository.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
-    private val storageService = StorageService.getInstance()
-    private val dataService = DataService.getInstance()
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val dataService = DataService.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val moment = dataService.getMoment(issuePublication, retryOnFailure = true)

@@ -17,6 +17,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class IssueRepositoryTest {
 
+    private lateinit var context: Context
     private lateinit var db: AppDatabase
     private lateinit var issueRepository: IssueRepository
 
@@ -25,22 +26,22 @@ class IssueRepositoryTest {
 
     @Before
     fun createDb() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
 
-        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
-        val articleRepository = ArticleRepository.createInstance(context)
+        val articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
-        val pageRepository = PageRepository.createInstance(context)
+        val pageRepository = PageRepository.getInstance(context)
         pageRepository.appDatabase = db
-        val sectionRepository = SectionRepository.createInstance(context)
+        val sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
-        val momentRepository = MomentRepository.createInstance(context)
+        val momentRepository = MomentRepository.getInstance(context)
         momentRepository.appDatabase = db
-        val imageRepository = ImageRepository.createInstance(context)
+        val imageRepository = ImageRepository.getInstance(context)
         imageRepository.appDatabase = db
 
         issueRepository = IssueRepository.getInstance(context)
@@ -104,9 +105,9 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == issue.sectionList.size - 1) {
-                assertNull(section.next())
+                assertNull(section.next(context))
             } else {
-                assertEquals(issue.sectionList[index + 1].sectionHtml.sha256, section.next()?.sectionHtml?.sha256)
+                assertEquals(issue.sectionList[index + 1].sectionHtml.sha256, section.next(context)?.sectionHtml?.sha256)
             }
 
         }
@@ -118,9 +119,9 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == 0) {
-                assertNull(section.previous())
+                assertNull(section.previous(context))
             } else {
-                assertEquals(issue.sectionList[index - 1].sectionHtml.sha256, section.previous()?.sectionHtml?.sha256)
+                assertEquals(issue.sectionList[index - 1].sectionHtml.sha256, section.previous(context)?.sectionHtml?.sha256)
             }
         }
     }
@@ -134,15 +135,15 @@ class IssueRepositoryTest {
                 if (sectionIndex == issue.sectionList.size - 1 &&
                     articleIndex == section.articleList.size - 1
                 ) {
-                    assertNull(article.next())
+                    assertNull(article.next(context))
                 } else if (articleIndex == section.articleList.size - 1) {
                     assertEquals(
-                        article.next(),
+                        article.next(context),
                         issue.sectionList[sectionIndex + 1].articleList.first()
                     )
                 } else {
                     assertEquals(
-                        article.next(),
+                        article.next(context),
                         section.articleList[articleIndex + 1]
                     )
                 }
@@ -157,15 +158,15 @@ class IssueRepositoryTest {
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->
                 if (sectionIndex == 0 && articleIndex == 0) {
-                    assertNull(article.previous())
+                    assertNull(article.previous(context))
                 } else if (articleIndex == 0) {
                     assertEquals(
-                        article.previous(),
+                        article.previous(context),
                         issue.sectionList[sectionIndex - 1].articleList.last()
                     )
                 } else {
                     assertEquals(
-                        article.previous(),
+                        article.previous(context),
                         section.articleList[articleIndex - 1]
                     )
                 }

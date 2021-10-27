@@ -78,12 +78,12 @@ data class Moment(
         return "moment/$issueFeedName/$issueDate"
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return MomentRepository.getInstance(context).getDownloadDate(this@Moment)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return MomentRepository.getInstance(applicationContext).getDownloadDate(this@Moment)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        MomentRepository.getInstance(context).setDownloadDate(this@Moment, date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        MomentRepository.getInstance(applicationContext).setDownloadDate(this@Moment, date)
     }
 
     fun getMomentFileToShare(): FileEntryOperations {

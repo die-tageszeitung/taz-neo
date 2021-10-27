@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.webkit.WebResourceRequest
@@ -22,11 +23,11 @@ interface AppWebViewClientCallBack {
     fun onPageFinishedLoading()
 }
 
-class AppWebViewClient(private val callBack: AppWebViewClientCallBack) : WebViewClient() {
+class AppWebViewClient(applicationContext: Context, private val callBack: AppWebViewClientCallBack) : WebViewClient() {
 
     private val log by Log
-    private val storageService = StorageService.getInstance()
-    private val fileEntryRepository = FileEntryRepository.getInstance()
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
     @SuppressWarnings("deprecation")
     @Suppress("DEPRECATION")

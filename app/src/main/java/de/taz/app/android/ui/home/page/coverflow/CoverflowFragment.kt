@@ -40,7 +40,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
 
-    private val toastHelper by lazy { ToastHelper.getInstance(context) }
+    private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()

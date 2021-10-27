@@ -30,14 +30,14 @@ class BookmarkListAdapter(
     private fun restoreBookmark(article: Article, position: Int) {
         bookmarks.add(position, article)
         CoroutineScope(Dispatchers.IO).launch {
-            ArticleRepository.getInstance(bookmarksFragment.context?.applicationContext).bookmarkArticle(article)
+            ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).bookmarkArticle(article)
         }
         notifyItemInserted(position)
     }
 
     private fun removeBookmark(article: Article, position: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            ArticleRepository.getInstance(bookmarksFragment.context?.applicationContext).debookmarkArticle(article)
+            ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).debookmarkArticle(article)
         }
         notifyItemRemoved(position)
     }

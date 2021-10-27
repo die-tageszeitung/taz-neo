@@ -76,7 +76,7 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
     private suspend fun onRefresh() {
         withContext(Dispatchers.IO) {
             try {
-                DataService.getInstance(activity?.applicationContext)
+                DataService.getInstance(requireContext().applicationContext)
                     .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
                         withContext(Dispatchers.Main) {
                             homePageViewModel.setFeed(
@@ -85,10 +85,10 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
                         }
                     }
             } catch (e: ConnectivityException.NoInternetException) {
-                ToastHelper.getInstance(context?.applicationContext)
+                ToastHelper.getInstance(requireContext().applicationContext)
                     .showNoConnectionToast()
             } catch (e: ConnectivityException.ImplementationException) {
-                ToastHelper.getInstance(context?.applicationContext)
+                ToastHelper.getInstance(requireContext().applicationContext)
                     .showSomethingWentWrongToast()
             }
         }

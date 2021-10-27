@@ -35,13 +35,13 @@ class SectionRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
 
-        val articleRepository = ArticleRepository.createInstance(context)
+        val articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
 
-        val imageRepository = ImageRepository.createInstance(context)
+        val imageRepository = ImageRepository.getInstance(context)
         imageRepository.appDatabase = db
 
         sectionRepository = SectionRepository.getInstance(context)

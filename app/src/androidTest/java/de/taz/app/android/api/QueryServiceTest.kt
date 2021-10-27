@@ -13,7 +13,7 @@ class QueryServiceTest {
 
     @Before
     fun beforeEach() {
-        queryService = QueryService.createInstance(context)
+        queryService = QueryService.getInstance(context)
     }
 
     @Test

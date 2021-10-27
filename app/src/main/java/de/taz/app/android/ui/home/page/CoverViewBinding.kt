@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
@@ -18,6 +19,7 @@ interface CoverViewActionListener {
 
 
 abstract class CoverViewBinding<COVER_VIEW : CoverView>(
+    private val applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val issuePublication: IssuePublication,
     private val dateFormat: DateFormat,
@@ -27,7 +29,7 @@ abstract class CoverViewBinding<COVER_VIEW : CoverView>(
     protected var boundView: COVER_VIEW? = null
     protected lateinit var coverViewData: CoverViewData
 
-    private val dataService = DataService.getInstance()
+    private val dataService = DataService.getInstance(applicationContext)
     private var bindJob: Job? = null
 
     abstract fun onDownloadClicked()

@@ -196,7 +196,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
         }
 
-        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.status.asLiveData().observeDistinct(viewLifecycleOwner) { authStatus ->
             if (authStatus in arrayOf(
                     AuthStatus.valid,
@@ -402,7 +402,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
-        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
         authHelper.status.set(AuthStatus.notValid)
     }
@@ -417,8 +417,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
         } catch (e: ActivityNotFoundException) {
-            val toastHelper =
-                ToastHelper.getInstance(context)
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
         }
     }

@@ -94,18 +94,20 @@ class SectionWebViewFragment :
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub = withContext(Dispatchers.IO) { displayable.getIssueStub() }
+                val issueStub =
+                    withContext(Dispatchers.IO) { displayable.getIssueStub(requireContext().applicationContext) }
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
                 toolbar?.removeAllViews()
 
                 // The first page of the weekend taz should not display the title but the date instead
-                val layout = if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
-                    R.layout.fragment_webview_header_title_weekend_section
-                } else {
-                    R.layout.fragment_webview_header_section
-                }
+                val layout =
+                    if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                        R.layout.fragment_webview_header_title_weekend_section
+                    } else {
+                        R.layout.fragment_webview_header_section
+                    }
 
                 val headerView =
                     LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
@@ -117,7 +119,7 @@ class SectionWebViewFragment :
                         val weekendTypefaceFile =
                             weekendTypefaceFileEntry?.let(storageService::getFile)
                         weekendTypefaceFile?.let {
-                            FontHelper.getInstance(context?.applicationContext)
+                            FontHelper.getInstance(requireContext().applicationContext)
                                 .getTypeFace(it)
                         }
                     }

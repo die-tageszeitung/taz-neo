@@ -30,12 +30,12 @@ data class Page(
         baseUrl
     )
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return PageRepository.getInstance(context).getDownloadDate(this)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return PageRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        PageRepository.getInstance(context).setDownloadDate(this, date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        PageRepository.getInstance(applicationContext).setDownloadDate(this, date)
     }
 
     override fun getAllFiles(): List<FileEntry> {

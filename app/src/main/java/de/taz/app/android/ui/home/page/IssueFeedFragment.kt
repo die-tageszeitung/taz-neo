@@ -60,7 +60,7 @@ abstract class IssueFeedFragment(
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
-        toastHelper = ToastHelper.getInstance()
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         feedRepository = FeedRepository.getInstance(context.applicationContext)
     }

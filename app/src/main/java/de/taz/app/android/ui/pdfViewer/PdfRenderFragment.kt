@@ -138,8 +138,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse(url)) }
         } catch (e: ActivityNotFoundException) {
-            val toastHelper =
-                ToastHelper.getInstance(context)
+            val toastHelper = ToastHelper.getInstance(requireContext())
             if (url.startsWith("mailto:")) {
                 toastHelper.showToast(R.string.toast_no_email_client)
             } else {

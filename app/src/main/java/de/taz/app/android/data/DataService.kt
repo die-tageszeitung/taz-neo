@@ -83,7 +83,7 @@ class DataService(private val applicationContext: Context) {
             while (downloadedCounter > max) {
                 runBlocking {
                     issueRepository.getEarliestDownloadedIssueStub()?.let {
-                        ensureDeleted(it.getIssue())
+                        ensureDeleted(it.getIssue(applicationContext))
                     }
                     downloadedCounter--
                 }
@@ -176,7 +176,7 @@ class DataService(private val applicationContext: Context) {
 
         if (allowCache) {
             issueRepository.get(regularKey)?.let {
-                if ((it.isDownloaded() && !cacheWithPages) || IssueWithPages(it).isDownloaded())
+                if ((it.isDownloaded(applicationContext) && !cacheWithPages) || IssueWithPages(it).isDownloaded(applicationContext))
                     return@withContext it
             }
             // try too read it from database if issue status is not regular -
@@ -358,7 +358,7 @@ class DataService(private val applicationContext: Context) {
         withDownloadLiveData(collection as ObservableDownload) { liveData ->
             // If we download issues we want to refresh metadata, as they might get stale quickly
             val refreshedCollection = if (
-                !collection.isDownloaded()
+                !collection.isDownloaded(applicationContext)
             ) {
                 when (collection) {
                     is Issue -> getIssue(
@@ -419,7 +419,7 @@ class DataService(private val applicationContext: Context) {
 
     suspend fun ensureDeletedFiles(collection: DownloadableCollection) {
         withDownloadLiveData(collection) { liveData ->
-            collection.setDownloadDate(null)
+            collection.setDownloadDate(null, applicationContext)
             (liveData as MutableLiveData<DownloadStatus>).postValue(DownloadStatus.pending)
         }
 
