@@ -45,6 +45,7 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"
+            android:launchMode="singleTask"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
