@@ -62,7 +62,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     private fun reloadAfterCssChange() {
         CoroutineScope(Dispatchers.Main).launch {
-            web_view.injectCss()
+            web_view?.injectCss()
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
                 web_view?.reload()
         }
@@ -184,7 +184,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                     dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
-            requireActivity().runOnUiThread {
+            activity?.runOnUiThread {
                 viewModel.scrollPosition?.let {
                     scrollView?.scrollY = it
                 } ?: run {
