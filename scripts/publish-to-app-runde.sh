@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 set -o xtrace
-RECIPIENT="app-runde@taz.de"
 
 
 
@@ -14,4 +13,4 @@ export FREE_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIR
 export DEBUG_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD} | jq -r .ocs.data.url`
 export STAGING_DEBUG_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_STAGING_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD} | jq -r .ocs.data.url`
 
-http -v --ignore-stdin https://toolbox.alt.coop/misc/api/taz-release recipients:="[\"${RECIPIENT}\"]" staging_debug_link="${STAGING_DEBUG_APP_URL}" debug_link="${DEBUG_APP_URL}" free_link="${FREE_APP_URL}" version_code="${APP_VERSION_CODE}" version_name="${APP_VERSION}" release_note="${RELEASE_MESSAGE}" Authorization:"Token ${TOOLBOX_API_TOKEN}"
+http -v --ignore-stdin https://toolbox.alt.coop/misc/api/taz-release staging_debug_link="${STAGING_DEBUG_APP_URL}" debug_link="${DEBUG_APP_URL}" free_link="${FREE_APP_URL}" version_code="${APP_VERSION_CODE}" version_name="${APP_VERSION}" release_note="${RELEASE_MESSAGE}" Authorization:"Token ${TOOLBOX_API_TOKEN}"
