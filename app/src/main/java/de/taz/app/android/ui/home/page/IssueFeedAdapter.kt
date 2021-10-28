@@ -75,7 +75,7 @@ abstract class IssueFeedAdapter(
      * ViewHolder for this Adapter
      */
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        private var binder: CoverViewBinding<*>? = null
+        private var binder: CoverViewBinding? = null
 
         fun bind(fragment: IssueFeedFragment, date: Date) {
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {

@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.cover.FrontpageView
 import kotlinx.coroutines.*
 
 
@@ -20,10 +19,9 @@ class FrontpageViewBinding(
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
-) : CoverViewBinding<FrontpageView>(
+) : CoverViewBinding(
     applicationContext,
     lifecycleOwner,
-    issuePublication,
     dateFormat,
     glideRequestManager,
     onMomentViewActionListener

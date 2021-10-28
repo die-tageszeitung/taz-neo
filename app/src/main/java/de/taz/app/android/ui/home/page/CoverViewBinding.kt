@@ -6,7 +6,6 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.cover.CoverView
 import kotlinx.coroutines.*
@@ -18,16 +17,15 @@ interface CoverViewActionListener {
 }
 
 
-abstract class CoverViewBinding<COVER_VIEW : CoverView>(
-    private val applicationContext: Context,
+abstract class CoverViewBinding(
+    applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
-    private val issuePublication: IssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener
 ) {
-    protected var boundView: COVER_VIEW? = null
-    protected lateinit var coverViewData: CoverViewData
+    protected var boundView: CoverView? = null
+    private lateinit var coverViewData: CoverViewData
 
     private val dataService = DataService.getInstance(applicationContext)
     private var bindJob: Job? = null
@@ -35,7 +33,7 @@ abstract class CoverViewBinding<COVER_VIEW : CoverView>(
     abstract fun onDownloadClicked()
     abstract suspend fun prepareData(): CoverViewData
 
-    fun prepareDataAndBind(view: COVER_VIEW) {
+    fun prepareDataAndBind(view: CoverView) {
         bindJob = lifecycleOwner.lifecycleScope.launch {
             coverViewData = prepareData()
             bindView(view)
@@ -46,34 +44,29 @@ abstract class CoverViewBinding<COVER_VIEW : CoverView>(
         return ::coverViewData.isInitialized
     }
 
-    private suspend fun bindView(view: COVER_VIEW) = withContext(Dispatchers.Main) {
-        boundView = view
-        boundView?.setDate(issuePublication.date, dateFormat)
-        boundView?.show(coverViewData, dateFormat, glideRequestManager)
+    private suspend fun bindView(view: CoverView) = withContext(Dispatchers.Main) {
+        boundView = view.apply {
+            show(coverViewData, dateFormat, glideRequestManager)
 
-        boundView?.setOnImageClickListener {
-            onMomentViewActionListener.onImageClicked(coverViewData)
-        }
-
-        boundView?.setOnLongClickListener {
-            onMomentViewActionListener.onLongClicked(coverViewData)
-            true
-        }
-
-        boundView?.setOnDateClickedListener {
-            onMomentViewActionListener.onDateClicked(
-                coverViewData
-            )
-        }
-
-        boundView?.setOnDownloadClickedListener { onDownloadClicked() }
-        if (boundView?.shouldNotShowDownloadIcon == false) {
-            dataService.withDownloadLiveData(coverViewData.issueKey) {
-                withContext(Dispatchers.Main) {
-                    it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                        boundView?.setDownloadIconForStatus(
-                            downloadStatus
-                        )
+            setOnImageClickListener {
+                onMomentViewActionListener.onImageClicked(coverViewData)
+            }
+            setOnLongClickListener {
+                onMomentViewActionListener.onLongClicked(coverViewData)
+                true
+            }
+            setOnDateClickedListener {
+                onMomentViewActionListener.onDateClicked(coverViewData)
+            }
+            setOnDownloadClickedListener { onDownloadClicked() }
+            if (!shouldNotShowDownloadIcon) {
+                dataService.withDownloadLiveData(coverViewData.issueKey) {
+                    withContext(Dispatchers.Main) {
+                        it.observeDistinct(lifecycleOwner) { downloadStatus ->
+                            setDownloadIconForStatus(
+                                downloadStatus
+                            )
+                        }
                     }
                 }
             }
@@ -84,11 +77,12 @@ abstract class CoverViewBinding<COVER_VIEW : CoverView>(
         val exBoundView = boundView
         boundView = null
         bindJob?.cancel()
-        exBoundView?.setOnImageClickListener(null)
-        exBoundView?.setOnLongClickListener(null)
-        exBoundView?.setOnDownloadClickedListener(null)
-        exBoundView?.setOnDateClickedListener(null)
-        exBoundView?.resetDownloadIcon()
-        exBoundView?.clear(glideRequestManager)
+        exBoundView?.apply {
+            setOnImageClickListener(null)
+            setOnLongClickListener(null)
+            setOnDownloadClickedListener(null)
+            setOnDateClickedListener(null)
+            clear()
+        }
     }
 }

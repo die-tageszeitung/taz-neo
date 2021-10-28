@@ -3,6 +3,7 @@ package de.taz.app.android.ui.main
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentManager
@@ -66,6 +67,10 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             checkIfSubscriptionElapsed()
             maybeShowTryPdfDialog()
         }
+
+        // create WebView then throw it away so later instantiations are faster
+        // otherwise we have lags in the [CoverFlowFragment]
+        WebView(this)
     }
 
     override fun onResume() {

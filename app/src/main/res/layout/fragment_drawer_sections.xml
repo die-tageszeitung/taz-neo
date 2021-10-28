@@ -17,7 +17,7 @@
         android:paddingEnd="@dimen/drawer_margin_horizontal"
         android:paddingBottom="@dimen/drawer_margin_vertical">
 
-        <de.taz.app.android.ui.cover.MomentView
+        <de.taz.app.android.ui.cover.CoverView
             android:id="@+id/fragment_drawer_sections_moment"
             android:layout_width="@dimen/fragment_drawer_moment_width"
             android:layout_height="wrap_content"

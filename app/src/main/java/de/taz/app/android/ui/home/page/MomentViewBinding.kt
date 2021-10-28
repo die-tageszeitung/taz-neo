@@ -10,7 +10,6 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.cover.MomentView
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
@@ -22,10 +21,9 @@ class MomentViewBinding(
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
-) : CoverViewBinding<MomentView>(
+) : CoverViewBinding(
     applicationContext,
     lifecycleOwner,
-    issuePublication,
     dateFormat,
     glideRequestManager,
     onMomentViewActionListener
