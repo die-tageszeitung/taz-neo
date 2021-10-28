@@ -51,6 +51,10 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private var pdfReaderView: MuPDFReaderView? = null
 
+    private val storageService by lazy {
+        StorageService.getInstance(requireContext().applicationContext)
+    }
+
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
@@ -96,12 +100,10 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private fun showPdf() {
         page?.pagePdf?.let { fileEntry ->
-            StorageService.getInstance(requireContext().applicationContext).getFile(fileEntry)
-                ?.let { file ->
-                    pdfReaderView?.adapter = PageAdapter(context, MuPDFCore(file.path))
-                }
+            storageService.getAbsolutePath(fileEntry)?.let { path ->
+                pdfReaderView?.adapter = PageAdapter(context, MuPDFCore(path))
+            }
         }
-
     }
 
     override fun onDestroyView() {

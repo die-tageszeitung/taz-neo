@@ -10,7 +10,6 @@ import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 
-// TODO make frameList not nullable
 data class Page(
     val pagePdf: FileEntry,
     val title: String? = null,

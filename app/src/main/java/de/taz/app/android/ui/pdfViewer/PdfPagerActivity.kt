@@ -214,6 +214,12 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 setHasFixedSize(false)
             }
 
+            // Setup drawer header (front page and date)
+            Glide
+                .with(this)
+                .load(storageService.getAbsolutePath(items.first().pagePdf))
+                .into(activity_pdf_drawer_front_page)
+
             activity_pdf_drawer_front_page.setOnClickListener {
                 pdf_viewpager.currentItem = 0
                 popArticlePagerFragmentIfOpen()

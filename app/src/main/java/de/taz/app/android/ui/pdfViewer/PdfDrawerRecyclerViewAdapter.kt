@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PageType
 
 class PdfDrawerRecyclerViewAdapter(
     private val itemList: List<Page>,
@@ -38,8 +39,8 @@ class PdfDrawerRecyclerViewAdapter(
             binder?.bindView(
                 view,
                 PdfDrawerItemData(
-                    title = itemList[position].title,
-                    pageType = itemList[position].type,
+                    title = itemList[position].title ?: "",
+                    pageType = itemList[position].type ?: PageType.left,
                     position = position,
                     activePosition = activePosition,
                     pdfFile = itemList[position].pagePdf

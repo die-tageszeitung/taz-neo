@@ -18,7 +18,6 @@ enum class CoverType {
     ANIMATED, STATIC, FRONT_PAGE
 }
 
-// TODO make momentURI non nullable
 data class CoverViewData(
     val issueKey: AbstractIssueKey,
     val downloadStatus: DownloadStatus,

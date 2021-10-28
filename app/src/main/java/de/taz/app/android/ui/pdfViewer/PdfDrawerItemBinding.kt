@@ -14,8 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 data class PdfDrawerItemData(
-    val title: String?,
-    val pageType: PageType?,
+    val title: String,
+    val pageType: PageType,
     val position: Int,
     val activePosition: Int,
     val pdfFile: FileEntry
