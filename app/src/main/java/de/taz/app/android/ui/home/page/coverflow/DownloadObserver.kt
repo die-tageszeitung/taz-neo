@@ -116,14 +116,14 @@ class DownloadObserver(
         downloadIconView?.visibility = View.VISIBLE
     }
 
-    private fun hideDownloadIcon(reset: Boolean = false) {
+    private fun hideDownloadIcon() {
         boundView?.setOnClickListener(null)
         val wasDownloading = downloadProgressView?.visibility == View.VISIBLE
         downloadProgressView?.visibility = View.GONE
         checkmarkIconView?.visibility = View.GONE
         downloadIconView?.visibility = View.GONE
 
-        if (wasDownloading && !reset) {
+        if (wasDownloading) {
             checkmarkIconView?.apply {
                 alpha = 1f
                 visibility = View.VISIBLE
