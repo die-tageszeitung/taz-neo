@@ -2,11 +2,13 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.data.DataService
-import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.CoverView
 import kotlinx.coroutines.*
 
@@ -24,11 +26,13 @@ abstract class CoverViewBinding(
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener
 ) {
-    protected var boundView: CoverView? = null
-    private lateinit var coverViewData: CoverViewData
+    private var boundView: CoverView? = null
+    protected lateinit var coverViewData: CoverViewData
 
-    private val dataService = DataService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
     private var bindJob: Job? = null
+    private var noConnectionShown = false
 
     abstract fun onDownloadClicked()
     abstract suspend fun prepareData(): CoverViewData
@@ -42,6 +46,15 @@ abstract class CoverViewBinding(
 
     protected fun dataInitialized(): Boolean {
         return ::coverViewData.isInitialized
+    }
+
+    fun onConnectionFailure() {
+        if (!noConnectionShown) {
+            lifecycleOwner.lifecycleScope.launch {
+                toastHelper.showNoConnectionToast()
+                noConnectionShown = true
+            }
+        }
     }
 
     private suspend fun bindView(view: CoverView) = withContext(Dispatchers.Main) {
@@ -60,15 +73,17 @@ abstract class CoverViewBinding(
             }
             setOnDownloadClickedListener { onDownloadClicked() }
             if (!shouldNotShowDownloadIcon) {
-                dataService.withDownloadLiveData(coverViewData.issueKey) {
-                    withContext(Dispatchers.Main) {
-                        it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                            setDownloadIconForStatus(
-                                downloadStatus
-                            )
+                contentService
+                    .getCacheStatusFlow(coverViewData.issueKey)
+                    .asLiveData()
+                    .observe(lifecycleOwner) {
+                        setDownloadIconForStatus(
+                            it.cacheState
+                        )
+                        if (it.type == CacheStateUpdate.Type.BAD_CONNECTION) {
+                            onConnectionFailure()
                         }
                     }
-                }
             }
         }
     }

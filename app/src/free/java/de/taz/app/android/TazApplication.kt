@@ -1,6 +1,8 @@
 package de.taz.app.android
 
-import de.taz.app.android.download.DownloadService
+import android.os.StrictMode
+import com.facebook.stetho.Stetho
+import de.taz.app.android.data.DownloadScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -9,7 +11,17 @@ import kotlinx.coroutines.launch
 class TazApplication : AbstractTazApplication() {
     override fun onCreate() {
         super.onCreate()
-        DownloadService.getInstance(applicationContext).apply {
+        if (BuildConfig.DEBUG) {
+            Stetho.initializeWithDefaults(this)
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build()
+            )
+        }
+        SentryProvider.initSentry(this)
+        DownloadScheduler(applicationContext).apply {
             CoroutineScope(Dispatchers.IO).launch {
                 scheduleNewestIssueDownload("poll/initial", true)
             }

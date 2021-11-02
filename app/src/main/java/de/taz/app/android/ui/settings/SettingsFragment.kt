@@ -15,6 +15,7 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
@@ -22,7 +23,7 @@ import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -50,10 +51,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private var lastStorageLocation: StorageLocation? = null
 
     private lateinit var toastHelper: ToastHelper
+    private lateinit var contentService: ContentService
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -252,33 +255,33 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             dialog.show()
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
+
                 dialog.setCancelable(false)
                 val deletionProgress =
                     dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
                 val deletionProgressText =
                     dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
                 CoroutineScope(Dispatchers.IO).launch {
+                    var counter = 0
                     val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
                     withContext(Dispatchers.Main) {
-                        deletionProgress.visibility = View.VISIBLE
-                        deletionProgress.progress = 0
-                        deletionProgress.max = issueStubList.size
-                    }
-                    issueStubList.forEachIndexed { index, issueStub ->
-                        withContext(Dispatchers.Main) {
-                            deletionProgress.progress = index + 1
-                            deletionProgressText.visibility = View.VISIBLE
-                            deletionProgressText.text = getString(
-                                R.string.settings_delete_progress_text,
-                                index + 1,
-                                deletionProgress.max
-                            )
+                    contentService.getCacheStatusFlow(issueStubList)
+                        .asLiveData()
+                        .observe(this@SettingsFragment.viewLifecycleOwner) {
+                            if (it.complete) {
+                                counter++
+                                deletionProgress.progress = counter
+                                deletionProgressText.visibility = View.VISIBLE
+                                deletionProgressText.text = getString(
+                                    R.string.settings_delete_progress_text,
+                                    counter,
+                                    deletionProgress.max
+                                )
+                            }
                         }
-                        DataService.getInstance(context).ensureDeleted(
-                            IssueRepository.getInstance(context).getIssue(issueStub)
-                        )
-                        IssueRepository.getInstance(context)
-                            .delete(IssueRepository.getInstance(context).getIssue(issueStub))
+                    }
+                    issueStubList.forEach{ issueStub ->
+                        contentService.deleteContent(issueStub.issueKey)
                     }
                     dialog.dismiss()
                 }

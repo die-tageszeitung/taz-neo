@@ -18,7 +18,7 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Mockable
-class IssueRepository private constructor(val applicationContext: Context) :
+class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -154,7 +154,12 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getStub(issueKey)?.let { issueStubToIssue(it) }
     }
 
-    fun getStub(issueKey: IssueKey): IssueStub? {
+
+    fun get(issueKey: IssueKeyWithPages): IssueWithPages? {
+        return getStub(IssueKey(issueKey))?.let { issueStubToIssue(it) }?.let { IssueWithPages(it) }
+    }
+
+    fun getStub(issueKey: AbstractIssueKey): IssueStub? {
         return appDatabase.issueDao()
             .getByFeedDateAndStatus(issueKey.feedName, issueKey.date, issueKey.status)
     }
@@ -232,7 +237,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
-        return getDownloadDateWithPages(IssueKeyWithPages(issueWithPages.issueKey))
+        return getDownloadDateWithPages(issueWithPages.issueKey)
     }
 
     fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
@@ -257,7 +262,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun getDownloadDate(issueStub: IssueStub): Date? {
-        return getDownloadDate(issueStub.issueKey)
+        return getDownloadDate(issueStub.issueKey as IssueKey)
     }
 
     fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {
@@ -287,7 +292,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun resetDownloadDate(issueStub: IssueStub) {
-        getStub(issueStub.issueKey)?.let {
+        getStub(issueStub.issueKey as IssueKey)?.let {
             update(it.copy(dateDownload = null))
         }
     }

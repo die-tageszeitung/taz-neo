@@ -7,16 +7,21 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.coroutines.*
 
@@ -27,8 +32,9 @@ class DataPolicyActivity : AppCompatActivity() {
     private val log by Log
     private val dataPolicyPageName = "welcomeSlidesDataPolicy.html"
 
-    private var storageService: StorageService? = null
+    private lateinit var storageService: StorageService
     private lateinit var dataService: DataService
+    private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
 
     private var finishOnClose = false
@@ -44,6 +50,7 @@ class DataPolicyActivity : AppCompatActivity() {
         storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
 
         setContentView(R.layout.activity_data_policy)
 
@@ -72,7 +79,7 @@ class DataPolicyActivity : AppCompatActivity() {
                     startActivity(Intent(intent))
                 }
             }
-    }
+        }
 
         data_policy_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
@@ -85,15 +92,7 @@ class DataPolicyActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             lifecycleScope.launch(Dispatchers.IO) {
-                val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
-                dataService.ensureDownloaded(resourceInfo)
-                val dataPolicyPageFileEntry = fileEntryRepository.get(dataPolicyPageName)
-                val filePath = dataPolicyPageFileEntry?.let {
-                    storageService?.getFileUri(it)
-                }
-                filePath?.let {
-                    ensureResourceInfoIsDownloadedAndShow(it)
-                }
+                ensureResourceInfoIsDownloadedAndShowDataPolicy()
             }
 
         }
@@ -109,13 +108,27 @@ class DataPolicyActivity : AppCompatActivity() {
         !generalDataStore.hasSeenWelcomeScreen.get()
     }
 
-    private suspend fun ensureResourceInfoIsDownloadedAndShow(filePath: String) {
+    private suspend fun ensureResourceInfoIsDownloadedAndShowDataPolicy() {
+        val resourceInfo = withContext(Dispatchers.IO) {
+            dataService.getResourceInfo(retryOnFailure = true)
+        }
+        try {
+            contentService.downloadToCacheIfNotPresent(resourceInfo)
+            showDataPolicy()
+        } catch (e: CacheOperationFailedException) {
+            Sentry.captureException(e)
+        }
+    }
 
-        val resourceInfo = dataService.getResourceInfo(retryOnFailure = true)
-        dataService.ensureDownloaded(resourceInfo)
-
-        withContext(Dispatchers.Main) {
-            data_policy_fullscreen_content.loadUrl(filePath)
+    private suspend fun showDataPolicy() = withContext(Dispatchers.IO) {
+        fileEntryRepository.get(dataPolicyPageName)?.let {
+            storageService.getFileUri(it)
+        }?.let {
+            withContext(Dispatchers.Main) {
+                data_policy_fullscreen_content.loadUrl(it)
+            }
+        } ?: run {
+            throw HTMLFileNotFoundException("Data policy html file ($dataPolicyPageName) not found in database")
         }
     }
 

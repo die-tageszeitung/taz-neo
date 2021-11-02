@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -41,6 +42,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private lateinit var dataService: DataService
 
     private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
+    private val contentService by lazy { ContentService.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -210,7 +212,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         downloadObserver?.unbindView()
         downloadObserver = DownloadObserver(
             this,
-            dataService,
+            contentService,
             toastHelper,
             observableKey
         ).apply {

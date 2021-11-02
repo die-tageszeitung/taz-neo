@@ -3,33 +3,29 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
-import androidx.lifecycle.*
-import androidx.lifecycle.Observer
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.DownloadStatus
-import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.data.DataService
-import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.*
 import de.taz.app.android.persistence.repository.AbstractIssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
+import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DownloadObserver(
     private val lifecycleOwner: LifecycleOwner,
-    private val dataService: DataService,
+    private val contentService: ContentService,
     private val toastHelper: ToastHelper,
     private val issueKey: AbstractIssueKey
 ) {
     private var boundView: View? = null
-    private var observer: Observer<DownloadStatus>? = null
-    private var liveData: LiveData<DownloadStatus>? = null
-
+    private val log by Log
 
     private val downloadIconView: ImageView?
         get() {
@@ -46,37 +42,7 @@ class DownloadObserver(
 
     fun bindView(view: View) {
         boundView = view
-        lifecycleOwner.lifecycleScope.launch (Dispatchers.IO) {
-            dataService.withDownloadLiveData(
-                issueKey
-            ) {
-                withContext(Dispatchers.Main) {
-                    it.observeDistinct(lifecycleOwner) { downloadStatus ->
-                        setDownloadIconForStatus(
-                            downloadStatus
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    fun unbindView() {
-        boundView = null
-        observer?.let {
-            liveData?.removeObserver(it)
-        }
-    }
-
-    private fun setDownloadIconForStatus(downloadStatus: DownloadStatus) {
-        when (downloadStatus) {
-            DownloadStatus.done -> hideDownloadIcon()
-            DownloadStatus.started -> showLoadingIcon()
-            else -> showDownloadIcon()
-        }
-    }
-
-    private fun showDownloadIcon() {
+        hideDownloadIcon()
         var noConnectionShown = false
         fun onConnectionFailure() {
             if (!noConnectionShown) {
@@ -86,30 +52,47 @@ class DownloadObserver(
                 }
             }
         }
-        boundView?.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
-                    // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                    val observedIssue = run {
-                        val issue = dataService.getIssue(
-                            IssuePublication(issueKey),
-                            retryOnFailure = true,
-                            allowCache = false,
-                            forceUpdate = true,
-                            onConnectionFailure = { onConnectionFailure() },
-                            cacheWithPages = issueKey is IssueKeyWithPages
-                        )
-                        if (issueKey is IssueKeyWithPages) {
-                            IssueWithPages(issue)
-                        } else {
-                            issue
-                        }
-                    }
-                    dataService.ensureDownloaded(
-                        collection = observedIssue,
-                        onConnectionFailure = { onConnectionFailure() }
-                    )
+        contentService.getCacheStatusFlow(issueKey)
+            .asLiveData(Dispatchers.Main)
+            .observe(lifecycleOwner) {
+                setDownloadIconForStatus(it.cacheState)
+                if (it.type == CacheStateUpdate.Type.BAD_CONNECTION) {
+                    onConnectionFailure()
                 }
+            }
+    }
+
+    fun unbindView() {
+        boundView = null
+    }
+
+    private fun setDownloadIconForStatus(downloadStatus: CacheState) {
+        when (downloadStatus) {
+            CacheState.PRESENT -> {
+                hideDownloadIcon()
+            }
+            CacheState.LOADING_CONTENT, CacheState.LOADING_METADATA,
+            CacheState.DELETING_METADATA, CacheState.DELETING_CONTENT,
+            CacheState.METADATA_PRESENT -> {
                 showLoadingIcon()
+            }
+            CacheState.ABSENT -> {
+                showDownloadIcon()
+            }
+        }
+    }
+
+    private fun showDownloadIcon() {
+        boundView?.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    contentService.downloadToCacheIfNotPresent(issueKey)
+                } catch (e: CacheOperationFailedException) {
+                    // Pass this exception as the download status will be reported in the observer
+                    // in bindView
+                    Sentry.captureException(e)
+                }
+            }
         }
         downloadProgressView?.visibility = View.GONE
         checkmarkIconView?.visibility = View.GONE

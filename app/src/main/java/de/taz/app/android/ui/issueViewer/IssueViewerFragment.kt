@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.*
@@ -45,6 +46,7 @@ class IssueViewerFragment :
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var contentService: ContentService
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -67,6 +69,7 @@ class IssueViewerFragment :
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -87,11 +90,6 @@ class IssueViewerFragment :
                 ) { issueWithDisplayable ->
                     if (issueWithDisplayable == null) return@observe
                     CoroutineScope(Dispatchers.IO).launch {
-                        val issue = dataService.getIssue(
-                            IssuePublication(issueWithDisplayable.issueKey),
-                            retryOnFailure = true
-                        )
-                        dataService.ensureDownloaded(issue)
                         delay(1500)
                         withContext(Dispatchers.Main) {
                             sectionDrawerViewModel.drawerOpen.value = false

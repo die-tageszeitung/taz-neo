@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.ToastHelper
@@ -36,6 +37,7 @@ class IssueViewerViewModel(
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
+    private val contentService = ContentService.getInstance(application)
     private val toastHelper = ToastHelper.getInstance(application)
 
     val currentDisplayable: String?
@@ -68,38 +70,26 @@ class IssueViewerViewModel(
         immediate: Boolean = false,
         loadIssue: Boolean = false
     ) {
-        var noConnectionShown = false
-        fun onConnectionFailure() {
-            if (!noConnectionShown) {
-                viewModelScope.launch {
-                    toastHelper.showNoConnectionToast()
-                    noConnectionShown = true
-                }
-            }
-        }
         if (loadIssue || displayableKey == null) {
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
-                val issue = dataService.getIssue(
-                    IssuePublication(issueKey),
-                    retryOnFailure = true,
-                    onConnectionFailure = {
-                        onConnectionFailure()
-                    })
+                val issue = contentService.downloadMetadataIfNotPresent(issueKey) as Issue
 
-                dataService.ensureDownloaded(
-                    issue,
-                    skipIntegrityCheck = false,
-                    onConnectionFailure = ::onConnectionFailure
-                )
+                // The wonders of this API: Eventhough we might expect a "public" issue
+                // we might have gotten a "regular" one (i.e. a demo issue).
+                // In the next step where we search for sections we should NOT use the issueKey
+                // we used to get the metadata, but the actual issuekey of the downloaded metadata
+                // (as it might differ) 💩
 
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
-                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: dataService.getLastDisplayableOnIssue(issue.issueKey)
                     ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
                 setDisplayable(
                     IssueKeyWithDisplayableKey(issue.issueKey, displayable)
                 )
+                // Start downloading the whole issue in background
+                launch { contentService.downloadToCacheIfNotPresent(issue.issueKey) }
             }
         } else {
             setDisplayable(

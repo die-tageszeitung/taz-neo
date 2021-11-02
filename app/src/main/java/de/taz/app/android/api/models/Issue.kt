@@ -2,9 +2,10 @@ package de.taz.app.android.api.models
 
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
-import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 
 import java.util.*
 
@@ -16,16 +17,16 @@ data class Issue(
     override val baseUrl: String,
     override val status: IssueStatus,
     override val minResourceVersion: Int,
-    val imprint: Article?,
+    override val imprint: Article?,
     override val isWeekend: Boolean,
-    val sectionList: List<Section> = emptyList(),
+    override val sectionList: List<Section> = emptyList(),
     val pageList: List<Page> = emptyList(),
     override val moTime: String,
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?,
     override val lastPagePosition: Int?
-) : IssueOperations, DownloadableCollection {
+) : AbstractIssue {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
@@ -66,48 +67,8 @@ data class Issue(
         issue.lastPagePosition
     )
 
-    override fun getAllFiles(): List<FileEntry> {
-        val files = mutableListOf<List<FileEntry>>()
-        imprint?.let {
-            files.add(imprint.getAllFiles())
-        }
-        sectionList.forEach { section ->
-            files.add(section.getAllFiles())
-            getArticleList().forEach { article ->
-                files.add(article.getAllFiles())
-            }
-        }
-        return files.flatten().distinct()
-    }
-
-    fun getAllFilesToDelete(): List<FileEntry> {
-        val files = mutableListOf<List<FileEntry>>()
-        imprint?.let {
-            files.add(imprint.getAllFiles())
-        }
-        sectionList.forEach { section ->
-            files.add(section.getAllFiles())
-            getArticleList().forEach { article ->
-                files.add(article.getAllFiles())
-            }
-        }
-        pageList.forEach { page ->
-            files.add(page.getAllFiles())
-        }
-        return files.flatten().distinct()
-    }
-
-    override fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }
-    }
-
-    private fun getArticleList(): List<Article> {
-        val articleList = mutableListOf<Article>()
-        sectionList.forEach {
-            articleList.addAll(it.articleList)
-        }
-        return articleList
-    }
+    override val issueKey: IssueKey
+        get() = IssueKey(feedName, date, status)
 }
 
 @JsonClass(generateAdapter = false)

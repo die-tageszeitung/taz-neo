@@ -13,7 +13,10 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_JQUERY_FILE
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
+import de.taz.app.android.download.FileDownloader
+import de.taz.app.android.download.FiledownloaderInterface
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -44,6 +47,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var contentService: ContentService
 
     val log by Log
 
@@ -65,6 +69,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -80,7 +85,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
             }
             toDownloadImage?.let {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    dataService.ensureDownloaded(
+                    contentService.downloadSingleFileIfNotDownloaded(
                         FileEntry(it),
                         issueRepository.getIssueStubForImage(it).baseUrl
                     )

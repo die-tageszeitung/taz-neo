@@ -45,4 +45,39 @@ abstract class FileEntryDao : BaseDao<FileEntry>() {
 
     @Query("DELETE FROM FileEntry WHERE name in (:fileNames)")
     abstract fun deleteList(fileNames: List<String>)
+
+    @Query(
+        """
+            SELECT FileEntry.* FROM FileEntry
+            INNER JOIN Article ON Article.articleFileName = FileEntry.name
+            WHERE FileEntry.name IN (:fileNames) AND NOT Article.bookmarked
+        """
+    )
+    abstract fun filterFilesThatArePartOfBookmarkedArticle(
+        fileNames: List<String>
+    ): List<FileEntry>
+
+    @Query(
+        """
+            SELECT FileEntry.* FROM FileEntry
+            LEFT JOIN ArticleAuthor ON ArticleAuthor.authorFileName = FileEntry.name
+            WHERE FileEntry.name IN (:fileNames) AND ArticleAuthor.id IS NULL
+        """
+    )
+    abstract fun filterFilesThatBelongToAnAuthor(
+        fileNames: List<String>
+    ): List<FileEntry>
+
+
+    @Query(
+        """
+            SELECT FileEntry.* FROM FileEntry
+            LEFT JOIN ArticleAuthor ON ArticleAuthor.authorFileName = FileEntry.name
+            INNER JOIN Article ON Article.articleFileName = FileEntry.name
+            WHERE FileEntry.name IN (:fileNames) AND ArticleAuthor.id IS NULL AND NOT Article.bookmarked
+        """
+    )
+    abstract fun filterFilesThatArePartOfBookmarkedArticleOrAuthor(
+        fileNames: List<String>
+    ): List<FileEntry>
 }

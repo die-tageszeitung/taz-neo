@@ -5,10 +5,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
+import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 
@@ -22,18 +26,20 @@ class IssueDownloadWorkManagerWorker(
 
     private val log by Log
 
+    private val downloadScheduler = DownloadScheduler.getInstance(applicationContext)
+
     override suspend fun doWork(): Result = coroutineScope {
         val dataService = withContext(Dispatchers.Main) {
-             DataService.getInstance(applicationContext)
+            DataService.getInstance(applicationContext)
         }
-        val downloadService = DownloadService.getInstance(applicationContext)
+        val contentService = ContentService.getInstance(applicationContext)
         val oldFeed = dataService.getFeedByName(DISPLAYED_FEED)
 
         val scheduleNext = inputData.getBoolean(KEY_SCHEDULE_NEXT, false)
 
         if (scheduleNext) {
             val nextPollDelay = NewIssuePollingScheduler.getDelayForNextPoll()
-            downloadService.scheduleNewestIssueDownload(
+            downloadScheduler.scheduleNewestIssueDownload(
                 "poll/$nextPollDelay",
                 true,
                 nextPollDelay
@@ -42,22 +48,24 @@ class IssueDownloadWorkManagerWorker(
 
         try {
             // maybe get new issue
-            val newestIssue = dataService.refreshFeedAndGetIssueIfNew(DISPLAYED_FEED)
-            if (newestIssue == null) {
+            val newestIssueKey = dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+            if (newestIssueKey == null) {
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {
-                dataService.ensureDownloaded(newestIssue, isAutomaticDownload = true)
+                contentService.downloadToCacheIfNotPresent(newestIssueKey, isAutomaticDownload = true)
                 // pre download moment too
-                val moment = dataService.getMoment(IssuePublication(newestIssue.issueKey)) ?: run {
-                    val hint = "Did not find moment for issue at ${newestIssue.date}"
+                val moment = dataService.getMoment(IssuePublication(newestIssueKey)) ?: run {
+                    val hint = "Did not find moment for issue at ${newestIssueKey.date}"
                     Sentry.captureMessage(hint)
                     log.error(hint)
                     return@coroutineScope Result.failure()
                 }
-                dataService.ensureDownloaded(moment)
+                contentService.downloadToCacheIfNotPresent(
+                    moment
+                )
 
-                log.info("Downloaded new issue automatically: ${newestIssue.date}")
+                log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()
             }
         } catch (e: ConnectivityException.Recoverable) {

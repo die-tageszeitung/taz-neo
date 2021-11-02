@@ -19,6 +19,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import kotlinx.android.synthetic.main.activity_webview.*
+import kotlinx.android.synthetic.main.activity_webview.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,8 +53,6 @@ class WebViewActivity : AppCompatActivity() {
             finish()
         }
 
-
-
         web_view_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
@@ -64,32 +63,36 @@ class WebViewActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            lifecycleScope.launch {
-                val htmlFileName = intent.extras?.getString(WEBVIEW_HTML_FILE)
-                val htmlFileEntry = withContext(Dispatchers.IO) {
-                    htmlFileName?.let {
-                        fileEntryRepository.get(it)
-                    }
-                }
-                val filePath = htmlFileEntry?.let { storageService.getFileUri(it) }
-                filePath?.let {
-                    ensureResourceInfoIsDownloadedAndShow(it)
-                }
-            }
-
         }
+
+
+        intent.extras?.getString(WEBVIEW_HTML_FILE)?.let {
+            showHtmlFile(it)
+        } ?: run {
+            throw IllegalArgumentException("WebViewActivity needs to be started with WEBVIEW_HTML_FILE extra in intent")
+        }
+
     }
 
-    private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
+    private fun showHtmlFile(htmlFileKey: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val resourceInfo = dataService.getResourceInfo()
-            dataService.ensureDownloaded(resourceInfo, onConnectionFailure = {
-                toastHelper.showNoConnectionToast()
-            })
-            withContext(Dispatchers.Main) {
-                web_view_fullscreen_content.loadUrl(filePath)
+            fileEntryRepository.get(htmlFileKey)?.let {
+                storageService.getFileUri(it)
+            }?.let {
+                withContext(Dispatchers.Main) {
+                    web_view_fullscreen_content.loadUrl(it)
+                }
+            } ?: run {
+                throw HTMLFileNotFoundException(
+                    "Could not find html file ${
+                        intent.extras?.getString(
+                            WEBVIEW_HTML_FILE
+                        )
+                    }"
+                )
             }
         }
+    }
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {

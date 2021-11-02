@@ -56,6 +56,8 @@ data class Moment(
         null
     )
 
+    val issueKey = IssueKey(issueFeedName, issueDate, issueStatus)
+
     private fun getImagesToDownload(): List<Image> {
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
     }

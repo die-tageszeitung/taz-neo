@@ -6,12 +6,12 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +28,10 @@ class PdfPagerViewModel(
 ) : AndroidViewModel(application) {
 
     private val dataService = DataService.getInstance(application)
+    private val contentService: ContentService = ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
-    private val toastHelper = ToastHelper.getInstance(application)
+
 
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
@@ -61,33 +62,19 @@ class PdfPagerViewModel(
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issueKey) { issueKey ->
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    viewModelScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
-            }
             viewModelScope.launch(Dispatchers.IO) {
                 val issue = dataService.getIssue(
                     IssuePublication(issueKey),
-                    retryOnFailure = true,
-                    onConnectionFailure = { onConnectionFailure() }
+                    retryOnFailure = true
                 )
                 // Get latest shown page and set it before setting the issue
                 updateCurrentItem(issue.lastPagePosition ?: 0)
                 val pdfIssue = IssueWithPages(issue)
-                val pdfIssueKey = IssueKeyWithPages(pdfIssue.issueKey)
                 // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
-                if (pdfIssueKey.status != issueKey.status) {
-                    this@PdfPagerViewModel.issueKey.postValue(IssueKeyWithPages(pdfIssue.issueKey))
+                if (pdfIssue.status != issueKey.status) {
+                    this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
                 }
-                dataService.ensureDownloaded(
-                    pdfIssue,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
+                contentService.downloadToCacheIfNotPresent(pdfIssue.issueKey)
 
                 navButton.postValue(
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)

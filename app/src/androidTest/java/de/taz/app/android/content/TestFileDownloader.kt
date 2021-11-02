@@ -1,0 +1,27 @@
+package de.taz.app.android.content
+
+import de.taz.app.android.content.cache.*
+import de.taz.app.android.download.FiledownloaderInterface
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
+
+abstract class TestFileDownloader : FiledownloaderInterface {
+
+    abstract suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>)
+
+    override suspend fun enqueueDownload(operation: ContentDownload) {
+        for (item in operation.cacheItems) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    fakeDownloadItem(item)
+                } catch (e: Exception) {
+                    // skip any exceptions
+                } finally {
+                    operation.checkIfItemsCompleteAndNotifyResult(Unit)
+                }
+            }
+        }
+    }
+}

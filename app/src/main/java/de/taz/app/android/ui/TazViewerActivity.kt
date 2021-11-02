@@ -15,7 +15,10 @@ import de.taz.app.android.*
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
+import de.taz.app.android.download.FileDownloader
+import de.taz.app.android.download.FiledownloaderInterface
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
@@ -35,14 +38,15 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
+    private lateinit var contentService: ContentService
     private lateinit var dataService: DataService
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
-    protected val sectionDrawerViewModel: SectionDrawerViewModel by viewModels()
+    private val sectionDrawerViewModel: SectionDrawerViewModel by viewModels()
 
-    protected var viewerFragment: Fragment? = null
+    private var viewerFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
         storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
 
         // supportFragmentManager recovers state by itself
         if (savedInstanceState == null) {
@@ -121,11 +126,11 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             lifecycleScope.launch(Dispatchers.IO) {
                 val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
                 if (it != null) {
-                    dataService.ensureDownloaded(FileEntry(it), baseUrl)
+                    contentService.downloadSingleFileIfNotDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
-                        dataService.ensureDownloaded(FileEntry(image), baseUrl)
+                        contentService.downloadSingleFileIfNotDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
                             image
                         )

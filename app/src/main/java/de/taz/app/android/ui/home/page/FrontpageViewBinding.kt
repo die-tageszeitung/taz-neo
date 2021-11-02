@@ -2,19 +2,21 @@ package de.taz.app.android.ui.home.page
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
-import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
     applicationContext: Context,
-    private val lifecycleOwner: LifecycleOwner,
+    lifecycleOwner: LifecycleOwner,
     private val issuePublication: IssuePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
@@ -29,9 +31,9 @@ class FrontpageViewBinding(
 
     private val storageService = StorageService.getInstance(applicationContext)
     private val dataService = DataService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -39,7 +41,7 @@ class FrontpageViewBinding(
 
             // get pdf front page
         val pdfMomentFilePath = frontPage?.let {
-            dataService.ensureDownloaded(frontPage)
+            contentService.downloadToCacheIfNotPresent(frontPage)
             val downloadedFrontPage =
                 dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
             val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }
@@ -50,7 +52,7 @@ class FrontpageViewBinding(
         val issueKey = dataService.determineIssueKeyWithPages(issuePublication)
         CoverViewData(
             issueKey,
-            DownloadStatus.pending,
+            CacheState.ABSENT,
             momentType,
             pdfMomentFilePath,
             dimension
@@ -59,32 +61,14 @@ class FrontpageViewBinding(
 
     override fun onDownloadClicked() {
         if (dataInitialized()) {
-            boundView?.setDownloadIconForStatus(DownloadStatus.started)
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    lifecycleOwner.lifecycleScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
-            }
-
             CoroutineScope(Dispatchers.IO).launch {
-                // TODO: We need to account for loading pdf issues instead of the whole issue atm
-                // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                val issue = dataService.getIssue(
-                    issuePublication,
-                    retryOnFailure = true,
-                    allowCache = false,
-                    forceUpdate = true,
-                    onConnectionFailure = { onConnectionFailure() },
-                    cacheWithPages = true
-                )
-                dataService.ensureDownloaded(
-                    collection = IssueWithPages(issue),
-                    onConnectionFailure = { onConnectionFailure() }
-                )
+                try {
+                    contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
+                } catch (e: CacheOperationFailedException) {
+                    // Pass the exception, if that process wen wrong the download indicator should reset,
+                    // and a toast is being shown in the observer in CoverViewBinding
+                    Sentry.captureException(e, "Something went wrong when downloading ${coverViewData.issueKey}")
+                }
             }
         }
     }
