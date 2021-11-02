@@ -82,15 +82,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * The CacheItems that should be processed in this operation. It gets initialized with the
      * items in the constructor argument
      */
-    private val _cacheItems = items
-        .map {
-            CacheOperationItem(it, this)
-                .apply {
-                    // The CacheOperation overrides the priority of a CacheItem!
-                    // That allows us to dynamically rewrite the order as the user navigates
-                    item.priority = { this@CacheOperation.priority }
-                }
-        }.toMutableList()
+    private val _cacheItems = mutableListOf<CacheOperationItem<ITEM>>().also { addItems(items) }
 
     /**
      * The CacheItems that should be processed in this operation.
@@ -186,7 +178,13 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         if (state.complete) {
             throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
         }
-        _cacheItems.addAll(items.map { CacheOperationItem(it, this) })
+        _cacheItems.addAll(items.map {
+            CacheOperationItem(it, this).apply {
+                // The CacheOperation overrides the priority of a CacheItem!
+                // That allows us to dynamically rewrite the order as the user navigates
+                item.priority = { this@CacheOperation.priority }
+            }
+        })
     }
 
     /**
