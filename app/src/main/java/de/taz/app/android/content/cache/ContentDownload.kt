@@ -62,25 +62,23 @@ class ContentDownload(
             val prioritizedDownloads = collection.getAllFiles()
                 .map {
                     // Set the storage type to the currently selected storage
-                    fileEntryRepository.saveOrReplace(
+                    val fileEntry = fileEntryRepository.saveOrReplace(
                         it.copy(storageLocation = storageLocation)
                     )
-                }
-                .map { file ->
-                    // Determine the url from where this file should be downloaded as well as
+                    // Determine the url from where this file entry should be downloaded as well as
                     // the path where this file should be saved
-                    val absolutePath = storageService.getAbsolutePath(file)!!
+                    val absolutePath = storageService.getAbsolutePath(fileEntry)!!
                     val baseUrl = storagePathService.determineBaseUrl(
-                        file,
+                        fileEntry,
                         collection
                     )
                     FileCacheItem(
-                        file.name,
+                        fileEntry.name,
                         { priority },
                         FileEntryOperation(
-                            file,
+                            fileEntry,
                             absolutePath,
-                            "$baseUrl/${file.name}",
+                            "$baseUrl/${fileEntry.name}",
                         )
                     )
                 }
