@@ -144,8 +144,8 @@ class ContentService(
     }
 
     /**
-     * This function will return a DownloadChunk if the collection is not yet downloaded.
-     * If the return value is null assume the collection is downloaded
+     * This function will invoke [downloadToCache] if the provided collection is not downloaded
+     *
      * @param collection The collection to be downloaded
      * @param priority The priority of the download
      * @param isAutomaticDownload Indicator if the download was triggered automatically
@@ -163,7 +163,7 @@ class ContentService(
     }
 
     /**
-     * This function will download an [download] (both Metadata and Contents) if
+     * This function will download a [download] (both Metadata and Contents) if
      * it is not yet marked as downloaded. If it is it will just return
      * @param download The [ObservableDownload] to be downloaded
      * @param priority The priority of the download
