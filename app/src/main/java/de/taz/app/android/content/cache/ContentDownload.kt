@@ -62,10 +62,9 @@ class ContentDownload(
             val prioritizedDownloads = collection.getAllFiles()
                 .map {
                     // Set the storage type to the currently selected storage
-                    val updatedFileEntry = fileEntryRepository.saveOrReplace(
+                    fileEntryRepository.saveOrReplace(
                         it.copy(storageLocation = storageLocation)
                     )
-                    updatedFileEntry
                 }
                 .map { file ->
                     // Determine the url from where this file should be downloaded as well as
