@@ -23,7 +23,6 @@ import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateFormat

@@ -35,6 +35,7 @@ class DataService(private val applicationContext: Context) {
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
 
     private val maxStoredIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
     private val downloadIssueNumberLiveData = issueRepository.getDownloadedIssuesCountLiveData()
@@ -55,7 +56,6 @@ class DataService(private val applicationContext: Context) {
     }
 
     private suspend fun ensureIssueCount() = ensureCountLock.withLock {
-        val contentService = ContentService.getInstance(applicationContext)
         runIfNotNull(
             downloadIssueNumberLiveData.value,
             maxStoredIssueNumberLiveData.value

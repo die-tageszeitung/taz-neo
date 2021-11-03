@@ -16,8 +16,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.FileDownloader
-import de.taz.app.android.download.FiledownloaderInterface
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat

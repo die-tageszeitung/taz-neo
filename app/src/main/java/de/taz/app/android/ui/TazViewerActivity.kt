@@ -17,8 +17,6 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.FileDownloader
-import de.taz.app.android.download.FiledownloaderInterface
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService

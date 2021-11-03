@@ -23,6 +23,9 @@ import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.Executors
 
+/**
+ * [FileDownloader] is used by [ContentDownload] to download individual files
+ */
 class FileDownloader(private val applicationContext: Context): FiledownloaderInterface {
     companion object : SingletonHolder<FiledownloaderInterface, Context>(::FileDownloader)
 
