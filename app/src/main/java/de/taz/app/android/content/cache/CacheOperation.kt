@@ -356,7 +356,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             if (failedCount == 0) {
                 emitSuccess(result)
             } else {
-                emitFailiure(
+                emitFailure(
                     CacheOperationFailedException(
                         "Some items were not success fully processed"
                     )
@@ -382,7 +382,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param e An exception indicating the cause of the failiure
      */
     suspend fun notifyFailiure(e: Exception) = notifyLock.withLock {
-        emitFailiure(e)
+        emitFailure(e)
     }
 
     /**
@@ -426,7 +426,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Emits failiure update and failiure to listeners
      * @param e An exception indicating the cause of the failiure
      */
-    private suspend fun emitFailiure(e: Exception) {
+    private fun emitFailure(e: Exception) {
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.FAILED,
