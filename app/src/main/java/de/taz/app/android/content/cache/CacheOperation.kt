@@ -167,18 +167,40 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
 
     /**
      * In some operations (i.e. in [WrappedDownload]) it could happen that during the process
-     * more items will need to be added to the opreation than known at the start of the operation.
+     * more items will need to be added to the opeeation than known at the start of the operation.
      * For instance the files needed to be downloaded for an [de.taz.app.android.api.models.Issue]
      * is only known after a [MetadataDownload] for that [de.taz.app.android.api.models.Issue] is
      * done.
      *
-     * @param items The [CacheOperationItem] to be added to this operation
+     * @param items The [CacheOperationItem]s to be added to this operation
      */
     fun addItems(items: List<ITEM>) {
         if (state.complete) {
             throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
         }
         _cacheItems.addAll(items.map {
+            CacheOperationItem(it, this).apply {
+                // The CacheOperation overrides the priority of a CacheItem!
+                // That allows us to dynamically rewrite the order as the user navigates
+                item.priority = { this@CacheOperation.priority }
+            }
+        })
+    }
+
+    /**
+     * In some operations (i.e. in [WrappedDownload]) it could happen that during the process
+     * more items will need to be added to the opeeation than known at the start of the operation.
+     * For instance the files needed to be downloaded for an [de.taz.app.android.api.models.Issue]
+     * is only known after a [MetadataDownload] for that [de.taz.app.android.api.models.Issue] is
+     * done.
+     *
+     * @param items The [CacheOperationItem] to be added to this operation
+     */
+    fun addItem(item: ITEM) {
+        if (state.complete) {
+            throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
+        }
+        _cacheItems.add(item.let {
             CacheOperationItem(it, this).apply {
                 // The CacheOperation overrides the priority of a CacheItem!
                 // That allows us to dynamically rewrite the order as the user navigates

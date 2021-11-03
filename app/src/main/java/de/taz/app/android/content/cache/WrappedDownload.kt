@@ -88,10 +88,8 @@ class WrappedDownload(
             parent,
             parent.getDownloadTag() // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
         )
-        addItems(
-            listOf(
-                SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
-            )
+        addItem(
+            SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
         )
         val parentCollection = metadataDownload.execute()
         // corner case: If we invoke this function with an IssueKeyWithPages we need to cast
