@@ -2,6 +2,7 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.models.AbstractIssue
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 
@@ -51,7 +52,7 @@ class IssueDeletion(
         notifyStart()
         issue.setDownloadDate(null, context)
         val collectionsToDeleteContent =
-            listOfNotNull(issue.imprint) + issue.sectionList + issue.getArticles()
+            listOfNotNull(issue.imprint) + issue.sectionList + issue.getArticles() + issue.pageList
         val issueMetadataDeletion = MetadataDeletion.prepare(context, issue)
         val issueMetadataDeletionCacheItem = SubOperationCacheItem(
             issueMetadataDeletion.tag,

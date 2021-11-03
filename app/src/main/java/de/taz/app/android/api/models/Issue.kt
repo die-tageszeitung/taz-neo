@@ -20,7 +20,7 @@ data class Issue(
     override val imprint: Article?,
     override val isWeekend: Boolean,
     override val sectionList: List<Section> = emptyList(),
-    val pageList: List<Page> = emptyList(),
+    override val pageList: List<Page> = emptyList(),
     override val moTime: String,
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
