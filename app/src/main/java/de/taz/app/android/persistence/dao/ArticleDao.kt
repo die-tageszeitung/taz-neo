@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStatus
 import java.util.*
 
