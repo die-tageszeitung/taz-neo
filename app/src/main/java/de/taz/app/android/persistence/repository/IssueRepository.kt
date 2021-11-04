@@ -262,7 +262,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun getDownloadDate(issueStub: IssueStub): Date? {
-        return getDownloadDate(issueStub.issueKey as IssueKey)
+        return getDownloadDate(issueStub.issueKey)
     }
 
     fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {
@@ -292,7 +292,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun resetDownloadDate(issueStub: IssueStub) {
-        getStub(issueStub.issueKey as IssueKey)?.let {
+        getStub(issueStub.issueKey)?.let {
             update(it.copy(dateDownload = null))
         }
     }
