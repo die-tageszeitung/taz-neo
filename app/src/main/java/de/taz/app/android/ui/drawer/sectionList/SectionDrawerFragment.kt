@@ -22,6 +22,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
@@ -29,6 +30,7 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.TazViewerActivity
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
@@ -317,28 +319,26 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 momentBinder?.unbind()
             }
             val feed = feedRepository.get(issueStub.feedName)
-            withContext(Dispatchers.Main) {
-                contentService
-                    .getCacheStatusFlow(moment)
-                    .asLiveData()
-                    .observe(this@SectionDrawerFragment) {
-                        momentBinder = MomentViewBinding(
-                            requireContext().applicationContext,this@SectionDrawerFragment,
-                            IssuePublication(feed!!.name, issueStub.date),
-                            DateFormat.LongWithoutWeekDay,
-                            Glide.with(this@SectionDrawerFragment),
-                            object : CoverViewActionListener {
-                                override fun onImageClicked(momentViewData: CoverViewData) {
-                                    finishAndShowIssue(issueStub.issueKey)
-                                }
+            try {
+                withContext(Dispatchers.Main) {
+                    contentService.downloadToCacheIfNotPresent(moment)
+                    momentBinder = MomentViewBinding(
+                        requireContext().applicationContext, this@SectionDrawerFragment,
+                        IssuePublication(feed!!.name, issueStub.date),
+                        DateFormat.LongWithoutWeekDay,
+                        Glide.with(this@SectionDrawerFragment),
+                        object : CoverViewActionListener {
+                            override fun onImageClicked(momentViewData: CoverViewData) {
+                                finishAndShowIssue(issueStub.issueKey)
                             }
-                        )
-                        momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
-                        fragment_moment_date.visibility = View.GONE
-                    }
+                        }
+                    )
+                    momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
+                    fragment_moment_date.visibility = View.GONE
+                }
+            } catch (e: CacheOperationFailedException) {
+                (requireActivity() as TazViewerActivity).showIssueDownloadFailedDialog(issueKey)
             }
-            contentService.downloadToCacheIfNotPresent(moment)
-
         } ?: run {
             momentBinder?.unbind()
         }

@@ -221,45 +221,6 @@ class ContentService(
     }
 
     /**
-     * Download a single [FileEntry] while providing the [baseUrl]
-     * @param fileEntry The [FileEntry] to download
-     * @param baseUrl The base url where the [FileEntry] is to be found
-     * @throws CacheOperationFailedException If anything goes wrong this exception is wrapping the cause
-     */
-    @Throws(CacheOperationFailedException::class)
-    suspend fun downloadSingleFile(
-        fileEntry: FileEntry,
-        baseUrl: String,
-        priority: DownloadPriority = DownloadPriority.Normal
-    ) {
-        ContentDownload
-            .prepare(context, fileEntry, baseUrl, priority)
-            .execute()
-    }
-
-    /**
-     * This function will download an the contents for given [DownloadableCollection] Metadata
-     * it is not yet marked as downloaded. If it is it will just return
-     *
-     * @param collection The [ObservableDownload] of which the contents should be downloaded
-     * @param priority The priority of the download. If there is another operation active with a lower priority it will bump that operation with this
-     */
-    internal suspend fun downloadCollectionContentIfNotPresent(
-        collection: DownloadableCollection,
-        priority: DownloadPriority = DownloadPriority.Normal
-    ) = withContext(Dispatchers.Default) {
-        if (collection.isDownloaded(context)) {
-            return@withContext
-        }
-        val contentDownload = ContentDownload.prepare(
-            context,
-            collection,
-            priority
-        )
-        contentDownload.execute()
-    }
-
-    /**
      * Retrieves the metadata of [issueKey] and delete its contents
      *
      * @param issueKey The issueKey the content of which should be deleted

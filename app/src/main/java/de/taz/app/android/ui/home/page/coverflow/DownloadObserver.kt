@@ -13,6 +13,7 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,15 +57,21 @@ class DownloadObserver(
             .asLiveData(Dispatchers.Main)
             .observe(lifecycleOwner) {
                 setDownloadIconForStatus(it.cacheState)
-                if (it.type == CacheStateUpdate.Type.BAD_CONNECTION) {
-                    onConnectionFailure()
+                when (it.type) {
+                    CacheStateUpdate.Type.BAD_CONNECTION -> onConnectionFailure()
+                    CacheStateUpdate.Type.FAILED -> boundView?.context?.let { context ->
+                        showIssueDownloadFailedDialog(context, issueKey)
+                    }
+                    else -> Unit
                 }
             }
     }
 
+
     fun unbindView() {
         boundView = null
     }
+
 
     private fun setDownloadIconForStatus(downloadStatus: CacheState) {
         when (downloadStatus) {

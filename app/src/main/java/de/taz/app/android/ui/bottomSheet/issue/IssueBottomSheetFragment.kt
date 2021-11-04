@@ -14,6 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
@@ -181,7 +182,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                contentService.downloadToCacheIfNotPresent(issueKey)
+                try {
+                    contentService.downloadToCacheIfNotPresent(issueKey)
+                } catch (e: CacheOperationFailedException) {
+                    // Errors are handled in CoverViewBinding
+                }
             }
             dismiss()
         }

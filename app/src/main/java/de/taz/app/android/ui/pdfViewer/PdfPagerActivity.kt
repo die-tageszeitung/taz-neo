@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
@@ -31,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.filter
 
 const val LOGO_PEAK = 8
 const val HIDE_LOGO_DELAY_MS = 1000L
@@ -54,6 +56,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
     private var drawerLogoWidth = 0f
 
+    private var downloadErrorShown = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         issueKey = try {
@@ -61,9 +65,18 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
         } catch (e: NullPointerException) {
             throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         }
+
+        pdfPagerViewModel.issueDownloadFailedErrorFlow
+            .filter { it }
+            .asLiveData()
+            .observe(this) {
+                showIssueDownloadFailedDialog()
+            }
+
         if (savedInstanceState == null) {
             pdfPagerViewModel.issueKey.postValue(issueKey)
         }
+
 
         storageService = StorageService.getInstance(applicationContext)
 
@@ -328,6 +341,23 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
             supportFragmentManager.popBackStack()
+        }
+    }
+
+    fun showIssueDownloadFailedDialog() {
+        if (!downloadErrorShown) {
+            downloadErrorShown = true
+            android.app.AlertDialog.Builder(this)
+                .setMessage(
+                    getString(
+                        R.string.error_issue_download_failed,
+                        DateHelper.dateToLongLocalizedString(
+                            DateHelper.stringToDate(issueKey.date)!!
+                        )
+                    )
+                )
+                .setPositiveButton(android.R.string.ok) { _, _ -> }
+                .show()
         }
     }
 }

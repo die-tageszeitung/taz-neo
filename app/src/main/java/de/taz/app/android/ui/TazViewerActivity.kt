@@ -18,7 +18,9 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
@@ -39,6 +41,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     private lateinit var contentService: ContentService
     private lateinit var dataService: DataService
 
+    private var downloadErrorShown = false
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
@@ -189,6 +192,25 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             return
         } else {
             super.onBackPressed()
+        }
+    }
+
+    fun showIssueDownloadFailedDialog(issueKey: AbstractIssueKey) {
+        runOnUiThread {
+            if (!downloadErrorShown) {
+                downloadErrorShown = true
+                android.app.AlertDialog.Builder(this)
+                    .setMessage(
+                        getString(
+                            R.string.error_issue_download_failed,
+                            DateHelper.dateToLongLocalizedString(
+                                DateHelper.stringToDate(issueKey.date)!!
+                            )
+                        )
+                    )
+                    .setPositiveButton(android.R.string.ok) { _, _ -> }
+                    .show()
+            }
         }
     }
 }

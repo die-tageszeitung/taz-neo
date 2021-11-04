@@ -127,20 +127,13 @@ class SplashActivity : BaseActivity() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             if (feed?.publicationDates?.isEmpty() == true) {
-                if (feed.publicationDates.isEmpty()) {
-                    dataService.getFeedByName(
-                        DISPLAYABLE_NAME,
-                        allowCache = false,
-                        retryOnFailure = true
-                    )
-                }
                 dataService.getFeedByName(
                     DISPLAYABLE_NAME,
                     allowCache = false,
                     retryOnFailure = true
                 )
             }
-        } catch (e: ConnectivityException.NoInternetException) {
+        } catch (e: ConnectivityException) {
             throw InitializationException("Could not retrieve feed during first start")
         }
     }
@@ -148,8 +141,8 @@ class SplashActivity : BaseActivity() {
     private suspend fun checkForNewestIssue() {
         try {
             dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
-        } catch (e: ConnectivityException.Recoverable) {
-            toastHelper.showNoConnectionToast()
+        } catch (e: ConnectivityException) {
+            toastHelper.showConnectionToServerFailedToast()
         }
     }
 

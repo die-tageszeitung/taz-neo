@@ -18,12 +18,14 @@ import de.taz.app.android.persistence.repository.IssuePublication
  * @param tag The tag on which this operation should be registered
  * @param download The object of which the metadata should be deleted
  * @param allowCache If the cache of Metadata should be used if existend (download will be skipped then)
+ * @param retryOnConnectionError Specify if a reqeuest should pause and retry if a connection error is encountered
  */
 class MetadataDownload(
     context: Context,
     tag: String,
     val download: ObservableDownload,
-    private val allowCache: Boolean
+    private val allowCache: Boolean,
+    private val retryOnConnectionError: Boolean
 ): CacheOperation<MetadataCacheItem, DownloadableStub>(
     context, emptyList(), CacheState.METADATA_PRESENT, tag
 ) {
@@ -42,13 +44,15 @@ class MetadataDownload(
             context: Context,
             download: ObservableDownload,
             tag: String,
-            allowCache: Boolean = false
+            allowCache: Boolean = false,
+            retryOnConnectionError: Boolean = true
         ): MetadataDownload {
             return MetadataDownload(
                 context,
                 tag,
                 download,
-                allowCache
+                allowCache,
+                retryOnConnectionError
             )
         }
     }
@@ -60,15 +64,18 @@ class MetadataDownload(
         return when (download) {
             is IssueKey -> dataService.getIssue(
                 IssuePublication(download),
-                allowCache = allowCache
+                allowCache = allowCache,
+                retryOnFailure = retryOnConnectionError
             ) { notifyBadConnection() }
             is IssueKeyWithPages -> IssueWithPages(dataService.getIssue(
                 IssuePublication(download),
-                allowCache = allowCache
+                allowCache = allowCache,
+                retryOnFailure = retryOnConnectionError
             ) { notifyBadConnection() })
             is IssueOperations -> dataService.getIssue(
                 IssuePublication(download.issueKey),
-                allowCache = allowCache
+                allowCache = allowCache,
+                retryOnFailure = retryOnConnectionError
             ) { notifyBadConnection() }
             // Other collections like Articles, Sections, Pages are not directly queryable,
             // so updates only are possible by requerying the whole issue

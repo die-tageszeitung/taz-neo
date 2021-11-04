@@ -15,7 +15,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.IOException
-import kotlin.random.Random
 
 @RunWith(MockitoJUnitRunner::class)
 class ContentServiceTest {
@@ -40,12 +39,13 @@ class ContentServiceTest {
         }
     }
 
-    private val chaoticTestDownloader = object : TestFileDownloader() {
-        private val failProbability = 0.5
+    private val oneFileFailedDownloader = object : TestFileDownloader() {
+        private var failed = 0
+
         override suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>) {
 
             item.operation.apply {
-                if (failProbability > Random.nextFloat()) {
+                if (failed < 1) {
                     notifyFailedItem(IOException("Bad file"))
                 } else {
                     notifySuccessfulItem()
@@ -93,7 +93,7 @@ class ContentServiceTest {
 
     @Test
     fun retrieveIssueWithSomeExceptions() {
-        FileDownloader.inject(chaoticTestDownloader)
+        FileDownloader.inject(oneFileFailedDownloader)
         val testIssue = IssueTestUtil.getIssue()
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 

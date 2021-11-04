@@ -21,6 +21,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.coroutines.*
@@ -116,6 +117,7 @@ class DataPolicyActivity : AppCompatActivity() {
             contentService.downloadToCacheIfNotPresent(resourceInfo)
             showDataPolicy()
         } catch (e: CacheOperationFailedException) {
+            showConnectionErrorDialog()
             Sentry.captureException(e)
         }
     }

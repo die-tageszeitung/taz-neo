@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.ToastHelper
@@ -12,6 +13,7 @@ import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -38,8 +40,8 @@ class IssueViewerViewModel(
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
     private val contentService = ContentService.getInstance(application)
-    private val toastHelper = ToastHelper.getInstance(application)
 
+    val issueLoadingFailedErrorFlow = MutableStateFlow(false)
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
 
@@ -71,25 +73,36 @@ class IssueViewerViewModel(
         loadIssue: Boolean = false
     ) {
         if (loadIssue || displayableKey == null) {
+            issueLoadingFailedErrorFlow.emit(false)
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
-                val issue = contentService.downloadMetadataIfNotPresent(issueKey) as Issue
+                try {
+                    val issue = contentService.downloadMetadataIfNotPresent(issueKey) as Issue
 
-                // The wonders of this API: Eventhough we might expect a "public" issue
-                // we might have gotten a "regular" one (i.e. a demo issue).
-                // In the next step where we search for sections we should NOT use the issueKey
-                // we used to get the metadata, but the actual issuekey of the downloaded metadata
-                // (as it might differ) 💩
+                    // The wonders of this API: Eventhough we might expect a "public" issue
+                    // we might have gotten a "regular" one (i.e. a demo issue).
+                    // In the next step where we search for sections we should NOT use the issueKey
+                    // we used to get the metadata, but the actual issuekey of the downloaded metadata
+                    // (as it might differ) 💩
 
-                // either displayable is specified, persisted or defaulted to first section
-                val displayable = displayableKey
-                    ?: dataService.getLastDisplayableOnIssue(issue.issueKey)
-                    ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
-                setDisplayable(
-                    IssueKeyWithDisplayableKey(issue.issueKey, displayable)
-                )
-                // Start downloading the whole issue in background
-                launch { contentService.downloadToCacheIfNotPresent(issue.issueKey) }
+                    // either displayable is specified, persisted or defaulted to first section
+                    val displayable = displayableKey
+                        ?: dataService.getLastDisplayableOnIssue(issue.issueKey)
+                        ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
+                    setDisplayable(
+                        IssueKeyWithDisplayableKey(issue.issueKey, displayable)
+                    )
+                    // Start downloading the whole issue in background
+                    launch {
+                        try {
+                            contentService.downloadToCacheIfNotPresent(issue.issueKey)
+                        } catch (e: CacheOperationFailedException) {
+                            issueLoadingFailedErrorFlow.emit(true)
+                        }
+                    }
+                } catch (e: CacheOperationFailedException) {
+                    issueLoadingFailedErrorFlow.emit(true)
+                }
             }
         } else {
             setDisplayable(

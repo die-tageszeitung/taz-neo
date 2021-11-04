@@ -14,13 +14,8 @@ abstract class TestFileDownloader : FiledownloaderInterface {
     override suspend fun enqueueDownload(operation: ContentDownload) {
         for (item in operation.cacheItems) {
             CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    fakeDownloadItem(item)
-                } catch (e: Exception) {
-                    // skip any exceptions
-                } finally {
-                    operation.checkIfItemsCompleteAndNotifyResult(Unit)
-                }
+                fakeDownloadItem(item)
+                operation.checkIfItemsCompleteAndNotifyResult(Unit)
             }
         }
     }

@@ -1,13 +1,17 @@
 package de.taz.app.android.ui.home.page
 
+import android.app.AlertDialog
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.CoverView
 import kotlinx.coroutines.*
@@ -20,7 +24,7 @@ interface CoverViewActionListener {
 
 
 abstract class CoverViewBinding(
-    applicationContext: Context,
+    private val applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
@@ -33,6 +37,7 @@ abstract class CoverViewBinding(
     private val toastHelper = ToastHelper.getInstance(applicationContext)
     private var bindJob: Job? = null
     private var noConnectionShown = false
+    private var issueLiveData: LiveData<CacheStateUpdate>? = null
 
     abstract fun onDownloadClicked()
     abstract suspend fun prepareData(): CoverViewData
@@ -48,7 +53,7 @@ abstract class CoverViewBinding(
         return ::coverViewData.isInitialized
     }
 
-    fun onConnectionFailure() {
+    private fun onConnectionFailure() {
         if (!noConnectionShown) {
             lifecycleOwner.lifecycleScope.launch {
                 toastHelper.showNoConnectionToast()
@@ -72,19 +77,26 @@ abstract class CoverViewBinding(
                 onMomentViewActionListener.onDateClicked(coverViewData)
             }
             setOnDownloadClickedListener { onDownloadClicked() }
-            if (!shouldNotShowDownloadIcon) {
-                contentService
-                    .getCacheStatusFlow(coverViewData.issueKey)
-                    .asLiveData()
-                    .observe(lifecycleOwner) {
-                        setDownloadIconForStatus(
-                            it.cacheState
-                        )
-                        if (it.type == CacheStateUpdate.Type.BAD_CONNECTION) {
-                            onConnectionFailure()
-                        }
+            issueLiveData?.removeObserver(::issueObserver)
+            issueLiveData = contentService
+                .getCacheStatusFlow(coverViewData.issueKey)
+                .asLiveData()
+                .also {
+                    if (!shouldNotShowDownloadIcon) {
+                        it.observe(lifecycleOwner, ::issueObserver)
                     }
-            }
+                }
+        }
+    }
+
+    private fun issueObserver(update: CacheStateUpdate) {
+        boundView?.setDownloadIconForStatus(
+            update.cacheState
+        )
+        when (update.type) {
+            CacheStateUpdate.Type.BAD_CONNECTION -> onConnectionFailure()
+            CacheStateUpdate.Type.FAILED -> showIssueDownloadFailedDialog()
+            else -> Unit
         }
     }
 
@@ -99,5 +111,19 @@ abstract class CoverViewBinding(
             setOnDateClickedListener(null)
             clear()
         }
+    }
+
+    private fun showIssueDownloadFailedDialog() {
+        AlertDialog.Builder(applicationContext)
+            .setMessage(
+                applicationContext.getString(
+                    R.string.error_issue_download_failed,
+                    DateHelper.dateToLongLocalizedString(
+                        DateHelper.stringToDate(coverViewData.issueKey.date)!!
+                    )
+                )
+            )
+            .setPositiveButton(android.R.string.ok) { _, _ -> }
+            .show()
     }
 }

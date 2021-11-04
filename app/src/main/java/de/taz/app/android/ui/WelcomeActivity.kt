@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.content.cache.CacheState
@@ -20,6 +21,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showConnectionErrorDialog
 import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
@@ -92,15 +94,11 @@ class WelcomeActivity : AppCompatActivity() {
         val resourceInfo = withContext(Dispatchers.IO) {
              dataService.getResourceInfo(retryOnFailure = true)
         }
-
-        withContext(Dispatchers.Main) {
-            contentService.getCacheStatusFlow(resourceInfo)
-                .asLiveData()
-                .observe(this@WelcomeActivity) {
-                    if (it.cacheState == CacheState.PRESENT) {
-                        lifecycleScope.launch { showWelcomeSlides() }
-                    }
-                }
+        try {
+            contentService.downloadToCacheIfNotPresent(resourceInfo)
+            showWelcomeSlides()
+        } catch (e: CacheOperationFailedException) {
+            showConnectionErrorDialog()
         }
     }
 

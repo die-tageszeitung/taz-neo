@@ -10,7 +10,6 @@ import android.widget.LinearLayout
 import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -21,7 +20,6 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
@@ -36,7 +34,6 @@ import de.taz.app.android.util.showConnectionErrorDialog
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.filter
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
@@ -239,7 +236,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                 }
                 path?.let { loadUrl(it) }
             } catch (e: CacheOperationFailedException) {
-                requireActivity().showConnectionErrorDialog()
+                issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             }
         }
     }

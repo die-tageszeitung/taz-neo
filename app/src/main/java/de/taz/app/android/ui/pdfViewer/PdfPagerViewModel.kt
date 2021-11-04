@@ -7,15 +7,16 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 const val DEFAULT_NUMBER_OF_PAGES = 29
@@ -38,6 +39,8 @@ class PdfPagerViewModel(
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
+
+    val issueDownloadFailedErrorFlow = MutableStateFlow(false)
 
     private val _currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
     val currentItem = _currentItem as LiveData<Int>
@@ -63,6 +66,7 @@ class PdfPagerViewModel(
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issueKey) { issueKey ->
             viewModelScope.launch(Dispatchers.IO) {
+                issueDownloadFailedErrorFlow.emit(false)
                 val issue = dataService.getIssue(
                     IssuePublication(issueKey),
                     retryOnFailure = true
@@ -74,13 +78,13 @@ class PdfPagerViewModel(
                 if (pdfIssue.status != issueKey.status) {
                     this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
                 }
-                contentService.downloadToCacheIfNotPresent(pdfIssue.issueKey)
 
                 navButton.postValue(
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                 )
 
-                if (pdfIssue.isDownloaded(application)) {
+                try {
+                    contentService.downloadToCacheIfNotPresent(pdfIssue.issueKey)
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(
@@ -90,11 +94,12 @@ class PdfPagerViewModel(
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
                         }
                     )
-                } else {
-                    val hint = "Something went wrong downloading issue with its pdfs"
-                    log.warn(hint)
-                    Sentry.captureMessage(hint)
+                } catch (e: CacheOperationFailedException) {
+                    issueDownloadFailedErrorFlow.emit(true)
                 }
+                navButton.postValue(
+                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                )
             }
         }
     }

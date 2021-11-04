@@ -34,6 +34,7 @@ class FrontpageViewBinding(
     private val contentService = ContentService.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -41,7 +42,11 @@ class FrontpageViewBinding(
 
             // get pdf front page
         val pdfMomentFilePath = frontPage?.let {
-            contentService.downloadToCacheIfNotPresent(frontPage)
+            try {
+                contentService.downloadToCacheIfNotPresent(frontPage)
+            } catch (e: CacheOperationFailedException) {
+                toastHelper.showConnectionToServerFailedToast()
+            }
             val downloadedFrontPage =
                 dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
             val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }
