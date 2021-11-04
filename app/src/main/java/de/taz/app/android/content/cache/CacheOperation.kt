@@ -207,18 +207,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      *
      * @param items The [CacheOperationItem] to be added to this operation
      */
-    fun addItem(item: ITEM) {
-        if (state.complete) {
-            throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
-        }
-        _cacheItems.add(item.let {
-            CacheOperationItem(it, this).apply {
-                // The CacheOperation overrides the priority of a CacheItem!
-                // That allows us to dynamically rewrite the order as the user navigates
-                item.priority = { this@CacheOperation.priority }
-            }
-        })
-    }
+    fun addItem(item: ITEM) = addItems(listOf(item))
 
     /**
      * This function needs to implemented by the discrete implementations
